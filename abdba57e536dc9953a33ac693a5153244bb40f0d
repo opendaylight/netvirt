@@ -22,6 +22,30 @@
       "revId": "abdba57e536dc9953a33ac693a5153244bb40f0d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_38d0a6c8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-21T15:33:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3859c68e",
+      "range": {
+        "startLine": 220,
+        "startChar": 19,
+        "endLine": 220,
+        "endChar": 28
+      },
+      "revId": "abdba57e536dc9953a33ac693a5153244bb40f0d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
