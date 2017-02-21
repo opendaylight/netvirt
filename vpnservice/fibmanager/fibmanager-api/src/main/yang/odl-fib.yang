@@ -52,6 +52,11 @@ module odl-fib {
             leaf gateway_mac_address {
                type string;
             }
+            leaf parent-vpn-rd {
+               description
+                 "If set will get the vpn-to-dpn information from the parent-vpn-rd";
+               type string;
+            }
             list route-paths {
                 key "nexthop-address";
                 leaf nexthop-address {
