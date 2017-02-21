@@ -16,6 +16,24 @@
       "revId": "e4bf30322b74a20add4c6204a91a3921cd82fec3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1d3f94d7",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 6456
+      },
+      "writtenOn": "2017-02-21T15:08:52Z",
+      "side": 1,
+      "message": "In this case we will have ipAddress \u003d ipNextHopAdress.\nAnd code will be syncronized on same string.",
+      "parentUuid": "fafc7978_3d409806",
+      "revId": "e4bf30322b74a20add4c6204a91a3921cd82fec3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
