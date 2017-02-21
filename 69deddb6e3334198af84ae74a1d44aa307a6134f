@@ -2,6 +2,108 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_9fe53c3a",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 2000,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T07:38:35Z",
+      "side": 1,
+      "message": "Doesn\u0027t onUpdatePushRoute() require changes too in this file ?",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bfd7604a",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T07:38:35Z",
+      "side": 1,
+      "message": "why is this changed to an update?\n\nA write and an update will bring in different types of behaviours.",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9f8edc77",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T07:38:35Z",
+      "side": 1,
+      "message": "is this file necessary, can\u0027t these 4 methods be in FibUtil itself (or) are these methods being exposed out of FibManager bundle?",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1f7b0c7c",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 27
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T07:38:35Z",
+      "side": 1,
+      "message": "label within route_paths will continue",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ff7f2864",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 27
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T07:38:35Z",
+      "side": 1,
+      "message": "for the same ipPrefix and for the same nextHop can there be possible that different labels are made available from BGP Neighbour?",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5f98f4bf",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManagerImpl.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T07:38:35Z",
+      "side": 1,
+      "message": "this can be \"long label\" too.\n\nLet us make this uniform.",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2cd06cc8",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 27
