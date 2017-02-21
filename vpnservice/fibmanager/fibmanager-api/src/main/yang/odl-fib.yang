@@ -76,6 +76,15 @@ module odl-fib {
         leaf ip-address {type string;}
     }
 
+    augment "/odl-fib:fibEntries/odl-fib:vrfTables/odl-fib:vrfEntry" {
+        ext:augment-identifier "vrf-entry-parent-info";
+        leaf parent-vpn-rd-name {
+            description
+              "If set will get the vpn-to-dpn information from the parent-vpn-rd-name";
+            type string;
+        }
+    }
+
     container fibEntries {
         config true;
         list vrfTables{
