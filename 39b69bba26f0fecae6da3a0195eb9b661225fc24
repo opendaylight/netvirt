@@ -71,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9f537ce1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-21T07:56:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_09247aad",
+      "revId": "39b69bba26f0fecae6da3a0195eb9b661225fc24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e984965f",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
         "patchSetId": 5
@@ -82,6 +100,24 @@
       "writtenOn": "2017-02-20T16:09:32Z",
       "side": 1,
       "message": "what will happen for those subnets that are not part of External VLAN netowrk..\n\nPlease understand that all of these are common code.",
+      "revId": "39b69bba26f0fecae6da3a0195eb9b661225fc24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7f5058d4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-21T07:56:41Z",
+      "side": 1,
+      "message": "This change is no longer needed.",
+      "parentUuid": "fafc7978_e984965f",
       "revId": "39b69bba26f0fecae6da3a0195eb9b661225fc24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
