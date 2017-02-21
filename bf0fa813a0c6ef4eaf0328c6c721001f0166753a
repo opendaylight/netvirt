@@ -19,6 +19,42 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_78222e53",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-02-21T14:27:29Z",
+      "side": 1,
+      "message": "Vivek\nThanks  for the insight.\n\nBut we do have similar issue with conntrack based implementation if we change the NAPT switch all the translations will be lost. When the switch really goes down it is unavoidable, but the failover happening during operations like vm/subnet delete needs to be avoided for this implementation.\n\nSo can we think of an option of maintaining the remote flows in the NAPT switch, even when the last port is removed?",
+      "parentUuid": "fafc7978_11d026c8",
+      "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_78e98ee5",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-02-21T14:27:29Z",
+      "side": 1,
+      "message": "Thanks for description with the usecase,as explained above can we consider the option of changing this behavior?",
+      "parentUuid": "fafc7978_3c39c1d7",
+      "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_91e376a3",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 4
@@ -30,6 +66,24 @@
       "writtenOn": "2017-02-20T10:13:03Z",
       "side": 1,
       "message": "Is there a problem with this at all?  A dhcp service port is also plumbed by ODL only :)",
+      "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_581f6a08",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-02-21T14:27:29Z",
+      "side": 1,
+      "message": "The problem is like DHCP port will be in the node where agent is running and there are chances that all NAPT switch will be scheduled on the this node as DHCP port is the first port created along with subnet create.",
+      "parentUuid": "fafc7978_91e376a3",
       "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -130,6 +184,24 @@
       "side": 1,
       "message": "If control nodes have ports on a router-interface and such nodes are plumbed by ODL, they must continue to be considered.",
       "parentUuid": "fafc7978_b1d79a4a",
+      "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b8ef76e8",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-02-21T14:27:29Z",
+      "side": 1,
+      "message": "With this proposal control node will be considered, but not based on the presence of a port in the router subnet.",
+      "parentUuid": "fafc7978_b19cba10",
       "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
