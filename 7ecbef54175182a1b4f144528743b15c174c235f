@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3f125057",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-02-21T08:16:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_ac473cbb",
+      "revId": "7ecbef54175182a1b4f144528743b15c174c235f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ec14a4a1",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-21T03:58:41Z",
       "side": 1,
       "message": "this can be combined with previous if (configInterface !\u003d null) to avoid many levels.",
+      "revId": "7ecbef54175182a1b4f144528743b15c174c235f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_df286488",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-02-21T08:16:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_ec14a4a1",
       "revId": "7ecbef54175182a1b4f144528743b15c174c235f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bf2da097",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-02-21T08:16:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_cc19e0d8",
+      "revId": "7ecbef54175182a1b4f144528743b15c174c235f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2c0b4c7e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
         "patchSetId": 3
@@ -64,6 +118,24 @@
       "writtenOn": "2017-02-21T03:58:41Z",
       "side": 1,
       "message": "ditto comment here.",
+      "revId": "7ecbef54175182a1b4f144528743b15c174c235f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1f1f8c5c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-02-21T08:16:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2c0b4c7e",
       "revId": "7ecbef54175182a1b4f144528743b15c174c235f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ff23a8a4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-02-21T08:16:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0c1008a7",
+      "revId": "7ecbef54175182a1b4f144528743b15c174c235f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4c25f007",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
         "patchSetId": 3
@@ -98,6 +188,24 @@
       "writtenOn": "2017-02-21T03:58:41Z",
       "side": 1,
       "message": "avoid this blank line.",
+      "revId": "7ecbef54175182a1b4f144528743b15c174c235f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3f39b0d7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-02-21T08:16:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_4c25f007",
       "revId": "7ecbef54175182a1b4f144528743b15c174c235f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9f325cf0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-02-21T08:16:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_8c1b58c9",
+      "revId": "7ecbef54175182a1b4f144528743b15c174c235f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6c6f142c",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
         "patchSetId": 3
@@ -132,6 +258,24 @@
       "writtenOn": "2017-02-21T03:58:41Z",
       "side": 1,
       "message": "i am not sure why we should arrange these by subnet.  There is anyway a cluster-wide lock present inside VpnSubnetRouteHandler that takes care of this.\n\nWe can just create a job per port-id itself here.",
+      "revId": "7ecbef54175182a1b4f144528743b15c174c235f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7f2fb888",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-02-21T08:16:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_6c6f142c",
       "revId": "7ecbef54175182a1b4f144528743b15c174c235f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_df4fc469",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-02-21T08:16:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_ec7b04f3",
+      "revId": "7ecbef54175182a1b4f144528743b15c174c235f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_cc80c0c2",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
         "patchSetId": 3
@@ -166,6 +328,24 @@
       "writtenOn": "2017-02-21T03:58:41Z",
       "side": 1,
       "message": "ditto comment here.",
+      "revId": "7ecbef54175182a1b4f144528743b15c174c235f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bf5480ff",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-02-21T08:16:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_cc80c0c2",
       "revId": "7ecbef54175182a1b4f144528743b15c174c235f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -234,6 +414,24 @@
       "writtenOn": "2017-02-21T03:58:41Z",
       "side": 1,
       "message": "very dangerous.  \n\nDoesn\u0027t make sense to have a cluster-wide lock and do a batch commit, please retain this as MDSALUtil.syncWrite itself.",
+      "revId": "7ecbef54175182a1b4f144528743b15c174c235f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3f953087",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 791,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-02-21T08:16:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_ec62e43c",
       "revId": "7ecbef54175182a1b4f144528743b15c174c235f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
