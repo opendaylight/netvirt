@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_fd33b011",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T14:04:12Z",
+      "side": 1,
+      "message": "L3 communication on VLAN networks will use the source VM MacAddress directly in a routed packet right?",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dd1fcc6a",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T14:04:12Z",
+      "side": 1,
+      "message": "In this Spec, wherever you are mentioning VLAN provider network, I will take it that you are referring to external VLAN provider network. Is that ok?",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7d27c0ca",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T14:04:12Z",
+      "side": 1,
+      "message": "can you please clarify this addition hop (on why that is required).. Access from VM on internal network to PNF on external network can also be done through the router-gateway itself right (after NATing) without the packet hitting the external-subnet-gateway itself right?",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1d483486",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 12
@@ -25,6 +76,74 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1845e216",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T14:04:12Z",
+      "side": 1,
+      "message": "this is to enable floating-ips on computes to directly reach the PNFs right ie., (FloatingIP to PNF connectivity).\n\nSimilarly When an ARP request from a PNF comes towards a Floating-IP, the response would be directly from the ARPResponder table of the hypervisor holding the Floating-IP right?",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_18804245",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T14:04:12Z",
+      "side": 1,
+      "message": "here can i assume both these tenant networks are only VLAN Type?",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d806ba1c",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T14:04:12Z",
+      "side": 1,
+      "message": "This designated switch may or may not be the NAPTSwitch of the router itself right?\n\nFurther is there a criteria for selecting the designated switch?",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_58676ae9",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T14:04:12Z",
+      "side": 1,
+      "message": "the ARP Responder flow will be just for the router-interface-ip-address right?",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_02028f6e",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 12
@@ -42,6 +161,57 @@
         "endLine": 116,
         "endChar": 74
       },
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1824c2ad",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T14:04:12Z",
+      "side": 1,
+      "message": "this will be the internal router interface MAC for the subnet on which the PNF resides right?",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_58ae4ae7",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T14:04:12Z",
+      "side": 1,
+      "message": "great, this clarifies that for use-case 1 where the PNF will be on external VLAN provider network, the NAPTSwitch will be used as the designated switch.\n\nFor the second use-case though (vm to pnf on two different tenant networks), can you put criteria for selection of designated switch?",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b8e5b639",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T14:04:12Z",
+      "side": 1,
+      "message": "will vpnId !\u003d externalNetworkId would work?",
       "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
