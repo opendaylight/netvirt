@@ -130,6 +130,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e2066b85",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-21T10:29:36Z",
+      "side": 1,
+      "message": "This model is defined here, I\u0027ve put it in the e2e spec so it would be possible to look at all of the YANG model in the same page. I can remove it from there.\nI\u0027ve mentioned in the e2e spec that it is based on this one.",
+      "parentUuid": "fafc7978_65ed70b7",
+      "revId": "0363d5d91600c273ff69b7b350f7fdb892031c7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9f9ab812",
         "filename": "docs/specs/netvirt-statistics-spec.rst",
         "patchSetId": 14
@@ -188,6 +206,24 @@
       "writtenOn": "2017-02-17T21:33:59Z",
       "side": 1,
       "message": "nitpicks",
+      "revId": "0363d5d91600c273ff69b7b350f7fdb892031c7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8244bfb7",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-21T10:29:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c52d3c00",
       "revId": "0363d5d91600c273ff69b7b350f7fdb892031c7e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
