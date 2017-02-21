@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_42af772a",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/listeners/CloudScVpnInterfaceListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 6584
+      },
+      "writtenOn": "2017-02-21T12:17:36Z",
+      "side": 1,
+      "message": "Okay, we will remove it. In a later commit, or do we raise a new patch?",
+      "parentUuid": "fafc7978_9c754dfc",
+      "range": {
+        "startLine": 24,
+        "startChar": 4,
+        "endLine": 24,
+        "endChar": 28
+      },
+      "revId": "55b9baf46f2ff942fe7afa270cfe4619f8df871d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fcd459be",
         "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/VpnServiceChainUtils.java",
         "patchSetId": 6
@@ -36,6 +60,24 @@
       "writtenOn": "2017-02-20T13:33:08Z",
       "side": 1,
       "message": "Who is calling this method?",
+      "revId": "55b9baf46f2ff942fe7afa270cfe4619f8df871d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5dcd9c84",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/VpnServiceChainUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 6584
+      },
+      "writtenOn": "2017-02-21T12:17:36Z",
+      "side": 1,
+      "message": "This method is not being used right now. Just for a future change. But it you prefer, we can remove this now and add it when needed.",
+      "parentUuid": "fafc7978_fcd459be",
       "revId": "55b9baf46f2ff942fe7afa270cfe4619f8df871d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
