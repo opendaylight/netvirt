@@ -90,6 +90,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_dd8fcc28",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-21T12:30:49Z",
+      "side": 1,
+      "message": "The ACL counter implementation could indeed be another use case for our infrastructure. For example, DHCP rules counters could also be another use case - we are providing a generic infrastructure for all netvirt bundles. Currently, we are only supporting port counters, but our intentions for Carbon is to expend it to also support flow counters (for element to element counters) - and at that point it could be a good idea to merge the acl use case to our infrastructure.",
+      "parentUuid": "fafc7978_8c7cf8b6",
+      "range": {
+        "startLine": 35,
+        "startChar": 57,
+        "endLine": 35,
+        "endChar": 58
+      },
+      "revId": "0363d5d91600c273ff69b7b350f7fdb892031c7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5f3c74c8",
         "filename": "docs/specs/netvirt-statistics-spec.rst",
         "patchSetId": 14
