@@ -53,6 +53,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d3517b37",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-21T20:31:32Z",
+      "side": 1,
+      "message": "why is this initialization needed?",
+      "range": {
+        "startLine": 54,
+        "startChar": 38,
+        "endLine": 54,
+        "endChar": 61
+      },
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1f7b0c7c",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
         "patchSetId": 27
@@ -64,6 +87,23 @@
       "writtenOn": "2017-02-21T07:38:35Z",
       "side": 1,
       "message": "label within route_paths will continue",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_93537338",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 27
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-21T20:31:32Z",
+      "side": 1,
+      "message": "I have seen private vlxan network vrf entries with encap-type mplsgre. Does it make sense?",
       "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -104,6 +144,40 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_53246bc4",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-21T20:31:32Z",
+      "side": 1,
+      "message": "as part of directly connected PNF discovery the route path will be null for PNFs in vlan/flat networks\nhttps://git.opendaylight.org/gerrit/#/c/50291/",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_932a538e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-21T20:31:32Z",
+      "side": 1,
+      "message": "should be created only in else case",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2cd06cc8",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 27
@@ -115,6 +189,69 @@
       "writtenOn": "2017-02-21T04:22:04Z",
       "side": 1,
       "message": "As discussed, there won\u0027t be route paths if none of the tep\u0027s configured. but if we return Optional.empty(), then there would be a chance of local fib, lfib and ts flow entries not getting programmed.",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ce06f01c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 1896,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-21T20:31:32Z",
+      "side": 1,
+      "message": "Isn\u0027t subnetRoute supposed to be created with RouteOrigin.CONNECTED? why is it necessary to check both?",
+      "range": {
+        "startLine": 1896,
+        "startChar": 44,
+        "endLine": 1896,
+        "endChar": 63
+      },
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0e0d9837",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 2123,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-21T20:31:32Z",
+      "side": 1,
+      "message": "is it needed if you use distinct?",
+      "range": {
+        "startLine": 2123,
+        "startChar": 78,
+        "endLine": 2123,
+        "endChar": 118
+      },
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6e15443f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/FibEntriesListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-21T20:31:32Z",
+      "side": 1,
+      "message": "what if the size of the routePaths in the same but the content is different e.g. different label/tep ip\n\nIs it a valid UC that needs to be handled?",
       "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
