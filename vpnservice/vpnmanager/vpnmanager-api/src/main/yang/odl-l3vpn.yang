@@ -278,6 +278,14 @@ module odl-l3vpn {
         }
     }
 
+    augment "/odl-l3vpn:vpn-instance-op-data/odl-l3vpn:vpn-instance-op-data-entry" {
+        ext:augment-identifier "vpn-instance-op-data-parent-info";
+        leaf parent-vpn-name {
+            description
+              "If set will get the vpn-to-dpn information from the parent-vpn-name";
+            type string;
+        }
+    }
 
     typedef task-state {
          type enumeration {
