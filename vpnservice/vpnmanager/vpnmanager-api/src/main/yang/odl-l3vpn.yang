@@ -278,7 +278,6 @@ module odl-l3vpn {
         }
     }
 
-
     typedef task-state {
          type enumeration {
            enum na {
