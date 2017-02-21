@@ -34,6 +34,24 @@
       "revId": "e4bf30322b74a20add4c6204a91a3921cd82fec3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b8565628",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T16:16:59Z",
+      "side": 1,
+      "message": "nexthop.getFlowrefCount() in Line 323 could yield the same value for two different extra-routes that point to the same NextHop.\n\nThe consequence would be a write of an increment by just 1 (and not 2 correctly).",
+      "parentUuid": "fafc7978_1d3f94d7",
+      "revId": "e4bf30322b74a20add4c6204a91a3921cd82fec3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
