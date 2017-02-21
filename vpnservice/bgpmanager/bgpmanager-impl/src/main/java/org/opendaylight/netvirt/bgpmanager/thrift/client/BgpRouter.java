@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -65,7 +65,7 @@ public class BgpRouter {
 
 
     private enum Optype {
-        START, STOP, NBR, VRF, PFX, SRC, MHOP, LOG, AF, GR
+        START, STOP, NBR, VRF, PFX, SRC, MHOP, LOG, AF, GR, MP, VRFMP
     }
 
     private static final int GET_RTS_INIT = 0;
@@ -156,6 +156,9 @@ public class BgpRouter {
             throw new BgpRouterException(BgpRouterException.BGP_ERR_NOT_INITED);
         }
 
+        af_afi afi = af_afi.findByValue(op.ints[0]);
+        af_safi safi = af_safi.findByValue(op.ints[1]);
+
         switch (op.type) {
             case START:
                 setStartTS(System.currentTimeMillis());
@@ -214,17 +217,25 @@ public class BgpRouter {
                         ? bgpClient.setUpdateSource(op.strs[0], op.strs[1])
                         : bgpClient.unsetUpdateSource(op.strs[0]);
                 break;
-            default:
-                break;
             case AF:
-                af_afi afi = af_afi.findByValue(op.ints[0]);
-                af_safi safi = af_safi.findByValue(op.ints[1]);
                 result = bop.add
                         ? bgpClient.enableAddressFamily(op.strs[0], afi, safi)
                         : bgpClient.disableAddressFamily(op.strs[0], afi, safi);
                 break;
             case GR:
-                result = bop.add ? bgpClient.enableGracefulRestart(op.ints[0]) : bgpClient.disableGracefulRestart();
+                result = bop.add
+                        ? bgpClient.enableGracefulRestart(op.ints[0])
+                        : bgpClient.disableGracefulRestart();
+                break;
+            case MP:
+                result = bop.add
+                        ? bgpClient.enableMultipath(afi, safi)
+                        : bgpClient.disableMultipath(afi, safi);
+                break;
+            case VRFMP:
+                result = bgpClient.multipaths(bop.strs[0], bop.ints[0]);
+                break;
+            default:
                 break;
         }
         if (result != 0) {
@@ -474,6 +485,31 @@ public class BgpRouter {
         bop.type = Optype.GR;
         bop.add = false;
         LOGGER.debug("graceful restart deleted");
+        dispatch(bop);
+    }
+
+    public synchronized void enableMultipath(af_afi afi, af_safi safi) throws TException, BgpRouterException {
+        bop.type = Optype.MP;
+        bop.add = true;
+        LOGGER.debug("Enabling multipath for afi: " + afi.getValue() + " safi: " + safi.getValue());
+        bop.ints[0] = afi.getValue();
+        bop.ints[1] = safi.getValue();
+        dispatch(bop);
+    }
+
+    public synchronized void disableMultipath(af_afi afi, af_safi safi) throws TException, BgpRouterException {
+        bop.type = Optype.MP;
+        bop.add = false;
+        LOGGER.debug("Disabling multipath for afi: " + afi.getValue() + " safi: " + safi.getValue());
+        bop.ints[0] = afi.getValue();
+        bop.ints[1] = safi.getValue();
+        dispatch(bop);
+    }
+
+    public synchronized void multipaths(String rd, int maxpath) throws TException, BgpRouterException {
+        bop.type = Optype.VRFMP;
+        bop.strs[0] = rd;
+        bop.ints[0] = maxpath;
         dispatch(bop);
     }
 }
