@@ -287,5 +287,38 @@ module ebgp {
     }
     default "l3";
   }
+
+  list multipath {
+
+     key "afi safi";
+
+     leaf afi {
+       type uint32;
+       mandatory "true";
+     }
+
+     leaf safi {
+       type uint32;
+       mandatory "true";
+     }
+
+     leaf multipath-enabled {
+       type boolean;
+       mandatory "true";
+     }
+  } //multipath
+
+  list vrfMaxpath {
+       key "rd";
+
+       leaf rd {
+         type string;
+       }
+
+       leaf maxpaths {
+         type uint16;
+       }
+    } //vrfMaxpaths
+
  } // bgp
 }

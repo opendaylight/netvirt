@@ -37,6 +37,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+
 import org.apache.thrift.TException;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
@@ -51,6 +53,20 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.utils.batching.DefaultBatchHandler;
 import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
+import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.AddressFamiliesReactor;
+import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.AsIdReactor;
+import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.BgpReactor;
+import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.ConfigServerReactor;
+import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.EbgpMultihopReactor;
+import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.GracefulRestartReactor;
+import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.LoggingReactor;
+import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.MultipathReactor;
+import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.NeighborsReactor;
+import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.NetworksReactor;
+import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.RouteCleanup;
+import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.UpdateSourceReactor;
+import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.VrfMaxpathReactor;
+import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.VrfsReactor;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.commands.ClearBgpCli;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarms;
@@ -79,12 +95,18 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.GracefulRestartBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Logging;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.LoggingBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Multipath;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.MultipathBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.MultipathKey;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NeighborsBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NeighborsKey;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Networks;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NetworksBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NetworksKey;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.VrfMaxpath;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.VrfMaxpathBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.VrfMaxpathKey;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Vrfs;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.VrfsBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.VrfsKey;
@@ -107,6 +129,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+
 
 public class BgpConfigurationManager {
     private static final Logger LOG = LoggerFactory.getLogger(BgpConfigurationManager.class);
@@ -212,7 +236,8 @@ public class BgpConfigurationManager {
         GracefulRestartReactor.class, LoggingReactor.class,
         NeighborsReactor.class, UpdateSourceReactor.class,
         EbgpMultihopReactor.class, AddressFamiliesReactor.class,
-        NetworksReactor.class, VrfsReactor.class, BgpReactor.class
+        NetworksReactor.class, VrfsReactor.class, BgpReactor.class,
+        MultipathReactor.class, VrfMaxpathReactor.class
     };
 
     private ListenerRegistration<DataChangeListener>[] registrations;
@@ -1228,6 +1253,129 @@ public class BgpConfigurationManager {
         }
     }
 
+    public class MultipathReactor
+            extends AsyncDataTreeChangeListenerBase<Multipath, MultipathReactor>
+            implements AutoCloseable, ClusteredDataTreeChangeListener<Multipath> {
+
+        private static final String YANG_OBJ = "multipath ";
+
+        public MultipathReactor() {
+            super(Multipath.class, MultipathReactor.class);
+        }
+
+
+        @Override
+        protected MultipathReactor getDataTreeChangeListener() {
+            return MultipathReactor.this;
+        }
+
+        @Override
+        protected InstanceIdentifier<Multipath> getWildCardPath() {
+            return InstanceIdentifier.create(Bgp.class).child(Multipath.class);
+        }
+
+        @Override
+        protected synchronized void remove(InstanceIdentifier<Multipath> iid, Multipath val) {
+        }
+
+        @Override
+        protected void update(InstanceIdentifier<Multipath> iid, Multipath oldval, Multipath newval) {
+            if (ignoreClusterDcnEventForFollower()) {
+                return;
+            }
+            synchronized (BgpConfigurationManager.this) {
+
+                BgpRouter br = getClient(YANG_OBJ);
+
+                if (br == null) {
+                    return;
+                }
+
+                af_afi afi = af_afi.findByValue(newval.getAfi().intValue());
+                af_safi safi = af_safi.findByValue(newval.getSafi().intValue());
+
+                try {
+                    if ( newval.isMultipathEnabled() ) {
+                        br.enableMultipath(afi, safi);
+                    } else {
+                        br.disableMultipath(afi, safi);
+                    }
+                } catch ( TException | BgpRouterException e ) {
+                    LOG.error(YANG_OBJ + " received exception: \"" + e + "\"");
+                }
+
+            }
+        }
+
+        @Override
+        protected void add(InstanceIdentifier<Multipath> key, Multipath dataObjectModification) {
+        }
+
+        @Override
+        public void close() {
+            super.close();
+        }
+    }
+
+    public class VrfMaxpathReactor
+            extends AsyncDataTreeChangeListenerBase<VrfMaxpath, VrfMaxpathReactor>
+            implements AutoCloseable, ClusteredDataTreeChangeListener<VrfMaxpath> {
+
+        private static final String YANG_OBJ = "vrfMaxpath ";
+
+        public VrfMaxpathReactor() {
+            super(VrfMaxpath.class, VrfMaxpathReactor.class);
+        }
+
+
+        @Override
+        protected VrfMaxpathReactor getDataTreeChangeListener() {
+            return VrfMaxpathReactor.this;
+        }
+
+        @Override
+        protected InstanceIdentifier<VrfMaxpath> getWildCardPath() {
+            return InstanceIdentifier.create(Bgp.class).child(VrfMaxpath.class);
+        }
+
+        @Override
+        protected synchronized void remove(InstanceIdentifier<VrfMaxpath> iid, VrfMaxpath val) {
+        }
+
+        @Override
+        protected void update(InstanceIdentifier<VrfMaxpath> iid,
+                              VrfMaxpath oldval, VrfMaxpath newval) {
+            if (ignoreClusterDcnEventForFollower()) {
+                return;
+            }
+            synchronized (BgpConfigurationManager.this) {
+
+                BgpRouter br = getClient(YANG_OBJ);
+
+                if (br == null) {
+                    return;
+                }
+
+                try {
+                    br.multipaths(newval.getRd(), newval.getMaxpaths());
+                    LOG.debug("Maxpath for vrf: " + newval.getRd() + " : is " + newval.getMaxpaths());
+                } catch (TException | BgpRouterException e) {
+                    LOG.error(YANG_OBJ
+                            + " received exception: \"" + e + "\"");
+                }
+            }
+        }
+
+        @Override
+        protected void add(InstanceIdentifier<VrfMaxpath> instanceIdentifier, VrfMaxpath vrfMaxpath) {
+        }
+
+        @Override
+        public void close() {
+            super.close();
+        }
+    }
+
     public String readThriftIpForCommunication(String mipAddr) {
         File file = new File(CLUSTER_CONF_FILE);
         if (!file.exists()) {
@@ -1681,6 +1829,37 @@ public class BgpConfigurationManager {
             } else {
                 LOG.error("no Neighbors present for replay config ");
             }
+
+            List<Multipath> multipaths = config.getMultipath();
+
+            if ( multipaths != null ) {
+                for ( Multipath multipath: multipaths ) {
+                    if ( multipath != null ) {
+                        af_afi afi = af_afi.findByValue( multipath.getAfi().intValue() );
+                        af_safi safi = af_safi.findByValue( multipath.getSafi().intValue() );
+
+                        try {
+                            if ( multipath.isMultipathEnabled() ) {
+                                br.enableMultipath(afi, safi);
+                            } else {
+                                br.disableMultipath(afi, safi);
+                            }
+                        } catch ( TException | BgpRouterException e ) {
+                            LOG.info("Replay:multipaths() received exception: \"" + e + "\"");
+                        }
+                    }
+                }
+            }
+            List<VrfMaxpath> vrfMaxpaths = config.getVrfMaxpath();
+            if ( vrfMaxpaths != null ) {
+                for ( VrfMaxpath vrfMaxpath: vrfMaxpaths ) {
+                    try {
+                        br.multipaths( vrfMaxpath.getRd(), vrfMaxpath.getMaxpaths() );
+                    } catch ( TException | BgpRouterException e ) {
+                        LOG.info("Replay:vrfMaxPath() received exception: \"" + e + "\"");
+                    }
+                }
+            }
         }
     }
 
@@ -1908,6 +2087,30 @@ public class BgpConfigurationManager {
                         .child(Vrfs.class, new VrfsKey(rd));
         InstanceIdentifier<Vrfs> iid = iib.build();
         delete(iid);
+    }
+
+    public synchronized void setMultipathStatus(af_afi afi, af_safi safi, boolean enable ) {
+        long lafi = afi.getValue();
+        long lsafi = safi.getValue();
+
+        InstanceIdentifier.InstanceIdentifierBuilder<Multipath> iib =
+                InstanceIdentifier
+                        .builder(Bgp.class)
+                        .child(Multipath.class,
+                                new MultipathKey(Long.valueOf(afi.getValue()), Long.valueOf(safi.getValue())) );
+
+        Multipath dto = new MultipathBuilder().setAfi(lafi).setSafi(lsafi).setMultipathEnabled(enable).build();
+        update(iib.build(), dto);
+    }
+
+    public synchronized void multipaths(String rd, int maxpath ) {
+        InstanceIdentifier.InstanceIdentifierBuilder<VrfMaxpath> iib =
+                InstanceIdentifier
+                        .builder(Bgp.class)
+                        .child(VrfMaxpath.class, new VrfMaxpathKey(rd) );
+
+        VrfMaxpath dto = new VrfMaxpathBuilder().setRd(rd).setMaxpaths(maxpath).build();
+        update(iib.build(), dto);
     }
 
     static ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
