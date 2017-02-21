@@ -17,6 +17,24 @@
       "revId": "2c4d2a4fb46610d8d83a4e12850e80bfd59cf51b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9d2f0488",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T11:16:58Z",
+      "side": 1,
+      "message": "This is dangerous to be done outside the DJC.  How do you know whether the DJC succeeded or not ?\n\nIn fact, won\u0027t it be good that this removal be done before the DJC is fired rather ?",
+      "parentUuid": "fafc7978_6228bbe2",
+      "revId": "2c4d2a4fb46610d8d83a4e12850e80bfd59cf51b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
