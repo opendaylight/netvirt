@@ -191,7 +191,9 @@ service BgpConfigurator {
     * only vpnv4 RIBs are supported.
     */
     Routes getRoutes(1:protocol_type p_type, 2:i32 optype, 3:i32 winSize),
-
+    i32 enableMultipath(1:af_afi afi, 2:af_safi safi),
+    i32 disableMultipath(1:af_afi afi, 2:af_safi safi),
+    i32 multipaths(1:string rd, 2:i32 maxPath)
 }
 
 service BgpUpdater {

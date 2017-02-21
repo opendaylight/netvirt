@@ -181,6 +181,19 @@ public class BgpManager implements AutoCloseable, IBgpManager {
         return bcm.getConfig();
     }
 
+
+    public void enableMultipath(af_afi afi, af_safi safi) {
+        bcm.setMultipathStatus( afi, safi, true );
+    }
+
+    public void disableMultipath(af_afi afi, af_safi safi) {
+        bcm.setMultipathStatus( afi, safi, false );
+    }
+
+    public void multipaths( String rd, int maxpath ) {
+        bcm.multipaths(rd, maxpath);
+    }
+
     @Override
     public String getDCGwIP() {
         Bgp conf = bcm.getConfig();
