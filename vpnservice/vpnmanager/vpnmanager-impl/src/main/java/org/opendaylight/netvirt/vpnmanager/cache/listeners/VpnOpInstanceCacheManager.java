@@ -58,17 +58,20 @@ public class VpnOpInstanceCacheManager
 
     @Override
     protected void remove(InstanceIdentifier<VpnInstanceOpDataEntry> identifier, VpnInstanceOpDataEntry del) {
+        LOG.debug("Removing operational vpn instance from cache, {}", del);
         DataStoreCache.remove(VpnConstants.VPN_OP_INSTANCE_CACHE_NAME, del.getVrfId());
     }
 
     @Override
     protected void update(InstanceIdentifier<VpnInstanceOpDataEntry> identifier, VpnInstanceOpDataEntry original,
         VpnInstanceOpDataEntry update) {
+        LOG.debug("Updating cached operational vpn instance from {} to {}", original, update);
         DataStoreCache.add(VpnConstants.VPN_OP_INSTANCE_CACHE_NAME, update.getVrfId(), update);
     }
 
     @Override
     protected void add(InstanceIdentifier<VpnInstanceOpDataEntry> identifier, VpnInstanceOpDataEntry add) {
+        LOG.debug("Adding operational vpn instance to cache, {}", add);
         DataStoreCache.add(VpnConstants.VPN_OP_INSTANCE_CACHE_NAME, add.getVrfId(), add);
     }
 
