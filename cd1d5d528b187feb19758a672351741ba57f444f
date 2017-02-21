@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7db22095",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-02-21T13:19:33Z",
+      "side": 1,
+      "message": "if(neutronPortList.size() \u003d\u003d 1) in this method.\n   \n  * In the existing implementation, neutronPortList has all the ports in the node. Since the list size is more than one, while we get a request  for second network in same node, it writes only current port\u0027s ARP flow.\n  * In current implementation, we are adding the port to the neutronPortList only when segmenationID is same as current segmenationID.",
+      "parentUuid": "fafc7978_a9fa8e40",
+      "revId": "cd1d5d528b187feb19758a672351741ba57f444f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e9be5664",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-20T18:47:54Z",
       "side": 1,
       "message": "You alter the logic for the \u0027return\u0027 here. \nif \u0027providerSegmentationId\u0027 is null or empty, original code would exit the method, whereas with the new \u0027getSegmentationId\u0027 method, the calling method would continue?\n\nIs it on purposed?",
+      "revId": "cd1d5d528b187feb19758a672351741ba57f444f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bd75a8fb",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-02-21T13:19:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e9be5664",
       "revId": "cd1d5d528b187feb19758a672351741ba57f444f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5d6c7c35",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-02-21T13:19:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_09baba6d",
+      "revId": "cd1d5d528b187feb19758a672351741ba57f444f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_69b26695",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
         "patchSetId": 2
@@ -64,6 +118,24 @@
       "writtenOn": "2017-02-20T18:47:54Z",
       "side": 1,
       "message": "portSegmentationId can be null here",
+      "revId": "cd1d5d528b187feb19758a672351741ba57f444f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3d8258c8",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-02-21T13:19:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_69b26695",
       "revId": "cd1d5d528b187feb19758a672351741ba57f444f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_dd806cc2",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-02-21T13:19:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a9a8ce20",
+      "revId": "cd1d5d528b187feb19758a672351741ba57f444f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e965b61e",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
         "patchSetId": 2
@@ -98,6 +188,24 @@
       "writtenOn": "2017-02-20T18:47:54Z",
       "side": 1,
       "message": "line 412-414 could go back after line 163",
+      "revId": "cd1d5d528b187feb19758a672351741ba57f444f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fd7bb0f2",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-02-21T13:19:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e965b61e",
       "revId": "cd1d5d528b187feb19758a672351741ba57f444f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
