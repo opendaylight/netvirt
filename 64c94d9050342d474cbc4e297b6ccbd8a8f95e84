@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_bde5a839",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 939,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-21T11:45:08Z",
+      "side": 1,
+      "message": "Bad practice to return null instead of empty list. Is it really necessary?",
+      "range": {
+        "startLine": 939,
+        "startChar": 7,
+        "endLine": 939,
+        "endChar": 19
+      },
+      "revId": "64c94d9050342d474cbc4e297b6ccbd8a8f95e84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
