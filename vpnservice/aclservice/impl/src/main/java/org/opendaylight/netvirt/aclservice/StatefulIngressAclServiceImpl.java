@@ -16,13 +16,12 @@ import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
-import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
@@ -84,8 +83,7 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
         List<MatchInfoBase> matches = flowMap.get(flowName);
         flowName += "Ingress" + lportTag + ace.getKey().getRuleName();
         matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
-        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
-                new long[] {AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
+        matches.add(new NxMatchCtState(AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK));
 
         Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
         List<ActionInfo> actionsInfos = new ArrayList<>();
