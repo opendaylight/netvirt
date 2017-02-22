@@ -87,8 +87,27 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
         programAclWithAllowedAddress(dpId, port.getAllowedAddressPairs(), port.getLPortTag(), port.getSecurityGroups(),
                 Action.ADD, NwConstants.ADD_FLOW, port.getInterfaceId());
+        return true;
+    }
 
+    @Override
+    public boolean bindAcl(AclInterface port) {
+        if (port == null || port.getSecurityGroups() == null) {
+            LOG.error("port and port security groups cannot be null");
+            return false;
+        }
         bindService(port.getInterfaceId());
+        return true;
+    }
+
+    @Override
+    public boolean unbindAcl(AclInterface port) {
+        BigInteger dpId = port.getDpId();
+        if (dpId == null) {
+            LOG.error("Unable to find DP Id from ACL interface with id {}", port.getInterfaceId());
+            return false;
+        }
+        unbindService(port.getInterfaceId());
         return true;
     }
 
@@ -197,8 +216,6 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
         programAclWithAllowedAddress(dpId, port.getAllowedAddressPairs(), port.getLPortTag(), port.getSecurityGroups(),
                 Action.REMOVE, NwConstants.DEL_FLOW, port.getInterfaceId());
-
-        unbindService(port.getInterfaceId());
         return true;
     }
 

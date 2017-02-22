@@ -60,13 +60,26 @@ public class AclServiceManagerImpl implements AclServiceManager {
     public void notify(AclInterface port, AclInterface oldPort, Action action) {
         for (AclServiceListener aclServiceListener : aclServiceListeners) {
             boolean result = false;
-            if (action == Action.ADD) {
-                result = aclServiceListener.applyAcl(port);
-            } else if (action == Action.UPDATE) {
-                result = aclServiceListener.updateAcl(oldPort, port);
-            } else if (action == Action.REMOVE) {
-                result = aclServiceListener.removeAcl(port);
+            switch (action) {
+                case ADD:
+                    result = aclServiceListener.applyAcl(port);
+                    break;
+                case UPDATE:
+                    result = aclServiceListener.updateAcl(oldPort, port);
+                    break;
+                case REMOVE:
+                    result = aclServiceListener.removeAcl(port);
+                    break;
+                case BIND:
+                    result = aclServiceListener.bindAcl(port);
+                    break;
+                case UNBIND:
+                    result = aclServiceListener.unbindAcl(port);
+                    break;
+                default:
+                    break;
             }
+
             if (result) {
                 LOG.debug("Acl action {} invoking listener {} succeeded", action,
                     aclServiceListener.getClass().getName());
