@@ -11,14 +11,18 @@ import static org.mockito.Mockito.mock;
 import static org.opendaylight.yangtools.testutils.mockito.MoreAnswers.realOrException;
 
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.AbstractModule;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestModule;
+import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
+import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestCustomizer;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.tests.infra.SynchronousEachOperationNewWriteTransaction;
@@ -49,7 +53,11 @@ public class AclServiceTestModule extends AbstractModule {
     protected void configure() {
         install(new AclServiceModule());
 
-        bind(DataBroker.class).toInstance(DataBrokerTestModule.dataBroker());
+        // TODO: We are observing issue as in https://bugs.opendaylight.org/show_bug.cgi?id=7538
+        // Provided temporary workaround till fix as mentioned in the bug above is ported to ODL/Boron Controller
+
+        // bind(DataBroker.class).toInstance(DataBrokerTestModule.dataBroker());
+        bind(DataBroker.class).toInstance(getDataBroker());
         bind(AclserviceConfig.class).toInstance(aclServiceConfig());
 
         bind(AclClusterUtil.class).toInstance(() -> true);
@@ -67,6 +75,33 @@ public class AclServiceTestModule extends AbstractModule {
         AclserviceConfig aclServiceConfig = mock(AclserviceConfig.class);
         Mockito.when(aclServiceConfig.getSecurityGroupMode()).thenReturn(SecurityGroupMode.Stateful);
         return aclServiceConfig;
+    }
+
+    @SuppressWarnings({ "checkstyle:IllegalCatch", "checkstyle:IllegalThrows" })
+    private DataBroker getDataBroker() throws RuntimeException {
+        try {
+            // This is a little bit "upside down" - in the future,
+            // we should probably put what is in AbstractDataBrokerTest
+            // into this DataBrokerTestModule, and make AbstractDataBrokerTest
+            // use it, instead of the way around it currently is (the opposite);
+            // this is just for historical reasons... and works for now.
+            AbstractDataBrokerTest dataBrokerTest = new AbstractDataBrokerTest() {
+                @Override
+                protected DataBrokerTestCustomizer createDataBrokerTestCustomizer() {
+                    return new DataBrokerTestCustomizer() {
+                        @Override
+                        public ListeningExecutorService getCommitCoordinatorExecutor() {
+                            return MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
+                        }
+                    };
+                }
+            };
+
+            dataBrokerTest.setup();
+            return dataBrokerTest.getDataBroker();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private abstract static class TestIdManagerService implements IdManagerService {
