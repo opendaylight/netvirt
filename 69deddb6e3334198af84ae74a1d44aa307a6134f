@@ -248,6 +248,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_eec93427",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-22T05:43:59Z",
+      "side": 1,
+      "message": "This is for router interface, so filling it with dummy nexthop ip. It happens irrespective of whether tep ip is present or not.",
+      "parentUuid": "fafc7978_ce8f1029",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2e817cfb",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 27
@@ -369,6 +387,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ce67104c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-22T05:43:59Z",
+      "side": 1,
+      "message": "Yes, the plan is to program only program flow entry in table 21 when tep is not configured. After tep is configured, the corresponding lfib and ts flow entries get configured on the source compute node. This will get addressed in next PS.",
+      "parentUuid": "fafc7978_0e863813",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ce06f01c",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 27
@@ -426,6 +462,24 @@
       "writtenOn": "2017-02-22T03:41:09Z",
       "side": 1,
       "message": "This file makes no sense.  May be this file needs to be removed.\n\nVrfEntry is never stored inside OPERATIONAL DataStores, but this file is listening so.",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cef55058",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/FibEntriesListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-22T05:43:59Z",
+      "side": 1,
+      "message": "I see this class is used to update route-entry-id with label assigned to each ip prefix in a vpn instance. so you mean this is not needed anymore ?",
+      "parentUuid": "fafc7978_cea8b08f",
       "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
