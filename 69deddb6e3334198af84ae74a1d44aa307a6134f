@@ -162,6 +162,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6e41c4a8",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 27
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-22T04:59:09Z",
+      "side": 1,
+      "message": "/config/odl-fib:fibEntries\n\n  \"vrfTables\": [\n      {\n        \"routeDistinguisher\": \"ef83c425-e400-4f39-abc0-15ad0c544e5f\",\n        \"vrfEntry\": [\n           {\n            \"destPrefix\": \"10.0.123.3/32\",\n            \"label\": 70005,\n            \"origin\": \"l\",\n            \"encap-type\": \"mplsgre\",\n            \"nextHopAddressList\": [\n              \"\",\n              \"10.0.43.146\"\n            ]\n          }\n\n\n/config/neutron:neutron/ports\n\n  \"ports\": {\n    \"port\": [\n       {\n        \"uuid\": \"04fb4853-c8a2-4c58-a9a7-546107d36b66\",\n        \"security-groups\": [\n          \"0de5fc8d-8d7b-46e1-a22f-8dbdc652666b\"\n        ],\n        \"network-id\": \"e54b39c3-567b-44fc-b364-74c0c5726810\",\n        \"tenant-id\": \"a047969c-f637-45ac-829a-97f8cc98e54b\",\n        \"device-owner\": \"compute:nova\",\n        \"mac-address\": \"fa:16:3e:3a:51:4e\",\n        \"neutron-portsecurity:port-security-enabled\": true,\n        \"fixed-ips\": [\n          {\n            \"subnet-id\": \"1a9e1e76-8f2f-4af9-8a61-65dd4efece6a\",\n            \"ip-address\": \"10.0.123.3\"\n          }\n        ],\n        \"device-id\": \"d69753d0-c6f4-49fb-b272-9a978688f458\",\n        \"neutron-binding:host-id\": \"devstack-man2-d2\",\n        \"neutron-binding:vif-details\": [\n          {\n            \"details-key\": \"port_filter\",\n            \"value\": \"true\"\n          }\n        ],\n        \"neutron-binding:vif-type\": \"ovs\",\n        \"neutron-binding:vnic-type\": \"normal\",\n        \"admin-state-up\": true,\n        \"name\": \"\"\n      },\n\n/config/neutron:neutron/networks\n\n\n  \"networks\": {\n    \"network\": [\n      {\n        \"uuid\": \"e54b39c3-567b-44fc-b364-74c0c5726810\",\n        \"status\": \"ACTIVE\",\n        \"admin-state-up\": true,\n        \"shared\": false,\n        \"neutron-L3-ext:external\": false,\n        \"tenant-id\": \"a047969c-f637-45ac-829a-97f8cc98e54b\",\n        \"name\": \"private-net\",\n        \"neutron-provider-ext:network-type\": \"neutron-networks:network-type-vxlan\",\n        \"neutron-provider-ext:segmentation-id\": \"1089\"\n      },",
+      "parentUuid": "fafc7978_eea3f4af",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ff7f2864",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
         "patchSetId": 27
