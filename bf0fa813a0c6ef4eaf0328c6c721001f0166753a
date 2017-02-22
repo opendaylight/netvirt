@@ -216,6 +216,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_24e198fe",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-02-22T17:52:39Z",
+      "side": 1,
+      "message": "It is not about that node being the NAPT switch, it is about that node always being the NAPT switch, and other nodes are not selected. Thus NAPT switches are not evenly distributed.",
+      "parentUuid": "fafc7978_c4b7ec38",
+      "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_111f865c",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 4
