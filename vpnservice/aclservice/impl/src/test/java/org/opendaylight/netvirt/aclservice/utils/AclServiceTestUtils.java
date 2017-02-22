@@ -9,13 +9,11 @@
 package org.opendaylight.netvirt.aclservice.utils;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
@@ -23,10 +21,7 @@ import java.util.stream.Stream;
 import org.junit.Assert;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
-import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
-import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
@@ -87,41 +82,10 @@ public class AclServiceTestUtils {
         return builder;
     }
 
-    public static void verifyMatchInfo(List<MatchInfoBase> flowMatches, NxMatchFieldType matchType, String... params) {
-        List<MatchInfoBase> matches = flowMatches.stream().filter(
-            item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType)).collect(
-                Collectors.toList());
-        assertFalse(matches.isEmpty());
-        for (MatchInfoBase baseMatch : matches) {
-            verifyMatchValues((NxMatchInfo)baseMatch, params);
-        }
-    }
-
-    public static void verifyMatchValues(NxMatchInfo match, String... params) {
-        switch (match.getMatchField()) {
-            case nx_tcp_src_with_mask:
-            case nx_tcp_dst_with_mask:
-            case nx_udp_src_with_mask:
-            case nx_udp_dst_with_mask:
-            case ct_state:
-                long[] values = Arrays.stream(params).mapToLong(Long::parseLong).toArray();
-                Assert.assertArrayEquals(values, match.getMatchValues());
-                break;
-            default:
-                assertTrue("match type is not supported", false);
-                break;
-        }
-    }
-
     public static void verifyMatchFieldTypeDontExist(List<MatchInfoBase> flowMatches,
-            Class<? extends MatchInfo> matchType) {
+            Class<? extends MatchInfoBase> matchType) {
         Assert.assertFalse("unexpected match type " + matchType.getSimpleName(), flowMatches.stream().anyMatch(
             item -> matchType.isAssignableFrom(item.getClass())));
-    }
-
-    public static void verifyMatchFieldTypeDontExist(List<MatchInfoBase> flowMatches, NxMatchFieldType matchType) {
-        Assert.assertFalse("unexpected match type " + matchType.name(), flowMatches.stream().anyMatch(
-            item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType)));
     }
 
     public static void prepareAclDataUtil(AclDataUtil aclDataUtil, AclInterface inter, String... updatedAclNames) {
