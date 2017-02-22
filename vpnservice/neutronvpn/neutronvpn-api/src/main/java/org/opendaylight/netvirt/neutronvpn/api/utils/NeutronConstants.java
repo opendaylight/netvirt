@@ -12,6 +12,7 @@ public class NeutronConstants {
     public static final String DEVICE_OWNER_GATEWAY_INF = "network:router_gateway";
     public static final String DEVICE_OWNER_ROUTER_INF = "network:router_interface";
     public static final String DEVICE_OWNER_FLOATING_IP = "network:floatingip";
+    public static final String DEVICE_OWNER_DHCP = "network:dhcp";
     public static final String PREFIX_TAP = "tap";
     public static final String PREFIX_VHOSTUSER = "vhu";
     public static final String RD_IDPOOL_NAME = "RouteDistinguisherPool";
