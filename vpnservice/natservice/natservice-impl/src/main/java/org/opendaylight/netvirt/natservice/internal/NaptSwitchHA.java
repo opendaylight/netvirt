@@ -159,15 +159,13 @@ public class NaptSwitchHA {
             LOG.error("Invalid routerId returned for routerName {}", routerName);
             return;
         }
-
         //Remove the Terminating Service table entry which forwards the packet to Outbound NAPT Table
         String tsFlowRef = externalRouterListener.getFlowRefTs(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE, routerId);
         FlowEntity tsNatFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE, tsFlowRef);
 
         LOG.info("Remove the flow in table {} for the old napt switch with the DPN ID {} and router ID {}",
-            NwConstants.INTERNAL_TUNNEL_TABLE, naptSwitch, routerId);
+                NwConstants.INTERNAL_TUNNEL_TABLE, naptSwitch, routerId);
         mdsalManager.removeFlow(tsNatFlowEntity);
-
         //Remove the Outbound flow entry which forwards the packet to Outbound NAPT Table
         String outboundNatFlowRef = externalRouterListener.getFlowRefOutbound(naptSwitch,
             NwConstants.OUTBOUND_NAPT_TABLE, routerId);
@@ -565,18 +563,18 @@ public class NaptSwitchHA {
                     //Install the flow in newNaptSwitch Outbound NAPT table.
                     try {
                         NaptEventHandler.buildAndInstallNatFlows(newNaptSwitch, NwConstants.OUTBOUND_NAPT_TABLE,
-                                vpnId, routerId, bgpVpnId, sourceAddress, externalAddress, proto, extGwMacAddress);
+                            vpnId, routerId, bgpVpnId, sourceAddress, externalAddress, proto, extGwMacAddress);
                     } catch (Exception ex) {
                         LOG.error("Failed to add flow in OUTBOUND_NAPT_TABLE for routerid {} dpnId {} "
-                                        + "ipport {}:{} proto {} extIpport {}:{} BgpVpnId {} - {}",
-                                routerId, newNaptSwitch, internalIpAddress,
-                                intportnum, proto, externalAddress, extportNumber, bgpVpnId, ex);
+                            + "ipport {}:{} proto {} extIpport {}:{} BgpVpnId {} - {}",
+                            routerId, newNaptSwitch, internalIpAddress,
+                            intportnum, proto, externalAddress, extportNumber, bgpVpnId, ex);
                         return false;
                     }
                     LOG.debug("Successfully installed a flow in Primary switch {} Outbound NAPT table for router {} "
-                                    + "ipport {}:{} proto {} extIpport {}:{} BgpVpnId {}",
-                            newNaptSwitch, routerId, internalIpAddress,
-                            intportnum, proto, externalAddress, extportNumber, bgpVpnId);
+                            + "ipport {}:{} proto {} extIpport {}:{} BgpVpnId {}",
+                        newNaptSwitch, routerId, internalIpAddress,
+                        intportnum, proto, externalAddress, extportNumber, bgpVpnId);
                 } else {
                     LOG.error("NewNaptSwitch {} gone down while installing flows from oldNaptswitch {}",
                         newNaptSwitch, oldNaptSwitch);
@@ -744,16 +742,16 @@ public class NaptSwitchHA {
 
         if (addordel == NatConstants.ADD_FLOW) {
             List<ActionInfo> actionsInfo = new ArrayList<>();
-
-            actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(routerVpnId)));
+            long tunnelId = NatEvpnUtil.getTunnelIdForRouter(idManager, dataBroker, routerName, routerVpnId);
+            actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(tunnelId)));
             LOG.debug("Setting the tunnel to the list of action infos {}", actionsInfo);
             actionsInfo.add(new ActionGroup(groupId));
             List<InstructionInfo> instructions = new ArrayList<>();
             instructions.add(new InstructionApplyActions(actionsInfo));
 
             flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
-                NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
+                    NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
+                    NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
         } else {
             flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
