@@ -135,7 +135,7 @@ public class InterVpnLinkDataComposite {
     }
 
     public Optional<Long> getFirstEndpointLportTag() {
-        return ( !isComplete() || this.interVpnLinkState.getFirstEndpointState().getLportTag() == null )
+        return (!isComplete() || this.interVpnLinkState.getFirstEndpointState().getLportTag() == null)
                    ? Optional.absent()
                    : Optional.of(this.interVpnLinkState.getFirstEndpointState().getLportTag());
     }
@@ -161,7 +161,7 @@ public class InterVpnLinkDataComposite {
     }
 
     public Optional<Long> getSecondEndpointLportTag() {
-        return (!isComplete() || this.interVpnLinkState.getSecondEndpointState().getLportTag() == null )
+        return (!isComplete() || this.interVpnLinkState.getSecondEndpointState().getLportTag() == null)
             ? Optional.absent()
             : Optional.of(this.interVpnLinkState.getSecondEndpointState().getLportTag());
     }
@@ -192,7 +192,7 @@ public class InterVpnLinkDataComposite {
     }
 
     public String getOtherVpnName(String vpnName) {
-        if ( !isFirstEndpointVpnName(vpnName) && !isSecondEndpointVpnName(vpnName)) {
+        if (!isFirstEndpointVpnName(vpnName) && !isSecondEndpointVpnName(vpnName)) {
             LOG.debug("VPN {} does not participate in InterVpnLink {}", vpnName, getInterVpnLinkName());
             return null;
         }

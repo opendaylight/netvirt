@@ -406,7 +406,7 @@ public abstract class AclServiceTestBase {
         }
     }
 
-    protected void newAllowedAddressPair(String portName, List<String> sgUuidList, String ipAddress, String macAddress )
+    protected void newAllowedAddressPair(String portName, List<String> sgUuidList, String ipAddress, String macAddress)
             throws TransactionCommitFailedException {
         AllowedAddressPairs allowedAddressPair = new AllowedAddressPairsBuilder()
                 .setIpAddress(new IpPrefixOrAddress(new IpPrefix(ipAddress.toCharArray())))

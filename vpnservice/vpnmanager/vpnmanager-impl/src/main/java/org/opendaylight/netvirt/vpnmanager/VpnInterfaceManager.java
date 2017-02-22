@@ -1715,7 +1715,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         // another VPN, there can only be one nexthop or, at least, the nexthop to the interVpnLink should be in
         // first place.
         Optional<InterVpnLinkDataComposite> optVpnLink = InterVpnLinkCache.getInterVpnLinkByEndpoint(nextHop);
-        if ( optVpnLink.isPresent() && optVpnLink.get().isActive()) {
+        if (optVpnLink.isPresent() && optVpnLink.get().isActive()) {
             InterVpnLinkDataComposite interVpnLink = optVpnLink.get();
             // If the nexthop is the endpoint of Vpn2, then prefix must be advertised to Vpn1 in DC-GW, with nexthops
             // pointing to the DPNs where Vpn1 is instantiated. LFIB in these DPNS must have a flow entry, with lower
