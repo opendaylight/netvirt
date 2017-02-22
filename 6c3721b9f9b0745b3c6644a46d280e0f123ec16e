@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_80a5e5b6",
+        "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/ChangeUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-22T05:13:00Z",
+      "side": 1,
+      "message": "This file was added as part of Qos, hence I moved to the Qos directory. I have moved back to neutronvpn-api/utils.",
+      "parentUuid": "fafc7978_e5584334",
+      "revId": "6c3721b9f9b0745b3c6644a46d280e0f123ec16e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_05d90783",
         "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronNetworkChangeListener.java",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-17T07:31:26Z",
       "side": 1,
       "message": "addToNetworkCache already replaces the network, not sure why a remvoe is necessary.  An update of a network won\u0027t alter the network uuid.",
+      "revId": "6c3721b9f9b0745b3c6644a46d280e0f123ec16e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1c1f9d5c",
+        "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronNetworkChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-22T05:13:00Z",
+      "side": 1,
+      "message": "You are correct, UUID remains same. I have removed the remove part",
+      "parentUuid": "fafc7978_05d90783",
       "revId": "6c3721b9f9b0745b3c6644a46d280e0f123ec16e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e0acb1a2",
+        "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronNetworkChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-22T05:13:00Z",
+      "side": 1,
+      "message": "yes we can update the network with more than one qos policy. Added DJCs whenever a network wide update on qos policy was received, as well as when an update in a Qos policy is received, it has to update all the ports bound with it. You can see that code in QosPolciyChangeListener.java",
+      "parentUuid": "fafc7978_c5cedfb3",
+      "revId": "6c3721b9f9b0745b3c6644a46d280e0f123ec16e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_65e8d310",
         "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronNetworkChangeListener.java",
         "patchSetId": 6
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_60a0c19f",
+        "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronNetworkChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-22T05:13:00Z",
+      "side": 1,
+      "message": "Yes and It will be handled in next set of reviews",
+      "parentUuid": "fafc7978_65e8d310",
+      "revId": "6c3721b9f9b0745b3c6644a46d280e0f123ec16e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_25c52b8e",
         "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/QosPolicyChangeListener.java",
         "patchSetId": 6
@@ -81,6 +153,24 @@
       "writtenOn": "2017-02-17T07:31:26Z",
       "side": 1,
       "message": "since this is a CDTCN, this should be working with EOS(EntityOwnershipService).\n\nCan you please point me where is that handled?",
+      "revId": "6c3721b9f9b0745b3c6644a46d280e0f123ec16e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ae1e0cb9",
+        "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/QosPolicyChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-22T05:13:00Z",
+      "side": 1,
+      "message": "It\u0027s been changed to AsyncDataTreeChangeListner. By seeing the implementation I couldn\u0027t understand the rationale behind the usage of CDTCN so replaced with ADTCN.",
+      "parentUuid": "fafc7978_25c52b8e",
       "revId": "6c3721b9f9b0745b3c6644a46d280e0f123ec16e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
