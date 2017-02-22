@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_b6e02297",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnDpnToTransportZoneListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-22T12:19:46Z",
+      "side": 1,
+      "message": "I still don\u0027t see a need for creating tZone for each elan instance and vrf id, because all the services using same vxlan overlay for the internal transport. why can\u0027t we create with  single tZone ?\n\nMoreover TransportZoneNotificationUtil#updateTransportZone doesn\u0027t create tZone if tep is already present on the given dpn.",
+      "revId": "eb1115b9dd19e09853b1eb7c596e987954ab812e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
