@@ -73,8 +73,8 @@ public class VpnManagerImpl implements IVpnManager {
     private void createIdPool() {
         CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
             .setPoolName(VpnConstants.VPN_IDPOOL_NAME)
-            .setLow(VpnConstants.VPN_IDPOOL_START)
-            .setHigh(new BigInteger(VpnConstants.VPN_IDPOOL_SIZE).longValue())
+            .setLow(VpnConstants.VPN_IDPOOL_LOW)
+            .setHigh(VpnConstants.VPN_IDPOOL_HIGH)
             .build();
         try {
             Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
