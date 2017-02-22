@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_24eb58b1",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-22T18:55:39Z",
+      "side": 1,
+      "message": "is this check needed since the neutronPortList now contains only those with the same segmentationId?",
+      "revId": "2e1d917d7ffeb2afa5795bf48deb1b0a5bc89044",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_844de440",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-22T18:55:39Z",
+      "side": 1,
+      "message": "lines 219 \u0026 220 can be written as on line:\n\nif (providerSegmentationId.equals(portSegmentationId))",
+      "revId": "2e1d917d7ffeb2afa5795bf48deb1b0a5bc89044",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_245cf8ec",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-22T18:55:39Z",
+      "side": 1,
+      "message": "lines 395\u0026396 can be written as on line:\nif (providerSegmentationId.equals(portSegmentationId))",
+      "revId": "2e1d917d7ffeb2afa5795bf48deb1b0a5bc89044",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_44e65ce9",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-22T18:55:39Z",
+      "side": 1,
+      "message": "So you alter the logic here to return only neutron ports for only the given segmentationId. Is this to make sure that we only create ARP flows for that network only? are there any side-effects because of the changes",
+      "revId": "2e1d917d7ffeb2afa5795bf48deb1b0a5bc89044",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a46748b6",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-22T18:55:39Z",
+      "side": 1,
+      "message": "418 \u0026 419 can be removed",
+      "revId": "2e1d917d7ffeb2afa5795bf48deb1b0a5bc89044",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
