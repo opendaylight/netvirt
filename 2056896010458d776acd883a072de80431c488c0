@@ -2,6 +2,42 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_f30bdc8b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/pom.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-22T10:37:31Z",
+      "side": 1,
+      "message": "Corrected",
+      "parentUuid": "fafc7978_3071dae0",
+      "revId": "2056896010458d776acd883a072de80431c488c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b3edd4b9",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/ChangeUtils.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-22T10:37:31Z",
+      "side": 1,
+      "message": "Fixed.",
+      "parentUuid": "fafc7978_f0511237",
+      "revId": "2056896010458d776acd883a072de80431c488c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5059fe8c",
         "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
         "patchSetId": 8
@@ -90,6 +126,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5608d627",
+        "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-22T10:37:31Z",
+      "side": 1,
+      "message": "Added DJC\u0027s and key is port-UUID",
+      "parentUuid": "fafc7978_73252c08",
+      "revId": "2056896010458d776acd883a072de80431c488c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d0fa0e42",
         "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/QosPolicyChangeListener.java",
         "patchSetId": 8
@@ -119,6 +173,24 @@
       "side": 1,
       "message": "onDataTreeChanged()",
       "parentUuid": "fafc7978_d0fa0e42",
+      "revId": "2056896010458d776acd883a072de80431c488c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f338fcf0",
+        "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/QosPolicyChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-22T10:37:31Z",
+      "side": 1,
+      "message": "Yes corrected.",
+      "parentUuid": "fafc7978_b0014a08",
       "revId": "2056896010458d776acd883a072de80431c488c0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false

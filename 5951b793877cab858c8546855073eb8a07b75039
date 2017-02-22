@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_b344b4b7",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-22T10:37:31Z",
+      "side": 0,
+      "message": "added this utils back.",
+      "parentUuid": "fafc7978_702402c5",
+      "revId": "5951b793877cab858c8546855073eb8a07b75039",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
