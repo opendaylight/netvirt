@@ -7,13 +7,17 @@
  */
 package org.opendaylight.netvirt.aclservice;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -93,7 +97,17 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
                 serviceIndex, flowPriority, AclConstants.COOKIE_ACL_BASE, instructions);
         InstanceIdentifier<BoundServices> path =
                 AclServiceUtils.buildServiceId(interfaceName, serviceIndex, ServiceModeIngress.class);
-        MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, path, serviceInfo);
+
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(interfaceName,
+            () -> {
+                WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+                writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, serviceInfo, true);
+
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                futures.add(writeTxn.submit());
+                return futures;
+            });
     }
 
     /**
@@ -107,7 +121,17 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
                 AclServiceUtils.buildServiceId(interfaceName,
                         ServiceIndex.getIndex(NwConstants.ACL_SERVICE_NAME, NwConstants.ACL_SERVICE_INDEX),
                         ServiceModeIngress.class);
-        MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
+
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(interfaceName,
+            () -> {
+                WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+                writeTxn.delete(LogicalDatastoreType.CONFIGURATION, path);
+
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                futures.add(writeTxn.submit());
+                return futures;
+            });
     }
 
     @Override
