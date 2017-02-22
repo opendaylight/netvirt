@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_aea8cc20",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 2000,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-22T14:07:18Z",
+      "side": 1,
+      "message": "This review doesn\u0027t have the changes for ECMP. Only the yang file changes.",
+      "parentUuid": "fafc7978_9fe53c3a",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_bfd7604a",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
         "patchSetId": 27
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-21T07:38:35Z",
       "side": 1,
       "message": "why is this changed to an update?\n\nA write and an update will bring in different types of behaviours.",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4e7680d8",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-22T14:07:18Z",
+      "side": 1,
+      "message": "Two DC-GW\u0027s can advertise routes for the same prefix. So rather than using a write onto the DS it should be an update. Also updates for BGP routes are handled separately within VrfEntryListener.",
+      "parentUuid": "fafc7978_bfd7604a",
       "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1085b659",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-22T14:07:18Z",
+      "side": 1,
+      "message": "After discussing with Kiran, have made the necessary changes.",
+      "parentUuid": "fafc7978_eebc94de",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4ecde084",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
         "patchSetId": 27
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_0e48f885",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-22T14:07:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_4ecde084",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9f8edc77",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
         "patchSetId": 27
@@ -81,6 +153,24 @@
       "writtenOn": "2017-02-21T07:38:35Z",
       "side": 1,
       "message": "is this file necessary, can\u0027t these 4 methods be in FibUtil itself (or) are these methods being exposed out of FibManager bundle?",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8e2a288e",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-22T14:07:18Z",
+      "side": 1,
+      "message": "This is used by other modules like Bgp and Vpn",
+      "parentUuid": "fafc7978_9f8edc77",
       "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -110,6 +200,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_50f29e06",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-22T14:07:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d3517b37",
+      "range": {
+        "startLine": 54,
+        "startChar": 38,
+        "endLine": 54,
+        "endChar": 61
+      },
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1f7b0c7c",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
         "patchSetId": 27
@@ -121,6 +235,24 @@
       "writtenOn": "2017-02-21T07:38:35Z",
       "side": 1,
       "message": "label within route_paths will continue",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_70c36289",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 27
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-22T14:07:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_1f7b0c7c",
       "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -197,6 +329,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b0e2ea2c",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 27
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-22T14:07:18Z",
+      "side": 1,
+      "message": "Yes.",
+      "parentUuid": "fafc7978_ff7f2864",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5f98f4bf",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManagerImpl.java",
         "patchSetId": 27
@@ -214,6 +364,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b0b94a17",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManagerImpl.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-22T14:07:18Z",
+      "side": 1,
+      "message": "Yes.",
+      "parentUuid": "fafc7978_5f98f4bf",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8e9a286c",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 27
@@ -225,6 +393,24 @@
       "writtenOn": "2017-02-22T03:41:09Z",
       "side": 1,
       "message": "Created/Updated vrfEntry",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8e534838",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-22T14:07:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_8e9a286c",
       "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -283,6 +469,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d0b7ae38",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-22T14:07:18Z",
+      "side": 1,
+      "message": "I had kept the same way as it was in master. After discussing with Kiran have made the necessary changes.",
+      "parentUuid": "fafc7978_2e817cfb",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_53246bc4",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 27
@@ -335,6 +539,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6e2704cb",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-22T14:07:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_6e7ee41a",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_932a538e",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 27
@@ -346,6 +568,24 @@
       "writtenOn": "2017-02-21T20:31:32Z",
       "side": 1,
       "message": "should be created only in else case",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4e24c0c4",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-22T14:07:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_932a538e",
       "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -428,6 +668,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b0502ad5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 1896,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-22T14:07:18Z",
+      "side": 1,
+      "message": "Both the checks were already there. Did not want to change the current implementation with this review.",
+      "parentUuid": "fafc7978_ce06f01c",
+      "range": {
+        "startLine": 1896,
+        "startChar": 44,
+        "endLine": 1896,
+        "endChar": 63
+      },
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_0e0d9837",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 27
@@ -439,6 +703,30 @@
       "writtenOn": "2017-02-21T20:31:32Z",
       "side": 1,
       "message": "is it needed if you use distinct?",
+      "range": {
+        "startLine": 2123,
+        "startChar": 78,
+        "endLine": 2123,
+        "endChar": 118
+      },
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_50573eca",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 2123,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-22T14:07:18Z",
+      "side": 1,
+      "message": "distinct() is for adjacencyResult and this filter is checking if the adjacencyResult is not there in the already existing adjacencyList.",
+      "parentUuid": "fafc7978_0e0d9837",
       "range": {
         "startLine": 2123,
         "startChar": 78,
@@ -480,6 +768,24 @@
       "side": 1,
       "message": "I see this class is used to update route-entry-id with label assigned to each ip prefix in a vpn instance. so you mean this is not needed anymore ?",
       "parentUuid": "fafc7978_cea8b08f",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b0678ab6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/FibEntriesListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-22T14:07:18Z",
+      "side": 1,
+      "message": "I have never seen this listener being invoked since it is listening on OPERATIONAL DS. I am not sure if any other module do populate the OPERATIONAL vrf entry.\nMaybe we can remove it as part of refactoring after we get a confirmation.",
+      "parentUuid": "fafc7978_cef55058",
       "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
