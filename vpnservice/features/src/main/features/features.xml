@@ -88,6 +88,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version="${restconf.version}">odl-restconf</feature>
   </feature>
 
+  <feature name='odl-netvirt-federation' version='${project.version}' description='OpenDaylight :: NetVirt :: Federation'>
+    <feature version="${neutron.version}">odl-netvirt-openstack</feature>
+    <feature version="${federation.version}">federation-with-rabbit</feature>
+  </feature>
+
   <feature name="odl-netvirt-ui" description="OpenDaylight :: NetVirt :: DLUX Integration Plugin" version='${project.version}'>
     <feature version="${dlux.version}">odl-dlux-core</feature>
     <bundle>mvn:org.opendaylight.netvirt/ovsdb-ui-bundle/{{VERSION}}</bundle>
