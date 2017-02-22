@@ -148,6 +148,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ElanSegments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntriesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntriesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.Elan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.ElanBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.ElanKey;
@@ -373,6 +376,14 @@ public class ElanUtils {
     public static InstanceIdentifier<ElanInterface> getElanInterfaceConfigurationDataPathId(String interfaceName) {
         return InstanceIdentifier.builder(ElanInterfaces.class)
                 .child(ElanInterface.class, new ElanInterfaceKey(interfaceName)).build();
+    }
+
+
+    public static InstanceIdentifier<StaticMacEntries> getStaticMacEntriesCfgDataPathIid(String interfaceName,
+                                                                                         String macAddress) {
+        return InstanceIdentifier.builder(ElanInterfaces.class)
+                .child(ElanInterface.class, new ElanInterfaceKey(interfaceName)).child(StaticMacEntries.class,
+                        new StaticMacEntriesKey(new PhysAddress(macAddress))).build();
     }
 
     // elan-state Operational container
@@ -2157,5 +2168,23 @@ public class ElanUtils {
 
     public static String getElanMacKey(long elanTag, String macAddress) {
         return ("MAC-" + macAddress + " ELAN_TAG-" + elanTag).intern();
+    }
+
+    public static List<PhysAddress> getPhysAddress(List<String> macAddress) {
+        List<PhysAddress> physAddresses = new ArrayList<>();
+        for (String mac : macAddress) {
+            physAddresses.add(new PhysAddress(mac));
+        }
+        return physAddresses;
+    }
+
+    public static List<StaticMacEntries> getStaticMacEntries(List<String> staticMacAddresses) {
+        StaticMacEntriesBuilder staticMacEntriesBuilder = new StaticMacEntriesBuilder();
+        List<StaticMacEntries> staticMacEntries = new ArrayList<>();
+        List<PhysAddress> physAddressList = getPhysAddress(staticMacAddresses);
+        for (PhysAddress physAddress : physAddressList) {
+            staticMacEntries.add(staticMacEntriesBuilder.setMacAddress(physAddress).build());
+        }
+        return staticMacEntries;
     }
 }
