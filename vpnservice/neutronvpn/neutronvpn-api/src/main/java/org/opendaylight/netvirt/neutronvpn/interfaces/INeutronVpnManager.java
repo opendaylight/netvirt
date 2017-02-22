@@ -42,5 +42,9 @@ public interface INeutronVpnManager {
 
     List<Uuid> getNetworksForVpn(Uuid vpnId);
 
+    String getOpenDaylightVniRangesConfig();
+
+    Boolean getEnforceOpenstackSemanticsConfig();
+
 }
 
