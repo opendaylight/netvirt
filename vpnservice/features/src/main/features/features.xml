@@ -22,6 +22,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <repository>mvn:org.opendaylight.genius/genius-features/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.infrautils/infrautils-features/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.dlux/features-dlux/{{VERSION}}/xml/features</repository>
+  <repository>mvn:org.opendaylight.federation/federation-features/{{VERSION}}/xml/features</repository>
 
   <feature name='odl-netvirt-api' version='${project.version}' description='OpenDaylight :: NetVirt :: api'>
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
@@ -86,6 +87,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version="${neutron.version}">odl-neutron-service</feature>
     <feature version="${project.version}">odl-netvirt-impl</feature>
     <feature version="${restconf.version}">odl-restconf</feature>
+  </feature>
+
+  <feature name='odl-netvirt-federation' version='${project.version}' description='OpenDaylight :: NetVirt :: Federation'>
+    <feature version="${project.version}">odl-netvirt-openstack</feature>
+    <feature version="${federation.version}">federation-with-rabbit</feature>
   </feature>
 
   <feature name="odl-netvirt-ui" description="OpenDaylight :: NetVirt :: DLUX Integration Plugin" version='${project.version}'>
