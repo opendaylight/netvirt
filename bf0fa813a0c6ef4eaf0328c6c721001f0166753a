@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e454b000",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-02-22T16:32:39Z",
+      "side": 1,
+      "message": "I do recollect a discussion about having a CVR which not bound with NAPT logic. So can this proposal be a step in that direction?",
+      "parentUuid": "fafc7978_d62de6a9",
+      "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_78e98ee5",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 4
@@ -138,6 +156,24 @@
       "side": 1,
       "message": "That DHCP agent won\u0027t anyway interfere with NAT traffic right..\n\nToday we donot distinguish computes and control nodes.. We take all nodes that have some ports present on the router and elect one of the to be the NAPTSwitch.",
       "parentUuid": "fafc7978_581f6a08",
+      "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_047734a1",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-02-22T16:32:39Z",
+      "side": 1,
+      "message": "I agree if the ports are distributed, it will select one of them\nBut the issue is when we create like 5 subnets(no vms),and then  create 5 routers and add one subnet to each, set the routers as external g/w. Now all the NAPT swtich  will be scheduled in the Node where DHCP agent(assuming only one DHCP agent) is running.\n\nI agree this depends on the order of creation, but creating router and router interfaces before vm is not uncommon.",
+      "parentUuid": "fafc7978_b6bf82a9",
       "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
