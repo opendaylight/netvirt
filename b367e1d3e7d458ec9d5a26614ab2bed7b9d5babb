@@ -16,6 +16,24 @@
       "revId": "b367e1d3e7d458ec9d5a26614ab2bed7b9d5babb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b92f7587",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-22T12:58:52Z",
+      "side": 1,
+      "message": "For it to work in the vpnInstanceOpData we will need to have the information also in the vpnInstance itself.\nI\u0027ve update the review, please let me know what you think about it.\nThanks !!",
+      "parentUuid": "fafc7978_d675e6fa",
+      "revId": "b367e1d3e7d458ec9d5a26614ab2bed7b9d5babb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
