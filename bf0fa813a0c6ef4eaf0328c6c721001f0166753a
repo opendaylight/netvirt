@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_560bb67c",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T11:54:56Z",
+      "side": 1,
+      "message": "It looks like what you need is just a designated switch regardless of presence of the subnets belonging to the router on the NAPTSwitch.  Basically, a sticky NAPTSwitch..\n\nYou can create a pseudo-port on the first elected NAPTSwitch and leave it there for all the rules to be retained.  we can have this pseudo-port enrolled in the NAT-owned-DPN-To-VPN-List alone and manage that pseudo-port based on the elected NAPTSwitch going down.\n\nPlease discuss this option with Tali / Yugandhar.  Basically am looking for a minimalistic change that is purely NAT centric to realize this rather than havingthe implementation swing its arms across the entire VPN Engine and FibManager.",
+      "parentUuid": "fafc7978_78222e53",
+      "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_78e98ee5",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 4
@@ -84,6 +102,24 @@
       "side": 1,
       "message": "The problem is like DHCP port will be in the node where agent is running and there are chances that all NAPT switch will be scheduled on the this node as DHCP port is the first port created along with subnet create.",
       "parentUuid": "fafc7978_91e376a3",
+      "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b6bf82a9",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T11:54:56Z",
+      "side": 1,
+      "message": "That DHCP agent won\u0027t anyway interfere with NAT traffic right..\n\nToday we donot distinguish computes and control nodes.. We take all nodes that have some ports present on the router and elect one of the to be the NAPTSwitch.",
+      "parentUuid": "fafc7978_581f6a08",
       "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
