@@ -24,3 +24,4 @@ Contents:
    VNI based L2 switching, L3 forwarding and NATing <vni-based-l2-switching-l3-forwarding-and-NATing>
    Netvirt counters <netvirt-statistics-spec>
    QoS Alert <qos-alert>
+   DHCP Server with dynamic allocation pool <dhcp-dynamic-allocation-pool>
