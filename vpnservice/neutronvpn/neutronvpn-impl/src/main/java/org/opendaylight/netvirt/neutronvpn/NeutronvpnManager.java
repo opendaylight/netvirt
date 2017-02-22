@@ -66,6 +66,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DissociateNetworksOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DissociateNetworksOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DissociateRouterInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetConfiguredLimitsForOdlVniPoolOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetConfiguredLimitsForOdlVniPoolOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetFixedIPsForNeutronPortInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetFixedIPsForNeutronPortOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetFixedIPsForNeutronPortOutputBuilder;
@@ -1909,6 +1911,23 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
         LOG.debug("dissociateRouter returns..");
 
+        return result;
+    }
+
+    public Future<RpcResult<GetConfiguredLimitsForOdlVniPoolOutput>> getConfiguredLimitsForOdlVniPool() {
+
+        GetConfiguredLimitsForOdlVniPoolOutputBuilder builder = new GetConfiguredLimitsForOdlVniPoolOutputBuilder();
+        SettableFuture<RpcResult<GetConfiguredLimitsForOdlVniPoolOutput>> result = SettableFuture.create();
+        if (neutronvpnConfig.getOpendaylightVniRanges() != null) {
+            String[] vniRanges = neutronvpnConfig.getOpendaylightVniRanges().split(":");
+            builder.setLowLimit(Long.valueOf(vniRanges[0]));
+            builder.setHighLimit(Long.valueOf(vniRanges[1]));
+            result.set(RpcResultBuilder.<GetConfiguredLimitsForOdlVniPoolOutput>success().withResult(builder).build());
+        } else {
+            String message = String.format("OpendayLight VNI Range Config is missing");
+            result.set(RpcResultBuilder.<GetConfiguredLimitsForOdlVniPoolOutput>failed()
+                    .withError(ErrorType.APPLICATION, message).build());
+        }
         return result;
     }
 

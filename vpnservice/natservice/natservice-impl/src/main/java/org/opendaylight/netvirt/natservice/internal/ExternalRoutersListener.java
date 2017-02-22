@@ -105,6 +105,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.router.id.name.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.router.id.name.RouterIdsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.router.id.name.RouterIdsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
@@ -140,6 +141,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     private final NaptPacketInHandler naptPacketInHandler;
     private final IFibManager fibManager;
     private final IVpnManager vpnManager;
+    private final NeutronvpnService neutronVpnService;
     private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000022", 16);
 
@@ -156,7 +158,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                    final NaptEventHandler naptEventHandler,
                                    final NaptPacketInHandler naptPacketInHandler,
                                    final IFibManager fibManager,
-                                   final IVpnManager vpnManager) {
+                                   final IVpnManager vpnManager,
+                                   final NeutronvpnService neutronvpnService) {
         super(Routers.class, ExternalRoutersListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
@@ -173,6 +176,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         this.naptPacketInHandler = naptPacketInHandler;
         this.fibManager = fibManager;
         this.vpnManager = vpnManager;
+        this.neutronVpnService = neutronvpnService;
     }
 
     @Override
@@ -195,6 +199,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         String routerName = routers.getRouterName();
         LOG.info("NAT Service : Add external router event for {}", routerName);
         NatUtil.createRouterIdsConfigDS(dataBroker, routerName);
+
+        if (NatUtil.isFirstNatRouter(dataBroker)) {
+            NatUtil.createOpenDayLightVniRangesPool(neutronVpnService, idManager,
+                    NatConstants.ODL_VNI_POOL_NAME, NatConstants.VNI_DEFAULT_LOW_VALUE,
+                    NatConstants.VNI_DEFAULT_HIGH_VALUE);
+        }
 
         LOG.info("NAT Service : Installing NAT default route on all dpns part of router {}", routerName);
         try {
@@ -1452,6 +1462,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             handleRouterGwFlows(router, primarySwitchId, NwConstants.DEL_FLOW);
             List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
             handleDisableSnat(router, networkUuid, externalIps, true, null, primarySwitchId);
+            if (NatUtil.isLastNatRouter(dataBroker)) {
+                NatUtil.deleteOpenDayLightVniRangesPool(idManager, NatConstants.ODL_VNI_POOL_NAME);
+            }
         }
     }
 

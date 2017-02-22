@@ -338,6 +338,17 @@ module neutronvpn {
         }
     }
 
+    rpc get-configured-limits-for-odl-vni-pool {
+        output {
+            leaf low-limit {
+                type uint32;
+            }
+            leaf high-limit {
+                type uint32;
+            }
+        }
+    }
+
     notification subnet-added-to-vpn{
             description "new subnet added to vpn";
             leaf subnet-id {

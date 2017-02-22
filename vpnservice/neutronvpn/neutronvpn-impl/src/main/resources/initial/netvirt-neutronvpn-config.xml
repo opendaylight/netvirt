@@ -1,4 +1,5 @@
 <neutronvpn-config xmlns="urn:opendaylight:netvirt:neutronvpn:config">
   <use-transport-zone>true</use-transport-zone>
   <use-of-tunnels>false</use-of-tunnels>
+  <opendaylight-vni-ranges>70000:99999</opendaylight-vni-ranges>
 </neutronvpn-config>
