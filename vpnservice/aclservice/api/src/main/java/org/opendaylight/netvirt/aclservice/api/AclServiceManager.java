@@ -15,7 +15,9 @@ public interface AclServiceManager {
     enum Action {
         ADD,
         UPDATE,
-        REMOVE
+        REMOVE,
+        BIND,
+        UNBIND
     }
 
     enum MatchCriteria {
