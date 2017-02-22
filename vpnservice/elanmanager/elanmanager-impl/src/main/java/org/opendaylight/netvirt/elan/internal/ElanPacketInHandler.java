@@ -26,8 +26,11 @@ import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
+import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -69,7 +72,6 @@ public class ElanPacketInHandler implements PacketProcessingListener {
             try {
                 byte[] data = notification.getPayload();
                 Ethernet res = new Ethernet();
-
                 res.deserialize(data, 0, data.length * NetUtils.NumBitsInAByte);
 
                 byte[] srcMac = res.getSourceMACAddress();
@@ -92,25 +94,35 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                     LOG.warn("not able to find elanTagName in elan-tag-name-map for elan tag {}", elanTag);
                     return;
                 }
-                String elanName = elanTagName.getName();
+
                 PhysAddress physAddress = new PhysAddress(macAddress);
-                ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
-                InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
-                MacEntry oldMacEntry = elanUtils.getMacEntryForElanInstance(elanName, physAddress).orNull();
-                boolean isVlanOrFlatProviderIface = interfaceManager.isExternalInterface(interfaceName);
+
+                MacEntry macEntry = elanUtils.getInterfaceMacEntriesOperationalDataPath(interfaceName, physAddress);
+                if (didMacMigrated(interfaceName, macEntry)) {
+                    return;
+                }
+
+                //TODO(Riyaz): Have to test below piece of code.
+                IPv4 ip = new IPv4();
+                ip.deserialize(data, 0, data.length * NetUtils.NumBitsInAByte);
+                IpAddress srcIpAddress = IpAddressBuilder.getDefaultInstance(Integer.toString(ip.getSourceAddress()));
 
                 BigInteger timeStamp = new BigInteger(String.valueOf(System.currentTimeMillis()));
                 MacEntry newMacEntry = new MacEntryBuilder().setInterface(interfaceName).setMacAddress(physAddress)
+                        .setIpPrefix(srcIpAddress)
                         .setKey(new MacEntryKey(physAddress)).setControllerLearnedForwardingEntryTimestamp(timeStamp)
                         .setIsStaticAddress(false).build();
 
                 final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                enqueueJobForMacSpecificTasks(macAddress, elanTag, interfaceName, elanName, physAddress, oldMacEntry,
-                        newMacEntry, isVlanOrFlatProviderIface, portDataStoreCoordinator);
 
-                enqueueJobForDPNSpecificTasks(macAddress, elanTag, interfaceName, physAddress, elanInstance,
-                        interfaceInfo, oldMacEntry, newMacEntry, isVlanOrFlatProviderIface, portDataStoreCoordinator);
+                String elanName = elanTagName.getName();
+                enqueueJobForMacSpecificTasks(macAddress, elanTag, interfaceName, elanName, physAddress, newMacEntry,
+                        portDataStoreCoordinator);
 
+                enqueueJobForDPNSpecificTasks(macAddress, elanTag, interfaceName, physAddress,
+                        ElanUtils.getElanInstanceByName(broker, elanName),
+                        interfaceManager.getInterfaceInfo(interfaceName),
+                        macEntry, newMacEntry, portDataStoreCoordinator);
 
             } catch (PacketException e) {
                 LOG.error("Failed to decode packet: {}", notification, e);
