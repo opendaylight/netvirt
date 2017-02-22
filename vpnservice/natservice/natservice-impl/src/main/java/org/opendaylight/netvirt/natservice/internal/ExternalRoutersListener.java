@@ -86,6 +86,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.IntextIpPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProtocolTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.RouterIdName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
@@ -623,6 +624,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         mdsalManager.syncInstallGroup(groupEntity, 0);
         // Install miss entry pointing to group
         FlowEntity flowEntity = buildSnatFlowEntity(dpnId, routerName, groupId);
+        if (flowEntity == null) {
+            LOG.error("NAT Service : Flow entity received as NULL. "
+                    + "Cannot proceed with installation of SNAT Flow in table {} which is pointing to Group "
+                    + "on Non NAPT DPN {}", NwConstants.PSNAT_TABLE, dpnId);
+            return;
+        }
         mdsalManager.installFlow(flowEntity);
     }
 
@@ -637,23 +644,28 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     public FlowEntity buildSnatFlowEntity(BigInteger dpId, String routerName, long groupId) {
         LOG.debug("NAT Service : buildSnatFlowEntity is called for dpId {}, routerName {} and groupId {}",
-            dpId, routerName, groupId);
+                dpId, routerName, groupId);
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
 
         List<ActionInfo> actionsInfo = new ArrayList<>();
+        ProviderTypes extNwProviderType = NatEvpnUtil.getExtNwProviderTypeFromRouterName(dataBroker, routerName);
+        if (extNwProviderType == null) {
+            return null;
+        }
+        long tunnelId = NatUtil.getTunnelIdForExtProvType(idManager, routerName, routerId, extNwProviderType);
+        actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(tunnelId)));
 
-        actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(routerId)));
         LOG.debug("NAT Service : Setting the tunnel to the list of action infos {}", actionsInfo);
         actionsInfo.add(new ActionGroup(groupId));
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfo));
         String flowRef = getFlowRefSnat(dpId, NwConstants.PSNAT_TABLE, routerName);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
-            NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
-            NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
+                NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
+                NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
 
         LOG.debug("NAT Service : Returning SNAT Flow Entity {}", flowEntity);
         return flowEntity;
@@ -685,25 +697,36 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         LOG.debug("NAT Service : creating entry for Terminating Service Table for switch {}, routerName {}",
             dpnId, routerName);
         FlowEntity flowEntity = buildTsFlowEntity(dpnId, routerName);
+        if (flowEntity == null) {
+            LOG.error("NAT Service : Flow entity received as NULL. "
+                    + "Cannot proceed with installation of Terminating Service table {} which is pointing to table {} "
+                    + "on DPN {}", NwConstants.INTERNAL_TUNNEL_TABLE, NwConstants.OUTBOUND_NAPT_TABLE, dpnId);
+            return;
+        }
         mdsalManager.installFlow(flowEntity);
 
     }
 
     private FlowEntity buildTsFlowEntity(BigInteger dpId, String routerName) {
-
-        BigInteger routerId = BigInteger.valueOf(NatUtil.getVpnId(dataBroker, routerName));
+        long routerId = NatUtil.getVpnId(dataBroker, routerName);
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
-        matches.add(new MatchTunnelId(routerId));
+        ProviderTypes extNwProviderType = NatEvpnUtil.getExtNwProviderTypeFromRouterName(dataBroker, routerName);
+        if (extNwProviderType == null) {
+            return null;
+        }
+        long tunnelId = NatUtil.getTunnelIdForExtProvType(idManager, routerName, routerId, extNwProviderType);
+        matches.add(new MatchTunnelId(BigInteger.valueOf(tunnelId)));
+        String flowRef = getFlowRefTs(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, tunnelId);
+        LOG.debug("NAT Service : Setting the tunnel to the flowRef {}", flowRef);
 
         List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionWriteMetadata(MetaDataUtil.getVpnIdMetadata(routerId.longValue()),
-            MetaDataUtil.METADATA_MASK_VRFID));
+        instructions.add(new InstructionWriteMetadata(MetaDataUtil.getVpnIdMetadata(routerId),
+                MetaDataUtil.METADATA_MASK_VRFID));
         instructions.add(new InstructionGotoTable(NwConstants.OUTBOUND_NAPT_TABLE));
-        String flowRef = getFlowRefTs(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId.longValue());
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, flowRef,
-            NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef, 0, 0,
-            NwConstants.COOKIE_TS_TABLE, matches, instructions);
+                NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef, 0, 0,
+                NwConstants.COOKIE_TS_TABLE, matches, instructions);
         return flowEntity;
     }
 
@@ -1562,6 +1585,15 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 .child(RouterToNaptSwitch.class, new RouterToNaptSwitchKey(routerName)).build();
         LOG.debug("NAPT Service : Removing NaptSwitch and Router for the router {} from datastore", routerName);
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        ProviderTypes extNwProviderType = NatEvpnUtil.getExtNwProviderTypeFromRouterName(dataBroker, routerName);
+        if (extNwProviderType == null) {
+            return;
+        }
+        if (extNwProviderType.getName().equals(NatConstants.PROVIDER_TYPE_VXLAN)) {
+            //Release router_lPort_tag from the ID Pool
+            NatEvpnUtil.releaseLPortTagForRouter(routerName,idManager);
+        }
+
     }
 
     public void removeNaptFlowsFromActiveSwitch(long routerId, String routerName,
@@ -1581,7 +1613,13 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         //Remove the Terminating Service table entry which forwards the packet to Outbound NAPT Table (For the
         // traffic which comes from the VMs of the non NAPT switches)
-        String tsFlowRef = getFlowRefTs(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId);
+        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, networkId);
+        if (extNwProviderType == null) {
+            LOG.error("NAT Service : Unable to retrieve the Provider Type from External Network ID {} ",networkId);
+            return;
+        }
+        long tunnelId = NatUtil.getTunnelIdForExtProvType(idManager, routerName, routerId, extNwProviderType);
+        String tsFlowRef = getFlowRefTs(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, tunnelId);
         FlowEntity tsNatFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, tsFlowRef);
 
         LOG.info("NAT Service : Remove the flow in the {} for the active switch with the DPN ID {} and router ID {}",

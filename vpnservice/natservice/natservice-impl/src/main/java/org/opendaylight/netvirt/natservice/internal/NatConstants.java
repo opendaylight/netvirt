@@ -32,6 +32,9 @@ public class NatConstants {
     public static final long SNAT_ID_HIGH_VALUE = 225000L;
     public static final int DEFAULT_TS_FLOW_PRIORITY = 10;
     public static final short DEFAULT_PREFIX = 32;
+    public static final String PROVIDER_TYPE_VXLAN = "VXLAN";
+    public static final long DEFAULT_L3VNI_VALUE = 0;
+    public static final int DEFAULT_LABEL_VALUE = 0;
 
     // Flow Actions
     public static final int ADD_FLOW = 0;
