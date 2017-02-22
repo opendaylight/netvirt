@@ -17,5 +17,18 @@ module neutronvpn-config {
             type boolean;
             default true;
         }
-    }    
+    }
+
+    container opendaylight-vni-range-config {
+        config true;
+        leaf low-limit {
+            type uint32;
+            default 70000;
+        }
+        leaf high-limit {
+            type uint32;
+            default 100000;
+        }
+    }
+
 }

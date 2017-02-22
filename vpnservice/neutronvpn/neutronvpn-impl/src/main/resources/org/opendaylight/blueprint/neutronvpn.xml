@@ -34,6 +34,10 @@
                             binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.config.rev160806.NeutronvpnConfig"
                             default-config-file-name="netvirt-neutronvpn-config.xml">
   </odl:clustered-app-config>
+  <odl:clustered-app-config id="opendaylightVniRangeConfig"
+                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.config.rev160806.OpendaylightVniRangeConfig"
+                            default-config-file-name="netvirt-opendaylight-vni-range-config.xml">
+  </odl:clustered-app-config>
 
   <bean id="neutronvpnNatManager"
         class="org.opendaylight.netvirt.neutronvpn.NeutronvpnNatManager"
@@ -53,9 +57,11 @@
     <argument ref="notificationPublishService" />
     <argument ref="neutronvpnNatManager" />
     <argument ref="vpnRpcService" />
+    <argument ref="idManagerService" />
     <argument ref="elanService" />
     <argument ref="neutronFloatingToFixedIpMappingChangeListener" />
     <argument ref="neutronvpnConfig" />
+    <argument ref="opendaylightVniRangeConfig" />
   </bean>
   <odl:rpc-implementation ref="neutronvpnManager" />
 

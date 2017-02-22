@@ -42,5 +42,7 @@ public interface INeutronVpnManager {
 
     List<Uuid> getNetworksForVpn(Uuid vpnId);
 
+    void createOpenDayLightVniRangePool(String poolName,long lowLimit, long highLimit);
+
 }
 
