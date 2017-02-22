@@ -13,6 +13,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfacesBuilder
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceBuilder
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntriesBuilder;
 
 import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
 
@@ -44,7 +45,9 @@ class ExpectedObjects {
                     elanInstanceName = "TestElanName"
                     name = "TestElanInterfaceName"
                     staticMacEntries = #[
-                        new PhysAddress("11:22:33:44:55:66")
+                        new StaticMacEntriesBuilder >> [
+                             new PhysAddress("11:22:33:44:55:66")
+                        ]
                     ]
                 ]
             ]

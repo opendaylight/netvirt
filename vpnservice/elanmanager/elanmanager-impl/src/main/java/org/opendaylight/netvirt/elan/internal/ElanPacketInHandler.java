@@ -26,11 +26,15 @@ import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
+import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryBuilder;
@@ -69,7 +73,6 @@ public class ElanPacketInHandler implements PacketProcessingListener {
             try {
                 byte[] data = notification.getPayload();
                 Ethernet res = new Ethernet();
-
                 res.deserialize(data, 0, data.length * NetUtils.NumBitsInAByte);
 
                 byte[] srcMac = res.getSourceMACAddress();
@@ -101,8 +104,24 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                     return;
                 }
 
+                //TODO(Riyaz) : Check which one to use. BElow code tested by yugandhar and its not working
+                //TODO(Riyaz) : Below commented code is working
+                IPv4 iPv4 = new IPv4();
+                iPv4.deserialize(data, 0, data.length * NetUtils.NumBitsInAByte);
+                IpAddress srcIpAddress = IpAddressBuilder.getDefaultInstance(Integer.toString(iPv4.getSourceAddress()));
+
+/*              ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
+                if (elanInterface == null) {
+                    return;
+                }
+                IpAddress srcIpAddress = elanInterface.getStaticMacEntries().get(0).getPrefix();
+                if (prefix == null) {
+                    return;
+                }*/
+
                 BigInteger timeStamp = new BigInteger(String.valueOf(System.currentTimeMillis()));
                 MacEntry newMacEntry = new MacEntryBuilder().setInterface(interfaceName).setMacAddress(physAddress)
+                        .setPrefix(srcIpAddress)
                         .setKey(new MacEntryKey(physAddress)).setControllerLearnedForwardingEntryTimestamp(timeStamp)
                         .setIsStaticAddress(false).build();
 

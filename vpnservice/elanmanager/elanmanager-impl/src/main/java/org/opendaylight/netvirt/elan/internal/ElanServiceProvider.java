@@ -62,6 +62,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntriesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.Elan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -249,9 +251,16 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                         .setDescription(description).setName(interfaceName).setKey(new ElanInterfaceKey(interfaceName))
                         .addAugmentation(EtreeInterface.class, etreeInterface).build();
             } else {
+                StaticMacEntriesBuilder staticMacEntriesBuilder = new StaticMacEntriesBuilder();
+                List<StaticMacEntries> staticMacEntries = new ArrayList<>();
+                List <PhysAddress> physAddressList = getPhysAddress(staticMacAddresses);
+                for (PhysAddress physAddress : physAddressList){
+                    staticMacEntries.add(staticMacEntriesBuilder.setMac(physAddress).build());
+                }
+
                 elanInterface = new ElanInterfaceBuilder().setElanInstanceName(etreeInstanceName)
                         .setDescription(description).setName(interfaceName)
-                        .setStaticMacEntries(getPhysAddress(staticMacAddresses))
+                        .setStaticMacEntries(staticMacEntries)
                         .setKey(new ElanInterfaceKey(interfaceName))
                         .addAugmentation(EtreeInterface.class, etreeInterface).build();
             }
@@ -271,7 +280,13 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                     .setDescription(description).setName(interfaceName)
                     .setKey(new ElanInterfaceKey(interfaceName));
             if (staticMacAddresses != null) {
-                elanInterfaceBuilder.setStaticMacEntries(getPhysAddress(staticMacAddresses));
+                StaticMacEntriesBuilder staticMacEntriesBuilder = new StaticMacEntriesBuilder();
+                List<StaticMacEntries> staticMacEntries = new ArrayList<>();
+                List <PhysAddress> physAddressList = getPhysAddress(staticMacAddresses);
+                for (PhysAddress physAddress : physAddressList){
+                    staticMacEntries.add(staticMacEntriesBuilder.setMac(physAddress).build());
+                }
+                elanInterfaceBuilder.setStaticMacEntries(staticMacEntries);
             }
             ElanInterface elanInterface = elanInterfaceBuilder.build();
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
@@ -287,13 +302,27 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         if (existingElanInterface == null) {
             return;
         }
-        List<PhysAddress> existingMacAddress = existingElanInterface.getStaticMacEntries();
+
+        //List<PhysAddress> existingMacAddress = existingElanInterface.getStaticMacEntries();
+        List<StaticMacEntries> existingStaticMacEntries = existingElanInterface.getStaticMacEntries();
+        List<PhysAddress> existingMacAddress = new ArrayList<>();
+        for (StaticMacEntries staticMacEntry : existingStaticMacEntries){
+            existingMacAddress.add(staticMacEntry.getMac());
+        }
+
+        StaticMacEntriesBuilder staticMacEntriesBuilder = new StaticMacEntriesBuilder();
+        List<StaticMacEntries> staticMacEntries = new ArrayList<>();
+        List <PhysAddress> updatedPhysAddressList = getPhysAddress(updatedStaticMacAddresses);
+        for (PhysAddress physAddress : updatedPhysAddressList){
+            staticMacEntries.add(staticMacEntriesBuilder.setMac(physAddress).build());
+        }
+
         List<PhysAddress> updatedMacAddresses = getPhysAddress(updatedStaticMacAddresses);
         List<PhysAddress> updatedPhysAddress = getUpdatedPhyAddress(existingMacAddress, updatedMacAddresses);
         if (updatedPhysAddress.size() > 0) {
             LOG.debug("updating the ElanInterface with new Mac Entries {}", updatedStaticMacAddresses);
             ElanInterface elanInterface = new ElanInterfaceBuilder().setElanInstanceName(elanInstanceName)
-                    .setName(interfaceName).setDescription(newDescription).setStaticMacEntries(updatedPhysAddress)
+                    .setName(interfaceName).setDescription(newDescription).setStaticMacEntries(staticMacEntries)
                     .setKey(new ElanInterfaceKey(interfaceName)).build();
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                     ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName), elanInterface);
@@ -321,13 +350,27 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         ElanInterface existingElanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
         PhysAddress updateStaticMacAddress = new PhysAddress(macAddress);
         if (existingElanInterface != null) {
-            List<PhysAddress> existingMacAddress = existingElanInterface.getStaticMacEntries();
+
+            //List<PhysAddress> existingMacAddress = existingElanInterface.getStaticMacEntries();
+            List<StaticMacEntries> existingStaticMacEntries = existingElanInterface.getStaticMacEntries();
+            List<PhysAddress> existingMacAddress = new ArrayList<>();
+            for (StaticMacEntries staticMacEntry : existingStaticMacEntries){
+                existingMacAddress.add(staticMacEntry.getMac());
+            }
+
             if (existingMacAddress.contains(updateStaticMacAddress)) {
                 return;
             }
             existingMacAddress.add(updateStaticMacAddress);
+
+            StaticMacEntriesBuilder staticMacEntriesBuilder = new StaticMacEntriesBuilder();
+            List<StaticMacEntries> staticMacEntries = new ArrayList<>();
+            for (PhysAddress physAddress : existingMacAddress){
+                staticMacEntries.add(staticMacEntriesBuilder.setMac(physAddress).build());
+            }
+
             ElanInterface elanInterface = new ElanInterfaceBuilder().setElanInstanceName(elanInstanceName)
-                    .setName(interfaceName).setStaticMacEntries(existingMacAddress)
+                    .setName(interfaceName).setStaticMacEntries(staticMacEntries)
                     .setDescription(existingElanInterface.getDescription()).setKey(new ElanInterfaceKey(interfaceName))
                     .build();
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
@@ -343,11 +386,25 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         if (existingElanInterface == null) {
             return;
         }
-        List<PhysAddress> existingMacAddress = existingElanInterface.getStaticMacEntries();
+
+        //List<PhysAddress> existingMacAddress = existingElanInterface.getStaticMacEntries();
+        List<StaticMacEntries> existingStaticMacEntries = existingElanInterface.getStaticMacEntries();
+        List<PhysAddress> existingMacAddress = new ArrayList<>();
+        for (StaticMacEntries staticMacEntry : existingStaticMacEntries){
+            existingMacAddress.add(staticMacEntry.getMac());
+        }
+
+        StaticMacEntriesBuilder staticMacEntriesBuilder = new StaticMacEntriesBuilder();
+        List<StaticMacEntries> staticMacEntries = new ArrayList<>();
+        for (PhysAddress physAddr : existingMacAddress){
+            staticMacEntries.add(staticMacEntriesBuilder.setMac(physAddr).build());
+        }
+
+
         if (existingMacAddress.contains(physAddress)) {
             existingMacAddress.remove(physAddress);
             ElanInterface elanInterface = new ElanInterfaceBuilder().setElanInstanceName(elanInstanceName)
-                    .setName(interfaceName).setStaticMacEntries(existingMacAddress)
+                    .setName(interfaceName).setStaticMacEntries(staticMacEntries)
                     .setDescription(existingElanInterface.getDescription()).setKey(new ElanInterfaceKey(interfaceName))
                     .build();
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,

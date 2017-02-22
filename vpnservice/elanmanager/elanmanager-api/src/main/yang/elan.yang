@@ -124,9 +124,18 @@ module elan {
             mandatory true;
             type string;
         }
-        leaf-list static-mac-entries {
-            type yang:phys-address;
+
+        list static-mac-entries {
+            key "mac";
+            leaf mac {
+                type yang:phys-address;
+            }
+            leaf prefix {
+                mandatory false;
+                type inet:ip-address;
+            }
         }
+
         leaf description {
             description
                 "A textual description of elan port, the elan port description
@@ -189,6 +198,11 @@ module elan {
 
       leaf isStaticAddress {
         type boolean;
+      }
+
+      leaf prefix {
+        mandatory false;
+        type inet:ip-address;
       }
     }
   }
