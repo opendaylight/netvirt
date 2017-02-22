@@ -43,6 +43,7 @@
     <cloud-servicechain.version>${vpnservices.version}</cloud-servicechain.version>
     <configfile.directory>etc/opendaylight/karaf</configfile.directory>
     <dlux.version>0.5.0-SNAPSHOT</dlux.version>
+    <federation.version>0.2.0-SNAPSHOT</federation.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -298,6 +299,17 @@
       <version>${vpnmanager.version}</version>
     </dependency>
     <dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>federation-plugin-api</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>federation-plugin-impl</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.thrift</groupId>
       <artifactId>libthrift</artifactId>
       <version>0.9.1</version>
@@ -340,6 +352,13 @@
       <groupId>org.opendaylight.dlux</groupId>
       <artifactId>features-dlux</artifactId>
       <version>${dlux.version}</version>
+      <classifier>features</classifier>
+      <type>xml</type>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.federation</groupId>
+      <artifactId>federation-features</artifactId>
+      <version>${federation.version}</version>
       <classifier>features</classifier>
       <type>xml</type>
     </dependency>

@@ -1,0 +1,39 @@
+module federation-plugin-rpc {
+    yang-version 1;
+    namespace "urn:opendaylight:netvirt:federation:plugin:rpc";
+    prefix "federation-plugin-rpc";
+
+    import yang-ext {
+        prefix ext;
+        revision-date "2013-07-09";
+   }
+
+   import ietf-yang-types {
+        prefix yang;
+   }
+
+   import federation-plugin-manager {
+	   prefix federation-plugin-manager;
+   }
+
+   revision "2017-02-19" {
+       description "Federation plugin model";
+   }
+
+    rpc updateFederatedNetworks {
+        input {
+            leaf route-key-item {
+                type instance-identifier;
+                ext:context-reference federation-plugin-manager:mgr-context;
+            }
+
+            list federated-networks-in {
+                key self-net-id;
+                uses federation-plugin-manager:federated-nets;
+                description "Contain all federated networks in this site that are still
+                             connected, a federated network that does not appear will be considered
+                             disconnected";
+            }
+        }
+    }
+}

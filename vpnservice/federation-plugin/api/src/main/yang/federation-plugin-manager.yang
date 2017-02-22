@@ -1,0 +1,102 @@
+module federation-plugin-manager {
+    yang-version 1;
+    namespace "urn:opendaylight:netvirt:federation:plugin:manager";
+    prefix "federation-plugin-manager";
+
+    import yang-ext {
+        prefix ext;
+        revision-date "2013-07-09";
+   }
+
+   import ietf-yang-types {
+        prefix yang;
+   }
+
+   revision "2017-02-19" {
+       description "Federation plugin model";
+   }
+
+    identity mgr-context {
+        description "Identity for a routed RPC";
+    }
+
+    container routed-container {
+        list route-key-item {
+            key "id";
+            leaf id {
+                type string;
+            }
+
+            ext:context-instance "mgr-context";
+        }
+    }
+
+    container federated-networks {
+        list federated-network {
+            key self-net-id;
+            uses federated-nets;
+        }
+    }
+
+    container federation-generations {
+        description
+                "Federation generation information for a remote site.";
+        list remote-site-generation-info {
+            max-elements "unbounded";
+            min-elements "0";
+            key "remote-ip";
+            leaf remote-ip {
+                mandatory true;
+                type string;
+                description "Remote site IP address.";
+            }
+            leaf generation-number {
+                type int32;
+                description "The current generation number used for the remote site.";
+            }
+        }
+    }
+
+    grouping federated-nets {
+        leaf self-net-id {
+            type string;
+            description "UUID representing the self net";
+        }
+        leaf self-subnet-id {
+            type yang:uuid;
+            description "UUID representing the self subnet";
+        }
+        leaf self-tenant-id {
+            type yang:uuid;
+            description "UUID representing the self tenant";
+        }
+        leaf subnet-ip {
+            type string;
+            description "Specifies the subnet IP in CIDR format";
+        }
+
+        list site-network {
+            key id;
+            leaf id {
+                type string;
+                description "UUID representing the site ID (from xsite manager)";
+            }
+            leaf site-ip {
+                type string;
+                description "Specifies the site IP";
+            }
+            leaf site-net-id {
+                type string;
+                description "UUID of the network in the site";
+            }
+            leaf site-subnet-id {
+                type yang:uuid;
+                description "UUID of the subnet in the site";
+            }
+            leaf site-tenant-id {
+                type yang:uuid;
+                description "UUID of the tenant holding this network in the site";
+            }
+        }
+    }
+}

@@ -1,0 +1,82 @@
+module federation-plugin {
+    yang-version 1;
+    namespace "urn:opendaylight:netvirt:federation:plugin";
+    prefix "federation-plugin";
+
+    import yang-ext {
+         prefix ext;
+         revision-date "2013-07-09";
+    }
+
+    import ietf-yang-types {
+         prefix yang;
+    }
+    
+    import network-topology {
+         prefix topo;
+    }
+
+    import opendaylight-inventory {
+         prefix inv;
+    }
+
+    import ietf-interfaces {
+         prefix if;
+    }
+
+    import elan {
+         prefix elan;
+    }
+
+    import l3vpn {
+         prefix l3vpn;
+    }
+
+    import neutronvpn {
+         prefix nvpn;
+    }
+
+    revision "2017-02-19" {
+        description "Federation plugin model";
+    }
+
+    grouping shadow-properties {
+        leaf shadow {
+            type boolean;
+            description "Represents whether this is a federated entity";
+        }
+        leaf generation-number {
+            type int32;
+            description "The current generation number of the federated entity";
+        }
+        leaf remote-ip {
+            type string;
+            description "The IP address of the original site of the federated entity";
+        }
+    }
+
+    augment "/topo:network-topology/topo:topology/topo:node" {
+        ext:augment-identifier "topology-node-shadow-properties";
+        uses shadow-properties;
+    }
+
+    augment "/inv:nodes/inv:node" {
+        ext:augment-identifier "inventory-node-shadow-properties";
+        uses shadow-properties;
+    }
+
+    augment "/if:interfaces/if:interface" {
+        ext:augment-identifier "if-shadow-properties";
+        uses shadow-properties;
+    }
+
+    augment "/elan:elan-interfaces/elan:elan-interface" {
+        ext:augment-identifier "elan-shadow-properties";
+        uses shadow-properties;
+    }
+
+    augment "/l3vpn:vpn-interfaces/l3vpn:vpn-interface" {
+        ext:augment-identifier "vpn-shadow-properties";
+        uses shadow-properties;
+    }
+}
