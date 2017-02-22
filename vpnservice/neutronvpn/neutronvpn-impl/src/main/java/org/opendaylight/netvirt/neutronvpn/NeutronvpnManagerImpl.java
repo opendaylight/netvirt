@@ -87,4 +87,14 @@ public class NeutronvpnManagerImpl implements INeutronVpnManager {
     public Collection<Uuid> getSubnetIdsForGatewayIp(IpAddress ipAddress) {
         return  NeutronvpnUtils.getSubnetIdsForGatewayIp(ipAddress);
     }
+
+    @Override
+    public String getOpenDaylightVniRangesConfig() {
+        return nvManager.getOpenDaylightVniRangesConfig();
+    }
+
+    @Override
+    public Boolean getEnforceOpenstackSemanticsConfig() {
+        return nvManager.getEnforceOpenstackSemanticsConfig();
+    }
 }
