@@ -11,13 +11,14 @@ module neutronvpn-config {
     }
 
     container neutronvpn-config {
-        status deprecated;
         config true;
         leaf use-transport-zone {
+        	status deprecated;
             type boolean;
             default true;
         }
         leaf use-of-tunnels {
+        	status deprecated;
             type boolean;
             default false;
         }
