@@ -59,6 +59,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProtocolTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
@@ -159,15 +160,35 @@ public class NaptSwitchHA {
             LOG.error("Invalid routerId returned for routerName {}", routerName);
             return;
         }
+        ProviderTypes extNwProviderType = NatUtil.getExtNwProviderTypeFromRouterName(dataBroker, routerName);
+        if (extNwProviderType == null) {
+            return;
+        }
+        //Handling VXLAN Provider type flow removal from old NAPT switch
+        if (extNwProviderType.getName().equals("VXLAN")) {
+            //Remove the INTERNAL_TUNNEL_TABLE entry which forwards the packet to Outbound NAPT Table (table36->46)
+            long routerLportTag = NatUtil.getLPortTagForRouter(routerName,idManager);
+            LOG.trace("NAT Service : Got Router_lPort_Tag = {} from ID Manager Successfully for Router = {} on "
+                    + "NAPT Switch {} (table36->46)", routerLportTag, routerName, naptSwitch);
+            String tsFlowRefOutbound = externalRouterListener.getFlowRefTs(naptSwitch,
+                    NwConstants.INTERNAL_TUNNEL_TABLE, routerLportTag);
+            FlowEntity tsNatFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE,
+                    tsFlowRefOutbound);
+            LOG.info("NAT Service: Remove the flow (table36->46) in table {} for the old napt switch with the DPN ID "
+                    + "{} and router ID {}", NwConstants.INTERNAL_TUNNEL_TABLE, naptSwitch, routerId);
+            mdsalManager.removeFlow(tsNatFlowEntity);
 
-        //Remove the Terminating Service table entry which forwards the packet to Outbound NAPT Table
-        String tsFlowRef = externalRouterListener.getFlowRefTs(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE, routerId);
-        FlowEntity tsNatFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE, tsFlowRef);
+        } else {
+            //Remove the Terminating Service table entry which forwards the packet to Outbound NAPT Table
+            String tsFlowRef = externalRouterListener.getFlowRefTs(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE,
+                    routerId);
+            FlowEntity tsNatFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE,
+                    tsFlowRef);
 
-        LOG.info("Remove the flow in table {} for the old napt switch with the DPN ID {} and router ID {}",
-            NwConstants.INTERNAL_TUNNEL_TABLE, naptSwitch, routerId);
-        mdsalManager.removeFlow(tsNatFlowEntity);
-
+            LOG.info("Remove the flow in table {} for the old napt switch with the DPN ID {} and router ID {}",
+                    NwConstants.INTERNAL_TUNNEL_TABLE, naptSwitch, routerId);
+            mdsalManager.removeFlow(tsNatFlowEntity);
+        }
         //Remove the Outbound flow entry which forwards the packet to Outbound NAPT Table
         String outboundNatFlowRef = externalRouterListener.getFlowRefOutbound(naptSwitch,
             NwConstants.OUTBOUND_NAPT_TABLE, routerId);
@@ -745,15 +766,29 @@ public class NaptSwitchHA {
         if (addordel == NatConstants.ADD_FLOW) {
             List<ActionInfo> actionsInfo = new ArrayList<>();
 
-            actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(routerVpnId)));
+            ProviderTypes extNwProviderType = NatUtil.getExtNwProviderTypeFromRouterName(dataBroker, routerName);
+            if (extNwProviderType == null) {
+                return null;
+            }
+            if (extNwProviderType.getName().equals("VXLAN")) {
+                //Non-NAPT to NAPT communication, tunnel id will be setting with Router_lPort_Tag which will be carved
+                // out per router for External VXLAN Provider Type only (26->Group on Non-NAPT Switch)
+                long routerLportTag = NatUtil.getLPortTagForRouter(routerName,idManager);
+                LOG.trace("NAT Service : Created Router_lPort_Tag = {} from ID Manager Successfully for Router = {}"
+                        + "(table26->Group on Non-NAPT switch flow)", routerLportTag, routerName);
+                actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(routerLportTag)));
+            } else {
+                //Other than VXLAN Provider type will be continuing to use existing router-id as tunnel-id
+                actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(routerVpnId)));
+            }
             LOG.debug("Setting the tunnel to the list of action infos {}", actionsInfo);
             actionsInfo.add(new ActionGroup(groupId));
             List<InstructionInfo> instructions = new ArrayList<>();
             instructions.add(new InstructionApplyActions(actionsInfo));
 
             flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
-                NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
+                    NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
+                    NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
         } else {
             flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
