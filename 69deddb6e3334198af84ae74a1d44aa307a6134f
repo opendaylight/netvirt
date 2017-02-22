@@ -816,6 +816,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_64956086",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/FibEntriesListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T16:39:34Z",
+      "side": 1,
+      "message": "This entire file was supposed to be removed, but we never got the time for that..  \n\nLet a separate review remove this file as that will provide easier history.",
+      "parentUuid": "fafc7978_b0678ab6",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6e15443f",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/FibEntriesListener.java",
         "patchSetId": 27
