@@ -91,6 +91,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_64ae00e8",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T16:35:41Z",
+      "side": 1,
+      "message": "Yes, similar to pseudo-ports used in cloud-service-chain.",
+      "parentUuid": "fafc7978_e454b000",
+      "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_78e98ee5",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 4
@@ -174,6 +192,24 @@
       "side": 1,
       "message": "I agree if the ports are distributed, it will select one of them\nBut the issue is when we create like 5 subnets(no vms),and then  create 5 routers and add one subnet to each, set the routers as external g/w. Now all the NAPT swtich  will be scheduled in the Node where DHCP agent(assuming only one DHCP agent) is running.\n\nI agree this depends on the order of creation, but creating router and router interfaces before vm is not uncommon.",
       "parentUuid": "fafc7978_b6bf82a9",
+      "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c4b7ec38",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T16:35:41Z",
+      "side": 1,
+      "message": "If the ovs-datpath where the DHCP Agent runs is also driven by ODL, am unable to get why should that control node not be an NAPTSwitch..",
+      "parentUuid": "fafc7978_047734a1",
       "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
