@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_73252c08",
+        "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T09:53:36Z",
+      "side": 1,
+      "message": "This is not about beneficiality.. It is about serialization in the cloud for qos-events enthroned on a port.",
+      "parentUuid": "fafc7978_5011fe5b",
+      "revId": "2056896010458d776acd883a072de80431c488c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d0fa0e42",
         "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/QosPolicyChangeListener.java",
         "patchSetId": 8
