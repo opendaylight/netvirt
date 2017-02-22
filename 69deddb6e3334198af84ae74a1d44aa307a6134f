@@ -36,6 +36,40 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_eebc94de",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T03:41:09Z",
+      "side": 1,
+      "message": "set the gatewaymacaddress generically outside above setRoutePaths below.  The gatewaymacaddress is required for both mplsgre and vxlan use-cases.",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4ecde084",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T03:41:09Z",
+      "side": 1,
+      "message": "move these tow above line 78.",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9f8edc77",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
         "patchSetId": 27
@@ -110,6 +144,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_eea3f4af",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 27
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T03:41:09Z",
+      "side": 1,
+      "message": "It does not make sense, can you please paste out what you have see?",
+      "parentUuid": "fafc7978_93537338",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ff7f2864",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
         "patchSetId": 27
@@ -144,6 +196,57 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8e9a286c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T03:41:09Z",
+      "side": 1,
+      "message": "Created/Updated vrfEntry",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ce8f1029",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T03:41:09Z",
+      "side": 1,
+      "message": "what do we do when the TEP IP is not available?  We continue to set this DEFAULT_NEXTHOP_IP?",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2e817cfb",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T03:41:09Z",
+      "side": 1,
+      "message": "gatewaymacaddress to be set for both encaptypes.",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_53246bc4",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 27
@@ -155,6 +258,41 @@
       "writtenOn": "2017-02-21T20:31:32Z",
       "side": 1,
       "message": "as part of directly connected PNF discovery the route path will be null for PNFs in vlan/flat networks\nhttps://git.opendaylight.org/gerrit/#/c/50291/",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4e7b2028",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T03:41:09Z",
+      "side": 1,
+      "message": "This should be ERROR.\n\nTali,\n\nFor that case we should use API removeFibEntry() and not removeOrUpdateFibEntry().\n\nremoveOrUpdateFibEntry() is applicable only when we know the nextHopAddress.",
+      "parentUuid": "fafc7978_53246bc4",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6e7ee41a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T03:41:09Z",
+      "side": 1,
+      "message": "this should be ERROR.",
       "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +327,24 @@
       "writtenOn": "2017-02-21T04:22:04Z",
       "side": 1,
       "message": "As discussed, there won\u0027t be route paths if none of the tep\u0027s configured. but if we return Optional.empty(), then there would be a chance of local fib, lfib and ts flow entries not getting programmed.",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0e863813",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T03:41:09Z",
+      "side": 1,
+      "message": "Can you please clarify how TEP IP unavailable case is handled?\n\nWe need to make sure VMs within hypevisor can continue to communicate. i.e., Table 21 flow rules should be populated and available for them.",
+      "parentUuid": "fafc7978_2cd06cc8",
       "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -235,6 +391,23 @@
         "endLine": 2123,
         "endChar": 118
       },
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cea8b08f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/FibEntriesListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T03:41:09Z",
+      "side": 1,
+      "message": "This file makes no sense.  May be this file needs to be removed.\n\nVrfEntry is never stored inside OPERATIONAL DataStores, but this file is listening so.",
       "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
