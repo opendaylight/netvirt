@@ -12,8 +12,8 @@ import java.math.BigInteger;
 
 public class VpnConstants {
     public static final String VPN_IDPOOL_NAME = "vpnservices";
-    public static final long VPN_IDPOOL_START = 70000L;
-    public static final String VPN_IDPOOL_SIZE = "100000";
+    public static final long VPN_IDPOOL_START = 100000L;
+    public static final long VPN_IDPOOL_SIZE = 30000L;
     public static final short DEFAULT_FLOW_PRIORITY = 10;
     public static final int DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY = 1;
     public static final long INVALID_ID = -1;

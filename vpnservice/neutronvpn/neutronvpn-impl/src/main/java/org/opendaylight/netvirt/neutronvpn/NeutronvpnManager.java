@@ -1951,6 +1951,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         return result;
     }
 
+    public String getOpenDayLightVniRangesConfig() {
+        return neutronvpnConfig.getOpendaylightVniRanges();
+    }
+
+    public Boolean getEnforceOpenstackSemanticsConfig() {
+        return neutronvpnConfig.isEnforceOpenstackSemantics();
+    }
+
     protected void handleNeutronRouterDeleted(Uuid routerId, List<Uuid> routerSubnetIds) {
         // check if the router is associated to some VPN
         Uuid vpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerId, true);
