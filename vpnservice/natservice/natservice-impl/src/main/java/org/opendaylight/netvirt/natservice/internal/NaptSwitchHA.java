@@ -59,6 +59,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProtocolTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
@@ -159,15 +160,13 @@ public class NaptSwitchHA {
             LOG.error("Invalid routerId returned for routerName {}", routerName);
             return;
         }
-
         //Remove the Terminating Service table entry which forwards the packet to Outbound NAPT Table
         String tsFlowRef = externalRouterListener.getFlowRefTs(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE, routerId);
         FlowEntity tsNatFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE, tsFlowRef);
 
         LOG.info("Remove the flow in table {} for the old napt switch with the DPN ID {} and router ID {}",
-            NwConstants.INTERNAL_TUNNEL_TABLE, naptSwitch, routerId);
+                NwConstants.INTERNAL_TUNNEL_TABLE, naptSwitch, routerId);
         mdsalManager.removeFlow(tsNatFlowEntity);
-
         //Remove the Outbound flow entry which forwards the packet to Outbound NAPT Table
         String outboundNatFlowRef = externalRouterListener.getFlowRefOutbound(naptSwitch,
             NwConstants.OUTBOUND_NAPT_TABLE, routerId);
@@ -745,15 +744,20 @@ public class NaptSwitchHA {
         if (addordel == NatConstants.ADD_FLOW) {
             List<ActionInfo> actionsInfo = new ArrayList<>();
 
-            actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(routerVpnId)));
+            ProviderTypes extNwProviderType = NatEvpnUtil.getExtNwProviderTypeFromRouterName(dataBroker, routerName);
+            if (extNwProviderType == null) {
+                return null;
+            }
+            long tunnelId = NatUtil.getTunnelIdForExtProvType(idManager, routerName, routerVpnId, extNwProviderType);
+            actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(tunnelId)));
             LOG.debug("Setting the tunnel to the list of action infos {}", actionsInfo);
             actionsInfo.add(new ActionGroup(groupId));
             List<InstructionInfo> instructions = new ArrayList<>();
             instructions.add(new InstructionApplyActions(actionsInfo));
 
             flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
-                NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
+                    NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
+                    NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
         } else {
             flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,

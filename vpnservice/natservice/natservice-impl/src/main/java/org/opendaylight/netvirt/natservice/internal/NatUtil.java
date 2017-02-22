@@ -1768,4 +1768,23 @@ public class NatUtil {
         }
         return result;
     }
+
+    public static long getTunnelIdForExtProvType(IdManagerService idManager, String routerName, long routerId,
+                                               ProviderTypes extNwProviderType) {
+        if (extNwProviderType.getName().equals(NatConstants.PROVIDER_TYPE_VXLAN)) {
+            //Non-NAPT to NAPT communication, tunnel id will be setting with Router_lPort_Tag which will be carved
+            // out per router for External VXLAN Provider Type only (26->Group on Non-NAPT, 36->46 on NAPT)
+            long routerLportTag = NatEvpnUtil.getLPortTagForRouter(routerName, idManager);
+            if (routerLportTag != 0) {
+                LOG.trace("NAT Service : Successfully allocated Router_lPort_Tag = {} from ID Manager for "
+                        + "Router ID = {}", routerLportTag, routerId);
+                return routerLportTag;
+            } else {
+                LOG.trace("NAT Service : Failed to allocate Router_lPort_Tag from ID Manager for Router ID = {} "
+                        + "Continue to use router-id as tunnel-id", routerId);
+                return routerId;
+            }
+        }
+        return routerId;
+    }
 }
