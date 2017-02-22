@@ -1,0 +1,25 @@
+module federation-plugin-config {
+    yang-version 1;
+    namespace "urn:opendaylight:netvirt:federation:plugin:config";
+    prefix "federation-plugin-config";
+
+   import ietf-yang-types {
+        prefix yang;
+   }
+
+   revision "2017-02-19" {
+       description "Federation plugin model";
+   }
+
+    container federation-plugin-config {
+        leaf site-id {
+            type yang:uuid;
+            description "site self UUID as allocated by xsite-manager";
+        }
+
+        leaf site-ip {
+            type yang:uuid;
+            description "site self IP as seen by xsite-manager";
+        }
+    }
+}
