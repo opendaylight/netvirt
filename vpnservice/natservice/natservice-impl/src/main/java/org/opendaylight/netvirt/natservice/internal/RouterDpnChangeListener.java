@@ -218,7 +218,6 @@ public class RouterDpnChangeListener
             BigInteger naptId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
             if (naptId == null || naptId.equals(BigInteger.ZERO) || !naptSwitchHA.getSwitchStatus(naptId)) {
                 LOG.debug("No NaptSwitch is selected for router {}", routerName);
-
                 naptSwitch = dpnId;
                 boolean naptstatus = naptSwitchHA.updateNaptSwitch(routerName, naptSwitch);
                 if (!naptstatus) {
