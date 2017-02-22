@@ -138,9 +138,17 @@ module elan {
             mandatory true;
             type string;
         }
-        leaf-list static-mac-entries {
-            type yang:phys-address;
+
+        list static-mac-entries {
+            key "mac-address";
+            leaf mac-address {
+                type yang:phys-address;
+            }
+            leaf ip-prefix {
+                type inet:ip-address;
+            }
         }
+
         leaf description {
             description
                 "A textual description of elan port, the elan port description
@@ -205,8 +213,7 @@ module elan {
         type boolean;
       }
 
-      leaf prefix {
-        mandatory false;
+      leaf ip-prefix {
         type inet:ip-address;
       }
     }
