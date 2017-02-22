@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_d675e6fa",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T11:59:36Z",
+      "side": 1,
+      "message": "I feel retaining this in vpnInstanceOpData is way better than having this in every VRF Entry.\n\nVRFEntry is an expensive resource in ODL NetVirt.",
+      "revId": "b367e1d3e7d458ec9d5a26614ab2bed7b9d5babb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
