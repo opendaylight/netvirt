@@ -30,7 +30,6 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
-import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6;
@@ -631,18 +630,16 @@ public final class AclServiceUtils {
         return matchInfoBaseList;
     }
 
-    public static MatchInfoBase getMatchInfoByType(List<MatchInfoBase> flows, NxMatchFieldType type) {
+    public static MatchInfoBase getMatchInfoByType(List<MatchInfoBase> flows, Class<? extends NxMatchInfo> type) {
         for (MatchInfoBase mib : flows) {
-            if (mib instanceof NxMatchInfo) {
-                if (((NxMatchInfo)mib).getMatchField() == type) {
-                    return mib;
-                }
+            if (type.isAssignableFrom(mib.getClass())) {
+                return mib;
             }
         }
         return null;
     }
 
-    public static boolean containsMatchFieldType(List<MatchInfoBase> flows, NxMatchFieldType type) {
+    public static boolean containsMatchFieldType(List<MatchInfoBase> flows, Class<? extends NxMatchInfo> type) {
         return getMatchInfoByType(flows, type) != null;
     }
 

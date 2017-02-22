@@ -24,7 +24,6 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
@@ -34,6 +33,8 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
 import org.opendaylight.genius.mdsalutil.matches.MatchTcpFlags;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
@@ -41,6 +42,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
+
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg5;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -184,8 +187,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         mdsalManager.installFlow(flowEntity);
 
         List<NxMatchInfo> nxMkMatches = new ArrayList<>();
-        nxMkMatches.add(new NxMatchInfo(NxMatchFieldType.nxm_reg_5,
-                new long[] {Long.valueOf(AclConstants.LEARN_MATCH_REG_VALUE)}));
+        nxMkMatches.add(new NxMatchRegister(NxmNxReg5.class, AclConstants.LEARN_MATCH_REG_VALUE));
 
         short dispatcherTableId = NwConstants.EGRESS_LPORT_DISPATCHER_TABLE;
         List<InstructionInfo> instructions = new ArrayList<>();
@@ -227,8 +229,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         mdsalManager.installFlow(flowEntity);
 
         List<NxMatchInfo> nxMkMatches = new ArrayList<>();
-        nxMkMatches.add(new NxMatchInfo(NxMatchFieldType.nxm_reg_5,
-                new long[] {Long.valueOf(AclConstants.LEARN_MATCH_REG_VALUE)}));
+        nxMkMatches.add(new NxMatchRegister(NxmNxReg5.class, AclConstants.LEARN_MATCH_REG_VALUE));
 
         short dispatcherTableId = NwConstants.LPORT_DISPATCHER_TABLE;
         List<InstructionInfo> instructions = new ArrayList<>();
@@ -471,7 +472,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
     private void programConntrackForwardRule(BigInteger dpId, Integer priority, String flowId,
             int conntrackState, int conntrackMask, short dispatcherTableId, short tableId, int addOrRemove) {
         List<MatchInfoBase> matches = new ArrayList<>();
-        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state, new long[] {conntrackState, conntrackMask}));
+        matches.add(new NxMatchCtState(conntrackState, conntrackMask));
 
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(
             new ArrayList<>(),dispatcherTableId);
