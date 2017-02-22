@@ -25,6 +25,8 @@ import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
+import org.opendaylight.controller.liblldp.NetUtils;
+import org.opendaylight.controller.liblldp.PacketException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -52,6 +54,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
+import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
@@ -59,6 +62,8 @@ import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.AdminStatus;
@@ -148,6 +153,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ElanSegments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntriesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntriesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.Elan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.ElanBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.ElanKey;
@@ -2168,5 +2176,49 @@ public class ElanUtils {
 
     public static String getElanMacKey(long elanTag, String macAddress) {
         return ("MAC-" + macAddress + " ELAN_TAG-" + elanTag).intern();
+    }
+
+    public static List<PhysAddress> getPhysAddress(List<String> macAddress) {
+        List<PhysAddress> physAddresses = new ArrayList<>();
+        for (String mac : macAddress) {
+            physAddresses.add(new PhysAddress(mac));
+        }
+        return physAddresses;
+    }
+
+    public static List<StaticMacEntries> getStaticMacEntries(List<String> staticMacAddresses) {
+        StaticMacEntriesBuilder staticMacEntriesBuilder = new StaticMacEntriesBuilder();
+        List<StaticMacEntries> staticMacEntries = new ArrayList<>();
+        List<PhysAddress> physAddressList = getPhysAddress(staticMacAddresses);
+        for (PhysAddress physAddress : physAddressList) {
+            staticMacEntries.add(staticMacEntriesBuilder.setMacAddress(physAddress).build());
+        }
+        return staticMacEntries;
+    }
+
+    public IpAddress getSourceIpAddress(byte[] data) throws PacketException {
+        IPv4 ip = new IPv4();
+        ip.deserialize(data, 0, data.length * NetUtils.NumBitsInAByte);
+        return IpAddressBuilder.getDefaultInstance(Integer.toString(ip.getSourceAddress()));
+    }
+
+    public static InstanceIdentifier<StaticMacEntries> getStaticMacEntriesCfgDataPathIdentifier(String interfaceName,
+                                                                                                String macAddress) {
+        return InstanceIdentifier.builder(ElanInterfaces.class)
+                .child(ElanInterface.class, new ElanInterfaceKey(interfaceName)).child(StaticMacEntries.class,
+                        new StaticMacEntriesKey(new PhysAddress(macAddress))).build();
+    }
+
+    public List<StaticMacEntries> getUpdatedStaticMacEntries(List<StaticMacEntries> originalStaticMacEntries,
+                                                             List<StaticMacEntries> updatedStaticMacEntries) {
+        if (updatedStaticMacEntries != null && !updatedStaticMacEntries.isEmpty()) {
+            List<StaticMacEntries> existingClonedStaticMacEntries = new ArrayList<>();
+            if (originalStaticMacEntries != null && !originalStaticMacEntries.isEmpty()) {
+                existingClonedStaticMacEntries.addAll(0, originalStaticMacEntries);
+                originalStaticMacEntries.removeAll(updatedStaticMacEntries);
+                updatedStaticMacEntries.removeAll(existingClonedStaticMacEntries);
+            }
+        }
+        return updatedStaticMacEntries;
     }
 }
