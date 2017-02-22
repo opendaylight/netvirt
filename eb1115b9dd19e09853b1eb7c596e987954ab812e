@@ -16,6 +16,24 @@
       "revId": "eb1115b9dd19e09853b1eb7c596e987954ab812e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_59b3e909",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnDpnToTransportZoneListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-22T13:57:29Z",
+      "side": 1,
+      "message": "1. I don\u0027t know the answer to this question, I understand there was a discussion on this matter that took place long before I started working on this patch.\n2. This is not true because we\u0027re checking for teps on the tz itself. So if it doesn\u0027t exist, no teps will be found and the tz will be created.",
+      "parentUuid": "fafc7978_b6e02297",
+      "revId": "eb1115b9dd19e09853b1eb7c596e987954ab812e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
