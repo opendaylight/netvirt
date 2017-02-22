@@ -17,8 +17,6 @@ import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
-import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
@@ -29,6 +27,11 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Source;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpDestinationPort;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpSourcePort;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchUdpDestinationPort;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchUdpSourcePort;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4;
@@ -174,8 +177,7 @@ public class AclServiceOFFlowBuilder {
                 flowMatches.addAll(addSrcIpMatches(acl));
                 flowMatches.addAll(addDstIpMatches(acl));
                 if (portMaskMap.get(port) != AclConstants.ALL_LAYER4_PORT_MASK) {
-                    flowMatches.add(new NxMatchInfo(NxMatchFieldType.nx_tcp_src_with_mask,
-                        new long[] {  port, portMaskMap.get(port) }));
+                    flowMatches.add(new NxMatchTcpSourcePort(port, portMaskMap.get(port)));
                 }
                 flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
                 String flowId = "TCP_SOURCE_" + port + "_" + portMaskMap.get(port);
@@ -190,8 +192,7 @@ public class AclServiceOFFlowBuilder {
                 flowMatches.addAll(addSrcIpMatches(acl));
                 flowMatches.addAll(addDstIpMatches(acl));
                 if (portMaskMap.get(port) != AclConstants.ALL_LAYER4_PORT_MASK) {
-                    flowMatches.add(new NxMatchInfo(NxMatchFieldType.nx_tcp_dst_with_mask,
-                        new long[] {  port, portMaskMap.get(port) }));
+                    flowMatches.add(new NxMatchTcpDestinationPort(port, portMaskMap.get(port)));
                 }
                 flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
                 String flowId = "TCP_DESTINATION_" + port + "_" + portMaskMap.get(port);
@@ -226,8 +227,7 @@ public class AclServiceOFFlowBuilder {
                 flowMatches.addAll(addSrcIpMatches(acl));
                 flowMatches.addAll(addDstIpMatches(acl));
                 if (portMaskMap.get(port) != AclConstants.ALL_LAYER4_PORT_MASK) {
-                    flowMatches.add(new NxMatchInfo(NxMatchFieldType.nx_udp_src_with_mask,
-                        new long[] {  port, portMaskMap.get(port) }));
+                    flowMatches.add(new NxMatchUdpSourcePort(port, portMaskMap.get(port)));
                 }
                 flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
                 String flowId = "UDP_SOURCE_" + port + "_" + portMaskMap.get(port);
@@ -242,8 +242,7 @@ public class AclServiceOFFlowBuilder {
                 flowMatches.addAll(addSrcIpMatches(acl));
                 flowMatches.addAll(addDstIpMatches(acl));
                 if (portMaskMap.get(port) != AclConstants.ALL_LAYER4_PORT_MASK) {
-                    flowMatches.add(new NxMatchInfo(NxMatchFieldType.nx_udp_dst_with_mask,
-                        new long[] {  port, portMaskMap.get(port) }));
+                    flowMatches.add(new NxMatchUdpDestinationPort(port, portMaskMap.get(port)));
                 }
                 flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
                 String flowId = "UDP_DESTINATION_" + port + "_" + portMaskMap.get(port);
@@ -307,7 +306,7 @@ public class AclServiceOFFlowBuilder {
     public static List<MatchInfoBase> addLPortTagMatches(int lportTag, int conntrackState, int conntrackMask) {
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
-        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state, new long[] {conntrackState, conntrackMask}));
+        matches.add(new NxMatchCtState(conntrackState, conntrackMask));
         return matches;
     }
 

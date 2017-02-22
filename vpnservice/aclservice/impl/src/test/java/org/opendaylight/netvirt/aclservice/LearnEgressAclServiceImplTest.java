@@ -32,10 +32,11 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchTcpFlags;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpDestinationPort;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchUdpDestinationPort;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
@@ -116,8 +117,7 @@ public class LearnEgressAclServiceImplTest {
         assertEquals(10, installFlowValueSaver.getNumOfInvocations());
 
         FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(0);
-        AclServiceTestUtils.verifyMatchInfo(flow.getMatchInfoList(),
-                NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
+        assertTrue(flow.getMatchInfoList().contains(new NxMatchTcpDestinationPort(80, 65535)));
         AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0), ActionLearn.class);
 
         // verify that tcpFinIdleTimeout is used for TCP
@@ -152,12 +152,10 @@ public class LearnEgressAclServiceImplTest {
         assertEquals(true, testedService.applyAcl(ai));
         assertEquals(11, installFlowValueSaver.getNumOfInvocations());
         FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(0);
-        AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(),
-                NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65532");
+        assertTrue(firstRangeFlow.getMatchInfoList().contains(new NxMatchTcpDestinationPort(80, 65532)));
 
         FlowEntity secondRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(10).get(0);
-        AclServiceTestUtils.verifyMatchInfo(secondRangeFlow.getMatchInfoList(),
-                NxMatchFieldType.nx_tcp_dst_with_mask, "84", "65535");
+        assertTrue(secondRangeFlow.getMatchInfoList().contains(new NxMatchTcpDestinationPort(84, 65535)));
     }
 
     @Test
@@ -167,8 +165,7 @@ public class LearnEgressAclServiceImplTest {
         assertEquals(true, testedService.applyAcl(ai));
         assertEquals(10, installFlowValueSaver.getNumOfInvocations());
         FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(0);
-        AclServiceTestUtils.verifyMatchInfo(flow.getMatchInfoList(),
-                NxMatchFieldType.nx_udp_dst_with_mask, "80", "65535");
+        assertTrue(flow.getMatchInfoList().contains(new NxMatchUdpDestinationPort(80, 65535)));
         AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0), ActionLearn.class);
 
         // verify that even though tcpFinIdleTimeout is set to non-zero, it is not used for UDP
@@ -194,8 +191,7 @@ public class LearnEgressAclServiceImplTest {
         assertEquals(5, removeFlowValueSaver.getNumOfInvocations());
         FlowEntity firstRangeFlow = (FlowEntity) removeFlowValueSaver.getInvocationParams(4).get(0);
         assertTrue(firstRangeFlow.getMatchInfoList().contains(new MatchTcpFlags(2)));
-        AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(),
-                NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
+        assertTrue(firstRangeFlow.getMatchInfoList().contains(new NxMatchTcpDestinationPort(80, 65535)));
     }
 
     private AclInterface stubUdpAclInterface(Uuid sgUuid, String ifName, String ipv4PrefixStr,

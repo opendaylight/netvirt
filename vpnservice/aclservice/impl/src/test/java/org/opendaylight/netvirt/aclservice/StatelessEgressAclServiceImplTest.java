@@ -29,10 +29,10 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchTcpFlags;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpDestinationPort;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils;
@@ -109,8 +109,7 @@ public class StatelessEgressAclServiceImplTest {
         assertEquals(10, installFlowValueSaver.getNumOfInvocations());
 
         FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(0);
-        AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(),
-                NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
+        assertTrue(firstRangeFlow.getMatchInfoList().contains(new NxMatchTcpDestinationPort(80, 65535)));
         assertTrue(firstRangeFlow.getMatchInfoList().contains(new MatchTcpFlags(2)));
         AclServiceTestUtils.verifyActionInfo(firstRangeFlow.getInstructionInfoList().get(0),
                 new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
@@ -136,13 +135,11 @@ public class StatelessEgressAclServiceImplTest {
         assertEquals(true, testedService.applyAcl(ai));
         assertEquals(11, installFlowValueSaver.getNumOfInvocations());
         FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(0);
-        AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(),
-                NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65532");
+        assertTrue(firstRangeFlow.getMatchInfoList().contains(new NxMatchTcpDestinationPort(80, 65532)));
         assertTrue(firstRangeFlow.getMatchInfoList().contains(new MatchTcpFlags(2)));
 
         FlowEntity secondRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(10).get(0);
-        AclServiceTestUtils.verifyMatchInfo(secondRangeFlow.getMatchInfoList(),
-                NxMatchFieldType.nx_tcp_dst_with_mask, "84", "65535");
+        assertTrue(secondRangeFlow.getMatchInfoList().contains(new NxMatchTcpDestinationPort(84, 65535)));
         assertTrue(secondRangeFlow.getMatchInfoList().contains(new MatchTcpFlags(2)));
     }
 
@@ -162,8 +159,7 @@ public class StatelessEgressAclServiceImplTest {
         assertEquals(10, removeFlowValueSaver.getNumOfInvocations());
         FlowEntity firstRangeFlow = (FlowEntity) removeFlowValueSaver.getInvocationParams(9).get(0);
         assertTrue(firstRangeFlow.getMatchInfoList().contains(new MatchTcpFlags(2)));
-        AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(),
-                NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
+        assertTrue(firstRangeFlow.getMatchInfoList().contains(new NxMatchTcpDestinationPort(80, 65535)));
 
     }
 

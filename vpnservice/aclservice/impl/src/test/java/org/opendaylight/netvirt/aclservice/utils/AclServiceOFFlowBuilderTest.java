@@ -18,12 +18,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.Test;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
-import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
-import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv4;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpDestinationPort;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpSourcePort;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchUdpDestinationPort;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchUdpSourcePort;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -74,8 +76,8 @@ public class AclServiceOFFlowBuilderTest {
         List<MatchInfoBase> flowMatches = flowMatchesMap.get("TCP_SOURCE_ALL_");
 
         AclServiceTestUtils.verifyGeneralFlows(flowMatches, "1", "10.1.1.1", "20.1.1.1", "24");
-        AclServiceTestUtils.verifyMatchFieldTypeDontExist(flowMatches, NxMatchFieldType.nx_tcp_src_with_mask);
-        AclServiceTestUtils.verifyMatchFieldTypeDontExist(flowMatches, NxMatchFieldType.nx_tcp_dst_with_mask);
+        AclServiceTestUtils.verifyMatchFieldTypeDontExist(flowMatches, NxMatchTcpSourcePort.class);
+        AclServiceTestUtils.verifyMatchFieldTypeDontExist(flowMatches, NxMatchTcpDestinationPort.class);
     }
 
     @Test
@@ -99,17 +101,13 @@ public class AclServiceOFFlowBuilderTest {
 
         AclServiceTestUtils.verifyGeneralFlows(srcFlowMatches, "1", "10.1.1.1", "20.1.1.1", "24");
         List<MatchInfoBase> tcpSrcMatches = srcFlowMatches.stream().filter(
-            item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(
-                        NxMatchFieldType.nx_tcp_src_with_mask)).collect(Collectors.toList());
-
-        AclServiceTestUtils.verifyMatchValues((NxMatchInfo) tcpSrcMatches.get(0), "1024", "65535");
+            item -> item instanceof NxMatchTcpSourcePort).collect(Collectors.toList());
+        assertEquals(new NxMatchTcpSourcePort(1024, 65535), tcpSrcMatches.get(0));
 
         AclServiceTestUtils.verifyGeneralFlows(dstFlowMatches, "1", "10.1.1.1", "20.1.1.1", "24");
         List<MatchInfoBase> tcpDstMatches = dstFlowMatches.stream().filter(
-            item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(
-                        NxMatchFieldType.nx_tcp_dst_with_mask)).collect(Collectors.toList());
-
-        AclServiceTestUtils.verifyMatchValues((NxMatchInfo) tcpDstMatches.get(0), "1024", "65535");
+            item -> item instanceof NxMatchTcpDestinationPort).collect(Collectors.toList());
+        assertEquals(new NxMatchTcpDestinationPort(1024, 65535), tcpDstMatches.get(0));
     }
 
     @Test
@@ -129,8 +127,8 @@ public class AclServiceOFFlowBuilderTest {
         List<MatchInfoBase> flowMatches = flowMatchesMap.get("UDP_SOURCE_ALL_");
 
         AclServiceTestUtils.verifyGeneralFlows(flowMatches, "1", "10.1.1.1", "20.1.1.1", "24");
-        AclServiceTestUtils.verifyMatchFieldTypeDontExist(flowMatches, NxMatchFieldType.nx_udp_src_with_mask);
-        AclServiceTestUtils.verifyMatchFieldTypeDontExist(flowMatches, NxMatchFieldType.nx_udp_dst_with_mask);
+        AclServiceTestUtils.verifyMatchFieldTypeDontExist(flowMatches, NxMatchUdpSourcePort.class);
+        AclServiceTestUtils.verifyMatchFieldTypeDontExist(flowMatches, NxMatchUdpDestinationPort.class);
     }
 
     @Test
@@ -154,16 +152,14 @@ public class AclServiceOFFlowBuilderTest {
         AclServiceTestUtils.verifyGeneralFlows(srcFlowMatches, "1", "10.1.1.1", "20.1.1.1", "24");
 
         List<MatchInfoBase> udpSrcMatches = srcFlowMatches.stream().filter(
-            item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(
-                        NxMatchFieldType.nx_udp_src_with_mask)).collect(Collectors.toList());
-        AclServiceTestUtils.verifyMatchValues((NxMatchInfo) udpSrcMatches.get(0), "1024", "65535");
+            item -> item instanceof NxMatchUdpSourcePort).collect(Collectors.toList());
+        assertEquals(new NxMatchUdpSourcePort(1024, 65535), udpSrcMatches.get(0));
 
         AclServiceTestUtils.verifyGeneralFlows(dstFlowMatches, "1", "10.1.1.1", "20.1.1.1", "24");
 
         List<MatchInfoBase> udpDstMatches = dstFlowMatches.stream().filter(
-            item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(
-                        NxMatchFieldType.nx_udp_dst_with_mask)).collect(Collectors.toList());
-        AclServiceTestUtils.verifyMatchValues((NxMatchInfo) udpDstMatches.get(0), "1024", "65535");
+            item -> item instanceof NxMatchUdpDestinationPort).collect(Collectors.toList());
+        assertEquals(new NxMatchUdpDestinationPort(1024, 65535), udpDstMatches.get(0));
     }
 
     @Test

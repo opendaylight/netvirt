@@ -17,9 +17,10 @@ import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchTcpFlags;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpDestinationPort;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpSourcePort;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
@@ -86,8 +87,8 @@ public class StatelessIngressAclServiceImpl extends AbstractIngressAclServiceImp
         for (Map.Entry<String, List<MatchInfoBase>> flow : flowMap.entrySet()) {
             List<MatchInfoBase> flowMatches = flow.getValue();
             boolean hasTcpMatch = AclServiceUtils.containsMatchFieldType(flowMatches,
-                    NxMatchFieldType.nx_tcp_dst_with_mask) || AclServiceUtils.containsMatchFieldType(flowMatches,
-                            NxMatchFieldType.nx_tcp_src_with_mask);
+                    NxMatchTcpDestinationPort.class) || AclServiceUtils.containsMatchFieldType(flowMatches,
+                    NxMatchTcpSourcePort.class);
             if (hasTcpMatch || protocol == null) {
                 String flowName = flow.getKey() + "Ingress" + lportTag + ace.getKey().getRuleName();
                 flowMatches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
