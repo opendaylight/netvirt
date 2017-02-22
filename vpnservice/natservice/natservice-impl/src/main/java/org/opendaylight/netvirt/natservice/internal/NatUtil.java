@@ -29,6 +29,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -58,6 +59,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
@@ -1735,4 +1738,42 @@ public class NatUtil {
         }
         return result;
     }
+
+    static long getLPortTagForRouter(String routerIdKey, IdManagerService idManager) {
+        LOG.debug("NAT Service : Get Router_lPort_Tag from ID Manager for Non-NAPT Switch to NAPT Switch to use "
+                + "Tunnel ID");
+        AllocateIdInput getIdInput = new AllocateIdInputBuilder()
+                .setPoolName(IfmConstants.IFM_IDPOOL_NAME).setIdKey(routerIdKey)
+                .build();
+        try {
+            Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
+            RpcResult<AllocateIdOutput> rpcResult = result.get();
+            return rpcResult.getResult().getIdValue();
+        } catch (NullPointerException | InterruptedException | ExecutionException e) {
+            LOG.trace("NAT Service : idManager Failed with exception {} while getting Router_lPort_Tag "
+                    + "from pool with key {} ", e.getStackTrace(), routerIdKey);
+        }
+        return 0;
+    }
+
+    static void removeLPortTagForRouter(String routerIdKey, IdManagerService idManager) {
+        LOG.debug("NAT Service : Remove Router_lPort_Tag ID Pool for Non-NAPT Switch to NAPT Switch to use Tunnel ID");
+        ReleaseIdInput getIdInput = new ReleaseIdInputBuilder()
+                .setPoolName(IfmConstants.IFM_IDPOOL_NAME).setIdKey(routerIdKey)
+                .build();
+        try {
+            Future<RpcResult<Void>> result = idManager.releaseId(getIdInput);
+            RpcResult<Void> rpcResult = result.get();
+            if (!rpcResult.isSuccessful()) {
+                LOG.error("NAT Service : idManager Failed  {} to remove Router_lPort_Tag from pool",
+                        rpcResult.getErrors());
+            }
+            LOG.debug("NAT Service : idManager successfully removed Router_lPort_Tag from pool with key {}",
+                    routerIdKey);
+        } catch (NullPointerException | InterruptedException | ExecutionException e) {
+            LOG.trace("NAT Service : idManager Failed with exception {} while removing Router_lPort_Tag from pool "
+                    + "with key {} ", e.getStackTrace(), routerIdKey);
+        }
+    }
+
 }
