@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_13bf8062",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-22T10:48:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e5120008",
+      "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_65a8d077",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 6
@@ -53,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_53b5887c",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-22T10:48:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_850174b1",
+      "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_25940842",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 6
@@ -64,6 +100,24 @@
       "writtenOn": "2017-02-17T21:32:01Z",
       "side": 1,
       "message": "Maybe reword this paragraph and move the table stuff down or just duplicate it down in the pipeline changes section. Most people go to that section to see the description of the changes.",
+      "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_73afec2a",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-22T10:48:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_25940842",
       "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +141,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_33ba846e",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-22T10:48:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_05aaa484",
+      "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_85d97424",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 6
@@ -98,6 +170,24 @@
       "writtenOn": "2017-02-17T21:32:01Z",
       "side": 1,
       "message": "are the actions only goto table or should they be resubmit?\n\nAlso are there more actions - like what actually does the counting or where is that covered?",
+      "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b62f8287",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-22T10:48:31Z",
+      "side": 1,
+      "message": "I\u0027ve fixed to resubmit.\nThere should\u0027t be more actions, we count the number of hits on the flow",
+      "parentUuid": "fafc7978_85d97424",
       "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -127,6 +217,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f6546a00",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-22T10:48:31Z",
+      "side": 1,
+      "message": "This section uses a TCP filter only, showing that this use case is also supported. It does not look for a specific destination IP.",
+      "parentUuid": "fafc7978_ac561c28",
+      "range": {
+        "startLine": 75,
+        "startChar": 66,
+        "endLine": 75,
+        "endChar": 67
+      },
+      "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e5ea00ab",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 6
@@ -138,6 +252,24 @@
       "writtenOn": "2017-02-17T21:32:01Z",
       "side": 1,
       "message": "Can you use this form so we know the name of the yang file?\n\n.. code-block:: none\n   :caption: example.yang",
+      "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1334a0fa",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-22T10:48:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e5ea00ab",
       "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -178,6 +310,24 @@
       "writtenOn": "2017-02-17T21:32:01Z",
       "side": 1,
       "message": "is the yang just model data or really configuration?",
+      "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f31f5c6a",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-22T10:48:31Z",
+      "side": 1,
+      "message": "It should be also configuration since we may need to retrieve it in order to see what requests we currently have",
+      "parentUuid": "fafc7978_45d30c04",
       "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -242,6 +392,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_134dc09a",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-22T10:48:31Z",
+      "side": 1,
+      "message": "This indeed for debugging purposes - it will be enabled/disabled on demand.",
+      "parentUuid": "fafc7978_2c118c5d",
+      "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c506dc85",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 6
@@ -253,6 +421,24 @@
       "writtenOn": "2017-02-17T21:32:01Z",
       "side": 1,
       "message": "what does the output look like?",
+      "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_964d1e41",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-22T10:48:31Z",
+      "side": 1,
+      "message": "Added an example",
+      "parentUuid": "fafc7978_c506dc85",
       "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -276,6 +462,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_36f712f7",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-22T10:48:31Z",
+      "side": 1,
+      "message": "Does the same..",
+      "parentUuid": "fafc7978_65d610f3",
+      "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a50bd88c",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 6
@@ -287,6 +491,24 @@
       "writtenOn": "2017-02-17T21:32:01Z",
       "side": 1,
       "message": "what feature is this? should it be just odl-netvirt-openstack?",
+      "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f6062a1c",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-22T10:48:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a50bd88c",
       "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
