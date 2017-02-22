@@ -130,6 +130,7 @@
     <argument ref="naptPacketInHandler" />
     <argument ref="fibManager" />
     <argument ref="vpnManager"/>
+    <argument ref="neutronvpnService" />
   </bean>
 
   <bean id="externalNetworksChangeListener"

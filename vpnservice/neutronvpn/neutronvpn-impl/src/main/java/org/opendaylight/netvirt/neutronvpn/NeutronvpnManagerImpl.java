@@ -87,4 +87,10 @@ public class NeutronvpnManagerImpl implements INeutronVpnManager {
     public Collection<Uuid> getSubnetIdsForGatewayIp(IpAddress ipAddress) {
         return  NeutronvpnUtils.getSubnetIdsForGatewayIp(ipAddress);
     }
+
+    @Override
+    public void createOpenDayLightVniRangePool(String poolName, long lowLimit, long highLimit) {
+        nvManager.createOpenDayLightVniRangePool(poolName, lowLimit, highLimit);
+    }
+
 }

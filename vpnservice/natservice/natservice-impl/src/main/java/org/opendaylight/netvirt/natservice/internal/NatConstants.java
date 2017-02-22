@@ -30,6 +30,9 @@ public class NatConstants {
     public static final String SNAT_IDPOOL_NAME = "snatGroupIdPool";
     public static final long SNAT_ID_LOW_VALUE = 200000L;
     public static final long SNAT_ID_HIGH_VALUE = 225000L;
+    public static final String ODL_VNI_POOL_NAME = "opendaylight-vni-ranges";
+    public static final long VNI_DEFAULT_LOW_VALUE = 70000L;
+    public static final long VNI_DEFAULT_HIGH_VALUE = 100000L;
     public static final int DEFAULT_TS_FLOW_PRIORITY = 10;
     public static final short DEFAULT_PREFIX = 32;
 

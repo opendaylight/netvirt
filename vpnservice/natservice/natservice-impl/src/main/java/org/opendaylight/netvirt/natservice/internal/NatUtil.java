@@ -57,6 +57,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.acti
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
@@ -149,8 +153,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.snatint.ip.port.map.intip.port.map.IpPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.snatint.ip.port.map.intip.port.map.ip.port.IntIpProtoType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.snatint.ip.port.map.intip.port.map.ip.port.IntIpProtoTypeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetConfiguredLimitsForOdlVniPoolOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
@@ -1734,5 +1740,90 @@ public class NatUtil {
             result |= octet & 0xff;
         }
         return result;
+    }
+
+    public static BigInteger getVNI(String vniKey, IdManagerService idManager) {
+        LOG.debug("NAT Service : getVNI for key :: {} isRouter :: {}", vniKey);
+        AllocateIdInput getIdInput = new AllocateIdInputBuilder().setPoolName(NatConstants.ODL_VNI_POOL_NAME)
+                .setIdKey(vniKey).build();
+        try {
+            Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
+            RpcResult<AllocateIdOutput> rpcResult = result.get();
+            if (rpcResult.isSuccessful()) {
+                return BigInteger.valueOf(rpcResult.getResult().getIdValue());
+            }
+        } catch (NullPointerException | InterruptedException | ExecutionException e) {
+            LOG.error("NAT Service : getVNI Exception {}", e);
+        }
+        return BigInteger.valueOf(-1);
+    }
+
+    public static void createOpendayLightVniRangePool(NeutronvpnService neutronVpnService, IdManagerService idManager,
+            String poolName, long lowLimit, long highLimit) {
+
+        CreateIdPoolInput createPool = null;
+        Future<RpcResult<GetConfiguredLimitsForOdlVniPoolOutput>> vniLimitResult = neutronVpnService
+                .getConfiguredLimitsForOdlVniPool();
+        try {
+            if (vniLimitResult.get().isSuccessful()) {
+                createPool = new CreateIdPoolInputBuilder().setPoolName(poolName)
+                        .setLow(vniLimitResult.get().getResult().getLowLimit())
+                        .setHigh(vniLimitResult.get().getResult().getHighLimit()).build();
+            } else {
+                createPool = new CreateIdPoolInputBuilder().setPoolName(poolName).setLow(lowLimit).setHigh(highLimit)
+                        .build();
+            }
+        } catch (InterruptedException | ExecutionException e1) {
+            LOG.error("NAT Service : Retriving VNI configuration failed.Creating with default values");
+            createPool = new CreateIdPoolInputBuilder().setPoolName(poolName).setLow(lowLimit).setHigh(highLimit)
+                    .build();
+        }
+        try {
+            Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
+            if (result != null && result.get().isSuccessful()) {
+                LOG.debug("NAT Service : Created createOdlVniPool {} with range {}-{}", poolName, lowLimit, highLimit);
+            } else {
+                LOG.error("NAT Service : Failed to create createOdlVniPool {} with range {}-{}", poolName, lowLimit,
+                        highLimit);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("NAT Service : Failed to create createOdlVniPool {} with range {}-{}", poolName, lowLimit,
+                    highLimit);
+        }
+    }
+
+    public static void deleteOpendayLightVniRangePool(IdManagerService idManager, String poolName) {
+
+        DeleteIdPoolInput deletePool = new DeleteIdPoolInputBuilder().setPoolName(poolName).build();
+        Future<RpcResult<Void>> result = idManager.deleteIdPool(deletePool);
+        try {
+            if (result != null && result.get().isSuccessful()) {
+                LOG.debug("NAT Service : Deleted OdlVniPool {} successfully", poolName);
+            } else {
+                LOG.error("NAT Service : Failed to delete OdlVniPool {} ", poolName);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("NAT Service : Failed to delete OdlVniPool {} ", poolName);
+        }
+    }
+
+    public static Boolean isFirstNatRouter(DataBroker broker) {
+        InstanceIdentifier<ExtRouters> extRoutersIdentifier = InstanceIdentifier.create(ExtRouters.class);
+        Optional<ExtRouters> extRouterData = NatUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
+                extRoutersIdentifier);
+        if (extRouterData.get().getRouters().size() == 1) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    public static Boolean isLastNatRouter(DataBroker broker) {
+        InstanceIdentifier<ExtRouters> extRoutersIdentifier = InstanceIdentifier.create(ExtRouters.class);
+        Optional<ExtRouters> extRouterData = NatUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
+                extRoutersIdentifier);
+        if (extRouterData.get() == null || extRouterData.get().getRouters().isEmpty()) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
     }
 }

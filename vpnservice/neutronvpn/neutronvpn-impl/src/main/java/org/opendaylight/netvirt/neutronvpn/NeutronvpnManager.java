@@ -45,6 +45,9 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
@@ -52,6 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.config.rev160806.NeutronvpnConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.config.rev160806.OpendaylightVniRangeConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.AssociateNetworksInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.AssociateNetworksOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.AssociateNetworksOutputBuilder;
@@ -66,6 +70,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DissociateNetworksOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DissociateNetworksOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DissociateRouterInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetConfiguredLimitsForOdlVniPoolOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetConfiguredLimitsForOdlVniPoolOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetFixedIPsForNeutronPortInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetFixedIPsForNeutronPortOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetFixedIPsForNeutronPortOutputBuilder;
@@ -128,21 +134,29 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     private final VpnRpcService vpnRpcService;
     private final NeutronFloatingToFixedIpMappingChangeListener floatingIpMapListener;
     private final NeutronvpnConfig neutronvpnConfig;
+    private final OpendaylightVniRangeConfig opendaylightVniRangeConfig;
     private final IElanService elanService;
+    private final IdManagerService idManager;
 
     public NeutronvpnManager(
             final DataBroker dataBroker, final NotificationPublishService notiPublishService,
             final NeutronvpnNatManager vpnNatMgr, final VpnRpcService vpnRpcSrv, final IElanService elanService,
+            final IdManagerService idManager,
             final NeutronFloatingToFixedIpMappingChangeListener neutronFloatingToFixedIpMappingChangeListener,
-            final NeutronvpnConfig neutronvpnConfig) {
+            final NeutronvpnConfig neutronvpnConfig,
+            final OpendaylightVniRangeConfig opendaylightVniRangeConfig) {
         this.dataBroker = dataBroker;
         nvpnNatManager = vpnNatMgr;
         notificationPublishService = notiPublishService;
         vpnRpcService = vpnRpcSrv;
         this.elanService = elanService;
+        this.idManager = idManager;
         floatingIpMapListener = neutronFloatingToFixedIpMappingChangeListener;
         LOG.info("neutronvpnConfig: {}", neutronvpnConfig);
         this.neutronvpnConfig = neutronvpnConfig;
+        this.opendaylightVniRangeConfig = opendaylightVniRangeConfig;
+        LOG.info("opendaylightVniRangeConfig: {}", opendaylightVniRangeConfig);
+
     }
 
     @Override
@@ -152,6 +166,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     public NeutronvpnConfig getNeutronvpnConfig() {
         return neutronvpnConfig;
+    }
+
+    public OpendaylightVniRangeConfig getOpendaylightVniRangeConfig() {
+        return opendaylightVniRangeConfig;
     }
 
     // TODO Clean up the exception handling
@@ -1912,6 +1930,24 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         return result;
     }
 
+    public Future<RpcResult<GetConfiguredLimitsForOdlVniPoolOutput>> getConfiguredLimitsForOdlVniPool() {
+
+        GetConfiguredLimitsForOdlVniPoolOutputBuilder builder = new GetConfiguredLimitsForOdlVniPoolOutputBuilder();
+        SettableFuture<RpcResult<GetConfiguredLimitsForOdlVniPoolOutput>> result = SettableFuture.create();
+        if (opendaylightVniRangeConfig != null && opendaylightVniRangeConfig.getLowLimit() != null
+                && opendaylightVniRangeConfig.getHighLimit() != null) {
+
+            builder.setLowLimit(opendaylightVniRangeConfig.getLowLimit().longValue());
+            builder.setHighLimit(opendaylightVniRangeConfig.getHighLimit().longValue());
+            result.set(RpcResultBuilder.<GetConfiguredLimitsForOdlVniPoolOutput>success().withResult(builder).build());
+        } else {
+            String message = String.format("OpendayLight VNI Range Config is missing");
+            result.set(RpcResultBuilder.<GetConfiguredLimitsForOdlVniPoolOutput>failed()
+                    .withError(ErrorType.APPLICATION, message).build());
+        }
+        return result;
+    }
+
     protected void handleNeutronRouterDeleted(Uuid routerId, List<Uuid> routerSubnetIds) {
         // check if the router is associated to some VPN
         Uuid vpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerId, true);
@@ -2201,5 +2237,25 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     protected void dissociatefixedIPFromFloatingIP(String fixedNeutronPortName) {
         floatingIpMapListener.dissociatefixedIPFromFloatingIP(fixedNeutronPortName);
+    }
+
+    public void createOpenDayLightVniRangePool(String poolName, long lowLimit, long highLimit) {
+        if (opendaylightVniRangeConfig != null && opendaylightVniRangeConfig.getLowLimit() != null
+                && opendaylightVniRangeConfig.getHighLimit() != null) {
+            lowLimit = opendaylightVniRangeConfig.getLowLimit().longValue();
+            highLimit = opendaylightVniRangeConfig.getHighLimit().longValue();
+        }
+        CreateIdPoolInput createPool = new CreateIdPoolInputBuilder().setPoolName(poolName).setLow(lowLimit)
+                .setHigh(highLimit).build();
+        try {
+            Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
+            if ((result != null) && (result.get().isSuccessful())) {
+                LOG.debug("Created createOdlVniPool");
+            } else {
+                LOG.error("Unable to create createOdlVniPool");
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Failed to create ODL VNI POOL for NAPT Service", e);
+        }
     }
 }

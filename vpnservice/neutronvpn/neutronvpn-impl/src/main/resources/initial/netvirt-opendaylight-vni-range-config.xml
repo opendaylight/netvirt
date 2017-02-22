@@ -1,0 +1,5 @@
+<opendaylight-vni-range-config xmlns="urn:opendaylight:netvirt:neutronvpn:config">
+  <low-limit>70000</low-limit>
+  <high-limit>100000</high-limit>
+</opendaylight-vni-range-config>
+
