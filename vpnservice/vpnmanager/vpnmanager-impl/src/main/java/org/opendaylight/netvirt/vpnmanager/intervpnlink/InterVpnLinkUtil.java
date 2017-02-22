@@ -200,7 +200,7 @@ public class InterVpnLinkUtil {
                                                                                Long lportTagOfOtherEndpoint) {
         List<ListenableFuture<Void>> result = new ArrayList<>();
         long vpnId = VpnUtil.getVpnId(broker, vpnUuidOtherEndpoint);
-        for ( BigInteger dpnId : dpnList ) {
+        for (BigInteger dpnId : dpnList) {
             // insert into LPortDispatcher table
             Flow lportDispatcherFlow = buildLPortDispatcherFlow(interVpnLinkName, vpnId,
                                                                 lportTagOfOtherEndpoint.intValue());
