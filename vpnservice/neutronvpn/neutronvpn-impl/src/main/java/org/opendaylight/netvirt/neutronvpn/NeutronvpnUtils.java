@@ -47,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
@@ -63,6 +64,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeGre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntriesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
@@ -1224,5 +1227,30 @@ public class NeutronvpnUtils {
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice
                         .rev160111.external.subnets.Subnets.class, new SubnetsKey(subnetId)).build();
         return read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetsIdentifier);
+    }
+
+    public static List<StaticMacEntries> buildStaticMacEntry(Port port) {
+        PhysAddress physAddress = new PhysAddress(port.getMacAddress().getValue());
+        List<FixedIps> fixedIps = port.getFixedIps();
+        IpAddress ipAddress = null;
+        if (isNotEmpty(fixedIps)) {
+            ipAddress = port.getFixedIps().get(0).getIpAddress();
+        }
+        StaticMacEntriesBuilder staticMacEntriesBuilder = new StaticMacEntriesBuilder();
+        List<StaticMacEntries> staticMacEntries = new ArrayList<>();
+        if (ipAddress != null) {
+            staticMacEntries.add(staticMacEntriesBuilder.setMacAddress(physAddress).setIpPrefix(ipAddress).build());
+        } else {
+            staticMacEntries.add(staticMacEntriesBuilder.setMacAddress(physAddress).build());
+        }
+        return staticMacEntries;
+    }
+
+    public static boolean isEmpty(Collection collection) {
+        return collection == null || collection.isEmpty();
+    }
+
+    public static boolean isNotEmpty(Collection collection) {
+        return (!isEmpty(collection));
     }
 }
