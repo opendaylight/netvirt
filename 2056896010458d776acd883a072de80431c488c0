@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_5059fe8c",
+        "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T08:42:05Z",
+      "side": 1,
+      "message": "use DJC heree too with port-uuid as the key.",
+      "revId": "2056896010458d776acd883a072de80431c488c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f067524b",
+        "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T08:42:05Z",
+      "side": 1,
+      "message": "please use DJC here too with port-uuid as the key.\n\nWherever you are applying per-port qos policy, apply the DJC with port-uuid as the key uniformly.",
+      "revId": "2056896010458d776acd883a072de80431c488c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d0fa0e42",
+        "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/QosPolicyChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T08:42:05Z",
+      "side": 1,
+      "message": "who calls this one?",
+      "revId": "2056896010458d776acd883a072de80431c488c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1098161b",
+        "filename": "vpnservice/qosservice/qosservice-impl/src/main/resources/org/opendaylight/blueprint/qosservice.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-22T08:42:05Z",
+      "side": 1,
+      "message": "remove it if you don\u0027t need it :)",
+      "revId": "2056896010458d776acd883a072de80431c488c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
