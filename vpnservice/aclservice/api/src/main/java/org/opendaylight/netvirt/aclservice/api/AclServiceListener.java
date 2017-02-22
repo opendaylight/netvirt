@@ -19,6 +19,10 @@ public interface AclServiceListener {
 
     boolean removeAcl(AclInterface port);
 
+    boolean bindAcl(AclInterface port);
+
+    boolean unbindAcl(AclInterface port);
+
     boolean applyAce(AclInterface port, String aclName, Ace ace);
 
     boolean removeAce(AclInterface port, String aclName, Ace ace);
