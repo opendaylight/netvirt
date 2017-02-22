@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_b6c30256",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-02-22T11:15:49Z",
+      "side": 1,
+      "message": "I think we should include this link [0] as part of the problem description. We aim at solve this problem avoiding this workaround, etc.\n[0] http://artifacts.opnfv.org/sfc/colorado/docs/design/index.html#document-architecture",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 51
+      },
+      "revId": "be24ac8b5d9379ede5b0b2b8e0ff177e23461431",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7694fa42",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-02-22T11:15:49Z",
+      "side": 1,
+      "message": "We could include here a reference to Genius docs, for example the current pipeline that guaranties the Application Coexistence.",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 23
+      },
+      "revId": "be24ac8b5d9379ede5b0b2b8e0ff177e23461431",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d69de667",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-02-22T11:15:49Z",
+      "side": 1,
+      "message": "We could introduce here the term Application Coexistance: \"this is what is called Application Coexistence in Genius\u0027 terminology.\" and a link to it.",
+      "range": {
+        "startLine": 90,
+        "startChar": 56,
+        "endLine": 90,
+        "endChar": 60
+      },
+      "revId": "be24ac8b5d9379ede5b0b2b8e0ff177e23461431",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_56aa9685",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-02-22T11:15:49Z",
+      "side": 1,
+      "message": "Add (ITM)",
+      "range": {
+        "startLine": 134,
+        "startChar": 8,
+        "endLine": 134,
+        "endChar": 12
+      },
+      "revId": "be24ac8b5d9379ede5b0b2b8e0ff177e23461431",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3686f213",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-02-22T11:15:49Z",
+      "side": 1,
+      "message": "We can add here a reference to the current Genius/Netvirt pipeline to see how the classifier fits.",
+      "range": {
+        "startLine": 146,
+        "startChar": 60,
+        "endLine": 146,
+        "endChar": 67
+      },
+      "revId": "be24ac8b5d9379ede5b0b2b8e0ff177e23461431",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f6a8ea8e",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-02-22T11:15:49Z",
+      "side": 1,
+      "message": "I do not know if this is the correct section, but you should include the version of OVS needed: 2.6.1 with Yi Yang\u0027s patch.",
+      "range": {
+        "startLine": 169,
+        "startChar": 0,
+        "endLine": 169,
+        "endChar": 26
+      },
+      "revId": "be24ac8b5d9379ede5b0b2b8e0ff177e23461431",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
