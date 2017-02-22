@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -91,6 +92,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.Elan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.ElanBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.ElanKey;
@@ -449,42 +451,43 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         // updating the static-Mac Entries for the existing elanInterface
         String elanName = update.getElanInstanceName();
         String interfaceName = update.getName();
-        List<PhysAddress> existingPhysAddress = original.getStaticMacEntries();
-        List<PhysAddress> updatedPhysAddress = update.getStaticMacEntries();
-        if (updatedPhysAddress != null && !updatedPhysAddress.isEmpty()) {
-            List<PhysAddress> existingClonedPhyAddress = new ArrayList<>();
-            if (existingPhysAddress != null && !existingPhysAddress.isEmpty()) {
-                existingClonedPhyAddress.addAll(0, existingPhysAddress);
-                existingPhysAddress.removeAll(updatedPhysAddress);
-                updatedPhysAddress.removeAll(existingClonedPhyAddress);
-                // removing the PhyAddress which are not presented in the
-                // updated List
-                for (PhysAddress physAddress : existingPhysAddress) {
-                    removeInterfaceStaticMacEntires(elanName, interfaceName, physAddress);
+
+        List<StaticMacEntries> originalStaticMacEntries = original.getStaticMacEntries();
+        List<StaticMacEntries> updatedStaticMacEntries = update.getStaticMacEntries();
+
+        if (updatedStaticMacEntries != null && !updatedStaticMacEntries.isEmpty()) {
+            List<StaticMacEntries> existingClonedStaticMacEntries = new ArrayList<>();
+            if (originalStaticMacEntries != null && !originalStaticMacEntries.isEmpty()) {
+                existingClonedStaticMacEntries.addAll(0, originalStaticMacEntries);
+                originalStaticMacEntries.removeAll(updatedStaticMacEntries);
+                updatedStaticMacEntries.removeAll(existingClonedStaticMacEntries);
+                for (StaticMacEntries staticMacEntries : originalStaticMacEntries) {
+                    removeInterfaceStaticMacEntries(elanName, interfaceName, staticMacEntries.getMacAddress());
                 }
             }
-            // Adding the new PhysAddress which are presented in the updated
-            // List
-            if (updatedPhysAddress.size() > 0) {
-                for (PhysAddress physAddress : updatedPhysAddress) {
-                    InstanceIdentifier<MacEntry> macId = getMacEntryOperationalDataPath(elanName, physAddress);
-                    Optional<MacEntry> existingMacEntry = elanUtils.read(broker,
-                            LogicalDatastoreType.OPERATIONAL, macId);
-                    WriteTransaction tx = broker.newWriteOnlyTransaction();
-                    if (existingMacEntry.isPresent()) {
-                        elanForwardingEntriesHandler.updateElanInterfaceForwardingTablesList(
-                                elanName, interfaceName, existingMacEntry.get().getInterface(), existingMacEntry.get(),
-                                tx);
-                    } else {
-                        elanForwardingEntriesHandler.addElanInterfaceForwardingTableList(
-                                ElanUtils.getElanInstanceByName(broker, elanName), interfaceName, physAddress, tx);
-                    }
-                    ElanUtils.waitForTransactionToComplete(tx);
+        }
+        // Adding the new PhysAddress which are presented in the updated
+        // List
+        if (updatedStaticMacEntries.size() > 0) {
+            for (StaticMacEntries staticMacEntries : updatedStaticMacEntries) {
+                InstanceIdentifier<MacEntry> macId = getMacEntryOperationalDataPath(elanName,
+                        staticMacEntries.getMacAddress());
+                Optional<MacEntry> existingMacEntry = elanUtils.read(broker,
+                        LogicalDatastoreType.OPERATIONAL, macId);
+                WriteTransaction tx = broker.newWriteOnlyTransaction();
+                if (existingMacEntry.isPresent()) {
+                    elanForwardingEntriesHandler.updateElanInterfaceForwardingTablesList(
+                            elanName, interfaceName, existingMacEntry.get().getInterface(), existingMacEntry.get(),
+                            tx);
+                } else {
+                    elanForwardingEntriesHandler.addElanInterfaceForwardingTableList(
+                            ElanUtils.getElanInstanceByName(broker, elanName), interfaceName, staticMacEntries, tx);
                 }
+                ElanUtils.waitForTransactionToComplete(tx);
             }
-        } else if (existingPhysAddress != null && !existingPhysAddress.isEmpty()) {
-            for (PhysAddress physAddress : existingPhysAddress) {
-                removeInterfaceStaticMacEntires(elanName, interfaceName, physAddress);
+        }   else if (originalStaticMacEntries != null && !originalStaticMacEntries.isEmpty()) {
+            for (StaticMacEntries staticMacEntries : originalStaticMacEntries) {
+                removeInterfaceStaticMacEntries(elanName, interfaceName, staticMacEntries.getMacAddress());
             }
         }
     }
@@ -662,11 +665,18 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         WriteTransaction writeFlowGroupTx = broker.newWriteOnlyTransaction();
         installEntriesForElanInterface(elanInstance, elanInterface, interfaceInfo,
                 isFirstInterfaceInDpn, tx, writeFlowGroupTx);
-        List<PhysAddress> staticMacAddresses = elanInterface.getStaticMacEntries();
-        if (staticMacAddresses != null) {
+
+        List<StaticMacEntries> staticMacEntriesList = elanInterface.getStaticMacEntries();
+        List<PhysAddress> staticMacAddresses = Lists.newArrayList();
+        for (StaticMacEntries staticMacEntry : staticMacEntriesList) {
+            staticMacAddresses.add(staticMacEntry.getMacAddress());
+        }
+
+        if (staticMacEntriesList != null) {
             boolean isInterfaceOperational = isOperational(interfaceInfo);
-            for (PhysAddress physAddress : staticMacAddresses) {
-                InstanceIdentifier<MacEntry> macId = getMacEntryOperationalDataPath(elanInstanceName, physAddress);
+            for (StaticMacEntries staticMacEntry : staticMacEntriesList) {
+                InstanceIdentifier<MacEntry> macId = getMacEntryOperationalDataPath(elanInstanceName,
+                        staticMacEntry.getMacAddress());
                 Optional<MacEntry> existingMacEntry = elanUtils.read(broker,
                         LogicalDatastoreType.OPERATIONAL, macId);
                 if (existingMacEntry.isPresent()) {
@@ -674,15 +684,16 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                             elanInstanceName, interfaceName, existingMacEntry.get().getInterface(),
                             existingMacEntry.get(), tx);
                 } else {
+
                     elanForwardingEntriesHandler
-                            .addElanInterfaceForwardingTableList(elanInstance, interfaceName, physAddress, tx);
+                            .addElanInterfaceForwardingTableList(elanInstance, interfaceName, staticMacEntry, tx);
                 }
 
                 if (isInterfaceOperational) {
                     // Setting SMAC, DMAC, UDMAC in this DPN and also in other
                     // DPNs
                     elanUtils.setupMacFlows(elanInstance, interfaceInfo, ElanConstants.STATIC_MAC_TIMEOUT,
-                            physAddress.getValue(), true, writeFlowGroupTx);
+                            staticMacEntry.getMacAddress().getValue(), true, writeFlowGroupTx);
                 }
             }
 
@@ -693,11 +704,12 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                         staticMacAddresses);
             }
         }
+
         futures.add(ElanUtils.waitForTransactionToComplete(tx));
         futures.add(ElanUtils.waitForTransactionToComplete(writeFlowGroupTx));
     }
 
-    protected void removeInterfaceStaticMacEntires(String elanInstanceName, String interfaceName,
+    protected void removeInterfaceStaticMacEntries(String elanInstanceName, String interfaceName,
             PhysAddress physAddress) {
         InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
         InstanceIdentifier<MacEntry> macId = getMacEntryOperationalDataPath(elanInstanceName, physAddress);
