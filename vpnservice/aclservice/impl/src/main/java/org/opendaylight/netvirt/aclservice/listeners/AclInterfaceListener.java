@@ -71,11 +71,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         if (AclServiceUtils.isOfInterest(aclInterface)) {
             AclInterfaceCacheUtil.removeAclInterfaceFromCache(interfaceId);
             if (aclClusterUtil.isEntityOwner()) {
-                aclServiceManager.notify(aclInterface, null, Action.REMOVE);
-            }
-            List<Uuid> aclList = aclInterface.getSecurityGroups();
-            if (aclList != null) {
-                aclDataUtil.removeAclInterfaceMap(aclList, aclInterface);
+                aclServiceManager.notify(aclInterface, null, Action.UNBIND);
             }
         }
     }
@@ -151,7 +147,10 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
     protected void add(InstanceIdentifier<Interface> key, Interface port) {
         InterfaceAcl aclInPort = port.getAugmentation(InterfaceAcl.class);
         if (aclInPort != null && aclInPort.isPortSecurityEnabled()) {
-            addAclInterfaceToCache(port.getName(), aclInPort);
+            AclInterface aclInterface = addAclInterfaceToCache(port.getName(), aclInPort);
+            if (aclClusterUtil.isEntityOwner()) {
+                aclServiceManager.notify(aclInterface, null, Action.BIND);
+            }
         }
     }
 
