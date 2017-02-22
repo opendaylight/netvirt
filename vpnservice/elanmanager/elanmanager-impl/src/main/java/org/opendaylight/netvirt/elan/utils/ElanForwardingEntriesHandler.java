@@ -19,6 +19,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryKey;
@@ -67,9 +68,12 @@ public class ElanForwardingEntriesHandler {
     }
 
     public void addElanInterfaceForwardingTableList(ElanInstance elanInstance, String interfaceName,
-            PhysAddress physAddress, WriteTransaction tx) {
-        MacEntry macEntry = new MacEntryBuilder().setIsStaticAddress(true).setMacAddress(physAddress)
-                .setInterface(interfaceName).setKey(new MacEntryKey(physAddress)).build();
+                                                    StaticMacEntries staticMacEntries, WriteTransaction tx) {
+        MacEntry macEntry = new MacEntryBuilder().setIsStaticAddress(true)
+                .setMacAddress(staticMacEntries.getMacAddress())
+                .setIpPrefix(staticMacEntries.getIpPrefix())
+                .setInterface(interfaceName).setKey(new MacEntryKey(staticMacEntries.getMacAddress())).build();
+
         createElanForwardingTablesList(elanInstance.getElanInstanceName(), macEntry, tx);
         createElanInterfaceForwardingTablesList(interfaceName, macEntry, tx);
     }
@@ -90,7 +94,8 @@ public class ElanForwardingEntriesHandler {
         MacEntry existingInterfaceMacEntry = elanUtils
                 .getInterfaceMacEntriesOperationalDataPathFromId(existingMacEntryId);
         if (existingInterfaceMacEntry == null) {
-            MacEntry macEntry = new MacEntryBuilder().setMacAddress(mac.getMacAddress()).setInterface(interfaceName)
+            MacEntry macEntry = new MacEntryBuilder().setMacAddress(mac.getMacAddress()).setIpPrefix(mac.getIpPrefix())
+                    .setInterface(interfaceName)
                     .setIsStaticAddress(true).setKey(new MacEntryKey(mac.getMacAddress())).build();
             tx.put(LogicalDatastoreType.OPERATIONAL, existingMacEntryId, macEntry, true);
         }
@@ -103,7 +108,8 @@ public class ElanForwardingEntriesHandler {
         MacEntry existingMacEntry = elanUtils.getMacEntryFromElanMacId(macEntryId);
         if (existingMacEntry != null && elanUtils.getElanMacTable(elanName) != null) {
             MacEntry newMacEntry = new MacEntryBuilder().setInterface(interfaceName).setIsStaticAddress(true)
-                    .setMacAddress(mac.getMacAddress()).setKey(new MacEntryKey(mac.getMacAddress())).build();
+                    .setMacAddress(mac.getMacAddress()).setIpPrefix(mac.getIpPrefix())
+                    .setKey(new MacEntryKey(mac.getMacAddress())).build();
             tx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, newMacEntry);
         }
     }
