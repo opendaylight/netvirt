@@ -28,6 +28,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -99,10 +100,20 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                 MacEntry oldMacEntry = elanUtils.getMacEntryForElanInstance(elanName, physAddress).orNull();
                 boolean isVlanOrFlatProviderIface = interfaceManager.isExternalInterface(interfaceName);
 
+                Optional<IpAddress> srcIpAddress = Optional.absent();
+                MacEntry newMacEntry = null;
+                srcIpAddress = elanUtils.getSourceIpAddress(data);
                 BigInteger timeStamp = new BigInteger(String.valueOf(System.currentTimeMillis()));
-                MacEntry newMacEntry = new MacEntryBuilder().setInterface(interfaceName).setMacAddress(physAddress)
-                        .setKey(new MacEntryKey(physAddress)).setControllerLearnedForwardingEntryTimestamp(timeStamp)
-                        .setIsStaticAddress(false).build();
+                if (!srcIpAddress.isPresent()) {
+                    newMacEntry = new MacEntryBuilder().setInterface(interfaceName).setMacAddress(physAddress)
+                            .setKey(new MacEntryKey(physAddress)).setControllerLearnedForwardingEntryTimestamp(timeStamp)
+                            .setIsStaticAddress(false).build();
+                } else {
+                    newMacEntry = new MacEntryBuilder().setInterface(interfaceName).setMacAddress(physAddress)
+                            .setIpPrefix(srcIpAddress.get())
+                            .setKey(new MacEntryKey(physAddress)).setControllerLearnedForwardingEntryTimestamp(timeStamp)
+                            .setIsStaticAddress(false).build();
+                }
 
                 final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 enqueueJobForMacSpecificTasks(macAddress, elanTag, interfaceName, elanName, physAddress, oldMacEntry,
@@ -119,8 +130,10 @@ public class ElanPacketInHandler implements PacketProcessingListener {
     }
 
     private void enqueueJobForMacSpecificTasks(final String macAddress, final long elanTag, String interfaceName,
-            String elanName, PhysAddress physAddress, MacEntry oldMacEntry, MacEntry newMacEntry,
-            final boolean isVlanOrFlatProviderIface, final DataStoreJobCoordinator portDataStoreCoordinator) {
+                                               String elanName, PhysAddress physAddress,
+                                               MacEntry oldMacEntry, MacEntry newMacEntry,
+                                               final boolean isVlanOrFlatProviderIface,
+                                               final DataStoreJobCoordinator portDataStoreCoordinator) {
         portDataStoreCoordinator.enqueueJob(ElanUtils.getElanMacKey(elanTag, macAddress), () -> {
             WriteTransaction writeTx = broker.newWriteOnlyTransaction();
             if (oldMacEntry != null && oldMacEntry.getInterface().equals(interfaceName)) {
@@ -158,30 +171,31 @@ public class ElanPacketInHandler implements PacketProcessingListener {
     }
 
     private void enqueueJobForDPNSpecificTasks(final String macAddress, final long elanTag, String interfaceName,
-            PhysAddress physAddress, ElanInstance elanInstance, InterfaceInfo interfaceInfo,
-            MacEntry oldMacEntry, MacEntry newMacEntry, boolean isVlanOrFlatProviderIface,
-            final DataStoreJobCoordinator portDataStoreCoordinator) {
+                                               PhysAddress physAddress, ElanInstance elanInstance,
+                                               InterfaceInfo interfaceInfo, MacEntry oldMacEntry,
+                                               MacEntry newMacEntry, boolean isVlanOrFlatProviderIface,
+                                               final DataStoreJobCoordinator portDataStoreCoordinator) {
         portDataStoreCoordinator
-            .enqueueJob(ElanUtils.getElanMacDPNKey(elanTag, macAddress, interfaceInfo.getDpId()), () -> {
-                macMigrationFlowsCleanup(interfaceName, elanInstance, oldMacEntry, isVlanOrFlatProviderIface);
-                BigInteger dpId = interfaceManager.getDpnForInterface(interfaceName);
-                elanL2GatewayUtils.scheduleAddDpnMacInExtDevices(elanInstance.getElanInstanceName(), dpId,
-                        Collections.singletonList(physAddress));
-                ElanManagerCounters.unknown_smac_pktin_learned.inc();
-                WriteTransaction flowWritetx = broker.newWriteOnlyTransaction();
-                elanUtils.setupMacFlows(elanInstance, interfaceInfo, elanInstance.getMacTimeout(),
-                        macAddress, !isVlanOrFlatProviderIface, flowWritetx);
-                InstanceIdentifier<MacEntry> macEntryId =
-                        ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
-                flowWritetx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, newMacEntry, true);
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                futures.add(flowWritetx.submit());
-                return futures;
-            });
+                .enqueueJob(ElanUtils.getElanMacDPNKey(elanTag, macAddress, interfaceInfo.getDpId()), () -> {
+                    macMigrationFlowsCleanup(interfaceName, elanInstance, oldMacEntry, isVlanOrFlatProviderIface);
+                    BigInteger dpId = interfaceManager.getDpnForInterface(interfaceName);
+                    elanL2GatewayUtils.scheduleAddDpnMacInExtDevices(elanInstance.getElanInstanceName(), dpId,
+                            Collections.singletonList(physAddress));
+                    ElanManagerCounters.unknown_smac_pktin_learned.inc();
+                    WriteTransaction flowWritetx = broker.newWriteOnlyTransaction();
+                    elanUtils.setupMacFlows(elanInstance, interfaceInfo, elanInstance.getMacTimeout(),
+                            macAddress, !isVlanOrFlatProviderIface, flowWritetx);
+                    InstanceIdentifier<MacEntry> macEntryId =
+                            ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
+                    flowWritetx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, newMacEntry, true);
+                    List<ListenableFuture<Void>> futures = new ArrayList<>();
+                    futures.add(flowWritetx.submit());
+                    return futures;
+                });
     }
 
     private void macMigrationFlowsCleanup(String interfaceName, ElanInstance elanInstance, MacEntry macEntry,
-            boolean isVlanOrFlatProviderIface) {
+                                          boolean isVlanOrFlatProviderIface) {
         if (macEntry != null && !macEntry.getInterface().equals(interfaceName)
                 && !isVlanOrFlatProviderIface) {
             tryAndRemoveInvalidMacEntry(elanInstance.getElanInstanceName(), macEntry);
@@ -205,7 +219,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
         InterfaceInfo oldInterfaceLport = interfaceManager.getInterfaceInfo(macEntry.getInterface());
         if (oldInterfaceLport == null) {
             LOG.warn("MAC {} is been added (either statically or dynamically) on an invalid Logical Port {}. "
-                    + "Manual cleanup may be necessary",
+                            + "Manual cleanup may be necessary",
                     macEntry.getMacAddress(), macEntry.getInterface());
             return;
         }
