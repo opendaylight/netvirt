@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_0529ee89",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-23T10:59:16Z",
+      "side": 1,
+      "message": "change the commit message to match the actual content of the patch",
+      "revId": "65113403cb189adfe939447fe840fa98a528fe86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
