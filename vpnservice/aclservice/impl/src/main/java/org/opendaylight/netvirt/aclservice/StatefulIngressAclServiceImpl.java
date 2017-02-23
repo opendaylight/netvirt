@@ -128,7 +128,8 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
             List<ActionInfo> actionsInfos = new ArrayList<>();
 
             Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
-            actionsInfos.add(new ActionNxConntrack(2, 0, 0, elanTag.intValue(), NwConstants.EGRESS_ACL_FILTER_TABLE));
+            actionsInfos.add(new ActionNxConntrack(2, 0, 0, elanTag.intValue(),
+                    NwConstants.EGRESS_LEARN_ACL_REMOTE_ACL_TABLE));
             instructions.add(new InstructionApplyActions(actionsInfos));
             String flowName = "Ingress_Fixed_Conntrk_" + dpId + "_" + attachMac.getValue() + "_"
                     + String.valueOf(attachIp.getValue()) + "_" + flowId;
