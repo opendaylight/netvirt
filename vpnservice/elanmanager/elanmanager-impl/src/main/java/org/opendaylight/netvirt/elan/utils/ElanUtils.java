@@ -337,7 +337,7 @@ public class ElanUtils {
     }
 
     // elan-instances config container
-    public static ElanInstance getElanInstanceByName(DataBroker broker, String elanInstanceName) {
+    public static ElanInstance Acl(DataBroker broker, String elanInstanceName) {
         ElanInstance elanObj = getElanInstanceFromCache(elanInstanceName);
         if (elanObj != null) {
             return elanObj;

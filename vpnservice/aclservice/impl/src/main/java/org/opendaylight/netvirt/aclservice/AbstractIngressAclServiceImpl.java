@@ -19,6 +19,7 @@ import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
@@ -28,6 +29,7 @@ import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
@@ -76,13 +78,17 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
      * Bind service.
      *
      * @param interfaceName the interface name
+     * @param lportTag the logical port tag
      */
     @Override
-    protected void bindService(String interfaceName) {
+    protected void bindService(String interfaceName, Integer lportTag) {
         int flowPriority = AclConstants.INGRESS_ACL_DEFAULT_FLOW_PRIORITY;
 
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
+        Long elanTag = AclServiceUtils.getElanIdFromInterface(interfaceName, dataBroker);
+        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(ElanUtils.getElanMetadataLabel(elanTag),
+                MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.EGRESS_ACL_TABLE, ++instructionKey));
         BoundServices serviceInfo = AclServiceUtils.getBoundServices(
                 String.format("%s.%s.%s", "vpn", "ingressacl", interfaceName),

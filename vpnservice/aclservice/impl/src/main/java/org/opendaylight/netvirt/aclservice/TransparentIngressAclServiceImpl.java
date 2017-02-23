@@ -39,7 +39,7 @@ public class TransparentIngressAclServiceImpl extends AbstractIngressAclServiceI
     }
 
     @Override
-    protected void bindService(String interfaceName) {
+    protected void bindService(String interfaceName, Integer lPortTag) {
         LOG.debug("transparent ingress acl service - do nothing");
     }
 
