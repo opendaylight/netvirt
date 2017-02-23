@@ -59,55 +59,57 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
 
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
-        LOG.trace("Received interface {} add event", intrf);
-        LOG.info("Received interface {} add event", intrf.getName());
+        LOG.info("Received interface {} add event", intrf);
         try {
-            final String interfaceName = intrf.getName();
-            LOG.info("Received interface add event for interface {} ", interfaceName);
-            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface
-                    configInterface = InterfaceUtils.getInterface(dataBroker, interfaceName);
-            if (configInterface != null) {
-                if (!configInterface.getType().equals(Tunnel.class)) {
-                    // We service only VM interfaces and Router interfaces here.
-                    // We donot service Tunnel Interfaces here.
-                    // Tunnel events are directly serviced
-                    // by TunnelInterfacesStateListener present as part of VpnInterfaceManager
-                    LOG.debug("Config Interface Name {}", configInterface.getName());
-                    final VpnInterface vpnInterface = VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
-                    if (vpnInterface != null) {
-                        LOG.debug("VPN Interface Name {}", vpnInterface);
-                        BigInteger intfDpnId = BigInteger.ZERO;
-                        try {
-                            intfDpnId = InterfaceUtils.getDpIdFromInterface(intrf);
-                        } catch (Exception e){
-                            LOG.error("Unable to retrieve dpnId for interface {}. Process vpn interface add fail with exception {}.",
-                                    intrf.getName(), e);
-                            return;
-                        }
-                        final BigInteger dpnId = intfDpnId;
-                        final int ifIndex = intrf.getIfIndex();
-                        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                        dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + intrf.getName(),
-                                new Callable<List<ListenableFuture<Void>>>() {
-                                    @Override
-                                    public List<ListenableFuture<Void>> call() throws Exception {
-                                        WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-                                        WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-                                        WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
+            if (intrf != null && intrf.getType() != null && !intrf.getType().equals(Tunnel.class)) {
+                DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+                dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + intrf.getName(),
+                        new Callable<List<ListenableFuture<Void>>>() {
+                            @Override
+                            public List<ListenableFuture<Void>> call() throws Exception {
+                                List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                                WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+                                WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+                                WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
+
+                                final String interfaceName = intrf.getName();
+                                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface
+                                        configInterface = InterfaceUtils.getInterface(dataBroker, interfaceName);
+                                if (configInterface != null && (configInterface.getType() != null)
+                                        && !configInterface.getType().equals(Tunnel.class)) {
+                                    // We service only VM interfaces and Router interfaces here.
+                                    // We donot service Tunnel Interfaces here.
+                                    // Tunnel events are directly serviced
+                                    // by TunnelInterfacesStateListener present as part of VpnInterfaceManager
+                                    LOG.debug("Config Interface Name {}", configInterface.getName());
+                                    final VpnInterface vpnInterface = VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
+                                    if (vpnInterface != null) {
+                                        LOG.debug("VPN Interface Name {}", vpnInterface);
+                                        BigInteger intfDpnId = BigInteger.ZERO;
+                                        try {
+                                            intfDpnId = InterfaceUtils.getDpIdFromInterface(intrf);
+                                        } catch (Exception e) {
+                                            LOG.error("Unable to retrieve dpnId for interface {}. Process vpn interface add fail with exception {}.",
+                                                    intrf.getName(), e);
+                                            return futures;
+                                        }
+                                        final BigInteger dpnId = intfDpnId;
+                                        final int ifIndex = intrf.getIfIndex();
+
                                         vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex, false,
                                                 writeConfigTxn, writeOperTxn, writeInvTxn);
-                                        List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
                                         futures.add(writeOperTxn.submit());
                                         futures.add(writeConfigTxn.submit());
                                         futures.add(writeInvTxn.submit());
-                                        return futures;
                                     }
-                                });
-                    }
-                }
-            } else {
-                LOG.error("Unable to process add for interface {} ," +
-                        "since Interface ConfigDS entry absent for the same", interfaceName);
+                                } else {
+                                    LOG.error("Unable to process add for interface {} ," +
+                                            "since Interface ConfigDS entry absent for the same", interfaceName);
+                                }
+
+                                return futures;
+                            }
+                        });
             }
         } catch (Exception e) {
           LOG.error("Exception caught in Interface Operational State Up event", e);
@@ -117,42 +119,42 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
         final String interfaceName = intrf.getName();
-        LOG.trace("Received interface {} down event", intrf);
-        LOG.info("Received interface {} remove event", interfaceName);
+        LOG.info("Received interface {} down event", intrf);
         try {
-            LOG.info("Received port DOWN event for interface {} ", interfaceName);
-            if (intrf != null && intrf.getType() != null && !intrf.getType().equals(Tunnel.class)) {
-                BigInteger dpId;
-                InstanceIdentifier<VpnInterface> id = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
-                Optional<VpnInterface> optVpnInterface = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-                if (!optVpnInterface.isPresent()) {
-                    LOG.debug("Interface {} is not a vpninterface, ignoring.", interfaceName);
-                    return;
-                }
-                final VpnInterface vpnInterface = optVpnInterface.get();
-                try {
-                    dpId = InterfaceUtils.getDpIdFromInterface(intrf);
-                } catch (Exception e) {
-                    LOG.error("Unable to retrieve dpnId from interface operational data store for interface {}" +
-                            ".Fetching from vpn interface op data store. ", interfaceName, e);
-                    dpId = vpnInterface.getDpnId();
-                }
-                final BigInteger dpnId = dpId;
-                final int ifIndex = intrf.getIfIndex();
+            if (intrf != null && (intrf.getType() != null) && !intrf.getType().equals(Tunnel.class)) {
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
                         new Callable<List<ListenableFuture<Void>>>() {
                             @Override
                             public List<ListenableFuture<Void>> call() throws Exception {
+                                List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
                                 WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
                                 WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
                                 WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
-                                vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, false, false,
-                                        writeConfigTxn, writeOperTxn, writeInvTxn);
-                                List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
-                                futures.add(writeOperTxn.submit());
-                                futures.add(writeConfigTxn.submit());
-                                futures.add(writeInvTxn.submit());
+                                BigInteger dpId;
+
+                                InstanceIdentifier<VpnInterface> id = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
+                                Optional<VpnInterface> optVpnInterface = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+                                if (optVpnInterface.isPresent()) {
+                                    final VpnInterface vpnInterface = optVpnInterface.get();
+                                    try {
+                                        dpId = InterfaceUtils.getDpIdFromInterface(intrf);
+                                    } catch (Exception e) {
+                                        LOG.error("Unable to retrieve dpnId from interface operational data store for interface {}" +
+                                                ".Fetching from vpn interface op data store. ", interfaceName, e);
+                                        dpId = vpnInterface.getDpnId();
+                                    }
+                                    final BigInteger dpnId = dpId;
+                                    final int ifIndex = intrf.getIfIndex();
+
+                                    vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, false, false,
+                                            writeConfigTxn, writeOperTxn, writeInvTxn);
+                                    futures.add(writeOperTxn.submit());
+                                    futures.add(writeConfigTxn.submit());
+                                    futures.add(writeInvTxn.submit());
+                                } else {
+                                    LOG.debug("Interface {} is not a vpninterface, ignoring.", interfaceName);
+                                }
                                 return futures;
                             }
                         });
@@ -173,55 +175,42 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
                 LOG.debug("Interface {} state change is from/to UNKNOWN. Ignoring the update event.", interfaceName);
                 return;
             }
-            final BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(update);
 
             if (update.getIfIndex() == null) {
                 return;
             }
-            if (update != null && (update.getType() != null)) {
-                if (!update.getType().equals(Tunnel.class)) {
-                    final VpnInterface vpnInterface = VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
-                    if (vpnInterface != null) {
-                        final int ifIndex = update.getIfIndex();
-                        if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
-                            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                            dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
-                                    new Callable<List<ListenableFuture<Void>>>() {
-                                        @Override
-                                        public List<ListenableFuture<Void>> call() throws Exception {
-                                            WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-                                            WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-                                            WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
-                                            vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex,
-                                                    true, writeConfigTxn, writeOperTxn, writeInvTxn);
-                                            List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
-                                            futures.add(writeOperTxn.submit());
-                                            futures.add(writeConfigTxn.submit());
-                                            futures.add(writeInvTxn.submit());
-                                            return futures;
-                                        }
-                                    });
-                        } else if (update.getOperStatus().equals(Interface.OperStatus.Down)) {
-                            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                            dataStoreCoordinator.enqueueJob(interfaceName,
-                                    new Callable<List<ListenableFuture<Void>>>() {
-                                        @Override
-                                        public List<ListenableFuture<Void>> call() throws Exception {
-                                            WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-                                            WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-                                            WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
-                                            vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, true, false,
-                                                    writeConfigTxn, writeOperTxn, writeInvTxn);
-                                            List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
-                                            futures.add(writeOperTxn.submit());
-                                            futures.add(writeConfigTxn.submit());
-                                            futures.add(writeInvTxn.submit());
-                                            return futures;
-                                        }
-                                    });
-                        }
-                    }
-                }
+            if (update != null && (update.getType() != null) && !update.getType().equals(Tunnel.class)) {
+                DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+                dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
+                        new Callable<List<ListenableFuture<Void>>>() {
+                            @Override
+                            public List<ListenableFuture<Void>> call() throws Exception {
+                                List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                                WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+                                WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+                                WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
+
+                                final VpnInterface vpnInterface = VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
+                                if (vpnInterface != null) {
+                                    final int ifIndex = update.getIfIndex();
+                                    final BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(update);
+                                    if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
+                                        vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex,
+                                                true, writeConfigTxn, writeOperTxn, writeInvTxn);
+                                    } else if (update.getOperStatus().equals(Interface.OperStatus.Down)) {
+                                        vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, true, false,
+                                                writeConfigTxn, writeOperTxn, writeInvTxn);
+                                    }
+                                    futures.add(writeOperTxn.submit());
+                                    futures.add(writeConfigTxn.submit());
+                                    futures.add(writeInvTxn.submit());
+                                } else {
+                                    LOG.debug("Interface {} is not a vpninterface, ignoring.", interfaceName);
+                                }
+
+                                return futures;
+                            }
+                        });
             }
         }catch (Exception e) {
             LOG.error("Exception observed in handling updation of VPN Interface {}. ", update.getName(), e);
