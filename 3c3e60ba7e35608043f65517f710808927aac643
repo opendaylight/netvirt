@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_e52dca96",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-23T10:52:48Z",
+      "side": 1,
+      "message": "Might be better to use NeutronvpnUtils.isFlatOrVlanNetwork()",
+      "revId": "3c3e60ba7e35608043f65517f710808927aac643",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
