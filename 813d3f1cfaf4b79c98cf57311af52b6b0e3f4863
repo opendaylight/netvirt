@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_0a08ddd8",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-23T10:46:25Z",
+      "side": 1,
+      "message": "You\u0027re right there was a call to installNaptPfibExternalOutputFlow() that can be removed - I removed it.\n\nWe still need to use from NaptSwitchHa (there was a fix for second router missing flows - bug 6866).",
+      "parentUuid": "fafc7978_908b66c2",
+      "revId": "813d3f1cfaf4b79c98cf57311af52b6b0e3f4863",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
