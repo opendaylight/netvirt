@@ -14,6 +14,7 @@ Contents:
    IPv6 Inter Data Center connectivity using L3VPN <ipv6-interdc-l3vpn>
    ACL Statistics <acl-stats>
    Conntrack Based SNAT <conntrack-based-snat>
+   Cross site connectivity with federation service <federation-plugin>
    Discovery of directly connected PNFs in Flat/VLAN provider networks <directly_connected_pnf_discovery>
    ECMP Support for BGP based L3VPN <ecmp-bgp-l3vpn>
    Hairpinning of floating IPs in flat/VLAN provider networks <hairpinning-flat-vlan>
