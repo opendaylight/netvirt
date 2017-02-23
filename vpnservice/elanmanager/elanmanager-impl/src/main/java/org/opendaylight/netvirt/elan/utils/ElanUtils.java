@@ -1339,7 +1339,7 @@ public class ElanUtils {
 
         InstanceIdentifier<Node> node = InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(nodeId))
                 .build();
-        Optional<Node> nodePresent = read(broker, LogicalDatastoreType.OPERATIONAL, node);
+        Optional<Node> nodePresent = read(broker, LogicalDatastoreType.CONFIGURATION, node);
         return nodePresent.isPresent();
     }
 
