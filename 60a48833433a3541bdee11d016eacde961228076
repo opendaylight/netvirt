@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_cd2f0c87",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T16:40:38Z",
+      "side": 0,
+      "message": "this looks to be just reverting a change we reviewed and landed a week back.\n\nAre we still exploring the yang changes here ?",
+      "revId": "60a48833433a3541bdee11d016eacde961228076",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
