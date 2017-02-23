@@ -327,7 +327,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
 
             List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(new ArrayList<>());
 
-            String flowName = "Egress_ARP_" + dpId + "_" + attachMac.getValue();
+            String flowName = "Egress_ARP_" + dpId + "_" + lportTag + "_" + attachMac.getValue();
             syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName,
                     AclConstants.PROTO_ARP_TRAFFIC_MATCH_PRIORITY, "ACL", 0, 0,
                     AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
