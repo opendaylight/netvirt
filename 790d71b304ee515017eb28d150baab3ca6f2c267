@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ea7bd989",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T09:08:53Z",
+      "side": 1,
+      "message": "this will not have an IP match as that IP match is already done in ACL3 .",
+      "revId": "790d71b304ee515017eb28d150baab3ca6f2c267",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0aec5d29",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T09:08:53Z",
+      "side": 1,
+      "message": "This will free up only 40 and 42 but will consume 31 to 34.\n\nCan we shift this entire ACL Service starting from table 221.  Like \nIngress ACL 221, 222, 223, 224\nEgress ACL 241, 242,243,244.\n\nThe place in and around table nos 10 to 90 is near deplete, and we can avoid squeezing there, and retain some space there for any unavoidable use-case with existing services.\n\nAlso the above proposal will give space for ACL Service to expand in the future.\n\nI have not thought yet of forwarding changes within ACL because of the proposal :).",
+      "revId": "790d71b304ee515017eb28d150baab3ca6f2c267",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4ac945ab",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T09:08:53Z",
+      "side": 1,
+      "message": "I am not sure how many registers are usable in an OVS Datapath, but if can we make use of one register per security group per port we can scale up to the x number of sec-groups per port as the number of such registers.",
+      "revId": "790d71b304ee515017eb28d150baab3ca6f2c267",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2ace81b4",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T09:08:53Z",
+      "side": 1,
+      "message": "typically in the cloud most of the ports will be using only a single SG which may be either \u0027default\u0027 (or) a \u0027custom\u0027 one.",
+      "revId": "790d71b304ee515017eb28d150baab3ca6f2c267",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
