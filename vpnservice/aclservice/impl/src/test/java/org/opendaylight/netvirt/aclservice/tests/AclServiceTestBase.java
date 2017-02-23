@@ -227,27 +227,7 @@ public abstract class AclServiceTestBase {
     @Test
     public void newInterfaceWithIcmpAcl() throws Exception {
         // Given
-        Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
-            AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_2, AclConstants.DEST_UPPER_PORT_3,
-            AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_SPECIFIED,
-            (short)NwConstants.IP_PROT_ICMP);
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
-            .sgUuid(SG_UUID_1)
-            .newRuleName(SR_UUID_1_1)
-            .newMatches(matches)
-            .newDirection(DirectionEgress.class)
-            .newRemoteGroupId(new Uuid(SG_UUID_1)).build());
-
-        matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED, AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED,
-            AclConstants.DEST_LOWER_PORT_2, AclConstants.DEST_UPPER_PORT_3,
-            AclConstants.SOURCE_REMOTE_IP_PREFIX_SPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_UNSPECIFIED,
-            (short)NwConstants.IP_PROT_ICMP);
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
-            .sgUuid(SG_UUID_1)
-            .newRuleName(SR_UUID_1_2)
-            .newMatches(matches)
-            .newDirection(DirectionIngress.class)
-            .build());
+        prepareInterfaceWithIcmpAcl();
 
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
@@ -366,6 +346,21 @@ public abstract class AclServiceTestBase {
 
     abstract void newInterfaceWithTwoAclsHavingSameRulesCheck();
 
+    @Test
+    public void newInterfaceWithIcmpAclHavingOverlappingMac() throws Exception {
+        // Given
+        prepareInterfaceWithIcmpAcl();
+
+        // When
+        putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
+        putNewStateInterface(dataBroker, PORT_2, PORT_MAC_1);
+
+        asyncEventsWaiter.awaitEventsConsumption();
+
+        // Then
+        newInterfaceWithIcmpAclCheck();
+    }
+
     // TODO Remove this from here, use the one about to be merged in TestIMdsalApiManager
     // under https://git.opendaylight.org/gerrit/#/c/47842/ *BUT* remember to integrate
     // the ignore ordering fix recently added here to there...
@@ -404,6 +399,31 @@ public abstract class AclServiceTestBase {
             // than what G Truth (or Hamcrest) can do based on toString.
             assertEqualBeans(expectedFlowsAsNewArrayList, flows);
         }
+    }
+
+    protected void prepareInterfaceWithIcmpAcl() throws TransactionCommitFailedException {
+        // Given
+        Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
+            AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_2, AclConstants.DEST_UPPER_PORT_3,
+            AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_SPECIFIED,
+            (short)NwConstants.IP_PROT_ICMP);
+        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
+            .sgUuid(SG_UUID_1)
+            .newRuleName(SR_UUID_1_1)
+            .newMatches(matches)
+            .newDirection(DirectionEgress.class)
+            .newRemoteGroupId(new Uuid(SG_UUID_1)).build());
+
+        matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED, AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED,
+            AclConstants.DEST_LOWER_PORT_2, AclConstants.DEST_UPPER_PORT_3,
+            AclConstants.SOURCE_REMOTE_IP_PREFIX_SPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_UNSPECIFIED,
+            (short)NwConstants.IP_PROT_ICMP);
+        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
+            .sgUuid(SG_UUID_1)
+            .newRuleName(SR_UUID_1_2)
+            .newMatches(matches)
+            .newDirection(DirectionIngress.class)
+            .build());
     }
 
     protected void newAllowedAddressPair(String portName, List<String> sgUuidList, String ipAddress, String macAddress)
