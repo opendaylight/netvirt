@@ -212,23 +212,7 @@ public class AclServiceTest {
     public void newInterfaceWithIcmpAcl() throws Exception {
         // Given
         setUpData();
-        Matches matches = newMatch(EthertypeV4.class, -1, -1, 2, 3,
-            null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_ICMP);
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
-            .sgUuid(SG_UUID_1)
-            .newRuleName(SR_UUID_1_1)
-            .newMatches(matches)
-            .newDirection(DirectionEgress.class)
-            .newRemoteGroupId(new Uuid(SG_UUID_1)).build());
-
-        matches = newMatch( EthertypeV4.class, -1, -1, 2, 3,
-            AclConstants.IPV4_ALL_NETWORK, null, (short)NwConstants.IP_PROT_ICMP);
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
-            .sgUuid(SG_UUID_1)
-            .newRuleName(SR_UUID_1_2)
-            .newMatches(matches)
-            .newDirection(DirectionIngress.class)
-            .build());
+        prepareInterfaceWithIcmpAcl();
 
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
@@ -337,6 +321,23 @@ public class AclServiceTest {
         assertFlowsInAnyOrder(FlowEntryObjects.icmpFlowsForTwoAclsHavingSameRules());
     }
 
+    @Test
+    public void newInterfaceWithIcmpAclHavingOverlappingMac() throws Exception {
+        // Given
+    	setUpData();
+        prepareInterfaceWithIcmpAcl();
+
+        // When
+        putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
+        putNewStateInterface(dataBroker, PORT_2, PORT_MAC_1);
+
+        // TODO Later could do work for better synchronization here..
+        Thread.sleep(500);
+
+        // Then
+        assertFlowsInAnyOrder(FlowEntryObjects.icmpFlows());
+    }
+
     // TODO Remove this from here, use the one about to be merged in TestIMdsalApiManager
     // under https://git.opendaylight.org/gerrit/#/c/47842/ *BUT* remember to integrate
     // the ignore ordering fix recently added here to there...
@@ -377,7 +378,28 @@ public class AclServiceTest {
         }
     }
 
-    private void newAllowedAddressPair(String portName, List<String> sgUuidList, String ipAddress, String macAddress)
+    protected void prepareInterfaceWithIcmpAcl() throws TransactionCommitFailedException {
+        // Given
+        Matches matches = newMatch(EthertypeV4.class, -1, -1, 2, 3,
+            null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_ICMP);
+        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
+            .sgUuid(SG_UUID_1)
+            .newRuleName(SR_UUID_1_1)
+            .newMatches(matches)
+            .newDirection(DirectionEgress.class)
+            .newRemoteGroupId(new Uuid(SG_UUID_1)).build());
+
+        matches = newMatch( EthertypeV4.class, -1, -1, 2, 3,
+            AclConstants.IPV4_ALL_NETWORK, null, (short)NwConstants.IP_PROT_ICMP);
+        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
+            .sgUuid(SG_UUID_1)
+            .newRuleName(SR_UUID_1_2)
+            .newMatches(matches)
+            .newDirection(DirectionIngress.class)
+            .build());
+    }
+
+    protected void newAllowedAddressPair(String portName, List<String> sgUuidList, String ipAddress, String macAddress)
             throws TransactionCommitFailedException {
         AllowedAddressPairs allowedAddressPair = new AllowedAddressPairsBuilder()
                 .setIpAddress(new IpPrefixOrAddress(new IpPrefix(ipAddress.toCharArray())))
