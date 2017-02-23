@@ -330,6 +330,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f7e58138",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 27
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T13:29:02Z",
+      "side": 1,
+      "message": "Oh.. \n\nThe encapsulation type represents the technology used for the VPN regardless of whether that is an internal-vpn or bgpvpn.\n\nWe have always been using labels to accomplish routing regardless of the overlay network provider type.  Here we are explicitly exhibiting the same.\n\nWhen the VNI-L3-Forwarding spec comes in, we have to revisit this and need to place VXLAN as the encap type here as no labels will be used for internal-VPN.\n\nHowever even with VNI-L3-Forwarding implementation in place, L3 BGPVPNs will continue to use MPLS Labels and so fibentries on them would still retain mplsgre as encap-Type.\n\nPlease note that this review is for L3 BGPVPNS supporting ECMP and has no bearing on L3-VNI-Forwarding implementation yet.",
+      "parentUuid": "fafc7978_6e41c4a8",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ff7f2864",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
         "patchSetId": 27
