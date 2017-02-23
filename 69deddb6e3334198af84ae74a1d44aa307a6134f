@@ -177,6 +177,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ff60bda6",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T05:13:17Z",
+      "side": 1,
+      "message": "OK.. Please name this file appropriately.  \n\nWe can use this file to manage route-paths in its entirety and all its associated helper methods.\n\nFibUtil and FibHelper are synonymous..",
+      "parentUuid": "fafc7978_8e2a288e",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d3517b37",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
         "patchSetId": 27
@@ -680,6 +698,30 @@
       "side": 1,
       "message": "Both the checks were already there. Did not want to change the current implementation with this review.",
       "parentUuid": "fafc7978_ce06f01c",
+      "range": {
+        "startLine": 1896,
+        "startChar": 44,
+        "endLine": 1896,
+        "endChar": 63
+      },
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3f57e5cb",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 1896,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T05:13:17Z",
+      "side": 1,
+      "message": "Kency subnetRoute origin is CONNECTED  type (earlier it was STATIC and so additional check was there). So you can remove the \u0026\u0026 conditon like what Tali said.",
+      "parentUuid": "fafc7978_b0502ad5",
       "range": {
         "startLine": 1896,
         "startChar": 44,
