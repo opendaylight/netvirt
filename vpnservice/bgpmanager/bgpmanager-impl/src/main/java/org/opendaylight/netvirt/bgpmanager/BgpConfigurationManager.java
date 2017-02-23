@@ -198,8 +198,8 @@ public class BgpConfigurationManager {
     private static String cPortStartup;
     private static CountDownLatch initer = new CountDownLatch(1);
     //static IITMProvider itmProvider;
-    //map<rd, map<prefix/len, nexthop/label>>
-    private static Map<String, Map<String, String>> staledFibEntriesMap = new ConcurrentHashMap<>();
+    //map<rd, map<prefix/len:nexthop, label>>
+    private static Map<String, Map<String, Long>> staledFibEntriesMap = new ConcurrentHashMap<>();
 
     static final String BGP_ENTITY_TYPE_FOR_OWNERSHIP = "bgp";
     static final String BGP_ENTITY_NAME = "bgp";
@@ -1375,7 +1375,7 @@ public class BgpConfigurationManager {
             Iterator<Update> updates = routes.getUpdatesIterator();
             while (updates.hasNext()) {
                 Update update = updates.next();
-                Map<String, Map<String, String>> staleFibRdMap = BgpConfigurationManager.getStaledFibEntriesMap();
+                Map<String, Map<String, Long>> staleFibRdMap = BgpConfigurationManager.getStaledFibEntriesMap();
                 String rd = update.getRd();
                 String nexthop = update.getNexthop();
 
@@ -1431,7 +1431,6 @@ public class BgpConfigurationManager {
                                          int label,
                                          String routermac)
             throws InterruptedException, ExecutionException, TimeoutException {
-        Map<String, Map<String, String>> staleFibRdMap = BgpConfigurationManager.getStaledFibEntriesMap();
         boolean addroute = false;
         long l3vni = 0L;
         VrfEntry.EncapType encapType = VrfEntry.EncapType.Mplsgre;
@@ -1447,17 +1446,18 @@ public class BgpConfigurationManager {
         }
         if (!staledFibEntriesMap.isEmpty()) {
             // restart Scenario, as MAP is not empty.
-            Map<String, String> map = staledFibEntriesMap.get(rd);
+            Map<String, Long> map = staledFibEntriesMap.get(rd);
             if (map != null) {
-                String nexthoplabel = map.get(prefix + "/" + plen);
-                if (null == nexthoplabel) {
+                String prefixNextHop = appendNextHopToPrefix(prefix + "/" + plen, nextHop);
+                Long labelInStaleMap = map.get(prefixNextHop);
+                if (null == labelInStaleMap) {
                     // New Entry, which happened to be added during restart.
                     addroute = true;
                 } else {
-                    map.remove(prefix + "/" + plen);
-                    if (isRouteModified(nextHop, label, nexthoplabel)) {
+                    map.remove(prefixNextHop);
+                    if (isRouteModified(nextHop, label, labelInStaleMap)) {
                         LOG.debug("Route add ** {} ** {}/{} ** {} ** {} ", rd, prefix, plen, nextHop, label);
-                        // Existing entry, where in Nexthop/Label got modified during restart
+                        // Existing entry, where in Label got modified during restart
                         addroute = true;
                     }
                 }
@@ -1475,8 +1475,8 @@ public class BgpConfigurationManager {
         }
     }
 
-    private static boolean isRouteModified(String nexthop, int label, String nexthoplabel) {
-        return !nexthoplabel.isEmpty() && !nexthoplabel.equals(nexthop + "/" + label);
+    private static boolean isRouteModified(String nexthop, int label, Long labelInStaleMap) {
+        return labelInStaleMap != null && !labelInStaleMap.equals(label);
     }
 
     private static void replayNbrConfig(List<Neighbors> neighbors, BgpRouter br) {
@@ -1928,15 +1928,18 @@ public class BgpConfigurationManager {
                         if (Thread.interrupted()) {
                             return 0;
                         }
-                        Map<String, String> map = staledFibEntriesMap.get(rd);
+                        Map<String, Long> map = staledFibEntriesMap.get(rd);
                         if (map != null) {
-                            for (String prefix : map.keySet()) {
+                            for (String key : map.keySet()) {
                                 if (Thread.interrupted()) {
                                     return 0;
                                 }
+                                String prefix = extractPrefix(key);
+                                String nextHop = extractNextHop(key);
                                 totalCleared++;
-                                LOG.debug("BGP: RouteCleanup deletePrefix called for : rd:{}, prefix{}", rd, prefix);
-                                fibDSWriter.removeFibEntryFromDS(rd, prefix);
+                                LOG.debug("BGP: RouteCleanup deletePrefix called for : rd:{}, prefix{}, nextHop:{}",
+                                        rd, prefix, nextHop);
+                                fibDSWriter.removeFibEntryFromDS(rd, prefix, nextHop);
                             }
                         }
                     }
@@ -1981,7 +1984,7 @@ public class BgpConfigurationManager {
             if (fibEntries.isPresent()) {
                 List<VrfTables> staleVrfTables = fibEntries.get().getVrfTables();
                 for (VrfTables vrfTable : staleVrfTables) {
-                    Map<String, String> staleFibEntMap = new HashMap<>();
+                    Map<String, Long> staleFibEntMap = new HashMap<>();
                     for (VrfEntry vrfEntry : vrfTable.getVrfEntry()) {
                         if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
                             //Stale marking and cleanup is only meant for the routes learned through BGP.
@@ -1995,9 +1998,8 @@ public class BgpConfigurationManager {
                         vrfEntry.getRoutePaths()
                                 .forEach(
                                     routePath -> staleFibEntMap.put(
-                                            vrfEntry.getDestPrefix(),
-                                            routePath.getNexthopAddress() + "/"
-                                                    + routePath.getLabel()));
+                                            appendNextHopToPrefix(vrfEntry.getDestPrefix(),
+                                                    routePath.getNexthopAddress()), routePath.getLabel()));
                     }
                     staledFibEntriesMap.put(vrfTable.getRouteDistinguisher(), staleFibEntMap);
                 }
@@ -2010,15 +2012,15 @@ public class BgpConfigurationManager {
         LOG.error("created {} staled entries ", totalStaledCount);
     }
 
-    //map<rd, map<prefix/len, nexthop/label>>
-    public static Map<String, Map<String, String>> getStaledFibEntriesMap() {
+    //map<rd, map<prefix/len:nexthop, label>>
+    public static Map<String, Map<String, Long>> getStaledFibEntriesMap() {
         return staledFibEntriesMap;
     }
 
     //TODO: below function is for testing purpose with cli
     public static void onUpdateWithdrawRoute(String rd, String prefix, int plen, String nexthop) {
         LOG.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
-        fibDSWriter.removeFibEntryFromDS(rd, prefix + "/" + plen);
+        fibDSWriter.removeFibEntryFromDS(rd, prefix + "/" + plen, nexthop);
     }
 
     public boolean isBgpConnected() {
@@ -2107,5 +2109,15 @@ public class BgpConfigurationManager {
         return bgpAlarms;
     }
 
-}
+    private static String appendNextHopToPrefix(String prefix, String nextHop) {
+        return prefix + ":" + nextHop;
+    }
 
+    private static String extractPrefix(String prefixNextHop) {
+        return prefixNextHop.split(":")[0];
+    }
+
+    private static String extractNextHop(String prefixNextHop) {
+        return prefixNextHop.split(":")[1];
+    }
+}
