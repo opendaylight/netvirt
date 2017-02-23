@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_6d25405b",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 2532
+      },
+      "writtenOn": "2017-02-23T17:33:45Z",
+      "side": 1,
+      "message": "How does it handle the cases where dest-ip !\u003d VM\u0027s IP.\n\nExample:\n\nVM1----OVS1\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003dOVS---VM2\n\nSay there is a rule saying no TCP traffic should be allowed into VM2.\n\nSay also there is an Neutron extra route with destination \u003d 1.1.1.1 next-hop \u003d VM2’s Neutron IP.\n\nTCP packets enter from VM1 into OVS1 with SRC IP \u003d VM1’s IP and Dest IP \u003d 1.1.1.1.\nWill ACL match fail in OVS1 as the destination IP in the packet is not equal to VM2’s IP?",
+      "range": {
+        "startLine": 65,
+        "startChar": 89,
+        "endLine": 65,
+        "endChar": 90
+      },
+      "revId": "84682ca2bfc4f1a04480c14a7e4b8d3e3499ddc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5ee14ffd",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 7
