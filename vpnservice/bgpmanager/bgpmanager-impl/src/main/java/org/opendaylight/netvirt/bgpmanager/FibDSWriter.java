@@ -7,13 +7,17 @@
  */
 package org.opendaylight.netvirt.bgpmanager;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
@@ -31,9 +35,11 @@ import org.slf4j.LoggerFactory;
 public class FibDSWriter {
     private static final Logger LOG = LoggerFactory.getLogger(FibDSWriter.class);
     private final DataBroker dataBroker;
+    private final SingleTransactionDataBroker singleTxDB;
 
     public FibDSWriter(final DataBroker dataBroker) {
         this.dataBroker = dataBroker;
+        this.singleTxDB = new SingleTransactionDataBroker(dataBroker);
     }
 
     public synchronized void addFibEntryToDS(String rd, String macAddress, String prefix, List<String> nextHopList,
@@ -51,7 +57,6 @@ public class FibDSWriter {
                 return;
             }
             LOG.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nextHop, label);
-
         }
 
         // Looking for existing prefix in MDSAL database
@@ -97,6 +102,45 @@ public class FibDSWriter {
         InstanceIdentifier<VrfEntry> vrfEntryId = idBuilder.build();
         BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
 
+    }
+
+    public synchronized void removeOrUpdateFibEntryFromDS(String rd, String prefix, String nextHop) {
+
+        if (rd == null || rd.isEmpty()) {
+            LOG.error("Prefix {} not associated with vpn", prefix);
+            return;
+        }
+        LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {} and nextHop {}",
+                prefix, rd, nextHop);
+        try {
+            InstanceIdentifier<VrfEntry> vrfEntryId =
+                    InstanceIdentifier.builder(FibEntries.class)
+                    .child(VrfTables.class, new VrfTablesKey(rd))
+                    .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+            Optional<VrfEntry> existingVrfEntry =
+                    singleTxDB.syncReadOptional(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+            List<RoutePaths> routePaths =
+                    existingVrfEntry.transform(VrfEntry::getRoutePaths).or(Collections.EMPTY_LIST);
+            if (routePaths.size() > 1) {
+                routePaths.stream()
+                        .map(routePath -> routePath.getNexthopAddress())
+                        .filter(nextHopAddress -> nextHop.equals(nextHopAddress))
+                        .findFirst()
+                        .ifPresent(nh -> {
+                            InstanceIdentifier<RoutePaths> routePathId =
+                                    FibHelper.buildRoutePathId(rd, prefix, nextHop);
+                            BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                    routePathId);
+                        });
+            } else {
+                if (routePaths.get(0).getNexthopAddress().equals(nextHop)) {
+                    BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+                }
+            }
+        } catch (ReadFailedException e) {
+            LOG.error("Error while reading vrfEntry for rd {}, prefix {}", rd, prefix);
+            return;
+        }
     }
 
     public synchronized void removeVrfFromDS(String rd) {
