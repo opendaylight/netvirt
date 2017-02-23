@@ -165,9 +165,9 @@ public class BgpThriftService {
                                           int l2label,
                                           int l3label) {
             LOGGER.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
-            LOGGER.info("REMOVE: Removing Fib entry rd {} prefix {}", rd, prefix);
-            fibDSWriter.removeFibEntryFromDS(rd, prefix + "/" + plen);
-            LOGGER.info("REMOVE: Removed Fib entry rd {} prefix {}", rd, prefix);
+            LOGGER.info("REMOVE: Removing Fib entry rd {} prefix {} nexthop {}", rd, prefix, nexthop);
+            fibDSWriter.removeFibEntryFromDS(rd, prefix + "/" + plen, nexthop);
+            LOGGER.info("REMOVE: Removed Fib entry rd {} prefix {} nexthop {}", rd, prefix, nexthop);
         }
 
         public void onStartConfigResyncNotification() {

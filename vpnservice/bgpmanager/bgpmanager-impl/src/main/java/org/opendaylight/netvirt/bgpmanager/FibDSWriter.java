@@ -7,8 +7,10 @@
  */
 package org.opendaylight.netvirt.bgpmanager;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,7 +53,6 @@ public class FibDSWriter {
                 return;
             }
             LOG.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nextHop, label);
-
         }
 
         // Looking for existing prefix in MDSAL database
@@ -97,6 +98,30 @@ public class FibDSWriter {
         InstanceIdentifier<VrfEntry> vrfEntryId = idBuilder.build();
         BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
 
+    }
+
+    public synchronized void removeFibEntryFromDS(String rd, String prefix, String nextHop) {
+
+        if (rd == null || rd.isEmpty()) {
+            LOG.error("Prefix {} not associated with vpn", prefix);
+            return;
+        }
+        LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {} and nextHop {}",
+                prefix, rd, nextHop);
+        InstanceIdentifier<VrfEntry> vrfEntryId =
+                InstanceIdentifier.builder(FibEntries.class)
+                        .child(VrfTables.class, new VrfTablesKey(rd))
+                        .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+        Optional<VrfEntry> existingVrfEntry = BgpUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        List<RoutePaths> routePaths = existingVrfEntry.transform(VrfEntry::getRoutePaths).or(Collections.EMPTY_LIST);
+        if (routePaths.size() > 1) {
+            InstanceIdentifier<RoutePaths> routePathId = FibHelper.buildRoutePathId(rd, prefix, nextHop);
+            BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, routePathId);
+        } else {
+            if (routePaths.get(0).getNexthopAddress().equals(nextHop)) {
+                BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+            }
+        }
     }
 
     public synchronized void removeVrfFromDS(String rd) {
