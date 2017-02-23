@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_bffab540",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 718,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-23T07:52:24Z",
+      "side": 1,
+      "message": "Can pass the externalNetworkId to this method - in some of the calls you already have it, so it might save some reads.",
+      "revId": "2dd8263ad474bbe9159c0299615a76fb1439f31e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ff971dea",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-23T07:52:24Z",
+      "side": 1,
+      "message": "It will be cleaner to have in NatUtil a method - and use it:\ngetProviderTypeForExternalRouter(DataBroker dateBroker, routerName);",
+      "revId": "2dd8263ad474bbe9159c0299615a76fb1439f31e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7f8b2dc3",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-23T07:52:24Z",
+      "side": 1,
+      "message": "Instead of using the table numbers hard coded (36-\u003e46), use the table number parameters from NwConstants:\n(table{}-\u003e{})..., NwConstants.INTERNAL_TUNNEL_TABLE...",
+      "revId": "2dd8263ad474bbe9159c0299615a76fb1439f31e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1fa30150",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-23T07:52:24Z",
+      "side": 1,
+      "message": "It will be easier to use the same code (tsFlowRef, tsNatFlowEntity, log line and flowRemoval) and only set in the \"if/else\" the \"routerId/routerLportTag\".",
+      "revId": "2dd8263ad474bbe9159c0299615a76fb1439f31e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bf9115f3",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 775,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-23T07:52:24Z",
+      "side": 1,
+      "message": "Same comment to add and use NatUtil.getProviderTypeFromExternalRouter()",
+      "revId": "2dd8263ad474bbe9159c0299615a76fb1439f31e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9f8ed1ce",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 789,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-23T07:52:24Z",
+      "side": 1,
+      "message": "Same comment about table number in log.",
+      "revId": "2dd8263ad474bbe9159c0299615a76fb1439f31e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
