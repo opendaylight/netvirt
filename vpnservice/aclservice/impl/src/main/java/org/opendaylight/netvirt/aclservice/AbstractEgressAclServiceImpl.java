@@ -19,6 +19,7 @@ import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -86,6 +87,9 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
 
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
+        Long elanTag = AclServiceUtils.getElanIdFromInterface(interfaceName, dataBroker);
+        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(AclServiceUtils.getElanMetadataLabel(elanTag),
+                MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.INGRESS_ACL_TABLE, ++instructionKey));
         short serviceIndex = ServiceIndex.getIndex(NwConstants.ACL_SERVICE_NAME, NwConstants.ACL_SERVICE_INDEX);
         BoundServices serviceInfo =

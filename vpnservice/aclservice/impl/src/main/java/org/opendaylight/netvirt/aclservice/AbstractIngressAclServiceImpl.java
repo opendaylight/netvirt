@@ -19,6 +19,7 @@ import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
@@ -83,6 +84,9 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
 
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
+        Long elanTag = AclServiceUtils.getElanIdFromInterface(interfaceName, dataBroker);
+        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(AclServiceUtils.getElanMetadataLabel(elanTag),
+                MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.EGRESS_ACL_TABLE, ++instructionKey));
         BoundServices serviceInfo = AclServiceUtils.getBoundServices(
                 String.format("%s.%s.%s", "vpn", "ingressacl", interfaceName),

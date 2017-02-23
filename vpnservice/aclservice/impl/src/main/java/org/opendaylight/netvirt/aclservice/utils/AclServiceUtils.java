@@ -619,6 +619,10 @@ public final class AclServiceUtils {
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
     }
 
+    public static BigInteger getElanMetadataLabel(long elanTag) {
+        return BigInteger.valueOf(elanTag).shiftLeft(24);
+    }
+
     private static List<MatchInfoBase> updateAAPMatches(boolean isSourceIpMacMatch, List<MatchInfoBase> flows,
                                                         AllowedAddressPairs aap) {
         List<MatchInfoBase> matchInfoBaseList;
