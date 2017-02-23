@@ -21,5 +21,6 @@ Contents:
    Support of VXLAN based connectivity across Datacenters <l3vpn-over-vxlan-with-evpn-rt5>
    Temporary SMAC Learning <temporary-smac-learning>
    VNI based L2 switching, L3 forwarding and NATing <vni-based-l2-switching-l3-forwarding-and-NATing>
+   Support for TCP MD5 Signature Option configuration of Quagga BGP <qbgp-tcp-md5-signature-option>
    Netvirt counters <netvirt-statistics-spec>
    QoS Alert <qos-alert>
