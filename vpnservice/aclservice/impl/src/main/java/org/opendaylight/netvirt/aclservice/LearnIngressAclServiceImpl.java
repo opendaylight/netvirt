@@ -59,8 +59,8 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
         instructions.add(new InstructionApplyActions(actionsInfos));
 
         String flowNameAdded = flowName + "Ingress" + lportTag + ace.getKey().getRuleName();
-        syncFlow(dpId, NwConstants.EGRESS_LEARN2_TABLE, flowNameAdded, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
+        syncFlow(dpId, NwConstants.EGRESS_LEARN_ACL_FILTER_TABLE, flowNameAdded, AclConstants.PROTO_MATCH_PRIORITY,
+                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
         return flowName;
     }
 
