@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_6daa6086",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T18:13:37Z",
+      "side": 1,
+      "message": "define in some constants file .. \nDonot compare direct literal like \"VXLAN\".  Alos\n\n please use lowercase \u0027vxlan\u0027 in constants file.  Applies everywhtere.",
+      "revId": "d7a54e55e23cad04249c0ca4581274f2d4c10fbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4daf9c94",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 655,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T18:13:37Z",
+      "side": 1,
+      "message": "what if routerLportTag allocation failed?",
+      "revId": "d7a54e55e23cad04249c0ca4581274f2d4c10fbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8d94e443",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 713,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T18:13:37Z",
+      "side": 1,
+      "message": "what about callers , are they ready to handle null?",
+      "revId": "d7a54e55e23cad04249c0ca4581274f2d4c10fbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ad972847",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 716,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T18:13:37Z",
+      "side": 1,
+      "message": "Ditto comment here.",
+      "revId": "d7a54e55e23cad04249c0ca4581274f2d4c10fbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ed9db067",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1594,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T18:13:37Z",
+      "side": 1,
+      "message": "releaseLportTagForRouter.. This should also be selective.",
+      "revId": "d7a54e55e23cad04249c0ca4581274f2d4c10fbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2d8b3820",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1620,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T18:13:37Z",
+      "side": 1,
+      "message": "ditto commment here.",
+      "revId": "d7a54e55e23cad04249c0ca4581274f2d4c10fbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8dcd0488",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 749,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T18:13:37Z",
+      "side": 1,
+      "message": "this method was always returning a flowEntity earlier.. Now all callers need to check for null is it?\n\nPlease revisit this!",
+      "revId": "d7a54e55e23cad04249c0ca4581274f2d4c10fbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cdc38c55",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1752,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T18:13:37Z",
+      "side": 1,
+      "message": "ditto comment as below here..",
+      "revId": "d7a54e55e23cad04249c0ca4581274f2d4c10fbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_edc65067",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1764,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T18:13:37Z",
+      "side": 1,
+      "message": "donot use NatConstants.INVALID_ID here.. \n\nThe value returned will be either 0 or valid VNI , please check vpnENGINE..",
+      "revId": "d7a54e55e23cad04249c0ca4581274f2d4c10fbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6db3800a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1796,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T18:13:37Z",
+      "side": 1,
+      "message": "releaseLportTagForRouter",
+      "revId": "d7a54e55e23cad04249c0ca4581274f2d4c10fbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cd9a6c6d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1868,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T18:13:37Z",
+      "side": 1,
+      "message": "this file has overgrown.. Please use a brand new file for natevpnutils.",
+      "revId": "d7a54e55e23cad04249c0ca4581274f2d4c10fbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
