@@ -636,7 +636,7 @@ public class ElanUtils {
     }
 
     public static BigInteger getElanMetadataLabel(long elanTag) {
-        return BigInteger.valueOf(elanTag).shiftLeft(24);
+        return MetaDataUtil.getElanTagMetadata(elanTag);
     }
 
     public static BigInteger getElanMetadataLabel(long elanTag, boolean isSHFlagSet) {
