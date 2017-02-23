@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1a9dcc0b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T16:10:48Z",
+      "side": 1,
+      "message": "Hanumant, please put in (configInterface.getType() !\u003d null) too\nTali,\n\nWe left this intact as it was done that way earlier.. \n\nIt would be a saviour if we don\u0027t read the config DS for interface itself.  But we don\u0027t want to process the vpn-interface at all if by the time we got our DJC a chance to run, we realize that interface has been removed already :)\n\nLet this be there since we are reading configInterface anyway !",
+      "parentUuid": "fafc7978_daed04b9",
+      "range": {
+        "startLine": 78,
+        "startChar": 55,
+        "endLine": 78,
+        "endChar": 102
+      },
+      "revId": "cb7fb6ecc1a613b9c9853c8e39e3d1f3b7d5b560",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3a7c10ec",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
         "patchSetId": 7
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7a9e9808",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T16:10:48Z",
+      "side": 1,
+      "message": "+1 not used anymore.  Need to be removed.",
+      "parentUuid": "fafc7978_3a7c10ec",
+      "revId": "cb7fb6ecc1a613b9c9853c8e39e3d1f3b7d5b560",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fa1e08ba",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
         "patchSetId": 7
@@ -53,6 +95,30 @@
       "writtenOn": "2017-02-23T15:53:57Z",
       "side": 1,
       "message": "ditto",
+      "range": {
+        "startLine": 83,
+        "startChar": 44,
+        "endLine": 83,
+        "endChar": 91
+      },
+      "revId": "cb7fb6ecc1a613b9c9853c8e39e3d1f3b7d5b560",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5aa3d44e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T16:10:48Z",
+      "side": 1,
+      "message": "explained in the other comment on need for retention.",
+      "parentUuid": "fafc7978_fa1e08ba",
       "range": {
         "startLine": 83,
         "startChar": 44,
