@@ -16,6 +16,24 @@
       "revId": "501b5dd9525a54e133e562f05841257a3ee678d2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_da7ce4b7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T16:24:41Z",
+      "side": 1,
+      "message": "Currently it does not depend on the proposed service binding of tunnels here: https://git.opendaylight.org/gerrit/#/c/51270/\n\nWhen that feature becomes ready and implemented, we will update the EVPN spec appropriately and then push the code changes.",
+      "parentUuid": "1a622d24_cd7763d3",
+      "revId": "501b5dd9525a54e133e562f05841257a3ee678d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
