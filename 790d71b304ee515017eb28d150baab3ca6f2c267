@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9a953c89",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T15:02:10Z",
+      "side": 1,
+      "message": "In the NEW-TABLE-ON-EGRESS-SIDE(ACL3) i.,e say table 253 of this node (and when a packet incoming from some other node to this node), the match will be on src-ip-address +elantag of the packet and SG value set will be that of the remote-security-group a.k.a security-group to which that src-ip-address belongs to.\n\nSimilarly in the NEW-TABLE-ON-INGRESS(ACL3 again on ingress side) i.e, say table 43 of this (and for packets originating from this node towards somebody remote), the match will be on dst-ip-address + elanttag of packet and SG value set will be that of the SG to which the dst-ip-address belongs.\n\nIs that right understadning?\n\nOn Egress Side ACL4 , the existing match rule for ports on this node will remain intact including any IP match there is based on dst-ip.\n\nSimilarly on Ingress Side ACL4, the existing match rule for ports on this node will remain intact include IP match (for spoofing) and that is based on src-ip.",
+      "parentUuid": "fafc7978_57ce0db5",
+      "revId": "790d71b304ee515017eb28d150baab3ca6f2c267",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_0aec5d29",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 10
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "Good idea. I will use 211,212,213,214, just to stay before the Egress Dispatcher(220)\nThere shouldn\u0027t be any forwarding changes..\n\nUpdated spec.",
       "parentUuid": "fafc7978_0aec5d29",
+      "revId": "790d71b304ee515017eb28d150baab3ca6f2c267",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9adc1c75",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-23T15:02:10Z",
+      "side": 1,
+      "message": "Fine..",
+      "parentUuid": "fafc7978_373a6999",
       "revId": "790d71b304ee515017eb28d150baab3ca6f2c267",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
