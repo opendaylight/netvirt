@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_57ce0db5",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-23T13:41:05Z",
+      "side": 1,
+      "message": "Yes you are right see example below.\nAre you referring to \"in addition to the other rule matches\"? I meant the SG rule itself, for example tcp,tcp_dst\u003d80 etc.",
+      "parentUuid": "fafc7978_ea7bd989",
+      "revId": "790d71b304ee515017eb28d150baab3ca6f2c267",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_0aec5d29",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 10
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-23T09:08:53Z",
       "side": 1,
       "message": "This will free up only 40 and 42 but will consume 31 to 34.\n\nCan we shift this entire ACL Service starting from table 221.  Like \nIngress ACL 221, 222, 223, 224\nEgress ACL 241, 242,243,244.\n\nThe place in and around table nos 10 to 90 is near deplete, and we can avoid squeezing there, and retain some space there for any unavoidable use-case with existing services.\n\nAlso the above proposal will give space for ACL Service to expand in the future.\n\nI have not thought yet of forwarding changes within ACL because of the proposal :).",
+      "revId": "790d71b304ee515017eb28d150baab3ca6f2c267",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_373a6999",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-23T13:41:05Z",
+      "side": 1,
+      "message": "Good idea. I will use 211,212,213,214, just to stay before the Egress Dispatcher(220)\nThere shouldn\u0027t be any forwarding changes..\n\nUpdated spec.",
+      "parentUuid": "fafc7978_0aec5d29",
       "revId": "790d71b304ee515017eb28d150baab3ca6f2c267",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_372f0941",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-23T13:41:05Z",
+      "side": 1,
+      "message": "Number of registers is very limited in OVS so this would be very problematic..\n\nFYI this is a good reference - http://benpfaff.org/~blp/ovs-fields.7.pdf - page 30",
+      "parentUuid": "fafc7978_4ac945ab",
+      "revId": "790d71b304ee515017eb28d150baab3ca6f2c267",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2ace81b4",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 10
@@ -64,6 +118,24 @@
       "writtenOn": "2017-02-23T09:08:53Z",
       "side": 1,
       "message": "typically in the cloud most of the ports will be using only a single SG which may be either \u0027default\u0027 (or) a \u0027custom\u0027 one.",
+      "revId": "790d71b304ee515017eb28d150baab3ca6f2c267",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7725115b",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-23T13:41:05Z",
+      "side": 1,
+      "message": "Yes that\u0027s what we were hoping, so we at least optimize this scenario. Thanks for the reassurance.",
+      "parentUuid": "fafc7978_2ace81b4",
       "revId": "790d71b304ee515017eb28d150baab3ca6f2c267",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
