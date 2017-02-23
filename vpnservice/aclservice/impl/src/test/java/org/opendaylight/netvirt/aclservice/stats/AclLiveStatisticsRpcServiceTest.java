@@ -12,6 +12,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 import static org.opendaylight.netvirt.aclservice.tests.StateInterfaceBuilderHelper.putNewStateInterface;
 
 import java.util.Arrays;
@@ -24,6 +25,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.testutils.AsyncEventsWaiter;
 import org.opendaylight.genius.datastoreutils.testutils.TestableDataTreeChangeListenerModule;
 import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
@@ -31,6 +34,7 @@ import org.opendaylight.netvirt.aclservice.tests.AclServiceModule;
 import org.opendaylight.netvirt.aclservice.tests.AclServiceTestModule;
 import org.opendaylight.netvirt.aclservice.tests.ImmutableIdentifiedInterfaceWithAclBuilder;
 import org.opendaylight.netvirt.aclservice.tests.infra.DataBrokerPairsUtil;
+import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.acl.live.statistics.rev161129.AclLiveStatisticsService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.acl.live.statistics.rev161129.Direction;
@@ -41,6 +45,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.acl.live.statistics
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.acl.live.statistics.rev161129.acl.stats.output.acl.port.stats.AclDropStats;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceBuilder;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +71,7 @@ public class AclLiveStatisticsRpcServiceTest {
     AsyncEventsWaiter asyncEventsWaiter;
     @Inject
     OpendaylightDirectStatisticsService odlDirectStatsService;
+    SingleTransactionDataBroker singleTransactionDataBroker;
 
     private AclLiveStatisticsService aclStatsService;
 
@@ -69,17 +79,45 @@ public class AclLiveStatisticsRpcServiceTest {
     private static final String PORT_1 = "port1";
     private static final String PORT_2 = "port2";
 
+    static String ELAN = "elan1";
+    static long ELAN_TAG = 5000L;
+
     @Before
     public void setUp() throws Exception {
         aclStatsService = new AclLiveStatisticsRpcServiceImpl(config, dataBroker, odlDirectStatsService);
+        singleTransactionDataBroker = new SingleTransactionDataBroker(dataBroker);
 
         LOG.info("Acl mode: {}", config.getSecurityGroupMode());
+
+        newElan(ELAN, ELAN_TAG);
+        newElanInterface(ELAN, PORT_1, true);
 
         dataBrokerUtil.put(
                 ImmutableIdentifiedInterfaceWithAclBuilder.builder().interfaceName(PORT_1).portSecurity(true).build());
         putNewStateInterface(dataBroker, "port1", PORT_MAC_1);
         asyncEventsWaiter.awaitEventsConsumption();
     }
+
+    // FIXME copied from AclServiceTestBase
+    protected void newElan(String elanName, long elanId) throws TransactionCommitFailedException {
+        ElanInstance elan = new ElanInstanceBuilder().setElanInstanceName(elanName).setElanTag(5000L).build();
+        singleTransactionDataBroker.syncWrite(CONFIGURATION,
+                AclServiceUtils.getElanInstanceConfigurationDataPath(elanName),
+                elan);
+    }
+
+    protected void newElanInterface(String elanName, String portName, boolean isWrite)
+            throws TransactionCommitFailedException {
+        ElanInterface elanInterface = new ElanInterfaceBuilder().setName(portName)
+                .setElanInstanceName(elanName).build();
+        InstanceIdentifier<ElanInterface> id = AclServiceUtils.getElanInterfaceConfigurationDataPathId(portName);
+        if (isWrite) {
+            singleTransactionDataBroker.syncWrite(CONFIGURATION, id, elanInterface);
+        } else {
+            singleTransactionDataBroker.syncDelete(CONFIGURATION, id);
+        }
+    }
+
 
     /**
      * Test stats for one port and both direction. <br>
