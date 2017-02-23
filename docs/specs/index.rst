@@ -22,3 +22,4 @@ Contents:
    Temporary SMAC Learning <temporary-smac-learning>
    VNI based L2 switching, L3 forwarding and NATing <vni-based-l2-switching-l3-forwarding-and-NATing>
    Netvirt counters <netvirt-statistics-spec>
+   Enhancement to VLAN provider network support <vlan-provider-enhancement>
