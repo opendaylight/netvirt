@@ -1283,7 +1283,7 @@ public class ElanUtils {
         int priority = ElanConstants.ELAN_SERVICE_PRIORITY;
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
-        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(getElanMetadataLabel(elanTag),
+        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(getElanTagMetadata(elanTag),
                 MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.ELAN_SMAC_TABLE, ++instructionKey));
 
