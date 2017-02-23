@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_37e0a9cc",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-02-23T13:56:25Z",
+      "side": 1,
+      "message": "With allowed address pair, VM can have more than one ip/ ip-prefix associated with it and two vm can have same IP prefix. So we require some handling similar to the patch [1]. \n[1]https://git.opendaylight.org/gerrit/#/c/51346/",
+      "revId": "fb0a1d2184b44e82f514e90aec0261edad335ba7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
