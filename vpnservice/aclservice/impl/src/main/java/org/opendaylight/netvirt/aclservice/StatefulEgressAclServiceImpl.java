@@ -113,7 +113,7 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
             Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
             List<InstructionInfo> instructions = new ArrayList<>();
             List<ActionInfo> actionsInfos = new ArrayList<>();
-            actionsInfos.add(new ActionNxConntrack(2, 0, 0, elanTag.intValue(), NwConstants.INGRESS_ACL_FILTER_TABLE));
+            actionsInfos.add(new ActionNxConntrack(2, 0, 0, elanTag.intValue(), NwConstants.INGRESS_ACL_REMOTE_ACL_TABLE));
             instructions.add(new InstructionApplyActions(actionsInfos));
 
             String flowName = "Egress_Fixed_Conntrk_" + dpId + "_" + attachMac.getValue() + "_"
