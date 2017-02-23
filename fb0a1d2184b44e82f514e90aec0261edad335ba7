@@ -16,6 +16,24 @@
       "revId": "fb0a1d2184b44e82f514e90aec0261edad335ba7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9701953a",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-23T14:07:56Z",
+      "side": 1,
+      "message": "The ELAN_ID+IP match would cover that right? The flow(s) would be multipled by all the remote IP+ELAN_ID.",
+      "parentUuid": "fafc7978_37e0a9cc",
+      "revId": "fb0a1d2184b44e82f514e90aec0261edad335ba7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
