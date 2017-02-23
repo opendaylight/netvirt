@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3a3410fb",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-23T16:26:12Z",
+      "side": 1,
+      "message": "Yes you are understanding correctly the first part (this is existing logic to match the src/dst IP).\n\nThere will be two cases though:\na. There is a single remote ACL on the rule - it will have a match on IP in the new ACL table (ACL2 now in updated spec), set the metadata to ACL ID, and in ACL3 we will only match the ACL ID.\nb. There is more than one remote ACL on the rule - it will only pass through ACL2, hit default rule, and go to ACL3 for the current behavior of matching all the src/dst IP combinations.",
+      "parentUuid": "fafc7978_9a953c89",
+      "revId": "790d71b304ee515017eb28d150baab3ca6f2c267",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_0aec5d29",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 10
