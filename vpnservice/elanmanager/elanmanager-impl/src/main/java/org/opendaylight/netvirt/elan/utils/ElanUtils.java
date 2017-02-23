@@ -1276,7 +1276,7 @@ public class ElanUtils {
 
         InstanceIdentifier<Node> node = InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(nodeId))
                 .build();
-        return read(broker, LogicalDatastoreType.OPERATIONAL, node).isPresent();
+        return read(broker, LogicalDatastoreType.CONFIGURATION, node).isPresent();
     }
 
     public static ServicesInfo getServiceInfo(String elanInstanceName, long elanTag, String interfaceName) {
