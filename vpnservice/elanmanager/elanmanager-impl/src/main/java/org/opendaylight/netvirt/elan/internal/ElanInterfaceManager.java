@@ -321,10 +321,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         WriteTransaction deleteFlowGroupTx = broker.newWriteOnlyTransaction();
         InstanceIdentifier<ElanInterfaceMac> elanInterfaceId = ElanUtils
                 .getElanInterfaceMacEntriesOperationalDataPath(interfaceName);
+        Optional<ElanInterfaceMac> existingElanInterfaceMac = elanUtils.read(broker,
+                LogicalDatastoreType.OPERATIONAL, elanInterfaceId);
         LOG.debug("Removing the Interface:{} from elan:{}", interfaceName, elanName);
         if (interfaceInfo != null) {
-            Optional<ElanInterfaceMac> existingElanInterfaceMac = elanUtils.read(broker,
-                    LogicalDatastoreType.OPERATIONAL, elanInterfaceId);
             if (existingElanInterfaceMac.isPresent()) {
                 List<MacEntry> existingMacEntries = existingElanInterfaceMac.get().getMacEntry();
                 List<MacEntry> macEntries = new ArrayList<>();
@@ -353,13 +353,11 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             }
             removeDefaultTermFlow(interfaceInfo.getDpId(), interfaceInfo.getInterfaceTag());
             removeFilterEqualsTable(elanInfo, interfaceInfo, deleteFlowGroupTx);
-        } else {
+        } else if (existingElanInterfaceMac.isPresent()) {
             // Interface does not exist in ConfigDS, so lets remove everything
             // about that interface related to Elan
-            ElanInterfaceMac elanInterfaceMac = elanUtils.getElanInterfaceMacByInterfaceName(interfaceName);
-            if (elanInterfaceMac != null && elanInterfaceMac.getMacEntry() != null) {
-                List<MacEntry> macEntries = elanInterfaceMac.getMacEntry();
-                macEntries.stream().forEach(macEntry -> {
+            java.util.Optional.ofNullable(existingElanInterfaceMac.get().getMacEntry())
+                .ifPresent(macEntries -> macEntries.stream().forEach(macEntry -> {
                     PhysAddress macAddress = macEntry.getMacAddress();
                     Optional<MacEntry> macEntryOptional = elanUtils.getMacEntryForElanInstance(elanName,
                             macAddress);
@@ -367,10 +365,11 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                         tx.delete(LogicalDatastoreType.OPERATIONAL,
                                 ElanUtils.getMacEntryOperationalDataPath(elanName, macAddress));
                     }
-                } );
-            }
+                }));
         }
-        tx.delete(LogicalDatastoreType.OPERATIONAL, elanInterfaceId);
+        if (existingElanInterfaceMac.isPresent()) {
+            tx.delete(LogicalDatastoreType.OPERATIONAL, elanInterfaceId);
+        }
         if (!isInterfaceStateRemoved) {
             unbindService(elanInfo, interfaceName, tx);
         }
