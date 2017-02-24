@@ -119,7 +119,7 @@ module ebgp {
   } // neighbhors
 
   list networks {
-    key "rd prefix-len";
+    key "rd prefix-len afi";
     leaf rd {
       type string;
     }
@@ -160,6 +160,10 @@ module ebgp {
     leaf l3vni {
       description "VxLAN Identifier.";
       type uint32;
+    }
+    leaf afi {
+      type uint32;
+      mandatory "true";
     }
   } // networks
 

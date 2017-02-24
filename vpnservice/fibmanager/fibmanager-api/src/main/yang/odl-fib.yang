@@ -16,6 +16,14 @@ module odl-fib {
         }
     }
 
+    grouping ipv6Entries{
+        list ipv6Entry{
+            key  "destPrefix";
+            leaf destPrefix {type string;}
+            leaf nextHopAddress {type string;}
+        }
+    }
+
     grouping vrfEntries{
         list vrfEntry{
             key  "destPrefix";
@@ -91,6 +99,10 @@ module odl-fib {
 
         container ipv4Table{
             uses ipv4Entries;
+        }
+
+        container ipv6Table{
+            uses ipv6Entries;
         }
     }
 
