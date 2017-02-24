@@ -46,6 +46,7 @@ public class InterVpnLinkCache {
     ///////////////////////////////////
 
     public static synchronized void createInterVpnLinkCaches(DataBroker dataBroker) {
+
         boolean emptyCaches = true;
         if (CacheUtil.getCache(ENDPOINT_2_IVPNLINK_CACHE_NAME) == null) {
             CacheUtil.createCache(ENDPOINT_2_IVPNLINK_CACHE_NAME);
@@ -92,9 +93,11 @@ public class InterVpnLinkCache {
         // Read all InterVpnLinks and InterVpnLinkStates from MD-SAL.
         InstanceIdentifier<InterVpnLinks> interVpnLinksIid = InstanceIdentifier.builder(InterVpnLinks.class).build();
 
+
+
+
         Optional<InterVpnLinks> optIVpnLinksOpData =
                 MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, interVpnLinksIid);
-
         if (!optIVpnLinksOpData.isPresent()) {
             return; // Nothing to be added to cache
         }

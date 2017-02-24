@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 public class InterVpnLinkLocator {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkLocator.class);
-    private static final String NBR_OF_DPNS_PROPERTY_NAME = "vpnservice.intervpnlink.number.dpns";
+    protected static final String NBR_OF_DPNS_PROPERTY_NAME = "vpnservice.intervpnlink.number.dpns";
 
     private final DataBroker dataBroker;
 
@@ -80,6 +80,7 @@ public class InterVpnLinkLocator {
             pendingDPNs = numberOfDpns - currentNbrOfItems;
             result.addAll(dpnIdPool.subList(0, Math.max(dpnIdPool.size(), pendingDPNs)));
         }
+
         return result;
     }
 
@@ -172,8 +173,8 @@ public class InterVpnLinkLocator {
     public List<InterVpnLinkDataComposite> findInterVpnLinksSameGroup(InterVpnLink ivpnLinkToMatch,
                                                                       List<InterVpnLinkDataComposite> interVpnLinks) {
 
-        List<String> vpnToMatch1IRTs = getIRTsByVpnName(ivpnLinkToMatch.getFirstEndpoint().getVpnUuid().getValue());
-        List<String> vpnToMatch2IRTs = getIRTsByVpnName(ivpnLinkToMatch.getSecondEndpoint().getVpnUuid().getValue());
+        List<String> irts1stEndpoint = getIRTsByVpnName(ivpnLinkToMatch.getFirstEndpoint().getVpnUuid().getValue());
+        List<String> irts2ndEndpoint = getIRTsByVpnName(ivpnLinkToMatch.getSecondEndpoint().getVpnUuid().getValue());
 
         Predicate<InterVpnLinkDataComposite> areSameGroup = (ivl) -> {
             if (ivl.getInterVpnLinkName().equals(ivpnLinkToMatch.getName())) {
@@ -186,8 +187,8 @@ public class InterVpnLinkLocator {
             }
             List<String> vpn1IRTs = getIRTsByVpnName(vpn1Name);
             List<String> vpn2IRTs = getIRTsByVpnName(vpn2Name);
-            return (haveSameIRTs(vpn1IRTs, vpnToMatch1IRTs) && haveSameIRTs(vpn2IRTs, vpnToMatch2IRTs)
-                    || (haveSameIRTs(vpn1IRTs, vpnToMatch2IRTs) && haveSameIRTs(vpn2IRTs, vpnToMatch1IRTs)));
+            return (haveSameIRTs(vpn1IRTs, irts1stEndpoint) && haveSameIRTs(vpn2IRTs, irts2ndEndpoint)
+                || (haveSameIRTs(vpn1IRTs, irts2ndEndpoint) && haveSameIRTs(vpn2IRTs, irts1stEndpoint)));
         };
 
         return interVpnLinks.stream().filter(areSameGroup).collect(Collectors.toList());
