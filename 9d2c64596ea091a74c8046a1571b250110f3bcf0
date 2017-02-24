@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_1c92e44b",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/gen/BgpConfigurator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1992,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-24T20:56:46Z",
+      "side": 1,
+      "message": "nitpick on the whitespace",
+      "revId": "9d2c64596ea091a74c8046a1571b250110f3bcf0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
