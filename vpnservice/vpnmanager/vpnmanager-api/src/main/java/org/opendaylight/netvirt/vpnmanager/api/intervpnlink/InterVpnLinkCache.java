@@ -196,9 +196,6 @@ public class InterVpnLinkCache {
             return;
         }
         cache.put(interVpnLink.getInterVpnLinkName(), interVpnLink);
-        if (interVpnLink.getSecondEndpointIpAddr().isPresent()) {
-            cache.put(interVpnLink.getSecondEndpointIpAddr().get(), interVpnLink);
-        }
     }
 
     public static void removeInterVpnLinkFromCache(InterVpnLink interVpnLink) {
