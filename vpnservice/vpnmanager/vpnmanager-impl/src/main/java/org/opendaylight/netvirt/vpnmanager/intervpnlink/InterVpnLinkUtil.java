@@ -36,6 +36,7 @@ import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
@@ -49,7 +50,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkStateKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.inter.vpn.link.state.FirstEndpointState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.inter.vpn.link.state.FirstEndpointStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.inter.vpn.link.state.SecondEndpointState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.inter.vpn.link.state.SecondEndpointStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLinkKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -131,6 +134,69 @@ public class InterVpnLinkUtil {
         vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, ifaceName, false /* removal */);
     }
 
+
+    public static FirstEndpointState buildFirstEndpointState(FirstEndpointState original,
+                                                             Optional<List<BigInteger>> new1stEndpointDpns,
+                                                             Optional<Long> new1stEndpointLportTag) {
+        FirstEndpointStateBuilder builder = new FirstEndpointStateBuilder(original);
+        if (new1stEndpointDpns.isPresent()) {
+            builder.setDpId(new1stEndpointDpns.get());
+        }
+        if (new1stEndpointLportTag.isPresent()) {
+            builder.setLportTag(new1stEndpointLportTag.get());
+        }
+        return builder.build();
+    }
+
+    public static FirstEndpointState buildFirstEndpointState(String vpnName, List<BigInteger> dpnList, long lportTag) {
+        return new FirstEndpointStateBuilder().setVpnUuid(new Uuid(vpnName)).setDpId(dpnList).setLportTag(lportTag)
+                                              .build();
+    }
+
+    public static SecondEndpointState buildSecondEndpointState(SecondEndpointState original,
+                                                               Optional<List<BigInteger>> new2ndEndpointDpns,
+                                                               Optional<Long> new2ndEndpointLportTag) {
+        SecondEndpointStateBuilder builder = new SecondEndpointStateBuilder(original);
+        if (new2ndEndpointDpns.isPresent()) {
+            builder.setDpId(new2ndEndpointDpns.get());
+        }
+        if (new2ndEndpointLportTag.isPresent()) {
+            builder.setLportTag(new2ndEndpointLportTag.get());
+        }
+        return builder.build();
+    }
+
+    public static SecondEndpointState buildSecondEndpointState(String vpnName, List<BigInteger> dpnList,
+                                                               long lportTag) {
+        return new SecondEndpointStateBuilder().setVpnUuid(new Uuid(vpnName)).setDpId(dpnList).setLportTag(lportTag)
+                                              .build();
+    }
+
+    /**
+     * Creates an InterVpnLinkState out of an existing one and modifying only the desired attributes.
+     *
+     * @param original InterVpnLinkState to start from.
+     * @param new1stEndpointState Sets this FirstEndpointState if present
+     * @param new2ndEndpointState  Sets this SecondEndpointState if present
+     * @param errDescription  Sets this ErrorDescription if present
+     * @return the newly build InterVpnLinkState
+     */
+    public static InterVpnLinkState buildIvlStateFromOriginal(InterVpnLinkState original,
+                                                             Optional<FirstEndpointState> new1stEndpointState,
+                                                             Optional<SecondEndpointState> new2ndEndpointState,
+                                                             Optional<String> errDescription) {
+        InterVpnLinkStateBuilder ivlStateBuilder = new InterVpnLinkStateBuilder(original);
+        if (new1stEndpointState.isPresent()) {
+            ivlStateBuilder.setFirstEndpointState(new1stEndpointState.get());
+        }
+        if (new2ndEndpointState.isPresent()) {
+            ivlStateBuilder.setSecondEndpointState(new2ndEndpointState.get());
+        }
+        if (errDescription.isPresent()) {
+            ivlStateBuilder.setErrorDescription(errDescription.get());
+        }
+        return ivlStateBuilder.build();
+    }
 
     /**
      * Updates inter-VPN link state.
