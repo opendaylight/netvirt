@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 public class InterVpnLinkLocator {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkLocator.class);
-    private static final String NBR_OF_DPNS_PROPERTY_NAME = "vpnservice.intervpnlink.number.dpns";
+    protected static final String NBR_OF_DPNS_PROPERTY_NAME = "vpnservice.intervpnlink.number.dpns";
 
     private final DataBroker dataBroker;
 
@@ -80,6 +80,7 @@ public class InterVpnLinkLocator {
             pendingDPNs = numberOfDpns - currentNbrOfItems;
             result.addAll(dpnIdPool.subList(0, Math.max(dpnIdPool.size(), pendingDPNs)));
         }
+
         return result;
     }
 
@@ -187,7 +188,7 @@ public class InterVpnLinkLocator {
             List<String> vpn1IRTs = getIRTsByVpnName(vpn1Name);
             List<String> vpn2IRTs = getIRTsByVpnName(vpn2Name);
             return (haveSameIRTs(vpn1IRTs, vpnToMatch1IRTs) && haveSameIRTs(vpn2IRTs, vpnToMatch2IRTs)
-                    || (haveSameIRTs(vpn1IRTs, vpnToMatch2IRTs) && haveSameIRTs(vpn2IRTs, vpnToMatch1IRTs)));
+                || (haveSameIRTs(vpn1IRTs, vpnToMatch2IRTs) && haveSameIRTs(vpn2IRTs, vpnToMatch1IRTs)));
         };
 
         return interVpnLinks.stream().filter(areSameGroup).collect(Collectors.toList());
