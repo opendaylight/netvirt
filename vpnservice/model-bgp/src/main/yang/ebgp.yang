@@ -119,12 +119,16 @@ module ebgp {
   } // neighbhors
 
   list networks {
-    key "rd prefix-len";
+    key "rd prefix-len afi";
     leaf rd {
       type string;
     }
     leaf prefix-len {
       type string;
+    }
+    leaf afi {
+      type uint32;
+      mandatory "false";
     }
     leaf macaddress {
       description "Mac address of the advertised host.";

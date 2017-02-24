@@ -89,6 +89,12 @@ module odl-fib {
             uses vrfEntries;
         }
 
+        list vrfTablesIPv6{
+            key "routeDistinguisher";
+            leaf routeDistinguisher {type string;}
+            uses vrfEntries;
+        }
+
         container ipv4Table{
             uses ipv4Entries;
         }
