@@ -94,7 +94,6 @@ public class InterVpnLinkCache {
 
         Optional<InterVpnLinks> optIVpnLinksOpData =
                 MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, interVpnLinksIid);
-
         if (!optIVpnLinksOpData.isPresent()) {
             return; // Nothing to be added to cache
         }
