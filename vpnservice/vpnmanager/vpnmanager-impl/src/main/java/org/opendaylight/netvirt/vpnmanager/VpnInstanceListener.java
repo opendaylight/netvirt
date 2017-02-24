@@ -356,11 +356,11 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
         if (writeConfigTxn != null) {
             writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION,
-                VpnUtil.getVpnInstanceToVpnIdIdentifier(vpnInstanceName),
+                VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnInstanceName),
                 vpnInstanceToVpnId, true);
         } else {
             TransactionUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                VpnUtil.getVpnInstanceToVpnIdIdentifier(vpnInstanceName),
+                VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnInstanceName),
                 vpnInstanceToVpnId, TransactionUtil.DEFAULT_CALLBACK);
         }
 

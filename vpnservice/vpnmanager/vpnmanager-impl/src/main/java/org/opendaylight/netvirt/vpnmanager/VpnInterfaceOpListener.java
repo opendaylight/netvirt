@@ -91,11 +91,8 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
 
         LOG.info("VpnInterfaceOpListener removed: interface name {} vpnName {}", interfaceName, vpnName);
         //decrement the vpn interface count in Vpn Instance Op Data
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to
-            .vpn.id.VpnInstance>
-            id = VpnUtil.getVpnInstanceToVpnIdIdentifier(vpnName);
-        Optional<VpnInstance> vpnInstance
-            = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        Optional<VpnInstance> vpnInstance = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                                         VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName));
 
         if (vpnInstance.isPresent()) {
             String rd = null;
@@ -184,12 +181,10 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
 
         //increment the vpn interface count in Vpn Instance Op Data
         VpnInstanceOpDataEntry vpnInstOp = null;
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to
-            .vpn.id.VpnInstance>
-            origId = VpnUtil.getVpnInstanceToVpnIdIdentifier(original.getVpnInstanceName());
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-            .VpnInstance> origVpnInstance
-            = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, origId);
+                .VpnInstance> origVpnInstance =
+            VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                         VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(original.getVpnInstanceName()));
 
         if (origVpnInstance.isPresent()) {
             String rd = origVpnInstance.get().getVrfId();

@@ -101,7 +101,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Pre
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RouterInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
@@ -492,14 +491,10 @@ public class VpnUtil {
      */
     public static long getVpnId(DataBroker broker, String vpnName) {
 
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn
-            .id.VpnInstance>
-            id
-            = getVpnInstanceToVpnIdIdentifier(vpnName);
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
             .VpnInstance>
             vpnInstance
-            = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+            = read(broker, LogicalDatastoreType.CONFIGURATION, VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName));
 
         long vpnId = VpnConstants.INVALID_ID;
         if (vpnInstance.isPresent()) {
@@ -516,14 +511,10 @@ public class VpnUtil {
      * @return the route-distinguisher of the VPN
      */
     public static String getVpnRd(DataBroker broker, String vpnName) {
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn
-            .id.VpnInstance>
-            id
-            = getVpnInstanceToVpnIdIdentifier(vpnName);
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
             .VpnInstance>
             vpnInstance
-            = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+            = read(broker, LogicalDatastoreType.CONFIGURATION, VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName));
 
         String rd = null;
         if (vpnInstance.isPresent()) {
@@ -607,18 +598,6 @@ public class VpnUtil {
         getVpnInstanceToVpnId(String vpnName, long vpnId, String rd) {
         return new VpnInstanceBuilder().setVpnId(vpnId).setVpnInstanceName(vpnName).setVrfId(rd).build();
 
-    }
-
-    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to
-        .vpn.id.VpnInstance>
-        getVpnInstanceToVpnIdIdentifier(String vpnName) {
-        return InstanceIdentifier.builder(VpnInstanceToVpnId.class)
-            .child(
-                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-                    .VpnInstance.class,
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-                    .VpnInstanceKey(
-                    vpnName)).build();
     }
 
     static RouterInterface getConfiguredRouterInterface(DataBroker broker, String interfaceName) {
@@ -990,9 +969,11 @@ public class VpnUtil {
     public static void removeVpnInstanceToVpnId(DataBroker broker, String vpnName, WriteTransaction writeTxn) {
         try {
             if (writeTxn != null) {
-                writeTxn.delete(LogicalDatastoreType.CONFIGURATION, getVpnInstanceToVpnIdIdentifier(vpnName));
+                writeTxn.delete(LogicalDatastoreType.CONFIGURATION,
+                                VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName));
             } else {
-                delete(broker, LogicalDatastoreType.CONFIGURATION, getVpnInstanceToVpnIdIdentifier(vpnName),
+                delete(broker, LogicalDatastoreType.CONFIGURATION,
+                       VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName),
                     DEFAULT_CALLBACK);
             }
         } catch (Exception e) {
