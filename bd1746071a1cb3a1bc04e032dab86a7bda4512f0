@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_bca8f877",
+        "filename": "vpnservice/statistics/api/pom.xml",
+        "patchSetId": 13
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-24T21:23:50Z",
+      "side": 1,
+      "message": "tabs to spaces",
+      "revId": "bd1746071a1cb3a1bc04e032dab86a7bda4512f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1cb944cc",
+        "filename": "vpnservice/statistics/impl/pom.xml",
+        "patchSetId": 13
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-24T21:23:50Z",
+      "side": 1,
+      "message": "tabs to spaces",
+      "revId": "bd1746071a1cb3a1bc04e032dab86a7bda4512f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fcbd60b8",
+        "filename": "vpnservice/statistics/impl/pom.xml",
+        "patchSetId": 13
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-24T21:23:50Z",
+      "side": 1,
+      "message": "use the \u003cversion\u003e${project.version}\u003c/version\u003e",
+      "revId": "bd1746071a1cb3a1bc04e032dab86a7bda4512f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5caf4c7d",
+        "filename": "vpnservice/statistics/pom.xml",
+        "patchSetId": 13
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-24T21:23:50Z",
+      "side": 1,
+      "message": "not needed",
+      "revId": "bd1746071a1cb3a1bc04e032dab86a7bda4512f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
