@@ -112,7 +112,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
         fibDSWriter.addFibEntryToDS(rd, macAddress, prefix, nextHopList,
                 encapType, vpnLabel, l3vni, gatewayMac, origin);
         bcm.addPrefix(rd, macAddress, prefix, nextHopList,
-                encapType, vpnLabel, l3vni, gatewayMac);
+                encapType, vpnLabel, l3vni, gatewayMac, 1 /* TODO FIX afi */);
     }
 
     @Override
@@ -125,7 +125,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     @Override
     public void deletePrefix(String rd, String prefix) {
         fibDSWriter.removeFibEntryFromDS(rd, prefix);
-        bcm.delPrefix(rd, prefix);
+        bcm.delPrefix(rd, prefix, 1 /* TODO FIX afi */);
     }
 
     @Override
@@ -133,7 +133,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
                                 VrfEntry.EncapType encapType, int vpnLabel, long l3vni,
                                 String gatewayMac) throws Exception {
         bcm.addPrefix(rd, macAddress, prefix, nextHopList,
-                encapType, vpnLabel, l3vni, gatewayMac);
+                encapType, vpnLabel, l3vni, gatewayMac, 1 /* TODO FIX afi */);
     }
 
     @Override
@@ -142,14 +142,14 @@ public class BgpManager implements AutoCloseable, IBgpManager {
                                 String gatewayMac) throws Exception {
         LOG.info("ADVERTISE: Adding Prefix rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, vpnLabel);
         bcm.addPrefix(rd, macAddress, prefix, Collections.singletonList(nextHop), encapType,
-                vpnLabel, l3vni, gatewayMac);
+                vpnLabel, l3vni, gatewayMac, 1 /* TODO FIX afi */);
         LOG.info("ADVERTISE: Added Prefix rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, vpnLabel);
     }
 
     @Override
     public void withdrawPrefix(String rd, String prefix) {
         LOG.info("WITHDRAW: Removing Prefix rd {} prefix {}", rd, prefix);
-        bcm.delPrefix(rd, prefix);
+        bcm.delPrefix(rd, prefix, 1 /* TODO FIX afi */);
         LOG.info("WITHDRAW: Removed Prefix rd {} prefix {}", rd, prefix);
     }
 
