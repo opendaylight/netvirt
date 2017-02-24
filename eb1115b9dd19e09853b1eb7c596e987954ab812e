@@ -34,6 +34,24 @@
       "revId": "eb1115b9dd19e09853b1eb7c596e987954ab812e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cd01cc07",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnDpnToTransportZoneListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-24T02:36:02Z",
+      "side": 1,
+      "message": "Okay. But Looks like it leads to these transport zones use same tep ip address. isn\u0027t it ?",
+      "parentUuid": "fafc7978_59b3e909",
+      "revId": "eb1115b9dd19e09853b1eb7c596e987954ab812e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
