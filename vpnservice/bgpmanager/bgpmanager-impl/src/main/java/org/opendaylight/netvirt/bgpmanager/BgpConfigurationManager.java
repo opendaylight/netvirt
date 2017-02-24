@@ -1830,14 +1830,16 @@ public class BgpConfigurationManager {
     }
 
     public synchronized void addPrefix(String rd, String macAddress, String pfx, List<String> nhList,
-              VrfEntry.EncapType encapType, int lbl, long l3vni, String gatewayMac) {
+              VrfEntry.EncapType encapType, int lbl, long l3vni, String gatewayMac, int addressFamily) {
         for (String nh : nhList) {
             Ipv4Address nexthop = nh != null ? new Ipv4Address(nh) : null;
             Long label = (long) lbl;
+            Long afi = (long) addressFamily;
             InstanceIdentifier<Networks> iid = InstanceIdentifier.builder(Bgp.class)
                     .child(Networks.class, new NetworksKey(pfx, rd)).build();
             NetworksBuilder networksBuilder = new NetworksBuilder().setRd(rd).setPrefixLen(pfx).setNexthop(nexthop)
-                                                .setLabel(label).setEthtag(BgpConstants.DEFAULT_ETH_TAG);
+                                                .setLabel(label).setEthtag(BgpConstants.DEFAULT_ETH_TAG)
+                                                .setAfi(afi);
             buildVpnEncapSpecificInfo(networksBuilder, encapType, label, l3vni, macAddress, gatewayMac);
             update(iid, networksBuilder.build());
         }
@@ -1938,7 +1940,7 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    public synchronized void delPrefix(String rd, String pfx) {
+    public synchronized void delPrefix(String rd, String pfx, int afi) {
         InstanceIdentifier.InstanceIdentifierBuilder<Networks> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Networks.class, new NetworksKey(pfx, rd));

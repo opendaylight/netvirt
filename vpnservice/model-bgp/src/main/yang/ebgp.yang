@@ -159,6 +159,9 @@ module ebgp {
     leaf prefix-len {
       type string;
     }
+    leaf afi {
+      type uint32;
+    }
     leaf macaddress {
       description "Mac address of the advertised host.";
       type string;
