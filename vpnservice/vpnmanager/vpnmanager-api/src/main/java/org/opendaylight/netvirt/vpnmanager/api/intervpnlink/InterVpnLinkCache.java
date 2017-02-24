@@ -94,7 +94,6 @@ public class InterVpnLinkCache {
 
         Optional<InterVpnLinks> optIVpnLinksOpData =
                 MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, interVpnLinksIid);
-
         if (!optIVpnLinksOpData.isPresent()) {
             return; // Nothing to be added to cache
         }
@@ -196,9 +195,9 @@ public class InterVpnLinkCache {
             return;
         }
         cache.put(interVpnLink.getInterVpnLinkName(), interVpnLink);
-        if (interVpnLink.getSecondEndpointIpAddr().isPresent()) {
-            cache.put(interVpnLink.getSecondEndpointIpAddr().get(), interVpnLink);
-        }
+//        if (interVpnLink.getSecondEndpointIpAddr().isPresent()) {
+//            cache.put(interVpnLink.getSecondEndpointIpAddr().get(), interVpnLink);
+//        }
     }
 
     public static void removeInterVpnLinkFromCache(InterVpnLink interVpnLink) {
