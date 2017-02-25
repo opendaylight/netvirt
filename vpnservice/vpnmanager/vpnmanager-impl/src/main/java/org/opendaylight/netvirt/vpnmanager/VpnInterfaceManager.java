@@ -942,26 +942,27 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             if (vrfEntries != null) {
                 for (VrfEntry vrfEntry : vrfEntries) {
                     try {
-                        if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.STATIC) {
+                        if (!FibHelper.isControllerManagedNonInterVpnLinkRoute(
+                                RouteOrigin.value(vrfEntry.getOrigin()))) {
                             continue;
                         }
                         String prefix = vrfEntry.getDestPrefix();
-                        SubnetRoute route = vrfEntry.getAugmentation(SubnetRoute.class);
                         String gwMac = vrfEntry.getGatewayMacAddress();
                         vrfEntry.getRoutePaths().stream().forEach(routePath -> {
                             String nh = routePath.getNexthopAddress();
                             int label = routePath.getLabel().intValue();
-                            if (route != null) {
-                                LOG.info(
-                                    "Importing subnet route fib entry rd {} prefix {} nexthop {} label {} to vpn {}",
-                                    vpnRd, prefix, nh, label, vpn.getVpnInstanceName());
-                                importSubnetRouteForNewVpn(vpnRd, prefix, nh, (int) label, route, writeConfigTxn);
-                            } else {
+                            if (FibHelper.isControllerManagedVpnInterfaceRoute(RouteOrigin.value(
+                                    vrfEntry.getOrigin()))) {
                                 LOG.info("Importing fib entry rd {} prefix {} nexthop {} label {} gwmac {} to vpn {}",
                                         vpnRd, prefix, nh, label, gwMac, vpn.getVpnInstanceName());
                                 fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, null /*macAddress*/, prefix,
                                         Collections.singletonList(nh), VrfEntry.EncapType.Mplsgre,
                                         (int)label, 0 /*l3vni*/, gwMac, RouteOrigin.SELF_IMPORTED, writeConfigTxn);
+                            } else {
+                                LOG.info("Importing subnet route fib entry rd {} prefix {} nexthop {} label {}"
+                                        + " to vpn {}", vpnRd, prefix, nh, label, vpn.getVpnInstanceName());
+                                SubnetRoute route = vrfEntry.getAugmentation(SubnetRoute.class);
+                                importSubnetRouteForNewVpn(vpnRd, prefix, nh, (int) label, route, writeConfigTxn);
                             }
                         });
                     } catch (Exception e) {

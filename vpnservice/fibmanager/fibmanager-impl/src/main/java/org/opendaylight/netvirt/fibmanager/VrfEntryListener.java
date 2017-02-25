@@ -272,35 +272,30 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             return;
         }
 
-        // Handle Internal Routes next (ie., STATIC only)
-        if (FibUtil.isControllerManagedNonInterVpnLinkRoute(RouteOrigin.value(update.getOrigin()))) {
-            SubnetRoute subnetRoute = update.getAugmentation(SubnetRoute.class);
-            /* Ignore SubnetRoute entry, as it will be driven by createFibEntries call down below */
-            if (subnetRoute == null) {
-                List<RoutePaths> originalRoutePath = original.getRoutePaths();
-                List<RoutePaths> updateRoutePath = update.getRoutePaths();
-                //final SubnetRoute subnetRoute = update.getAugmentation(SubnetRoute.class);
-                LOG.info("UPDATE: Original route-path {} update route-path {} ", originalRoutePath, updateRoutePath);
+        // Handle Vpn Interface driven Routes next (ie., STATIC and LOCAL)
+        if (FibHelper.isControllerManagedVpnInterfaceRoute(RouteOrigin.value(update.getOrigin()))) {
+            List<RoutePaths> originalRoutePath = original.getRoutePaths();
+            List<RoutePaths> updateRoutePath = update.getRoutePaths();
+            LOG.info("UPDATE: Original route-path {} update route-path {} ", originalRoutePath, updateRoutePath);
 
-                // If original VRF Entry had nexthop null , but update VRF Entry
-                // has nexthop , route needs to be created on remote Dpns
-                if (((originalRoutePath == null) || (originalRoutePath.isEmpty())
-                    && (updateRoutePath != null) && (!updateRoutePath.isEmpty()))) {
-                    // TODO(vivek): Though ugly, Not handling this code now, as each
-                    // tep add event will invoke flow addition
-                    LOG.trace("Original VRF entry NH is null for destprefix {}. This event is IGNORED here.",
-                        update.getDestPrefix());
-                    return;
-                }
+            // If original VRF Entry had nexthop null , but update VRF Entry
+            // has nexthop , route needs to be created on remote Dpns
+            if (((originalRoutePath == null) || (originalRoutePath.isEmpty())
+                && (updateRoutePath != null) && (!updateRoutePath.isEmpty()))) {
+                // TODO(vivek): Though ugly, Not handling this code now, as each
+                // tep add event will invoke flow addition
+                LOG.trace("Original VRF entry NH is null for destprefix {}. This event is IGNORED here.",
+                    update.getDestPrefix());
+                return;
+            }
 
-                // If original VRF Entry had valid nexthop , but update VRF Entry
-                // has nexthop empty'ed out, route needs to be removed from remote Dpns
-                if (((updateRoutePath == null) || (updateRoutePath.isEmpty())
-                    && (originalRoutePath != null) && (!originalRoutePath.isEmpty()))) {
-                    LOG.trace("Original VRF entry had valid NH for destprefix {}. This event is IGNORED here.",
-                        update.getDestPrefix());
-                    return;
-                }
+            // If original VRF Entry had valid nexthop , but update VRF Entry
+            // has nexthop empty'ed out, route needs to be removed from remote Dpns
+            if (((updateRoutePath == null) || (updateRoutePath.isEmpty())
+                && (originalRoutePath != null) && (!originalRoutePath.isEmpty()))) {
+                LOG.trace("Original VRF entry had valid NH for destprefix {}. This event is IGNORED here.",
+                    update.getDestPrefix());
+                return;
             }
             createFibEntries(identifier, update);
             LOG.info("UPDATE: Updated Fib Entries to rd {} prefix {} route-paths {}",
@@ -1886,15 +1881,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
                     synchronized (vpnInstance.getVpnInstanceName().intern()) {
                         WriteTransaction writeCfgTxn = dataBroker.newWriteOnlyTransaction();
-                        // Handle Internal Routes only (i.e., STATIC for now)
+                        // Handle Vpn Interface driven Routes only (i.e., STATIC and LOCAL)
                         vrfTable.get().getVrfEntry().stream()
                             .filter(vrfEntry -> {
-                                SubnetRoute subnetRoute =
-                                        vrfEntry.getAugmentation(SubnetRoute.class);
                                 /* Ignore SubnetRoute entry */
-                                return (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.STATIC)
-                                        && (subnetRoute == null);
-                            })
+                                return (FibHelper.isControllerManagedVpnInterfaceRoute(RouteOrigin.value(
+                                        vrfEntry.getOrigin())));
+                            } )
                             .forEach(getConsumerForCreatingRemoteFib(dpnId, vpnId,
                                        rd, remoteNextHopIp, vrfTable,
                                        writeCfgTxn));
@@ -2055,10 +2048,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         WriteTransaction writeCfgTxn = dataBroker.newWriteOnlyTransaction();
                         vrfTable.get().getVrfEntry().stream()
                             .filter(vrfEntry -> {
-                                SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
                                 /* Ignore SubnetRoute entry */
-                                return (subnetRoute == null)
-                                        && (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.STATIC);
+                                return (FibHelper.isControllerManagedVpnInterfaceRoute(
+                                        RouteOrigin.value(vrfEntry.getOrigin())));
                             })
                             .forEach(getConsumerForDeletingRemoteFib(dpnId, vpnId,
                                 rd, remoteNextHopIp, vrfTable, writeCfgTxn));
