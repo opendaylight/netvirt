@@ -921,23 +921,24 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             if (vrfEntries != null) {
                 for (VrfEntry vrfEntry : vrfEntries) {
                     try {
-                        if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.STATIC) {
+                        if (!fibManager.isControllerManagedNonInterVpnLinkRoute(
+                                RouteOrigin.value(vrfEntry.getOrigin()))) {
                             continue;
                         }
                         String prefix = vrfEntry.getDestPrefix();
                         long label = vrfEntry.getLabel();
                         String gwMac = vrfEntry.getGatewayMacAddress();
                         List<String> nextHops = vrfEntry.getNextHopAddressList();
-                        SubnetRoute route = vrfEntry.getAugmentation(SubnetRoute.class);
                         for (String nh : nextHops) {
-                            if (route != null) {
-                                LOG.info("Importing subnet route fib entry rd {} prefix {} nexthop {} label {} to vpn {}", vpnRd, prefix, nh, label, vpn.getVpnInstanceName());
-                                importSubnetRouteForNewVpn(vpnRd, prefix, nh, (int)label, route, writeConfigTxn);
-                            } else {
+                            if (fibManager.isControllerManagedVpnInterfaceRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
                                 LOG.info("Importing fib entry rd {} prefix {} nexthop {} label {} gwMAc {} to vpn {}",
                                         vpnRd, prefix, nh, label, gwMac, vpn.getVpnInstanceName());
                                 fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, prefix, Arrays.asList(nh), (int)label,
                                         gwMac, RouteOrigin.SELF_IMPORTED, writeConfigTxn);
+                            } else {
+                                LOG.info("Importing subnet route fib entry rd {} prefix {} nexthop {} label {} to vpn {}", vpnRd, prefix, nh, label, vpn.getVpnInstanceName());
+                                SubnetRoute route = vrfEntry.getAugmentation(SubnetRoute.class);
+                                importSubnetRouteForNewVpn(vpnRd, prefix, nh, (int)label, route, writeConfigTxn);
                             }
                         }
                     } catch (Exception e) {

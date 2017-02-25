@@ -62,4 +62,7 @@ public interface IFibManager {
     void removeInterVPNLinkRouteFlows(final String interVpnLinkName,
                                       final boolean isVpnFirstEndPoint,
                                       final VrfEntry vrfEntry);
+    boolean isControllerManagedNonInterVpnLinkRoute(RouteOrigin routeOrigin);
+    boolean isControllerManagedVpnInterfaceRoute(RouteOrigin routeOrigin);
+
 }
