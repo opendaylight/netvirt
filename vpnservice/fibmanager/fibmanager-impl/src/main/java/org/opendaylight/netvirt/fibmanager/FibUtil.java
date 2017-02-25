@@ -610,4 +610,9 @@ public class FibUtil {
         }
         return false;
     }
+
+    public static boolean isControllerManagedVpnInterfaceRoute(RouteOrigin routeOrigin) {
+        return routeOrigin == RouteOrigin.STATIC
+                || routeOrigin == RouteOrigin.LOCAL;
+    }
 }
