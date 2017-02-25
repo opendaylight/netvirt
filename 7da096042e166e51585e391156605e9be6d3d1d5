@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_3ec19d54",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-02-25T17:10:00Z",
+      "side": 1,
+      "message": "The tables are named wrt vm across Acl Service, I agree learn and transparent , is the other way in this class. But other classes uses convention wrt to vm.",
+      "revId": "7da096042e166e51585e391156605e9be6d3d1d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
