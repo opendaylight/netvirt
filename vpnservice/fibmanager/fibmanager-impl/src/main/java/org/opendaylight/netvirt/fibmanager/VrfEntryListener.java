@@ -273,7 +273,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
 
         // Handle Internal Routes next (ie., STATIC only)
-        if (FibUtil.isControllerManagedNonInterVpnLinkRoute(RouteOrigin.value(update.getOrigin()))) {
+        if (FibHelper.isControllerManagedNonInterVpnLinkRoute(RouteOrigin.value(update.getOrigin()))) {
             SubnetRoute subnetRoute = update.getAugmentation(SubnetRoute.class);
             /* Ignore SubnetRoute entry, as it will be driven by createFibEntries call down below */
             if (subnetRoute == null) {
@@ -1892,8 +1892,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                 SubnetRoute subnetRoute =
                                         vrfEntry.getAugmentation(SubnetRoute.class);
                                 /* Ignore SubnetRoute entry */
-                                return (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.STATIC)
-                                        && (subnetRoute == null);
+                                return (FibHelper.isControllerManagedNonInterVpnLinkRoute(
+                                        RouteOrigin.value(vrfEntry.getOrigin()))) && (subnetRoute == null);
                             })
                             .forEach(getConsumerForCreatingRemoteFib(dpnId, vpnId,
                                        rd, remoteNextHopIp, vrfTable,
@@ -2057,8 +2057,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             .filter(vrfEntry -> {
                                 SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
                                 /* Ignore SubnetRoute entry */
-                                return (subnetRoute == null)
-                                        && (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.STATIC);
+                                return (subnetRoute == null) && (FibHelper.isControllerManagedNonInterVpnLinkRoute(
+                                        RouteOrigin.value(vrfEntry.getOrigin())));
                             })
                             .forEach(getConsumerForDeletingRemoteFib(dpnId, vpnId,
                                 rd, remoteNextHopIp, vrfTable, writeCfgTxn));
