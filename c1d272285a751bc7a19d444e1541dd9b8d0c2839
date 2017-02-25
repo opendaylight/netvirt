@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_5ed5811a",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-25T15:17:52Z",
+      "side": 1,
+      "message": "Add a new method, isControllerManagedVpnInterfaceRoute() {\n\nrouteOrign \u003d STATIC | routeOrigin \u003d LOCAL.\n\n}\n\nUse this method in the appropriate places instead of getting subnetroute null check. Fix this way in the entire vpninterfacemanager and vrfentrylistener files.",
+      "revId": "c1d272285a751bc7a19d444e1541dd9b8d0c2839",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1e18191d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-25T15:17:52Z",
+      "side": 1,
+      "message": "fix the comment.\n\nHandle VPNInterface driven routes.\n\neverywhere appropirately.",
+      "revId": "c1d272285a751bc7a19d444e1541dd9b8d0c2839",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
