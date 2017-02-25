@@ -200,4 +200,12 @@ public class FibManagerImpl implements IFibManager {
                                              final VrfEntry vrfEntry) {
         vrfEntryListener.removeInterVPNLinkRouteFlows(interVpnLinkName, isVpnFirstEndPoint,vrfEntry);
     }
+
+    public boolean isControllerManagedNonInterVpnLinkRoute(RouteOrigin routeOrigin) {
+        return FibUtil.isControllerManagedNonInterVpnLinkRoute(routeOrigin);
+    }
+
+    public boolean isControllerManagedVpnInterfaceRoute(RouteOrigin routeOrigin)  {
+        return FibUtil.isControllerManagedVpnInterfaceRoute(routeOrigin);
+    }
 }

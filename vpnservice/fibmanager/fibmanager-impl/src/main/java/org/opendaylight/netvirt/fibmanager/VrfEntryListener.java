@@ -245,33 +245,28 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             return;
         }
 
-        // Handle Internal Routes next (ie., STATIC only)
-          if (FibUtil.isControllerManagedNonInterVpnLinkRoute(RouteOrigin.value(update.getOrigin()))) {
-            SubnetRoute subnetRoute = update.getAugmentation(SubnetRoute.class);
-            /* Ignore SubnetRoute entry, as it will be driven by createFibEntries call down below */
-            if (subnetRoute == null) {
-                List<String> origNhList = original.getNextHopAddressList();
-                List<String> updateNhList = update.getNextHopAddressList();
-                //final SubnetRoute subnetRoute = update.getAugmentation(SubnetRoute.class);
-                LOG.info("UPDATE: Original nexthop {} updateNextHop {} ", origNhList, updateNhList);
+        // Handle Vpn Interface driven Routes next (ie., STATIC and LOCAL)
+        if (FibUtil.isControllerManagedVpnInterfaceRoute(RouteOrigin.value(update.getOrigin()))) {
+            List<String> origNhList = original.getNextHopAddressList();
+            List<String> updateNhList = update.getNextHopAddressList();
+            LOG.info("UPDATE: Original nexthop {} updateNextHop {} ", origNhList, updateNhList);
 
-                // If original VRF Entry had nexthop null , but update VRF Entry
-                // has nexthop , route needs to be created on remote Dpns
-                if (((origNhList == null) || (origNhList.isEmpty()) &&
-                        (updateNhList != null) && (!updateNhList.isEmpty()))) {
-                    // TODO(vivek): Though ugly, Not handling this code now, as each
-                    // tep add event will invoke flow addition
-                    LOG.trace("Original VRF entry NH is null for destprefix {}. This event is IGNORED here.", update.getDestPrefix());
-                    return;
-                }
+            // If original VRF Entry had nexthop null , but update VRF Entry
+            // has nexthop , route needs to be created on remote Dpns
+            if (((origNhList == null) || (origNhList.isEmpty()) &&
+                    (updateNhList != null) && (!updateNhList.isEmpty()))) {
+                // TODO(vivek): Though ugly, Not handling this code now, as each
+                // tep add event will invoke flow addition
+                LOG.trace("Original VRF entry NH is null for destprefix {}. This event is IGNORED here.", update.getDestPrefix());
+                return;
+            }
 
-                // If original VRF Entry had valid nexthop , but update VRF Entry
-                // has nexthop empty'ed out, route needs to be removed from remote Dpns
-                if (((updateNhList == null) || (updateNhList.isEmpty()) &&
-                        (origNhList != null) && (!origNhList.isEmpty()))) {
-                    LOG.trace("Original VRF entry had valid NH for destprefix {}. This event is IGNORED here.", update.getDestPrefix());
-                    return;
-                }
+            // If original VRF Entry had valid nexthop , but update VRF Entry
+            // has nexthop empty'ed out, route needs to be removed from remote Dpns
+            if (((updateNhList == null) || (updateNhList.isEmpty()) &&
+                    (origNhList != null) && (!origNhList.isEmpty()))) {
+                LOG.trace("Original VRF entry had valid NH for destprefix {}. This event is IGNORED here.", update.getDestPrefix());
+                return;
             }
             createFibEntries(identifier, update);
             LOG.info("UPDATE: Updated Fib Entries to rd {} prefix {} nexthop {} label {}",
@@ -1808,16 +1803,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             synchronized (vpnInstance.getVpnInstanceName().intern()) {
                                 WriteTransaction writeCfgTxn = dataBroker.newWriteOnlyTransaction();
                                 for (VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
-                                    // Handle Internal Routes only (i.e., STATIC for now)
-                                    if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.STATIC) {
-                                        SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
-                                        /* Ignore SubnetRoute entry */
-                                        if (subnetRoute == null) {
-                                            if(!vrfEntry.getNextHopAddressList().isEmpty()) {
-                                                if (remoteNextHopIp.trim().equals(vrfEntry.getNextHopAddressList().get(0).trim())) {
-                                                    LOG.trace(" creating remote FIB entry for prefix {} rd {} on Dpn {}", vrfEntry.getDestPrefix(), rd, dpnId);
-                                                    createRemoteFibEntry(dpnId, vpnId, vrfTable.get().getKey(), vrfEntry, writeCfgTxn);
-                                                }
+                                    // Handle Vpn Interface Routes only (i.e., LOCAL/STATIC for now)
+                                    if (FibUtil.isControllerManagedVpnInterfaceRoute(
+                                            RouteOrigin.value(vrfEntry.getOrigin()))) {
+                                        if(!vrfEntry.getNextHopAddressList().isEmpty()) {
+                                            if (remoteNextHopIp.trim().equals(vrfEntry.getNextHopAddressList().get(0).trim())) {
+                                                LOG.trace(" creating remote FIB entry for prefix {} rd {} on Dpn {}", vrfEntry.getDestPrefix(), rd, dpnId);
+                                                createRemoteFibEntry(dpnId, vpnId, vrfTable.get().getKey(), vrfEntry, writeCfgTxn);
                                             }
                                         }
                                     }
@@ -1985,16 +1977,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             synchronized (vpnInstance.getVpnInstanceName().intern()) {
                                 WriteTransaction writeTransaction = dataBroker.newWriteOnlyTransaction();
                                 for (VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
-                                    // Handle Internal Routes only (i.e, STATIC for now)
-                                    if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.STATIC) {
-                                        SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
-                                        /* Ignore SubnetRoute entry */
-                                        if (subnetRoute == null) {
-                                            if (!vrfEntry.getNextHopAddressList().isEmpty()) {
-                                                if (remoteNextHopIp.trim().equals(vrfEntry.getNextHopAddressList().get(0).trim())) {
-                                                    LOG.trace(" deleting remote FIB entry {}", vrfEntry);
-                                                    deleteRemoteRoute(null, dpnId, vpnId, vrfTable.get().getKey(), vrfEntry, writeTransaction);
-                                                }
+                                    // Handle Vpn Interface Routes only (i.e, LOCAL/STATIC for now)
+                                    if (FibUtil.isControllerManagedVpnInterfaceRoute(
+                                            RouteOrigin.value(vrfEntry.getOrigin()))) {
+                                        if (!vrfEntry.getNextHopAddressList().isEmpty()) {
+                                            if (remoteNextHopIp.trim().equals(vrfEntry.getNextHopAddressList().get(0).trim())) {
+                                                LOG.trace(" deleting remote FIB entry {}", vrfEntry);
+                                                deleteRemoteRoute(null, dpnId, vpnId, vrfTable.get().getKey(), vrfEntry, writeTransaction);
                                             }
                                         }
                                     }
