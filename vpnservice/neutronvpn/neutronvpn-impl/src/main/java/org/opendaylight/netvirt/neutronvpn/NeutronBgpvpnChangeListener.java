@@ -93,6 +93,8 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
             List<String> exportRouteTargets = new ArrayList<String>();
             Set<String> inputImportRouteSet = new HashSet<>();
             Set<String> inputExportRouteSet = new HashSet<>();
+            inputImportRouteSet.addAll(input.getImportTargets());
+            inputExportRouteSet.addAll(input.getExportTargets());
             importRouteTargets.addAll(inputImportRouteSet);
             exportRouteTargets.addAll(inputExportRouteSet);
 
