@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_be946d8b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-25T08:16:51Z",
+      "side": 1,
+      "message": "what about this:\n\nList\u003cString\u003e inputRouteList \u003d input.getRouteTargets();\n\n            if (inputRouteList !\u003d null \u0026\u0026 !inputRouteList.isEmpty()) {\n                inputImportRouteSet.addAll(inputRouteList);\n                inputExportRouteSet.addAll(inputRouteList);\n            }",
+      "revId": "67aea0ebeae1c4503e556d85db2418d5bbea2e80",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
