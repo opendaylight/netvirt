@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_44a2cefd",
+        "filename": "docs/specs/federation-plugin.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-02-26T19:59:40Z",
+      "side": 1,
+      "message": "what about other config sections of HWVTEP? (L2NeutronConnection ...)",
+      "revId": "868e2779971c5f53f3781d0381cabff654289d6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a4a3bafe",
+        "filename": "docs/specs/federation-plugin.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-02-26T19:59:40Z",
+      "side": 1,
+      "message": "for better understanding you should use the terms which are used in federation service (Consumer/Producer)",
+      "revId": "868e2779971c5f53f3781d0381cabff654289d6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_847f9665",
+        "filename": "docs/specs/federation-plugin.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-02-26T19:59:40Z",
+      "side": 1,
+      "message": "can we hide this from the API? in the counter command where the command should be invoked in the odl that managed the ovs we created rpc without the route key and internal rpc which is routed base on the node. this way the client is not aware of the internal implementation of the routing mechanism. \nmaybe we should use the same approach here",
+      "revId": "868e2779971c5f53f3781d0381cabff654289d6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_04b44633",
+        "filename": "docs/specs/federation-plugin.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-02-26T19:59:40Z",
+      "side": 1,
+      "message": "will the hwvtep and the netvirt be both part of this plugin or we should have different bundles for each one of them?",
+      "revId": "868e2779971c5f53f3781d0381cabff654289d6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
