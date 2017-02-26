@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1e9139f1",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-26T12:12:07Z",
+      "side": 1,
+      "message": "In the case of external networks, VM instances traffic will be NATed, and will use the MAC of the FIP/NAPT mechanism.\n\nIn the use case of two private networks, we will use the router interface mac.",
+      "parentUuid": "fafc7978_fd33b011",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_dd1fcc6a",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 12
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5e65811c",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-26T12:12:07Z",
+      "side": 1,
+      "message": "After talking with several people, I haven\u0027t found a unified terminology for all cases. In the scope of this spec, PNF are always in a provider network, but there are two main use-cases.\n\n1. VM instance traffic need to go through NAT mechanism to reach the PNF (this is the case when VM instance is in a \"private\" network and the PNF is in \"external\" network.\n2. VM instance traffic doesn\u0027t need to go through NAT mechanism (this is the case when and PNF IP belongs to a subnet of a \"private\" network).",
+      "parentUuid": "fafc7978_dd1fcc6a",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7d27c0ca",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 12
@@ -47,6 +83,24 @@
       "writtenOn": "2017-02-21T14:04:12Z",
       "side": 1,
       "message": "can you please clarify this addition hop (on why that is required).. Access from VM on internal network to PNF on external network can also be done through the router-gateway itself right (after NATing) without the packet hitting the external-subnet-gateway itself right?",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_be758dcc",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-26T12:12:07Z",
+      "side": 1,
+      "message": "As far as I know, today in the code, all traffic of a VM instance, after NAT mechanism, is forwarded (via a provider network group) directly to an external-gateway. This is the additional hop that I\u0027m referring to.\n\nThis is not a requirement, this is the current state, which I want to change.",
+      "parentUuid": "fafc7978_7d27c0ca",
       "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -76,6 +130,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_be5c6d4c",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-26T12:12:07Z",
+      "side": 1,
+      "message": "Yes. In the first usecase you are referring to, the vswitch can response directly to ARP requests for the FIP.\n\nThis spec addresses the case when the FIP and the PNF are in the same subnet. For different subnets we still want to go through an external gateway.",
+      "parentUuid": "fafc7978_1d483486",
+      "range": {
+        "startLine": 83,
+        "startChar": 74,
+        "endLine": 83,
+        "endChar": 75
+      },
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1845e216",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 12
@@ -87,6 +165,24 @@
       "writtenOn": "2017-02-21T14:04:12Z",
       "side": 1,
       "message": "this is to enable floating-ips on computes to directly reach the PNFs right ie., (FloatingIP to PNF connectivity).\n\nSimilarly When an ARP request from a PNF comes towards a Floating-IP, the response would be directly from the ARPResponder table of the hypervisor holding the Floating-IP right?",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fe527533",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-26T12:12:07Z",
+      "side": 1,
+      "message": "Yes.",
+      "parentUuid": "fafc7978_1845e216",
       "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -110,6 +206,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5e33c113",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-26T12:12:07Z",
+      "side": 1,
+      "message": "It\u0027s safe to assume that.",
+      "parentUuid": "fafc7978_18804245",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d806ba1c",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 12
@@ -127,6 +241,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5e1aa17d",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-26T12:12:07Z",
+      "side": 1,
+      "message": "Yes.\nFor external networks we will use the already implemented mechanism of NAPT switch.\nFor private networks, we can use the existing mechanism in the subnet-router feature, that chooses a \"next-hop DPN\" per subnet, as long as there is one designated DPN per subnet.\n\nLater we can think about a smarter implementation for addressing load-balancing issues",
+      "parentUuid": "fafc7978_d806ba1c",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_58676ae9",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 12
@@ -138,6 +270,24 @@
       "writtenOn": "2017-02-21T14:04:12Z",
       "side": 1,
       "message": "the ARP Responder flow will be just for the router-interface-ip-address right?",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c1119053",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-26T12:12:07Z",
+      "side": 1,
+      "message": "Right.",
+      "parentUuid": "fafc7978_58676ae9",
       "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -167,6 +317,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_812308a6",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-26T12:12:07Z",
+      "side": 1,
+      "message": "Today there are no ARP responder rules for router interface IP requests that are arriving from provider networks. This change will introduce an ARP responder rule, on a (single) designated switch.\n\nCan you please elaborate on why this will cause a mac movement?",
+      "parentUuid": "fafc7978_02028f6e",
+      "range": {
+        "startLine": 116,
+        "startChar": 71,
+        "endLine": 116,
+        "endChar": 74
+      },
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1824c2ad",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 12
@@ -178,6 +352,24 @@
       "writtenOn": "2017-02-21T14:04:12Z",
       "side": 1,
       "message": "this will be the internal router interface MAC for the subnet on which the PNF resides right?",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9e10895a",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-26T12:12:07Z",
+      "side": 1,
+      "message": "Right.",
+      "parentUuid": "fafc7978_1824c2ad",
       "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -201,6 +393,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e13bf4ce",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-26T12:12:07Z",
+      "side": 1,
+      "message": "Please see earlier comment",
+      "parentUuid": "fafc7978_58ae4ae7",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b8e5b639",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 12
@@ -212,6 +422,24 @@
       "writtenOn": "2017-02-21T14:04:12Z",
       "side": 1,
       "message": "will vpnId !\u003d externalNetworkId would work?",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e16934bf",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-26T12:12:07Z",
+      "side": 1,
+      "message": "This may work if in the BGPVPN use-case, the vpnId is neither the routerID nor the external network id.",
+      "parentUuid": "fafc7978_b8e5b639",
       "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
