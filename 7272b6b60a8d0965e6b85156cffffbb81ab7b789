@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_a41e1a5d",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-26T18:58:51Z",
+      "side": 1,
+      "message": "this link should contain the gerrit filter to your topic in order to filter all commits related to this issue",
+      "revId": "7272b6b60a8d0965e6b85156cffffbb81ab7b789",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_24498a60",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-26T18:58:51Z",
+      "side": 1,
+      "message": "what about flat networks?",
+      "range": {
+        "startLine": 11,
+        "startChar": 32,
+        "endLine": 11,
+        "endChar": 54
+      },
+      "revId": "7272b6b60a8d0965e6b85156cffffbb81ab7b789",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_644f126c",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-26T18:58:51Z",
+      "side": 1,
+      "message": "both items below look more like they belong to the \u0027proposed change\u0027 section rather than \u0027use cases\u0027",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 9
+      },
+      "revId": "7272b6b60a8d0965e6b85156cffffbb81ab7b789",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_44548efe",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-26T18:58:51Z",
+      "side": 1,
+      "message": "Is this related to punts from the ELAN pipeline only? \nThere is also punt from the ARP group after traversing the GW_MAC table",
+      "range": {
+        "startLine": 34,
+        "startChar": 70,
+        "endLine": 35,
+        "endChar": 69
+      },
+      "revId": "7272b6b60a8d0965e6b85156cffffbb81ab7b789",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_845af627",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-26T18:58:51Z",
+      "side": 1,
+      "message": "you need to be careful with this change\nThe bucket for provider port in ELAN BC group is created when the first ELAN interface in the DPN is created. Until now, it has been the port of provider network. If this would be ELAN interface associated with VM instance you need to make sure the ELAN BC group is updated when the provider port is available",
+      "range": {
+        "startLine": 40,
+        "startChar": 66,
+        "endLine": 41,
+        "endChar": 51
+      },
+      "revId": "7272b6b60a8d0965e6b85156cffffbb81ab7b789",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6476f2a5",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-26T18:58:51Z",
+      "side": 1,
+      "message": "How can you separate these two use cases? you may want to propagate NetworkL3Extension.isExternal() to the ELAN model",
+      "range": {
+        "startLine": 42,
+        "startChar": 21,
+        "endLine": 42,
+        "endChar": 58
+      },
+      "revId": "7272b6b60a8d0965e6b85156cffffbb81ab7b789",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
