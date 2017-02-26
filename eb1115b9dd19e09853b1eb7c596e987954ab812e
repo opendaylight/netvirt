@@ -52,6 +52,24 @@
       "revId": "eb1115b9dd19e09853b1eb7c596e987954ab812e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_81a2e848",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnDpnToTransportZoneListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-26T16:44:06Z",
+      "side": 1,
+      "message": "This is what happens today, you have a tz per neutron network. I just changed it to elan instance. It is working.",
+      "parentUuid": "fafc7978_cd01cc07",
+      "revId": "eb1115b9dd19e09853b1eb7c596e987954ab812e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
