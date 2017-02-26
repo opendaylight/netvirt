@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ba9800c1",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 728,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-26T17:11:40Z",
+      "side": 1,
+      "message": "Tali,\nGood you brought up this point.  \n\nWhat is done here is a more shorter and straightforward way to get the NetworKInfo for a prefix.\n\nBut ElanInstance sometimes may not be available here during delete lifecycle.  This is the reason, am a bit concerned of having a Elan Dependency inside the VRFEntryListener.\n\nPlease see this spec : https://git.opendaylight.org/gerrit/#/c/52241/\n\nWe retrieve all the network information from subnet-op-data which is an operational datastore that will be maintained for the full lifecycle of FIB.",
+      "parentUuid": "fafc7978_89b98a17",
+      "revId": "39b69bba26f0fecae6da3a0195eb9b661225fc24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_09247aad",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
         "patchSetId": 5
