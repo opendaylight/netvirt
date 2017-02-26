@@ -16,6 +16,24 @@
       "revId": "e0cb5e53705adbac9393fa20bbf70a690855f008",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e1e814e4",
+        "filename": "vpnservice/federation-plugin/api/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-26T14:10:36Z",
+      "side": 1,
+      "message": "added checkstyle although it\u0027s currently not needed until this API will expose some Java interface (not aware of any planning to do so)",
+      "parentUuid": "fafc7978_e197748e",
+      "revId": "e0cb5e53705adbac9393fa20bbf70a690855f008",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
