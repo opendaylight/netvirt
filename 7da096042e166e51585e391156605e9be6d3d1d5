@@ -16,6 +16,24 @@
       "revId": "7da096042e166e51585e391156605e9be6d3d1d5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9e81a9c5",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-26T08:25:18Z",
+      "side": 1,
+      "message": "So our function names are WRT VM (like OpenStack SG)?\nBut the \"EGRESS_ACL_TABLE\" is WRT to the switch.\n\nI think we need a convention, I was under the impression everything in the ODL code is WRT to the switch.",
+      "parentUuid": "fafc7978_3ec19d54",
+      "revId": "7da096042e166e51585e391156605e9be6d3d1d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
