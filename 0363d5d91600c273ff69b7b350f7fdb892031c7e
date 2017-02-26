@@ -179,6 +179,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_de033140",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-02-26T09:22:39Z",
+      "side": 1,
+      "message": "it will be good if the spec can capture the approach (how) as well at a high level, beyond the yang changes and feature description (what).\nhow about my query on pros/cons of using openflow vs ovsdb. has any proto been done to compare the 2?",
+      "parentUuid": "fafc7978_e27b0bf3",
+      "range": {
+        "startLine": 37,
+        "startChar": 74,
+        "endLine": 37,
+        "endChar": 75
+      },
+      "revId": "0363d5d91600c273ff69b7b350f7fdb892031c7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_65ed70b7",
         "filename": "docs/specs/netvirt-statistics-spec.rst",
         "patchSetId": 14
