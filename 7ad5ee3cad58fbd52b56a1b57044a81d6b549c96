@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_e16e542e",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-26T16:17:18Z",
+      "side": 1,
+      "message": "This parameter applies in Carbon for both non-bgp (routing) and bgp use case. So this need not be an augmentation.  Please directly add to the VrfEntry itself.",
+      "revId": "7ad5ee3cad58fbd52b56a1b57044a81d6b549c96",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a181ecc4",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-26T16:17:18Z",
+      "side": 1,
+      "message": "parent-vpn-rd is fine.. rd is not a name.",
+      "revId": "7ad5ee3cad58fbd52b56a1b57044a81d6b549c96",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_818668d9",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-26T16:17:18Z",
+      "side": 1,
+      "message": "parent-vpn-rd",
+      "revId": "7ad5ee3cad58fbd52b56a1b57044a81d6b549c96",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
