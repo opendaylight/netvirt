@@ -317,6 +317,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_61c9c425",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-26T16:26:38Z",
+      "side": 1,
+      "message": "Look at this currently in latest odl-fib.yang:\n\n    container extraroute-rds-map {\n        config true;\n        list extraroute-rds {\n            description\n                \"List of route distinguishers used to create a unique NLRI for the destination prefix\";\n            key \"vpnid\";\n            leaf vpnid {\n                type uint32;\n            }\n            list dest-prefixes {\n                key \"dest-prefix\";",
+      "parentUuid": "fafc7978_5f1f4908",
+      "revId": "cf3baaaeab88954853ae8ab84256050b6b9cdcfb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_50345e49",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 14
