@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_fe48b5b4",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-02-26T09:36:53Z",
+      "side": 1,
+      "message": "why does ip value inside the rule matter if lport gives scoping for sg",
+      "range": {
+        "startLine": 60,
+        "startChar": 6,
+        "endLine": 60,
+        "endChar": 7
+      },
+      "revId": "b123c017b8dcde6f4928f33276a48dbdb65d38c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5e7bc1f4",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-02-26T09:36:53Z",
+      "side": 1,
+      "message": "it should be sufficient to map lport tag -\u003esg id here. when the control plane applies a sg on a port, we know which lport tag has to go to the sg.",
+      "range": {
+        "startLine": 75,
+        "startChar": 67,
+        "endLine": 75,
+        "endChar": 68
+      },
+      "revId": "b123c017b8dcde6f4928f33276a48dbdb65d38c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3e807dbf",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-02-26T09:36:53Z",
+      "side": 1,
+      "message": "how about putting re-submit logic in acl1 table for ports with multiple sg ids? so actions could be - if sgid \u003d\u003d 0, sgid \u003d\u003d sgid 1, goto acl2, if sgid \u003d\u003d sgid 1, resunmit to dispatche, acl2 does a resubmit to acl1,  for ports with single sg, \nfor ports with multiple sgs,additional rules -\nif sgid \u003d sgid1, set sgid \u003d sgid2, goto acl2 and so on until all groups are applied\n\nfor ports with no acl rules, if sgid\u003d\u003do, resubmit to dispatcher",
+      "range": {
+        "startLine": 76,
+        "startChar": 49,
+        "endLine": 76,
+        "endChar": 50
+      },
+      "revId": "b123c017b8dcde6f4928f33276a48dbdb65d38c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fe71d50c",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-02-26T09:36:53Z",
+      "side": 1,
+      "message": "once the lport tag is set up in table 0, we already have scoping of the port, so it should not matter what ip addresses are present in the rules themselves, as long as the right set of sgs are applied on the port?",
+      "range": {
+        "startLine": 101,
+        "startChar": 85,
+        "endLine": 101,
+        "endChar": 86
+      },
+      "revId": "b123c017b8dcde6f4928f33276a48dbdb65d38c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3e67dd4e",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-02-26T09:36:53Z",
+      "side": 1,
+      "message": "is this needed? acl service should ideally not use or be dependent on elan ids,since elanids are owned by elan service. if it does, it will need to sync with elan service for every elan id assigned, changed etc.",
+      "range": {
+        "startLine": 110,
+        "startChar": 95,
+        "endLine": 110,
+        "endChar": 96
+      },
+      "revId": "b123c017b8dcde6f4928f33276a48dbdb65d38c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5ec90125",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-02-26T09:36:53Z",
+      "side": 1,
+      "message": "how about acl3 table does not have any lport related matches, it simply has a list of each and every sg, and match actions are based on sg_id pushed in acl1 table",
+      "range": {
+        "startLine": 116,
+        "startChar": 25,
+        "endLine": 116,
+        "endChar": 30
+      },
+      "revId": "b123c017b8dcde6f4928f33276a48dbdb65d38c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9ecfe928",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-02-26T09:36:53Z",
+      "side": 1,
+      "message": "i guess this aligns with what i was indicating, that we loop the pkt through the acl2 and acl3 tables multiple times until all groups are exhausted. are there any openflow restrictions for doing this?",
+      "range": {
+        "startLine": 174,
+        "startChar": 67,
+        "endLine": 174,
+        "endChar": 68
+      },
+      "revId": "b123c017b8dcde6f4928f33276a48dbdb65d38c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
