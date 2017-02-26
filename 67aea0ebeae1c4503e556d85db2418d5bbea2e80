@@ -16,6 +16,24 @@
       "revId": "67aea0ebeae1c4503e556d85db2418d5bbea2e80",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7e38453d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-02-26T07:32:02Z",
+      "side": 1,
+      "message": "I couldnt find a use case of just routetargets as while creating bgpvpn we supply only importrt and exportrt. So I thought of removing it. But now realized that if we have same irt and ert, user can give just routetarget. So Added the same in PS3. Sorry for the confusion",
+      "parentUuid": "fafc7978_be946d8b",
+      "revId": "67aea0ebeae1c4503e556d85db2418d5bbea2e80",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
