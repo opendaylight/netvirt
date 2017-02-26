@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_e197748e",
+        "filename": "vpnservice/federation-plugin/api/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-26T12:22:44Z",
+      "side": 1,
+      "message": "Should/Can we enable checkstyle here too?\nJust want to make sure everything is clean as a starting point when upstreaming",
+      "revId": "e0cb5e53705adbac9393fa20bbf70a690855f008",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
