@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7e7045dc",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-26T10:02:06Z",
+      "side": 1,
+      "message": "I\u0027m not sure I understood your example/question - \"rule saying no TCP traffic should be allowed in VM2\" - is that a typo? We don\u0027t do \u0027deny\u0027 rules in OpenStack, only \u0027allow\u0027 rules.\n\nRegular rules without a remote security group will continue to work as usual, without any IP filtering.\nCould you clarify your question if this doesn\u0027t answer it?",
+      "parentUuid": "fafc7978_6d25405b",
+      "range": {
+        "startLine": 65,
+        "startChar": 89,
+        "endLine": 65,
+        "endChar": 90
+      },
+      "revId": "84682ca2bfc4f1a04480c14a7e4b8d3e3499ddc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5ee14ffd",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 7
