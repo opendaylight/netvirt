@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_21017caf",
+        "filename": "docs/specs/federation-plugin.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-26T14:18:10Z",
+      "side": 1,
+      "message": "check out the VNI spec use cases, it\u0027s very detailed similarly to this section\n\nthe federated part is not only L2, if the vrf entry will not be federated it won\u0027t be possible to route L3 traffic from remote sites.\n\nRegarding HWVTEP - it should be done for the scope of carbon so it must be mentioned in the use cases",
+      "parentUuid": "fafc7978_6184245e",
+      "revId": "61120b6d1b5a424bd72a50fd01106bc800250d69",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_41892074",
         "filename": "docs/specs/federation-plugin.rst",
         "patchSetId": 2
@@ -64,6 +82,24 @@
       "writtenOn": "2017-02-26T12:18:52Z",
       "side": 1,
       "message": "nit: spacing",
+      "revId": "61120b6d1b5a424bd72a50fd01106bc800250d69",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_01fef8ad",
+        "filename": "docs/specs/federation-plugin.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-26T14:18:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_01b43833",
       "revId": "61120b6d1b5a424bd72a50fd01106bc800250d69",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
