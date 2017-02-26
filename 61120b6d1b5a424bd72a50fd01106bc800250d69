@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_81a828dc",
+        "filename": "docs/specs/federation-plugin.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-26T12:18:52Z",
+      "side": 1,
+      "message": "I wouldn\u0027t mention Neutron too much - this is basically pure netvirt/genius federation",
+      "revId": "61120b6d1b5a424bd72a50fd01106bc800250d69",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6184245e",
+        "filename": "docs/specs/federation-plugin.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-26T12:18:52Z",
+      "side": 1,
+      "message": "I think it\u0027s simpler to mention all L2 is supported.\nL3 is also supported since the routing is done on the source switch, so the federated part is basically L2 as well.\n\nHWVTEP/PNF not yet supported?",
+      "revId": "61120b6d1b5a424bd72a50fd01106bc800250d69",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_41892074",
+        "filename": "docs/specs/federation-plugin.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-26T12:18:52Z",
+      "side": 1,
+      "message": "This is great as an overview of what models are actually federated.",
+      "revId": "61120b6d1b5a424bd72a50fd01106bc800250d69",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_01b43833",
+        "filename": "docs/specs/federation-plugin.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-26T12:18:52Z",
+      "side": 1,
+      "message": "nit: spacing",
+      "revId": "61120b6d1b5a424bd72a50fd01106bc800250d69",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
