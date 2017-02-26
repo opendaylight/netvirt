@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fe7b95bb",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-26T10:02:06Z",
+      "side": 1,
+      "message": "The lport implies the destination VM port in the Egress ACL, while the src_ip implies the source IP - we no longer have knowledge of the source lport which the packet arrived from (which could technically be a tunnel lport by the way)\n\nIn any case this is the current implementation of remote ACLs",
+      "parentUuid": "fafc7978_fe48b5b4",
+      "range": {
+        "startLine": 60,
+        "startChar": 6,
+        "endLine": 60,
+        "endChar": 7
+      },
+      "revId": "b123c017b8dcde6f4928f33276a48dbdb65d38c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5e7bc1f4",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 14
@@ -36,6 +60,30 @@
       "writtenOn": "2017-02-26T09:36:53Z",
       "side": 1,
       "message": "it should be sufficient to map lport tag -\u003esg id here. when the control plane applies a sg on a port, we know which lport tag has to go to the sg.",
+      "range": {
+        "startLine": 75,
+        "startChar": 67,
+        "endLine": 75,
+        "endChar": 68
+      },
+      "revId": "b123c017b8dcde6f4928f33276a48dbdb65d38c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3e519d36",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-26T10:02:06Z",
+      "side": 1,
+      "message": "See comment above.",
+      "parentUuid": "fafc7978_5e7bc1f4",
       "range": {
         "startLine": 75,
         "startChar": 67,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1e2db9a8",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-26T10:02:06Z",
+      "side": 1,
+      "message": "See answer below. Implementing a dispatcher inside the service is much more complex and we decided to avoid it at this time.",
+      "parentUuid": "fafc7978_3e807dbf",
+      "range": {
+        "startLine": 76,
+        "startChar": 49,
+        "endLine": 76,
+        "endChar": 50
+      },
+      "revId": "b123c017b8dcde6f4928f33276a48dbdb65d38c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fe71d50c",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 14
@@ -82,6 +154,30 @@
       "writtenOn": "2017-02-26T09:36:53Z",
       "side": 1,
       "message": "once the lport tag is set up in table 0, we already have scoping of the port, so it should not matter what ip addresses are present in the rules themselves, as long as the right set of sgs are applied on the port?",
+      "range": {
+        "startLine": 101,
+        "startChar": 85,
+        "endLine": 101,
+        "endChar": 86
+      },
+      "revId": "b123c017b8dcde6f4928f33276a48dbdb65d38c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_be23cdbb",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-26T10:02:06Z",
+      "side": 1,
+      "message": "The whole remote ACL feature refers to IPs on the other side.\nSo ingress ACL has lport as the port the traffic originated from, and dst_ip checks where the traffic is destined.\n\nSame thing but opposite direction in Egress.",
+      "parentUuid": "fafc7978_fe71d50c",
       "range": {
         "startLine": 101,
         "startChar": 85,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1e56592a",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-26T10:02:06Z",
+      "side": 1,
+      "message": "Yes, this is an enhancement of the current implementation to prevent IP collisions between tenants, requested by Aswin.\nAs far as I know IPv6 service already uses ELAN IDs - Aswin can expand on this.\nDo you have a better suggestion on having awareness of the network associated with the port to support multi-tenancy, other than sharing ELAN instance?",
+      "parentUuid": "fafc7978_3e67dd4e",
+      "range": {
+        "startLine": 110,
+        "startChar": 95,
+        "endLine": 110,
+        "endChar": 96
+      },
+      "revId": "b123c017b8dcde6f4928f33276a48dbdb65d38c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5ec90125",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 14
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3e387dee",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-26T10:02:06Z",
+      "side": 1,
+      "message": "But different lports have different rules that can be conflicting? This is the current implementation of security rules, regardless of remote ACLs, how would this change help?\n\nAlso it seems you are proposing to set the remote_acl ID in ACL1? Why, unless you are trying to prevent addition of a new table?\nACL1 is used today for various default allow rules (DHCP etc)",
+      "parentUuid": "fafc7978_5ec90125",
+      "range": {
+        "startLine": 116,
+        "startChar": 25,
+        "endLine": 116,
+        "endChar": 30
+      },
+      "revId": "b123c017b8dcde6f4928f33276a48dbdb65d38c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9ecfe928",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 14
@@ -151,6 +295,30 @@
       "writtenOn": "2017-02-26T09:36:53Z",
       "side": 1,
       "message": "i guess this aligns with what i was indicating, that we loop the pkt through the acl2 and acl3 tables multiple times until all groups are exhausted. are there any openflow restrictions for doing this?",
+      "range": {
+        "startLine": 174,
+        "startChar": 67,
+        "endLine": 174,
+        "endChar": 68
+      },
+      "revId": "b123c017b8dcde6f4928f33276a48dbdb65d38c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_de2691cd",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-26T10:02:06Z",
+      "side": 1,
+      "message": "No, but it complicates the solution very much - this is basically another dispatcher service inside the ACL service, we decided the complication is not worth it at this time as there are no services that do something similar.",
+      "parentUuid": "fafc7978_9ecfe928",
       "range": {
         "startLine": 174,
         "startChar": 67,
