@@ -16,6 +16,24 @@
       "revId": "60a48833433a3541bdee11d016eacde961228076",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_de55f150",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-26T08:58:15Z",
+      "side": 0,
+      "message": "Only after the previous yang change was merged, we understood that we need to have a mapping between external-ips and external-subnet-ids in ext-routers (and not just add the external-subnet-ids to it)\n\nWe should be done exploring the yang changes here.\nI don\u0027t expect any more changes in the ext-routers container.",
+      "parentUuid": "fafc7978_cd2f0c87",
+      "revId": "60a48833433a3541bdee11d016eacde961228076",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
