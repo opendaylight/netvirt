@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_e12654cd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 965,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-26T18:12:34Z",
+      "side": 1,
+      "message": "Can route be null at this point?",
+      "range": {
+        "startLine": 965,
+        "startChar": 91,
+        "endLine": 965,
+        "endChar": 96
+      },
+      "revId": "75031abe4df9a180bb1f4c1f1a94ea1a41aa14ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
