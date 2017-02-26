@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_819ca85e",
+        "filename": "vpnservice/aclservice/impl/pom.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-26T16:14:15Z",
+      "side": 1,
+      "message": "try not to include the impl if possible. I think this is the issue you are facing with aclservice not coming up. ElanUtils takes IInterfaceManager in it\u0027s blueprint and in all modules in  netvirt, except aclservice, we use the previous method of explicitly including all dependencies in the blueprint.xml. aclservice uses the new way with the simpler blueprint.xml files that uses injection using the autowire.xml files. When that is used it expects the service refs to be named after the interface very explictly. In this case IInterfaceManager is the interface so autowaire.xml expects to see iInterfaceManager. But notice in the elan blueprint.xml the reference id is interfaceManager, so aclservice-impl fails to come up because it doesn\u0027t see the right naming.\n\nSo I think if you can remove the need to use the impl - which I think it best - then you would avoid this dependency. You could also try to change the name in the elan blueprint.xml to be iInterfaceManager and see if that helps. The naming in the elan side doesn\u0027t matter to elan since we pass the id via the blueprint.xml and as long as the constructor args match type wise it is happy.\n\nOr maybe add the reference id to the aclservice blueprint.xml with the right naming like below, this should be an easy test also:\n\n\u003creference id\u003d\"iInterfaceManager\"\n    interface\u003d\"org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager\" /\u003e",
+      "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e1a494a7",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractIngressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-26T16:14:15Z",
+      "side": 1,
+      "message": "would it be better to have this util in mdsalutil/MetaDataUtil?",
+      "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
