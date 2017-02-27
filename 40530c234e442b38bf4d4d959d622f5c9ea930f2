@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ad0d5dea",
+        "filename": "vpnservice/federation-plugin/api/src/main/yang/federation-plugin-config.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-27T12:26:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_44512e35",
+      "revId": "40530c234e442b38bf4d4d959d622f5c9ea930f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_247fcaac",
         "filename": "vpnservice/federation-plugin/api/src/main/yang/federation-plugin-manager.yang",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-27T09:37:06Z",
       "side": 1,
       "message": "to be consistent add \"self\"",
+      "revId": "40530c234e442b38bf4d4d959d622f5c9ea930f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2dbccd05",
+        "filename": "vpnservice/federation-plugin/api/src/main/yang/federation-plugin-manager.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-27T12:26:48Z",
+      "side": 1,
+      "message": "I think subnet-ip is not only self\nit refers to both self and remote sites",
+      "parentUuid": "fafc7978_247fcaac",
       "revId": "40530c234e442b38bf4d4d959d622f5c9ea930f2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6d07f5ca",
+        "filename": "vpnservice/federation-plugin/api/src/main/yang/federation-plugin-manager.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-27T12:26:48Z",
+      "side": 1,
+      "message": "looks unused in the plugin code\nIs it used in the xsite for presentation?",
+      "parentUuid": "fafc7978_047c46b4",
+      "revId": "40530c234e442b38bf4d4d959d622f5c9ea930f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c40a3e25",
         "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginEgress.java",
         "patchSetId": 3
@@ -64,6 +118,24 @@
       "writtenOn": "2017-02-27T09:37:06Z",
       "side": 1,
       "message": "nice :)",
+      "revId": "40530c234e442b38bf4d4d959d622f5c9ea930f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cdf701d2",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginEgress.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-27T12:26:48Z",
+      "side": 1,
+      "message": "this code should be removed once fix for https://bugs.opendaylight.org/show_bug.cgi?id\u003d7420 gets in",
+      "parentUuid": "fafc7978_c40a3e25",
       "revId": "40530c234e442b38bf4d4d959d622f5c9ea930f2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
