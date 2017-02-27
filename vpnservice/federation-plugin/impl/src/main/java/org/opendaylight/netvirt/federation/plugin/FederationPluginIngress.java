@@ -123,7 +123,7 @@ public class FederationPluginIngress implements IFederationPluginIngress {
             return;
         }
 
-        String listenerKey = FederationPluginUtils.getClassListener(msg.getInputClassType(), datastoreType);
+        String listenerKey = msg.getMetadata();
         if (listenerKey == null) {
             logger.error("Failed to get listener key for {}", msg.getInputClassType());
             return;

@@ -37,6 +37,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>vpnmanager-api</artifactId>
       <version>${vpnservices.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.opendaylight.neutron</groupId>
+      <artifactId>model</artifactId>
+      <version>${neutron.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
