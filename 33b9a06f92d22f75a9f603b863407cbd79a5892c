@@ -33,6 +33,108 @@
       "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_674f146c",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulIngressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2017-02-27T09:38:18Z",
+      "side": 1,
+      "message": "1. Why do you use learn table in stateful acl code?\n2. Shouldn\u0027t this rule remain on the EGRESS_ACL_FILTER_TABLE?",
+      "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_875af827",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2017-02-27T09:38:18Z",
+      "side": 1,
+      "message": "All the methods \"add...AclRemoteAclTableMissFlow\" you added are very similar except for the table constants, please consider merge this to one method.",
+      "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_67c9d425",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2017-02-27T09:38:18Z",
+      "side": 1,
+      "message": "Don\u0027t we need to install default flows for remote acl table in transparent case?\nOr maybe it is better to not implement anything concerning remote acls for transparent impl (not changing this function)?\nIf you do want to implement the passing through acl remote table, it should be done for ingress side as well in the previous function.",
+      "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c7524066",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2017-02-27T09:38:18Z",
+      "side": 1,
+      "message": "please don\u0027t use learn table for transparent acl impl",
+      "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4767704d",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2017-02-27T09:38:18Z",
+      "side": 1,
+      "message": "I think there is bug here. The rule should be installed on EGRESS_ACL_TABLE and not on EGRESS_ACL_FILTER_TABLE.\nSame bug in previous function.\nAm I wrong?",
+      "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6762743f",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2017-02-27T09:38:18Z",
+      "side": 1,
+      "message": "This code is for stateless, why do you use learn table consts?",
+      "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
