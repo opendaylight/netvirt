@@ -84,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a758dc8a",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-27T09:37:25Z",
+      "side": 1,
+      "message": "Vivek,\nI didn\u0027t mean multiple modules will manage the cache.\nIt should be managed only from neutronvpn as it is today and the qosservice can access it using INeutronVpnManager that is already exposing the APIs to get cached network/port\nAlso, if that info is not already present in the cache it will be read from the DS. This is the way neutronvpn is implemented today.\n\nI think today genius manages several caches being accessed from other modules using this methodology.",
+      "parentUuid": "fafc7978_449c8e0f",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 84
+      },
+      "revId": "f9c4c9ef78baa38fc8810a7d0c8e85d3fe877e63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e46942bf",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
         "patchSetId": 13
