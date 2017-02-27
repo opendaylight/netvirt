@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e48ae2bd",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-02-27T08:10:37Z",
+      "side": 1,
+      "message": "This workaround will be solved by Eth+NSH, not by the new Netvirt classifier.",
+      "parentUuid": "fafc7978_b6c30256",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 51
+      },
+      "revId": "be24ac8b5d9379ede5b0b2b8e0ff177e23461431",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7694fa42",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 3
@@ -94,6 +118,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a4b45a82",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-02-27T08:10:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_56aa9685",
+      "range": {
+        "startLine": 134,
+        "startChar": 8,
+        "endLine": 134,
+        "endChar": 12
+      },
+      "revId": "be24ac8b5d9379ede5b0b2b8e0ff177e23461431",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3686f213",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 3
@@ -128,6 +176,30 @@
       "writtenOn": "2017-02-22T11:15:49Z",
       "side": 1,
       "message": "I do not know if this is the correct section, but you should include the version of OVS needed: 2.6.1 with Yi Yang\u0027s patch.",
+      "range": {
+        "startLine": 169,
+        "startChar": 0,
+        "endLine": 169,
+        "endChar": 26
+      },
+      "revId": "be24ac8b5d9379ede5b0b2b8e0ff177e23461431",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c73880d5",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-02-27T08:10:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f6a8ea8e",
       "range": {
         "startLine": 169,
         "startChar": 0,
