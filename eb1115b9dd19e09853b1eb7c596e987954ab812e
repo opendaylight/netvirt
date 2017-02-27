@@ -70,6 +70,24 @@
       "revId": "eb1115b9dd19e09853b1eb7c596e987954ab812e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d2c84057",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnDpnToTransportZoneListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-27T10:46:15Z",
+      "side": 1,
+      "message": "Okay, I think we should have different tep ip address for each tzone. otherwise having tzone in overlay is meaningless.",
+      "parentUuid": "fafc7978_81a2e848",
+      "revId": "eb1115b9dd19e09853b1eb7c596e987954ab812e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
