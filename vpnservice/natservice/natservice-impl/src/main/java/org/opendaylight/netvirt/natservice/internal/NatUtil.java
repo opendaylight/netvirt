@@ -286,6 +286,12 @@ public class NatUtil {
                 .append(NatConstants.FLOWID_SEPARATOR).append(ip).toString();
     }
 
+    public static String getFlowRef(BigInteger dpnId, short tableId, InetAddress destPrefix, long vpnId) {
+        return new StringBuilder(64).append(NatConstants.FLOWID_PREFIX).append(dpnId).append(NwConstants.FLOWID_SEPARATOR)
+                .append(tableId).append(NwConstants.FLOWID_SEPARATOR)
+                .append(destPrefix.getHostAddress()).append(NwConstants.FLOWID_SEPARATOR).append(vpnId).toString();
+    }
+
     public static String getNaptFlowRef(BigInteger dpnId, short tableId, String routerID, String ip, int port) {
         return new StringBuffer().append(NatConstants.NAPT_FLOWID_PREFIX).append(dpnId).append(NatConstants.FLOWID_SEPARATOR).
                 append(tableId).append(NatConstants.FLOWID_SEPARATOR).append(routerID).append(NatConstants.FLOWID_SEPARATOR).append(ip).
