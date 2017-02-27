@@ -311,22 +311,6 @@ public class NatUtil {
                 + port;
     }
 
-    /*
-        getNetworkIdFromRouterId() returns the network-id from the below model using the router-id as the key
-               container ext-routers {
-                   list routers {
-                       key router-name;
-                       leaf router-name { type string; }
-                       leaf network-id { type yang:uuid; }
-                       leaf enable-snat { type boolean; }
-                       leaf-list external-ips {
-                            type string; //format - ipaddress\prefixlength
-                       }
-                       leaf-list subnet-ids { type yang:uuid; }
-                   }
-               }
-
-    */
     static Uuid getNetworkIdFromRouterId(DataBroker broker, long routerId) {
         String routerName = getRouterName(broker, routerId);
         return getNetworkIdFromRouterName(broker, routerName);
@@ -373,21 +357,6 @@ public class NatUtil {
         return false;
     }
 
-    /*
-        getVpnIdfromNetworkId() returns the vpnid from the below model using the network ID as the key.
-            container external-networks {
-                list networks  {
-                    key id;
-                    leaf id {
-                        type yang:uuid;
-                    }
-                    leaf vpnid { type yang:uuid; }
-                    leaf-list router-ids { type yang:uuid; }
-                    leaf-list subnet-ids{ type yang:uuid; }
-                }
-            }
-    */
-
     public static Uuid getVpnIdfromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
         Optional<Networks> networkData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
@@ -429,19 +398,6 @@ public class NatUtil {
             .child(Networks.class, new NetworksKey(networkId)).build();
         return network;
     }
-
-    /*
-        getNaptSwitchesDpnIdsfromRouterId() returns the primary-switch-id and the secondary-switch-id
-         in a array using the router-id; as the key.
-            container napt-switches {
-                list router-to-napt-switch {
-                    key router-id;
-                    leaf router-id { type uint32; }
-                    leaf primary-switch-id { type uint64; }
-                    leaf secondary-switch-id { type uint64; }
-                }
-            }
-    */
 
     public static BigInteger getPrimaryNaptfromRouterId(DataBroker broker, Long routerId) {
         // convert routerId to Name
@@ -568,21 +524,6 @@ public class NatUtil {
         return nextHopIp;
     }
 
-    /*
-        getVpnRd returns the rd (route distinguisher) which is the VRF ID from the below model using the vpnName
-            list vpn-instance {
-                key "vpn-instance-name"
-                leaf vpn-instance-name {
-                    type string;
-                }
-                leaf vpn-id {
-                    type uint32;
-                }
-                leaf vrf-id {
-                    type string;
-                }
-            }
-    */
     public static String getVpnRd(DataBroker broker, String vpnName) {
 
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
@@ -596,29 +537,6 @@ public class NatUtil {
         }
         return rd;
     }
-
-    /*  getExternalIPPortMap() returns the internal IP and the port for the querried router ID,
-     external IP and the port.
-        container intext-ip-port-map {
-        config true;
-        list ip-port-mapping {
-            key router-id;
-            leaf router-id { type uint32; }
-            list intext-ip-protocol-type {
-                key protocol;
-                leaf protocol { type protocol-types; }
-                list ip-port-map {
-                    key ip-port-internal;
-                    description "internal to external ip-port mapping";
-                    leaf ip-port-internal { type string; }
-                    container ip-port-external {
-                       uses ip-port-entity;
-                    }
-                }
-            }
-         }
-       }
-    */
 
     public static IpPortExternal getExternalIpPortMap(DataBroker broker, Long routerId, String internalIpAddress,
                                                       String internalPort, NAPTEntryEvent.Protocol protocol) {
@@ -676,36 +594,6 @@ public class NatUtil {
         NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
         return new BigInteger(getDpnFromNodeConnectorId(nodeConnectorId));
     }
-
-    /*
-    container vpnMaps {
-        list vpnMap {
-            key vpn-id;
-            leaf vpn-id {
-                type    yang:uuid;
-                description "vpn-id";
-            }
-            leaf name {
-                type  string;
-                description "vpn name";
-            }
-            leaf tenant-id {
-                type    yang:uuid;
-                description "The UUID of the tenant that will own the subnet.";
-            }
-
-            leaf router-id {
-              type    yang:uuid;
-              description "UUID of router ";
-            }
-            leaf-list network_ids {
-              type    yang:uuid;
-              description "UUID representing the network ";
-            }
-        }
-    }
-    Method returns router Id associated to a VPN
-     */
 
     public static String getRouterIdfromVpnInstance(DataBroker broker, String vpnName) {
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class)
@@ -772,20 +660,26 @@ public class NatUtil {
                                       long label,
                                       Logger log, RouteOrigin origin, BigInteger dpId) {
         try {
-            LOG.info("ADD: Adding Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
+            LOG.info("NAT Service : ADD: Adding Fib entry rd {} prefix {} nextHop {} label {}", rd,
+                    prefix, nextHopIp, label);
             if (nextHopIp == null) {
-                log.error("addPrefix failed since nextHopIp cannot be null.");
+                LOG.error("NAT Service : addPrefix prefix {} rd {} failed since nextHopIp cannot be null.", prefix, rd);
                 return;
             }
             addPrefixToInterface(broker, getVpnId(broker, vpnName), prefix, dpId, /*isNatPrefix*/ true);
             fibManager.addOrUpdateFibEntry(broker, rd, null /*macAddress*/, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, (int)label, 0 /*l3vni*/,
                     null /*gatewayMacAddress*/, origin, null /*writeTxn*/);
-            bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),
-                    VrfEntry.EncapType.Mplsgre, (int)label, 0 /*l3vni*/, null /*gatewayMac*/);
-            LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
+            if ((rd != null) && (!rd.equalsIgnoreCase(vpnName))) {
+            /* Publish to Bgp only if its an INTERNET VPN */
+                bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),
+                        VrfEntry.EncapType.Mplsgre, (int) label, 0 /*l3vni*/, null /*gatewayMac*/);
+            }
+            LOG.info("NAT Service : ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd,
+                    prefix, nextHopIp, label);
         } catch (Exception e) {
-            log.error("Add prefix failed", e);
+            LOG.error("NAT Service : Add prefix rd {} prefix {} nextHop {} label {} failed", rd,
+                    prefix, nextHopIp, label, e);
         }
     }
 
@@ -817,24 +711,6 @@ public class NatUtil {
             .child(RouterPorts.class, new RouterPortsKey(routerId)).build();
         return routerInstanceIndentifier;
     }
-
-    /* container snatint-ip-port-map {
-        list intip-port-map {
-            key router-id;
-            leaf router-id { type uint32; }
-            list ip-port {
-                key internal-ip;
-                leaf internal-ip { type string; }
-                list int-ip-proto-type {
-                    key protocol;
-                    leaf protocol { type protocol-types; }
-                    leaf-list ports { type uint16; }
-                }
-            }
-        }
-    }
-    Method returns InternalIp port List
-    */
 
     public static List<Integer> getInternalIpPortListInfo(DataBroker dataBroker, Long routerId,
                                                           String internalIpAddress, ProtocolTypes protocolType) {
@@ -893,14 +769,16 @@ public class NatUtil {
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     public static void removePrefixFromBGP(DataBroker broker, IBgpManager bgpManager, IFibManager fibManager,
-                                           String rd, String prefix, Logger log) {
+                                           String rd, String prefix, String vpnName, Logger log) {
         try {
             LOG.info("REMOVE: Removing Fib entry rd {} prefix {}", rd, prefix);
             fibManager.removeFibEntry(broker, rd, prefix, null);
-            bgpManager.withdrawPrefix(rd, prefix);
+            if (rd != null && !rd.equalsIgnoreCase(vpnName)) {
+                bgpManager.withdrawPrefix(rd, prefix);
+            }
             LOG.info("REMOVE: Removed Fib entry rd {} prefix {}", rd, prefix);
         } catch (Exception e) {
-            log.error("Delete prefix failed", e);
+            log.error("Delete prefix for rd {} prefix {} vpnName {} failed", rd, prefix, vpnName, e);
         }
     }
 
@@ -958,20 +836,6 @@ public class NatUtil {
         }
         return null;
     }
-    /*
-    container external-ips-counter {
-        config false;
-        list external-counters{
-            key segment-id;
-            leaf segment-id { type uint32; }
-            list external-ip-counter {
-                key external-ip;
-                leaf external-ip { type string; }
-                leaf counter { type uint8; }
-            }
-        }
-    }
-    */
 
     public static String getLeastLoadedExternalIp(DataBroker dataBroker, long segmentId) {
         String leastLoadedExternalIp = null;
