@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_3349ce60",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-27T16:14:33Z",
+      "side": 1,
+      "message": "comment from Tali: fix this log to include the real tunnel state and the log above it can be removed",
+      "revId": "01de3efe6589e20617393796c911727aacb6b402",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
