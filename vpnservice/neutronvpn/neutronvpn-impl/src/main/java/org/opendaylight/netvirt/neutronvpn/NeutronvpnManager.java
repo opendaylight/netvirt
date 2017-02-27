@@ -80,6 +80,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetL3VPNInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetL3VPNOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetL3VPNOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterAssociatedToVpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterAssociatedToVpnBuilder;
@@ -162,21 +163,21 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void createSubnetmapNode(Uuid subnetId, String subnetIp, Uuid tenantId, Uuid networkId) {
+    protected void createSubnetmapNode(Uuid subnetId, String subnetIp, Uuid tenantId, Uuid networkId,
+                                       NetworkAttributes.NetworkType networkType, long segmentationId) {
         try {
             InstanceIdentifier<Subnetmap> subnetMapIdentifier = NeutronvpnUtils.buildSubnetMapIdentifier(subnetId);
             synchronized (subnetId.getValue().intern()) {
-                Optional<Subnetmap> sn = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                        subnetMapIdentifier);
-                SubnetmapBuilder subnetmapBuilder = null;
+                Optional<Subnetmap> sn = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, subnetMapIdentifier);
                 if (sn.isPresent()) {
                     LOG.error("subnetmap node for subnet ID {} already exists, returning", subnetId.getValue());
                     return;
-                } else {
-                    subnetmapBuilder = new SubnetmapBuilder().setKey(new SubnetmapKey(subnetId)).setId(subnetId)
-                            .setSubnetIp(subnetIp).setTenantId(tenantId).setNetworkId(networkId);
-                    LOG.debug("Adding a new subnet node in Subnetmaps DS for subnet {}", subnetId.getValue());
                 }
+                SubnetmapBuilder subnetmapBuilder = new SubnetmapBuilder().setKey(new SubnetmapKey(subnetId))
+                        .setId(subnetId).setSubnetIp(subnetIp).setTenantId(tenantId).setNetworkId(networkId)
+                        .setNetworkType(networkType).setSegmentationId(segmentationId);
+                LOG.debug("Adding a new subnet node in Subnetmaps DS for subnet {}", subnetId.getValue());
                 SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                         subnetMapIdentifier, subnetmapBuilder.build());
             }
