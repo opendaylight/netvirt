@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_724fd46b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 3547
+      },
+      "writtenOn": "2017-02-27T10:06:18Z",
+      "side": 1,
+      "message": "The RPC returns FUTURE. It could be more thread safe if get() is called in the method or ListenableFuture is returned.",
+      "range": {
+        "startLine": 573,
+        "startChar": 8,
+        "endLine": 573,
+        "endChar": 87
+      },
+      "revId": "da0bd8cbda5088ea5ac1749ce14297e4abc7c904",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_527bb08b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 612,
+      "author": {
+        "id": 3547
+      },
+      "writtenOn": "2017-02-27T10:06:18Z",
+      "side": 1,
+      "message": "as mentioned above, this should be also synced here or outside of the method.",
+      "range": {
+        "startLine": 612,
+        "startChar": 8,
+        "endLine": 612,
+        "endChar": 78
+      },
+      "revId": "da0bd8cbda5088ea5ac1749ce14297e4abc7c904",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
