@@ -295,14 +295,9 @@ public class NatUtil {
                 .FLOWID_SEPARATOR + routerID + NatConstants.FLOWID_SEPARATOR + ip;
     }
 
-    public static String getFlowRef(BigInteger dpnId, short tableId, InetAddress destPrefix) {
-        return NatConstants.FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants
-                .FLOWID_SEPARATOR + destPrefix.getHostAddress();
-    }
-
     public static String getFlowRef(BigInteger dpnId, short tableId, InetAddress destPrefix, long vpnId) {
         return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR + tableId + NatConstants
-                .FLOWID_SEPARATOR + vpnId;
+                .FLOWID_SEPARATOR + destPrefix.getHostAddress() + NatConstants.FLOWID_SEPARATOR + vpnId;
     }
 
     public static String getNaptFlowRef(BigInteger dpnId, short tableId, String routerID, String ip, int port) {
