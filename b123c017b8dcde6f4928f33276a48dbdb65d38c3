@@ -237,6 +237,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b2a3fcfe",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-02-27T10:11:44Z",
+      "side": 1,
+      "message": "Ya it used in Ipv6[1] and in stateful[2] implementation of acl , since it is not matched but just used as zone id we are presently not writing the metadata from the dispatcher.\n\nDo we require to sync with elan service? Doesn\u0027t operations causing elan ids to change will have a corresponding port update?\n\n[1]https://lists.opendaylight.org/pipermail/netvirt-dev/2016-August/001010.html\n[2]https://lists.opendaylight.org/pipermail/netvirt-dev/2016-August/001039.html",
+      "parentUuid": "fafc7978_1e56592a",
+      "range": {
+        "startLine": 110,
+        "startChar": 95,
+        "endLine": 110,
+        "endChar": 96
+      },
+      "revId": "b123c017b8dcde6f4928f33276a48dbdb65d38c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5ec90125",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 14
