@@ -271,7 +271,7 @@ public class FederationPluginEgress implements IFederationPluginEgress {
                 .getSubtreeInstanceIdentifier(listenerKey);
         LogicalDatastoreType datastoreType = FederationPluginUtils.getListenerDatastoreType(listenerKey);
         EntityFederationMessage<T> msg = createMsgWithRetriesMechanism(dataObject, modificationType, instanceIdentifier,
-                datastoreType);
+                datastoreType, listenerKey);
         return msg;
     }
 
@@ -282,10 +282,10 @@ public class FederationPluginEgress implements IFederationPluginEgress {
     @SuppressWarnings({ "rawtypes", "unchecked" , "checkstyle:emptyblock"})
     private <T extends DataObject, S extends DataObject> EntityFederationMessage<T> createMsgWithRetriesMechanism(
             T dataObject, ModificationType modificationType, InstanceIdentifier<T> instanceIdentifier,
-            LogicalDatastoreType datastoreType) {
+            LogicalDatastoreType datastoreType, String metadata) {
         try {
             EntityFederationMessage msg = new EntityFederationMessage(datastoreType.toString(),
-                    modificationType.toString(), null, queueName, instanceIdentifier, dataObject);
+                    modificationType.toString(), metadata, queueName, instanceIdentifier, dataObject);
             return msg;
         } catch (UncheckedExecutionException t) {
             logger.warn(
@@ -297,7 +297,7 @@ public class FederationPluginEgress implements IFederationPluginEgress {
             }
             try {
                 EntityFederationMessage msg = new EntityFederationMessage(datastoreType.toString(),
-                        modificationType.toString(), null, queueName, instanceIdentifier, dataObject);
+                        modificationType.toString(), metadata, queueName, instanceIdentifier, dataObject);
                 return msg;
             } catch (UncheckedExecutionException t2) {
                 logger.warn("Create EntityFederationMessage failed again, "
@@ -307,7 +307,7 @@ public class FederationPluginEgress implements IFederationPluginEgress {
                 } catch (InterruptedException e) {
                 }
                 EntityFederationMessage msg = new EntityFederationMessage(datastoreType.toString(),
-                        modificationType.toString(), null, queueName, instanceIdentifier, dataObject);
+                        modificationType.toString(), metadata, queueName, instanceIdentifier, dataObject);
                 return msg;
             }
         }

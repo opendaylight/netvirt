@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification.ModificationType;
@@ -130,7 +129,7 @@ public class FederationPluginIngress implements IFederationPluginIngress {
             return;
         }
 
-        String listenerKey = FederationPluginUtils.getClassListener(msg.getInputClassType(), datastoreType);
+        String listenerKey = msg.getMetadata();
         if (listenerKey == null) {
             logger.error("Failed to get listener key for {}", msg.getInputClassType());
             return;
