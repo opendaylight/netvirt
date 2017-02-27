@@ -108,6 +108,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f2c5848e",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-27T10:17:29Z",
+      "side": 1,
+      "message": "OK.\n\nThis introduces a coupling now between NeutronVpn and QosService but I only hope that this coupling isn\u0027t exploited for something else in the future. \n\nVivek",
+      "parentUuid": "fafc7978_a758dc8a",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 84
+      },
+      "revId": "f9c4c9ef78baa38fc8810a7d0c8e85d3fe877e63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e46942bf",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
         "patchSetId": 13
