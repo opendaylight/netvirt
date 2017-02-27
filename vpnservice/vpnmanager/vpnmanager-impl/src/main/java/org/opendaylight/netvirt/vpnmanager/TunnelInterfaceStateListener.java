@@ -116,22 +116,8 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     }
 
     @Override
-    protected void update(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList original, StateTunnelList update) {
-        LOG.trace("Tunnel updation---- {}", update);
-        LOG.trace("ITM Tunnel {} of type {} state event changed from :{} to :{}",
-                update.getTunnelInterfaceName(),
-                fibManager.getTransportTypeStr(update.getTransportType().toString()),
-                original.getOperState(), update.getOperState());
-        //withdraw all prefixes in all vpns for this dpn
-        TunnelOperStatus tunOpStatus = update.getOperState();
-        if ((tunOpStatus != TunnelOperStatus.Down) && (tunOpStatus != TunnelOperStatus.Up)) {
-            LOG.trace("Returning from unsupported tunnelOperStatus {}", tunOpStatus);
-            return;
-        }
-        boolean isTunnelUp = (tunOpStatus == TunnelOperStatus.Up);
-        handleTunnelEventForDPN(update,
-                                isTunnelUp ? UpdateRouteAction.ADVERTISE_ROUTE : UpdateRouteAction.WITHDRAW_ROUTE,
-                                TunnelAction.TUNNEL_EP_UPDATE);
+    protected void update(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList original,
+        StateTunnelList update) {
     }
 
     @Override
@@ -142,17 +128,13 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             LOG.trace("Returning from unsupported tunnelOperStatus {}", tunOpStatus);
             return;
         }
-        boolean isTunnelUp = (tunOpStatus == TunnelOperStatus.Up);
-        if (!isTunnelUp) {
-            LOG.trace("Tunnel {} is not yet UP.",
-                    add.getTunnelInterfaceName());
-            return;
-        } else {
-            LOG.trace("ITM Tunnel ,type {} ,State is UP b/w src: {} and dest: {}",
-                    fibManager.getTransportTypeStr(add.getTransportType().toString()),
-                    add.getSrcInfo().getTepDeviceId(), add.getDstInfo().getTepDeviceId());
-            handleTunnelEventForDPN(add, UpdateRouteAction.ADVERTISE_ROUTE, TunnelAction.TUNNEL_EP_ADD);
+        if (tunOpStatus != TunnelOperStatus.Up) {
+            LOG.trace("Tunnel {} is not yet UP.", add.getTunnelInterfaceName());
         }
+        LOG.trace("ITM Tunnel ,type {} , tunOpStatus {} added between src: {} and dest: {}",
+            fibManager.getTransportTypeStr(add.getTransportType().toString()), tunOpStatus,
+            add.getSrcInfo().getTepDeviceId(), add.getDstInfo().getTepDeviceId());
+        handleTunnelEventForDPN(add, UpdateRouteAction.ADVERTISE_ROUTE, TunnelAction.TUNNEL_EP_ADD);
     }
 
     private void handleTunnelEventForDPN(StateTunnelList stateTunnelList, UpdateRouteAction action, TunnelAction tunnelAction) {
