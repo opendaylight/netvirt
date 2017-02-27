@@ -2045,7 +2045,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         //Inform BGP about the route removal
         LOG.info("Informing BGP to remove route for externalIP {} of vpn {}", externalIp, vpnName);
         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
-        NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp, LOG);
+        NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp, vpnName, LOG);
     }
 
     private void removeTunnelTableEntry(BigInteger dpnId, long serviceId) {

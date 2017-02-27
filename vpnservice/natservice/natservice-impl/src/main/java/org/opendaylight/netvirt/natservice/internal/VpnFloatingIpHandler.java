@@ -234,7 +234,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                                   final long label) {
         //Remove Prefix from BGP
         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
-        NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32", LOG);
+        NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32", vpnName, LOG);
 
         //Remove custom FIB routes
 
