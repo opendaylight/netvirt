@@ -33,7 +33,11 @@ module federation-plugin {
     }
 
     import neutronvpn {
-         prefix nvpn;
+        prefix nvpn;
+    }
+
+    import neutron {
+        prefix neutron;
     }
 
     revision "2017-02-19" {
@@ -77,6 +81,16 @@ module federation-plugin {
 
     augment "/l3vpn:vpn-interfaces/l3vpn:vpn-interface" {
         ext:augment-identifier "vpn-shadow-properties";
+        uses shadow-properties;
+    }
+
+    augment "/neutron:neutron/neutron:l2gateways/neutron:l2gateway" {
+        ext:augment-identifier "l2gw-shadow-properties";
+        uses shadow-properties;
+    }
+
+    augment "/neutron:neutron/neutron:l2gatewayConnections/neutron:l2gatewayConnection" {
+        ext:augment-identifier "l2gw-connection-shadow-properties";
         uses shadow-properties;
     }
 }
