@@ -46,6 +46,30 @@
       "revId": "75031abe4df9a180bb1f4c1f1a94ea1a41aa14ad",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b83f5d86",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 965,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-27T14:11:57Z",
+      "side": 1,
+      "message": "Good question Tali.. This is a bit unsafe coding only where we are using concept of SET EXCLUSION.. Line 945 and 954 check leave out only CONNECTED routes at the end which is subnetRoutes only today :)",
+      "parentUuid": "fafc7978_ed8ac5bd",
+      "range": {
+        "startLine": 965,
+        "startChar": 91,
+        "endLine": 965,
+        "endChar": 96
+      },
+      "revId": "75031abe4df9a180bb1f4c1f1a94ea1a41aa14ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
