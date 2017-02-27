@@ -2,7 +2,6 @@ module neutronvpn-config {
     yang-version 1;
     namespace "urn:opendaylight:netvirt:neutronvpn:config";
     prefix "neutronvpn-config";
-
     description
         "Configuration for neutronvpn-impl.";
 
@@ -20,6 +19,14 @@ module neutronvpn-config {
         leaf use-of-tunnels {
             type boolean;
             default false;
+        }
+        leaf opendaylight-vni-ranges {
+            type string;
+            default "70000:99999";
+        }
+        leaf enforce-openstack-semantics {
+            type boolean;
+            default true;
         }
     }
 }

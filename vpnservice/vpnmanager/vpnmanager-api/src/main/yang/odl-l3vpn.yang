@@ -6,6 +6,10 @@ module odl-l3vpn {
     import l3vpn { prefix l3vpn; revision-date "2014-08-15"; }
     import ietf-yang-types { prefix "yang"; revision-date "2013-07-15"; }
     import odl-interface { prefix odlif; revision-date "2016-04-06"; }
+    import neutronvpn {
+        prefix nvpn;
+        revision-date "2015-06-02";
+    }
 
     revision "2013-09-11" {
         description "L3 VPN Service module";
@@ -58,6 +62,9 @@ module odl-l3vpn {
               }
               leaf vpn-interface-name {
                   type string;
+              }
+              leaf subnet-id {
+                  type yang:uuid;
               }
               leaf nat-prefix {
                   type boolean;
@@ -346,6 +353,8 @@ module odl-l3vpn {
                     }
                 }
             }
+
+            uses nvpn:network-attributes;
 
         }
     }
