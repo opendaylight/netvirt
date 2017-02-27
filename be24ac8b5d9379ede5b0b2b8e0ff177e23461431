@@ -95,6 +95,57 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_17d8057a",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 6419
+      },
+      "writtenOn": "2017-02-27T11:55:46Z",
+      "side": 1,
+      "message": "the first service function in the chain, not just \u0027a\u0027 service function.",
+      "revId": "be24ac8b5d9379ede5b0b2b8e0ff177e23461431",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b7c65998",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 6419
+      },
+      "writtenOn": "2017-02-27T11:55:46Z",
+      "side": 1,
+      "message": "Its.\n\nthat form is a contraction of it is or it has.",
+      "revId": "be24ac8b5d9379ede5b0b2b8e0ff177e23461431",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d7fe7dad",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 6419
+      },
+      "writtenOn": "2017-02-27T11:55:46Z",
+      "side": 1,
+      "message": "\"In scenarios where the service funcion...\" implies causality, which makes it easier to understand.",
+      "revId": "be24ac8b5d9379ede5b0b2b8e0ff177e23461431",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_56aa9685",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 3
