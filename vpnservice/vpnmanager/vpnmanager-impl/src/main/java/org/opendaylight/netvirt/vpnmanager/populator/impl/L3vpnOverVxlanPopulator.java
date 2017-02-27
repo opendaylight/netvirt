@@ -47,7 +47,7 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
         String rd = input.getRd();
         String primaryRd = input.getPrimaryRd();
         Adjacency nextHop = input.getNextHop();
-        if (rd != null) {
+        if (!rd.equalsIgnoreCase(input.getVpnName())) {
             addPrefixToBGP(rd, primaryRd, nextHop.getMacAddress(), nextHop.getIpAddress(), input.getNextHopIp(),
                     input.getEncapType(), 0 /*label*/, Long.valueOf(input.getL3vni()), input.getGatewayMac(),
                     broker, writeConfigTxn);
