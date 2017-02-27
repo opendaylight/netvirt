@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_4732d05f",
+        "filename": "vpnservice/qosservice/impl/pom.xml",
+        "patchSetId": 13
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-27T09:12:09Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "fafc7978_a46c5ad1",
+      "revId": "f9c4c9ef78baa38fc8810a7d0c8e85d3fe877e63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_847156aa",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
         "patchSetId": 13
@@ -113,6 +131,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e74024a7",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-27T09:12:09Z",
+      "side": 1,
+      "message": "Corrected",
+      "parentUuid": "fafc7978_847036dd",
+      "range": {
+        "startLine": 93,
+        "startChar": 42,
+        "endLine": 93,
+        "endChar": 57
+      },
+      "revId": "f9c4c9ef78baa38fc8810a7d0c8e85d3fe877e63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c466beec",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
         "patchSetId": 13
@@ -124,6 +166,30 @@
       "writtenOn": "2017-02-26T19:17:33Z",
       "side": 1,
       "message": "ditto",
+      "range": {
+        "startLine": 112,
+        "startChar": 48,
+        "endLine": 112,
+        "endChar": 63
+      },
+      "revId": "f9c4c9ef78baa38fc8810a7d0c8e85d3fe877e63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c73d202d",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-27T09:12:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c466beec",
       "range": {
         "startLine": 112,
         "startChar": 48,
