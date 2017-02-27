@@ -311,11 +311,11 @@ public class VpnSubnetRouteHandlerTest {
         portRemovedFromSubnet = new PortRemovedFromSubnetBuilder().setPortId(portId).setSubnetId(subnetId)
             .setSubnetIp(subnetIp).setElanTag(elanTag).build();
         subnetAddedToVpn = new SubnetAddedToVpnBuilder().setElanTag(elanTag).setSubnetId(subnetId).setVpnName(
-            interfaceName).setExternalVpn(true).setSubnetIp(subnetIp).build();
+            interfaceName).setBgpVpn(true).setSubnetIp(subnetIp).build();
         subnetUpdatedInVpn =
             new SubnetUpdatedInVpnBuilder().setElanTag(elanTag).setSubnetIp(subnetIp).setSubnetId(subnetId).setVpnName(
-                interfaceName).setExternalVpn(false).build();
-        subnetDeletedFromVpn = new SubnetDeletedFromVpnBuilder().setExternalVpn(true).setSubnetId(subnetId)
+                interfaceName).setBgpVpn(false).build();
+        subnetDeletedFromVpn = new SubnetDeletedFromVpnBuilder().setBgpVpn(true).setSubnetId(subnetId)
             .setSubnetIp(subnetIp).setVpnName(interfaceName).setElanTag(elanTag).build();
         subnetOp = new SubnetOpDataEntryBuilder().setElanTag(elanTag).setNhDpnId(dpId).setSubnetCidr(subnetIp)
             .setSubnetId(subnetId).setKey(new SubnetOpDataEntryKey(subnetId)).setVpnName(interfaceName)

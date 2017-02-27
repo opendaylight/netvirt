@@ -1017,6 +1017,11 @@ public class NeutronvpnUtils {
         return result;
     }
 
+    public static Class<? extends NetworkTypeBase> getNetworkType(Network network) {
+        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        return providerExtension != null ? providerExtension.getNetworkType() : null;
+    }
+
     static ProviderTypes getProviderNetworkType(Network network) {
         if (network == null) {
             LOG.error("Error in getting provider network type since network is null");
