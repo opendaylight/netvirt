@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_8d7fb965",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 6419
+      },
+      "writtenOn": "2017-02-27T11:55:46Z",
+      "side": 1,
+      "message": "the first service function in the chain, not just \u0027a\u0027 service function.\n\nOr are you doing reclassification in every hop?",
+      "range": {
+        "startLine": 121,
+        "startChar": 41,
+        "endLine": 121,
+        "endChar": 42
+      },
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cd94218d",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 6419
+      },
+      "writtenOn": "2017-02-27T11:55:46Z",
+      "side": 1,
+      "message": "Its.\n\nthat form is a contraction of it is or it has.",
+      "range": {
+        "startLine": 124,
+        "startChar": 11,
+        "endLine": 124,
+        "endChar": 15
+      },
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6deb7513",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 6419
+      },
+      "writtenOn": "2017-02-27T11:55:46Z",
+      "side": 1,
+      "message": "\"In scenarios where the service funcion...\" implies causality, which makes it easier to understand. I\u0027d change the \u0027if the ...\u0027 by \u0027in scenarios where\u0027.",
+      "range": {
+        "startLine": 130,
+        "startChar": 0,
+        "endLine": 130,
+        "endChar": 28
+      },
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
