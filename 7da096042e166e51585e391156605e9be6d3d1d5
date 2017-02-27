@@ -34,6 +34,24 @@
       "revId": "7da096042e166e51585e391156605e9be6d3d1d5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8dae9996",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-02-27T12:15:03Z",
+      "side": 1,
+      "message": "yes, even the table names where initially w.r.t to vm, but genius requested to change it the other way.\n\nI agree we lack a convention in ODL. IMHO naming wrt to vm makes more sense.",
+      "parentUuid": "fafc7978_9e81a9c5",
+      "revId": "7da096042e166e51585e391156605e9be6d3d1d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
