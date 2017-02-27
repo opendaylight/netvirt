@@ -97,7 +97,7 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
                                         final int ifIndex = intrf.getIfIndex();
 
                                         vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex, false,
-                                                writeConfigTxn, writeOperTxn, writeInvTxn);
+                                                writeConfigTxn, writeOperTxn, writeInvTxn, intrf);
                                         futures.add(writeOperTxn.submit());
                                         futures.add(writeConfigTxn.submit());
                                         futures.add(writeInvTxn.submit());
@@ -106,7 +106,6 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
                                     LOG.error("Unable to process add for interface {} ," +
                                             "since Interface ConfigDS entry absent for the same", interfaceName);
                                 }
-
                                 return futures;
                             }
                         });
@@ -148,7 +147,7 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
                                     final int ifIndex = intrf.getIfIndex();
 
                                     vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, false, false,
-                                            writeConfigTxn, writeOperTxn, writeInvTxn);
+                                            writeConfigTxn, writeOperTxn, writeInvTxn, intrf);
                                     futures.add(writeOperTxn.submit());
                                     futures.add(writeConfigTxn.submit());
                                     futures.add(writeInvTxn.submit());
@@ -196,10 +195,10 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
                                     final BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(update);
                                     if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
                                         vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex,
-                                                true, writeConfigTxn, writeOperTxn, writeInvTxn);
+                                                true, writeConfigTxn, writeOperTxn, writeInvTxn, update);
                                     } else if (update.getOperStatus().equals(Interface.OperStatus.Down)) {
                                         vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, true, false,
-                                                writeConfigTxn, writeOperTxn, writeInvTxn);
+                                                writeConfigTxn, writeOperTxn, writeInvTxn, update);
                                     }
                                     futures.add(writeOperTxn.submit());
                                     futures.add(writeConfigTxn.submit());
