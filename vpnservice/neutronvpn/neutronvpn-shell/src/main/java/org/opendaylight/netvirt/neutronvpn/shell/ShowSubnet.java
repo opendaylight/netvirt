@@ -92,12 +92,13 @@ public class ShowSubnet extends OsgiCommandSupport {
                 System.out.println("Fetching subnetopdataentry for given subnetId\n");
                 System.out.println("------------------------------------------------------------------------------");
                 System.out.println("Key: " + data.getKey() + "\n" + "VpnId: " + data.getVpnId() + "\n"
-                    + "DirectPortList: " + data.getDirectPortList() + "\n" + "NetworkId: " + data.getNetworkId()
-                    + "\n" + "PortList: " + data.getPortList() + "\n" + "RouterInterfaceFixedIp: "
-                    + data.getRouterInterfaceFixedIp() + "\n" + "RouterInterfacePortId: "
-                    + data.getRouterInterfacePortId().getValue() + "\n" + "RouterIntfMacAddress: "
-                    + data.getRouterIntfMacAddress() + "\n" + "SubnetIp: "
-                    + data.getSubnetIp() + "\n" + "TenantId: " + data.getTenantId() + "\n");
+                        + "DirectPortList: " + data.getDirectPortList() + "\n" + "NetworkId: " + data.getNetworkId()
+                        + "\n" + "Network-type: " + data.getNetworkType() + "\n" + "Network-segmentation-Id: "
+                        + data.getSegmentationId() + "\n" + "PortList: " + data.getPortList() + "\n"
+                        + "RouterInterfaceFixedIp: " + data.getRouterInterfaceFixedIp() + "\n"
+                        + "RouterInterfacePortId: " + data.getRouterInterfacePortId().getValue() + "\n"
+                        + "RouterIntfMacAddress: " + data.getRouterIntfMacAddress() + "\n" + "SubnetIp: "
+                        + data.getSubnetIp() + "\n" + "TenantId: " + data.getTenantId() + "\n");
                 System.out.println("------------------------------------------------------------------------------");
             }
         } catch (Exception e) {
