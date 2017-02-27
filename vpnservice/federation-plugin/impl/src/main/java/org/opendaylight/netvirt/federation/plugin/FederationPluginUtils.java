@@ -45,7 +45,6 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
@@ -130,10 +129,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.F
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -149,6 +146,9 @@ public class FederationPluginUtils {
 
             ImmutableList.of(FederationPluginConstants.TOPOLOGY_NODE_CONFIG_KEY, //
                     FederationPluginConstants.TOPOLOGY_NODE_OPER_KEY, //
+                    FederationPluginConstants.TOPOLOGY_HWVTEP_NODE_CONFIG_KEY, //
+                    FederationPluginConstants.TOPOLOGY_HWVTEP_NODE_OPER_KEY, //
+                    FederationPluginConstants.L2_GATEWAY_KEY, //
                     FederationPluginConstants.INVENTORY_NODE_CONFIG_KEY, //
                     FederationPluginConstants.INVENTORY_NODE_OPER_KEY, //
                     FederationPluginConstants.IETF_INTERFACE_KEY, //
@@ -470,7 +470,7 @@ public class FederationPluginUtils {
         try {
 
             TopologyBuilder topologyBuilder = new TopologyBuilder();
-            topologyBuilder.setKey(new TopologyKey(new TopologyId(new Uri("ovsdb:1"))));
+            topologyBuilder.setKey(FederationPluginConstants.OVSDB_TOPOLOGY_KEY);
             String nodeName = "aaa";
             NodeBuilder nodeBuilder = new NodeBuilder();
             nodeBuilder.setNodeId(new NodeId(nodeName));

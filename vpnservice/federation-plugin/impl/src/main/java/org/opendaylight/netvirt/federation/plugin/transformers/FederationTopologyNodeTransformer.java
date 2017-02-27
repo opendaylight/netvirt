@@ -22,17 +22,14 @@ import org.opendaylight.netvirt.federation.plugin.FederatedMappings;
 import org.opendaylight.netvirt.federation.plugin.FederationPluginConstants;
 import org.opendaylight.netvirt.federation.plugin.FederationPluginUtils;
 import org.opendaylight.netvirt.federation.plugin.PendingModificationCache;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.rev170219.TopologyNodeShadowProperties;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.rev170219.TopologyNodeShadowPropertiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopologyBuilder;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
@@ -55,7 +52,7 @@ public class FederationTopologyNodeTransformer implements FederationPluginTransf
     public NetworkTopology applyEgressTransformation(Node node, FederatedMappings federatedMappings,
             PendingModificationCache<DataTreeModification<?>> pendingModifications) {
         TopologyBuilder topologyBuilder = new TopologyBuilder();
-        topologyBuilder.setKey(new TopologyKey(new TopologyId(new Uri("ovsdb:1"))));
+        topologyBuilder.setKey(FederationPluginConstants.OVSDB_TOPOLOGY_KEY);
         String nodeName = node.getNodeId().getValue();
         NodeBuilder nodeBuilder;
         if (nodeName.contains(FederationPluginConstants.INTEGRATION_BRIDGE_PREFIX)) {
@@ -94,7 +91,7 @@ public class FederationTopologyNodeTransformer implements FederationPluginTransf
                                 nodeBuilder.getAugmentation(TopologyNodeShadowProperties.class)).setShadow(true)
                                         .setGenerationNumber(generationNumber).setRemoteIp(remoteIp).build());
         return Pair.of(InstanceIdentifier.create(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(new TopologyId(new Uri("ovsdb:1"))))
+                .child(Topology.class, FederationPluginConstants.OVSDB_TOPOLOGY_KEY)
                 .child(Node.class, node.getKey()), nodeBuilder.build());
     }
 
