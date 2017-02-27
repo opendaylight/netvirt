@@ -18,10 +18,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.vpnmanager.VpnOpDataSyncer.VpnOpDataType;
+import org.opendaylight.netvirt.vpnmanager.populator.input.L3vpnInput;
+import org.opendaylight.netvirt.vpnmanager.populator.intfc.VpnPopulator;
+import org.opendaylight.netvirt.vpnmanager.populator.registry.L3vpnRegistry;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
@@ -38,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
@@ -935,20 +940,19 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
             return false;
         }
         if (nexthopIp != null) {
-            VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                VpnUtil.getPrefixToInterfaceIdentifier(VpnUtil.getVpnId(dataBroker, vpnName), subnetIp),
-                VpnUtil.getPrefixToInterface(nhDpnId, subnetId.getValue(), subnetIp));
-            vpnInterfaceManager.addSubnetRouteFibEntryToDS(rd, vpnName, subnetIp, nexthopIp, label, elanTag, nhDpnId,
-                null);
-            try {
-                //BGP manager will handle withdraw and advertise internally if prefix
-                //already exist
-                bgpManager.advertisePrefix(rd, null /*macAddress*/, subnetIp, Collections.singletonList(nexthopIp),
-                        VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/);
-            } catch (Exception e) {
-                LOG.error("Fail: Subnet route not advertised for rd {} subnetIp {}", rd, subnetIp, e);
-                throw e;
-            }
+            VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, VpnUtil.getPrefixToInterfaceIdentifier
+                    (VpnUtil.getVpnId(dataBroker, vpnName), subnetIp), VpnUtil.getPrefixToInterface
+                    (nhDpnId, subnetId.getValue(), subnetIp));
+            LOG.debug("***************");
+            VpnInstanceOpDataEntry vpnOpEntry = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
+            LOG.debug("VpnInstanceOpDataEntry value {}", vpnOpEntry);
+            Boolean isVxlan = VpnUtil.isL3VpnOverVxLan(vpnOpEntry.getL3vni());
+            VrfEntry.EncapType encapType = (isVxlan == true) ? VrfEntry.EncapType.Vxlan : VrfEntry.EncapType.Mplsgre;
+            L3vpnInput l3vpnInput = new L3vpnInput().setL3vni(vpnOpEntry.getL3vni()).setVpnName(vpnName).setDpnId(nhDpnId)
+                    .setNextHopIp(nexthopIp).setRd(rd);
+            VpnPopulator vpnPopulator = L3vpnRegistry.getRegisteredPopulator(encapType);
+            LOG.debug("*****entering populate fib*****");
+            vpnPopulator.addSubnetRouteFibEntry(rd, vpnName, subnetIp, nexthopIp, label, elanTag, nhDpnId, null, encapType);
         } else {
             LOG.warn("The nexthopip is empty for subnetroute subnetip {}, ignoring fib route addition", subnetIp);
             return false;

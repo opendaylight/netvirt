@@ -161,12 +161,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private final OdlInterfaceRpcService interfaceManager;
     private final IdManagerService idManager;
     private final IVpnLinkService ivpnLinkService;
-    static final BigInteger COOKIE_VM_FIB_TABLE =  new BigInteger("8000003", 16);
-    static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
-    private static final int LFIB_INTERVPN_PRIORITY = 1;
     private static final BigInteger METADATA_MASK_CLEAR = new BigInteger("000000FFFFFFFFFF", 16);
     private static final BigInteger CLEAR_METADATA = BigInteger.valueOf(0);
-    public static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     List<SubTransaction> transactionObjects;
 
     private static Integer batchSize;
@@ -525,7 +521,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         return prefixBuilder.build();
     }
 
-    private void installSubnetRouteInFib(final BigInteger dpnId, final long elanTag, final String rd,
+    void installSubnetRouteInFib(final BigInteger dpnId, final long elanTag, final String rd,
                                          final long vpnId, final VrfEntry vrfEntry, WriteTransaction tx) {
         Boolean wrTxPresent = true;
         if (tx == null) {
