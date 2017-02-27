@@ -178,7 +178,7 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionGotoTable(NwConstants.PSNAT_TABLE));
 
-        String flowRef = NatUtil.getFlowRef(dpId, NwConstants.L3_FIB_TABLE, defaultIP);
+        String flowRef = NatUtil.getFlowRef(dpId, NwConstants.L3_FIB_TABLE, defaultIP, vpnId);
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_FIB_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
@@ -196,6 +196,7 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
                 + "Cannot proceed with installation of Default NAT flow");
             return;
         }
+        LOG.debug("NAT Service : Installing flow {}", flowEntity);
         mdsalManager.installFlow(flowEntity);
     }
 
@@ -206,6 +207,7 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
                 + "Cannot proceed with installation of Default NAT flow");
             return;
         }
+        LOG.debug("NAT Service : Removing flow {}", flowEntity);
         mdsalManager.removeFlow(flowEntity);
     }
 }
