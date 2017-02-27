@@ -712,8 +712,6 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         elanForwardingEntriesHandler.deleteElanInterfaceForwardingEntries(
                 ElanUtils.getElanInstanceByName(broker, elanInstanceName), interfaceInfo, macEntry, tx);
-        elanForwardingEntriesHandler.deleteElanInterfaceMacForwardingEntries(interfaceName,
-                physAddress, tx);
         ElanUtils.waitForTransactionToComplete(tx);
     }
 
