@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_4d9cb10f",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-27T13:12:18Z",
+      "side": 1,
+      "message": "According to this it will just be logic added straight into the aclservice?\n\nAfter reading the spec, since there are no yang changes at all and you\u0027re proposing on using the ACL service for this, what are the actual proposed changes in netvirt?\n\nToday the ACL service either drops the packet, or forwards it back to the genius dispatcher.\nAre you proposing adding a new action for the packet from the ACL service? Or marking some metadata bits in addition to allowing and having Genius insert the packet into a new SFC service (not included in this spec)?\n\nWill these changes be a generic enhancement to the ACL service to do other actions such as metadata marking for other services? Or will there be a specific SFC related functionality?",
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2da84d1f",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-27T13:12:18Z",
+      "side": 1,
+      "message": "typo netvirt",
+      "range": {
+        "startLine": 98,
+        "startChar": 28,
+        "endLine": 98,
+        "endChar": 34
+      },
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8d7fb965",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 4
@@ -65,6 +105,23 @@
         "endLine": 130,
         "endChar": 28
       },
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4d6af1ee",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-27T13:12:18Z",
+      "side": 1,
+      "message": "It would really help to see some example flows of how an SFC packet flows through the ACL service with the proposed changes.",
       "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
