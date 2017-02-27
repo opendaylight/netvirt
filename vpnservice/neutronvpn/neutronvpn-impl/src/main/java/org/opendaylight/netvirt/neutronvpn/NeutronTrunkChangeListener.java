@@ -25,6 +25,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlanBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.SplitHorizon;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.SplitHorizonBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.VlanId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
@@ -126,8 +128,9 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
             IfL2vlan ifL2vlan = new IfL2vlanBuilder().setL2vlanMode(IfL2vlan.L2vlanMode.TrunkMember)
                 .setVlanId(new VlanId(subPort.getSegmentationId().intValue())).build();
             ParentRefs parentRefs = new ParentRefsBuilder().setParentInterface(parentName).build();
+            SplitHorizon splitHorizon = new SplitHorizonBuilder().setOverrideSplitHorizonProtection(true).build();
             interfaceBuilder.setName(portName).setType(L2vlan.class).addAugmentation(IfL2vlan.class, ifL2vlan)
-                .addAugmentation(ParentRefs.class, parentRefs);
+                .addAugmentation(ParentRefs.class, parentRefs).addAugmentation(SplitHorizon.class, splitHorizon);
             iface = interfaceBuilder.build();
             /*
              * Interface is already created for parent NeutronPort. We're updating parent refs
@@ -158,7 +161,8 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
              */
             InterfaceBuilder interfaceBuilder = new InterfaceBuilder(iface);
             // Reset augmentations
-            interfaceBuilder.removeAugmentation(IfL2vlan.class).removeAugmentation(ParentRefs.class);
+            interfaceBuilder.removeAugmentation(IfL2vlan.class).removeAugmentation(ParentRefs.class)
+                .removeAugmentation(SplitHorizon.class);
             IfL2vlan ifL2vlan = new IfL2vlanBuilder().setL2vlanMode(IfL2vlan.L2vlanMode.Trunk).build();
             interfaceBuilder.addAugmentation(IfL2vlan.class, ifL2vlan);
             iface = interfaceBuilder.build();
