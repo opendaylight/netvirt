@@ -335,6 +335,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_843e76d8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-27T07:25:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_61c9c425",
+      "revId": "cf3baaaeab88954853ae8ab84256050b6b9cdcfb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_50345e49",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 14
