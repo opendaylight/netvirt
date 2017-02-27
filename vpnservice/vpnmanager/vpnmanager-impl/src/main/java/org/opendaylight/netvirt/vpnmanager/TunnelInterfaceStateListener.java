@@ -146,13 +146,11 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         if (!isTunnelUp) {
             LOG.trace("Tunnel {} is not yet UP.",
                 add.getTunnelInterfaceName());
-            return;
-        } else {
-            LOG.trace("ITM Tunnel ,type {} ,State is UP b/w src: {} and dest: {}",
-                fibManager.getTransportTypeStr(add.getTransportType().toString()),
-                add.getSrcInfo().getTepDeviceId(), add.getDstInfo().getTepDeviceId());
-            handleTunnelEventForDPN(add, UpdateRouteAction.ADVERTISE_ROUTE, TunnelAction.TUNNEL_EP_ADD);
         }
+        LOG.trace("ITM Tunnel ,type {} ,State is UP b/w src: {} and dest: {}",
+            fibManager.getTransportTypeStr(add.getTransportType().toString()),
+            add.getSrcInfo().getTepDeviceId(), add.getDstInfo().getTepDeviceId());
+        handleTunnelEventForDPN(add, UpdateRouteAction.ADVERTISE_ROUTE, TunnelAction.TUNNEL_EP_ADD);
     }
 
     // TODO Clean up the exception handling
