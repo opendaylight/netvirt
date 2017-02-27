@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_44512e35",
+        "filename": "vpnservice/federation-plugin/api/src/main/yang/federation-plugin-config.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-02-27T09:37:06Z",
+      "side": 1,
+      "message": "probably not relevant",
+      "revId": "40530c234e442b38bf4d4d959d622f5c9ea930f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_247fcaac",
+        "filename": "vpnservice/federation-plugin/api/src/main/yang/federation-plugin-manager.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-02-27T09:37:06Z",
+      "side": 1,
+      "message": "to be consistent add \"self\"",
+      "revId": "40530c234e442b38bf4d4d959d622f5c9ea930f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_047c46b4",
+        "filename": "vpnservice/federation-plugin/api/src/main/yang/federation-plugin-manager.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-02-27T09:37:06Z",
+      "side": 1,
+      "message": "do we really needs that?",
+      "revId": "40530c234e442b38bf4d4d959d622f5c9ea930f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c40a3e25",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginEgress.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-02-27T09:37:06Z",
+      "side": 1,
+      "message": "nice :)",
+      "revId": "40530c234e442b38bf4d4d959d622f5c9ea930f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
