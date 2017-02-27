@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_449c8e0f",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-27T07:17:27Z",
+      "side": 1,
+      "message": "We understand that is duplicity of information here..\n\nBut this will open up a situation where multiple modules will manage a cached owned and served only by Neutron VPN today.\nAnd that happens because of the order of notification for the same resource across multiple listeners isn\u0027t guaranteed.\n\nSo if add() here wants to fetch a resource from neutronVpnCache, it may be absent.",
+      "parentUuid": "fafc7978_847156aa",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 84
+      },
+      "revId": "f9c4c9ef78baa38fc8810a7d0c8e85d3fe877e63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e46942bf",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
         "patchSetId": 13
@@ -53,6 +77,30 @@
       "writtenOn": "2017-02-26T19:17:33Z",
       "side": 1,
       "message": "I guess this should also be concurrent if you expect qosPortsMap to be accessed cncurrently",
+      "range": {
+        "startLine": 93,
+        "startChar": 42,
+        "endLine": 93,
+        "endChar": 57
+      },
+      "revId": "f9c4c9ef78baa38fc8810a7d0c8e85d3fe877e63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_847036dd",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-27T07:17:27Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "fafc7978_e46942bf",
       "range": {
         "startLine": 93,
         "startChar": 42,
@@ -111,6 +159,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6465521d",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-27T07:17:27Z",
+      "side": 1,
+      "message": "This is responded in earlier comment.",
+      "parentUuid": "fafc7978_24606ace",
+      "range": {
+        "startLine": 155,
+        "startChar": 29,
+        "endLine": 155,
+        "endChar": 46
+      },
+      "revId": "f9c4c9ef78baa38fc8810a7d0c8e85d3fe877e63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_045d6615",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosPolicyChangeListener.java",
         "patchSetId": 13
@@ -122,6 +194,30 @@
       "writtenOn": "2017-02-26T19:17:33Z",
       "side": 1,
       "message": "could you explain why this explicit method is needed?\nIsn\u0027t it enough to implement add/update/delete methods from DTCL?",
+      "range": {
+        "startLine": 63,
+        "startChar": 16,
+        "endLine": 63,
+        "endChar": 33
+      },
+      "revId": "f9c4c9ef78baa38fc8810a7d0c8e85d3fe877e63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a46bbaef",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosPolicyChangeListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-27T07:17:27Z",
+      "side": 1,
+      "message": "request qos folks to answer this one !",
+      "parentUuid": "fafc7978_045d6615",
       "range": {
         "startLine": 63,
         "startChar": 16,
