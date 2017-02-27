@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1853093a",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2017-02-27T15:38:09Z",
+      "side": 1,
+      "message": "I have a similar concern: I don\u0027t believe that the ACL for SFC and SG can be combined since there could be a contradiction where SG doesn\u0027t allow forwarding (by lack of forwarding rule or by specific forwarding ruel, e.g. 192.168/24 and port 22) but SFC does (e.g. by a less specific rule: 192.168/24 without port restriction).",
+      "parentUuid": "fafc7978_4d9cb10f",
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2da84d1f",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 4
