@@ -20,7 +20,7 @@ public class BgpConstants {
     public static final String BGP_COUNTER_NBR_PKTS_RX = "BgpNeighborPacketsReceived";
     public static final String BGP_COUNTER_NBR_PKTS_TX = "BgpNeighborPacketsSent";
     public static final String BGP_COUNTER_RD_ROUTE_COUNT = "BgpRdRouteCount";
-    public static final String BGP_COUNTER_TOTAL_PFX = "BgpTotalPrefixes";
+    public static final String BGP_COUNTER_TOTAL_PFX = "BgpTotalPrefixes:Bgp_Total_Prefixes";
     public static final String BGP_DEF_LOG_LEVEL = "errors";
     public static final String BGP_DEF_LOG_FILE = "/var/log/bgp_debug.log";
     public static final long DEFAULT_ETH_TAG = 0L;
