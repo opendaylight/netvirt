@@ -17,6 +17,8 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMapKey;
@@ -33,15 +35,13 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
     private static final Logger LOG = LoggerFactory.getLogger(NeutronSubnetChangeListener.class);
     private final DataBroker dataBroker;
     private final NeutronvpnManager nvpnManager;
-    private final NeutronvpnNatManager nvpnNatManager;
     private final NeutronExternalSubnetHandler externalSubnetHandler;
 
     public NeutronSubnetChangeListener(final DataBroker dataBroker, final NeutronvpnManager neutronvpnManager,
-            final NeutronvpnNatManager neutronvpnNatMgr, final NeutronExternalSubnetHandler externalSubnetHandler) {
+            final NeutronExternalSubnetHandler externalSubnetHandler) {
         super(Subnet.class, NeutronSubnetChangeListener.class);
         this.dataBroker = dataBroker;
         this.nvpnManager = neutronvpnManager;
-        this.nvpnNatManager = neutronvpnNatMgr;
         this.externalSubnetHandler = externalSubnetHandler;
     }
 
@@ -73,10 +73,8 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
             return;
         }
         NeutronvpnUtils.addToSubnetCache(input);
-        handleNeutronSubnetCreated(input.getUuid(), String.valueOf(input.getCidr().getValue()), networkId,
-                input.getTenantId());
+        handleNeutronSubnetCreated(input, network);
         externalSubnetHandler.handleExternalSubnetAdded(network, input.getUuid(), null);
-
     }
 
     @Override
@@ -91,7 +89,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
                     input.getUuid().getValue(), network);
             return;
         }
-        handleNeutronSubnetDeleted(input.getUuid(), networkId, null);
+        handleNeutronSubnetDeleted(input.getUuid(), networkId);
         externalSubnetHandler.handleExternalSubnetRemoved(network, subnetId);
         NeutronvpnUtils.removeFromSubnetCache(input);
     }
@@ -102,14 +100,18 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         NeutronvpnUtils.addToSubnetCache(update);
     }
 
-    private void handleNeutronSubnetCreated(Uuid subnetId, String subnetIp, Uuid networkId, Uuid tenantId) {
-        nvpnManager.createSubnetmapNode(subnetId, subnetIp, tenantId, networkId);
-        if (networkId != null) {
-            createSubnetToNetworkMapping(subnetId, networkId);
-        }
+    private void handleNeutronSubnetCreated(Subnet subnet, Network network) {
+        Uuid networkId = network.getUuid();
+        ProviderTypes providerType = NeutronvpnUtils.getProviderNetworkType(network);
+        String segmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(network);
+        nvpnManager.createSubnetmapNode(subnet.getUuid(), String.valueOf(subnet.getCidr().getValue()),
+                subnet.getTenantId(), networkId,
+                (providerType != null) ? NetworkAttributes.NetworkType.valueOf(providerType.getName()) : null,
+                (segmentationId != null) ? Long.valueOf(segmentationId) : 0L);
+        createSubnetToNetworkMapping(subnet.getUuid(), networkId);
     }
 
-    private void handleNeutronSubnetDeleted(Uuid subnetId, Uuid networkId, Uuid tenantId) {
+    private void handleNeutronSubnetDeleted(Uuid subnetId, Uuid networkId) {
         Uuid vpnId = NeutronvpnUtils.getVpnForNetwork(dataBroker, networkId);
         if (vpnId != null) {
             nvpnManager.removeSubnetFromVpn(vpnId, subnetId);
@@ -125,8 +127,8 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
     private void createSubnetToNetworkMapping(Uuid subnetId, Uuid networkId) {
         try {
             InstanceIdentifier networkMapIdentifier = NeutronvpnUtils.buildNetworkMapIdentifier(networkId);
-            Optional<NetworkMap> optionalNetworkMap =
-                NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION, networkMapIdentifier);
+            Optional<NetworkMap> optionalNetworkMap = NeutronvpnUtils.read(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, networkMapIdentifier);
             NetworkMapBuilder nwMapBuilder = null;
             if (optionalNetworkMap.isPresent()) {
                 nwMapBuilder = new NetworkMapBuilder(optionalNetworkMap.get());
@@ -140,8 +142,8 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
             }
             subnetIdList.add(subnetId);
             nwMapBuilder.setSubnetIdList(subnetIdList);
-            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                networkMapIdentifier, nwMapBuilder.build());
+            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, networkMapIdentifier, nwMapBuilder
+                    .build());
             LOG.debug("Created subnet-network mapping for subnet {} network {}", subnetId.getValue(),
                     networkId.getValue());
         } catch (Exception e) {
@@ -155,8 +157,8 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
     private void deleteSubnetToNetworkMapping(Uuid subnetId, Uuid networkId) {
         try {
             InstanceIdentifier networkMapIdentifier = NeutronvpnUtils.buildNetworkMapIdentifier(networkId);
-            Optional<NetworkMap> optionalNetworkMap =
-                NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION, networkMapIdentifier);
+            Optional<NetworkMap> optionalNetworkMap = NeutronvpnUtils.read(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, networkMapIdentifier);
             if (optionalNetworkMap.isPresent()) {
                 NetworkMapBuilder nwMapBuilder = new NetworkMapBuilder(optionalNetworkMap.get());
                 List<Uuid> subnetIdList = nwMapBuilder.getSubnetIdList();
