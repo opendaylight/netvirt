@@ -14,8 +14,8 @@ module neutronvpn {
         list subnetmap {
             key id;
             leaf id {
-              type    yang:uuid;
-              description "UUID representing the subnet ";
+                type    yang:uuid;
+                description "UUID representing the subnet ";
             }
 
             leaf subnet-ip {
@@ -23,47 +23,44 @@ module neutronvpn {
                 description "Specifies the subnet IP in CIDR format";
             }
 
+            uses network-attributes;
+
             leaf tenant-id {
                 type    yang:uuid;
                 description "The UUID of the tenant that will own the subnet.";
             }
 
-            leaf network-id {
-              type    yang:uuid;
-              description "UUID representing the network ";
-            }
-
             leaf router-id {
-              type    yang:uuid;
-              description "router to which this subnet belongs";
+                type    yang:uuid;
+                description "router to which this subnet belongs";
             }
 
             leaf router-interface-name {
-              type    yang:uuid;
-              description "router interface on this subnet";
+                type    yang:uuid;
+                description "router interface on this subnet";
             }
 
             leaf router-intf-mac-address {
-              type    string;
-              description "router interface mac address on this subnet";
+                type    string;
+                description "router interface mac address on this subnet";
             }
 
             leaf-list router-interface-fixed-ips {
-              type    string;
-              description "fixed ip of the router interface on this subnet";
+                type    string;
+                description "fixed ip of the router interface on this subnet";
             }
 
             leaf vpn-id {
-              type    yang:uuid;
-              description "VPN to which this subnet belongs";
+                type    yang:uuid;
+                description "VPN to which this subnet belongs";
             }
 
             leaf-list port-list {
-              type yang:uuid;
+                type yang:uuid;
             }
 
             leaf-list direct-port-list{
-              type yang:uuid;
+                type yang:uuid;
             }
         }
     }
@@ -132,8 +129,31 @@ module neutronvpn {
           type    yang:uuid;
           description "UUID representing the network ";
         }
+
         leaf l3vni {
            type uint32;
+        }
+    }
+
+    grouping network-attributes {
+        leaf network-id {
+            type    yang:uuid;
+            description "UUID representing the network";
+        }
+        leaf segment-type {
+            type enumeration {
+                enum "flat";
+                enum "vlan";
+                enum "vxlan";
+                enum "gre";
+            }
+        }
+        leaf segmentation-id {
+            type uint32;
+            description "Optional. Isolated segment on the physical network.
+                If segment-type is vlan, this ID is a vlan identifier.
+                If segment-type is vxlan, this ID is a vni.
+                If segment-type is flat/gre, this ID is set to 0";
         }
     }
 
@@ -355,6 +375,7 @@ module neutronvpn {
             leaf elan-tag {
                 type uint32;
             }
+            uses network-attributes;
     }
 
     notification subnet-deleted-from-vpn{
