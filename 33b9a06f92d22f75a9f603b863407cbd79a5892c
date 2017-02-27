@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_870f9887",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractIngressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-27T13:49:07Z",
+      "side": 1,
+      "message": "good idea, moved into MetaDataUtil and lost the ElanUtil dependency",
+      "parentUuid": "fafc7978_e1a494a7",
+      "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_674f146c",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulIngressAclServiceImpl.java",
         "patchSetId": 6
@@ -47,6 +65,24 @@
       "writtenOn": "2017-02-27T09:38:18Z",
       "side": 1,
       "message": "1. Why do you use learn table in stateful acl code?\n2. Shouldn\u0027t this rule remain on the EGRESS_ACL_FILTER_TABLE?",
+      "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_38324df2",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulIngressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-27T13:49:07Z",
+      "side": 1,
+      "message": "1. Mistake, corrected thanks.\n2. No it should nowbe EGRESS_ACL_REMOTE_ACL_TABLE (which will goto EGRESS_ACL_FILTER_TABLE)",
+      "parentUuid": "fafc7978_674f146c",
       "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_784fb56b",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-27T13:49:07Z",
+      "side": 1,
+      "message": "Yeah, it\u0027s only duplicated for Learn now because of the different tables.. All the other implementations use a common function.",
+      "parentUuid": "fafc7978_875af827",
+      "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_67c9d425",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
         "patchSetId": 6
@@ -81,6 +135,24 @@
       "writtenOn": "2017-02-27T09:38:18Z",
       "side": 1,
       "message": "Don\u0027t we need to install default flows for remote acl table in transparent case?\nOr maybe it is better to not implement anything concerning remote acls for transparent impl (not changing this function)?\nIf you do want to implement the passing through acl remote table, it should be done for ingress side as well in the previous function.",
+      "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_585471fe",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-27T13:49:07Z",
+      "side": 1,
+      "message": "I think the transparent ACL doesn\u0027t even bind anymore, I just corrected this for completeness, it\u0027s basically dead code..",
+      "parentUuid": "fafc7978_67c9d425",
       "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -104,6 +176,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_985a5928",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-27T13:49:07Z",
+      "side": 1,
+      "message": "correct, thanks, wasn\u0027t intentional just some sed issues",
+      "parentUuid": "fafc7978_c7524066",
+      "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4767704d",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
         "patchSetId": 6
@@ -121,6 +211,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f869e5be",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-27T13:49:07Z",
+      "side": 1,
+      "message": "I think it\u0027s ok, I added the remote ACL default flow now, I think that confused you.\nIn any case need to check with Shlomi - since transparent doesn\u0027t bind at all anymore, this code could probably be removed.",
+      "parentUuid": "fafc7978_4767704d",
+      "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6762743f",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
         "patchSetId": 6
@@ -132,6 +240,24 @@
       "writtenOn": "2017-02-27T09:38:18Z",
       "side": 1,
       "message": "This code is for stateless, why do you use learn table consts?",
+      "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d866a1ec",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-27T13:49:07Z",
+      "side": 1,
+      "message": "mistake",
+      "parentUuid": "fafc7978_6762743f",
       "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
