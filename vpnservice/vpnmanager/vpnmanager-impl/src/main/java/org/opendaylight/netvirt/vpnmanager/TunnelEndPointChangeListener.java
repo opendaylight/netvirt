@@ -107,7 +107,7 @@ public class TunnelEndPointChangeListener
                             }
                             final int lPortTag = interfaceState.getIfIndex();
                             vpnInterfaceManager.processVpnInterfaceAdjacencies(dpnId, lPortTag, vpnName,
-                                    vpnInterfaceName, vpnId, writeConfigTxn, writeOperTxn, writeInvTxn);
+                                vpnInterfaceName, vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
                             List<CheckedFuture<Void, TransactionCommitFailedException>> checkedFutures =
                                     Arrays.asList(writeOperTxn.submit(),
                                             writeConfigTxn.submit(),
