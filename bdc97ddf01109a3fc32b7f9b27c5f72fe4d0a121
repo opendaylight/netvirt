@@ -375,6 +375,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9b3890d4",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-28T09:51:02Z",
+      "side": 1,
+      "message": "The counter request will be persisted in the configuration data store. Regarding switch and controller restarts - rules should be handled like any other rules by OpenFlowPlugin.",
+      "parentUuid": "fafc7978_6c0ef43c",
+      "range": {
+        "startLine": 214,
+        "startChar": 0,
+        "endLine": 214,
+        "endChar": 4
+      },
+      "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_25d088f5",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 6
