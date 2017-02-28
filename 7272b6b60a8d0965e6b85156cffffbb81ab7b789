@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fe8d4a7d",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-02-28T11:53:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a41e1a5d",
+      "revId": "7272b6b60a8d0965e6b85156cffffbb81ab7b789",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_24498a60",
         "filename": "docs/specs/vlan-provider-enhancement.rst",
         "patchSetId": 2
@@ -42,6 +60,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6847e077",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-02-28T11:53:04Z",
+      "side": 1,
+      "message": "There is no change in behavior of flat networks.",
+      "parentUuid": "fafc7978_24498a60",
+      "revId": "7272b6b60a8d0965e6b85156cffffbb81ab7b789",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_85978d39",
         "filename": "docs/specs/vlan-provider-enhancement.rst",
         "patchSetId": 2
@@ -53,6 +89,24 @@
       "writtenOn": "2017-02-28T04:22:42Z",
       "side": 1,
       "message": "what  is accomplished by the enhancement.. This is not clear!",
+      "revId": "7272b6b60a8d0965e6b85156cffffbb81ab7b789",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_de8a0663",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-02-28T11:53:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_85978d39",
       "revId": "7272b6b60a8d0965e6b85156cffffbb81ab7b789",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -82,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7ef15a00",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-02-28T11:53:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_644f126c",
+      "revId": "7272b6b60a8d0965e6b85156cffffbb81ab7b789",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_44548efe",
         "filename": "docs/specs/vlan-provider-enhancement.rst",
         "patchSetId": 2
@@ -105,6 +177,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_283838ee",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-02-28T11:53:04Z",
+      "side": 1,
+      "message": "Yes, this is related to punts from ELAN pipeline.",
+      "parentUuid": "fafc7978_44548efe",
+      "revId": "7272b6b60a8d0965e6b85156cffffbb81ab7b789",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_659c295e",
         "filename": "docs/specs/vlan-provider-enhancement.rst",
         "patchSetId": 2
@@ -116,6 +206,24 @@
       "writtenOn": "2017-02-28T04:22:42Z",
       "side": 1,
       "message": "what about unknown MAC learning case when VMs of the same network are available on two different OVS Switches.  Will both the switches continue to flood the controller the packets from their respective pipelines.  Will you have a designated switch in this case to decide which is the only OVS-Switch that punts to controller?",
+      "revId": "7272b6b60a8d0965e6b85156cffffbb81ab7b789",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fb1a7c6d",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-02-28T11:53:04Z",
+      "side": 1,
+      "message": "If there is vm port in the network on the switch, it will retain its existing behavior of punt to controller for mac learning.\nThere won\u0027t be any designated switch.",
+      "parentUuid": "fafc7978_659c295e",
       "revId": "7272b6b60a8d0965e6b85156cffffbb81ab7b789",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -168,6 +276,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fb5f1c0d",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-02-28T11:53:04Z",
+      "side": 1,
+      "message": "External attribute can be derived from Network information. \nI am not sure where the propagation might be needed. Can you let us know about any scenario.",
+      "parentUuid": "fafc7978_6476f2a5",
+      "revId": "7272b6b60a8d0965e6b85156cffffbb81ab7b789",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a5a1f195",
         "filename": "docs/specs/vlan-provider-enhancement.rst",
         "patchSetId": 2
@@ -185,6 +311,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bede226b",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-02-28T11:53:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a5a1f195",
+      "revId": "7272b6b60a8d0965e6b85156cffffbb81ab7b789",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e5a779a5",
         "filename": "docs/specs/vlan-provider-enhancement.rst",
         "patchSetId": 2
@@ -196,6 +340,24 @@
       "writtenOn": "2017-02-28T04:22:42Z",
       "side": 1,
       "message": "use OVS-Switch term everywhere evenly instead of mix-n-match with DPN keywordk.",
+      "revId": "7272b6b60a8d0965e6b85156cffffbb81ab7b789",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9edb5e7b",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-02-28T11:53:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e5a779a5",
       "revId": "7272b6b60a8d0965e6b85156cffffbb81ab7b789",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
