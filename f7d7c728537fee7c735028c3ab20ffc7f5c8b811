@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_cf408ea7",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-02-28T17:53:48Z",
+      "side": 1,
+      "message": "Is the use of VXGPE or VXLAN as the SFC encapsulation independent of the classification API?\nThat is, will this classifier support both types of encapsulation?  and, does the encapsulation type get taken/derived from the RSP?",
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ef48f2b4",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-02-28T17:53:48Z",
+      "side": 1,
+      "message": "SFC can render to VPP nodes - but I suppose Netvirt will also need VPP support before the classifier can direct traffic to chains rendered on VPP nodes. (an effort beyond the scope of this spec no doubt)\n\nPerhaps it would be good to briefly clarify the scope of supported southbound nodes types.",
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4d9cb10f",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 4
