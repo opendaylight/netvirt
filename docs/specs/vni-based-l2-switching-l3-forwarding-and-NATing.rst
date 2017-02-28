@@ -619,141 +619,152 @@ SNAT to DNAT
 YANG changes
 ------------
 
-* A new leaf element will be added to neutronvpn-config container in neutronvpn-config.yang to
-  accept inputs for the ``opendaylight-vni-ranges`` pool from the configurator via the
-  corresponding exposed REST API. In case this is not defined, the default value defined in
-  ``netvirt-neutronvpn-config.xml`` will be used to create the ``opendaylight-vni-ranges`' pool.
+* ``opendaylight-vni-ranges`` and ``enforce-openstack-semantics`` leaf elements will be added to
+  neutronvpn-config container in ``neutronvpn-config.yang``:
 
-  .. code-block:: none
-     :caption: neutronvpn-config.yang
-     :emphasize-lines: 5-8
+  + ``opendaylight-vni-ranges`` will be introduced to accept inputs for the VNI range pool from
+    the configurator via the corresponding exposed REST API. In case this is not defined, the
+    default value defined in ``netvirt-neutronvpn-config.xml`` will be used to create this pool.
 
-     container neutronvpn-config {
-         config true;
-         ...
-         ...
-         leaf opendaylight-vni-ranges {
-             type string;
-             default "70000:99999";
-         }
-     }
+  + ``enforce-openstack-semantics`` will be introduced to have the flexibility to enable
+    or disable OpenStack semantics for this feature. It will be defaulted to true, meaning these
+    semantics will be enforced by default. Once this feature gets stabilized and the semantics are
+    in place to use VNIs on the wire for BGPVPN based forwarding too, this config can be
+    permanently removed if deemed fit.
+
+    .. code-block:: none
+       :caption: neutronvpn-config.yang
+       :emphasize-lines: 5-12
+
+       container neutronvpn-config {
+           config true;
+           ...
+           ...
+           leaf opendaylight-vni-ranges {
+               type string;
+               default "70000:99999";
+           }
+           leaf enforce-openstack-semantics {
+               type boolean;
+               default true;
+           }
+       }
 
 * Provider network-type and provider segmentation-ID need to be propagated to FIB Manager to manipulate
   flows based on the same. Hence:
 
-  #. A new grouping ``network-attributes`` will be introduced in ``neutronvpn.yang`` to hold
-     network type and segmentation ID. This grouping will replace the leaf-node
-     ``network-id`` in  ``subnetmaps`` MD-SAL configuration datastore:
+  + A new grouping ``network-attributes`` will be introduced in ``neutronvpn.yang`` to hold
+    network type and segmentation ID. This grouping will replace the leaf-node
+    ``network-id`` in  ``subnetmaps`` MD-SAL configuration datastore:
 
-     .. code-block:: none
-        :caption: neutronvpn.yang
-        :emphasize-lines: 1-27
+    .. code-block:: none
+       :caption: neutronvpn.yang
+       :emphasize-lines: 1-27
 
-        grouping network-attributes {
-            leaf network-id {
-                type    yang:uuid;
-                description "UUID representing the network";
-            }
-            leaf network-type {
-                type enumeration {
-                    enum "flat";
-                    enum "vlan";
-                    enum "vxlan";
-                    enum "gre";
-                }
-            }
-            leaf segmentation-id {
-                type uint32;
-                description "Optional. Isolated segment on the physical network.
-                    If segment-type is vlan, this ID is a vlan identifier.
-                    If segment-type is vxlan, this ID is a vni.
-                    If segment-type is flat/gre, this ID is set to 0";
-            }
-        }
+       grouping network-attributes {
+           leaf network-id {
+               type    yang:uuid;
+               description "UUID representing the network";
+           }
+           leaf network-type {
+               type enumeration {
+                   enum "flat";
+                   enum "vlan";
+                   enum "vxlan";
+                   enum "gre";
+               }
+           }
+           leaf segmentation-id {
+               type uint32;
+               description "Optional. Isolated segment on the physical network.
+                   If segment-type is vlan, this ID is a vlan identifier.
+                   If segment-type is vxlan, this ID is a vni.
+                   If segment-type is flat/gre, this ID is set to 0";
+           }
+       }
 
-        container subnetmaps {
-            ...
-            ...
-            uses network-attributes;
-        }
+       container subnetmaps {
+           ...
+           ...
+           uses network-attributes;
+       }
 
-  #. These attributes will be propagated upon addition of a router-interface or addition of a
-     subnet to a BGPVPN to VPN Manager module via the ``subnet-added-to-vpn`` notification
-     modelled in ``neutronvpn.yang``. Hence, the following node will be added:
+  + These attributes will be propagated upon addition of a router-interface or addition of a
+    subnet to a BGPVPN to VPN Manager module via the ``subnet-added-to-vpn`` notification
+    modelled in ``neutronvpn.yang``. Hence, the following node will be added:
 
-     .. code-block:: none
-        :caption: neutronvpn.yang
-        :emphasize-lines: 5
+    .. code-block:: none
+       :caption: neutronvpn.yang
+       :emphasize-lines: 5
 
-        notification subnet-added-to-vpn {
-            description "new subnet added to vpn";
-            ...
-            ...
-            uses network-attributes;
-        }
+       notification subnet-added-to-vpn {
+           description "new subnet added to vpn";
+           ...
+           ...
+           uses network-attributes;
+       }
 
-  #. VpnSubnetRouteHandler will act on these notifications and store these attributes in
-     ``subnet-op-data`` MD-SAL operational datastore as described below. FIB Manager will get to
-     retrieve the ``subnetID`` from the primary adjacency of the concerned VPN interface. This
-     ``subnetID`` will be used as the key to retrieve ``network-attributes`` from ``subnet-op-data``
-     datastore.
+  + VpnSubnetRouteHandler will act on these notifications and store these attributes in
+    ``subnet-op-data`` MD-SAL operational datastore as described below. FIB Manager will get to
+    retrieve the ``subnetID`` from the primary adjacency of the concerned VPN interface. This
+    ``subnetID`` will be used as the key to retrieve ``network-attributes`` from ``subnet-op-data``
+    datastore.
 
-     .. code-block:: none
-        :caption: odl-l3vpn.yang
-        :emphasize-lines: 1-10
+    .. code-block:: none
+       :caption: odl-l3vpn.yang
+       :emphasize-lines: 1-10
 
-        import neutronvpn {
-              prefix nvpn;
-              revision-date "2015-06-02";
-        }
+       import neutronvpn {
+             prefix nvpn;
+             revision-date "2015-06-02";
+       }
 
-        container subnet-op-data {
-            ...
-            ...
-            uses nvpn:network-attributes;
-        }
+       container subnet-op-data {
+           ...
+           ...
+           uses nvpn:network-attributes;
+       }
 
-  #. ``subnetID`` and ``nat-prefix`` leaf elements will be added to ``prefix-to-interface``
-     container in ``odl-l3vpn.yang``:
+* ``subnetID`` and ``nat-prefix`` leaf elements will be added to ``prefix-to-interface``
+  container in ``odl-l3vpn.yang``:
 
-     .. code-block:: none
-        :caption: odl-l3vpn.yang
-        :emphasize-lines: 10-16
+  + For NAT use-cases where the VRF entry is not always associated with a VPN interface (eg. for
+    NAT entries such as floating IP and  router-gateway-IPs for external VLAN / flat networks),
+    ``subnetID`` leaf element will be added to make it possible to retrieve the
+    ``network-attributes``.
 
-        container prefix-to-interface {
-            config false;
-            list vpn-ids {
-                key vpn-id;
-                leaf vpn-id {type uint32;}
-                list prefixes {
-                    key ip_address;
-                    ...
-                    ...
-                    leaf subnet-id {
-                        type yang:uuid;
-                    }
-                    leaf nat-prefix {
-                        type boolean;
-                        default false;
-                    }
-                }
-            }
-        }
+  + To distinguish a non-NAT prefix from a NAT prefix, ``nat-prefix`` leaf element will be
+    added. This is a boolean attribute indicating whether the prefix is a NAT prefix (meaning a
+    floating IP, or an external-fixed-ip of a router-gateway). The VRFEntry corresponding to
+    the NAT prefix entries here may carry both the ``MPLS label`` and the ``Internet VPN VNI``.
+    For SNAT-to-DNAT within the datacenter, where the Internet VPN contains an MPLSOverGRE
+    based external network, this VRF entry will publish the ``MPLS label`` to BGP while the
+    ``Internet VPN VNI`` (also known as ``L3VNI``) will be used to carry intra-DC traffic on
+    the external segment within the datacenter.
 
+  .. code-block:: none
+     :caption: odl-l3vpn.yang
+     :emphasize-lines: 10-16
 
-     + For NAT use-cases where the VRF entry is not always associated with a VPN interface (eg. for
-       NAT entries such as floating IP and  router-gateway-IPs for external VLAN / flat networks),
-       ``subnetID`` leaf element will be added to make it possible to retrieve the
-       ``network-attributes``.
-
-     + To distinguish a non-NAT prefix from a NAT prefix, ``nat-prefix`` leaf element will be
-       added. This is a boolean attribute indicating whether the prefix is a NAT prefix (meaning a
-       floating IP, or an external-fixed-ip of a router-gateway). The VRFEntry corresponding to
-       the NAT prefix entries here may carry both the ``MPLS label`` and the ``Internet VPN VNI``.
-       For SNAT-to-DNAT within the datacenter, where the Internet VPN contains an MPLSOverGRE
-       based external network, this VRF entry will publish the ``MPLS label`` to BGP while the
-       ``Internet VPN VNI`` (also known as ``L3VNI``) will be used to carry intra-DC traffic on
-       the external segment within the datacenter.
+     container prefix-to-interface {
+         config false;
+         list vpn-ids {
+             key vpn-id;
+             leaf vpn-id {type uint32;}
+             list prefixes {
+                 key ip_address;
+                 ...
+                 ...
+                 leaf subnet-id {
+                     type yang:uuid;
+                 }
+                 leaf nat-prefix {
+                     type boolean;
+                     default false;
+                 }
+             }
+         }
+     }
 
 Configuration impact
 --------------------
