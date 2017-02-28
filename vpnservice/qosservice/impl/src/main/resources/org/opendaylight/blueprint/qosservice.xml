@@ -2,12 +2,11 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
            odl:use-default-for-reference-types="true">
-
     <reference id="dataBroker"
                interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
                odl:type="default" />
-   <!-- <reference id="mdsalUtils"
-               interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" /> -->
+    <reference id="mdsalUtils"
+               interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
     <reference id="neutronvpnManager"
                interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" />
     <odl:rpc-service id="odlInterfaceRpcService"
@@ -19,6 +18,7 @@
         <argument ref="dataBroker" />
         <argument ref="neutronvpnManager" />
         <argument ref="odlInterfaceRpcService" />
+        <argument ref="mdsalUtils" />
     </bean>
 
     <bean id="QosNeutronNetworkChangeListener"
@@ -27,6 +27,7 @@
         <argument ref="dataBroker" />
         <argument ref="neutronvpnManager" />
         <argument ref="odlInterfaceRpcService" />
+        <argument ref="mdsalUtils" />
     </bean>
 
     <bean id="QosNeutronPortChangeListener"
@@ -35,5 +36,14 @@
         <argument ref="dataBroker" />
         <argument ref="neutronvpnManager" />
         <argument ref="odlInterfaceRpcService" />
+        <argument ref="mdsalUtils" />
     </bean>
+
+    <bean id="QosNodeListener"
+          class="org.opendaylight.netvirt.qosservice.QosNodeListener"
+          init-method="init" destroy-method="close">
+        <argument ref="dataBroker" />
+        <argument ref="mdsalUtils"/>
+    </bean>
+
 </blueprint>
