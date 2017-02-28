@@ -19,6 +19,86 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_39bd2cb8",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-28T13:52:41Z",
+      "side": 1,
+      "message": "this is very vague... does each OVS port have a different pool? where is this association in represented in the yang?",
+      "range": {
+        "startLine": 22,
+        "startChar": 111,
+        "endLine": 22,
+        "endChar": 179
+      },
+      "revId": "30d7be8cb466ba7c08e711b734452fdf09304bcf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b9c8fc55",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-28T13:52:41Z",
+      "side": 1,
+      "message": "this section should be the main part of the spec, you can\u0027t leave it empty",
+      "revId": "30d7be8cb466ba7c08e711b734452fdf09304bcf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f943a4ac",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-28T13:52:41Z",
+      "side": 1,
+      "message": "Could you emphasize on this? Is this the same vrf-id as used in the l3vpn pipeline? if not, how does this classifier generated?",
+      "range": {
+        "startLine": 35,
+        "startChar": 87,
+        "endLine": 35,
+        "endChar": 94
+      },
+      "revId": "30d7be8cb466ba7c08e711b734452fdf09304bcf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3996cc3f",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-28T13:52:41Z",
+      "side": 1,
+      "message": "you need to mention in which yang module this container will reside in",
+      "revId": "30d7be8cb466ba7c08e711b734452fdf09304bcf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c7d9a0f4",
         "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
         "patchSetId": 1
@@ -30,6 +110,23 @@
       "writtenOn": "2017-02-27T09:33:30Z",
       "side": 1,
       "message": "please find a better name for this",
+      "revId": "30d7be8cb466ba7c08e711b734452fdf09304bcf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_798694dc",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-28T13:52:41Z",
+      "side": 1,
+      "message": "consider using the genius id-manager for management of allocated/released ips",
       "revId": "30d7be8cb466ba7c08e711b734452fdf09304bcf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
