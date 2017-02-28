@@ -55,7 +55,8 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
         for (String gwMacAddress: macAddresses) {
-            VpnUtil.addGwMacIntoTx(mdsalManager, gwMacAddress, writeTx, addOrRemove, vpnId, dpId);
+            VpnUtil.addGwMacIntoTx(mdsalManager, gwMacAddress, writeTx, addOrRemove, vpnId, dpId,
+                    VpnConstants.INVALID_ID);
         }
         writeTx.submit();
     }

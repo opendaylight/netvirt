@@ -44,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpPortInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
@@ -54,6 +55,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMappingKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -326,7 +329,21 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         return extNwId;
     }
 
-    private long getVpnId(Uuid extNwId) {
+    private long getVpnId(Uuid extNwId, Uuid floatingIpExternalId) {
+        InstanceIdentifier<FloatingIpIdToPortMapping> floatingIpIdMappingId = InstanceIdentifier
+                .builder(FloatingIpPortInfo.class).child(FloatingIpIdToPortMapping.class,
+                new FloatingIpIdToPortMappingKey(floatingIpExternalId)).build();
+        Optional<FloatingIpIdToPortMapping> floatingIpIdMapOp = NatUtil
+                .read(dataBroker, LogicalDatastoreType.CONFIGURATION, floatingIpIdMappingId);
+        if (floatingIpIdMapOp.isPresent()) {
+            Uuid subnetId = floatingIpIdMapOp.get().getFloatingIpPortSubnetId();
+            long vpnId = NatUtil.getVpnId(dataBroker, subnetId.getValue());
+            if (vpnId != NatConstants.INVALID_ID) {
+                LOG.debug("Got vpnId {} for floatingIpExternalId {}", vpnId, floatingIpExternalId);
+                return vpnId;
+            }
+        }
+
         InstanceIdentifier<Networks> nwId = InstanceIdentifier.builder(ExternalNetworks.class).child(Networks.class,
                 new NetworksKey(extNwId)).build();
         Optional<Networks> nw = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, nwId);
@@ -423,7 +440,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             LOG.error("NAT Service : NAT flow entries will not be installed {}", mapping);
             return;
         }
-        long vpnId = getVpnId(extNwId);
+        long vpnId = getVpnId(extNwId, mapping.getExternalId());
         if (vpnId < 0) {
             LOG.error("NAT Service : No VPN associated with Ext nw {}. Unable to create SNAT table entry "
                     + "for fixed ip {}", extNwId, mapping.getInternalIp());
@@ -457,7 +474,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             //routerId = associatedVpnId;
         }
 
-        long vpnId = getVpnId(externalNetworkId);
+        long vpnId = getVpnId(externalNetworkId, mapping.getExternalId());
         if (vpnId < 0) {
             LOG.error("NAT Service : Unable to create SNAT table entry for fixed ip {}", internalIp);
             return;
@@ -482,7 +499,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
         long associatedVpnId = NatUtil.getVpnId(dataBroker, associatedVPN);
         LOG.debug("NAT Service : Associated VPN Id {} for router {}", associatedVpnId, routerName);
-        long vpnId = getVpnId(externalNetworkId);
+        long vpnId = getVpnId(externalNetworkId, mapping.getExternalId());
         if (vpnId < 0) {
             LOG.error("NAT Service : Unable to create SNAT table entry for fixed ip {}", internalIp);
             return;
@@ -531,7 +548,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                 interfaceName);
             return;
         }
-        long vpnId = getVpnId(extNwId);
+        long vpnId = getVpnId(extNwId, mapping.getExternalId());
         if (vpnId < 0) {
             LOG.error("NAT Service : No VPN associated with ext nw {}. Unable to delete SNAT table "
                 + "entry for fixed ip {}", extNwId, internalIp);
