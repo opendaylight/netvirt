@@ -10,18 +10,27 @@ package org.opendaylight.netvirt.aclservice.utils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.Futures;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.Assert;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.testutils.AsyncEventsWaiter;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
+import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
@@ -40,7 +49,11 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.DestinationPortRangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.SourcePortRangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceBuilder;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class AclServiceTestUtils {
 
@@ -167,6 +180,39 @@ public class AclServiceTestUtils {
         if (entityOwnerCache != null) {
             entityOwnerCache.put(entityName, true);
         }
+
+    }
+
+    public static void prepareElanTag(ReadOnlyTransaction mockReadTx, Long elanTag) {
+        InstanceIdentifier<ElanInterface> elanInterfaceKey =
+                AclServiceUtils.getElanInterfaceConfigurationDataPathId(null);
+        ElanInterfaceBuilder elanInterfaceBuilder = new ElanInterfaceBuilder();
+        when(mockReadTx.read(LogicalDatastoreType.CONFIGURATION, elanInterfaceKey))
+                .thenReturn(Futures.immediateCheckedFuture(Optional.of(elanInterfaceBuilder.build())));
+
+        InstanceIdentifier<ElanInstance> elanInstanceKey = AclServiceUtils.getElanInstanceConfigurationDataPath(null);
+        ElanInstanceBuilder elanInstanceBuilder = new ElanInstanceBuilder();
+        elanInstanceBuilder.setElanTag(elanTag);
+        when(mockReadTx.read(LogicalDatastoreType.CONFIGURATION, elanInstanceKey))
+                .thenReturn(Futures.immediateCheckedFuture(Optional.of(elanInstanceBuilder.build())));
+    }
+
+    public static void waitABit(AsyncEventsWaiter asyncEventsWaiter) throws InterruptedException {
+        Thread.sleep(200);
+        asyncEventsWaiter.awaitEventsConsumption();
+    }
+
+    public static FlowEntity verifyMatchInfoInSomeFlow(MethodInvocationParamSaver<Future<?>> installFlowValueSaver,
+            NxMatchInfo match) {
+        for (int i = 0; i < installFlowValueSaver.getNumOfInvocations(); i++) {
+            FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(i).get(1);
+            if (flow.getMatchInfoList().contains(match)) {
+                return flow;
+            }
+        }
+
+        fail();
+        return null;
 
     }
 

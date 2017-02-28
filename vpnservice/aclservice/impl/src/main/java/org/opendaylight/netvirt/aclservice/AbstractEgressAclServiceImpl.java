@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -24,11 +26,14 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchArpSha;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
+import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
@@ -189,10 +194,10 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
         Map<String,List<MatchInfoBase>> flowMap = null;
         if (aceType instanceof AceIp) {
             flowMap = AclServiceOFFlowBuilder.programIpFlow(matches);
-            if (syncAllowedAddresses != null) {
-                flowMap = AclServiceUtils.getFlowForAllowedAddresses(syncAllowedAddresses, flowMap, false);
-            } else if (aceAttr.getRemoteGroupId() != null) {
+            if (aceAttr.getRemoteGroupId() != null) {
                 flowMap = aclServiceUtils.getFlowForRemoteAcl(aceAttr.getRemoteGroupId(), portId, flowMap, false);
+            } else if (syncAllowedAddresses != null) {
+                flowMap = AclServiceUtils.getFlowForAllowedAddresses(syncAllowedAddresses, flowMap, false);
             }
         }
         if (null == flowMap) {
@@ -201,6 +206,68 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
         }
         for (String flowName : flowMap.keySet()) {
             syncSpecificAclFlow(dpId, lportTag, addOrRemove, ace, portId, flowMap, flowName);
+        }
+    }
+
+    @Override
+    protected void writeCurrentAclForRemoteAcls(Uuid acl, int addOrRemove, Long elanTag, AllowedAddressPairs ip,
+            BigInteger aclId) {
+        List<MatchInfoBase> flowMatches = new ArrayList<>();
+        flowMatches.addAll(AclServiceUtils.buildIpAndElanSrcMatch(elanTag, ip, dataBroker));
+
+        List<InstructionInfo> instructions = new ArrayList<>();
+
+        InstructionWriteMetadata writeMetatdata =
+                new InstructionWriteMetadata(aclId, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID);
+        instructions.add(writeMetatdata);
+        instructions.add(new InstructionGotoTable(getEgressAclFilterTable()));
+
+        String flowNameAdded = "Acl_Filter_Egress_" + new String(ip.getIpAddress().getValue()) + "_" + elanTag;
+
+        Map<String, Set<AclInterface>> mapAclWithPortSet = aclDataUtil.getRemoteAclInterfaces(acl);
+        Set<BigInteger> dpns = collectDpns(mapAclWithPortSet);
+        for (BigInteger dpId : dpns) {
+            LOG.debug("writing rule for ip {} and rlanId {} in egress acl remote table {}", getIpPrefixOrAddress(ip),
+                    elanTag, getEgressAclRemoteAclTable());
+            syncFlow(dpId, getEgressAclRemoteAclTable(), flowNameAdded, AclConstants.NO_PRIORITY, "ACL", 0, 0,
+                    AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
+        }
+    }
+
+    protected short getEgressAclFilterTable() {
+        return NwConstants.EGRESS_ACL_FILTER_TABLE;
+    }
+
+    protected short getEgressAclRemoteAclTable() {
+        return NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE;
+    }
+
+    @Override
+    protected void writeRemoteAclForCurrentAclForInterface(BigInteger dpId, int addOrRemove, AclInterface inter,
+            BigInteger aclId, Long elanTag) {
+        for (AllowedAddressPairs ip : inter.getAllowedAddressPairs()) {
+            if (!AclServiceUtils.isNotIpv4AllNetwork(ip)) {
+                continue;
+            }
+            List<MatchInfoBase> flowMatches = new ArrayList<>();
+            flowMatches.addAll(AclServiceUtils.buildIpAndElanSrcMatch(elanTag, ip, dataBroker));
+
+            List<InstructionInfo> instructions = new ArrayList<>();
+
+            InstructionWriteMetadata writeMetatdata =
+                    new InstructionWriteMetadata(aclId, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID);
+            instructions.add(writeMetatdata);
+            instructions.add(new InstructionGotoTable(getEgressAclFilterTable()));
+
+            String flowNameAdded =
+                    "Acl_Filter_Egress_" + new String(ip.getIpAddress().getValue()) + "_" + elanTag;
+
+            if (dpId != null) {
+                LOG.debug("writing rule for ip {} and elanId {} in egress acl remote table {}",
+                        getIpPrefixOrAddress(ip), elanTag, getEgressAclRemoteAclTable());
+                syncFlow(dpId, getEgressAclRemoteAclTable(), flowNameAdded, AclConstants.NO_PRIORITY, "ACL", 0,
+                        0, AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
+            }
         }
     }
 
