@@ -2264,10 +2264,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 SessionAddress externalAddress =
                     naptManager.getExternalAddressMapping(routerId, internalAddress, protocol);
                 long internetVpnid = NatUtil.getVpnId(dataBroker, routerId);
-                NaptEventHandler.buildAndInstallNatFlows(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, internetVpnid,
-                    routerId, bgpVpnId, internalAddress, externalAddress, protocol, extGwMacAddress);
                 NaptEventHandler.buildAndInstallNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, internetVpnid,
                     routerId, bgpVpnId, externalAddress, internalAddress, protocol, extGwMacAddress);
+                NaptEventHandler.buildAndInstallNatFlows(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, internetVpnid,
+                        routerId, bgpVpnId, internalAddress, externalAddress, protocol, extGwMacAddress);
             }
         }
     }

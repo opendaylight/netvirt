@@ -547,21 +547,6 @@ public class NaptSwitchHA {
 
                 //checking naptSwitch status before installing flows
                 if (getSwitchStatus(newNaptSwitch)) {
-                    //Install the flow in newNaptSwitch Outbound NAPT table.
-                    try {
-                        NaptEventHandler.buildAndInstallNatFlows(newNaptSwitch, NwConstants.OUTBOUND_NAPT_TABLE,
-                            vpnId, routerId, bgpVpnId, sourceAddress, externalAddress, proto, extGwMacAddress);
-                    } catch (Exception ex) {
-                        LOG.error("Failed to add flow in OUTBOUND_NAPT_TABLE for routerid {} dpnId {} "
-                            + "ipport {}:{} proto {} extIpport {}:{} BgpVpnId {} - {}",
-                            routerId, newNaptSwitch, internalIpAddress,
-                            intportnum, proto, externalAddress, extportNumber, bgpVpnId, ex);
-                        return false;
-                    }
-                    LOG.debug("Successfully installed a flow in Primary switch {} Outbound NAPT table for router {} "
-                            + "ipport {}:{} proto {} extIpport {}:{} BgpVpnId {}",
-                        newNaptSwitch, routerId, internalIpAddress,
-                        intportnum, proto, externalAddress, extportNumber, bgpVpnId);
                     //Install the flow in newNaptSwitch Inbound NAPT table.
                     try {
                         NaptEventHandler.buildAndInstallNatFlows(newNaptSwitch, NwConstants.INBOUND_NAPT_TABLE,
@@ -577,6 +562,21 @@ public class NaptSwitchHA {
                             + "ipport {}:{} proto {} extIpport {}:{} BgpVpnId {}",
                         newNaptSwitch, routerId, internalIpAddress,
                         intportnum, proto, externalAddress, extportNumber, bgpVpnId);
+                    //Install the flow in newNaptSwitch Outbound NAPT table.
+                    try {
+                        NaptEventHandler.buildAndInstallNatFlows(newNaptSwitch, NwConstants.OUTBOUND_NAPT_TABLE,
+                                vpnId, routerId, bgpVpnId, sourceAddress, externalAddress, proto, extGwMacAddress);
+                    } catch (Exception ex) {
+                        LOG.error("Failed to add flow in OUTBOUND_NAPT_TABLE for routerid {} dpnId {} "
+                                        + "ipport {}:{} proto {} extIpport {}:{} BgpVpnId {} - {}",
+                                routerId, newNaptSwitch, internalIpAddress,
+                                intportnum, proto, externalAddress, extportNumber, bgpVpnId, ex);
+                        return false;
+                    }
+                    LOG.debug("Successfully installed a flow in Primary switch {} Outbound NAPT table for router {} "
+                                    + "ipport {}:{} proto {} extIpport {}:{} BgpVpnId {}",
+                            newNaptSwitch, routerId, internalIpAddress,
+                            intportnum, proto, externalAddress, extportNumber, bgpVpnId);
                 } else {
                     LOG.error("NewNaptSwitch {} gone down while installing flows from oldNaptswitch {}",
                         newNaptSwitch, oldNaptSwitch);
