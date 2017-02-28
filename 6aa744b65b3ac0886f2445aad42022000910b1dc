@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_0f1e16bb",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 778,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-28T17:43:34Z",
+      "side": 1,
+      "message": "in addPrefixToBgp() i had try-catch only for bgp calls.  Here since you wrapping the entire method, can we do the same in addPrefixToBgp() too.",
+      "revId": "6aa744b65b3ac0886f2445aad42022000910b1dc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6f0fe288",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 782,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-28T17:43:34Z",
+      "side": 1,
+      "message": "please print here the prefix, rd and vpnname.",
+      "revId": "6aa744b65b3ac0886f2445aad42022000910b1dc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
