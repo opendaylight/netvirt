@@ -114,6 +114,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         String internalIp = mapping.getInternalIp();
         String externalIp = mapping.getExternalIp();
         Uuid floatingIpId = mapping.getExternalId();
+        Uuid subnetId = NatUtil.getFloatingIpPortSubnetIdFromFloatingIpId(dataBroker, floatingIpId);
         String floatingIpPortMacAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
         final String vpnName = NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
         if (vpnName == null) {
@@ -160,8 +161,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     LOG.debug("Add Floating Ip {} , found associated to fixed port {}", externalIp, interfaceName);
                     if (floatingIpPortMacAddress != null) {
                         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-                        vpnManager.setupSubnetMacIntoVpnInstance(vpnName, floatingIpPortMacAddress, dpnId, writeTx,
-                            NwConstants.ADD_FLOW);
+                        vpnManager.setupSubnetMacIntoVpnInstance(vpnName, subnetId.getValue(), floatingIpPortMacAddress,
+                                dpnId, writeTx, NwConstants.ADD_FLOW);
                         vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerId,
                                 Collections.singleton(externalIp),
                             floatingIpPortMacAddress, dpnId, networkId, writeTx, NwConstants.ADD_FLOW);
@@ -206,7 +207,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         final String vpnName = NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
         String externalIp = mapping.getExternalIp();
         Uuid floatingIpId = mapping.getExternalId();
-
+        Uuid subnetId = NatUtil.getFloatingIpPortSubnetIdFromFloatingIpId(dataBroker, floatingIpId);
 
         if (vpnName == null) {
             LOG.info("No VPN associated with ext nw {} to handle remove floating ip configuration {} in router {}",
@@ -219,8 +220,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         String floatingIpPortMacAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
         if (floatingIpPortMacAddress != null) {
             WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, floatingIpPortMacAddress, dpnId, writeTx,
-                NwConstants.DEL_FLOW);
+            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, subnetId.getValue(), floatingIpPortMacAddress,
+                    dpnId, writeTx, NwConstants.DEL_FLOW);
             vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerId, Collections.singletonList(externalIp),
                 floatingIpPortMacAddress, dpnId, networkId, writeTx, NwConstants.DEL_FLOW);
             writeTx.submit();
