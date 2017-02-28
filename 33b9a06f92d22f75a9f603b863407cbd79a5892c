@@ -125,6 +125,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9eaebe2c",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulIngressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2017-02-28T12:47:50Z",
+      "side": 1,
+      "message": "Hmmm look at the line. you are adding ActionNxConntrack it is conntrack.... it is not only goto table",
+      "parentUuid": "fafc7978_9e387ed4",
+      "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_875af827",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
         "patchSetId": 6
