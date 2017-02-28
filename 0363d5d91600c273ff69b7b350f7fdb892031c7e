@@ -203,6 +203,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1b67804e",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-28T12:08:34Z",
+      "side": 1,
+      "message": "I have added description in the Alternatives section regarding getting the statistics from openflow rules.\nI\u0027ve also added a description of the work flow.",
+      "parentUuid": "fafc7978_de033140",
+      "range": {
+        "startLine": 37,
+        "startChar": 74,
+        "endLine": 37,
+        "endChar": 75
+      },
+      "revId": "0363d5d91600c273ff69b7b350f7fdb892031c7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_65ed70b7",
         "filename": "docs/specs/netvirt-statistics-spec.rst",
         "patchSetId": 14
