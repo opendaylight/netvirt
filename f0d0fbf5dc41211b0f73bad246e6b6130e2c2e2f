@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f9d564e5",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanDpnToTransportZoneListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-28T14:23:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c5a4f5a7",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "f0d0fbf5dc41211b0f73bad246e6b6130e2c2e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_45b805c8",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanDpnToTransportZoneListener.java",
         "patchSetId": 28
@@ -36,6 +60,30 @@
       "writtenOn": "2017-02-28T04:34:33Z",
       "side": 1,
       "message": "nitpick (logging guideline): This should be TRACE or print only the key or dpId. dataObjectModification is to long a data to be dumped in debug, which should be single line.\nhttps://wiki.opendaylight.org/view/BestPractices/Logging_Best_Practices",
+      "range": {
+        "startLine": 66,
+        "startChar": 12,
+        "endLine": 66,
+        "endChar": 17
+      },
+      "revId": "f0d0fbf5dc41211b0f73bad246e6b6130e2c2e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f9ec44bd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanDpnToTransportZoneListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-28T14:23:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_45b805c8",
       "range": {
         "startLine": 66,
         "startChar": 12,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_39324c5f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnDpnToTransportZoneListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-28T14:23:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_25bd01b8",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "f0d0fbf5dc41211b0f73bad246e6b6130e2c2e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_05c27d33",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnDpnToTransportZoneListener.java",
         "patchSetId": 28
@@ -88,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_99337861",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnDpnToTransportZoneListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-28T14:23:17Z",
+      "side": 1,
+      "message": "I agree, but putting this in vpnmanager requires some more changes because we should probably move TransportZoneNotificationUtil elsewhere.",
+      "parentUuid": "fafc7978_05c27d33",
+      "revId": "f0d0fbf5dc41211b0f73bad246e6b6130e2c2e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_85ae6d7f",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnDpnToTransportZoneListener.java",
         "patchSetId": 28
@@ -99,6 +189,30 @@
       "writtenOn": "2017-02-28T04:34:33Z",
       "side": 1,
       "message": "nitpick: same as in other file. debug or key only.",
+      "range": {
+        "startLine": 60,
+        "startChar": 12,
+        "endLine": 60,
+        "endChar": 17
+      },
+      "revId": "f0d0fbf5dc41211b0f73bad246e6b6130e2c2e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b93d9c2d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnDpnToTransportZoneListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-28T14:23:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_85ae6d7f",
       "range": {
         "startLine": 60,
         "startChar": 12,
@@ -134,6 +248,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_194788bd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnDpnToTransportZoneListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-28T14:23:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_65b389e9",
+      "range": {
+        "startLine": 63,
+        "startChar": 16,
+        "endLine": 63,
+        "endChar": 21
+      },
+      "revId": "f0d0fbf5dc41211b0f73bad246e6b6130e2c2e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c5cb5551",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnDpnToTransportZoneListener.java",
         "patchSetId": 28
@@ -145,6 +283,30 @@
       "writtenOn": "2017-02-28T04:34:33Z",
       "side": 1,
       "message": "same as above",
+      "range": {
+        "startLine": 83,
+        "startChar": 12,
+        "endLine": 83,
+        "endChar": 17
+      },
+      "revId": "f0d0fbf5dc41211b0f73bad246e6b6130e2c2e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5914709f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnDpnToTransportZoneListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-28T14:23:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c5cb5551",
       "range": {
         "startLine": 83,
         "startChar": 12,
@@ -180,6 +342,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3919acd7",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-28T14:23:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_45df650d",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 28
+      },
+      "revId": "f0d0fbf5dc41211b0f73bad246e6b6130e2c2e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_65ea69ad",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
         "patchSetId": 28
@@ -191,6 +377,30 @@
       "writtenOn": "2017-02-28T04:34:33Z",
       "side": 1,
       "message": "thank you for this :)",
+      "range": {
+        "startLine": 112,
+        "startChar": 11,
+        "endLine": 112,
+        "endChar": 16
+      },
+      "revId": "f0d0fbf5dc41211b0f73bad246e6b6130e2c2e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_990a5877",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-28T14:23:17Z",
+      "side": 1,
+      "message": "you are welcome",
+      "parentUuid": "fafc7978_65ea69ad",
       "range": {
         "startLine": 112,
         "startChar": 11,
@@ -226,6 +436,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_597bd0f4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-28T14:23:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e5d5b9e5",
+      "range": {
+        "startLine": 175,
+        "startChar": 30,
+        "endLine": 175,
+        "endChar": 67
+      },
+      "revId": "f0d0fbf5dc41211b0f73bad246e6b6130e2c2e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_250b418f",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/yang/elanmanager-config.yang",
         "patchSetId": 28
@@ -237,6 +471,24 @@
       "writtenOn": "2017-02-28T04:34:33Z",
       "side": 1,
       "message": "nitpick: description would be good to have.",
+      "revId": "f0d0fbf5dc41211b0f73bad246e6b6130e2c2e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f971e40c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/yang/elanmanager-config.yang",
+        "patchSetId": 28
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-28T14:23:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_250b418f",
       "revId": "f0d0fbf5dc41211b0f73bad246e6b6130e2c2e2f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -260,6 +512,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d9034040",
+        "filename": "vpnservice/features/pom.xml",
+        "patchSetId": 28
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-28T14:23:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_85fcad73",
+      "revId": "f0d0fbf5dc41211b0f73bad246e6b6130e2c2e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6501c969",
         "filename": "vpnservice/features/pom.xml",
         "patchSetId": 28
@@ -277,6 +547,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_19fae842",
+        "filename": "vpnservice/features/pom.xml",
+        "patchSetId": 28
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-28T14:23:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_6501c969",
+      "revId": "f0d0fbf5dc41211b0f73bad246e6b6130e2c2e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a5f6118d",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/yang/neutronvpn-config.yang",
         "patchSetId": 28
@@ -288,6 +576,24 @@
       "writtenOn": "2017-02-28T04:34:33Z",
       "side": 1,
       "message": "nitpick: whitespace",
+      "revId": "f0d0fbf5dc41211b0f73bad246e6b6130e2c2e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_999d380d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/yang/neutronvpn-config.yang",
+        "patchSetId": 28
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-28T14:23:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a5f6118d",
       "revId": "f0d0fbf5dc41211b0f73bad246e6b6130e2c2e2f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -317,6 +623,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_599750ec",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/yang/neutronvpn-config.yang",
+        "patchSetId": 28
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-28T14:23:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_05f0bd8f",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 5
+      },
+      "revId": "f0d0fbf5dc41211b0f73bad246e6b6130e2c2e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e5ec99bd",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/yang/neutronvpn-config.yang",
         "patchSetId": 28
@@ -328,6 +658,30 @@
       "writtenOn": "2017-02-28T04:34:33Z",
       "side": 1,
       "message": "nitpick: you didn\u0027t add these but would be good to address these and any other trailing whitespaces too.",
+      "range": {
+        "startLine": 21,
+        "startChar": 5,
+        "endLine": 21,
+        "endChar": 9
+      },
+      "revId": "f0d0fbf5dc41211b0f73bad246e6b6130e2c2e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_399c0c0f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/yang/neutronvpn-config.yang",
+        "patchSetId": 28
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-28T14:23:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e5ec99bd",
       "range": {
         "startLine": 21,
         "startChar": 5,
