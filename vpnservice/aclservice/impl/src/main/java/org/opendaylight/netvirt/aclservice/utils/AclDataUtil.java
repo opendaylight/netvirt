@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.aclservice.utils;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Singleton;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+
 
 @Singleton
 public class AclDataUtil {
@@ -36,6 +40,21 @@ public class AclDataUtil {
             } else {
                 interfaceList.add(port);
             }
+        }
+    }
+
+    public synchronized void addOrUpdateAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
+        for (Uuid acl : aclList) {
+            List<AclInterface> interfaceList = aclInterfaceMap.get(acl);
+            if (interfaceList == null) {
+                interfaceList = new ArrayList<>();
+                interfaceList.add(port);
+            } else {
+                Set<AclInterface> interfacesSet = Sets.newHashSet(interfaceList);
+                interfacesSet.add(port);
+                interfaceList = Lists.newArrayList(interfacesSet);
+            }
+            aclInterfaceMap.put(acl, interfaceList);
         }
     }
 
