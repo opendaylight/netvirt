@@ -154,13 +154,14 @@ public class NaptEventHandler {
                     return;
                 }
             }
-             // Build and install the NAPT translation flows in the Outbound and Inbound NAPT tables
+
+            // Build and install the NAPT translation flows in the Outbound and Inbound NAPT tables
             if (!naptEntryEvent.isPktProcessed()) {
                 // Added External Gateway MAC Address
+                buildAndInstallNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnId, routerId, bgpVpnId,
+                    externalAddress, internalAddress, protocol, extGwMacAddress);
                 buildAndInstallNatFlows(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, vpnId, routerId, bgpVpnId,
                         internalAddress, externalAddress, protocol, extGwMacAddress);
-                buildAndInstallNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnId, routerId, bgpVpnId,
-                        externalAddress, internalAddress, protocol, extGwMacAddress);
             }
 
             //Send Packetout - tcp or udp packets which got punted to controller.
