@@ -120,6 +120,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_0fef36ea",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-28T17:05:11Z",
+      "side": 1,
+      "message": "I would say it is better to use a different service than the one used today to check the priority for ACL-Security Groups in Genius dispatcher table (Genius pipeline)\nOne option is as you say using a new service (ACL-Classifier), but another option (not so smart) is using SFC Service. Apparently Classifier and SFC shall never collide at least while we use NSH. Maybe when introducing VxLAN encapsulation we might have some collisions between the classifer and SFC.",
+      "range": {
+        "startLine": 106,
+        "startChar": 31,
+        "endLine": 106,
+        "endChar": 37
+      },
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f8b0c544",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 4
@@ -277,6 +300,29 @@
         "startChar": 0,
         "endLine": 130,
         "endChar": 28
+      },
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8f0de6ea",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-02-28T17:05:11Z",
+      "side": 1,
+      "message": "Explain this is a different set of ITM tunnels than the ones currently used by Netvirt. As you say, for SFC we have to use vxlan-gpe, but Netvirt is using vxlan. As far as I know, it is not possible to change a VxLAN ITM tunnel to support GPE extension.\nOn the other hand, Netvirt is creating tunnels on demand and to my understanding SFC is expecting these set of tunnels is pre-created. If we follow this last approach for Netvirt classifier we are going to the general Netvirt approach, but on the other hand, it is easier to implement (maybe as a first step)",
+      "range": {
+        "startLine": 132,
+        "startChar": 55,
+        "endLine": 133,
+        "endChar": 7
       },
       "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
