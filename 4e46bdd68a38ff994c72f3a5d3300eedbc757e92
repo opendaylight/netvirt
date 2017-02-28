@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9e751ecd",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-28T13:19:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_68a880db",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_28895875",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-28T08:39:09Z",
       "side": 1,
       "message": "nit: s/requiered/required",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_68152048",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-28T13:19:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_28895875",
       "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3e1a327d",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-28T13:19:07Z",
+      "side": 1,
+      "message": "yes that\u0027s it",
+      "parentUuid": "fafc7978_c8decc6c",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a849c832",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 6
@@ -64,6 +118,24 @@
       "writtenOn": "2017-02-28T08:39:09Z",
       "side": 1,
       "message": "nit: s/exhanchanged/exchanged",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8810445a",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-28T13:19:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a849c832",
       "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_281f986d",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-28T13:19:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a81ee809",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_28c15854",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 6
@@ -98,6 +188,24 @@
       "writtenOn": "2017-02-28T08:39:09Z",
       "side": 1,
       "message": "The normal convention we follow in ODL is to use \"IPV6\" instead of IP6. Can you please use the same convention even here.",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e829109c",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-28T13:19:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_28c15854",
       "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_481adc7d",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-28T13:19:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c8e88ce4",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2896783f",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 6
@@ -132,6 +258,24 @@
       "writtenOn": "2017-02-28T08:39:09Z",
       "side": 1,
       "message": "Currently there is an active work going on to update the source mac to router-internal-interface-mac in this table (i.e., set: src-mac\u003drouter-intf-mac). I hope the same is applicable even for the BGPVPN use-case?",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b93f5cb3",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-28T13:19:07Z",
+      "side": 1,
+      "message": "i\u0027m afraid i don\u0027t understand why setting src-mac is important, can you explain ?",
+      "parentUuid": "fafc7978_2896783f",
       "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_599d90bb",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-28T13:19:07Z",
+      "side": 1,
+      "message": "yes, the flow will only differ at the level of the mpls tag pushed to the packet before being encapsulated in GRE  tunnel to DCGW",
+      "parentUuid": "fafc7978_48913c46",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_689c005e",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 6
@@ -166,6 +328,24 @@
       "writtenOn": "2017-02-28T08:39:09Z",
       "side": 1,
       "message": "hmmm....Here in Table 19, we normally check for \"dst-mac\u003drouter-internal-interface-mac\". But you have used \"vpn-subnet-gateway-mac-address\" - so I\u0027m confused on what this mac address is. Can you please map it to some Neutron port, so that we\u0027ll have some clarity on what we are matching?",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f9b3a44a",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-28T13:19:07Z",
+      "side": 1,
+      "message": "no problem, that dst-mac\u003drouter-internal-interface-mac is the value i was refering, so i can update it",
+      "parentUuid": "fafc7978_689c005e",
       "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_997a5875",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-28T13:19:07Z",
+      "side": 1,
+      "message": "dst-vm-ip-address stands for the ip address of vm in tenant subnet2 of datacenter2",
+      "parentUuid": "fafc7978_48b81cc8",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c8cb6c51",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 6
@@ -200,6 +398,24 @@
       "writtenOn": "2017-02-28T08:39:09Z",
       "side": 1,
       "message": "Just to clarify, you will be using this YANG only for BGPVPN use-case right and it will not have any effect for the FLAT/VLAN provider network use-case. Is this correct?",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d9c5008f",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-28T13:19:07Z",
+      "side": 1,
+      "message": "yes, an additional table for vpnv6 entries is required",
+      "parentUuid": "fafc7978_c8cb6c51",
       "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -223,6 +439,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3b288485",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-28T13:19:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e8be30ad",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e8d590e5",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 6
@@ -234,6 +468,24 @@
       "writtenOn": "2017-02-28T08:39:09Z",
       "side": 1,
       "message": "You did not capture how the external network/subnet is created.\n\nFirst of all, do we create an external network for the BGPVPN use-case?",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5e70d6db",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-28T13:19:07Z",
+      "side": 1,
+      "message": "The external network is not required to be setup by openstack. Because packets exchanged on that network are encapsulated into MPLSoGRE between dpn and dcgw",
+      "parentUuid": "fafc7978_e8d590e5",
       "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -257,6 +509,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b9f75cd2",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-28T13:19:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_48065c87",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_280b188f",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 6
@@ -268,6 +538,24 @@
       "writtenOn": "2017-02-28T08:39:09Z",
       "side": 1,
       "message": "nit: space",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_190148af",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-28T13:19:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_280b188f",
       "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -291,6 +579,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_592e3044",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-28T13:19:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_88fcc473",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a8f6e88c",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 6
@@ -302,6 +608,24 @@
       "writtenOn": "2017-02-28T08:39:09Z",
       "side": 1,
       "message": "Please update this URL to the modified one - ipv6-cvr-north-south",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1918281d",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-28T13:19:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a8f6e88c",
       "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
