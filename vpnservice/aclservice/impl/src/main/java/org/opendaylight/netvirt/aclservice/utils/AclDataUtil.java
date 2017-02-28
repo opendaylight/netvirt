@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.aclservice.utils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +35,26 @@ public class AclDataUtil {
                 interfaceList.add(port);
                 aclInterfaceMap.put(acl, interfaceList);
             } else {
+                interfaceList.add(port);
+            }
+        }
+    }
+
+    public synchronized void addOrUpdateAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
+        for (Uuid acl : aclList) {
+            List<AclInterface> interfaceList = aclInterfaceMap.get(acl);
+            if (interfaceList == null) {
+                interfaceList = new ArrayList<>();
+                interfaceList.add(port);
+                aclInterfaceMap.put(acl, interfaceList);
+            } else {
+                for (Iterator<AclInterface> itr = interfaceList.iterator(); itr.hasNext();) {
+                    AclInterface aclInterface = itr.next();
+                    if (aclInterface.getInterfaceId().equals(port.getInterfaceId())) {
+                        itr.remove();
+                    }
+
+                }
                 interfaceList.add(port);
             }
         }
