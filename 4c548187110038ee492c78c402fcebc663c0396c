@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_680fe088",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-28T09:12:23Z",
+      "side": 1,
+      "message": "if you donot need the parseBgpIpv4UnicastStatistics(), please remove the method.",
+      "revId": "4c548187110038ee492c78c402fcebc663c0396c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e871100d",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-28T09:12:23Z",
+      "side": 1,
+      "message": "shouldn\u0027t this be trace?",
+      "revId": "4c548187110038ee492c78c402fcebc663c0396c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
