@@ -69,6 +69,23 @@
       "revId": "4c548187110038ee492c78c402fcebc663c0396c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c88a4cbe",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 4922
+      },
+      "writtenOn": "2017-02-28T09:27:40Z",
+      "side": 1,
+      "message": "BgpConstant class has defined a constant for BGP_COUNTER_TOTAL_PFX. Can it be used or remove it from above as it will remain unused.",
+      "revId": "4c548187110038ee492c78c402fcebc663c0396c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
