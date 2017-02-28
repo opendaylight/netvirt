@@ -89,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e5001904",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulIngressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2017-02-28T06:36:28Z",
+      "side": 1,
+      "message": "2. As I understand the EGRESS_ACL_REMOTE_ACL_TABLE should only add acl_id metadata for any ip+elan_id. The conntrack and all the implementation logic should remain in EGRESS_ACL_FILTER_TABLE.",
+      "parentUuid": "fafc7978_38324df2",
+      "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_875af827",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
         "patchSetId": 6
