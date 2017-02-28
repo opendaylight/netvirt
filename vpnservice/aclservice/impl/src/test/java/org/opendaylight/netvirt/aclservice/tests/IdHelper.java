@@ -48,6 +48,12 @@ public class IdHelper {
         flowPriorityCacheMap.put("TCP_DESTINATION_352_65504Egress98785cc3048-abc3-43cc-89b3-377341426ac6", 1024);
         flowPriorityCacheMap.put("TCP_DESTINATION_384_65408Egress98785cc3048-abc3-43cc-89b3-377341426ac6", 1025);
         flowPriorityCacheMap.put("TCP_DESTINATION_768_65528Egress98785cc3048-abc3-43cc-89b3-377341426ac6", 1026);
+        flowPriorityCacheMap.put("ETHERnull_remoteACL_id_85cc3048-abc3-43cc-89b3-377341426ac5Ingress98785cc3048-abc3-43cc-89b3-377341426ac7", 61010);
+        flowPriorityCacheMap.put("UDP_DESTINATION_80_65535_remoteACL_id_85cc3048-abc3-43cc-89b3-377341426ac5Ingress98785cc3048-abc3-43cc-89b3-377341426ac7", 61010);
+        flowPriorityCacheMap.put("ICMP_V4_DESTINATION_23__remoteACL_id_85cc3048-abc3-43cc-89b3-377341426ac5Egress98785cc3048-abc3-43cc-89b3-377341426ac6", 61010);
+        flowPriorityCacheMap.put("TCP_DESTINATION_80_65535_remoteACL_id_85cc3048-abc3-43cc-89b3-377341426ac5Egress98785cc3048-abc3-43cc-89b3-377341426ac6", 61010);
+        flowPriorityCacheMap.put("85cc3048-abc3-43cc-89b3-377341426ac5", 1 << 1);
+        flowPriorityCacheMap.put("85cc3048-abc3-43cc-89b3-377341426ac8", 2 << 1);
     }
 
     public static Integer getFlowPriority(String key) {
@@ -57,4 +63,5 @@ public class IdHelper {
         }
         return priority;
     }
+
 }
