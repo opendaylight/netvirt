@@ -26,3 +26,4 @@ Contents:
    Netvirt counters <netvirt-statistics-spec>
    QoS Alert <qos-alert>
    DHCP Server with dynamic allocation pool <dhcp-dynamic-allocation-pool>
+   Listener Dependency Helper, avoids waiting for dependent IID <listener-dependency-helper>
