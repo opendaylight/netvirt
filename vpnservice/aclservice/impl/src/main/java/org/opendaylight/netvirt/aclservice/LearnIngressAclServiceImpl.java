@@ -48,7 +48,7 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
     protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
             Map<String, List<MatchInfoBase>> flowMap, String flowName) {
         List<MatchInfoBase> flowMatches = flowMap.get(flowName);
-        flowMatches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        AclServiceUtils.addLPortTagMatch(lportTag, flowMatches);
         List<ActionInfo> actionsInfos = new ArrayList<>();
         addLearnActions(flowMatches, actionsInfos);
 

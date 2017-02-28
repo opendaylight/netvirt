@@ -50,6 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -479,6 +480,19 @@ public final class AclServiceUtils {
         return flowMatches;
     }
 
+    private static List<MatchInfoBase> buildMetadataMatch(Uuid remoteAclId) {
+        List<MatchInfoBase> flowMatches = new ArrayList<>();
+        BigInteger aclId = buildAclId(remoteAclId);
+        MatchMetadata metadatMatch = new MatchMetadata(aclId, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID);
+        flowMatches.add(metadatMatch);
+        return flowMatches;
+    }
+
+    public static BigInteger buildAclId(Uuid remoteAclId) {
+        return new BigInteger(remoteAclId.getValue().replaceAll("-", ""), 16).mod(BigInteger.valueOf(10000))
+                .shiftLeft(1);
+    }
+
     /**
      * Gets the lport tag match.
      *
@@ -487,6 +501,31 @@ public final class AclServiceUtils {
      */
     public static MatchInfo buildLPortTagMatch(int lportTag) {
         return new MatchMetadata(MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG);
+    }
+
+    /**
+     * Adds lport tag match to existing metadata match.
+     *
+     * @param lportTag
+     *            the lport tag
+     * @param flowMatches
+     *            existing matches
+     */
+    public static void addLPortTagMatch(int lportTag, List<MatchInfoBase> flowMatches) {
+        MatchMetadata metadataMatch =
+                new MatchMetadata(MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG);
+        for (Iterator<MatchInfoBase> iter = flowMatches.iterator(); iter.hasNext();) {
+            MatchInfoBase match = iter.next();
+            if (match instanceof MatchMetadata) {
+                BigInteger mask = ((MatchMetadata) match).getMask().or(MetaDataUtil.METADATA_MASK_LPORT_TAG);
+                BigInteger metadata =
+                        ((MatchMetadata) match).getMetadata().or(MetaDataUtil.getLportTagMetaData(lportTag));
+                metadataMatch = new MatchMetadata(metadata, mask);
+                iter.remove();
+                break;
+            }
+        }
+        flowMatches.add(metadataMatch);
     }
 
     public static List<Ace> getAceWithRemoteAclId(DataBroker dataBroker, AclInterface port, Uuid remoteAcl) {
@@ -516,16 +555,26 @@ public final class AclServiceUtils {
         MatchInfoBase ipv6Match = MatchEthernetType.IPV6;
         for (String flowName : flowMatchesMap.keySet()) {
             List<MatchInfoBase> flows = flowMatchesMap.get(flowName);
+
+            List<MatchInfoBase> matchInfoBaseList = addFlowMatchForAclId(remoteAclId, flows);
+            String flowId = flowName + "_remoteACL_id_" + remoteAclId.getValue();
+            updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
             for (AclInterface port : interfaceList) {
                 if (port.getInterfaceId().equals(ignoreInterfaceId)) {
                     continue;
                 }
-                //get allow address pair
+
+                if (port.getSecurityGroups() != null && port.getSecurityGroups().size() == 1) {
+                    LOG.debug(
+                            "port {} is in only one SG. "
+                                    + "Doesn't adding it's IPs {} to matches (handled in acl id match)",
+                            port.getLPortTag(), port.getAllowedAddressPairs());
+                    continue;
+                }
+                // get allow address pair
                 List<AllowedAddressPairs> allowedAddressPair = port.getAllowedAddressPairs();
                 // iterate over allow address pair and update match type
                 for (AllowedAddressPairs aap : allowedAddressPair) {
-                    List<MatchInfoBase> matchInfoBaseList;
-                    String flowId;
                     if (flows.contains(ipv4Match) && isIPv4Address(aap)) {
                         matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
                         flowId = flowName + "_ipv4_remoteACL_interface_aap_" + getAapFlowId(aap);
@@ -593,6 +642,15 @@ public final class AclServiceUtils {
         return updatedFlowMatchesMap;
     }
 
+    public static boolean isNotIpv4AllNetwork(AllowedAddressPairs aap) {
+        IpPrefix ipPrefix = aap.getIpAddress().getIpPrefix();
+        if (ipPrefix != null && ipPrefix.getIpv4Prefix() != null
+                && ipPrefix.getIpv4Prefix().getValue().equals(AclConstants.IPV4_ALL_NETWORK)) {
+            return false;
+        }
+        return true;
+    }
+
     private static String getAapFlowId(AllowedAddressPairs aap) {
         return aap.getMacAddress().getValue() + "_" + String.valueOf(aap.getIpAddress().getValue());
     }
@@ -635,6 +693,13 @@ public final class AclServiceUtils {
         } else {
             matchInfoBaseList = AclServiceUtils.buildIpMatches(aap.getIpAddress(), MatchCriteria.MATCH_DESTINATION);
         }
+        matchInfoBaseList.addAll(flows);
+        return matchInfoBaseList;
+    }
+
+    private static List<MatchInfoBase> addFlowMatchForAclId(Uuid remoteAclId, List<MatchInfoBase> flows) {
+        List<MatchInfoBase> matchInfoBaseList;
+        matchInfoBaseList = buildMetadataMatch(remoteAclId);
         matchInfoBaseList.addAll(flows);
         return matchInfoBaseList;
     }
@@ -797,5 +862,80 @@ public final class AclServiceUtils {
     public void deleteAclIdPools(BigInteger dpId) {
         deleteIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE));
         deleteIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE));
+    }
+
+    public static List<? extends MatchInfoBase> buildIpAndElanSrcMatch(long elanTag, AllowedAddressPairs ip,
+            DataBroker dataBroker) {
+        List<MatchInfoBase> flowMatches = new ArrayList<>();
+        MatchMetadata metadatMatch =
+                new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE);
+        flowMatches.add(metadatMatch);
+        if (ip.getIpAddress().getIpAddress() != null) {
+            if (ip.getIpAddress().getIpAddress().getIpv4Address() != null) {
+                MatchEthernetType ipv4EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV4);
+                flowMatches.add(ipv4EthMatch);
+                MatchIpv4Source srcMatch = new MatchIpv4Source(
+                        new Ipv4Prefix(ip.getIpAddress().getIpAddress().getIpv4Address().getValue() + "/32"));
+                flowMatches.add(srcMatch);
+            } else if (ip.getIpAddress().getIpAddress().getIpv6Address() != null) {
+                MatchEthernetType ipv6EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV6);
+                flowMatches.add(ipv6EthMatch);
+                MatchIpv6Source srcMatch = new MatchIpv6Source(
+                        new Ipv6Prefix(ip.getIpAddress().getIpAddress().getIpv6Address().getValue() + "/128"));
+                flowMatches.add(srcMatch);
+            }
+        } else if (ip.getIpAddress().getIpPrefix() != null) {
+            if (ip.getIpAddress().getIpPrefix().getIpv4Prefix() != null) {
+                MatchEthernetType ipv4EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV4);
+                flowMatches.add(ipv4EthMatch);
+                MatchIpv4Source srcMatch = new MatchIpv4Source(ip.getIpAddress().getIpPrefix().getIpv4Prefix());
+                flowMatches.add(srcMatch);
+            } else if (ip.getIpAddress().getIpPrefix().getIpv6Prefix() != null) {
+                MatchEthernetType ipv6EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV6);
+                flowMatches.add(ipv6EthMatch);
+                MatchIpv6Source srcMatch = new MatchIpv6Source(ip.getIpAddress().getIpPrefix().getIpv6Prefix());
+                flowMatches.add(srcMatch);
+            }
+        }
+        return flowMatches;
+    }
+
+    public static List<? extends MatchInfoBase> buildIpAndElanDstMatch(Long elanTag, AllowedAddressPairs ip,
+            DataBroker dataBroker) {
+        List<MatchInfoBase> flowMatches = new ArrayList<>();
+        MatchMetadata metadatMatch =
+                new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE);
+        flowMatches.add(metadatMatch);
+
+        if (ip.getIpAddress().getIpAddress() != null) {
+            if (ip.getIpAddress().getIpAddress().getIpv4Address() != null) {
+                MatchEthernetType ipv4EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV4);
+                flowMatches.add(ipv4EthMatch);
+                MatchIpv4Destination dstMatch = new MatchIpv4Destination(
+                        new Ipv4Prefix(ip.getIpAddress().getIpAddress().getIpv4Address().getValue() + "/32"));
+                flowMatches.add(dstMatch);
+            } else if (ip.getIpAddress().getIpAddress().getIpv6Address() != null) {
+                MatchEthernetType ipv6EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV6);
+                flowMatches.add(ipv6EthMatch);
+                MatchIpv6Destination dstMatch = new MatchIpv6Destination(
+                        new Ipv6Prefix(ip.getIpAddress().getIpAddress().getIpv6Address().getValue() + "/128"));
+                flowMatches.add(dstMatch);
+            }
+        } else if (ip.getIpAddress().getIpPrefix() != null) {
+            if (ip.getIpAddress().getIpPrefix().getIpv4Prefix() != null) {
+                MatchEthernetType ipv4EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV4);
+                flowMatches.add(ipv4EthMatch);
+                MatchIpv4Destination dstMatch =
+                        new MatchIpv4Destination(ip.getIpAddress().getIpPrefix().getIpv4Prefix());
+                flowMatches.add(dstMatch);
+            } else if (ip.getIpAddress().getIpPrefix().getIpv6Prefix() != null) {
+                MatchEthernetType ipv6EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV6);
+                flowMatches.add(ipv6EthMatch);
+                MatchIpv6Destination dstMatch =
+                        new MatchIpv6Destination(ip.getIpAddress().getIpPrefix().getIpv6Prefix());
+                flowMatches.add(dstMatch);
+            }
+        }
+        return flowMatches;
     }
 }

@@ -11,6 +11,8 @@ import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit
 import org.opendaylight.genius.mdsalutil.FlowEntity
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions
+import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType
 import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv4
 import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6
@@ -38,6 +40,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         + etherIngressFlowsPort2
         + fixedEgressFlowsPort2
         + etheregressFlowPort2
+        + remoteFlows
     }
 
     protected def tcpFlows() {
@@ -49,6 +52,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         + tcpIngressFlowPort2
         + fixedEgressFlowsPort2
         + tcpEgressFlowPort2
+        + remoteFlows
     }
 
     protected def udpFlows() {
@@ -56,6 +60,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         + fixedEgressFlowsPort1
         + fixedIngressFlowsPort2
         + fixedEgressFlowsPort2
+        + remoteFlows
     }
 
     protected def icmpFlows() {
@@ -63,6 +68,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         + fixedEgressFlowsPort1
         + fixedIngressFlowsPort2
         + fixedEgressFlowsPort2
+        + remoteFlows
     }
 
     protected def dstRangeFlows() {
@@ -79,6 +85,13 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
     protected def icmpFlowsForTwoAclsHavingSameRules() {
         fixedIngressFlowsPort3
         + fixedEgressFlowsPort3
+    }
+
+    protected def remoteFlows() {
+        remoteIngressFlowsPort1
+        + remoteEgressFlowsPort1
+        + remoteIngressFlowsPort2
+        + remoteEgressFlowsPort2
     }
 
     protected def etherFlowIngressPort1() {
@@ -1009,6 +1022,80 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 priority = IdHelper.getFlowPriority(flowId)
                 tableId = 213 as short
             ]
+        ]
+    }
+
+    protected def remoteIngressFlowsPort1() {
+        #[
+            remoteIngressFlowsPort("10.0.0.1")
+         ]
+    }
+
+    protected def remoteIngressFlowsPort2() {
+        #[
+            remoteIngressFlowsPort("10.0.0.2")
+         ]
+    }
+
+    protected def remoteIngressFlowsPort4() {
+        #[
+            remoteIngressFlowsPort("10.0.0.4")
+         ]
+    }
+
+    protected def remoteEgressFlowsPort1() {
+        #[
+            remoteEgressFlowsPort("10.0.0.1")
+         ]
+    }
+
+    protected def remoteEgressFlowsPort2() {
+        #[
+            remoteEgressFlowsPort("10.0.0.2")
+         ]
+    }
+
+    protected def remoteEgressFlowsPort4() {
+        #[
+            remoteEgressFlowsPort("10.0.0.4")
+         ]
+    }
+
+    protected def remoteIngressFlowsPort(String ip) {
+        new FlowEntity(123bi) => [
+            cookie = 110100480bi
+            flowId = "Acl_Filter_Ingress_" + ip + "/32_5000"
+            flowName = "ACL"
+            instructionInfoList = #[
+                new InstructionWriteMetadata(12938bi, 16777214bi),
+                new InstructionGotoTable(213 as short)
+            ]
+            matchInfoList = #[
+                new MatchMetadata(83886080000bi, 1099494850560bi),
+                new MatchEthernetType(2048L),
+                new MatchIpv4Destination(ip, "32")
+            ]
+            priority = 50
+            tableId = 212 as short
+        ]
+    }
+
+    protected def remoteEgressFlowsPort(String ip) {
+        new FlowEntity(123bi) => [
+            cookie = 110100480bi
+            flowId = "Acl_Filter_Egress_" + ip + "/32_5000"
+            flowName = "ACL"
+            instructionInfoList = #[
+                new InstructionWriteMetadata(12938bi, 16777214bi),
+                new InstructionGotoTable(243 as short)
+            ]
+            matchInfoList = #[
+                new MatchMetadata(83886080000bi, 1099494850560bi),
+                new MatchEthernetType(2048L),
+                new MatchIpv4Source(ip, "32")
+            ]
+            priority = 50
+            tableId = 242 as short
         ]
     }
 
