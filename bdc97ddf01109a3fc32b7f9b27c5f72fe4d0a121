@@ -317,6 +317,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5b7f4866",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-28T10:00:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_cc1f206b",
+      "range": {
+        "startLine": 126,
+        "startChar": 40,
+        "endLine": 126,
+        "endChar": 41
+      },
+      "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_45d30c04",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 6
