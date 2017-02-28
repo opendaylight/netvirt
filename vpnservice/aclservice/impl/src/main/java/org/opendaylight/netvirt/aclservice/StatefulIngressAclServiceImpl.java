@@ -40,8 +40,7 @@ import org.slf4j.LoggerFactory;
  * Provides the stateful implementation for ingress (w.r.t VM) ACL service.
  *
  * <p>
- * Note: Table names used are w.r.t switch. Hence, switch ingress is VM egress
- * and vice versa.
+ * Note: Table names used are w.r.t switch. Hence, switch ingress is VM egress and vice versa.
  */
 public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
 
@@ -50,8 +49,10 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
     /**
      * Initialize the member variables.
      *
-     * @param dataBroker the data broker instance.
-     * @param mdsalManager the mdsal manager.
+     * @param dataBroker
+     *            the data broker instance.
+     * @param mdsalManager
+     *            the mdsal manager.
      * @param aclDataUtil
      *            the acl data util.
      * @param aclServiceUtils
@@ -66,11 +67,16 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
     /**
      * Program conntrack rules.
      *
-     * @param dpid the dpid
-     * @param dhcpMacAddress the dhcp mac address.
-     * @param allowedAddresses the allowed addresses
-     * @param lportTag the lport tag
-     * @param addOrRemove add or remove the flow
+     * @param dpid
+     *            the dpid
+     * @param dhcpMacAddress
+     *            the dhcp mac address.
+     * @param allowedAddresses
+     *            the allowed addresses
+     * @param lportTag
+     *            the lport tag
+     * @param addOrRemove
+     *            add or remove the flow
      */
     @Override
     protected void programSpecificFixedRules(BigInteger dpid, String dhcpMacAddress,
@@ -83,9 +89,9 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
             Map<String, List<MatchInfoBase>> flowMap, String flowName) {
         List<MatchInfoBase> matches = flowMap.get(flowName);
         flowName += "Ingress" + lportTag + ace.getKey().getRuleName();
-        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        AclServiceUtils.addLPortTagMatch(lportTag, matches);
         matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
-                new long[] {AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
+                new long[] { AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK }));
 
         Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -114,18 +120,24 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
     }
 
     /**
-     * Adds the rule to send the packet to the netfilter to check whether it is
-     * a known packet.
+     * Adds the rule to send the packet to the netfilter to check whether it is a known packet.
      *
-     * @param dpId the dpId
-     * @param allowedAddresses the allowed addresses
-     * @param priority the priority of the flow
-     * @param flowId the flowId
-     * @param conntrackState the conntrack state of the packets thats should be
-     *        send
-     * @param conntrackMask the conntrack mask
-     * @param portId the portId
-     * @param addOrRemove whether to add or remove the flow
+     * @param dpId
+     *            the dpId
+     * @param allowedAddresses
+     *            the allowed addresses
+     * @param priority
+     *            the priority of the flow
+     * @param flowId
+     *            the flowId
+     * @param conntrackState
+     *            the conntrack state of the packets thats should be send
+     * @param conntrackMask
+     *            the conntrack mask
+     * @param portId
+     *            the portId
+     * @param addOrRemove
+     *            whether to add or remove the flow
      */
     private void programConntrackRecircRules(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
             Integer priority, String flowId, String portId, int addOrRemove) {
@@ -155,16 +167,21 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
     /**
      * Programs the default connection tracking rules.
      *
-     * @param dpid the dp id
-     * @param lportTag the lport tag
-     * @param allowedAddresses the allowed addresses
-     * @param portId the portId
-     * @param write whether to add or remove the flow.
+     * @param dpid
+     *            the dp id
+     * @param lportTag
+     *            the lport tag
+     * @param allowedAddresses
+     *            the allowed addresses
+     * @param portId
+     *            the portId
+     * @param write
+     *            whether to add or remove the flow.
      */
     private void programIngressAclFixedConntrackRule(BigInteger dpid, int lportTag,
             List<AllowedAddressPairs> allowedAddresses, String portId, Action action, int write) {
-        programConntrackRecircRules(dpid, allowedAddresses, AclConstants.CT_STATE_UNTRACKED_PRIORITY,
-            "Recirc",portId, write);
+        programConntrackRecircRules(dpid, allowedAddresses, AclConstants.CT_STATE_UNTRACKED_PRIORITY, "Recirc", portId,
+                write);
         programIngressConntrackDropRules(dpid, lportTag, write);
         LOG.info("programIngressAclFixedConntrackRule :  default connection tracking rule are added.");
     }
@@ -172,20 +189,27 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
     /**
      * Adds the rule to drop the unknown/invalid packets .
      *
-     * @param dpId the dpId
-     * @param lportTag the lport tag
-     * @param priority the priority of the flow
-     * @param flowId the flowId
-     * @param conntrackState the conntrack state of the packets thats should be
-     *        send
-     * @param conntrackMask the conntrack mask
-     * @param tableId table id
-     * @param addOrRemove whether to add or remove the flow
+     * @param dpId
+     *            the dpId
+     * @param lportTag
+     *            the lport tag
+     * @param priority
+     *            the priority of the flow
+     * @param flowId
+     *            the flowId
+     * @param conntrackState
+     *            the conntrack state of the packets thats should be send
+     * @param conntrackMask
+     *            the conntrack mask
+     * @param tableId
+     *            table id
+     * @param addOrRemove
+     *            whether to add or remove the flow
      */
     private void programConntrackDropRule(BigInteger dpId, int lportTag, Integer priority, String flowId,
             int conntrackState, int conntrackMask, int addOrRemove) {
-        List<MatchInfoBase> matches = AclServiceOFFlowBuilder.addLPortTagMatches(lportTag, conntrackState,
-                conntrackMask);
+        List<MatchInfoBase> matches =
+                AclServiceOFFlowBuilder.addLPortTagMatches(lportTag, conntrackState, conntrackMask);
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
 
         flowId = "Ingress_Fixed_Conntrk_Drop" + dpId + "_" + lportTag + "_" + flowId;
@@ -196,9 +220,12 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
     /**
      * Adds the rules to drop the unknown/invalid packets .
      *
-     * @param dpId the dpId
-     * @param lportTag the lport tag
-     * @param addOrRemove whether to add or remove the flow
+     * @param dpId
+     *            the dpId
+     * @param lportTag
+     *            the lport tag
+     * @param addOrRemove
+     *            whether to add or remove the flow
      */
     private void programIngressConntrackDropRules(BigInteger dpId, int lportTag, int addOrRemove) {
         programConntrackDropRule(dpId, lportTag, AclConstants.CT_STATE_TRACKED_NEW_DROP_PRIORITY, "Tracked_New",

@@ -13,6 +13,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -24,10 +26,13 @@ import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
+import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
@@ -53,8 +58,7 @@ import org.slf4j.LoggerFactory;
  * Provides abstract implementation for ingress (w.r.t VM) ACL service.
  *
  * <p>
- * Note: Table names used are w.r.t switch. Hence, switch ingress is VM egress
- * and vice versa.
+ * Note: Table names used are w.r.t switch. Hence, switch ingress is VM egress and vice versa.
  */
 public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceImpl {
 
@@ -63,8 +67,10 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
     /**
      * Initialize the member variables.
      *
-     * @param dataBroker the data broker instance.
-     * @param mdsalManager the mdsal manager.
+     * @param dataBroker
+     *            the data broker instance.
+     * @param mdsalManager
+     *            the mdsal manager.
      * @param aclDataUtil
      *            the acl data util.
      * @param aclServiceUtils
@@ -79,7 +85,8 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
     /**
      * Bind service.
      *
-     * @param interfaceName the interface name
+     * @param interfaceName
+     *            the interface name
      */
     @Override
     protected void bindService(String interfaceName) {
@@ -91,30 +98,31 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
         instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getElanTagMetadata(elanTag),
                 MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.EGRESS_ACL_TABLE, ++instructionKey));
-        BoundServices serviceInfo = AclServiceUtils.getBoundServices(
-                String.format("%s.%s.%s", "acl", "ingressacl", interfaceName),
-                ServiceIndex.getIndex(NwConstants.EGRESS_ACL_SERVICE_NAME, NwConstants.EGRESS_ACL_SERVICE_INDEX),
-                flowPriority, AclConstants.COOKIE_ACL_BASE, instructions);
+        BoundServices serviceInfo =
+                AclServiceUtils.getBoundServices(String.format("%s.%s.%s", "acl", "ingressacl", interfaceName),
+                        ServiceIndex.getIndex(NwConstants.EGRESS_ACL_SERVICE_NAME,
+                                NwConstants.EGRESS_ACL_SERVICE_INDEX),
+                        flowPriority, AclConstants.COOKIE_ACL_BASE, instructions);
         InstanceIdentifier<BoundServices> path = AclServiceUtils.buildServiceId(interfaceName,
-                ServiceIndex.getIndex(NwConstants.EGRESS_ACL_SERVICE_NAME,
-                        NwConstants.EGRESS_ACL_SERVICE_INDEX), ServiceModeEgress.class);
+                ServiceIndex.getIndex(NwConstants.EGRESS_ACL_SERVICE_NAME, NwConstants.EGRESS_ACL_SERVICE_INDEX),
+                ServiceModeEgress.class);
 
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob(interfaceName,
-            () -> {
-                WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-                writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, serviceInfo, true);
+        dataStoreCoordinator.enqueueJob(interfaceName, () -> {
+            WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+            writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, serviceInfo, true);
 
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                futures.add(writeTxn.submit());
-                return futures;
-            });
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            futures.add(writeTxn.submit());
+            return futures;
+        });
     }
 
     /**
      * Unbind service.
      *
-     * @param interfaceName the interface name
+     * @param interfaceName
+     *            the interface name
      */
     @Override
     protected void unbindService(String interfaceName) {
@@ -123,25 +131,29 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
                 ServiceModeEgress.class);
 
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob(interfaceName,
-            () -> {
-                WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-                writeTxn.delete(LogicalDatastoreType.CONFIGURATION, path);
+        dataStoreCoordinator.enqueueJob(interfaceName, () -> {
+            WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+            writeTxn.delete(LogicalDatastoreType.CONFIGURATION, path);
 
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                futures.add(writeTxn.submit());
-                return futures;
-            });
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            futures.add(writeTxn.submit());
+            return futures;
+        });
     }
 
     /**
      * Program conntrack rules.
      *
-     * @param dpid the dpid
-     * @param dhcpMacAddress the dhcp mac address.
-     * @param allowedAddresses the allowed addresses
-     * @param lportTag the lport tag
-     * @param addOrRemove add or remove the flow
+     * @param dpid
+     *            the dpid
+     * @param dhcpMacAddress
+     *            the dhcp mac address.
+     * @param allowedAddresses
+     *            the allowed addresses
+     * @param lportTag
+     *            the lport tag
+     * @param addOrRemove
+     *            add or remove the flow
      */
     @Override
     protected abstract void programSpecificFixedRules(BigInteger dpid, String dhcpMacAddress,
@@ -163,15 +175,14 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
     }
 
     @Override
-    protected boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove, String
-            portId) {
+    protected boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove,
+            String portId) {
         if (aclUuidList == null || dpId == null) {
-            LOG.warn("one of the ingress acl parameters can not be null. sg {}, dpId {}",
-                    aclUuidList, dpId);
+            LOG.warn("one of the ingress acl parameters can not be null. sg {}, dpId {}", aclUuidList, dpId);
             return false;
         }
 
-        for (Uuid sgUuid :aclUuidList) {
+        for (Uuid sgUuid : aclUuidList) {
             Acl acl = AclServiceUtils.getAcl(dataBroker, sgUuid.getValue());
             if (null == acl) {
                 LOG.warn("The ACL is empty");
@@ -195,13 +206,13 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
         }
         Matches matches = ace.getMatches();
         AceType aceType = matches.getAceType();
-        Map<String,List<MatchInfoBase>> flowMap = null;
+        Map<String, List<MatchInfoBase>> flowMap = null;
         if (aceType instanceof AceIp) {
             flowMap = AclServiceOFFlowBuilder.programIpFlow(matches);
-            if (syncAllowedAddresses != null) {
-                flowMap = AclServiceUtils.getFlowForAllowedAddresses(syncAllowedAddresses, flowMap, true);
-            } else if (aceAttr.getRemoteGroupId() != null) {
+            if (aceAttr.getRemoteGroupId() != null) {
                 flowMap = aclServiceUtils.getFlowForRemoteAcl(aceAttr.getRemoteGroupId(), portId, flowMap, true);
+            } else if (syncAllowedAddresses != null) {
+                flowMap = AclServiceUtils.getFlowForAllowedAddresses(syncAllowedAddresses, flowMap, true);
             }
         }
         if (null == flowMap) {
@@ -213,18 +224,140 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
         }
     }
 
+    @Override
+    protected void updateRemoteAclFilterTable(AclInterface port, int addOrRemove) {
+        if (addOrRemove != NwConstants.DEL_FLOW && port.getSecurityGroups().size() > 1) {
+            LOG.debug("Port {} with more than one SG ({}). Don't add to ACL filter table", port.getInterfaceId(),
+                    port.getSecurityGroups().size());
+
+            for (Uuid sg : port.getSecurityGroups()) {
+                LOG.debug("Removing rules from acl filter table, for port {} for sg {}", port.getInterfaceId(), sg);
+                updateRemoteAclFilterTableForSg(port, sg, NwConstants.DEL_FLOW);
+            }
+        } else if (addOrRemove == NwConstants.DEL_FLOW && port.getSecurityGroups().size() > 1) {
+            LOG.debug("Port {} with more than one SG ({}). Don't remove from ACL filter table", port.getInterfaceId(),
+                    port.getSecurityGroups().size());
+        } else {
+            Uuid sg = port.getSecurityGroups().get(0);
+            updateRemoteAclFilterTableForSg(port, sg, addOrRemove);
+        }
+    }
+
+    private void updateRemoteAclFilterTableForSg(AclInterface port, Uuid acl, int addOrRemove) {
+        BigInteger aclId = AclServiceUtils.buildAclId(acl);
+
+        Long elanTag = AclServiceUtils.getElanIdFromInterface(port.getInterfaceId(), dataBroker);
+        if (elanTag == null) {
+            LOG.debug("Can't find elan id for port {} ", port.getInterfaceId());
+            return;
+        }
+        for (AllowedAddressPairs ip : port.getAllowedAddressPairs()) {
+            writeCurrentAclForRemoteAcls(acl, addOrRemove, elanTag, ip, aclId);
+            writeRemoteAclsForCurrentAcl(acl, port.getDpId(), addOrRemove);
+        }
+
+    }
+
+    private void writeCurrentAclForRemoteAcls(Uuid acl, int addOrRemove, Long elanTag, AllowedAddressPairs ip,
+            BigInteger aclId) {
+        List<MatchInfoBase> flowMatches = new ArrayList<>();
+        flowMatches.addAll(AclServiceUtils.buildIpAndElanDstMatch(elanTag, ip, dataBroker));
+
+        List<InstructionInfo> instructions = new ArrayList<>();
+
+        InstructionWriteMetadata writeMetatdata =
+                new InstructionWriteMetadata(aclId, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID);
+        instructions.add(writeMetatdata);
+        instructions.add(new InstructionGotoTable(getIngressAclFilterTable()));
+
+        String flowNameAdded = "Acl_Filter_Ingress_" + new String(ip.getIpAddress().getValue()) + "_" + elanTag;
+
+        Map<String, Set<AclInterface>> mapAclWithPortSet = aclDataUtil.getRemoteAclInterfaces(acl);
+        Set<BigInteger> dpns = collectDpns(mapAclWithPortSet);
+        for (BigInteger dpId : dpns) {
+            LOG.debug("writing rule for ip {} and rlanId {} in ingress acl remote table {}", getIpPrefixOrAddress(ip),
+                    elanTag, getIngressAclRemoteAclTable());
+            syncFlow(dpId, getIngressAclRemoteAclTable(), flowNameAdded, AclConstants.NO_PRIORITY, "ACL", 0, 0,
+                    AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
+        }
+    }
+
+    protected short getIngressAclFilterTable() {
+        return NwConstants.INGRESS_ACL_FILTER_TABLE;
+    }
+
+    protected short getIngressAclRemoteAclTable() {
+        return NwConstants.INGRESS_ACL_REMOTE_ACL_TABLE;
+    }
+
+    private void writeRemoteAclsForCurrentAcl(Uuid sgUuid, BigInteger dpId, int addOrRemove) {
+        Acl acl = AclServiceUtils.getAcl(dataBroker, sgUuid.getValue());
+        if (null == acl) {
+            LOG.debug("The ACL {} is empty", sgUuid);
+            return;
+        }
+        AccessListEntries accessListEntries = acl.getAccessListEntries();
+        List<Ace> aceList = accessListEntries.getAce();
+        for (Ace ace : aceList) {
+            SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
+            if (aceAttr.getRemoteGroupId() == null) {
+                continue;
+            }
+            List<AclInterface> interfaceList = aclDataUtil.getInterfaceList(aceAttr.getRemoteGroupId());
+            if (interfaceList == null) {
+                continue;
+            }
+            for (AclInterface inter : interfaceList) {
+                BigInteger aclId = AclServiceUtils.buildAclId(aceAttr.getRemoteGroupId());
+
+                Long elanTag = AclServiceUtils.getElanIdFromInterface(inter.getInterfaceId(), dataBroker);
+                if (elanTag == null) {
+                    LOG.debug("Can't find elan id for port {} ", inter.getInterfaceId());
+                    continue;
+                }
+                for (AllowedAddressPairs ip : inter.getAllowedAddressPairs()) {
+                    List<MatchInfoBase> flowMatches = new ArrayList<>();
+                    flowMatches.addAll(AclServiceUtils.buildIpAndElanDstMatch(elanTag, ip, dataBroker));
+
+                    List<InstructionInfo> instructions = new ArrayList<>();
+
+                    InstructionWriteMetadata writeMetatdata =
+                            new InstructionWriteMetadata(aclId, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID);
+                    instructions.add(writeMetatdata);
+                    instructions.add(new InstructionGotoTable(getIngressAclFilterTable()));
+
+                    String flowNameAdded =
+                            "Acl_Filter_Ingress_" + new String(ip.getIpAddress().getValue()) + "_" + elanTag;
+
+                    if (dpId != null) {
+                        LOG.debug("writing rule for ip {} and rlanId {} in ingress acl remote table {}",
+                                getIpPrefixOrAddress(ip), elanTag, getIngressAclRemoteAclTable());
+                        syncFlow(dpId, getIngressAclRemoteAclTable(), flowNameAdded, AclConstants.NO_PRIORITY, "ACL", 0,
+                                0, AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
+                    }
+                }
+            }
+
+        }
+
+    }
+
     protected abstract String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace,
             String portId, Map<String, List<MatchInfoBase>> flowMap, String flowName);
 
     /**
-     * Add rule to ensure only DHCP server traffic from the specified mac is
-     * allowed.
+     * Add rule to ensure only DHCP server traffic from the specified mac is allowed.
      *
-     * @param dpId the dpid
-     * @param dhcpMacAddress the DHCP server mac address
-     * @param lportTag the lport tag
-     * @param addOrRemove is write or delete
-     * @param protoPortMatchPriority the priority
+     * @param dpId
+     *            the dpid
+     * @param dhcpMacAddress
+     *            the DHCP server mac address
+     * @param lportTag
+     *            the lport tag
+     * @param addOrRemove
+     *            is write or delete
+     * @param protoPortMatchPriority
+     *            the priority
      */
     protected void ingressAclDhcpAllowServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
             int addOrRemove, int protoPortMatchPriority) {
@@ -240,14 +373,18 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
     }
 
     /**
-     * Add rule to ensure only DHCPv6 server traffic from the specified mac is
-     * allowed.
+     * Add rule to ensure only DHCPv6 server traffic from the specified mac is allowed.
      *
-     * @param dpId the dpid
-     * @param dhcpMacAddress the DHCP server mac address
-     * @param lportTag the lport tag
-     * @param addOrRemove is write or delete
-     * @param protoPortMatchPriority the priority
+     * @param dpId
+     *            the dpid
+     * @param dhcpMacAddress
+     *            the DHCP server mac address
+     * @param lportTag
+     *            the lport tag
+     * @param addOrRemove
+     *            is write or delete
+     * @param protoPortMatchPriority
+     *            the priority
      */
     protected void ingressAclDhcpv6AllowServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
             int addOrRemove, Integer protoPortMatchPriority) {
@@ -266,46 +403,50 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
     /**
      * Add rules to ensure that certain ICMPv6 like MLD_QUERY (130), NS (135), NA (136) are allowed into the VM.
      *
-     * @param dpId the dpid
-     * @param lportTag the lport tag
-     * @param addOrRemove is write or delete
+     * @param dpId
+     *            the dpid
+     * @param lportTag
+     *            the lport tag
+     * @param addOrRemove
+     *            is write or delete
      */
     private void ingressAclIcmpv6AllowedTraffic(BigInteger dpId, int lportTag, int addOrRemove) {
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
 
         // Allow ICMPv6 Multicast Listener Query packets.
-        List<MatchInfoBase> matches = AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_MLD_QUERY,
-                0, lportTag);
+        List<MatchInfoBase> matches =
+                AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_MLD_QUERY, 0, lportTag);
 
         String flowName =
                 "Ingress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_MLD_QUERY + "_Permit_";
-        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, "ACL", 0,
-                0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
 
         // Allow ICMPv6 Neighbor Solicitation packets.
         matches = AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_NS, 0, lportTag);
 
-        flowName =
-                "Ingress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_NS + "_Permit_";
-        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, "ACL", 0,
-                0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+        flowName = "Ingress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_NS + "_Permit_";
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
 
         // Allow ICMPv6 Neighbor Advertisement packets.
         matches = AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_NA, 0, lportTag);
 
-        flowName =
-                "Ingress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_NA + "_Permit_";
-        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, "ACL", 0,
-                0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+        flowName = "Ingress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_NA + "_Permit_";
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
     /**
      * Adds the rule to allow arp packets.
      *
-     * @param dpId the dpId
-     * @param lportTag the lport tag
-     * @param addOrRemove whether to add or remove the flow
+     * @param dpId
+     *            the dpId
+     * @param lportTag
+     *            the lport tag
+     * @param addOrRemove
+     *            whether to add or remove the flow
      */
     protected void programArpRule(BigInteger dpId, int lportTag, int addOrRemove) {
         List<MatchInfo> matches = new ArrayList<>();
@@ -314,8 +455,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
 
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(new ArrayList<>());
         String flowName = "Ingress_ARP_" + dpId + "_" + lportTag;
-        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName,
-                AclConstants.PROTO_ARP_TRAFFIC_MATCH_PRIORITY, "ACL", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+        syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_ARP_TRAFFIC_MATCH_PRIORITY, "ACL", 0,
+                0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 }

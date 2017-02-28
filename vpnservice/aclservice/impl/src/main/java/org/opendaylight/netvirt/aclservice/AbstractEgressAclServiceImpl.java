@@ -13,6 +13,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -25,11 +27,14 @@ import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchArpSha;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
+import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
@@ -56,8 +61,7 @@ import org.slf4j.LoggerFactory;
  * Provides abstract implementation for egress (w.r.t VM) ACL service.
  *
  * <p>
- * Note: Table names used are w.r.t switch. Hence, switch ingress is VM egress
- * and vice versa.
+ * Note: Table names used are w.r.t switch. Hence, switch ingress is VM egress and vice versa.
  */
 public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImpl {
 
@@ -66,8 +70,10 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     /**
      * Initialize the member variables.
      *
-     * @param dataBroker the data broker instance.
-     * @param mdsalManager the mdsal manager instance.
+     * @param dataBroker
+     *            the data broker instance.
+     * @param mdsalManager
+     *            the mdsal manager instance.
      * @param aclDataUtil
      *            the acl data util.
      * @param aclServiceUtils
@@ -82,7 +88,8 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     /**
      * Bind service.
      *
-     * @param interfaceName the interface name
+     * @param interfaceName
+     *            the interface name
      */
     @Override
     protected void bindService(String interfaceName) {
@@ -97,44 +104,42 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
         short serviceIndex = ServiceIndex.getIndex(NwConstants.ACL_SERVICE_NAME, NwConstants.ACL_SERVICE_INDEX);
         BoundServices serviceInfo =
                 AclServiceUtils.getBoundServices(String.format("%s.%s.%s", "acl", "egressacl", interfaceName),
-                serviceIndex, flowPriority, AclConstants.COOKIE_ACL_BASE, instructions);
+                        serviceIndex, flowPriority, AclConstants.COOKIE_ACL_BASE, instructions);
         InstanceIdentifier<BoundServices> path =
                 AclServiceUtils.buildServiceId(interfaceName, serviceIndex, ServiceModeIngress.class);
 
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob(interfaceName,
-            () -> {
-                WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-                writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, serviceInfo, true);
+        dataStoreCoordinator.enqueueJob(interfaceName, () -> {
+            WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+            writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, serviceInfo, true);
 
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                futures.add(writeTxn.submit());
-                return futures;
-            });
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            futures.add(writeTxn.submit());
+            return futures;
+        });
     }
 
     /**
      * Unbind service.
      *
-     * @param interfaceName the interface name
+     * @param interfaceName
+     *            the interface name
      */
     @Override
     protected void unbindService(String interfaceName) {
-        InstanceIdentifier<BoundServices> path =
-                AclServiceUtils.buildServiceId(interfaceName,
-                        ServiceIndex.getIndex(NwConstants.ACL_SERVICE_NAME, NwConstants.ACL_SERVICE_INDEX),
-                        ServiceModeIngress.class);
+        InstanceIdentifier<BoundServices> path = AclServiceUtils.buildServiceId(interfaceName,
+                ServiceIndex.getIndex(NwConstants.ACL_SERVICE_NAME, NwConstants.ACL_SERVICE_INDEX),
+                ServiceModeIngress.class);
 
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob(interfaceName,
-            () -> {
-                WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-                writeTxn.delete(LogicalDatastoreType.CONFIGURATION, path);
+        dataStoreCoordinator.enqueueJob(interfaceName, () -> {
+            WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+            writeTxn.delete(LogicalDatastoreType.CONFIGURATION, path);
 
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                futures.add(writeTxn.submit());
-                return futures;
-            });
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            futures.add(writeTxn.submit());
+            return futures;
+        });
     }
 
     @Override
@@ -154,15 +159,14 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     }
 
     @Override
-    protected boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove, String
-            portId) {
+    protected boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove,
+            String portId) {
         LOG.trace("Applying custom rules DpId {}, lportTag {}", dpId, lportTag);
         if (aclUuidList == null || dpId == null) {
-            LOG.warn("one of the egress acl parameters can not be null. sg {}, dpId {}",
-                    aclUuidList, dpId);
+            LOG.warn("one of the egress acl parameters can not be null. sg {}, dpId {}", aclUuidList, dpId);
             return false;
         }
-        for (Uuid sgUuid :aclUuidList) {
+        for (Uuid sgUuid : aclUuidList) {
             Acl acl = AclServiceUtils.getAcl(dataBroker, sgUuid.getValue());
             if (null == acl) {
                 LOG.warn("The ACL is empty");
@@ -170,7 +174,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
             }
             AccessListEntries accessListEntries = acl.getAccessListEntries();
             List<Ace> aceList = accessListEntries.getAce();
-            for (Ace ace: aceList) {
+            for (Ace ace : aceList) {
                 programAceRule(dpId, lportTag, addOrRemove, acl.getAclName(), ace, portId, null);
             }
         }
@@ -186,13 +190,13 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
         }
         Matches matches = ace.getMatches();
         AceType aceType = matches.getAceType();
-        Map<String,List<MatchInfoBase>> flowMap = null;
+        Map<String, List<MatchInfoBase>> flowMap = null;
         if (aceType instanceof AceIp) {
             flowMap = AclServiceOFFlowBuilder.programIpFlow(matches);
-            if (syncAllowedAddresses != null) {
-                flowMap = AclServiceUtils.getFlowForAllowedAddresses(syncAllowedAddresses, flowMap, false);
-            } else if (aceAttr.getRemoteGroupId() != null) {
+            if (aceAttr.getRemoteGroupId() != null) {
                 flowMap = aclServiceUtils.getFlowForRemoteAcl(aceAttr.getRemoteGroupId(), portId, flowMap, false);
+            } else if (syncAllowedAddresses != null) {
+                flowMap = AclServiceUtils.getFlowForAllowedAddresses(syncAllowedAddresses, flowMap, false);
             }
         }
         if (null == flowMap) {
@@ -204,16 +208,138 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
         }
     }
 
+    @Override
+    protected void updateRemoteAclFilterTable(AclInterface port, int addOrRemove) {
+        if (addOrRemove != NwConstants.DEL_FLOW && port.getSecurityGroups().size() > 1) {
+            LOG.debug("Port {} with more than one SG ({}). Don't add to ACL filter table", port.getInterfaceId(),
+                    port.getSecurityGroups().size());
+
+            for (Uuid sg : port.getSecurityGroups()) {
+                LOG.debug("Removing rules from acl filter table, for port {} for sg {}", port.getInterfaceId(), sg);
+                updateRemoteAclFilterTableForSg(port, sg, NwConstants.DEL_FLOW);
+            }
+        } else if (addOrRemove == NwConstants.DEL_FLOW && port.getSecurityGroups().size() > 1) {
+            LOG.debug("Port {} with more than one SG ({}). Don't remove from ACL filter table", port.getInterfaceId(),
+                    port.getSecurityGroups().size());
+        } else {
+            Uuid sg = port.getSecurityGroups().get(0);
+            updateRemoteAclFilterTableForSg(port, sg, addOrRemove);
+        }
+    }
+
+    private void updateRemoteAclFilterTableForSg(AclInterface port, Uuid acl, int addOrRemove) {
+        BigInteger aclId = AclServiceUtils.buildAclId(acl);
+
+        Long elanTag = AclServiceUtils.getElanIdFromInterface(port.getInterfaceId(), dataBroker);
+        if (elanTag == null) {
+            LOG.debug("Can't find elan id for port {} ", port.getInterfaceId());
+            return;
+        }
+        for (AllowedAddressPairs ip : port.getAllowedAddressPairs()) {
+            writeCurrentAclForRemoteAcls(acl, addOrRemove, elanTag, ip, aclId);
+            writeRemoteAclsForCurrentAcl(acl, port.getDpId(), addOrRemove);
+        }
+
+    }
+
+    private void writeCurrentAclForRemoteAcls(Uuid acl, int addOrRemove, Long elanTag, AllowedAddressPairs ip,
+            BigInteger aclId) {
+        List<MatchInfoBase> flowMatches = new ArrayList<>();
+        flowMatches.addAll(AclServiceUtils.buildIpAndElanSrcMatch(elanTag, ip, dataBroker));
+
+        List<InstructionInfo> instructions = new ArrayList<>();
+
+        InstructionWriteMetadata writeMetatdata =
+                new InstructionWriteMetadata(aclId, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID);
+        instructions.add(writeMetatdata);
+        instructions.add(new InstructionGotoTable(getEgressAclFilterTable()));
+
+        String flowNameAdded = "Acl_Filter_Egress_" + new String(ip.getIpAddress().getValue()) + "_" + elanTag;
+
+        Map<String, Set<AclInterface>> mapAclWithPortSet = aclDataUtil.getRemoteAclInterfaces(acl);
+        Set<BigInteger> dpns = collectDpns(mapAclWithPortSet);
+        for (BigInteger dpId : dpns) {
+            LOG.debug("writing rule for ip {} and rlanId {} in egress acl remote table {}", getIpPrefixOrAddress(ip),
+                    elanTag, getEgressAclRemoteAclTable());
+            syncFlow(dpId, getEgressAclRemoteAclTable(), flowNameAdded, AclConstants.NO_PRIORITY, "ACL", 0, 0,
+                    AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
+        }
+    }
+
+    protected short getEgressAclFilterTable() {
+        return NwConstants.EGRESS_ACL_FILTER_TABLE;
+    }
+
+    protected short getEgressAclRemoteAclTable() {
+        return NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE;
+    }
+
+    private void writeRemoteAclsForCurrentAcl(Uuid sgUuid, BigInteger dpId, int addOrRemove) {
+        Acl acl = AclServiceUtils.getAcl(dataBroker, sgUuid.getValue());
+        if (null == acl) {
+            LOG.debug("The ACL {} is empty", sgUuid);
+            return;
+        }
+        AccessListEntries accessListEntries = acl.getAccessListEntries();
+        List<Ace> aceList = accessListEntries.getAce();
+        for (Ace ace : aceList) {
+            SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
+            if (aceAttr.getRemoteGroupId() == null) {
+                continue;
+            }
+            List<AclInterface> interfaceList = aclDataUtil.getInterfaceList(aceAttr.getRemoteGroupId());
+            if (interfaceList == null) {
+                continue;
+            }
+            for (AclInterface inter : interfaceList) {
+                BigInteger aclId = AclServiceUtils.buildAclId(aceAttr.getRemoteGroupId());
+
+                Long elanTag = AclServiceUtils.getElanIdFromInterface(inter.getInterfaceId(), dataBroker);
+                if (elanTag == null) {
+                    LOG.debug("Can't find elan id for port {} ", inter.getInterfaceId());
+                    continue;
+                }
+                for (AllowedAddressPairs ip : inter.getAllowedAddressPairs()) {
+                    List<MatchInfoBase> flowMatches = new ArrayList<>();
+                    flowMatches.addAll(AclServiceUtils.buildIpAndElanSrcMatch(elanTag, ip, dataBroker));
+
+                    List<InstructionInfo> instructions = new ArrayList<>();
+
+                    InstructionWriteMetadata writeMetatdata =
+                            new InstructionWriteMetadata(aclId, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID);
+                    instructions.add(writeMetatdata);
+                    instructions.add(new InstructionGotoTable(getEgressAclFilterTable()));
+
+                    String flowNameAdded =
+                            "Acl_Filter_Egress_" + new String(ip.getIpAddress().getValue()) + "_" + elanTag;
+
+                    if (dpId != null) {
+                        LOG.debug("writing rule for ip {} and rlanId {} in egress acl remote table {}",
+                                getIpPrefixOrAddress(ip), elanTag, getEgressAclRemoteAclTable());
+                        syncFlow(dpId, getEgressAclRemoteAclTable(), flowNameAdded, AclConstants.NO_PRIORITY, "ACL", 0,
+                                0, AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
+                    }
+                }
+            }
+
+        }
+
+    }
+
     protected abstract String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace,
             String portId, Map<String, List<MatchInfoBase>> flowMap, String flowName);
 
     /**
      * Anti-spoofing rule to block the Ipv4 DHCP server traffic from the port.
      *
-     * @param dpId the dpId
-     * @param dhcpMacAddress the Dhcp mac address
-     * @param lportTag the lport tag
-     * @param addOrRemove add/remove the flow.
+     * @param dpId
+     *            the dpId
+     * @param dhcpMacAddress
+     *            the Dhcp mac address
+     * @param lportTag
+     *            the lport tag
+     * @param addOrRemove
+     *            add/remove the flow.
      */
     protected void egressAclDhcpDropServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
             int addOrRemove) {
@@ -224,18 +350,21 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionDrop());
         String flowName = "Egress_DHCP_Server_v4" + dpId + "_" + lportTag + "_" + dhcpMacAddress + "_Drop_";
-        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName,
-                AclConstants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY, "ACL", 0,
-                0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY,
+                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
     /**
      * Anti-spoofing rule to block the Ipv6 DHCP server traffic from the port.
      *
-     * @param dpId the dpId
-     * @param dhcpMacAddress the Dhcp mac address
-     * @param lportTag the lport tag
-     * @param addOrRemove add/remove the flow.
+     * @param dpId
+     *            the dpId
+     * @param dhcpMacAddress
+     *            the Dhcp mac address
+     * @param lportTag
+     *            the lport tag
+     * @param addOrRemove
+     *            add/remove the flow.
      */
     protected void egressAclDhcpv6DropServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
             int addOrRemove) {
@@ -246,17 +375,19 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionDrop());
         String flowName = "Egress_DHCP_Server_v6" + "_" + dpId + "_" + lportTag + "_" + dhcpMacAddress + "_Drop_";
-        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName,
-                AclConstants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY, "ACL", 0,
-                0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY,
+                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
     /**
      * Anti-spoofing rule to block the Ipv6 Router Advts from the VM port.
      *
-     * @param dpId the dpId
-     * @param lportTag the lport tag
-     * @param addOrRemove add/remove the flow.
+     * @param dpId
+     *            the dpId
+     * @param lportTag
+     *            the lport tag
+     * @param addOrRemove
+     *            add/remove the flow.
      */
     private void egressAclIcmpv6DropRouterAdvts(BigInteger dpId, int lportTag, int addOrRemove) {
         List<MatchInfoBase> matches = AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_RA, 0, lportTag);
@@ -265,37 +396,43 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionDrop());
         String flowName = "Egress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_RA + "_Drop_";
-        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_DROP_PRIORITY, "ACL", 0,
-                0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_DROP_PRIORITY, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
     /**
      * Add rule to allow certain ICMPv6 traffic from VM ports.
      *
-     * @param dpId the dpId
-     * @param lportTag the lport tag
-     * @param addOrRemove add/remove the flow.
+     * @param dpId
+     *            the dpId
+     * @param lportTag
+     *            the lport tag
+     * @param addOrRemove
+     *            add/remove the flow.
      */
     private void egressAclIcmpv6AllowedList(BigInteger dpId, int lportTag, int addOrRemove) {
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
 
-        for (Integer icmpv6Type: AclConstants.allowedIcmpv6NdList()) {
+        for (Integer icmpv6Type : AclConstants.allowedIcmpv6NdList()) {
             List<MatchInfoBase> matches = AclServiceUtils.buildIcmpV6Matches(icmpv6Type, 0, lportTag);
             String flowName = "Egress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + icmpv6Type + "_Permit_";
-            syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY,
-                    "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+            syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, "ACL", 0,
+                    0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
         }
     }
 
     /**
-     * Add rule to ensure only DHCP server traffic from the specified mac is
-     * allowed.
+     * Add rule to ensure only DHCP server traffic from the specified mac is allowed.
      *
-     * @param dpId the dpid
-     * @param dhcpMacAddress the DHCP server mac address
-     * @param lportTag the lport tag
-     * @param addOrRemove whether to add or remove the flow
+     * @param dpId
+     *            the dpid
+     * @param dhcpMacAddress
+     *            the DHCP server mac address
+     * @param lportTag
+     *            the lport tag
+     * @param addOrRemove
+     *            whether to add or remove the flow
      */
     private void egressAclDhcpAllowClientTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
             int addOrRemove) {
@@ -307,17 +444,20 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
 
         String flowName = "Egress_DHCP_Client_v4" + dpId + "_" + lportTag + "_" + dhcpMacAddress + "_Permit_";
         syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY,
-            "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
     /**
-     * Add rule to ensure only DHCPv6 server traffic from the specified mac is
-     * allowed.
+     * Add rule to ensure only DHCPv6 server traffic from the specified mac is allowed.
      *
-     * @param dpId the dpid
-     * @param dhcpMacAddress the DHCP server mac address
-     * @param lportTag the lport tag
-     * @param addOrRemove whether to add or remove the flow
+     * @param dpId
+     *            the dpid
+     * @param dhcpMacAddress
+     *            the DHCP server mac address
+     * @param lportTag
+     *            the lport tag
+     * @param addOrRemove
+     *            whether to add or remove the flow
      */
     private void egressAclDhcpv6AllowClientTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
             int addOrRemove) {
@@ -329,16 +469,20 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
 
         String flowName = "Egress_DHCP_Client_v6" + "_" + dpId + "_" + lportTag + "_" + dhcpMacAddress + "_Permit_";
         syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY,
-            "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
     /**
      * Adds the rule to allow arp packets.
      *
-     * @param dpId the dpId
-     * @param allowedAddresses the allowed addresses
-     * @param lportTag the lport tag
-     * @param addOrRemove whether to add or remove the flow
+     * @param dpId
+     *            the dpId
+     * @param allowedAddresses
+     *            the allowed addresses
+     * @param lportTag
+     *            the lport tag
+     * @param addOrRemove
+     *            whether to add or remove the flow
      */
     protected void programArpRule(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses, int lportTag,
             int addOrRemove) {
@@ -352,9 +496,8 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
             List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(new ArrayList<>());
 
             String flowName = "Egress_ARP_" + dpId + "_" + lportTag + "_" + attachMac.getValue();
-            syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName,
-                    AclConstants.PROTO_ARP_TRAFFIC_MATCH_PRIORITY, "ACL", 0, 0,
-                    AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+            syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_ARP_TRAFFIC_MATCH_PRIORITY,
+                    "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
         }
     }
 }

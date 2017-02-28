@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.aclservice.utils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +40,26 @@ public class AclDataUtil {
         }
     }
 
+    public synchronized void addOrUpdateAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
+        for (Uuid acl : aclList) {
+            List<AclInterface> interfaceList = aclInterfaceMap.get(acl);
+            if (interfaceList == null) {
+                interfaceList = new ArrayList<>();
+                interfaceList.add(port);
+                aclInterfaceMap.put(acl, interfaceList);
+            } else {
+                for (Iterator<AclInterface> itr = interfaceList.iterator(); itr.hasNext();) {
+                    AclInterface aclInterface = itr.next();
+                    if (aclInterface.getInterfaceId().equals(port.getInterfaceId())) {
+                        itr.remove();
+                    }
+
+                }
+                interfaceList.add(port);
+            }
+        }
+    }
+
     public synchronized void removeAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
         for (Uuid acl : aclList) {
             List<AclInterface> interfaceList = aclInterfaceMap.get(acl);
@@ -53,12 +74,11 @@ public class AclDataUtil {
     }
 
     /**
-     * Gets the set of ACL interfaces per ACL (in a map) which has specified
-     * remote ACL ID.
+     * Gets the set of ACL interfaces per ACL (in a map) which has specified remote ACL ID.
      *
-     * @param remoteAclId the remote acl id
-     * @return the set of ACL interfaces per ACL (in a map) which has specified
-     *         remote ACL ID.
+     * @param remoteAclId
+     *            the remote acl id
+     * @return the set of ACL interfaces per ACL (in a map) which has specified remote ACL ID.
      */
     public Map<String, Set<AclInterface>> getRemoteAclInterfaces(Uuid remoteAclId) {
         List<Uuid> remoteAclList = getRemoteAcl(remoteAclId);
@@ -102,8 +122,10 @@ public class AclDataUtil {
     /**
      * Adds the acl flow priority to the cache.
      *
-     * @param aclName the acl name
-     * @param flowPriority the flow priority
+     * @param aclName
+     *            the acl name
+     * @param flowPriority
+     *            the flow priority
      */
     public void addAclFlowPriority(final String aclName, final Integer flowPriority) {
         this.aclFlowPriorityMap.put(aclName, flowPriority);
@@ -112,9 +134,9 @@ public class AclDataUtil {
     /**
      * Removes the acl flow priority from the cache.
      *
-     * @param key the key
-     * @return the previous value associated with key, or null if there was no
-     *         mapping for key.
+     * @param key
+     *            the key
+     * @return the previous value associated with key, or null if there was no mapping for key.
      */
     public Integer removeAclFlowPriority(final String key) {
         return this.aclFlowPriorityMap.remove(key);
@@ -123,7 +145,8 @@ public class AclDataUtil {
     /**
      * Gets the acl flow priority from the cache.
      *
-     * @param aclName the acl name
+     * @param aclName
+     *            the acl name
      * @return the acl flow priority
      */
     public Integer getAclFlowPriority(final String aclName) {
