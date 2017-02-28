@@ -118,6 +118,30 @@
       "revId": "fa3af52c8fc5553b83b2e4c5ff532f8b290d7887",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_db8df8d4",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBase.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-02-28T11:15:14Z",
+      "side": 1,
+      "message": "Yes, you have to trust me :) I formatted using Vi editor replacing FlowEntity with prefixing new line. \n\nAgree with you to log it only in case of failed assertion and also with LOG.warn. Please make changes in genius as well.\n\nThanks",
+      "parentUuid": "fafc7978_bba474a6",
+      "range": {
+        "startLine": 341,
+        "startChar": 4,
+        "endLine": 341,
+        "endChar": 78
+      },
+      "revId": "fa3af52c8fc5553b83b2e4c5ff532f8b290d7887",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
