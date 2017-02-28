@@ -107,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9e387ed4",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulIngressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-28T11:38:38Z",
+      "side": 1,
+      "message": "Yes, this line only configures ACL1 (ACL_FILTER_TABLE) to goto the new ACL2 (ACL_REMOTE_ACL_TABLE), instead of going directly to ACL3.\n\nthe conntrack logic will stay in ACL1 and ACL3 (previously ACL2) as before.",
+      "parentUuid": "fafc7978_e5001904",
+      "revId": "33b9a06f92d22f75a9f603b863407cbd79a5892c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_875af827",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
         "patchSetId": 6
