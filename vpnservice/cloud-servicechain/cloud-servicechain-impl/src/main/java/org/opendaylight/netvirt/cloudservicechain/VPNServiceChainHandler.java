@@ -131,16 +131,30 @@ public class VPNServiceChainHandler implements AutoCloseable {
         Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
         List<VrfEntry> vrfEntries = VpnServiceChainUtils.getAllVrfEntries(dataBroker, rd);
         if (vrfEntries != null) {
-            AddVpnPseudoPortDataJob updateVpnToPseudoPortTask =
-                new AddVpnPseudoPortDataJob(dataBroker, rd, lportTag, tableId, (int) scfTag);
-            DataStoreJobCoordinator.getInstance().enqueueJob(updateVpnToPseudoPortTask.getDsJobCoordinatorKey(),
-                                                             updateVpnToPseudoPortTask);
+            if (addOrRemove == NwConstants.ADD_FLOW) {
+                AddVpnPseudoPortDataJob updateVpnToPseudoPortTask =
+                        new AddVpnPseudoPortDataJob(dataBroker, rd, lportTag, tableId, (int) scfTag);
+                DataStoreJobCoordinator.getInstance().enqueueJob(updateVpnToPseudoPortTask.getDsJobCoordinatorKey(),
+                                                                 updateVpnToPseudoPortTask);
+            } else {
+                RemoveVpnPseudoPortDataJob removeVpnPseudoPortDataTask = new RemoveVpnPseudoPortDataJob(dataBroker, rd);
+                DataStoreJobCoordinator.getInstance().enqueueJob(removeVpnPseudoPortDataTask.getDsJobCoordinatorKey(),
+                                                                 removeVpnPseudoPortDataTask);
+            }
 
             for (VpnToDpnList dpnInVpn : vpnToDpnList) {
                 BigInteger dpnId = dpnInVpn.getDpnId();
                 programVpnToScfPipelineOnDpn(dpnId, vrfEntries, tableId, (int) scfTag, lportTag, addOrRemove);
 
                 if (dpnInVpn.getVpnInterfaces() != null) {
+                    long vpnId = vpnInstance.getVpnId();
+                    Flow flow = VpnServiceChainUtils.buildLPortDispFromScfToL3VpnFlow(vpnId, dpnId, lportTag,
+                            NwConstants.ADD_FLOW);
+                    if (addOrRemove == NwConstants.ADD_FLOW) {
+                        mdsalManager.installFlow(dpnId, flow);
+                    } else {
+                        mdsalManager.removeFlow(dpnId, flow);
+                    }
                     dpnInVpn.getVpnInterfaces().stream().forEach(vpnIf -> {
                         if (addOrRemove == NwConstants.ADD_FLOW) {
                             bindScfOnVpnInterface(vpnIf.getInterfaceName(), (int) scfTag);
