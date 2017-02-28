@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_dbdfb8d4",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-28T11:37:09Z",
+      "side": 1,
+      "message": "thanks fixed",
+      "parentUuid": "fafc7978_c5b19590",
+      "revId": "38d0518f034b3c5001d3b339d988e3b7fa586ab6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_256a21ee",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 15
@@ -64,6 +82,30 @@
       "writtenOn": "2017-02-28T06:39:00Z",
       "side": 1,
       "message": "Note that this will be available in future releases too. So would be good to not specify Carbon but make it generic. Targetted release section will infom user that this was made available in Carbon. e.g. \u0027This spec is to enahance initial iplementation of...\u0027",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 50
+      },
+      "revId": "38d0518f034b3c5001d3b339d988e3b7fa586ab6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9b009035",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-28T11:37:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_256a21ee",
       "range": {
         "startLine": 9,
         "startChar": 0,
@@ -110,6 +152,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1b9ca00e",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-28T11:37:09Z",
+      "side": 1,
+      "message": "added some info",
+      "parentUuid": "fafc7978_6570a9dc",
+      "revId": "38d0518f034b3c5001d3b339d988e3b7fa586ab6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8542ed65",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 15
@@ -121,6 +181,24 @@
       "writtenOn": "2017-02-28T06:39:00Z",
       "side": 1,
       "message": "What about multiple SGs? Call out as \u0027Not supported\u0027 if any.",
+      "revId": "38d0518f034b3c5001d3b339d988e3b7fa586ab6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fb90bcee",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-28T11:37:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_8542ed65",
       "revId": "38d0518f034b3c5001d3b339d988e3b7fa586ab6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -173,6 +251,54 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bbb11491",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-28T11:37:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e57bf9bb",
+      "range": {
+        "startLine": 52,
+        "startChar": 1,
+        "endLine": 52,
+        "endChar": 7
+      },
+      "revId": "38d0518f034b3c5001d3b339d988e3b7fa586ab6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1b6ae0ed",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-28T11:37:09Z",
+      "side": 1,
+      "message": "clarified, ACL name as defined in ietf-access-control-list:access-lists",
+      "parentUuid": "fafc7978_057f1dac",
+      "range": {
+        "startLine": 52,
+        "startChar": 59,
+        "endLine": 52,
+        "endChar": 67
+      },
+      "revId": "38d0518f034b3c5001d3b339d988e3b7fa586ab6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_65470978",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 15
@@ -184,6 +310,30 @@
       "writtenOn": "2017-02-28T06:39:00Z",
       "side": 1,
       "message": "Would be good to capture table numbers for these and/or actual table",
+      "range": {
+        "startLine": 55,
+        "startChar": 33,
+        "endLine": 55,
+        "endChar": 37
+      },
+      "revId": "38d0518f034b3c5001d3b339d988e3b7fa586ab6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bb78f4c4",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-28T11:37:09Z",
+      "side": 1,
+      "message": "Added below, in text I think its clearer not to refer to the numbers (there is one for ingress and egress)",
+      "parentUuid": "fafc7978_65470978",
       "range": {
         "startLine": 55,
         "startChar": 33,
@@ -219,6 +369,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1b3820ee",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-28T11:37:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0556fd29",
+      "range": {
+        "startLine": 118,
+        "startChar": 91,
+        "endLine": 118,
+        "endChar": 94
+      },
+      "revId": "38d0518f034b3c5001d3b339d988e3b7fa586ab6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e552d933",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 15
@@ -230,6 +404,30 @@
       "writtenOn": "2017-02-28T06:39:00Z",
       "side": 1,
       "message": "Would prefer to use table names too. They will translate directly to variable names in NwConstants file.",
+      "range": {
+        "startLine": 136,
+        "startChar": 0,
+        "endLine": 137,
+        "endChar": 34
+      },
+      "revId": "38d0518f034b3c5001d3b339d988e3b7fa586ab6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5b158847",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-28T11:37:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e552d933",
       "range": {
         "startLine": 136,
         "startChar": 0,
@@ -265,6 +463,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bb0d9440",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-28T11:37:09Z",
+      "side": 1,
+      "message": "Ideally there should be, as described below. Not sure who can do it at the moment.",
+      "parentUuid": "fafc7978_253861ee",
+      "range": {
+        "startLine": 218,
+        "startChar": 3,
+        "endLine": 218,
+        "endChar": 4
+      },
+      "revId": "38d0518f034b3c5001d3b339d988e3b7fa586ab6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_85394df4",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 15
@@ -282,6 +504,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3e019205",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-28T11:37:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_85394df4",
+      "revId": "38d0518f034b3c5001d3b339d988e3b7fa586ab6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a523b1bb",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 15
@@ -293,6 +533,24 @@
       "writtenOn": "2017-02-28T06:39:00Z",
       "side": 1,
       "message": "This should be numbered list of one-liner for test cases. So same content, reworded/reformatted.",
+      "revId": "38d0518f034b3c5001d3b339d988e3b7fa586ab6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7e1e7a60",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-28T11:37:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a523b1bb",
       "revId": "38d0518f034b3c5001d3b339d988e3b7fa586ab6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
