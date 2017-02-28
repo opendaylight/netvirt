@@ -1,0 +1,205 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_5439d5a2",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1257,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-02-28T15:32:14Z",
+      "side": 1,
+      "message": "it seems AsyncDataTreeChangeListenerBase getting deprecated. Are we allowed to use this?",
+      "range": {
+        "startLine": 1257,
+        "startChar": 20,
+        "endLine": 1257,
+        "endChar": 51
+      },
+      "revId": "1b4e75131775700c3cbe06fbdcf304867e717c7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f44f2932",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1311,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-02-28T15:32:14Z",
+      "side": 1,
+      "message": "why are we not handling add() callback, do we expect always UPDATE callback? \nWhat happens in cluster-reboot scenario?",
+      "range": {
+        "startLine": 1311,
+        "startChar": 23,
+        "endLine": 1311,
+        "endChar": 26
+      },
+      "revId": "1b4e75131775700c3cbe06fbdcf304867e717c7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5460b5a4",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1370,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-02-28T15:32:14Z",
+      "side": 1,
+      "message": "same as above (MultipathReactor-add callback)",
+      "range": {
+        "startLine": 1370,
+        "startChar": 23,
+        "endLine": 1370,
+        "endChar": 26
+      },
+      "revId": "1b4e75131775700c3cbe06fbdcf304867e717c7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f4d569e5",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1833,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-02-28T15:32:14Z",
+      "side": 1,
+      "message": "May I know, why are we using LIST here?",
+      "range": {
+        "startLine": 1833,
+        "startChar": 12,
+        "endLine": 1833,
+        "endChar": 38
+      },
+      "revId": "1b4e75131775700c3cbe06fbdcf304867e717c7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_14c2ad33",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1833,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-02-28T15:32:14Z",
+      "side": 1,
+      "message": "is it not a Neighbour configuration?",
+      "range": {
+        "startLine": 1833,
+        "startChar": 48,
+        "endLine": 1833,
+        "endChar": 60
+      },
+      "revId": "1b4e75131775700c3cbe06fbdcf304867e717c7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_348ff12b",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-02-28T15:32:14Z",
+      "side": 1,
+      "message": "Are we sure, these \"AF\" fields are filled with right values every time?\nIMO, these can\u0027t be here.. will not work always... example: GR scenario.",
+      "range": {
+        "startLine": 159,
+        "startChar": 0,
+        "endLine": 160,
+        "endChar": 55
+      },
+      "revId": "1b4e75131775700c3cbe06fbdcf304867e717c7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_348091bf",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/resources/org/opendaylight/blueprint/commands.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-02-28T15:32:14Z",
+      "side": 1,
+      "message": "can you update the display-bgp-config command as well, to display the newly added options.",
+      "range": {
+        "startLine": 72,
+        "startChar": 62,
+        "endLine": 72,
+        "endChar": 81
+      },
+      "revId": "1b4e75131775700c3cbe06fbdcf304867e717c7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_94f17d03",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-02-28T15:32:14Z",
+      "side": 1,
+      "message": "can you change the file name to ibgp.yang (this comment is not related to the change, as you are touched the file).",
+      "revId": "1b4e75131775700c3cbe06fbdcf304867e717c7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d4de656c",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-02-28T15:32:14Z",
+      "side": 1,
+      "message": "for the fields, which are made \"mandatory\u003d true\" needs to take care in upgrade scenario. Please keep an eye...",
+      "range": {
+        "startLine": 297,
+        "startChar": 0,
+        "endLine": 297,
+        "endChar": 24
+      },
+      "revId": "1b4e75131775700c3cbe06fbdcf304867e717c7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
