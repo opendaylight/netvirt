@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_be0d8240",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-28T13:12:15Z",
+      "side": 1,
+      "message": "This code will not work for bgpvpn use-case.\n\nPlease pass the vpnName itself from vrfEntryListener and then use it directly here, instead of rd.  RD is of much relevance only to BGPVPN.",
+      "revId": "d1cc43a7b86301ff9f612c1c560296d9e57c70e0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7e42fa68",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 730,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-28T13:12:15Z",
+      "side": 1,
+      "message": "You can proceed with this change for now if this is required for your testing .  \n\nPut a TODO here that ElanInstance dependency to be removed after l3vni-forwarding-yang changes land and subnet-Id will be used to retrieve network-id while subnet-id \n\nIn  general, I would not recommend use of ElanInstance within the VPN as a whole since it can easily backfire during create/delete tuple lifecycles in a script for (network + router + vm port ).",
+      "revId": "d1cc43a7b86301ff9f612c1c560296d9e57c70e0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
