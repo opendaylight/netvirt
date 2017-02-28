@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_f28aa4bd",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-28T10:10:42Z",
+      "side": 1,
+      "message": "description \u0027This is external subnet id\u0027",
+      "revId": "70682063a1896322f97f08da35a061ec68cf8467",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
