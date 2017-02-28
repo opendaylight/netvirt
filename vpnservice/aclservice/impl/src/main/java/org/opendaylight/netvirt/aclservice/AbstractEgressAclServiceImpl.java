@@ -13,6 +13,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -25,11 +27,14 @@ import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchArpSha;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
+import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
@@ -189,10 +194,10 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
         Map<String,List<MatchInfoBase>> flowMap = null;
         if (aceType instanceof AceIp) {
             flowMap = AclServiceOFFlowBuilder.programIpFlow(matches);
-            if (syncAllowedAddresses != null) {
-                flowMap = AclServiceUtils.getFlowForAllowedAddresses(syncAllowedAddresses, flowMap, false);
-            } else if (aceAttr.getRemoteGroupId() != null) {
+            if (aceAttr.getRemoteGroupId() != null) {
                 flowMap = aclServiceUtils.getFlowForRemoteAcl(aceAttr.getRemoteGroupId(), portId, flowMap, false);
+            } else if (syncAllowedAddresses != null) {
+                flowMap = AclServiceUtils.getFlowForAllowedAddresses(syncAllowedAddresses, flowMap, false);
             }
         }
         if (null == flowMap) {
@@ -202,6 +207,125 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
         for (String flowName : flowMap.keySet()) {
             syncSpecificAclFlow(dpId, lportTag, addOrRemove, ace, portId, flowMap, flowName);
         }
+    }
+
+    @Override
+    protected void updateRemoteAclFilterTable(AclInterface port, int addOrRemove) {
+        if (addOrRemove == NwConstants.DEL_FLOW && AclServiceUtils.isMoreThanOneAcl(port)) {
+            LOG.debug("Port {} with more than one SG ({}). Don't remove from ACL filter table", port.getInterfaceId(),
+                    port.getSecurityGroups().size());
+        } else if (port.getSecurityGroups().isEmpty()) {
+            LOG.debug("Port {} with no SG.", port.getInterfaceId(),
+                    port.getSecurityGroups().size());
+        } else {
+            Uuid sg = port.getSecurityGroups().get(0);
+            updateRemoteAclFilterTableForSg(port, sg, addOrRemove);
+        }
+    }
+
+    private void updateRemoteAclFilterTableForSg(AclInterface port, Uuid acl, int addOrRemove) {
+        BigInteger aclId = aclServiceUtils.buildAclId(acl);
+
+        Long elanTag = AclServiceUtils.getElanIdFromInterface(port.getInterfaceId(), dataBroker);
+        if (elanTag == null) {
+            LOG.debug("Can't find elan id for port {} ", port.getInterfaceId());
+            return;
+        }
+        for (AllowedAddressPairs ip : port.getAllowedAddressPairs()) {
+            if (!AclServiceUtils.isNotIpv4AllNetwork(ip)) {
+                continue;
+            }
+            writeCurrentAclForRemoteAcls(acl, addOrRemove, elanTag, ip, aclId);
+            writeRemoteAclsForCurrentAcl(acl, port.getDpId(), addOrRemove);
+        }
+
+    }
+
+    private void writeCurrentAclForRemoteAcls(Uuid acl, int addOrRemove, Long elanTag, AllowedAddressPairs ip,
+            BigInteger aclId) {
+        List<MatchInfoBase> flowMatches = new ArrayList<>();
+        flowMatches.addAll(AclServiceUtils.buildIpAndElanSrcMatch(elanTag, ip, dataBroker));
+
+        List<InstructionInfo> instructions = new ArrayList<>();
+
+        InstructionWriteMetadata writeMetatdata =
+                new InstructionWriteMetadata(aclId, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID);
+        instructions.add(writeMetatdata);
+        instructions.add(new InstructionGotoTable(getEgressAclFilterTable()));
+
+        String flowNameAdded = "Acl_Filter_Egress_" + new String(ip.getIpAddress().getValue()) + "_" + elanTag;
+
+        Map<String, Set<AclInterface>> mapAclWithPortSet = aclDataUtil.getRemoteAclInterfaces(acl);
+        Set<BigInteger> dpns = collectDpns(mapAclWithPortSet);
+        for (BigInteger dpId : dpns) {
+            LOG.debug("writing rule for ip {} and rlanId {} in egress acl remote table {}", getIpPrefixOrAddress(ip),
+                    elanTag, getEgressAclRemoteAclTable());
+            syncFlow(dpId, getEgressAclRemoteAclTable(), flowNameAdded, AclConstants.NO_PRIORITY, "ACL", 0, 0,
+                    AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
+        }
+    }
+
+    protected short getEgressAclFilterTable() {
+        return NwConstants.EGRESS_ACL_FILTER_TABLE;
+    }
+
+    protected short getEgressAclRemoteAclTable() {
+        return NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE;
+    }
+
+    private void writeRemoteAclsForCurrentAcl(Uuid sgUuid, BigInteger dpId, int addOrRemove) {
+        Acl acl = AclServiceUtils.getAcl(dataBroker, sgUuid.getValue());
+        if (null == acl) {
+            LOG.debug("The ACL {} is empty", sgUuid);
+            return;
+        }
+        AccessListEntries accessListEntries = acl.getAccessListEntries();
+        List<Ace> aceList = accessListEntries.getAce();
+        for (Ace ace : aceList) {
+            SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
+            if (aceAttr.getRemoteGroupId() == null) {
+                continue;
+            }
+            List<AclInterface> interfaceList = aclDataUtil.getInterfaceList(aceAttr.getRemoteGroupId());
+            if (interfaceList == null) {
+                continue;
+            }
+            for (AclInterface inter : interfaceList) {
+                BigInteger aclId = aclServiceUtils.buildAclId(aceAttr.getRemoteGroupId());
+
+                Long elanTag = AclServiceUtils.getElanIdFromInterface(inter.getInterfaceId(), dataBroker);
+                if (elanTag == null) {
+                    LOG.debug("Can't find elan id for port {} ", inter.getInterfaceId());
+                    continue;
+                }
+                for (AllowedAddressPairs ip : inter.getAllowedAddressPairs()) {
+                    if (!AclServiceUtils.isNotIpv4AllNetwork(ip)) {
+                        continue;
+                    }
+                    List<MatchInfoBase> flowMatches = new ArrayList<>();
+                    flowMatches.addAll(AclServiceUtils.buildIpAndElanSrcMatch(elanTag, ip, dataBroker));
+
+                    List<InstructionInfo> instructions = new ArrayList<>();
+
+                    InstructionWriteMetadata writeMetatdata =
+                            new InstructionWriteMetadata(aclId, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID);
+                    instructions.add(writeMetatdata);
+                    instructions.add(new InstructionGotoTable(getEgressAclFilterTable()));
+
+                    String flowNameAdded =
+                            "Acl_Filter_Egress_" + new String(ip.getIpAddress().getValue()) + "_" + elanTag;
+
+                    if (dpId != null) {
+                        LOG.debug("writing rule for ip {} and rlanId {} in egress acl remote table {}",
+                                getIpPrefixOrAddress(ip), elanTag, getEgressAclRemoteAclTable());
+                        syncFlow(dpId, getEgressAclRemoteAclTable(), flowNameAdded, AclConstants.NO_PRIORITY, "ACL", 0,
+                                0, AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
+                    }
+                }
+            }
+
+        }
+
     }
 
     protected abstract String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace,
