@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_48977cec",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronPortChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-02-28T09:24:22Z",
+      "side": 1,
+      "message": "shouldn\u0027t a check for policy bound to a port be done here?\nIt looks like it will overwrite the policy bound to the port.",
+      "range": {
+        "startLine": 65,
+        "startChar": 16,
+        "endLine": 65,
+        "endChar": 31
+      },
+      "revId": "7976d5e81d8fe2a46c0c7cb11979a6d1933fe3b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
