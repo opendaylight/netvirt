@@ -83,7 +83,7 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
             Map<String, List<MatchInfoBase>> flowMap, String flowName) {
         List<MatchInfoBase> matches = flowMap.get(flowName);
         flowName += "Ingress" + lportTag + ace.getKey().getRuleName();
-        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        AclServiceUtils.addLPortTagMatch(lportTag, matches);
         matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
                 new long[] {AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
 

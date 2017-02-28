@@ -91,7 +91,7 @@ public class StatelessEgressAclServiceImpl extends AbstractEgressAclServiceImpl 
                             NxMatchFieldType.nx_tcp_src_with_mask);
             if (hasTcpMatch || protocol == null) {
                 flowName += "Egress" + lportTag + ace.getKey().getRuleName();
-                flowMatches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+                AclServiceUtils.addLPortTagMatch(lportTag, flowMatches);
 
                 programAllowSynRules(dpId, flowName, flowMatches, addOrRemove, protocol);
             }

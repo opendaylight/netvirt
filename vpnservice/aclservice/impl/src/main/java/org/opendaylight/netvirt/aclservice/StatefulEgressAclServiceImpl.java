@@ -72,7 +72,7 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
             Map<String, List<MatchInfoBase>> flowMap, String flowName) {
         List<MatchInfoBase> matches = flowMap.get(flowName);
         flowName += "Egress" + lportTag + ace.getKey().getRuleName();
-        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        AclServiceUtils.addLPortTagMatch(lportTag, matches);
         matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
                 new long[] {AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
 
