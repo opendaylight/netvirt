@@ -50,6 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -119,38 +120,50 @@ public final class AclServiceUtils {
 
     /**
      * Retrieves the Interface from the datastore.
-     * @param broker the data broker
-     * @param interfaceName the interface name
+     *
+     * @param broker
+     *            the data broker
+     * @param interfaceName
+     *            the interface name
      * @return the interface.
      */
-    public static Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
-        .Interface> getInterface(DataBroker broker, String interfaceName) {
+    public static Optional<org.opendaylight.yang.gen.v1.urn
+        .ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> getInterface(
+            DataBroker broker, String interfaceName) {
         return read(broker, LogicalDatastoreType.CONFIGURATION, getInterfaceIdentifier(interfaceName));
     }
 
     /**
      * Builds the interface identifier.
-     * @param interfaceName the interface name.
+     *
+     * @param interfaceName
+     *            the interface name.
      * @return the interface identifier.
      */
-    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
-        .interfaces.Interface> getInterfaceIdentifier(String interfaceName) {
+    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn
+        .ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> getInterfaceIdentifier(
+                String interfaceName) {
         return InstanceIdentifier.builder(Interfaces.class)
-                .child(
-                    org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
-                    .Interface.class, new InterfaceKey(interfaceName)).build();
+                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+                        .ietf.interfaces.rev140508.interfaces.Interface.class, new InterfaceKey(interfaceName))
+                .build();
     }
 
     /**
      * Retrieves the object from the datastore.
-     * @param broker the data broker.
-     * @param datastoreType the data store type.
-     * @param path the wild card path.
-     * @param <T> type of DataObject
+     *
+     * @param broker
+     *            the data broker.
+     * @param datastoreType
+     *            the data store type.
+     * @param path
+     *            the wild card path.
+     * @param <T>
+     *            type of DataObject
      * @return the required object.
      */
-    public static <T extends DataObject> Optional<T> read(
-            DataBroker broker, LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
+    public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
+            InstanceIdentifier<T> path) {
         try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
             return tx.read(datastoreType, path).checkedGet();
         } catch (ReadFailedException e) {
@@ -162,38 +175,41 @@ public final class AclServiceUtils {
     /**
      * Retrieves the acl matching the key from the data store.
      *
-     * @param broker the data broker
-     * @param aclKey the acl key
+     * @param broker
+     *            the data broker
+     * @param aclKey
+     *            the acl key
      * @return the acl
      */
     public static Acl getAcl(DataBroker broker, String aclKey) {
         return read(broker, LogicalDatastoreType.CONFIGURATION, getAclInstanceIdentifier(aclKey)).orNull();
     }
 
-    /** Creates the Acl instance identifier.
+    /**
+     * Creates the Acl instance identifier.
      *
-     * @param aclKey the acl key
+     * @param aclKey
+     *            the acl key
      * @return the instance identifier
      */
     public static InstanceIdentifier<Acl> getAclInstanceIdentifier(String aclKey) {
-        return InstanceIdentifier
-                .builder(AccessLists.class)
-                .child(Acl.class,
-                        new AclKey(aclKey,Ipv4Acl.class))
+        return InstanceIdentifier.builder(AccessLists.class).child(Acl.class, new AclKey(aclKey, Ipv4Acl.class))
                 .build();
     }
 
     /**
      * Get the data path number for the interface.
-     * @param interfaceManagerRpcService interfaceManagerRpcService instance.
-     * @param ifName the interface name.
+     *
+     * @param interfaceManagerRpcService
+     *            interfaceManagerRpcService instance.
+     * @param ifName
+     *            the interface name.
      * @return the dpn.
      */
     public static BigInteger getDpnForInterface(OdlInterfaceRpcService interfaceManagerRpcService, String ifName) {
         BigInteger nodeId = BigInteger.ZERO;
         try {
-            GetDpidFromInterfaceInput dpIdInput =
-                    new GetDpidFromInterfaceInputBuilder().setIntfName(ifName).build();
+            GetDpidFromInterfaceInput dpIdInput = new GetDpidFromInterfaceInputBuilder().setIntfName(ifName).build();
             Future<RpcResult<GetDpidFromInterfaceOutput>> dpIdOutput =
                     interfaceManagerRpcService.getDpidFromInterface(dpIdInput);
             RpcResult<GetDpidFromInterfaceOutput> dpIdResult = dpIdOutput.get();
@@ -203,42 +219,53 @@ public final class AclServiceUtils {
                 LOG.error("Could not retrieve DPN Id for interface {}", ifName);
             }
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("Exception when getting dpn for interface {}", ifName,  e);
+            LOG.error("Exception when getting dpn for interface {}", ifName, e);
         }
         return nodeId;
     }
 
     /**
      * Retrieves the interface state.
-     * @param dataBroker the data broker.
-     * @param interfaceName the interface name.
+     *
+     * @param dataBroker
+     *            the data broker.
+     * @param interfaceName
+     *            the interface name.
      * @return the interface state.
      */
-    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
-        .Interface getInterfaceStateFromOperDS(DataBroker dataBroker, String interfaceName) {
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
-            .interfaces.state.Interface> ifStateId = buildStateInterfaceId(interfaceName);
+    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+        .ietf.interfaces.rev140508.interfaces.state.Interface getInterfaceStateFromOperDS(
+            DataBroker dataBroker, String interfaceName) {
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+            .ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId =
+                buildStateInterfaceId(interfaceName);
         return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, ifStateId, dataBroker).orNull();
     }
 
     /**
      * Build the interface state.
-     * @param interfaceName the interface name.
+     *
+     * @param interfaceName
+     *            the interface name.
      * @return the interface state.
      */
-    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
-        .interfaces.state.Interface> buildStateInterfaceId(String interfaceName) {
-        InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
-            .interfaces.state.Interface> idBuilder = InstanceIdentifier.builder(InterfacesState.class)
-            .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
-            .state.Interface.class, new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces
-            .rev140508.interfaces.state.InterfaceKey(interfaceName));
+    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+        .ietf.interfaces.rev140508.interfaces.state.Interface> buildStateInterfaceId(
+            String interfaceName) {
+        InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn
+            .ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> idBuilder =
+                InstanceIdentifier.builder(InterfacesState.class).child(org.opendaylight.yang.gen.v1.urn
+                        .ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class,
+                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+                        .ietf.interfaces.rev140508.interfaces.state.InterfaceKey(interfaceName));
         return idBuilder.build();
     }
 
     /**
      * Checks whether port security is enabled for the port.
-     * @param port the port.
+     *
+     * @param port
+     *            the port.
      * @return the port security is enabled/not.
      */
     public static boolean isPortSecurityEnabled(AclInterface port) {
@@ -247,7 +274,9 @@ public final class AclServiceUtils {
 
     /**
      * Checks whether port security is enabled for the port.
-     * @param port the port.
+     *
+     * @param port
+     *            the port.
      * @return the list of security groups.
      */
     public static List<Uuid> getInterfaceAcls(Interface port) {
@@ -257,8 +286,7 @@ public final class AclServiceUtils {
         }
         InterfaceAcl aclInPort = port.getAugmentation(InterfaceAcl.class);
         if (aclInPort == null) {
-            LOG.error("getSecurityGroupInPortList: no security group associated}",
-                port.getName());
+            LOG.error("getSecurityGroupInPortList: no security group associated}", port.getName());
             return null;
         }
         return aclInPort.getSecurityGroups();
@@ -266,10 +294,12 @@ public final class AclServiceUtils {
 
     /**
      * Retrieves the security rule attribute augmentation from the access list.
-     * @param ace the access list entry
+     *
+     * @param ace
+     *            the access list entry
      * @return the security rule attributes
      */
-    public static SecurityRuleAttr  getAccesssListAttributes(Ace ace) {
+    public static SecurityRuleAttr getAccesssListAttributes(Ace ace) {
         if (ace == null) {
             LOG.error("Ace is Null");
             return null;
@@ -285,9 +315,12 @@ public final class AclServiceUtils {
     /**
      * Returns the DHCP match.
      *
-     * @param srcPort the source port.
-     * @param dstPort the destination port.
-     * @param lportTag the lport tag
+     * @param srcPort
+     *            the source port.
+     * @param dstPort
+     *            the destination port.
+     * @param lportTag
+     *            the lport tag
      * @return list of matches.
      */
     public static List<MatchInfoBase> buildDhcpMatches(int srcPort, int dstPort, int lportTag) {
@@ -303,9 +336,12 @@ public final class AclServiceUtils {
     /**
      * Returns the DHCPv6 match.
      *
-     * @param srcPort the source port.
-     * @param dstPort the destination port.
-     * @param lportTag the lport tag
+     * @param srcPort
+     *            the source port.
+     * @param dstPort
+     *            the destination port.
+     * @param lportTag
+     *            the lport tag
      * @return list of matches.
      */
     public static List<MatchInfoBase> buildDhcpV6Matches(int srcPort, int dstPort, int lportTag) {
@@ -321,9 +357,12 @@ public final class AclServiceUtils {
     /**
      * Returns the ICMPv6 match.
      *
-     * @param icmpType the icmpv6-type.
-     * @param icmpCode the icmpv6-code.
-     * @param lportTag the lport tag
+     * @param icmpType
+     *            the icmpv6-type.
+     * @param icmpCode
+     *            the icmpv6-code.
+     * @param lportTag
+     *            the lport tag
      * @return list of matches.
      */
     public static List<MatchInfoBase> buildIcmpV6Matches(int icmpType, int icmpCode, int lportTag) {
@@ -340,9 +379,12 @@ public final class AclServiceUtils {
     /**
      * Builds the service id.
      *
-     * @param interfaceName the interface name
-     * @param serviceIndex the service index
-     * @param serviceMode the service mode
+     * @param interfaceName
+     *            the interface name
+     * @param serviceIndex
+     *            the service index
+     * @param serviceMode
+     *            the service mode
      * @return the instance identifier
      */
     public static InstanceIdentifier<BoundServices> buildServiceId(String interfaceName, short serviceIndex,
@@ -355,11 +397,16 @@ public final class AclServiceUtils {
     /**
      * Gets the bound services.
      *
-     * @param serviceName the service name
-     * @param servicePriority the service priority
-     * @param flowPriority the flow priority
-     * @param cookie the cookie
-     * @param instructions the instructions
+     * @param serviceName
+     *            the service name
+     * @param servicePriority
+     *            the service priority
+     * @param flowPriority
+     *            the flow priority
+     * @param cookie
+     *            the cookie
+     * @param instructions
+     *            the instructions
      * @return the bound services
      */
     public static BoundServices getBoundServices(String serviceName, short servicePriority, int flowPriority,
@@ -382,7 +429,7 @@ public final class AclServiceUtils {
         List<Uuid> origAclList = new ArrayList<>(currentAclList);
         for (Iterator<Uuid> iterator = newAclList.iterator(); iterator.hasNext();) {
             Uuid updatedAclUuid = iterator.next();
-            for (Uuid currentAclUuid :origAclList) {
+            for (Uuid currentAclUuid : origAclList) {
                 if (updatedAclUuid.getValue().equals(currentAclUuid.getValue())) {
                     iterator.remove();
                 }
@@ -427,8 +474,8 @@ public final class AclServiceUtils {
         return aclInPort.getAllowedAddressPairs();
     }
 
-    public static BigInteger getDpIdFromIterfaceState(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf
-            .interfaces.rev140508.interfaces.state.Interface interfaceState) {
+    public static BigInteger getDpIdFromIterfaceState(org.opendaylight.yang.gen.v1.urn
+            .ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface interfaceState) {
         BigInteger dpId = null;
         List<String> ofportIds = interfaceState.getLowerLayerIf();
         if (ofportIds != null && !ofportIds.isEmpty()) {
@@ -441,12 +488,13 @@ public final class AclServiceUtils {
     /**
      * Builds the ip matches.
      *
-     * @param ipPrefixOrAddress the ip prefix or address
-     * @param matchCriteria the source_ip or destination_ip used for the match
+     * @param ipPrefixOrAddress
+     *            the ip prefix or address
+     * @param matchCriteria
+     *            the source_ip or destination_ip used for the match
      * @return the list
      */
-    public static List<MatchInfoBase> buildIpMatches(IpPrefixOrAddress ipPrefixOrAddress,
-                                                     MatchCriteria matchCriteria) {
+    public static List<MatchInfoBase> buildIpMatches(IpPrefixOrAddress ipPrefixOrAddress, MatchCriteria matchCriteria) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         IpPrefix ipPrefix = ipPrefixOrAddress.getIpPrefix();
         if (ipPrefix != null) {
@@ -459,34 +507,74 @@ public final class AclServiceUtils {
                 }
             } else {
                 flowMatches.add(MatchEthernetType.IPV6);
-                flowMatches.add(matchCriteria == MatchCriteria.MATCH_SOURCE ? new MatchIpv6Source(
-                        ipPrefix.getIpv6Prefix()) : new MatchIpv6Destination(ipPrefix.getIpv6Prefix()));
+                flowMatches
+                        .add(matchCriteria == MatchCriteria.MATCH_SOURCE ? new MatchIpv6Source(ipPrefix.getIpv6Prefix())
+                                : new MatchIpv6Destination(ipPrefix.getIpv6Prefix()));
             }
         } else {
             IpAddress ipAddress = ipPrefixOrAddress.getIpAddress();
             if (ipAddress.getIpv4Address() != null) {
                 flowMatches.add(MatchEthernetType.IPV4);
-                flowMatches.add(matchCriteria == MatchCriteria.MATCH_SOURCE ? new MatchIpv4Source(
-                        ipAddress.getIpv4Address().getValue(), "32") : new MatchIpv4Destination(
-                        ipAddress.getIpv4Address().getValue(), "32"));
+                flowMatches.add(matchCriteria == MatchCriteria.MATCH_SOURCE
+                        ? new MatchIpv4Source(ipAddress.getIpv4Address().getValue(), "32")
+                        : new MatchIpv4Destination(ipAddress.getIpv4Address().getValue(), "32"));
             } else {
                 flowMatches.add(MatchEthernetType.IPV6);
-                flowMatches.add(matchCriteria == MatchCriteria.MATCH_SOURCE ? new MatchIpv6Source(
-                        ipAddress.getIpv6Address().getValue() + "/128") : new MatchIpv6Destination(
-                        ipAddress.getIpv6Address().getValue() + "/128"));
+                flowMatches.add(matchCriteria == MatchCriteria.MATCH_SOURCE
+                        ? new MatchIpv6Source(ipAddress.getIpv6Address().getValue() + "/128")
+                        : new MatchIpv6Destination(ipAddress.getIpv6Address().getValue() + "/128"));
             }
         }
         return flowMatches;
     }
 
+    private static List<MatchInfoBase> buildMetadataMatch(Uuid remoteAclId) {
+        List<MatchInfoBase> flowMatches = new ArrayList<>();
+        BigInteger aclId = buildAclId(remoteAclId);
+        MatchMetadata metadatMatch = new MatchMetadata(aclId, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID);
+        flowMatches.add(metadatMatch);
+        return flowMatches;
+    }
+
+    public static BigInteger buildAclId(Uuid remoteAclId) {
+        return new BigInteger(remoteAclId.getValue().replaceAll("-", ""), 16).mod(BigInteger.valueOf(10000))
+                .shiftLeft(1);
+    }
+
     /**
      * Gets the lport tag match.
      *
-     * @param lportTag the lport tag
+     * @param lportTag
+     *            the lport tag
      * @return the lport tag match
      */
     public static MatchInfo buildLPortTagMatch(int lportTag) {
         return new MatchMetadata(MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG);
+    }
+
+    /**
+     * Adds lport tag match to existing metadata match.
+     *
+     * @param lportTag
+     *            the lport tag
+     * @param flowMatches
+     *            existing matches
+     */
+    public static void addLPortTagMatch(int lportTag, List<MatchInfoBase> flowMatches) {
+        MatchMetadata metadataMatch =
+                new MatchMetadata(MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG);
+        for (Iterator<MatchInfoBase> iter = flowMatches.iterator(); iter.hasNext();) {
+            MatchInfoBase match = iter.next();
+            if (match instanceof MatchMetadata) {
+                BigInteger mask = ((MatchMetadata) match).getMask().or(MetaDataUtil.METADATA_MASK_LPORT_TAG);
+                BigInteger metadata =
+                        ((MatchMetadata) match).getMetadata().or(MetaDataUtil.getLportTagMetaData(lportTag));
+                metadataMatch = new MatchMetadata(metadata, mask);
+                iter.remove();
+                break;
+            }
+        }
+        flowMatches.add(metadataMatch);
     }
 
     public static List<Ace> getAceWithRemoteAclId(DataBroker dataBroker, AclInterface port, Uuid remoteAcl) {
@@ -516,16 +604,26 @@ public final class AclServiceUtils {
         MatchInfoBase ipv6Match = MatchEthernetType.IPV6;
         for (String flowName : flowMatchesMap.keySet()) {
             List<MatchInfoBase> flows = flowMatchesMap.get(flowName);
+
+            List<MatchInfoBase> matchInfoBaseList = addFlowMatchForAclId(remoteAclId, flows);
+            String flowId = flowName + "_remoteACL_id_" + remoteAclId.getValue();
+            updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
             for (AclInterface port : interfaceList) {
                 if (port.getInterfaceId().equals(ignoreInterfaceId)) {
                     continue;
                 }
-                //get allow address pair
+
+                if (port.getSecurityGroups() != null && port.getSecurityGroups().size() == 1) {
+                    LOG.debug(
+                            "port {} is in only one SG. "
+                                    + "Doesn't adding it's IPs {} to matches (handled in acl id match)",
+                            port.getLPortTag(), port.getAllowedAddressPairs());
+                    continue;
+                }
+                // get allow address pair
                 List<AllowedAddressPairs> allowedAddressPair = port.getAllowedAddressPairs();
                 // iterate over allow address pair and update match type
                 for (AllowedAddressPairs aap : allowedAddressPair) {
-                    List<MatchInfoBase> matchInfoBaseList;
-                    String flowId;
                     if (flows.contains(ipv4Match) && isIPv4Address(aap)) {
                         matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
                         flowId = flowName + "_ipv4_remoteACL_interface_aap_" + getAapFlowId(aap);
@@ -561,11 +659,9 @@ public final class AclServiceUtils {
         return false;
     }
 
-    public static Map<String, List<MatchInfoBase>> getFlowForAllowedAddresses(List<AllowedAddressPairs>
-                                                                                      syncAllowedAddresses,
-                                                                              Map<String, List<MatchInfoBase>>
-                                                                                      flowMatchesMap, boolean
-                                                                                      isSourceIpMacMatch) {
+    public static Map<String, List<MatchInfoBase>> getFlowForAllowedAddresses(
+            List<AllowedAddressPairs> syncAllowedAddresses, Map<String, List<MatchInfoBase>> flowMatchesMap,
+            boolean isSourceIpMacMatch) {
         if (flowMatchesMap == null) {
             return null;
         }
@@ -597,7 +693,7 @@ public final class AclServiceUtils {
         return aap.getMacAddress().getValue() + "_" + String.valueOf(aap.getIpAddress().getValue());
     }
 
-    public static Long getElanIdFromInterface(String elanInterfaceName,DataBroker broker) {
+    public static Long getElanIdFromInterface(String elanInterfaceName, DataBroker broker) {
         ElanInterface elanInterface = getElanInterfaceByElanInterfaceName(elanInterfaceName, broker);
         if (null != elanInterface) {
             ElanInstance elanInfo = getElanInstanceByName(elanInterface.getElanInstanceName(), broker);
@@ -606,7 +702,7 @@ public final class AclServiceUtils {
         return null;
     }
 
-    public static ElanInterface getElanInterfaceByElanInterfaceName(String elanInterfaceName,DataBroker broker) {
+    public static ElanInterface getElanInterfaceByElanInterfaceName(String elanInterfaceName, DataBroker broker) {
         InstanceIdentifier<ElanInterface> elanInterfaceId = getElanInterfaceConfigurationDataPathId(elanInterfaceName);
         return read(broker, LogicalDatastoreType.CONFIGURATION, elanInterfaceId).orNull();
     }
@@ -628,7 +724,7 @@ public final class AclServiceUtils {
     }
 
     private static List<MatchInfoBase> updateAAPMatches(boolean isSourceIpMacMatch, List<MatchInfoBase> flows,
-                                                        AllowedAddressPairs aap) {
+            AllowedAddressPairs aap) {
         List<MatchInfoBase> matchInfoBaseList;
         if (isSourceIpMacMatch) {
             matchInfoBaseList = AclServiceUtils.buildIpMatches(aap.getIpAddress(), MatchCriteria.MATCH_SOURCE);
@@ -639,10 +735,17 @@ public final class AclServiceUtils {
         return matchInfoBaseList;
     }
 
+    private static List<MatchInfoBase> addFlowMatchForAclId(Uuid remoteAclId, List<MatchInfoBase> flows) {
+        List<MatchInfoBase> matchInfoBaseList;
+        matchInfoBaseList = buildMetadataMatch(remoteAclId);
+        matchInfoBaseList.addAll(flows);
+        return matchInfoBaseList;
+    }
+
     public static MatchInfoBase getMatchInfoByType(List<MatchInfoBase> flows, NxMatchFieldType type) {
         for (MatchInfoBase mib : flows) {
             if (mib instanceof NxMatchInfo) {
-                if (((NxMatchInfo)mib).getMatchField() == type) {
+                if (((NxMatchInfo) mib).getMatchField() == type) {
                     return mib;
                 }
             }
@@ -694,7 +797,12 @@ public final class AclServiceUtils {
     /**
      * Allocate and save flow priority in cache.
      *
-     * @param key the key
+     * @param dpId
+     *            the node id
+     * @param tableId
+     *            the table id
+     * @param key
+     *            the key
      * @return the integer
      */
     public Integer allocateAndSaveFlowPriorityInCache(BigInteger dpId, short tableId, String key) {
@@ -707,7 +815,12 @@ public final class AclServiceUtils {
     /**
      * Release and remove flow priority from cache.
      *
-     * @param key the key
+     * @param dpId
+     *            the node id
+     * @param tableId
+     *            the table id
+     * @param key
+     *            the key
      * @return the integer
      */
     public Integer releaseAndRemoveFlowPriorityFromCache(BigInteger dpId, short tableId, String key) {
@@ -722,7 +835,9 @@ public final class AclServiceUtils {
 
     /**
      * Indicates whether the interface has port security enabled.
-     * @param aclInterface the interface.
+     *
+     * @param aclInterface
+     *            the interface.
      * @return true if port is security enabled.
      */
     public static boolean isOfInterest(AclInterface aclInterface) {
@@ -733,12 +848,13 @@ public final class AclServiceUtils {
     /**
      * Creates the id pool.
      *
-     * @param poolName the pool name
+     * @param poolName
+     *            the pool name
      */
     public void createIdPool(String poolName) {
-        CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
-                .setPoolName(poolName).setLow(AclConstants.ACL_FLOW_PRIORITY_POOL_START)
-                .setHigh(AclConstants.ACL_FLOW_PRIORITY_POOL_END).build();
+        CreateIdPoolInput createPool =
+                new CreateIdPoolInputBuilder().setPoolName(poolName).setLow(AclConstants.ACL_FLOW_PRIORITY_POOL_START)
+                        .setHigh(AclConstants.ACL_FLOW_PRIORITY_POOL_END).build();
         try {
             Future<RpcResult<Void>> result = this.idManager.createIdPool(createPool);
             if ((result != null) && (result.get().isSuccessful())) {
@@ -753,7 +869,8 @@ public final class AclServiceUtils {
     /**
      * Delete id pool.
      *
-     * @param poolName the pool name
+     * @param poolName
+     *            the pool name
      */
     public void deleteIdPool(String poolName) {
         DeleteIdPoolInput deletePool = new DeleteIdPoolInputBuilder().setPoolName(poolName).build();
@@ -771,8 +888,10 @@ public final class AclServiceUtils {
     /**
      * Gets the acl pool name.
      *
-     * @param dpId the dp id
-     * @param tableId the table id
+     * @param dpId
+     *            the dp id
+     * @param tableId
+     *            the table id
      * @return the acl pool name
      */
     public static String getAclPoolName(BigInteger dpId, short tableId) {
@@ -782,7 +901,8 @@ public final class AclServiceUtils {
     /**
      * Creates the acl id pools.
      *
-     * @param dpId the dp id
+     * @param dpId
+     *            the dp id
      */
     public void createAclIdPools(BigInteger dpId) {
         createIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE));
@@ -792,10 +912,86 @@ public final class AclServiceUtils {
     /**
      * Delete acl id pools.
      *
-     * @param dpId the dp id
+     * @param dpId
+     *            the dp id
      */
     public void deleteAclIdPools(BigInteger dpId) {
         deleteIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE));
         deleteIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE));
+    }
+
+    public static List<? extends MatchInfoBase> buildIpAndElanSrcMatch(long elanTag, AllowedAddressPairs ip,
+            DataBroker dataBroker) {
+        List<MatchInfoBase> flowMatches = new ArrayList<>();
+        MatchMetadata metadatMatch =
+                new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE);
+        flowMatches.add(metadatMatch);
+        if (ip.getIpAddress().getIpAddress() != null) {
+            if (ip.getIpAddress().getIpAddress().getIpv4Address() != null) {
+                MatchEthernetType ipv4EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV4);
+                flowMatches.add(ipv4EthMatch);
+                MatchIpv4Source srcMatch = new MatchIpv4Source(
+                        new Ipv4Prefix(ip.getIpAddress().getIpAddress().getIpv4Address().getValue() + "/32"));
+                flowMatches.add(srcMatch);
+            } else if (ip.getIpAddress().getIpAddress().getIpv6Address() != null) {
+                MatchEthernetType ipv6EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV6);
+                flowMatches.add(ipv6EthMatch);
+                MatchIpv6Source srcMatch = new MatchIpv6Source(
+                        new Ipv6Prefix(ip.getIpAddress().getIpAddress().getIpv6Address().getValue() + "/128"));
+                flowMatches.add(srcMatch);
+            }
+        } else if (ip.getIpAddress().getIpPrefix() != null) {
+            if (ip.getIpAddress().getIpPrefix().getIpv4Prefix() != null) {
+                MatchEthernetType ipv4EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV4);
+                flowMatches.add(ipv4EthMatch);
+                MatchIpv4Source srcMatch = new MatchIpv4Source(ip.getIpAddress().getIpPrefix().getIpv4Prefix());
+                flowMatches.add(srcMatch);
+            } else if (ip.getIpAddress().getIpPrefix().getIpv6Prefix() != null) {
+                MatchEthernetType ipv6EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV6);
+                flowMatches.add(ipv6EthMatch);
+                MatchIpv6Source srcMatch = new MatchIpv6Source(ip.getIpAddress().getIpPrefix().getIpv6Prefix());
+                flowMatches.add(srcMatch);
+            }
+        }
+        return flowMatches;
+    }
+
+    public static List<? extends MatchInfoBase> buildIpAndElanDstMatch(Long elanTag, AllowedAddressPairs ip,
+            DataBroker dataBroker) {
+        List<MatchInfoBase> flowMatches = new ArrayList<>();
+        MatchMetadata metadatMatch =
+                new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE);
+        flowMatches.add(metadatMatch);
+
+        if (ip.getIpAddress().getIpAddress() != null) {
+            if (ip.getIpAddress().getIpAddress().getIpv4Address() != null) {
+                MatchEthernetType ipv4EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV4);
+                flowMatches.add(ipv4EthMatch);
+                MatchIpv4Destination dstMatch = new MatchIpv4Destination(
+                        new Ipv4Prefix(ip.getIpAddress().getIpAddress().getIpv4Address().getValue() + "/32"));
+                flowMatches.add(dstMatch);
+            } else if (ip.getIpAddress().getIpAddress().getIpv6Address() != null) {
+                MatchEthernetType ipv6EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV6);
+                flowMatches.add(ipv6EthMatch);
+                MatchIpv6Destination dstMatch = new MatchIpv6Destination(
+                        new Ipv6Prefix(ip.getIpAddress().getIpAddress().getIpv6Address().getValue() + "/128"));
+                flowMatches.add(dstMatch);
+            }
+        } else if (ip.getIpAddress().getIpPrefix() != null) {
+            if (ip.getIpAddress().getIpPrefix().getIpv4Prefix() != null) {
+                MatchEthernetType ipv4EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV4);
+                flowMatches.add(ipv4EthMatch);
+                MatchIpv4Destination dstMatch =
+                        new MatchIpv4Destination(ip.getIpAddress().getIpPrefix().getIpv4Prefix());
+                flowMatches.add(dstMatch);
+            } else if (ip.getIpAddress().getIpPrefix().getIpv6Prefix() != null) {
+                MatchEthernetType ipv6EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV6);
+                flowMatches.add(ipv6EthMatch);
+                MatchIpv6Destination dstMatch =
+                        new MatchIpv6Destination(ip.getIpAddress().getIpPrefix().getIpv6Prefix());
+                flowMatches.add(dstMatch);
+            }
+        }
+        return flowMatches;
     }
 }

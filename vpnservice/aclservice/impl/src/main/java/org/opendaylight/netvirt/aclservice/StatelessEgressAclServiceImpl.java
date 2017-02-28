@@ -39,8 +39,7 @@ import org.slf4j.LoggerFactory;
  * Provides the stateless implementation for egress (w.r.t VM) ACL service.
  *
  * <p>
- * Note: Table names used are w.r.t switch. Hence, switch ingress is VM egress
- * and vice versa.
+ * Note: Table names used are w.r.t switch. Hence, switch ingress is VM egress and vice versa.
  */
 public class StatelessEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
 
@@ -76,7 +75,7 @@ public class StatelessEgressAclServiceImpl extends AbstractEgressAclServiceImpl 
         Short protocol = null;
 
         if (aceType instanceof AceIp) {
-            protocol = ((AceIp)aceType).getProtocol();
+            protocol = ((AceIp) aceType).getProtocol();
             flowMap = AclServiceOFFlowBuilder.programIpFlow(matches);
         }
         if (null == flowMap) {
@@ -87,19 +86,19 @@ public class StatelessEgressAclServiceImpl extends AbstractEgressAclServiceImpl 
             String flowName = flow.getKey();
             List<MatchInfoBase> flowMatches = flow.getValue();
             boolean hasTcpMatch = AclServiceUtils.containsMatchFieldType(flowMatches,
-                    NxMatchFieldType.nx_tcp_dst_with_mask) || AclServiceUtils.containsMatchFieldType(flowMatches,
-                            NxMatchFieldType.nx_tcp_src_with_mask);
+                    NxMatchFieldType.nx_tcp_dst_with_mask)
+                    || AclServiceUtils.containsMatchFieldType(flowMatches, NxMatchFieldType.nx_tcp_src_with_mask);
             if (hasTcpMatch || protocol == null) {
                 flowName += "Egress" + lportTag + ace.getKey().getRuleName();
-                flowMatches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+                AclServiceUtils.addLPortTagMatch(lportTag, flowMatches);
 
                 programAllowSynRules(dpId, flowName, flowMatches, addOrRemove, protocol);
             }
         }
     }
 
-    private void programAllowSynRules(BigInteger dpId, String origFlowName,
-            List<MatchInfoBase> origFlowMatches, int addFlow, Short protocol) {
+    private void programAllowSynRules(BigInteger dpId, String origFlowName, List<MatchInfoBase> origFlowMatches,
+            int addFlow, Short protocol) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         flowMatches.addAll(origFlowMatches);
         if (new Short((short) NwConstants.IP_PROT_TCP).equals(protocol)) {
@@ -110,8 +109,8 @@ public class StatelessEgressAclServiceImpl extends AbstractEgressAclServiceImpl 
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
 
         String flowName = "SYN_" + origFlowName;
-        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_SYN_ALLOW_PRIORITY,
-                "ACL_SYN_", 0, 0, AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addFlow);
+        syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_SYN_ALLOW_PRIORITY, "ACL_SYN_",
+                0, 0, AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addFlow);
         String oper = getOperAsString(addFlow);
         LOG.debug("{} allow syn packet flow {}", oper, flowName);
     }
