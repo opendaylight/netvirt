@@ -143,6 +143,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_672ef444",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-28T11:37:09Z",
+      "side": 1,
+      "message": "Explain what ports we are referring to - the ports belonging to the remote SG that is defined on the rule.",
+      "revId": "b123c017b8dcde6f4928f33276a48dbdb65d38c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fe71d50c",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 14
