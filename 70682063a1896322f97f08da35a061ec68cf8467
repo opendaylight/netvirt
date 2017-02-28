@@ -16,6 +16,24 @@
       "revId": "70682063a1896322f97f08da35a061ec68cf8467",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9be5300b",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-28T10:17:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f28aa4bd",
+      "revId": "70682063a1896322f97f08da35a061ec68cf8467",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
