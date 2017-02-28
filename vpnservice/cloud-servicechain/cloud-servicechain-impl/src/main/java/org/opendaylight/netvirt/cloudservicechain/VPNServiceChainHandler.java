@@ -138,9 +138,13 @@ public class VPNServiceChainHandler implements AutoCloseable {
 
             for (VpnToDpnList dpnInVpn : vpnToDpnList) {
                 BigInteger dpnId = dpnInVpn.getDpnId();
+                long vpnId = vpnInstance.getVpnId();
+                Flow flow = VpnServiceChainUtils.buildLPortDispFromScfToL3VpnFlow(vpnId, dpnId, lportTag,
+                                                                                  NwConstants.ADD_FLOW);
                 programVpnToScfPipelineOnDpn(dpnId, vrfEntries, tableId, (int) scfTag, lportTag, addOrRemove);
 
                 if (dpnInVpn.getVpnInterfaces() != null) {
+                    mdsalManager.installFlow(dpnId, flow);
                     dpnInVpn.getVpnInterfaces().stream().forEach(vpnIf -> {
                         if (addOrRemove == NwConstants.ADD_FLOW) {
                             bindScfOnVpnInterface(vpnIf.getInterfaceName(), (int) scfTag);
