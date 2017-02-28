@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_0ff0d68f",
+        "filename": "docs/specs/ipv6-interdc-l3vpn.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-28T17:36:39Z",
+      "side": 1,
+      "message": "this is incorrect pipeline.. From table 20 based on label lookup, the packet will be punted to NextHopGroup.",
+      "revId": "fc672c0b0a5a1056dad6efaade8d2c01ad6d627b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5406f586",
         "filename": "docs/specs/ipv6-interdc-l3vpn.rst",
         "patchSetId": 7
@@ -13,6 +30,24 @@
       "writtenOn": "2017-02-28T15:18:45Z",
       "side": 1,
       "message": "@Vivek, @Daya, can you please help @Julien in closing this gap. Thanks.",
+      "revId": "fc672c0b0a5a1056dad6efaade8d2c01ad6d627b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_af3d4a2d",
+        "filename": "docs/specs/ipv6-interdc-l3vpn.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-28T17:36:39Z",
+      "side": 1,
+      "message": "Table 17 - match on lportTag and write metadata  serviceid+vpn-id",
+      "parentUuid": "fafc7978_5406f586",
       "revId": "fc672c0b0a5a1056dad6efaade8d2c01ad6d627b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
