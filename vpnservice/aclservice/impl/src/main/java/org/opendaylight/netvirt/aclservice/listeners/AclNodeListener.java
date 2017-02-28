@@ -89,8 +89,15 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         if (config != null) {
             this.securityGroupMode = config.getSecurityGroupMode();
         }
+        this.aclServiceUtils.createRemoteAclIdPool();
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
         LOG.info("AclserviceConfig: {}", this.config);
+    }
+
+    @Override
+    public void close() {
+        super.close();
+        this.aclServiceUtils.deleteRemoteAclIdPool();
     }
 
     @Override

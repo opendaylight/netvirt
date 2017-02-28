@@ -9,6 +9,8 @@
 package org.opendaylight.netvirt.aclservice.listeners;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -16,6 +18,7 @@ import static org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils.prep
 import static org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils.prepareAclClusterUtil;
 import static org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils.prepareAclDataUtil;
 
+import com.google.common.util.concurrent.Futures;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -25,9 +28,14 @@ import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
+import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
 
 public class AclEventListenerTest {
 
@@ -37,12 +45,14 @@ public class AclEventListenerTest {
 
     private InstanceIdentifier<Acl> mockInstanceId;
     private AclInterface aclInterfaceMock;
+    private AclServiceUtils aclSeviceUtils;
 
     private ArgumentCaptor<AclInterface> aclInterfaceValueSaver;
     private ArgumentCaptor<Action> actionValueSaver;
     private ArgumentCaptor<Ace> aceValueSaver;
     private ArgumentCaptor<String> aclNameSaver;
     private String aclName;
+    private IdManagerService idManagerMock;
 
     @SuppressWarnings("unchecked")
     @Before
@@ -50,8 +60,12 @@ public class AclEventListenerTest {
         mockInstanceId = mock(InstanceIdentifier.class);
         aclInterfaceMock = mock(AclInterface.class);
         aclServiceManager = mock(AclServiceManager.class);
+        idManagerMock = mock(IdManagerService.class);
+        aclSeviceUtils = new AclServiceUtils(aclDataUtil, mock(AclserviceConfig.class), idManagerMock);
+        doReturn(Futures.immediateFuture(null)).when(idManagerMock).releaseId(any(ReleaseIdInput.class));
         AclClusterUtil aclClusterUtil = () -> true;
-        aclEventListener = new AclEventListener(aclServiceManager, aclClusterUtil, mock(DataBroker.class), aclDataUtil);
+        aclEventListener = new AclEventListener(aclServiceManager, aclClusterUtil, mock(DataBroker.class), aclDataUtil,
+                aclSeviceUtils);
 
         aclInterfaceValueSaver = ArgumentCaptor.forClass(AclInterface.class);
         actionValueSaver = ArgumentCaptor.forClass(AclServiceManager.Action.class);

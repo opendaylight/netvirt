@@ -39,6 +39,7 @@ public final class AclConstants {
     public static final Integer CT_STATE_TRACKED_INVALID_PRIORITY = 62015;
     public static final Integer CT_STATE_TRACKED_NEW_PRIORITY = 62010;
     public static final Integer CT_STATE_TRACKED_NEW_DROP_PRIORITY = 50;
+    public static final Integer NO_PRIORITY = 50;
 
     public static final short DHCP_CLIENT_PORT_IPV4 = 68;
     public static final short DHCP_SERVER_PORT_IPV4 = 67;
@@ -89,6 +90,8 @@ public final class AclConstants {
     public static final String ACL_FLOW_PRIORITY_POOL_NAME = "acl.flow.priorities.pool";
     public static final long ACL_FLOW_PRIORITY_POOL_START = 1000L;
     public static final long ACL_FLOW_PRIORITY_POOL_END = 60000L;
+    public static final long ACL_ID_METADATA_POOL_START = 1L;
+    public static final long ACL_ID_METADATA_POOL_END = 10000L;
 
     public static final int SOURCE_LOWER_PORT_UNSPECIFIED = -1;
     public static final int SOURCE_UPPER_PORT_UNSPECIFIED = -1;
@@ -102,6 +105,9 @@ public final class AclConstants {
     public static final int SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED = -1;
     public static final int DEST_REMOTE_IP_PREFIX_SPECIFIED = 1;
     public static final int DEST_REMOTE_IP_PREFIX_UNSPECIFIED = -1;
+    public static final int INVALID_ACL_ID = -1;
+
+    public static final String ACL_ID_POOL_NAME = "ACL-ID-POOL";
 
     private AclConstants() {
     }

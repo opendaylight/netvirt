@@ -34,6 +34,7 @@ import org.opendaylight.netvirt.aclservice.tests.AclServiceModule;
 import org.opendaylight.netvirt.aclservice.tests.AclServiceTestModule;
 import org.opendaylight.netvirt.aclservice.tests.ImmutableIdentifiedInterfaceWithAclBuilder;
 import org.opendaylight.netvirt.aclservice.tests.infra.DataBrokerPairsUtil;
+import org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.acl.live.statistics.rev161129.AclLiveStatisticsService;
@@ -95,7 +96,7 @@ public class AclLiveStatisticsRpcServiceTest {
         dataBrokerUtil.put(
                 ImmutableIdentifiedInterfaceWithAclBuilder.builder().interfaceName(PORT_1).portSecurity(true).build());
         putNewStateInterface(dataBroker, "port1", PORT_MAC_1);
-        asyncEventsWaiter.awaitEventsConsumption();
+        AclServiceTestUtils.waitABit(asyncEventsWaiter);
     }
 
     // FIXME copied from AclServiceTestBase
