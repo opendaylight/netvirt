@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_afdb8a7a",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-28T16:41:36Z",
+      "side": 1,
+      "message": "Table not being generated correctly andhttps://logs.opendaylight.org/releng/jenkins092/docs-verify-rtd-carbon/1112/console.log.gz will tell you why. The \u0027\u003d\u003d\u003d\u0027 are also used as column boundaries and contents individual entries shouldn\u0027t overshoot this.",
+      "revId": "19594cdec4f513300f7642288cd32d7e1d51d97d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4f393ea3",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-28T16:41:36Z",
+      "side": 1,
+      "message": "this is other warning for this file in log, 257 and 258 should be indented to be inline with start of text in line 256 [One...]",
+      "revId": "19594cdec4f513300f7642288cd32d7e1d51d97d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
