@@ -549,12 +549,16 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
             } else if (portSecurityRule.getSecurityRulePortMin().equals(PORT_RANGE_MIN)
                         && portSecurityRule.getSecurityRulePortMax().equals(PORT_RANGE_MAX)) {
                 /* All TCP Match */
-                flowId = flowId + portSecurityRule.getSecurityRulePortMin() + "_"
-                        + portSecurityRule.getSecurityRulePortMax() + "_";
+                flowId = flowId + "ALL" + "_";
                 matchBuilder = MatchUtils.addLayer4Match(matchBuilder, MatchUtils.TCP_SHORT, 0, 0);
             } else {
                 portRange = true;
             }
+        } else if (portSecurityRule.getSecurityRulePortMin() == null
+                && portSecurityRule.getSecurityRulePortMax() == null) {
+            /* All TCP Match */
+            flowId = flowId + "ALL" + "_";
+            matchBuilder = MatchUtils.addLayer4Match(matchBuilder, MatchUtils.TCP_SHORT, 0, 0);
         }
         if (null != srcAddress) {
             flowId = flowId + srcAddress;
@@ -653,12 +657,15 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
             } else if (portSecurityRule.getSecurityRulePortMin().equals(PORT_RANGE_MIN)
                     && portSecurityRule.getSecurityRulePortMax().equals(PORT_RANGE_MAX)) {
                 /* All UDP Match */
-                flowId = flowId + portSecurityRule.getSecurityRulePortMin() + "_"
-                        + portSecurityRule.getSecurityRulePortMax() + "_";
+                flowId = flowId + "ALL" + "_";
                 matchBuilder = MatchUtils.addLayer4Match(matchBuilder, MatchUtils.UDP_SHORT, 0, 0);
             } else {
                 portRange = true;
             }
+        } else if (portSecurityRule.getSecurityRulePortMin() == null
+                && portSecurityRule.getSecurityRulePortMax() == null) {
+            flowId = flowId + "ALL" + "_";
+            matchBuilder = MatchUtils.addLayer4Match(matchBuilder, MatchUtils.UDP_SHORT, 0, 0);
         }
         if (null != srcAddress) {
             flowId = flowId + srcAddress;
