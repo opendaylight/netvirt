@@ -16,6 +16,24 @@
       "revId": "70311c083c1d1a48256543b17b7ebe53d7a5d3e0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bb4c7443",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-28T10:09:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_7ca2109a",
+      "revId": "70311c083c1d1a48256543b17b7ebe53d7a5d3e0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
