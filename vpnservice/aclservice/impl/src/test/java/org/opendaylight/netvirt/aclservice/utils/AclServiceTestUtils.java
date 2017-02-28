@@ -11,17 +11,25 @@ package org.opendaylight.netvirt.aclservice.utils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.Futures;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.Assert;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.testutils.AsyncEventsWaiter;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
@@ -45,7 +53,11 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.DestinationPortRangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.SourcePortRangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceBuilder;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class AclServiceTestUtils {
 
@@ -88,12 +100,12 @@ public class AclServiceTestUtils {
     }
 
     public static void verifyMatchInfo(List<MatchInfoBase> flowMatches, NxMatchFieldType matchType, String... params) {
-        List<MatchInfoBase> matches = flowMatches.stream().filter(
-            item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType)).collect(
-                Collectors.toList());
+        List<MatchInfoBase> matches = flowMatches.stream()
+                .filter(item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType))
+                .collect(Collectors.toList());
         assertFalse(matches.isEmpty());
         for (MatchInfoBase baseMatch : matches) {
-            verifyMatchValues((NxMatchInfo)baseMatch, params);
+            verifyMatchValues((NxMatchInfo) baseMatch, params);
         }
     }
 
@@ -115,8 +127,8 @@ public class AclServiceTestUtils {
 
     public static void verifyMatchFieldTypeDontExist(List<MatchInfoBase> flowMatches,
             Class<? extends MatchInfo> matchType) {
-        Assert.assertFalse("unexpected match type " + matchType.getSimpleName(), flowMatches.stream().anyMatch(
-            item -> matchType.isAssignableFrom(item.getClass())));
+        Assert.assertFalse("unexpected match type " + matchType.getSimpleName(),
+                flowMatches.stream().anyMatch(item -> matchType.isAssignableFrom(item.getClass())));
     }
 
     public static void verifyMatchFieldTypeDontExist(List<MatchInfoBase> flowMatches, NxMatchFieldType matchType) {
@@ -203,6 +215,69 @@ public class AclServiceTestUtils {
         if (entityOwnerCache != null) {
             entityOwnerCache.put(entityName, true);
         }
+
+    }
+
+    public static void prepareElanTag(ReadOnlyTransaction mockReadTx, Long elanTag) {
+        InstanceIdentifier<ElanInterface> elanInterfaceKey =
+                AclServiceUtils.getElanInterfaceConfigurationDataPathId(null);
+        ElanInterfaceBuilder elanInterfaceBuilder = new ElanInterfaceBuilder();
+        when(mockReadTx.read(LogicalDatastoreType.CONFIGURATION, elanInterfaceKey))
+                .thenReturn(Futures.immediateCheckedFuture(Optional.of(elanInterfaceBuilder.build())));
+
+        InstanceIdentifier<ElanInstance> elanInstanceKey = AclServiceUtils.getElanInstanceConfigurationDataPath(null);
+        ElanInstanceBuilder elanInstanceBuilder = new ElanInstanceBuilder();
+        elanInstanceBuilder.setElanTag(elanTag);
+        when(mockReadTx.read(LogicalDatastoreType.CONFIGURATION, elanInstanceKey))
+                .thenReturn(Futures.immediateCheckedFuture(Optional.of(elanInstanceBuilder.build())));
+    }
+
+    public static void waitABit(AsyncEventsWaiter asyncEventsWaiter) throws InterruptedException {
+        Thread.sleep(200);
+        asyncEventsWaiter.awaitEventsConsumption();
+    }
+
+    private static boolean checkMatchInfo(List<MatchInfoBase> flowMatches, NxMatchFieldType matchType,
+            String... params) {
+        List<MatchInfoBase> matches = flowMatches.stream()
+                .filter(item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType))
+                .collect(Collectors.toList());
+        if (matches.isEmpty()) {
+            return false;
+        }
+        for (MatchInfoBase baseMatch : matches) {
+            if (checkMatchValues((NxMatchInfo) baseMatch, params)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean checkMatchValues(NxMatchInfo match, String... params) {
+        switch (match.getMatchField()) {
+            case nx_tcp_src_with_mask:
+            case nx_tcp_dst_with_mask:
+            case nx_udp_src_with_mask:
+            case nx_udp_dst_with_mask:
+            case ct_state:
+                long[] values = Arrays.stream(params).mapToLong(Long::parseLong).toArray();
+                return Arrays.equals(values, match.getMatchValues());
+            default:
+                return false;
+        }
+    }
+
+    public static FlowEntity verifyMatchInfoInSomeFlow(MethodInvocationParamSaver<Future<?>> installFlowValueSaver,
+            NxMatchFieldType matchType, String... params) {
+        for (int i = 0; i < installFlowValueSaver.getNumOfInvocations(); i++) {
+            FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(i).get(1);
+            if (checkMatchInfo(flow.getMatchInfoList(), matchType, params)) {
+                return flow;
+            }
+        }
+
+        fail();
+        return null;
 
     }
 

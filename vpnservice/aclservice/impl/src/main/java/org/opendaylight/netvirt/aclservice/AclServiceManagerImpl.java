@@ -71,7 +71,7 @@ public class AclServiceManagerImpl implements AclServiceManager {
 
             if (result) {
                 LOG.debug("Acl action {} invoking listener {} succeeded", action,
-                    aclServiceListener.getClass().getName());
+                        aclServiceListener.getClass().getName());
             } else {
                 LOG.warn("Acl action {} invoking listener {} failed", action, aclServiceListener.getClass().getName());
             }

@@ -59,7 +59,7 @@ public class LearnEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
     protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
             Map<String, List<MatchInfoBase>> flowMap, String flowName) {
         List<MatchInfoBase> flowMatches = flowMap.get(flowName);
-        flowMatches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        AclServiceUtils.addLPortTagMatch(lportTag, flowMatches);
         List<ActionInfo> actionsInfos = new ArrayList<>();
         addLearnActions(flowMatches, actionsInfos);
 
@@ -92,41 +92,36 @@ public class LearnEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
     }
 
     private void addOtherProtocolsLearnActions(List<ActionInfo> actionsInfos) {
-        actionsInfos.add(new ActionLearn(
-                this.aclServiceUtils.getConfig().getSecurityGroupDefaultIdleTimeout(),
+        actionsInfos.add(new ActionLearn(this.aclServiceUtils.getConfig().getSecurityGroupDefaultIdleTimeout(),
                 this.aclServiceUtils.getConfig().getSecurityGroupDefaultHardTimeout(),
-                AclConstants.PROTO_MATCH_PRIORITY,
-                AclConstants.COOKIE_ACL_BASE,
-                AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE,
-                NwConstants.EGRESS_LEARN_TABLE,
-                0,
-                0,
+                AclConstants.PROTO_MATCH_PRIORITY, AclConstants.COOKIE_ACL_BASE,
+                AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE, NwConstants.EGRESS_LEARN_TABLE, 0, 0,
                 LearnCommonAclServiceImpl.getOtherProtocolsLearnActionMatches()));
     }
 
     private void addTcpLearnActions(List<ActionInfo> actionsInfos) {
-        actionsInfos.add(new ActionLearn(
-                this.aclServiceUtils.getConfig().getSecurityGroupTcpIdleTimeout(),
-                this.aclServiceUtils.getConfig().getSecurityGroupTcpHardTimeout(),
-                AclConstants.PROTO_MATCH_PRIORITY,
-                AclConstants.COOKIE_ACL_BASE,
-                AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE,
-                NwConstants.EGRESS_LEARN_TABLE,
-                this.aclServiceUtils.getConfig().getSecurityGroupTcpFinIdleTimeout(),
+        actionsInfos.add(new ActionLearn(this.aclServiceUtils.getConfig().getSecurityGroupTcpIdleTimeout(),
+                this.aclServiceUtils.getConfig().getSecurityGroupTcpHardTimeout(), AclConstants.PROTO_MATCH_PRIORITY,
+                AclConstants.COOKIE_ACL_BASE, AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE,
+                NwConstants.EGRESS_LEARN_TABLE, this.aclServiceUtils.getConfig().getSecurityGroupTcpFinIdleTimeout(),
                 this.aclServiceUtils.getConfig().getSecurityGroupTcpFinHardTimeout(),
                 LearnCommonAclServiceImpl.getTcpLearnActionMatches()));
     }
 
     private void addUdpLearnActions(List<ActionInfo> actionsInfos) {
-        actionsInfos.add(new ActionLearn(
-                this.aclServiceUtils.getConfig().getSecurityGroupUdpIdleTimeout(),
-                this.aclServiceUtils.getConfig().getSecurityGroupUdpHardTimeout(),
-                AclConstants.PROTO_MATCH_PRIORITY,
-                AclConstants.COOKIE_ACL_BASE,
-                AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE,
-                NwConstants.EGRESS_LEARN_TABLE,
-                0,
-                0,
-                LearnCommonAclServiceImpl.getUdpLearnActionMatches()));
+        actionsInfos.add(new ActionLearn(this.aclServiceUtils.getConfig().getSecurityGroupUdpIdleTimeout(),
+                this.aclServiceUtils.getConfig().getSecurityGroupUdpHardTimeout(), AclConstants.PROTO_MATCH_PRIORITY,
+                AclConstants.COOKIE_ACL_BASE, AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE,
+                NwConstants.EGRESS_LEARN_TABLE, 0, 0, LearnCommonAclServiceImpl.getUdpLearnActionMatches()));
+    }
+
+    @Override
+    protected short getEgressAclFilterTable() {
+        return NwConstants.EGRESS_LEARN_ACL_FILTER_TABLE;
+    }
+
+    @Override
+    protected short getEgressAclRemoteAclTable() {
+        return NwConstants.EGRESS_LEARN_ACL_REMOTE_ACL_TABLE;
     }
 }
