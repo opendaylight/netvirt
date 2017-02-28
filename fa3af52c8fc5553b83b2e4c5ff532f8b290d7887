@@ -94,6 +94,30 @@
       "revId": "fa3af52c8fc5553b83b2e4c5ff532f8b290d7887",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bba474a6",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBase.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-02-28T10:32:22Z",
+      "side": 1,
+      "message": "I\u0027m surprised that you are able to \"copy expected and actual flows in two separate files, format it and use some compare tool for comparison\", because it\u0027s just one huge long string difficult to auto format (it\u0027s not like it\u0027s XML or JSON or something which a tool can understand how to line break and indent...), so I\u0027m struggling to understand, but if you say so, and you\u0027ve actually really used and done this... I\u0027ll have to trust you! ;-)\n\nWould it be acceptable to you if the LOG.info of the full flow would only be printed if there is a mismatch (failed assertion), but not if everything is OK as expected?  And then we could even make it a LOG.warn instead of info.  If you confirm this is acceptable to you, then one of us should raise a change for that in Genius, and then we can finally merge this change here into netvirt - sounds like a plan?  Do you want to propose the respective change in genius, or shall I?",
+      "parentUuid": "fafc7978_48be5c66",
+      "range": {
+        "startLine": 341,
+        "startChar": 4,
+        "endLine": 341,
+        "endChar": 78
+      },
+      "revId": "fa3af52c8fc5553b83b2e4c5ff532f8b290d7887",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
