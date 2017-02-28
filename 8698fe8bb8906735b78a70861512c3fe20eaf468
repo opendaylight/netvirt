@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_db17b843",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 4922
+      },
+      "writtenOn": "2017-02-28T09:49:56Z",
+      "side": 1,
+      "message": "Please remove tab space",
+      "revId": "8698fe8bb8906735b78a70861512c3fe20eaf468",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
