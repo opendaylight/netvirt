@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_deecc6bd",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-02-28T12:27:13Z",
+      "side": 1,
+      "message": "We are nowhere using this neutronPortList. It checks, only if the list size is more than one.\nWe are getting all ports from the neutronPortCache.getAllPorts() and writing ARP flows in table#20.\nSince we are getting all ports, by using segmentationID checking whether segmentationID matches in the node.\nif we have another network segmentationID we are ignoring.",
+      "parentUuid": "fafc7978_24eb58b1",
+      "revId": "2e1d917d7ffeb2afa5795bf48deb1b0a5bc89044",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_844de440",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-22T18:55:39Z",
       "side": 1,
       "message": "lines 219 \u0026 220 can be written as on line:\n\nif (providerSegmentationId.equals(portSegmentationId))",
+      "revId": "2e1d917d7ffeb2afa5795bf48deb1b0a5bc89044",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9b709073",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-02-28T12:27:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_844de440",
       "revId": "2e1d917d7ffeb2afa5795bf48deb1b0a5bc89044",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bb73d47e",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-02-28T12:27:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_245cf8ec",
+      "revId": "2e1d917d7ffeb2afa5795bf48deb1b0a5bc89044",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_44e65ce9",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
         "patchSetId": 4
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7ee5dada",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-02-28T12:27:13Z",
+      "side": 1,
+      "message": "We are adding in neutronPortList only for checking.\nwhile we get a request for VM with same network in node, \nit writes only current port\u0027s ARP flow and this changes doesn\u0027t affect any functionality.",
+      "parentUuid": "fafc7978_44e65ce9",
+      "revId": "2e1d917d7ffeb2afa5795bf48deb1b0a5bc89044",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a46748b6",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
         "patchSetId": 4
@@ -81,6 +153,24 @@
       "writtenOn": "2017-02-22T18:55:39Z",
       "side": 1,
       "message": "418 \u0026 419 can be removed",
+      "revId": "2e1d917d7ffeb2afa5795bf48deb1b0a5bc89044",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5b5bc8f5",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-02-28T12:27:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a46748b6",
       "revId": "2e1d917d7ffeb2afa5795bf48deb1b0a5bc89044",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
