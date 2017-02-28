@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
@@ -90,12 +91,12 @@ public class AclServiceTestModule extends AbstractModule {
         @Override
         public Future<RpcResult<AllocateIdOutput>> allocateId(AllocateIdInput input) {
             String key = input.getIdKey();
-            long flowPriority = IdHelper.getFlowPriority(key) == null ? AclConstants.PROTO_MATCH_PRIORITY
-                    : IdHelper.getFlowPriority(key);
+            long id = IdHelper.getId(key) == null ? AclConstants.PROTO_MATCH_PRIORITY
+                    : IdHelper.getId(key);
             AllocateIdOutputBuilder output = new AllocateIdOutputBuilder();
-            output.setIdValue(flowPriority);
+            output.setIdValue(id);
 
-            LOG.info("ID allocated for key {}: {}", key, flowPriority);
+            LOG.info("ID allocated for key {}: {}", key, id);
 
             RpcResultBuilder<AllocateIdOutput> allocateIdRpcBuilder = RpcResultBuilder.success();
             allocateIdRpcBuilder.withResult(output.build());
@@ -104,6 +105,11 @@ public class AclServiceTestModule extends AbstractModule {
 
         @Override
         public Future<RpcResult<Void>> releaseId(ReleaseIdInput input) {
+            return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
+        }
+
+        @Override
+        public Future<RpcResult<java.lang.Void>> deleteIdPool(DeleteIdPoolInput poolName) {
             return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
         }
     }
