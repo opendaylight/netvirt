@@ -37,6 +37,42 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_54eb9512",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-02-28T15:19:27Z",
+      "side": 1,
+      "message": "Please see my response to Alon above.",
+      "parentUuid": "fafc7978_1853093a",
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d497858e",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-02-28T15:19:27Z",
+      "side": 1,
+      "message": "Sam suggested this path, but this will be new code, so the code path will need to be changed. What we\u0027re going to do is create a new classifier service in Genius (details coming in next patch-set). That way we wont \"clash\" with the existing SG aclservice.\nAlso, I understood that there were no API changes needed, but I will check with Sam about that too to make sure the ACL data-model used has the needed augmentations for SFC.",
+      "parentUuid": "fafc7978_4d9cb10f",
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2da84d1f",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 4
@@ -48,6 +84,30 @@
       "writtenOn": "2017-02-27T13:12:18Z",
       "side": 1,
       "message": "typo netvirt",
+      "range": {
+        "startLine": 98,
+        "startChar": 28,
+        "endLine": 98,
+        "endChar": 34
+      },
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b494818b",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-02-28T15:19:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2da84d1f",
       "range": {
         "startLine": 98,
         "startChar": 28,
@@ -106,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_148e2d79",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-02-28T15:19:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_8d7fb965",
+      "range": {
+        "startLine": 121,
+        "startChar": 41,
+        "endLine": 121,
+        "endChar": 42
+      },
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_cd94218d",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 4
@@ -117,6 +201,30 @@
       "writtenOn": "2017-02-27T11:55:46Z",
       "side": 1,
       "message": "Its.\n\nthat form is a contraction of it is or it has.",
+      "range": {
+        "startLine": 124,
+        "startChar": 11,
+        "endLine": 124,
+        "endChar": 15
+      },
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f48a8962",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-02-28T15:19:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_cd94218d",
       "range": {
         "startLine": 124,
         "startChar": 11,
@@ -152,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_34f091fd",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-02-28T15:19:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_6deb7513",
+      "range": {
+        "startLine": 130,
+        "startChar": 0,
+        "endLine": 130,
+        "endChar": 28
+      },
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4d6af1ee",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 4
@@ -163,6 +295,24 @@
       "writtenOn": "2017-02-27T13:12:18Z",
       "side": 1,
       "message": "It would really help to see some example flows of how an SFC packet flows through the ACL service with the proposed changes.",
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_14f0ed8f",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-02-28T15:19:27Z",
+      "side": 1,
+      "message": "I\u0027ll do this in the next patch-set.",
+      "parentUuid": "fafc7978_4d6af1ee",
       "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
