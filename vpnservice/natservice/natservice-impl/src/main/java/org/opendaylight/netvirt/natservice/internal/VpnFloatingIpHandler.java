@@ -56,6 +56,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.C
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelInput;
@@ -114,8 +117,15 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         String internalIp = mapping.getInternalIp();
         String externalIp = mapping.getExternalIp();
         Uuid floatingIpId = mapping.getExternalId();
+        Uuid subnetId = NatUtil.getFloatingIpPortSubnetIdFromFloatingIpId(dataBroker, floatingIpId);
         String floatingIpPortMacAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
-        final String vpnName = NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
+        InstanceIdentifier<Subnets> subnetsIdentifier = InstanceIdentifier.create(ExternalSubnets.class)
+                .child(Subnets.class, new SubnetsKey(subnetId));
+        Optional<Subnets> externalSubnet = NatUtil.read(dataBroker,
+                LogicalDatastoreType.CONFIGURATION, subnetsIdentifier);
+
+        final String vpnName = externalSubnet.isPresent() ? subnetId.getValue() :
+            NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
         if (vpnName == null) {
             LOG.info("No VPN associated with ext nw {} to handle add floating ip configuration {} in router {}",
                 networkId, externalIp, routerId);
@@ -160,8 +170,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     LOG.debug("Add Floating Ip {} , found associated to fixed port {}", externalIp, interfaceName);
                     if (floatingIpPortMacAddress != null) {
                         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-                        vpnManager.setupSubnetMacIntoVpnInstance(vpnName, floatingIpPortMacAddress, dpnId, writeTx,
-                            NwConstants.ADD_FLOW);
+                        vpnManager.setupSubnetMacIntoVpnInstance(vpnName, subnetId.getValue(), floatingIpPortMacAddress,
+                                dpnId, writeTx, NwConstants.ADD_FLOW);
                         vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerId,
                                 Collections.singleton(externalIp),
                             floatingIpPortMacAddress, dpnId, networkId, writeTx, NwConstants.ADD_FLOW);
@@ -206,7 +216,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         final String vpnName = NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
         String externalIp = mapping.getExternalIp();
         Uuid floatingIpId = mapping.getExternalId();
-
+        Uuid subnetId = NatUtil.getFloatingIpPortSubnetIdFromFloatingIpId(dataBroker, floatingIpId);
 
         if (vpnName == null) {
             LOG.info("No VPN associated with ext nw {} to handle remove floating ip configuration {} in router {}",
@@ -219,8 +229,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         String floatingIpPortMacAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
         if (floatingIpPortMacAddress != null) {
             WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, floatingIpPortMacAddress, dpnId, writeTx,
-                NwConstants.DEL_FLOW);
+            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, subnetId.getValue(), floatingIpPortMacAddress,
+                    dpnId, writeTx, NwConstants.DEL_FLOW);
             vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerId, Collections.singletonList(externalIp),
                 floatingIpPortMacAddress, dpnId, networkId, writeTx, NwConstants.DEL_FLOW);
             writeTx.submit();
