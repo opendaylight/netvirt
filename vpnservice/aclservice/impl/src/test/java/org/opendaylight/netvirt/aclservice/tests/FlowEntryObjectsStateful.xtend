@@ -12,6 +12,7 @@ import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop
 import org.opendaylight.genius.mdsalutil.FlowEntity
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions
+import org.opendaylight.genius.mdsalutil.matches.MatchArpSha
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType
@@ -43,9 +44,12 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedIngressFlowsPort2
         + fixedConntrackIngressFlowsPort2
         + etherIngressFlowsPort2
+        + etherIngressFlowsPort2
+        + etherIngressFlowsPort2
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + etheregressFlowPort2
+        + remoteFlows
     }
 
     protected def tcpFlows() {
@@ -60,6 +64,9 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + tcpEgressFlowPort2
+        + tcpEgressFlowPort2
+        + tcpEgressFlowPort2
+        + remoteFlows
     }
 
     protected def udpFlows() {
@@ -71,9 +78,12 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedIngressFlowsPort2
         + fixedConntrackIngressFlowsPort2
         + udpIngressFlowsPort2
+        + udpIngressFlowsPort2
+        + udpIngressFlowsPort2
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + udpEgressFlowsPort2
+        + remoteFlows
     }
 
     protected def icmpFlows() {
@@ -88,6 +98,9 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + icmpEgressFlowsPort2
+        + icmpEgressFlowsPort2
+        + icmpEgressFlowsPort2
+        + remoteFlows
     }
 
     protected def dstRangeFlows() {
@@ -248,7 +261,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "ETHERnull_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F3_10.0.0.1/32"
+                flowId = "ETHERnull_remoteACL_id_85cc3048-abc3-43cc-89b3-377341426ac5"
                         +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -258,8 +271,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchEthernetType(2048L),
-                    new MatchIpv4Source("10.0.0.1", "32"),
+                    new MatchMetadata(4bi, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID),
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
@@ -271,35 +283,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
-                tableId = 243 as short
-            ],
-            new FlowEntity(123bi) => [
-                cookie = 110100480bi
-                flowId = "ETHERnull_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.2/32"
-                        +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
-                flowName = "ACL"
-                instructionInfoList = #[
-                    new InstructionApplyActions(#[
-                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
-                        new ActionNxResubmit(220 as short)
-                    ])
-                ]
-                matchInfoList = #[
-                    new MatchEthernetType(2048L),
-                    new MatchIpv4Source("10.0.0.2", "32"),
-                    new MatchEthernetType(2048L),
-                    new MatchEthernetType(2048L),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
-                ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -827,7 +811,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -857,7 +841,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -895,7 +879,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -933,7 +917,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -943,7 +927,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "TCP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F3_10.0.0.1/32"
+                flowId = "TCP_DESTINATION_80_65535_remoteACL_id_85cc3048-abc3-43cc-89b3-377341426ac5"
                         +"Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -953,43 +937,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchEthernetType(2048L),
-                    new MatchIpv4Destination("10.0.0.1", "32"),
-                    new MatchEthernetType(2048L),
-                    new MatchEthernetType(2048L),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.nx_tcp_dst_with_mask
-                        matchValues = #[
-                            80L,
-                            65535L
-                        ]
-                    ],
-                    new MatchIpProtocol(6 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
-                ]
-                priority = IdHelper.getFlowPriority(flowId)
-                tableId = 213 as short
-            ],
-            new FlowEntity(123bi) => [
-                cookie = 110100480bi
-                flowId = "TCP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.2/32Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
-                flowName = "ACL"
-                instructionInfoList = #[
-                    new InstructionApplyActions(#[
-                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
-                        new ActionNxResubmit(17 as short)
-                    ])
-                ]
-                matchInfoList = #[
-                    new MatchEthernetType(2048L),
-                    new MatchIpv4Destination("10.0.0.2", "32"),
+                    new MatchMetadata(4bi, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID),
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
                     new NxMatchInfoBuilder >> [
@@ -1009,7 +957,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -1047,7 +995,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -1057,7 +1005,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "UDP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F3_10.0.0.1/32"
+                flowId = "UDP_DESTINATION_80_65535_remoteACL_id_85cc3048-abc3-43cc-89b3-377341426ac5"
                         +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -1067,43 +1015,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchEthernetType(2048L),
-                    new MatchIpv4Source("10.0.0.1", "32"),
-                    new MatchEthernetType(2048L),
-                    new MatchEthernetType(2048L),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.nx_udp_dst_with_mask
-                        matchValues = #[
-                            80L,
-                            65535L
-                        ]
-                    ],
-                    new MatchIpProtocol(17 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
-                ]
-                priority = IdHelper.getFlowPriority(flowId)
-                tableId = 243 as short
-            ],
-            new FlowEntity(123bi) => [
-                cookie = 110100480bi
-                flowId = "UDP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.2/32Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
-                flowName = "ACL"
-                instructionInfoList = #[
-                    new InstructionApplyActions(#[
-                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
-                        new ActionNxResubmit(220 as short)
-                    ])
-                ]
-                matchInfoList = #[
-                    new MatchEthernetType(2048L),
-                    new MatchIpv4Source("10.0.0.2", "32"),
+                    new MatchMetadata(4bi, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID),
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
                     new NxMatchInfoBuilder >> [
@@ -1123,7 +1035,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -1161,7 +1073,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -1193,7 +1105,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -1225,7 +1137,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -1235,7 +1147,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "ICMP_V4_DESTINATION_23__ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F3_10.0.0.1/32"
+                flowId = "ICMP_V4_DESTINATION_23__remoteACL_id_85cc3048-abc3-43cc-89b3-377341426ac5"
                         +"Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -1245,8 +1157,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchEthernetType(2048L),
-                    new MatchIpv4Destination("10.0.0.1", "32"),
+                    new MatchMetadata(4bi, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID),
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
                     new MatchIcmpv4(2 as short, 3 as short),
@@ -1260,37 +1171,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
-                tableId = 213 as short
-            ],
-            new FlowEntity(123bi) => [
-                cookie = 110100480bi
-                flowId = "ICMP_V4_DESTINATION_23__ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.2/32"
-                        +"Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
-                flowName = "ACL"
-                instructionInfoList = #[
-                    new InstructionApplyActions(#[
-                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
-                        new ActionNxResubmit(17 as short)
-                    ])
-                ]
-                matchInfoList = #[
-                    new MatchEthernetType(2048L),
-                    new MatchIpv4Destination("10.0.0.2", "32"),
-                    new MatchEthernetType(2048L),
-                    new MatchEthernetType(2048L),
-                    new MatchIcmpv4(2 as short, 3 as short),
-                    new MatchIpProtocol(1 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
-                ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -1328,7 +1209,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -1366,7 +1247,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -1399,7 +1280,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -1432,7 +1313,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -1465,7 +1346,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -1498,7 +1379,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -1531,7 +1412,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -1564,7 +1445,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -1597,7 +1478,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -1628,7 +1509,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -1659,7 +1540,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
          ]
@@ -1692,7 +1573,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ],
             new FlowEntity(123bi) => [
@@ -1719,7 +1600,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -1751,7 +1632,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -1778,7 +1659,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -2121,6 +2002,58 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 priority = 62015
                 tableId = 243 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Ingress_Fixed_Conntrk_123_" + mac + "_10.0.0.1/32_Recirc"
+            flowName = "ACL"
+            instructionInfoList = #[
+                new InstructionApplyActions(#[
+                    new ActionNxConntrack(2, 0, 0, 5000, 242 as short)
+                ])
+            ]
+            matchInfoList = #[
+                new MatchEthernetType(2048L),
+                new MatchEthernetDestination(new MacAddress(mac)),
+            new MatchEthernetType(2048L),
+            new MatchIpv4Destination("10.0.0.1", "32")
+                ]
+                priority = 61010
+                tableId = 241 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Egress_Fixed_Conntrk_123_" + mac + "_10.0.0.1/32_Recirc"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 0, 0, 5000, 212 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetSource(new MacAddress(mac)),
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Source("10.0.0.1", "32")
+                ]
+                priority = 61010
+                tableId = 211 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Egress_ARP_123_987_" + mac
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(2054L),
+                    new MatchArpSha(new MacAddress(mac)),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 63010
+                tableId = 211 as short
             ]
         ]
     }
