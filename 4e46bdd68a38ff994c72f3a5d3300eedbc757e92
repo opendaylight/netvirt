@@ -528,6 +528,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f349f531",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-03-01T15:46:17Z",
+      "side": 1,
+      "message": "that\u0027s \"external network\"  is something i should have removed before, thanks",
+      "parentUuid": "fafc7978_418e2ad1",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c1b97a7a",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 6
@@ -539,6 +557,24 @@
       "writtenOn": "2017-03-01T15:09:31Z",
       "side": 1,
       "message": "In Line 379, it says \"Create a router and associate the external and internal subnets.\"\n\nCan you please update the sentence to remove any ambiguity. Thanks.",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5353a1e1",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-03-01T15:46:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c1b97a7a",
       "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
