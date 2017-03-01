@@ -57,6 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.DpidL3vpnLbNexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.L3vpnLbNexthops;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
@@ -67,6 +68,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpi
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.l3vpn.lb.nexthops.Nexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.l3vpn.lb.nexthops.NexthopsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.l3vpn.lb.nexthops.NexthopsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIdsKey;
@@ -362,6 +365,17 @@ public class FibUtil {
             .child(VpnIds.class, new VpnIdsKey(vpnId)).build();
     }
 
+    public static String getVpnInterfaceFromLearntVpnVipToPort(DataBroker broker, String vpnName, String ip) {
+        InstanceIdentifier<LearntVpnVipToPort> learntIpInst = InstanceIdentifier.builder(LearntVpnVipToPortData.class)
+                .child(LearntVpnVipToPort.class, new LearntVpnVipToPortKey(ip, vpnName))
+                .build();
+        Optional<LearntVpnVipToPort> learntIpToPortOpt = read(broker, LogicalDatastoreType.OPERATIONAL, learntIpInst);
+        if (learntIpToPortOpt.isPresent()) {
+            return learntIpToPortOpt.get().getPortName();
+        }
+        return null;
+    }
+
     public static <T extends DataObject> void syncUpdate(DataBroker broker, LogicalDatastoreType datastoreType,
                                                          InstanceIdentifier<T> path, T data) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
@@ -457,6 +471,10 @@ public class FibUtil {
 
     private static void buildVpnEncapSpecificInfo(VrfEntryBuilder builder, VrfEntry.EncapType encapType, long label,
                                          long l3vni, String macAddress, String gatewayMac, List<String> nextHopList) {
+        if (encapType == null) {
+            builder.setGatewayMacAddress(gatewayMac);
+            return;
+        }
         if (!encapType.equals(VrfEntry.EncapType.Mplsgre)) {
             builder.setL3vni(l3vni);
         }

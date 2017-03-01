@@ -135,12 +135,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.RoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
@@ -149,6 +151,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
@@ -201,9 +204,10 @@ public class VpnUtil {
         return new VpnIdsBuilder().setKey(new VpnIdsKey(vpnId)).setVpnId(vpnId).build();
     }
 
-    static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix, Uuid subnetId) {
+    static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix, Uuid subnetId,
+            boolean isNatPrefix) {
         return new PrefixesBuilder().setDpnId(dpId).setVpnInterfaceName(
-            vpnInterfaceName).setIpAddress(ipPrefix).setSubnetId(subnetId).build();
+            vpnInterfaceName).setIpAddress(ipPrefix).setSubnetId(subnetId).setNatPrefix(isNatPrefix).build();
     }
 
     static Optional<Prefixes> getPrefixToInterface(DataBroker broker, long vpnId, String ipPrefix) {
@@ -1147,7 +1151,7 @@ public class VpnUtil {
 
     static List<Uuid> getExternalNetworkRouterIds(DataBroker dataBroker, Uuid networkId) {
         Networks extNetwork = getExternalNetwork(dataBroker, networkId);
-        return extNetwork != null ? extNetwork.getRouterIds() : null;
+        return extNetwork != null ? extNetwork.getRouterIds() : Collections.emptyList();
     }
 
     static Routers getExternalRouter(DataBroker dataBroker, String routerId) {
@@ -1615,5 +1619,27 @@ public class VpnUtil {
         flowEntity.setTableId(tableId);
         flowEntity.setFlowId(flowId);
         return flowEntity;
+    }
+
+    protected static Subnetmap getSubnetmap(DataBroker broker, Uuid subnetId) {
+        InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class).child(Subnetmap.class, new
+                SubnetmapKey(subnetId)).build();
+        Optional<Subnetmap> sn = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+
+        if (sn.isPresent()) {
+            return sn.get();
+        }
+        return null;
+    }
+
+    static org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets
+        .Subnets getExternalSubnet(DataBroker dataBroker, Uuid subnetId) {
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets
+            .Subnets> subnetsIdentifier = InstanceIdentifier.builder(ExternalSubnets.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets
+                        .Subnets.class, new SubnetsKey(subnetId)).build();
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets>
+            optionalSubnets = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetsIdentifier);
+        return optionalSubnets.isPresent() ? optionalSubnets.get() : null;
     }
 }
