@@ -65,7 +65,7 @@ public class VpnDpnToTransportZoneListener
         }
 
         boolean shouldCreateVtep;
-        if (original.getVpnInterfaces() != null || original.getVpnInterfaces().isEmpty()) {
+        if (original.getVpnInterfaces() != null && !original.getVpnInterfaces().isEmpty()) {
             shouldCreateVtep = transportZoneNotificationUtil.shouldCreateVtep(update.getVpnInterfaces().stream()
                     .filter(vi -> !original.getVpnInterfaces().contains(vi)).collect(Collectors.toList()));
         } else {
