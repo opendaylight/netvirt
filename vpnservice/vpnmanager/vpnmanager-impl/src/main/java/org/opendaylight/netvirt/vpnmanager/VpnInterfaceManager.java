@@ -1012,48 +1012,44 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
         final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
         final String interfaceName = key.getName();
-        InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
+        BigInteger dpId = BigInteger.ZERO;
 
-        final Optional<VpnInterface> optVpnInterface =
-                VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, interfaceId);
         Interface interfaceState = InterfaceUtils.getInterfaceStateFromOperDS(dataBroker, interfaceName);
-        if (optVpnInterface.isPresent()) {
-            BigInteger dpnId = BigInteger.ZERO;
-            Boolean dpnIdRetrieved = Boolean.FALSE;
-            if (interfaceState != null) {
-                try {
-                    dpnId = InterfaceUtils.getDpIdFromInterface(interfaceState);
-                    dpnIdRetrieved = Boolean.TRUE;
-                } catch (Exception e) {
-                    LOG.error(
-                        "Unable to retrieve dpnId from interface operational data store for interface {}. Fetching "
-                            + "from vpn interface op data store. ",
-                        interfaceName, e);
-                }
-            } else {
-                LOG.error("Unable to retrieve interfaceState for interface {} , quitting ", interfaceName);
-                return;
+        if (interfaceState != null) {
+            try {
+                dpId = InterfaceUtils.getDpIdFromInterface(interfaceState);
+            } catch (Exception e) {
+                LOG.error(
+                    "Unable to retrieve dpnId from interface operational data store for interface {}. Fetching "
+                        + "from vpn interface op data store. ",
+                    interfaceName, e);
+                dpId = BigInteger.ZERO;
             }
-            final VpnInterface vpnOpInterface = optVpnInterface.get();
-            if (dpnIdRetrieved == Boolean.FALSE) {
-                LOG.info("dpnId for {} has not been retrieved yet. Fetching from vpn interface operational DS",
-                    interfaceName);
-                dpnId = vpnOpInterface.getDpnId();
-            }
+
             final int ifIndex = interfaceState.getIfIndex();
-            final BigInteger dpId = dpnId;
+            final BigInteger dpnId = dpId;
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
                 () -> {
                     WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
                     WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
                     WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
-                    processVpnInterfaceDown(dpId, interfaceName, ifIndex, false, true, writeConfigTxn, writeOperTxn,
-                        writeInvTxn);
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    futures.add(writeOperTxn.submit());
-                    futures.add(writeConfigTxn.submit());
-                    futures.add(writeInvTxn.submit());
+
+                    InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
+                    final Optional<VpnInterface> optVpnInterface =
+                            VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, interfaceId);
+                    if (optVpnInterface.isPresent()) {
+                        VpnInterface vpnOpInterface = optVpnInterface.get();
+                        processVpnInterfaceDown(dpnId.equals(BigInteger.ZERO) ? vpnOpInterface.getDpnId() : dpnId ,
+                                interfaceName, ifIndex, false, true, writeConfigTxn, writeOperTxn, writeInvTxn);
+                        futures.add(writeOperTxn.submit());
+                        futures.add(writeConfigTxn.submit());
+                        futures.add(writeInvTxn.submit());
+                    } else {
+                        LOG.warn("VPN interface {} was unavailable in operational data store to handle remove event",
+                                interfaceName);
+                    }
                     return futures;
                 });
 
@@ -1068,8 +1064,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     return futures;
                 });
         } else {
-            LOG.warn("VPN interface {} was unavailable in operational data store to handle remove event",
-                interfaceName);
+            LOG.warn("Handling removal of VPN interface {} skipped as interfaceState is not available", interfaceName);
         }
     }
 
