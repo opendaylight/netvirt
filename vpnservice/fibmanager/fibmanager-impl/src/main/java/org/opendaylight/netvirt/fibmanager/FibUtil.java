@@ -618,4 +618,8 @@ public class FibUtil {
         }
         return java.util.Optional.of(vrfEntry.getRoutePaths().get(0).getNexthopAddress());
     }
+
+    public static String getJobKey(Long vpnId, BigInteger dpnId, String prefix) {
+        return "FIB-" + vpnId.toString() + "-" + dpnId.toString() + "-" + prefix;
+    }
 }
