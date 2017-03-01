@@ -144,9 +144,12 @@ public class ElanInterfaceStateChangeListener
         if (tunnelList != null && tunnelList.getInternalTunnel() != null) {
             List<InternalTunnel> internalTunnels = tunnelList.getInternalTunnel();
             for (InternalTunnel tunnel : internalTunnels) {
-                if (tunnel.getTunnelInterfaceName().equalsIgnoreCase(interfaceName)) {
-                    internalTunnel = tunnel;
-                    break;
+                List<String> tunnelInterfaceNames = tunnel.getTunnelInterfaceNames();
+                for (String tunnelInterfaceName : tunnelInterfaceNames) {
+                    if (tunnelInterfaceName.equalsIgnoreCase(interfaceName)) {
+                        internalTunnel = tunnel;
+                        break;
+                    }
                 }
             }
         }
