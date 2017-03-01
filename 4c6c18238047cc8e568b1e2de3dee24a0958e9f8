@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_b3292d39",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-01T15:50:23Z",
+      "side": 1,
+      "message": "+1 on yang changes",
+      "revId": "4c6c18238047cc8e568b1e2de3dee24a0958e9f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
