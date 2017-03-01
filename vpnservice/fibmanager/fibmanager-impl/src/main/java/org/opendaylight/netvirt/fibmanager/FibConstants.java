@@ -17,4 +17,5 @@ public class FibConstants {
     static final String VPN_IDPOOL_NAME = "vpnservices";
     static final String SEPARATOR = ".";
     static final String DEFAULT_NEXTHOP_IP = "0.0.0.0";
+    public static final long INVALID_GROUP_ID = 0;
 }
