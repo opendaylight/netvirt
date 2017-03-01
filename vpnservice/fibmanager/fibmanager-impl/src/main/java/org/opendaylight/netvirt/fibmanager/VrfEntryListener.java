@@ -1215,23 +1215,21 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         String ipPrefix = vrfEntry.getDestPrefix();
         Prefixes prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, ipPrefix);
         if (prefixInfo == null) {
-            LOG.debug("No prefix info found for prefix {}", ipPrefix);
-            return;
-        }
+        	actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(), new MacAddress(vrfEntry.getGatewayMacAddress())));
+        } else {
+	        String ifName = prefixInfo.getVpnInterfaceName();
+	        if (ifName == null) {
+	            LOG.warn("Failed to get VPN interface for prefix {}", ipPrefix);
+	            return;
+	        }
 
-        String ifName = prefixInfo.getVpnInterfaceName();
-        if (ifName == null) {
-            LOG.debug("Failed to get VPN interface for prefix {}", ipPrefix);
-            return;
+	        String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, ipPrefix);
+	        if (macAddress == null) {
+	            LOG.warn("No MAC address found for VPN interface {} prefix {}", ifName, ipPrefix);
+	            return;
+	        }
+	        actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(), new MacAddress(macAddress)));
         }
-
-        String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, ipPrefix);
-        if (macAddress == null) {
-            LOG.warn("No MAC address found for VPN interface {} prefix {}", ifName, ipPrefix);
-            return;
-        }
-
-        actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(), new MacAddress(macAddress)));
     }
 
     private void addTunnelInterfaceActions(String tunnelInterface, long vpnId, VrfEntry vrfEntry,
@@ -2228,6 +2226,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
 
             for (String prefixIp : prefixIpList) {
+                if (vrfEntry.getRoutePaths() == null || vrfEntry.getRoutePaths().isEmpty()) {
+                    AdjacencyResult adjacencyResult = nextHopManager.getRemoteNextHopPointer(remoteDpnId, vpnId,
+                          prefixIp, null);
+                  addAdjacencyResultToList(adjacencyList, adjacencyResult);
+                  continue;
+                }
                 adjacencyList.addAll(vrfEntry.getRoutePaths().stream()
                         .map(routePath -> {
                             LOG.debug("NextHop IP for destination {} is {}", prefixIp,
@@ -2244,6 +2248,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
         return adjacencyList;
     }
+
+	private void addAdjacencyResultToList(List<AdjacencyResult> adjacencyList, AdjacencyResult adjacencyResult) {
+		if (adjacencyResult != null && !adjacencyList.contains(adjacencyResult)) {
+		    adjacencyList.add(adjacencyResult);
+		}
+	}
 
     protected VpnInstanceOpDataEntry getVpnInstance(String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id =
