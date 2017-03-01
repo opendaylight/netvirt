@@ -1383,8 +1383,12 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         BoundServices serviceInfo = ElanUtils.getBoundServices(
                 String.format("%s.%s.%s", "vpn", elanInstanceName, interfaceName), elanServiceIndex,
                 ElanConstants.ELAN_SERVICE_PRIORITY, NwConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
-        tx.put(LogicalDatastoreType.CONFIGURATION,
+        InstanceIdentifier<BoundServices> bindServiceId = ElanUtils.buildServiceId(interfaceName, elanServiceIndex);
+        Optional<BoundServices> existingElanService = elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION, bindServiceId);
+        if(!existingElanService.isPresent()) {
+            tx.put(LogicalDatastoreType.CONFIGURATION,
                 ElanUtils.buildServiceId(interfaceName, elanServiceIndex), serviceInfo, true);
+        }
     }
 
     private void bindEtreeService(ElanInstance elanInfo, ElanInterface elanInterface, int lportTag,
