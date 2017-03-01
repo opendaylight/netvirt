@@ -161,6 +161,57 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_80f010ff",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T10:12:45Z",
+      "side": 1,
+      "message": "you can mention here that we are using source mac and source ip only from the ARP Response and not from the initially punted IP Packet.",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_00da60e7",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T10:12:45Z",
+      "side": 1,
+      "message": "here when you say direct all further traffic towards PNF: It means setting the dest-mac-address in packet to PNF MAC and then sending the traffic to provider-port on the packet originating OVS right?",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_40e0e895",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T10:12:45Z",
+      "side": 1,
+      "message": "This is not available today, so it looks like this feature will add this functionality!  Thank you :)",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1d483486",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 12
@@ -313,6 +364,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e0b47c83",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T10:12:45Z",
+      "side": 1,
+      "message": "Actually I feel that in your implementation, you can always choose an NAPTSwitch (even before router-gateway-set) and use that same NAPTSwitch for both the 2 use-cases as the central subnetroute holder (and punter).  WDYT?",
+      "parentUuid": "fafc7978_5e1aa17d",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_58676ae9",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 12
@@ -424,6 +493,23 @@
       "side": 1,
       "message": "Right.",
       "parentUuid": "fafc7978_1824c2ad",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_200e843b",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T10:12:45Z",
+      "side": 1,
+      "message": "I think only for the initial packets (initiated either way before PNF Discovery - ie., both packet initiation from PNF, or packet initiation towards PNF) the relaying of the packets through the designated switch is necessary.  After the FIB Flows are installed, it becomes distributed l3 forwarding, but of course we should not use router-interface-ip-address ever in the source-ip-address fields of the IP Packets exchanged.  Is that right?",
       "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
