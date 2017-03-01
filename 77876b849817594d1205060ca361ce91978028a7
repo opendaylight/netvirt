@@ -104,6 +104,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6656e42b",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-03-01T13:31:06Z",
+      "side": 1,
+      "message": "Use code-block for flow dumps, cli etc.",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 95,
+        "endChar": 220
+      },
+      "revId": "77876b849817594d1205060ca361ce91978028a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fb939158",
         "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
         "patchSetId": 3
@@ -115,6 +138,46 @@
       "writtenOn": "2017-03-01T11:19:11Z",
       "side": 1,
       "message": "you can mention that will be available only from Pike release in upstream openstack.",
+      "revId": "77876b849817594d1205060ca361ce91978028a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4653e038",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-03-01T13:31:06Z",
+      "side": 1,
+      "message": "this should be code-block too.",
+      "range": {
+        "startLine": 173,
+        "startChar": 0,
+        "endLine": 176,
+        "endChar": 38
+      },
+      "revId": "77876b849817594d1205060ca361ce91978028a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a633ac12",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-03-01T13:31:06Z",
+      "side": 1,
+      "message": "Refer other specs on how to capture yang changes. USe code-block, include file name and for modifications to existing files use emphasis to highlight changes. It will make yang reviews much easier and faster.",
       "revId": "77876b849817594d1205060ca361ce91978028a7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
