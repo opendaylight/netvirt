@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_af39c7a5",
+        "filename": "vpnservice/statistics/api/pom.xml",
+        "patchSetId": 14
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-01T00:01:36Z",
+      "side": 1,
+      "message": "this file is still full of tabs and end-of-line whitespace.",
+      "revId": "9aabf3fec6083c71e5bdc373c584f7941aa2854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cf440b1d",
+        "filename": "vpnservice/statistics/impl/pom.xml",
+        "patchSetId": 14
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-01T00:01:36Z",
+      "side": 1,
+      "message": "whitespace... as an extra check for whitespace issues, you can use the pre-commit scripts in the .git/hooks dir. Just do a cp pre-commit.sample pre-commit. Then when you do a git commit it will check for whitespace and block the commit if there are any issues.",
+      "range": {
+        "startLine": 3,
+        "startChar": 77,
+        "endLine": 3,
+        "endChar": 78
+      },
+      "revId": "9aabf3fec6083c71e5bdc373c584f7941aa2854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
