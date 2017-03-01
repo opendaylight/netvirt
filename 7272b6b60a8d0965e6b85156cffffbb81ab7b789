@@ -337,6 +337,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_338eddd0",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-03-01T16:43:47Z",
+      "side": 1,
+      "message": "Thanks Tali for the explanation. We will take care of this while making the changes.",
+      "parentUuid": "fafc7978_9384e95e",
+      "range": {
+        "startLine": 40,
+        "startChar": 66,
+        "endLine": 41,
+        "endChar": 51
+      },
+      "revId": "7272b6b60a8d0965e6b85156cffffbb81ab7b789",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6476f2a5",
         "filename": "docs/specs/vlan-provider-enhancement.rst",
         "patchSetId": 2
