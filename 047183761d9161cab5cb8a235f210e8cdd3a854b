@@ -551,6 +551,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5b1bbd72",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T10:15:29Z",
+      "side": 1,
+      "message": "You may want to add one more case here:\n\nIngress traffic to a FloatingIP from a PNF on teh provider network.",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b8e5b639",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 12
