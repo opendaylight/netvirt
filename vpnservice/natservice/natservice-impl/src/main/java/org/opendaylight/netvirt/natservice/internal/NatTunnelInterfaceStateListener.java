@@ -809,7 +809,7 @@ public class NatTunnelInterfaceStateListener extends AsyncDataTreeChangeListener
                 String externalIp = intExtPortMap.getExternalIp();
                 LOG.debug("NAT Service : DNAT -> Withdrawing the FIB route to the floating IP {} configured for the port: {}",
                         externalIp, interfaceName);
-                NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32", LOG);
+                NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32", vpnName, LOG);
                 long label = floatingIPListener.getOperationalIpMapping(routerName, interfaceName, internalIp);
                 if(label == NatConstants.INVALID_ID){
                     LOG.debug("NAT Service : DNAT -> Unable to remove the table 21 entry pushing the MPLS label to the tunnel since label is invalid" );
