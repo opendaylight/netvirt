@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_60e36ca4",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-01T09:53:06Z",
+      "side": 1,
+      "message": "Yes, the SFC encapsulation is independent of the classification API. The encapsulation will be taken from the first SFF in the chain, which is obtained via the RSP. The classifier will ultimately support both Vxgpe and Vxlan, but first only Vxgpe+NSH, since we havent implemented Vxlan in SFC yet.",
+      "parentUuid": "fafc7978_cf408ea7",
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ef48f2b4",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-28T17:53:48Z",
       "side": 1,
       "message": "SFC can render to VPP nodes - but I suppose Netvirt will also need VPP support before the classifier can direct traffic to chains rendered on VPP nodes. (an effort beyond the scope of this spec no doubt)\n\nPerhaps it would be good to briefly clarify the scope of supported southbound nodes types.",
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_80f5b058",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-01T09:53:06Z",
+      "side": 1,
+      "message": "That\u0027s a good point. Actually, it should be possible to have a hybrid setup, where Netvirt is on OVS, and SFC is on VPP. That is indeed beyond the scope, but I can add a comment to clarify this.",
+      "parentUuid": "fafc7978_ef48f2b4",
       "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
