@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_a176f6a1",
+        "filename": "docs/specs/index.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-03-01T15:09:31Z",
+      "side": 1,
+      "message": "Please update the filename to ipv6-interdc-l3vpn\n\nWe are unable to view the link to the generated doc because of the wrong link.",
+      "revId": "a400b827523414b243b6e7e41140ac66ae86fab9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
