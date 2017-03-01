@@ -135,12 +135,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.RoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
@@ -151,6 +153,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.RouterKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.ExternalGatewayInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.external_gateway_info.ExternalFixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
@@ -201,9 +207,10 @@ public class VpnUtil {
         return new VpnIdsBuilder().setKey(new VpnIdsKey(vpnId)).setVpnId(vpnId).build();
     }
 
-    static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix, Uuid subnetId) {
+    static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix, Uuid subnetId,
+            boolean isNatPrefix) {
         return new PrefixesBuilder().setDpnId(dpId).setVpnInterfaceName(
-            vpnInterfaceName).setIpAddress(ipPrefix).setSubnetId(subnetId).build();
+            vpnInterfaceName).setIpAddress(ipPrefix).setSubnetId(subnetId).setNatPrefix(isNatPrefix).build();
     }
 
     static Optional<Prefixes> getPrefixToInterface(DataBroker broker, long vpnId, String ipPrefix) {
@@ -1147,7 +1154,7 @@ public class VpnUtil {
 
     static List<Uuid> getExternalNetworkRouterIds(DataBroker dataBroker, Uuid networkId) {
         Networks extNetwork = getExternalNetwork(dataBroker, networkId);
-        return extNetwork != null ? extNetwork.getRouterIds() : null;
+        return extNetwork != null ? extNetwork.getRouterIds() : Collections.emptyList();
     }
 
     static Routers getExternalRouter(DataBroker dataBroker, String routerId) {
@@ -1615,5 +1622,48 @@ public class VpnUtil {
         flowEntity.setTableId(tableId);
         flowEntity.setFlowId(flowId);
         return flowEntity;
+    }
+
+    static org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets
+        .Subnets getExternalSubnet(DataBroker dataBroker, Uuid subnetId) {
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets
+            .Subnets> subnetsIdentifier = InstanceIdentifier.builder(ExternalSubnets.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets
+                        .Subnets.class, new SubnetsKey(subnetId)).build();
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets>
+            optionalSubnets = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetsIdentifier);
+        return optionalSubnets.isPresent() ? optionalSubnets.get() : null;
+    }
+
+    static Uuid getSubnetFromNeutronRouterByIp(DataBroker dataBroker, String rotuerId, String ip) {
+        InstanceIdentifier<Router> routerIid = InstanceIdentifier.create(Neutron.class).child(
+                    org.opendaylight.yang.gen.v1.urn
+                        .opendaylight.neutron.l3.rev150712.routers.attributes.Routers.class).child(Router.class,
+                                    new RouterKey(new Uuid(rotuerId)));
+
+        Optional<Router> optionalRouter = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerIid);
+        if (optionalRouter.isPresent()) {
+            ExternalGatewayInfo externalGatewayInfo = optionalRouter.get().getExternalGatewayInfo();
+            if (externalGatewayInfo != null && externalGatewayInfo.getExternalFixedIps() != null) {
+                for (ExternalFixedIps externalIps : externalGatewayInfo.getExternalFixedIps()) {
+                    if (externalIps.getIpAddress().getIpv4Address().getValue().equals(ip)) {
+                        return externalIps.getSubnetId();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    static Uuid getSubentFromExternalRouterByIp(DataBroker dataBroker, Uuid routerId, String ip) {
+        Routers externalRouter = VpnUtil.getExternalRouter(dataBroker, routerId.getValue());
+        if (externalRouter != null && externalRouter.getExternalIps() != null) {
+            for (ExternalIps externalIp : externalRouter.getExternalIps()) {
+                if (externalIp.getIpAddress().equals(ip)) {
+                    return externalIp.getSubnetId();
+                }
+            }
+        }
+        return null;
     }
 }

@@ -457,6 +457,10 @@ public class FibUtil {
 
     private static void buildVpnEncapSpecificInfo(VrfEntryBuilder builder, VrfEntry.EncapType encapType, long label,
                                          long l3vni, String macAddress, String gatewayMac, List<String> nextHopList) {
+        if (encapType == null) {
+            builder.setMac(macAddress);
+            return;
+        }
         if (!encapType.equals(VrfEntry.EncapType.Mplsgre)) {
             builder.setL3vni(l3vni);
         }
