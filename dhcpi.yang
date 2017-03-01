@@ -1,0 +1,141 @@
+module dhcpi {
+    namespace "urn:opendaylight:netvirt:dhcpi";
+    prefix "dhcpi";
+
+    import ietf-inet-types {
+        prefix inet;
+        revision-date "2013-07-15";
+    }
+
+    import ietf-yang-types {
+        prefix yang;
+    }
+
+    revision "2016-12-14" {
+        description "It provides required datastore containers to handle DHCP requests
+            coming from access or external tunnel ports";
+    }
+
+    container dhcpi {
+        config true;
+        description "contains internal (non neutron) DHCP allocation";
+        list vrf {
+            key "vrf-id";
+            leaf vrf-id {
+                description "VRF ID";
+                type string;
+            }
+            list allocation {
+                key "subnet";
+                leaf subnet {
+                    description "subnet for the dhcp to allocate ip addresses";
+                    type inet:ip-prefix;
+                }
+
+                list allocation-instance {
+                    key "mac";
+                    leaf mac {
+                        description "requesting mac";
+                        type yang:phys-address;
+                    }
+                    leaf allocated-ip {
+                        description "allocated ip address";
+                        type inet:ip-address;
+                    }
+                }
+            }
+            list allocation-pool {
+                key "subnet";
+                leaf subnet {
+                    description "subnet for the dhcp to allocate ip addresses";
+                    type inet:ip-prefix;
+                }
+                leaf vrf-id {
+                    description "vrf-id for inner reference";
+                    type string;
+                }
+                leaf allocate-from {
+                    description "low allocation limit";
+                    type inet:ip-address;
+                }
+                leaf allocate-to {
+                    description "high allocation limit";
+                    type inet:ip-address;
+                }
+                leaf gateway {
+                    description "default gateway for dhcp allocation";
+                    type inet:ip-address;
+                }
+                list dns-servers {
+                    description "dns server list";
+                    leaf dns-server {
+                        description "dns server entry";
+                        type inet:ip-address;
+                    }
+                }
+            }
+        }
+        list op-vrf {
+        description "contains operational subnet prefix to subnet uuid mapping";
+        config flase;
+            key "vrf-id";
+            leaf vrf-id {
+                description "VRF ID";
+                type string;
+            }
+            list subnet-prefix-op-data-entry {
+                key "subnet";
+                leaf subnet {
+                    description "subnet for the dhcp to allocate ip addresses";
+                    type inet:ip-prefix;
+                }
+
+                leaf "subnet-uuid" {
+                    description "subnet uuid";
+                    type yang:uuid;
+                }
+            }
+            list op-allocation-pool {
+                key "subnet";
+                leaf subnet {
+                    description "subnet for the dhcp to allocate ip addresses";
+                    type inet:ip-prefix;
+                }
+                leaf high-water-mark-ip {
+                    description "high water mark for quick access to next ip-address for allocation";
+                    type inet:ip-address;
+                }
+                leaf high-water-mark {
+                    description "high water mark for quick access to next ip-address for allocation";
+                    type int32;
+                }
+                leaf allocate-from {
+                    description "low allocation limit";
+                    type int32;
+                }
+                leaf allocate-to {
+                    description "high allocation limit";
+                    type int32;
+                }
+            }
+            list op-allocation-instance {
+                key "subnet";
+                leaf subnet {
+                    description "subnet for the dhcp to allocate ip addresses";
+                    type inet:ip-prefix;
+                }
+                list op-allocation-instance-entry{
+                    key "allocated-ip";
+                    leaf allocated-ip {
+                        description "allocated ip address";
+                        type inet:ip-address;
+                    }
+                    leaf mac {
+                        description "requesting mac";
+                        type yang:phys-address;
+                    }
+                }
+            }
+        }
+    }
+}
