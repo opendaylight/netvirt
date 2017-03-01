@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_26221c52",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-01T15:00:49Z",
+      "side": 1,
+      "message": "Yes you are right. In this use-case we won\u0027t change the src MAC of the packet. This will be a limitation until DVR will be implemented and we will have src MAC per hypervisor.\nI\u0027ll update the spec.",
+      "parentUuid": "fafc7978_b5911849",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_dd1fcc6a",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 12
@@ -102,6 +120,24 @@
       "side": 1,
       "message": "Ok.. For the first case, the source MAC Address that will be used as source on the external network side (i.e., after NATing) will be the routers-gateway-mac-address.   The destination MAC Address will be that of PNF itself.\n\nFor the second case, since we are talking L3 here, what will be the source MAC Address in the packet from the VM to the PNF?  It will be the source VMs mac-address itself right? If the source mac-address is intended here to be the router-interface-mac addresse, then that will result in underlay mac-table thrrashing.\nSimilarly in this second case the destination mac address will be that of PNF itself.",
       "parentUuid": "fafc7978_5e65811c",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_46c3e056",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-01T15:00:49Z",
+      "side": 1,
+      "message": "You are right, in the second case we won\u0027t change the src MAC, as commented in an earlier comment.",
+      "parentUuid": "fafc7978_b57bd8f3",
       "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -161,6 +197,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_86a8288e",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-01T15:00:49Z",
+      "side": 1,
+      "message": ":)",
+      "parentUuid": "fafc7978_55726c11",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_80f010ff",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 12
@@ -195,6 +249,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e6a93491",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-01T15:00:49Z",
+      "side": 1,
+      "message": "Correct.",
+      "parentUuid": "fafc7978_00da60e7",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_40e0e895",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 12
@@ -206,6 +278,24 @@
       "writtenOn": "2017-03-01T10:12:45Z",
       "side": 1,
       "message": "This is not available today, so it looks like this feature will add this functionality!  Thank you :)",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2697bc49",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-01T15:00:49Z",
+      "side": 1,
+      "message": ":)",
+      "parentUuid": "fafc7978_40e0e895",
       "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -382,6 +472,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_0688b8c3",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-01T15:00:49Z",
+      "side": 1,
+      "message": "NAPTSwitch is one per router, but \"next hop DPN\" in subnet-route feature is one per subnet.\nFrom a performance point of view, switch per subnet is preferred.\n\nDo you see any advantage in using the switch per router approach?",
+      "parentUuid": "fafc7978_e0b47c83",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_58676ae9",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 12
@@ -516,6 +624,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e63934f3",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-01T15:00:49Z",
+      "side": 1,
+      "message": "The distributed L3 forwarding is only one way, from VM instance to PNF.\nPNF traffic is sent (always) to one hypervisor (the designated switch, which has the router_interface responder rule).\nIn the future when we\u0027ll have a MAC per hypervisor, we can change this behavior to allow distributed forwarding in both directions.",
+      "parentUuid": "fafc7978_200e843b",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_58ae4ae7",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 12
@@ -568,6 +694,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_2104c648",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-01T15:00:49Z",
+      "side": 1,
+      "message": "Sure, I\u0027ll add it.",
+      "parentUuid": "fafc7978_5b1bbd72",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b8e5b639",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 12
@@ -614,6 +758,24 @@
       "writtenOn": "2017-03-01T07:54:00Z",
       "side": 1,
       "message": "rd and vpn-instance-name is the same value for an external-network-id based vpnInstance.  \nSo why do you need this additional external-vpn field?",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c1d4dabe",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-01T15:00:49Z",
+      "side": 1,
+      "message": "I need to distingush between BGPVPN and internal VPN when a subnetmap is created (in neturonvpn), which is earlier then \nthe creation of odl-l3vpn based models (vpn-id-to-vpn-instance and vpn-instance-to-vpn-id).\n\nAfter reviewing my yang model again, I came to a conclusion that this yang change will not fix my problem, as this model created after subnetmap also.",
+      "parentUuid": "fafc7978_d5d49cbe",
       "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
