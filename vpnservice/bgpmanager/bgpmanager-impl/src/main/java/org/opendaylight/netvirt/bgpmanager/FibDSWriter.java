@@ -17,12 +17,13 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.VrfEntryBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePaths;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.slf4j.Logger;
@@ -74,8 +75,10 @@ public class FibDSWriter {
         }
         builder.setEncapType(encapType);
         builder.setGatewayMacAddress(gatewayMac);
-        Long lbl = encapType.equals(VrfEntry.EncapType.Mplsgre) ? label : null;
-        List<RoutePaths> routePaths = nextHopList.stream()
+        //Long lbl = encapType.equals(VrfEntry.EncapType.Mplsgre) ? label : null;
+        LOG.debug("buildVpnEncapSpecificInfo label {}, nextHopList {}", label, nextHopList);
+        Long lbl = label;
+                List<RoutePaths> routePaths = nextHopList.stream()
                         .filter(nextHop -> nextHop != null && !nextHop.isEmpty())
                         .map(nextHop -> {
                             return FibHelper.buildRoutePath(nextHop, lbl);

@@ -45,7 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePaths;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
@@ -439,7 +439,9 @@ public class FibUtil {
         }
         builder.setEncapType(encapType);
         builder.setGatewayMacAddress(gatewayMac);
-        Long lbl = encapType.equals(VrfEntry.EncapType.Mplsgre) ? label : null;
+        //Long lbl = encapType.equals(VrfEntry.EncapType.Mplsgre) ? label : null;
+        LOG.debug("buildVpnEncapSpecificInfo label {}, nextHopList {}", label, nextHopList);
+        Long lbl = label;
         List<RoutePaths> routePaths = nextHopList.stream()
                         .filter(nextHop -> nextHop != null && !nextHop.isEmpty())
                         .map(nextHop -> {
@@ -608,6 +610,8 @@ public class FibUtil {
         if (routePaths == null || routePaths.isEmpty()) {
             return java.util.Optional.empty();
         }
+        LOG.debug("getLabelFromRoutePaths vrfEntry {}, routePaths {} routePaths.get(0) {}",
+                vrfEntry, routePaths, routePaths.get(0));
         return java.util.Optional.of(vrfEntry.getRoutePaths().get(0).getLabel());
     }
 
