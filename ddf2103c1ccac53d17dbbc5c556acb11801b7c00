@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_a006f483",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-01T09:37:25Z",
+      "side": 1,
+      "message": "why can\u0027t use SingleTransactionDataBroker#syncReadOptional ?",
+      "revId": "ddf2103c1ccac53d17dbbc5c556acb11801b7c00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c00fb886",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-01T09:37:25Z",
+      "side": 1,
+      "message": "just validate routePathId exists before deleting it.",
+      "revId": "ddf2103c1ccac53d17dbbc5c556acb11801b7c00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
