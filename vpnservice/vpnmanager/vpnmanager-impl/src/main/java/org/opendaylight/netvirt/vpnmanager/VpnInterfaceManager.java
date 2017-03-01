@@ -1127,7 +1127,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
                             for (String nh : nhList) {
                                 //IRT: remove routes from other vpns importing it
-                                removePrefixFromBGP(rd, nextHop.getIpAddress(), nh, writeConfigTxn);
+                                removePrefixFromBGP(rd, vpnName, nextHop.getIpAddress(), nh, writeConfigTxn);
                                 for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                                     String vpnRd = vpn.getVrfId();
                                     if (vpnRd != null) {
@@ -1222,11 +1222,14 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 vpnId, writeInvTxn, addOrRemove);
     }
 
-    private void removePrefixFromBGP(String rd, String prefix, String nextHop, WriteTransaction writeConfigTxn) {
+    private void removePrefixFromBGP(String rd, String vpnName, String prefix, String nextHop,
+                                     WriteTransaction writeConfigTxn) {
         try {
             LOG.info("VPN WITHDRAW: Removing Fib Entry rd {} prefix {}", rd, prefix);
             fibManager.removeOrUpdateFibEntry(dataBroker, rd, prefix, nextHop, writeConfigTxn);
-            bgpManager.withdrawPrefix(rd, prefix); // TODO: Might be needed to include nextHop here
+            if (rd != null && !rd.equalsIgnoreCase(vpnName)) {
+                bgpManager.withdrawPrefix(rd, prefix); // TODO: Might be needed to include nextHop here
+            }
             LOG.info("VPN WITHDRAW: Removed Fib Entry rd {} prefix {}", rd, prefix);
         } catch(Exception e) {
             LOG.error("Delete prefix failed", e);
@@ -1689,7 +1692,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
 
         if (rd != null) {
-            removePrefixFromBGP(rd, destination, nextHop, writeConfigTxn);
+            String vpnName = VpnUtil.getVpnNameFromRd(dataBroker, rd);
+            removePrefixFromBGP(rd, vpnName, destination, nextHop, writeConfigTxn);
         } else {
             // ### add FIB route directly
             fibManager.removeOrUpdateFibEntry(dataBroker, routerID, destination, nextHop, writeConfigTxn);
