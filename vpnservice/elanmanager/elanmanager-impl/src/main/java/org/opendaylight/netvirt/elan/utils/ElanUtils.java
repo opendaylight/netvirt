@@ -1021,6 +1021,12 @@ public class ElanUtils {
     public void setupRemoteDmacFlow(BigInteger srcDpId, BigInteger destDpId, int lportTag, long elanTag,
             String macAddress, String displayName, WriteTransaction writeFlowGroupTx, String interfaceName,
             ElanInstance elanInstance) throws ElanException {
+        if (interfaceManager.isExternalInterface(interfaceName)) {
+            LOG.debug("Ignoring install remote DMAC {} flow on provider interface {} elan {}",
+                    macAddress, interfaceName, elanInstance.getElanInstanceName());
+            return;
+        }
+
         Flow flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTag, elanTag, macAddress, displayName,
                 elanInstance);
         mdsalManager.addFlowToTx(srcDpId, flowEntity, writeFlowGroupTx);
