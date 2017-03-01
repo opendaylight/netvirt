@@ -1368,14 +1368,18 @@ public class VpnUtil {
     public static boolean isVpnIntfPresentInVpnToDpnList(DataBroker broker, VpnInterface vpnInterface) {
         BigInteger dpnId = vpnInterface.getDpnId();
         String rd = VpnUtil.getVpnRd(broker, vpnInterface.getVpnInstanceName());
+        LOG.trace("GOT rd {} for VpnInterface {}  VpnInstance {} ", rd ,
+                vpnInterface.getName(), vpnInterface.getVpnInstanceName());
         VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpDataFromCache(broker, rd);
         if (vpnInstanceOpData != null) {
+            LOG.trace("GOT VpnInstanceOp {} for rd {} ", vpnInstanceOpData, rd);
             List<VpnToDpnList> dpnToVpns = vpnInstanceOpData.getVpnToDpnList();
             if (dpnToVpns != null) {
                 for (VpnToDpnList dpn : dpnToVpns) {
                     if (dpn.getDpnId().equals(dpnId)) {
                         return dpn.getVpnInterfaces().contains(vpnInterface.getName());
                     }
+                    LOG.trace("VpnInterface {} not present in DpnId {} ", vpnInterface.getName(), dpn.getDpnId());
                 }
             }
         }

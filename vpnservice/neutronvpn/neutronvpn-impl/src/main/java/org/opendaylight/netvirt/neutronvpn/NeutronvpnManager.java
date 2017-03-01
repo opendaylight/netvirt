@@ -1158,39 +1158,50 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
-    protected void updateVpnForSubnet(Uuid vpnId, Uuid subnet, boolean isBeingAssociated) {
-        LOG.debug("Updating VPN {} for subnet {}", vpnId.getValue(), subnet.getValue());
-        // Read the subnet first to see if its already associated to a VPN
-        Uuid oldVpnId = null;
-        InstanceIdentifier<Subnetmap> snId = InstanceIdentifier.builder(Subnetmaps.class)
-            .child(Subnetmap.class, new SubnetmapKey(subnet)).build();
-        Subnetmap sn = null;
-        Optional<Subnetmap> optSn = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION, snId);
-        if (optSn.isPresent()) {
-            sn = optSn.get();
-            oldVpnId = sn.getVpnId();
-            List<String> ips = sn.getRouterInterfaceFixedIps();
-            for (String ipValue : ips) {
-                // Update the association of router-interface to external vpn
-                String portName =
-                    NeutronvpnUtils.getNeutronPortNameFromVpnPortFixedIp(dataBroker, oldVpnId.getValue(), ipValue);
-                if (portName != null) {
-                    updateVpnInterface(vpnId, oldVpnId,
-                        NeutronvpnUtils.getNeutronPort(dataBroker, new Uuid(portName)),
-                        isBeingAssociated, true);
-                }
+    private void updateVpnForSubnet(Uuid newVpnId, Uuid oldVpnId, Uuid subnet, boolean isBeingAssociated) {
+        LOG.debug("Moving subnet {} from oldVpn {} to newVpn {} ", subnet.getValue(),
+                oldVpnId.getValue(), newVpnId.getValue());
+        Subnetmap sn = updateSubnetNode(subnet, null, null, null, null, newVpnId);
+        if (sn == null) {
+            LOG.error("Updating subnet {} with newVpn {} failed", subnet.getValue(), newVpnId.getValue());
+            return;
+        }
+
+        List<String> ips = sn.getRouterInterfaceFixedIps();
+        for (String ipValue : ips) {
+            // Update the association of router-interface to external vpn
+            String portName =
+                NeutronvpnUtils.getNeutronPortNameFromVpnPortFixedIp(dataBroker, oldVpnId.getValue(), ipValue);
+            if (portName != null) {
+                final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+                portDataStoreCoordinator.enqueueJob("PORT-" + portName, () -> {
+                    WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                    List<ListenableFuture<Void>> futures = new ArrayList<>();
+                    updateVpnInterface(newVpnId, oldVpnId,
+                            NeutronvpnUtils.getNeutronPort(dataBroker, new Uuid(portName)),
+                            isBeingAssociated, true);
+                    futures.add(wrtConfigTxn.submit());
+                    return futures;
+                });
             }
         }
-        sn = updateSubnetNode(subnet, null, null, null, null, vpnId);
+
         // Check for ports on this subnet and update association of
         // corresponding vpn-interfaces to external vpn
         List<Uuid> portList = sn.getPortList();
         if (portList != null) {
-            for (Uuid port : sn.getPortList()) {
+            for (Uuid port : portList) {
                 LOG.debug("Updating vpn-interface for port {} isBeingAssociated {}",
                     port.getValue(), isBeingAssociated);
-                updateVpnInterface(vpnId, oldVpnId, NeutronvpnUtils.getNeutronPort(dataBroker, port),
-                        isBeingAssociated, false);
+                final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+                portDataStoreCoordinator.enqueueJob("PORT-" + port.getValue(), () -> {
+                    WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                    List<ListenableFuture<Void>> futures = new ArrayList<>();
+                    updateVpnInterface(newVpnId, oldVpnId, NeutronvpnUtils.getNeutronPort(dataBroker, port),
+                            isBeingAssociated, false);
+                    futures.add(wrtConfigTxn.submit());
+                    return futures;
+                });
             }
         }
     }
@@ -1542,7 +1553,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         List<Uuid> routerSubnets = NeutronvpnUtils.getNeutronRouterSubnetIds(dataBroker, routerId);
         if (routerSubnets != null) {
             for (Uuid subnetId : routerSubnets) {
-                updateVpnForSubnet(vpnId, subnetId, true);
+                updateVpnForSubnet(vpnId, routerId, subnetId, true);
             }
         }
         try {
@@ -1571,7 +1582,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         if (routerSubnets != null) {
             for (Uuid subnetId : routerSubnets) {
                 LOG.debug("Updating association of subnets to internal vpn {}", routerId.getValue());
-                updateVpnForSubnet(routerId, subnetId, false);
+                updateVpnForSubnet(routerId, vpnId, subnetId, false);
             }
         }
         clearFromVpnMaps(vpnId, routerId, null);
