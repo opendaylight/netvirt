@@ -56,10 +56,9 @@ public class VLANProvider implements ConfigInterface {
     public void programProviderNetworkFlow(Node envNode, OvsdbTerminationPointAugmentation port, NeutronNetwork network,
             NeutronPort neutronPort, Boolean write) {
         try {
-            final String brInt = configurationService.getIntegrationBridgeName();
             final String brExt = configurationService.getExternalBridgeName();
-            final String portNameInt = configurationService.getPatchPortName(new ImmutablePair<>(brInt, brExt));
-            final String portNameExt = configurationService.getPatchPortName(new ImmutablePair<>(brExt, brInt));
+            final String portNameInt = configurationService.readPatchPortName(brExt);
+            final String portNameExt = Constants.PATCH_PORT_TO_INTEGRATION_BRIDGE_NAME;
             Long ofPort = port.getOfport();
             String macAddress = neutronPort.getMacAddress();
             final Long dpIdInt = getDpidForIntegrationBridge(envNode, portNameInt);

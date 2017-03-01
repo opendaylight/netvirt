@@ -113,16 +113,6 @@ public class ConfigurationServiceImpl implements ConfigurationService, ConfigInt
         return patchPortNames;
     }
 
-    /**
-     * Adds entry to the patch port cache
-     * @param pairKey pairKey
-     * @param value value
-     */
-     @Override
-     public void addPatchPortName(Pair<String, String> pairKey, String value) {
-         this.patchPortNames.put(pairKey, value);
-     }
-
     @Override
     public void setPatchPortNames(Map<Pair<String, String>, String> patchPortNames) {
         this.patchPortNames = patchPortNames;
@@ -204,6 +194,18 @@ public class ConfigurationServiceImpl implements ConfigurationService, ConfigInt
     public boolean isUserSpaceEnabled() {
         final String enabledPropertyStr = ConfigProperties.getProperty(this.getClass(), "ovsdb.userspace.enabled");
         return enabledPropertyStr != null && enabledPropertyStr.equalsIgnoreCase("yes");
+    }
+
+    @Override
+    public String readPatchPortName(String brExt) {
+        String portNameExt = null;
+        if (brExt.contains("-")) {
+            String[] brExt_Ex = brExt.split("-");
+            portNameExt = Constants.MULTIPLE_NETWORK_L3_PATCH.concat("-").concat(brExt_Ex[1]);
+        } else {
+            portNameExt = Constants.MULTIPLE_NETWORK_L3_PATCH.concat("-").concat(brExt);
+        }
+        return portNameExt;
     }
 
     @Override
