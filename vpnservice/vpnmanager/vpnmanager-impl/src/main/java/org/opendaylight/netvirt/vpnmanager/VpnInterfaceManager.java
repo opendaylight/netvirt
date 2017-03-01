@@ -102,6 +102,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnTargets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTarget;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
@@ -564,12 +565,14 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             String rd = primaryRd;
             if (nextHop.isPrimaryAdjacency()) {
                 String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
+                boolean isNatPrefix = nextHop.isPhysNetworkFunc() ? true : false;
                 LOG.trace("Adding prefix {} to interface {} for vpn {}", prefix, interfaceName, vpnName);
                 writeOperTxn.merge(
                     LogicalDatastoreType.OPERATIONAL,
                     VpnUtil.getPrefixToInterfaceIdentifier(
                         VpnUtil.getVpnId(dataBroker, vpnName), prefix),
-                    VpnUtil.getPrefixToInterface(dpnId, interfaceName, prefix, nextHop.getSubnetId()), true);
+                    VpnUtil.getPrefixToInterface(dpnId, interfaceName, prefix, nextHop.getSubnetId(),
+                            isNatPrefix), true);
                 final Uuid subnetId = nextHop.getSubnetId();
                 setupGwMacIfRequired(dpnId, vpnName, interfaceName, vpnId, subnetId,
                         writeInvTxn, NwConstants.ADD_FLOW, interfaceState);
@@ -946,14 +949,14 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 LOG.info("Importing fib entry rd {} prefix {} nexthop {} label {} gwmac {} to vpn {}",
                                         vpnRd, prefix, nh, label, gwMac, vpn.getVpnInstanceName());
                                 fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, null /*macAddress*/, prefix,
-                                        Collections.singletonList(nh), VrfEntry.EncapType.Mplsgre, (int)label,
+                                        Collections.singletonList(nh), VrfEntry.EncapType.Mplsgre, label,
                                         0 /*l3vni*/, gwMac,  null /*parentVpnRd*/, RouteOrigin.SELF_IMPORTED,
                                         writeConfigTxn);
                             } else {
                                 LOG.info("Importing subnet route fib entry rd {} prefix {} nexthop {} label {}"
                                         + " to vpn {}", vpnRd, prefix, nh, label, vpn.getVpnInstanceName());
                                 SubnetRoute route = vrfEntry.getAugmentation(SubnetRoute.class);
-                                importSubnetRouteForNewVpn(vpnRd, prefix, nh, (int) label, route, writeConfigTxn);
+                                importSubnetRouteForNewVpn(vpnRd, prefix, nh, label, route, writeConfigTxn);
                             }
                         });
                     } catch (Exception e) {
@@ -1578,7 +1581,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             if (optAdjacencies.isPresent()) {
                 adjacencies = optAdjacencies.get().getAdjacency();
             } else {
-                //This code will not be hit since VM adjacency will always be there
+                // This code will be hit in case of first PNF adjacency
                 adjacencies = new ArrayList<>();
             }
             long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
@@ -1615,6 +1618,23 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         });
                     });
                 }
+            } else if (adj.isPhysNetworkFunc()) { // PNF adjacency.
+                LOG.trace("Adding prefix {} to interface {} for vpn {}", prefix, currVpnIntf.getName(), vpnName);
+
+                String parentVpnRd = getParentVpnRdForExternalSubnet(adj);
+
+                writeOperTxn.merge(
+                        LogicalDatastoreType.OPERATIONAL,
+                        VpnUtil.getPrefixToInterfaceIdentifier(VpnUtil.getVpnId(dataBroker,
+                                adj.getSubnetId().getValue()), prefix),
+                        VpnUtil.getPrefixToInterface(BigInteger.ZERO, currVpnIntf.getName(), prefix,
+                                adj.getSubnetId(), true /* isNatPrefix */), true);
+
+                fibManager.addOrUpdateFibEntry(dataBroker, adj.getSubnetId().getValue(), adj.getMacAddress(),
+                        adj.getIpAddress(), Collections.EMPTY_LIST, null /* EncapType */, 0 /* label */, 0 /*l3vni*/,
+                      null /* gw-mac */, parentVpnRd, RouteOrigin.LOCAL, writeConfigTxn);
+
+                adjBuilder.setVrfId(adj.getVrfId());
             } else {
                 adjBuilder.setVrfId(primaryRd);
             }
@@ -1626,6 +1646,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
             writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf, true);
         }
+    }
+
+    private String getParentVpnRdForExternalSubnet(Adjacency adj) {
+        Subnets subnets = VpnUtil.getExternalSubnet(dataBroker, adj.getSubnetId());
+        return subnets != null ? subnets.getExternalNetworkId().getValue() : null;
     }
 
     protected void delAdjFromVpnInterface(InstanceIdentifier<VpnInterface> identifier, Adjacency adj, BigInteger dpnId,
