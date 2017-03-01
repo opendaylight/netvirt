@@ -56,10 +56,9 @@ public class VLANProvider implements ConfigInterface {
     public void programProviderNetworkFlow(Node envNode, OvsdbTerminationPointAugmentation port, NeutronNetwork network,
             NeutronPort neutronPort, Boolean write) {
         try {
-            final String brInt = configurationService.getIntegrationBridgeName();
             final String brExt = configurationService.getExternalBridgeName();
-            final String portNameInt = configurationService.getPatchPortName(new ImmutablePair<>(brInt, brExt));
-            final String portNameExt = configurationService.getPatchPortName(new ImmutablePair<>(brExt, brInt));
+            final String portNameInt = getPatchPortName(brExt);
+            final String portNameExt = Constants.PATCH_PORT_TO_INTEGRATION_BRIDGE_NAME;
             Long ofPort = port.getOfport();
             String macAddress = neutronPort.getMacAddress();
             final Long dpIdInt = getDpidForIntegrationBridge(envNode, portNameInt);
@@ -78,6 +77,23 @@ public class VLANProvider implements ConfigInterface {
         } catch(Exception e) {
             LOG.error("programProviderNetworkFlow:Error while writing a flows. Caused due to, " + e.getMessage());
         }
+    }
+
+    /**
+     * Construct patch port name based on external bridge name
+     *
+     * @param brExt String representing an External bridge.
+     * @return the string portNameExt.
+     */
+    public static String getPatchPortName(String brExt) {
+        String portNameExt = null;
+        if (brExt.contains("-")) {
+            String[] brExt_Ex = brExt.split("-");
+            portNameExt = Constants.MULTIPLE_NETWORK_L3_PATCH.concat("-").concat(brExt_Ex[1]);
+        } else {
+            portNameExt = Constants.MULTIPLE_NETWORK_L3_PATCH.concat("-").concat(brExt);
+        }
+        return portNameExt;
     }
 
     private Long getPatchPort(final Long dpId, final String portName) {
