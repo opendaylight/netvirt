@@ -1232,7 +1232,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         String ifName = prefixInfo.getVpnInterfaceName();
         if (ifName == null) {
-            LOG.debug("Failed to get VPN interface for prefix {}", ipPrefix);
+            LOG.warn("Failed to get VPN interface for prefix {}", ipPrefix);
             return;
         }
 
@@ -2254,6 +2254,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
 
             for (String prefixIp : prefixIpList) {
+                if (routePaths == null || routePaths.isEmpty()) {
+                    LOG.trace("Processing Destination IP {} without NextHop IP", prefixIp);
+                    AdjacencyResult adjacencyResult = nextHopManager.getRemoteNextHopPointer(remoteDpnId, vpnId,
+                          prefixIp, null);
+                    addAdjacencyResultToList(adjacencyList, adjacencyResult);
+                    continue;
+                }
                 adjacencyList.addAll(routePaths.stream()
                         .map(routePath -> {
                             LOG.debug("NextHop IP for destination {} is {}", prefixIp,
@@ -2269,6 +2276,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             LOG.trace("", e);
         }
         return adjacencyList;
+    }
+
+    private void addAdjacencyResultToList(List<AdjacencyResult> adjacencyList, AdjacencyResult adjacencyResult) {
+        if (adjacencyResult != null && !adjacencyList.contains(adjacencyResult)) {
+            adjacencyList.add(adjacencyResult);
+        }
     }
 
     protected VpnInstanceOpDataEntry getVpnInstance(String rd) {
