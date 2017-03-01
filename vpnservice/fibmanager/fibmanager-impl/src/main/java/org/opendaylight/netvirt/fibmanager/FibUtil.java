@@ -634,14 +634,18 @@ public class FibUtil {
     }
 
     public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
-            .state.Interface getInterfaceStateFromOperDS(DataBroker dataBroker, String interfaceName) {
+        .state.Interface getInterfaceStateFromOperDS(DataBroker dataBroker, String interfaceName) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
-                .interfaces.state.Interface> ifStateId = buildStateInterfaceId(interfaceName);
+            .interfaces.state.Interface> ifStateId = buildStateInterfaceId(interfaceName);
         Optional<Interface> ifStateOptional = FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, ifStateId);
         if (ifStateOptional.isPresent()) {
             return ifStateOptional.get();
         }
 
         return null;
+    }
+
+    public static String getJobKey(Long vpnId, BigInteger dpnId, String prefix) {
+        return "FIB-" + vpnId.toString() + "-" + dpnId.toString() + "-" + prefix;
     }
 }
