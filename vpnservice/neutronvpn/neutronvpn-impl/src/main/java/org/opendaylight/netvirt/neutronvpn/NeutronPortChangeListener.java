@@ -248,10 +248,10 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     if (vpnId == null) {
                         vpnId = routerId;
                     }
-                    // NOTE:  Please donot change the order of calls to updateSubnetNodeWithFixedIPs
+                    // NOTE:  Please donot change the order of calls to updateSubnetNodeWithFixedIP
                     // and addSubnetToVpn here
                     String ipValue = String.valueOf(portIP.getIpAddress().getValue());
-                    nvpnManager.updateSubnetNodeWithFixedIps(portIP.getSubnetId(), routerId,
+                    nvpnManager.updateSubnetNodeWithFixedIp(portIP.getSubnetId(), routerId,
                             routerPort.getUuid(), ipValue, routerPort.getMacAddress().getValue());
                     nvpnManager.addSubnetToVpn(vpnId, portIP.getSubnetId());
                     nvpnNatManager.handleSubnetsForExternalRouter(routerId, dataBroker);
@@ -283,9 +283,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     vpnId = routerId;
                 }
                 // NOTE:  Please donot change the order of calls to removeSubnetFromVpn and
-                // and updateSubnetNodeWithFixedIPs
+                // and updateSubnetNodeWithFixedIP
                 nvpnManager.removeSubnetFromVpn(vpnId, portIP.getSubnetId());
-                nvpnManager.updateSubnetNodeWithFixedIps(portIP.getSubnetId(), null,
+                nvpnManager.updateSubnetNodeWithFixedIp(portIP.getSubnetId(), null,
                         null, null, null);
                 nvpnNatManager.handleSubnetsForExternalRouter(routerId, dataBroker);
                 String ipValue = String.valueOf(portIP.getIpAddress().getValue());
