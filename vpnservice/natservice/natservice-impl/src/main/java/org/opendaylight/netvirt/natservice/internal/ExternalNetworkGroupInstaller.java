@@ -53,8 +53,8 @@ public class ExternalNetworkGroupInstaller {
     }
 
     public void installExtNetGroupEntries(Subnetmap subnetMap) {
-        if (subnetMap == null) {
-            LOG.trace("Subnetmap is null");
+        if (subnetMap == null || subnetMap.getSubnetIp() == null) {
+            LOG.trace("Subnetmap or subnet-ip is null");
             return;
         }
 
