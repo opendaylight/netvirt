@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_a1eb9611",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 19
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-03-01T14:01:33Z",
+      "side": 1,
+      "message": "I have below suggestions keeping in mind supporting multiple remote ACLs in future.\nThis covers handling of AAP with 0.0.0.0/0.\nFour tables are used. ACL2 being dispatcher within ACL. \n\nHope below table is self explanatory and hope extending the support for multiple remote ACLs should be easy with this approach.\n\n\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d  \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d  \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\nTable           Match                                              Action\n\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d  \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d  \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\nDispatcher      metadata\u003dservice_id:ACL                            write_metadata:(service_id\u003dNEXT), goto_table:ACL1\n...\nACL1 (211/241)                                                     write_metadata:(remote_acl\u003dCONST_0), goto_table:ACL2   `(X)`\nACL1 (211/241)                                                     write_metadata:(remote_acl\u003did), goto_table:ACL2        `(XX)` \nACL1 (211/241)                                                     write_metadata:(remote_acl\u003dCONST_1), goto_table:ACL2   `(XXX)`\n...\nACL2 (212/242)  metadata\u003dlport+remote_acl(CONST_0)                 goto_table:ACL4                                        `(X)` \nACL2 (212/242)  metadata\u003dlport+remote_acl                          goto_table:ACL4                                        `(XXXX)`\nACL2 (212/242)  metadata\u003dlport+remote_acl                          write_metadata:(elan_id\u003dELAN), goto_table:ACL3         `(XX)` \nACL2 (212/242)  metadata\u003dlport+remote_acl(CONST_1)                 goto_table:ACL3                                        `(XXX)`\nACL2 (212/242)  metadata\u003dlport+remote_acl(CONST_2)                 drop                                                   `(XXXXX)`\n...\nACL3 (213/243)  metadata\u003dremote_acl+ELAN_ID, ip_src/dst\u003dVM1_IP     goto_table:ACL4                                        `(XX)`\nACL3 (213/243)  metadata\u003dremote_acl+ELAN_ID, ip_src/dst\u003dVM2_IP     goto_table:ACL4                                        `(XX)`\nACL3 (213/243)  metadata\u003dlport,ip_src/dst\u003dVM1_IP, \u003cacl_rule\u003e       resubmit(,DISPATCHER)                                  `(XXX)`\nACL3 (213/243)  metadata\u003dlport,ip_src/dst\u003dVM2_IP, \u003cacl_rule\u003e       resubmit(,DISPATCHER)                                  `(XXX)`\nACL3 (213/243)                                                     drop\n...\nACL4 (214/244)  metadata\u003dlport, \u003cacl_rule\u003e                         resubmit(,DISPATCHER)                                  `(X)`\nACL4 (214/244)  metadata\u003dlport, \u003cacl_rule\u003e                         resubmit(,DISPATCHER)                                  `(XX)` \nACL4 (214/244)  metadata\u003dlport, \u003cacl_rule\u003e                         resubmit(,DISPATCHER)                                  `(XXX)`\nACL4 (214/244)  metadata\u003dlport                                     drop\n...\n\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d  \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d  \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n\n| CONST_0 Used for (X) case. (e.g. 0x0)\n| CONST_1 Used for (XXX) case. (e.g. 0x1)\n| CONST_2 Used for (XXXXX) case. (e.g. 0x2)\n\n| (X)   These are the regular rules, not configured with any remote SG.\n| (XX)  These are the proposed rules with the optimization - assuming the lport is using a single ACL.\n| (XXX) These are the remote SG rules in the current implementation, which we will fall back to if the lport has multiple ACLs.\n| (XXXX) These are cases where port is configured with AAP 0.0.0.0/0.  \n| (XXXXX) These are cases where there are no more remote acls to be processed.\n\n\nACL1: INGRESS/EGRESS_ACL_TABLE\nACL2: INGRESS/EGRESS_ACL_DISPATCHER_TABLE\nACL3: INGRESS/EGRESS_REMOTE_ACL_TABLE\nACL4: INGRESS/EGRESS_ACL_FILTER_TABLE",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 5
+      },
+      "revId": "7340a6060ac63c2bd28a7a8ab21ad5ee1af2a675",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2115e63f",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 19
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-03-01T14:01:33Z",
+      "side": 1,
+      "message": "This doesn\u0027t handle ports having allowed address pair (AAP) with value 0.0.0.0/0. \nTo handle 0.0.0.0/0, matching on \"ip_src/dst\u003dVM1_IP\" is omitted. Below review handles this issue.\nhttps://git.opendaylight.org/gerrit/#/c/51346/\n\nSo, here if we ommit \"ip_src/dst\u003dVM1_IP\" match, it would result in passing traffic for all the VMs which are part of the ELAN.",
+      "range": {
+        "startLine": 119,
+        "startChar": 34,
+        "endLine": 119,
+        "endChar": 51
+      },
+      "revId": "7340a6060ac63c2bd28a7a8ab21ad5ee1af2a675",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
