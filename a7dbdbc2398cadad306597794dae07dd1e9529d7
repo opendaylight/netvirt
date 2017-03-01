@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_d6a3fffd",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T17:07:36Z",
+      "side": 1,
+      "message": "move this afi, nearer to the key..\n\nWe cannot introduce a new field and say value inside that is mandatorily required.  Such a yang may not be upgradable.\n\nWhat are the possible values of this afi?",
+      "revId": "a7dbdbc2398cadad306597794dae07dd1e9529d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
