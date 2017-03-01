@@ -282,6 +282,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a1339612",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-03-01T15:09:31Z",
+      "side": 1,
+      "message": "Please see the following spec for more details.\nhttp://docs.opendaylight.org/en/latest/submodules/netvirt/docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.html",
+      "parentUuid": "fafc7978_b93f5cb3",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_48913c46",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 6
@@ -486,6 +504,41 @@
       "side": 1,
       "message": "The external network is not required to be setup by openstack. Because packets exchanged on that network are encapsulated into MPLSoGRE between dpn and dcgw",
       "parentUuid": "fafc7978_e8d590e5",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_418e2ad1",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-03-01T15:09:31Z",
+      "side": 1,
+      "message": "In Line 109, you have mentioned that tenant network is connected to external network. So, do you mean the external network is not a network that is created using Neutron APIs?",
+      "parentUuid": "fafc7978_5e70d6db",
+      "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c1b97a7a",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-03-01T15:09:31Z",
+      "side": 1,
+      "message": "In Line 379, it says \"Create a router and associate the external and internal subnets.\"\n\nCan you please update the sentence to remove any ambiguity. Thanks.",
       "revId": "4e46bdd68a38ff994c72f3a5d3300eedbc757e92",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
