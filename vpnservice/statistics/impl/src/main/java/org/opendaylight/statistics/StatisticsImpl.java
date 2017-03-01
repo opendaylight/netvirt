@@ -19,6 +19,12 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.infrautils.counters.api.OccurenceCounter;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.rev170120.AcquireElementCountersRequestHandlerInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.rev170120.AcquireElementCountersRequestHandlerOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.rev170120.CleanAllElementCounterRequestsInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.rev170120.CleanAllElementCounterRequestsOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.rev170120.GetElementCountersByHandlerInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.rev170120.GetElementCountersByHandlerOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.rev170120.GetNodeAggregatedCountersInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.rev170120.GetNodeAggregatedCountersOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.rev170120.GetNodeAggregatedCountersOutputBuilder;
@@ -28,6 +34,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.rev17012
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.rev170120.GetNodeCountersInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.rev170120.GetNodeCountersOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.rev170120.GetNodeCountersOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.rev170120.ReleaseElementCountersRequestHandlerInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.rev170120.ReleaseElementCountersRequestHandlerOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.rev170120.StatisticsService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.rev170120.result.CounterResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.rev170120.result.CounterResultBuilder;
@@ -249,5 +257,29 @@ public class StatisticsImpl implements StatisticsService {
         public void inc() {
             counter.inc();
         }
+    }
+
+    @Override
+    public Future<RpcResult<AcquireElementCountersRequestHandlerOutput>> acquireElementCountersRequestHandler(
+            AcquireElementCountersRequestHandlerInput input) {
+        return null;
+    }
+
+    @Override
+    public Future<RpcResult<ReleaseElementCountersRequestHandlerOutput>> releaseElementCountersRequestHandler(
+            ReleaseElementCountersRequestHandlerInput input) {
+        return null;
+    }
+
+    @Override
+    public Future<RpcResult<CleanAllElementCounterRequestsOutput>> cleanAllElementCounterRequests(
+            CleanAllElementCounterRequestsInput input) {
+        return null;
+    }
+
+    @Override
+    public Future<RpcResult<GetElementCountersByHandlerOutput>> getElementCountersByHandler(
+            GetElementCountersByHandlerInput input) {
+        return null;
     }
 }

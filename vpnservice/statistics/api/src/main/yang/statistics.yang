@@ -3,6 +3,10 @@ module statistics {
     namespace "urn:opendaylight:netvirt:statistics";
     prefix "statistics";
 
+    import ietf-access-control-list { prefix ietf-acl; }
+    import ietf-yang-types { prefix "yang"; revision-date 2013-07-15; }
+    import yang-ext { prefix ext; revision-date 2013-07-09; }
+
     revision "2017-01-20" {
         description "Initial revision of statistics model";
     }
@@ -40,6 +44,47 @@ module statistics {
         }
     }
 
+    grouping elementRequestData {
+        leaf acl-name {
+            type leafref {
+                path "/ietf-acl:access-lists/ietf-acl:acl/ietf-acl:acl-name";
+            }
+        }
+    }
+
+    grouping counterRequestsConfig {
+        list counterRequests {
+            key "requestId";
+            leaf requestId {
+                type string;
+            }
+            leaf portId {
+                type string;
+            }
+            leaf lportTag {
+                type int32;
+            }
+            leaf dpn {
+                type uint64;
+            }
+            leaf trafficDirection {
+                type string;
+            }
+            leaf generatedUniqueId {
+                type string;
+            }
+            uses elementRequestData;
+        }
+    }
+
+    container ingressElementCountersRequestConfig {
+        uses counterRequestsConfig;
+    }
+
+    container egressElementCountersRequestConfig {
+        uses counterRequestsConfig;
+    }
+
     rpc getNodeConnectorCounters {
         input {
             leaf portId {
@@ -72,6 +117,61 @@ module statistics {
         }
         output {
             uses result;
+        }
+    }
+
+    rpc acquireElementCountersRequestHandler {
+        input {
+            leaf portId {
+                type string;
+            }
+            container incomingTraffic {
+                uses elementRequestData;
+            }
+            container outgoingTraffic {
+                uses elementRequestData;
+            }
+            uses filters;
+        }
+        output {
+            leaf incomingTrafficHandler {
+                type string;
+            }
+            leaf outcoingTrafficHandler {
+                type string;
+            }
+        }
+    }
+
+    rpc releaseElementCountersRequestHandler {
+        input {
+            leaf handler {
+                type string;
+            }
+        }
+        output {
+        }
+    }
+
+    rpc getElementCountersByHandler {
+        input {
+            leaf handler {
+                type string;
+            }
+        }
+        output {
+            uses result;
+        }
+    }
+
+    rpc cleanAllElementCounterRequests {
+        input {
+            leaf portId {
+                type string;
+                default "";
+            }
+        }
+        output {
         }
     }
 }
