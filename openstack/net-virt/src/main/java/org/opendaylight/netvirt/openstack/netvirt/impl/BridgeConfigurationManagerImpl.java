@@ -210,12 +210,10 @@ public class BridgeConfigurationManagerImpl implements BridgeConfigurationManage
                     LOG.error("Add Port {} to Bridge {} failed", portNameInt, brInt);
                     return;
                 }
-                configurationService.addPatchPortName(new ImmutablePair<>(brInt, brExt), portNameExt);
                 if (!addPatchPort(extBridgeNode, brExt, portNameInt, portNameExt)) {
                     LOG.error("Add Port {} to Bridge {} failed", portNameExt, brExt);
                     return;
                 }
-                configurationService.addPatchPortName(new ImmutablePair<>(brExt, brInt), portNameInt);
                 LOG.info("Multiple external bridge is successfully created:{}", brExt);
             }
         } catch (Exception e) {

@@ -71,13 +71,6 @@ public interface ConfigurationService {
     Map<Pair<String, String>, String> getPatchPortNames();
 
     /**
-     * Adds entry to the patch port cache
-     * @param pairKey pairKey
-     * @param value value
-     */
-     void addPatchPortName(Pair<String, String> pairKey, String value);
-
-    /**
      * Sets the Map of source/destination bridges to patch port name
      * @param patchPortNames Map of source/destination bridges to patch port name
      */
