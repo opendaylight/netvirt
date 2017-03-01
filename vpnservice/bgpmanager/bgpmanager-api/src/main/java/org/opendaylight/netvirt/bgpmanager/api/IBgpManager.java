@@ -55,6 +55,13 @@ public interface IBgpManager {
                                 VrfEntry.EncapType encapType, int vpnLabel, long l3vni,
                                 String gatewayMac) throws Exception;
 
+    /**
+     * Advertises a Prefix to a BGP neighbour. Only sends the BGP messages, no writing to MD-SAL.
+     */
+    void advertisePrefix(String rd, String macAddress, String prefix, String nextHop,
+                         VrfEntry.EncapType encapType, int vpnLabel, long l3vni, long l2vni,
+                         String gatewayMac) throws Exception;
+
     void withdrawPrefix(String rd, String prefix);
 
     String getDCGwIP();

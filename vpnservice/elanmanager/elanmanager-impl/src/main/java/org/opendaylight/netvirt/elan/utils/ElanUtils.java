@@ -972,7 +972,7 @@ public class ElanUtils {
         return new StringBuffer().append(tableId).append(elanTag).append(dpId).append(macAddress).toString();
     }
 
-    private static String getKnownDynamicmacFlowRef(short elanDmacTable, BigInteger dpId, String extDeviceNodeId,
+    public static String getKnownDynamicmacFlowRef(short elanDmacTable, BigInteger dpId, String extDeviceNodeId,
             String dstMacAddress, long elanTag, boolean shFlag) {
         return new StringBuffer().append(elanDmacTable).append(elanTag).append(dpId).append(extDeviceNodeId)
                 .append(dstMacAddress).append(shFlag).toString();
@@ -1394,6 +1394,30 @@ public class ElanUtils {
 
         GetExternalTunnelInterfaceNameInput input = new GetExternalTunnelInterfaceNameInputBuilder()
                 .setDestinationNode(torNode.getValue()).setSourceNode(srcDpnId.toString())
+                .setTunnelType(TunnelTypeVxlan.class).build();
+        Future<RpcResult<GetExternalTunnelInterfaceNameOutput>> output = itmRpcService
+                .getExternalTunnelInterfaceName(input);
+        try {
+            if (output.get().isSuccessful()) {
+                GetExternalTunnelInterfaceNameOutput tunnelInterfaceNameOutput = output.get().getResult();
+                String tunnelIfaceName = tunnelInterfaceNameOutput.getInterfaceName();
+                LOG.debug("Received tunnelInterfaceName from getTunnelInterfaceName RPC {}", tunnelIfaceName);
+
+                result = buildTunnelItmEgressActions(tunnelIfaceName, vni);
+            }
+
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error in RPC call getTunnelInterfaceName {}", e);
+        }
+
+        return result;
+    }
+
+    public List<Action> getExternalTunnelItmEgressAction(BigInteger srcDpnId, String nexthopIP, long vni) {
+        List<Action> result = Collections.emptyList();
+
+        GetExternalTunnelInterfaceNameInput input = new GetExternalTunnelInterfaceNameInputBuilder()
+                .setDestinationNode(nexthopIP).setSourceNode(srcDpnId.toString())
                 .setTunnelType(TunnelTypeVxlan.class).build();
         Future<RpcResult<GetExternalTunnelInterfaceNameOutput>> output = itmRpcService
                 .getExternalTunnelInterfaceName(input);

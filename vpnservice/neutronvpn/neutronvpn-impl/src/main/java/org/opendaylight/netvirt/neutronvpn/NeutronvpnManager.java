@@ -102,6 +102,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.A
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.CreateEVPNInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.CreateEVPNOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.CreateEVPNOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DeleteEVPNInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DeleteEVPNOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DeleteEVPNOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.createl3vpn.input.L3vpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetL3VPNOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetEVPNInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetEVPNInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetEVPNOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.createevpn.input.Evpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetEVPNOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.getevpn.output.EvpnInstances;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.getevpn.output.EvpnInstancesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
@@ -445,6 +460,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             isLockAcquired = NeutronvpnUtils.lock(vpnName);
             LOG.debug("Creating/Updating vpn-instance for {} ", vpnName);
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier, newVpn);
+            NeutronvpnUtils.addToVpnCache(newVpn);
         } catch (Exception e) {
             LOG.error("Update VPN Instance node failed for node: {} {} {} {}", vpnName, rd, irt, ert);
         } finally {
@@ -785,14 +801,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
      * @param router UUID of the neutron router the VPN may be associated to
      * @param networks UUID of the neutron network the VPN may be associated to
      * @param type Type of the VPN Instance
-     * @param l3vni L3VNI for the VPN Instance using VxLAN as the underlay
+     * @param vni L3VNI for the VPN Instance using VxLAN as the underlay
      * @throws Exception if association of L3VPN failed
      */
     public void createVpn(Uuid vpn, String name, Uuid tenant, List<String> rd, List<String> irt, List<String> ert,
-                            Uuid router, List<Uuid> networks, VpnInstance.Type type, long l3vni) throws Exception {
+                            Uuid router, List<Uuid> networks, VpnInstance.Type type, long vni) throws Exception {
 
         // Update VPN Instance node
-        updateVpnInstanceNode(vpn.getValue(), rd, irt, ert, type, l3vni);
+        updateVpnInstanceNode(vpn.getValue(), rd, irt, ert, type, vni);
 
         // Please note that router and networks will be filled into VPNMaps
         // by subsequent calls here to associateRouterToVpn and
@@ -1101,7 +1117,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         // if at least one succeeds; result is success
         // if none succeeds; result is failure
         if (failurecount + warningcount == vpns.size()) {
-            result.set(RpcResultBuilder.<DeleteL3VPNOutput>failed().withRpcErrors(errorList).build());
+            result.set(RpcResultBuilder.<DeleteL3VPNOutput> failed().withRpcErrors(errorList).build());
         } else {
             List<String> errorResponseList = new ArrayList<>();
             if (!errorList.isEmpty()) {
@@ -1114,10 +1130,263 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 errorResponseList.add("Operation successful with no errors");
             }
             opBuilder.setResponse(errorResponseList);
-            result.set(RpcResultBuilder.<DeleteL3VPNOutput>success().withResult(opBuilder.build()).build());
+            result.set(RpcResultBuilder.<DeleteL3VPNOutput> success().withResult(opBuilder.build()).build());
         }
         return result;
     }
+
+    /**
+     * It handles the invocations to the createEVPN RPC method
+     *
+     * @see org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService#createEVPN
+     * (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.CreateEVPNInput)
+     */
+    @Override
+    public Future<RpcResult<CreateEVPNOutput>> createEVPN(CreateEVPNInput input) {
+
+        CreateEVPNOutputBuilder opBuilder = new CreateEVPNOutputBuilder();
+        SettableFuture<RpcResult<CreateEVPNOutput>> result = SettableFuture.create();
+        List<RpcError> errorList = new ArrayList<>();
+        int failurecount = 0;
+        int warningcount = 0;
+
+        List<Evpn> vpns = input.getEvpn();
+        for (Evpn vpn : vpns) {
+            List<String> existingRDs = NeutronvpnUtils.getExistingRDs(dataBroker);
+            RpcError error = null;
+            String msg;
+            if (vpn.getRouteDistinguisher() == null || vpn.getImportRT() == null || vpn.getExportRT() == null ||
+                    vpn.getVni() == 0) {
+                msg = String.format("Creation of EVPN failed for VPN %s due to absence of RD/iRT/eRT/l2vni input",
+                        vpn.getId().getValue());
+                LOG.warn(msg);
+                error = RpcResultBuilder.newWarning(ErrorType.PROTOCOL, "invalid-input", msg);
+                errorList.add(error);
+                warningcount++;
+                continue;
+            }
+            VpnInstance.Type vpnInstanceType = VpnInstance.Type.L2;
+            long l2vni = vpn.getVni();
+            if (vpn.getRouteDistinguisher().size() > 1) {
+                msg = String.format("Creation of EVPN failed for VPN %s due to multiple RD input %s",
+                        vpn.getId().getValue(), vpn.getRouteDistinguisher());
+                LOG.warn(msg);
+                error = RpcResultBuilder.newWarning(ErrorType.PROTOCOL, "invalid-input", msg);
+                errorList.add(error);
+                warningcount++;
+                continue;
+            }
+            if (existingRDs.contains(vpn.getRouteDistinguisher().get(0))) {
+                msg = String.format("Creation of EVPN failed for VPN %s as another VPN with",
+                        "the same RD %s is already configured",
+                        vpn.getId().getValue(), vpn.getRouteDistinguisher().get(0));
+                LOG.warn(msg);
+                error = RpcResultBuilder.newWarning(ErrorType.PROTOCOL, "invalid-input", msg);
+                errorList.add(error);
+                warningcount++;
+                continue;
+            }
+            try {
+                createVpn(vpn.getId(), vpn.getName(), vpn.getTenantId(), vpn.getRouteDistinguisher(),
+                        vpn.getImportRT(), vpn.getExportRT(), null /*router-id*/, null /*netwrok-id*/,
+                        vpnInstanceType, l2vni);
+            } catch (Exception ex) {
+                msg = String.format("Creation of EVPN failed for VPN %s", vpn.getId().getValue());
+                LOG.error(msg, ex);
+                error = RpcResultBuilder.newError(ErrorType.APPLICATION, msg, ex.getMessage());
+                errorList.add(error);
+                failurecount++;
+            }
+        }
+        // if at least one succeeds; result is success
+        // if none succeeds; result is failure
+        if (failurecount + warningcount == vpns.size()) {
+            result.set(RpcResultBuilder.<CreateEVPNOutput> failed().withRpcErrors(errorList).build());
+        } else {
+            List<String> errorResponseList = new ArrayList<>();
+            if (!errorList.isEmpty()) {
+                for (RpcError rpcError : errorList) {
+                    String errorResponse = String.format("ErrorType: %s, ErrorTag: %s, ErrorMessage: %s", rpcError
+                            .getErrorType(), rpcError.getTag(), rpcError.getMessage());
+                    errorResponseList.add(errorResponse);
+                }
+            } else {
+                errorResponseList.add("EVPN creation successful with no errors");
+            }
+            opBuilder.setResponse(errorResponseList);
+            result.set(RpcResultBuilder.<CreateEVPNOutput> success().withResult(opBuilder.build()).build());
+        }
+        return result;
+    }
+
+    /**
+     * It handles the invocations to the neutronvpn:getEVPN RPC method
+     *
+     * @see org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService#getEVPN
+     * (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetEVPNInput)
+     */
+    @Override
+    public Future<RpcResult<GetEVPNOutput>> getEVPN(GetEVPNInput input) {
+
+        GetEVPNOutputBuilder opBuilder = new GetEVPNOutputBuilder();
+        SettableFuture<RpcResult<GetEVPNOutput>> result = SettableFuture.create();
+        Uuid inputVpnId = input.getId();
+        List<VpnInstance> vpns = new ArrayList<>();
+
+        try {
+            if (inputVpnId == null) {
+                // get all vpns
+                InstanceIdentifier<VpnInstances> vpnsIdentifier = InstanceIdentifier.builder(VpnInstances.class)
+                        .build();
+                Optional<VpnInstances> optionalVpns = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
+                        .CONFIGURATION, vpnsIdentifier);
+                if (optionalVpns.isPresent() && !optionalVpns.get().getVpnInstance().isEmpty()) {
+                    for (VpnInstance vpn : optionalVpns.get().getVpnInstance()) {
+                        // eliminating implicitly created (router and VLAN provider external network specific) VPNs
+                        // and L3VPNs from getEVPN output
+                        if (vpn.getIpv4Family().getRouteDistinguisher() != null &&
+                                vpn.getType() == VpnInstance.Type.L2) {
+                            vpns.add(vpn);
+                        }
+                    }
+                } else {
+                    // No VPN present
+                    result.set(RpcResultBuilder.<GetEVPNOutput> success().withResult(opBuilder.build()).build());
+                    return result;
+                }
+            } else {
+                String name = inputVpnId.getValue();
+                InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
+                        .child(VpnInstance.class, new VpnInstanceKey(name)).build();
+                // read VpnInstance Info
+                Optional<VpnInstance> optionalVpn = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                        vpnIdentifier);
+                // eliminating implicitly created (router or VLAN provider external network specific) VPN and L3VPN from
+                // getEVPN output
+                if (optionalVpn.isPresent() && optionalVpn.get().getIpv4Family().getRouteDistinguisher() != null &&
+                        optionalVpn.get().getType() == VpnInstance.Type.L2) {
+                    vpns.add(optionalVpn.get());
+                } else {
+                    String message = String.format("GetEVPN failed because VPN %s is not present", name);
+                    LOG.error(message);
+                    result.set(RpcResultBuilder.<GetEVPNOutput>failed().withWarning(ErrorType.PROTOCOL,
+                            "invalid-value", message).build());
+                }
+            }
+            List<EvpnInstances> evpnList = new ArrayList<>();
+            for (VpnInstance vpnInstance : vpns) {
+                Uuid vpnId = new Uuid(vpnInstance.getVpnInstanceName());
+                // create VpnMaps id
+                InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap
+                        .class, new VpnMapKey(vpnId)).build();
+                EvpnInstancesBuilder evpn = new EvpnInstancesBuilder();
+
+                List<String> rd = vpnInstance.getIpv4Family().getRouteDistinguisher();
+                List<VpnTarget> vpnTargetList = vpnInstance.getIpv4Family().getVpnTargets().getVpnTarget();
+
+                List<String> ertList = new ArrayList<>();
+                List<String> irtList = new ArrayList<>();
+
+                for (VpnTarget vpnTarget : vpnTargetList) {
+                    if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ExportExtcommunity) {
+                        ertList.add(vpnTarget.getVrfRTValue());
+                    }
+                    if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ImportExtcommunity) {
+                        irtList.add(vpnTarget.getVrfRTValue());
+                    }
+                    if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.Both) {
+                        ertList.add(vpnTarget.getVrfRTValue());
+                        irtList.add(vpnTarget.getVrfRTValue());
+                    }
+                }
+
+                evpn.setId(vpnId).setRouteDistinguisher(rd).setImportRT(irtList).setExportRT(ertList);
+                if (vpnInstance.getL3vni() != null) {
+                    evpn.setVni(vpnInstance.getL3vni());
+                }
+                Optional<VpnMap> optionalVpnMap = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                        vpnMapIdentifier);
+                if (optionalVpnMap.isPresent()) {
+                    VpnMap vpnMap = optionalVpnMap.get();
+                    evpn.setTenantId(vpnMap.getTenantId()).setName(vpnMap.getName());
+                }
+                evpnList.add(evpn.build());
+            }
+
+            opBuilder.setEvpnInstances(evpnList);
+            result.set(RpcResultBuilder.<GetEVPNOutput> success().withResult(opBuilder.build()).build());
+
+        } catch (Exception ex) {
+            String message = String.format("GetEVPN failed due to %s", ex.getMessage());
+            LOG.error(message, ex);
+            result.set(RpcResultBuilder.<GetEVPNOutput> failed().withError(ErrorType.APPLICATION, message).build());
+        }
+        return result;
+    }
+
+    /**
+     * It handles the invocations to the neutronvpn:deleteEVPN RPC method
+     *
+     * @see org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService#deleteEVPN
+     * (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DeleteEVPNInput)
+     */
+    @Override
+    public Future<RpcResult<DeleteEVPNOutput>> deleteEVPN(DeleteEVPNInput input) {
+
+        DeleteEVPNOutputBuilder opBuilder = new DeleteEVPNOutputBuilder();
+        SettableFuture<RpcResult<DeleteEVPNOutput>> result = SettableFuture.create();
+        List<RpcError> errorList = new ArrayList<>();
+
+        int failurecount = 0;
+        int warningcount = 0;
+        List<Uuid> vpns = input.getId();
+        for (Uuid vpn : vpns) {
+            RpcError error;
+            String msg;
+            try {
+                InstanceIdentifier<VpnInstance> vpnIdentifier =
+                        InstanceIdentifier.builder(VpnInstances.class).child(VpnInstance.class, new VpnInstanceKey
+                                (vpn.getValue())).build();
+                Optional<VpnInstance> optionalVpn = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
+                        .CONFIGURATION, vpnIdentifier);
+                if (optionalVpn.isPresent()) {
+                    removeVpn(vpn);
+                } else {
+                    msg = String.format("EVPN with vpnid: %s does not exist", vpn.getValue());
+                    LOG.warn(msg);
+                    error = RpcResultBuilder.newWarning(ErrorType.PROTOCOL, "invalid-value", msg);
+                    errorList.add(error);
+                    warningcount++;
+                }
+            } catch (Exception ex) {
+                msg = String.format("Deletion of EVPN failed when deleting for uuid %s", vpn.getValue());
+                LOG.error(msg, ex);
+                error = RpcResultBuilder.newError(ErrorType.APPLICATION, msg, ex.getMessage());
+                errorList.add(error);
+                failurecount++;
+            }
+        }
+        // if at least one succeeds; result is success
+        // if none succeeds; result is failure
+        if (failurecount + warningcount == vpns.size()) {
+            result.set(RpcResultBuilder.<DeleteEVPNOutput> failed().withRpcErrors(errorList).build());
+        } else {
+            List<String> errorResponseList = new ArrayList<>();
+            if (!errorList.isEmpty()) {
+                for (RpcError rpcError : errorList) {
+                    String errorResponse = String.format("ErrorType: %s, ErrorTag: %s, ErrorMessage: %s", rpcError
+                            .getErrorType(), rpcError.getTag(), rpcError.getMessage());
+                    errorResponseList.add(errorResponse);
+                }
+            } else {
+                errorResponseList.add("Operation successful with no errors");
+            }
+            opBuilder.setResponse(errorResponseList);
+            result.set(RpcResultBuilder.<DeleteEVPNOutput> success().withResult(opBuilder.build()).build());
+        }
+        return result;
+    }
+
 
     public void createVpnInstanceForSubnet(Uuid subnetId) {
         LOG.debug("Creating/Updating L3 internalVPN for subnetID {} ", subnetId);
@@ -1139,6 +1408,16 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
 
         final Uuid routerId = NeutronvpnUtils.getVpnMap(dataBroker, vpnId).getRouterId();
+        final VpnInstance vpnInstance = NeutronvpnUtils.getVpnInstance(dataBroker, vpnId);
+        if (vpnInstance.getType() == VpnInstance.Type.L2) {
+            LOG.debug("Updating elan instance name {} in vpn {}", sn.getNetworkId().getValue(),
+                    vpnId.getValue());
+            NeutronvpnUtils.updateVpnWithElanInfo(dataBroker, vpnId, sn.getNetworkId().getValue(), false);
+            LOG.debug("Updating vpn {} info in elan instance {}", vpnId.getValue(),
+                    sn.getNetworkId().getValue());
+            // this data store update has to be done for l3vpn as well once routing use case for rt2 is supported.
+            NeutronvpnUtils.updateElanWithVpnInfo(dataBroker, sn.getNetworkId().getValue(), vpnId, false);
+        }
         // Check if there are ports on this subnet and add corresponding
         // vpn-interfaces
         List<Uuid> portList = sn.getPortList();
@@ -1490,6 +1769,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         // remove entire vpnMaps node
         deleteVpnMapsNode(id);
 
+        // remove from vpn cache
+        NeutronvpnUtils.removeFromVpnCache(id.getValue());
+
         // remove vpn-instance
         deleteVpnInstance(id);
     }
@@ -1590,6 +1872,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         List<Uuid> passedNwList = new ArrayList<>();
         if (!networks.isEmpty()) {
             // process corresponding subnets for VPN
+            VpnInstance vpnInstance = NeutronvpnUtils.getVpnInstance(dataBroker, vpn);
+            if (vpnInstance == null) {
+                LOG.error("VPN %s not present when associating network to it", vpn.getValue());
+                failedNwList.add(String.format("Failed to associate network on vpn %s as vpn is not present",
+                        vpn.getValue()));
+                return failedNwList;
+            }
+
             for (Uuid nw : networks) {
                 Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, nw);
                 NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
@@ -1606,6 +1896,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 } else if (vpnId != null) {
                     failedNwList.add(String.format("network %s already associated to another VPN %s", nw.getValue(),
                             vpnId.getValue()));
+                } else if ((vpnInstance.getType() == VpnInstance.Type.L2) &&
+                        (NeutronvpnUtils.isVpnAssociatedWithNetwork(dataBroker, vpnInstance))) {
+                    LOG.error("EVPN supports only one network to be associated");
+                    failedNwList.add(String.format("EVPN supports only one network to be associated"));
                 } else {
                     List<Uuid> networkSubnets = NeutronvpnUtils.getSubnetIdsFromNetworkId(dataBroker, nw);
                     LOG.debug("Adding network subnets...{}", networkSubnets);
