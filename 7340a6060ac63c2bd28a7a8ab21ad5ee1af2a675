@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_93eb4912",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 19
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-01T15:41:27Z",
+      "side": 1,
+      "message": "Yeah Som, we considered this but it seemed to me that defining a new concept of another dispatcher INSIDE a service, would require a bit more modeling/code (I wrote a bit about it in Alternatives section)\n\nI believe this can definitely be extended to support this in the future, but we don\u0027t have the resources to take on all this in Carbon,so we wanted to start with the common use case optimization first.",
+      "parentUuid": "fafc7978_a1eb9611",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 5
+      },
+      "revId": "7340a6060ac63c2bd28a7a8ab21ad5ee1af2a675",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2115e63f",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 19
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-01T14:01:33Z",
       "side": 1,
       "message": "This doesn\u0027t handle ports having allowed address pair (AAP) with value 0.0.0.0/0. \nTo handle 0.0.0.0/0, matching on \"ip_src/dst\u003dVM1_IP\" is omitted. Below review handles this issue.\nhttps://git.opendaylight.org/gerrit/#/c/51346/\n\nSo, here if we ommit \"ip_src/dst\u003dVM1_IP\" match, it would result in passing traffic for all the VMs which are part of the ELAN.",
+      "range": {
+        "startLine": 119,
+        "startChar": 34,
+        "endLine": 119,
+        "endChar": 51
+      },
+      "revId": "7340a6060ac63c2bd28a7a8ab21ad5ee1af2a675",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_13df596a",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 19
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-01T15:41:27Z",
+      "side": 1,
+      "message": "Thanks, Aswin pointed me to this.\nSlava is working on implementing the actual logic and will take this case into consideration.",
+      "parentUuid": "fafc7978_2115e63f",
       "range": {
         "startLine": 119,
         "startChar": 34,
