@@ -53,8 +53,8 @@ public class ExternalNetworkGroupInstaller {
     }
 
     public void installExtNetGroupEntries(Subnetmap subnetMap) {
-        if (subnetMap == null) {
-            LOG.trace("Subnetmap is null");
+        if (subnetMap == null || subnetMap.getSubnetIp() == null) {
+            LOG.trace("Subnetmap or subnet-ip is null");
             return;
         }
 
@@ -76,7 +76,7 @@ public class ExternalNetworkGroupInstaller {
 
     public void installExtNetGroupEntries(Uuid subnetId, String macAddress) {
         Subnetmap subnetMap = NatUtil.getSubnetMap(broker, subnetId);
-        if (subnetMap != null && NatUtil.isIPv6Subnet(subnetMap.getSubnetIp())) {
+        if (subnetMap != null && subnetMap.getSubnetIp() != null && NatUtil.isIPv6Subnet(subnetMap.getSubnetIp())) {
             LOG.trace("Subnet-id {} is not an IPv4 subnet, hence skipping.", subnetMap.getId());
             return;
         }
