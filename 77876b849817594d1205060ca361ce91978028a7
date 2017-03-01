@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_3b46b94f",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T11:19:11Z",
+      "side": 1,
+      "message": "please provide the gerrit topic link for this feature.",
+      "revId": "77876b849817594d1205060ca361ce91978028a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fb3f11b2",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T11:19:11Z",
+      "side": 1,
+      "message": "can this feature co-exist in a cloud with a DHCP Agent installed and running in the openstack cluster?\n\ni.e., The ODL Controller will use either the DHCP Agent (or) the DHCP Proxy service depending on the dhcp-config mode setting.",
+      "revId": "77876b849817594d1205060ca361ce91978028a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bbf629f7",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T11:19:11Z",
+      "side": 1,
+      "message": "you mean mac-addrress for the gateway-ip of the subnet?  If so please rephrase this.",
+      "revId": "77876b849817594d1205060ca361ce91978028a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9b07e5c9",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T11:19:11Z",
+      "side": 1,
+      "message": "Current DHCP Service residing in the controller (without this feature) responds in the Offer with the Subnet Gateway IP as the default gateway attribute.  \n\nCan this para be rephrased on what role does LB play when it is up.  Also please clarify when LB is up, is there a role for DHCP other than servicing dhcp requests (be it release or new-lease).",
+      "revId": "77876b849817594d1205060ca361ce91978028a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3b9a396e",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T11:19:11Z",
+      "side": 1,
+      "message": "dhcp renews carry unicast mac-address of dhcp-port and unicast ip-address of dhcp-port.  Won\u0027t they be forwarded by HW-VTEP as it would have learned the that dhcp-port-mac-address on the cloud-side?",
+      "revId": "77876b849817594d1205060ca361ce91978028a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dbe5eddc",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T11:19:11Z",
+      "side": 1,
+      "message": "router g/w mac-address or you wanted to mean subnet-gateway-mac-address?",
+      "revId": "77876b849817594d1205060ca361ce91978028a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fb939158",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T11:19:11Z",
+      "side": 1,
+      "message": "you can mention that will be available only from Pike release in upstream openstack.",
+      "revId": "77876b849817594d1205060ca361ce91978028a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
