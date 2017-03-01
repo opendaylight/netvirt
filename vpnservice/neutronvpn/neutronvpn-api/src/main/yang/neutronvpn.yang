@@ -35,7 +35,7 @@ module neutronvpn {
                 description "router to which this subnet belongs";
             }
 
-            leaf router-interface-name {
+            leaf router-interface-port-id {
                 type    yang:uuid;
                 description "router interface on this subnet";
             }
@@ -45,7 +45,7 @@ module neutronvpn {
                 description "router interface mac address on this subnet";
             }
 
-            leaf-list router-interface-fixed-ips {
+            leaf router-interface-fixed-ip {
                 type    string;
                 description "fixed ip of the router interface on this subnet";
             }
