@@ -113,16 +113,6 @@ public class ConfigurationServiceImpl implements ConfigurationService, ConfigInt
         return patchPortNames;
     }
 
-    /**
-     * Adds entry to the patch port cache
-     * @param pairKey pairKey
-     * @param value value
-     */
-     @Override
-     public void addPatchPortName(Pair<String, String> pairKey, String value) {
-         this.patchPortNames.put(pairKey, value);
-     }
-
     @Override
     public void setPatchPortNames(Map<Pair<String, String>, String> patchPortNames) {
         this.patchPortNames = patchPortNames;
