@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_755330e2",
+        "filename": "docs/specs/index.rst",
+        "patchSetId": 18
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-03-01T06:48:36Z",
+      "side": 1,
+      "message": "Oops,  missed it earlier... spec template should always be first one.",
+      "range": {
+        "startLine": 15,
+        "startChar": 3,
+        "endLine": 15,
+        "endChar": 49
+      },
+      "revId": "d8585c00809422356696540eb93df505d3643bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
