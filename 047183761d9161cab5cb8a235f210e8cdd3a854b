@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b5911849",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T07:54:00Z",
+      "side": 1,
+      "message": "For the two private networks case you have quoted router-interface-mac will be used.  I believe we cannot use router interface Macs on VLAN nettworks for routing as this will create underlay switch mac-table thrashing.\n\nPlease revisit this !",
+      "parentUuid": "fafc7978_1e9139f1",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_dd1fcc6a",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 12
@@ -72,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b57bd8f3",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T07:54:00Z",
+      "side": 1,
+      "message": "Ok.. For the first case, the source MAC Address that will be used as source on the external network side (i.e., after NATing) will be the routers-gateway-mac-address.   The destination MAC Address will be that of PNF itself.\n\nFor the second case, since we are talking L3 here, what will be the source MAC Address in the packet from the VM to the PNF?  It will be the source VMs mac-address itself right? If the source mac-address is intended here to be the router-interface-mac addresse, then that will result in underlay mac-table thrrashing.\nSimilarly in this second case the destination mac address will be that of PNF itself.",
+      "parentUuid": "fafc7978_5e65811c",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7d27c0ca",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 12
@@ -101,6 +137,24 @@
       "side": 1,
       "message": "As far as I know, today in the code, all traffic of a VM instance, after NAT mechanism, is forwarded (via a provider network group) directly to an external-gateway. This is the additional hop that I\u0027m referring to.\n\nThis is not a requirement, this is the current state, which I want to change.",
       "parentUuid": "fafc7978_7d27c0ca",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_55726c11",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T07:54:00Z",
+      "side": 1,
+      "message": "So what you want to do is that after NATing, the packet will be directly punted to the right PNF if that PNF is on the same external subnet?  That\u0027s ok !",
+      "parentUuid": "fafc7978_be758dcc",
       "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -440,6 +494,23 @@
       "side": 1,
       "message": "This may work if in the BGPVPN use-case, the vpnId is neither the routerID nor the external network id.",
       "parentUuid": "fafc7978_b8e5b639",
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d5d49cbe",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T07:54:00Z",
+      "side": 1,
+      "message": "rd and vpn-instance-name is the same value for an external-network-id based vpnInstance.  \nSo why do you need this additional external-vpn field?",
       "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
