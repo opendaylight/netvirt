@@ -40,6 +40,70 @@ module statistics {
         }
     }
 
+    grouping elementRequestData {
+        container filters {
+
+            container tcpFilter {
+                leaf on {
+                    type boolean;
+                }
+                leaf srcPort {
+                    type int32;
+                    default -1;
+                }
+                leaf dstPort {
+                    type int32;
+                    default -1;
+                }
+            }
+
+            container udpFilter {
+                leaf on {
+                    type boolean;
+                }
+                leaf dstPort {
+                    type int32;
+                    default -1;
+                }
+                leaf srcPort {
+                    type int32;
+                    default -1;
+                }
+            }
+
+            container ipFilter {
+                leaf ip {
+                    type string;
+                    default "";
+                }
+            }
+        }
+    }
+
+    grouping counterRequestsConfig {
+        list counterRequests {
+            key "requestId";
+            leaf requestId {
+                type string;
+            }
+            leaf portId {
+                type string;
+            }
+            leaf trafficDirection {
+                type string;
+            }
+            uses elementRequestData;
+        }
+    }
+
+    container ingressElementCountersRequestConfig {
+        uses counterRequestsConfig;
+    }
+
+    container egressElementCountersRequestConfig {
+        uses counterRequestsConfig;
+    }
+
     rpc getNodeConnectorCounters {
         input {
             leaf portId {
@@ -74,4 +138,47 @@ module statistics {
             uses result;
         }
     }
-}
+
+    rpc acquireElementCountersRequestHandler {
+        input {
+            leaf portId {
+                type string;
+            }
+            container incomingTraffic {
+                uses elementRequestData;
+            }
+            container outgoingTraffic {
+                uses elementRequestData;
+            }
+            uses filters;
+        }
+        output {
+            leaf incomingTrafficHandler {
+                type string;
+            }
+            leaf outcoingTrafficHandler {
+                type string;
+            }
+        }
+    }
+
+    rpc releaseElementCountersRequestHandler {
+        input {
+            leaf handler {
+                type string;
+            }
+        }
+        output {
+        }
+    }
+
+    rpc getElementCountersByHandler {
+        input {
+            leaf handler {
+                type string;
+            }
+        }
+        output {
+            uses result;
+        }
+    }
