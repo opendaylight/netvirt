@@ -49,6 +49,7 @@ import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderUtil;
@@ -627,10 +628,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             vpnId, prefix, vpnName, dpnId, nextHop, writeOperTxn);
                     if (rdToAllocate.isPresent()) {
                         rd = rdToAllocate.get();
+                        LOG.info("The rd {} is allocated for the extraroute {}", rd, prefix);
                         VpnUtil.syncUpdate(
                                 dataBroker,
                                 LogicalDatastoreType.OPERATIONAL,
-                                VpnUtil.getVpnToExtrarouteIdentifier(vpnName,
+                                VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName,
                                         rd, nextHop.getIpAddress()),
                                 VpnUtil.getVpnToExtraroute(nextHop.getIpAddress(), nextHop.getNextHopIpList()));
                     } else {
@@ -780,6 +782,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 String rd = adj.getVrfId();
                 rd = (rd != null) ? rd : vpnInterface.getVpnInstanceName();
                 prefix = adj.getIpAddress();
+                label = adj.getLabel();
+
                 // If TEP is deleted , then only remove the nexthop from
                 // primary adjacency.
                 if (adj.getMacAddress() != null && !adj.getMacAddress().isEmpty()) {
@@ -986,8 +990,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 VrfEntry.EncapType encapType, long label, long l3vni, String macAddress,
                                 String gwMacAddress, RouteOrigin origin, WriteTransaction writeConfigTxn) {
         try {
-            LOG.info("ADD: Adding Fib entry rd {} prefix {} nextHop {} label {} gwMac {} l3vni {}",
-                    rd, prefix, nextHopList, label, gwMacAddress, l3vni);
+            LOG.info("ADD: Adding Fib entry rd {} primaryRd {} prefix {} nextHop {} label {} gwMac {} l3vni {}",
+                    rd, primaryRd, prefix, nextHopList, label, gwMacAddress, l3vni);
             fibManager.addOrUpdateFibEntry(dataBroker, primaryRd, macAddress, prefix, nextHopList,
                     encapType, (int)label, l3vni, gwMacAddress, origin, writeConfigTxn);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {} gwMac {} l3vni {}",
@@ -1685,7 +1689,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         VpnUtil.syncUpdate(
                 dataBroker,
                 LogicalDatastoreType.OPERATIONAL,
-                VpnUtil.getVpnToExtrarouteIdentifier(vpnName, (rd != null) ? rd : routerID, destination),
+                VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, (rd != null) ? rd : routerID,
+                        destination),
                 VpnUtil.getVpnToExtraroute(destination, Collections.singletonList(nextHop)));
 
         BigInteger dpnId = null;
