@@ -211,6 +211,34 @@ IPv6Service would implement the following YANG model.
     }
   }
 
+
+neighbor-solicitation-packet container in neighbor-discovery.yang would be enhanced
+with Source Link Layer optional header.
+
+::
+
+  container neighbor-solicitation-packet {
+    uses ethernet-header;
+    uses ipv6-header;
+    uses icmp6-header;
+    leaf reserved {
+        type uint32;
+    }
+    leaf target-ip-address {
+        type inet:ipv6-address;
+    }
+    leaf option-type {
+        type uint8;
+    }
+    leaf source-addr-length {
+        type uint8;
+    }
+    leaf source-ll-address {
+        type yang:mac-address;
+    }
+  }
+
+
 Configuration impact
 ---------------------
 None
