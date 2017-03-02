@@ -22,6 +22,30 @@
       "revId": "ef7c253f958fdc1534cf9f6389935a9b610a52a5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4383c4cb",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2017-03-02T13:44:32Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "fafc7978_a35c301a",
+      "range": {
+        "startLine": 95,
+        "startChar": 43,
+        "endLine": 96,
+        "endChar": 84
+      },
+      "revId": "ef7c253f958fdc1534cf9f6389935a9b610a52a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
