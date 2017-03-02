@@ -349,6 +349,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c9f075cb",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-02T16:32:30Z",
+      "side": 1,
+      "message": "ok, thanks for clarifying",
+      "parentUuid": "fafc7978_be5c6d4c",
+      "range": {
+        "startLine": 83,
+        "startChar": 74,
+        "endLine": 83,
+        "endChar": 75
+      },
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1845e216",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 12
@@ -560,6 +584,30 @@
       "side": 1,
       "message": "Today there are no ARP responder rules for router interface IP requests that are arriving from provider networks. This change will introduce an ARP responder rule, on a (single) designated switch.\n\nCan you please elaborate on why this will cause a mac movement?",
       "parentUuid": "fafc7978_02028f6e",
+      "range": {
+        "startLine": 116,
+        "startChar": 71,
+        "endLine": 116,
+        "endChar": 74
+      },
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e93299a5",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-02T16:32:30Z",
+      "side": 1,
+      "message": "no mac moves during the arp req/response, however, if the same mac is now used as source mac in ip pkts, from all the switches, you would get moves. if the mac is not replaced, is we retain vm mac, actually this would not be an issue",
+      "parentUuid": "fafc7978_812308a6",
       "range": {
         "startLine": 116,
         "startChar": 71,
