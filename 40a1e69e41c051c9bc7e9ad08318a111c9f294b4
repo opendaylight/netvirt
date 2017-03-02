@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_8042c2ab",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-02T11:56:01Z",
+      "side": 1,
+      "message": "we should not distinguish based on this. we need to do dynamic binding when a floating ip is created and bound to the vm on a vxlan provider, with connectivity to a vlan external network.",
+      "range": {
+        "startLine": 39,
+        "startChar": 73,
+        "endLine": 39,
+        "endChar": 74
+      },
+      "revId": "40a1e69e41c051c9bc7e9ad08318a111c9f294b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6024fe0c",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-02T11:56:01Z",
+      "side": 1,
+      "message": "dont know why this yang change is needed, the dynamic bind service should not exclude networks with external network connectivity.",
+      "range": {
+        "startLine": 76,
+        "startChar": 26,
+        "endLine": 76,
+        "endChar": 27
+      },
+      "revId": "40a1e69e41c051c9bc7e9ad08318a111c9f294b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
