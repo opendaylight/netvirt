@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_d86688ec",
+        "filename": "docs/specs/ipv6-interdc-l3vpn.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-03-02T05:26:34Z",
+      "side": 1,
+      "message": "Please update the sentence to \"IPv6 North-South support for Flat/VLAN Provider Network\" - as you know, it is not a distributed router but a centralized router. \n\nSorry, I did not notice this in my earlier reviews.",
+      "revId": "aad0ebe12e34ba01d96310c6b015a1d8135c1539",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
