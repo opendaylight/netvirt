@@ -478,4 +478,24 @@ module odl-l3vpn {
             default "symmetric";
         }
     }
+
+    container l3vpn-lb-nexthops {
+        config false;
+        list nexthops {
+            key "nexthop-key";
+            leaf nexthop-key { type string; }
+            leaf group-id { type string; }
+            leaf-list target-device-id { type string; } //dpId or ip-address
+        }
+    }
+
+    container dpid-l3vpn-lb-nexthops {
+        config false;
+        list dpn-lb-nexthops {
+            key "src-dp-id dst-device-id";
+            leaf src-dp-id { type uint64; }
+            leaf dst-device-id { type string; } //dpId or ip-address
+            leaf-list nexthop-key { type string; }
+        }
+    }
 }
