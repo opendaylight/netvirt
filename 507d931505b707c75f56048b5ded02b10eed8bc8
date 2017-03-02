@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_e9e3b9d6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-02T16:49:08Z",
+      "side": 1,
+      "message": "device_id of the floatingip port is supposed to be router-id, but looks like that comes now as a port-update instead of port-create.",
+      "revId": "507d931505b707c75f56048b5ded02b10eed8bc8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a9bed1ab",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-02T16:49:08Z",
+      "side": 1,
+      "message": "this may also need to go into the if () if we compare how it was previously !",
+      "revId": "507d931505b707c75f56048b5ded02b10eed8bc8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
