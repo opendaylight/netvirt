@@ -496,6 +496,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_809922c6",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-02T11:08:25Z",
+      "side": 1,
+      "message": "VXGPE tunnels will not be used for the SFs, that will be Eth+NSH. The VXGPE tunnels will only be on the trunk: classifier \u003c-\u003e SFF and SFF \u003c-\u003e SFF.",
+      "parentUuid": "fafc7978_e02c6e9b",
+      "range": {
+        "startLine": 132,
+        "startChar": 55,
+        "endLine": 133,
+        "endChar": 7
+      },
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4d6af1ee",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 4
