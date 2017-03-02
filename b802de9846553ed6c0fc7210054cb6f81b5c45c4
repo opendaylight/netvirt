@@ -1,0 +1,68 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_a0a706a6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-02T11:50:10Z",
+      "side": 1,
+      "message": "original comment is just confusing IMO",
+      "revId": "b802de9846553ed6c0fc7210054cb6f81b5c45c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a0bee6ab",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-02T11:50:10Z",
+      "side": 1,
+      "message": "This PENDING should be a constant, probably in NeutronConstants",
+      "range": {
+        "startLine": 230,
+        "startChar": 65,
+        "endLine": 230,
+        "endChar": 74
+      },
+      "revId": "b802de9846553ed6c0fc7210054cb6f81b5c45c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_60c87e55",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-02T11:50:10Z",
+      "side": 1,
+      "message": "I\u0027m actually a fan of having add(new) call update(null, new) wherever it fits - this replaces all the duplicate code we have today between add and update..\n\nKoby, why does the original device status matter here? Shouldn\u0027t we just call addToFloatingIpPortInfo whenever the status has changed and is not PENDING?",
+      "parentUuid": "fafc7978_205b16f7",
+      "range": {
+        "startLine": 229,
+        "startChar": 4,
+        "endLine": 231,
+        "endChar": 57
+      },
+      "revId": "b802de9846553ed6c0fc7210054cb6f81b5c45c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
