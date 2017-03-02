@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_2085d606",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 19
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-02T11:41:04Z",
+      "side": 1,
+      "message": "I prefer not adding an additional ACL table for a dispatcher at this point, until we decide to do it. We can deal with it when we do add it, which feels like Nitrogen to me.",
+      "parentUuid": "fafc7978_5a660dee",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 5
+      },
+      "revId": "7340a6060ac63c2bd28a7a8ab21ad5ee1af2a675",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2115e63f",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 19
