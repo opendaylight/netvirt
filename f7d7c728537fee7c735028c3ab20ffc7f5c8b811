@@ -472,6 +472,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e02c6e9b",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-02T11:00:22Z",
+      "side": 1,
+      "message": "I might be wrong, but I thought that with the introduction of logical SFF it was assumed the ITM tunnels were created in advance, was that changed? I mean, with logical SFF, is SFC calling Genius to set the VxLAN-GPE tunnel everytime an SF is connected to logical SFF (if its the first SF in this switch)? and will SFC remove the VxLAN-GPE tunnel when there are no more SFs connected to a given switch?\nAs I said, I thought logical SFF was assuming there was a full mesh of ITM VxLAN tunnels created manually through Genius in advance.",
+      "parentUuid": "fafc7978_faa421bb",
+      "range": {
+        "startLine": 132,
+        "startChar": 55,
+        "endLine": 133,
+        "endChar": 7
+      },
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4d6af1ee",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 4
