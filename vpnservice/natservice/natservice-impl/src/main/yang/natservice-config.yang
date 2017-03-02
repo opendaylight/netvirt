@@ -1,0 +1,24 @@
+module natservice-config {
+    yang-version 1;
+    namespace "urn:opendaylight:netvirt:natservice-config";
+    prefix "natservice-config";
+
+    description
+        "Configuration for nat-serviceImpl.";
+
+    revision "2017-02-06" {
+        description
+                "Initial revision.";
+    }
+
+    container natservice-config {
+        config true;
+        leaf nat-mode {
+            type enumeration {
+                enum "controller";
+                enum "conntrack";
+            }
+            default "controller";
+        }
+   }
+}
