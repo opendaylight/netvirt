@@ -74,21 +74,20 @@ elected.
 Pipeline changes
 ----------------
 The ovs based NAPT flows will replace the controller based NAPT flows. The changes are limited
-to the designated switch for the router. The NAPT INBOUND Table is changed from table 44 to 43
-for both the implementation. Below is the illustration for flat external network.
+to the designated switch for the router. Below is the illustration for flat external network.
 
 Outbound NAPT
 
 Table 26 (PSNAT Table)  => submits the packet to netfilter to check whether it is an existing
 connection. Resubmits the packet back to 46.
 
-Table 44 => The metadata will be swapped here to that of the external network and packet will
-be send to table 47.
+Table 46 (NAPT OUTBOUND TABLE) => if it is an established connection, it indicates the
+translation is done and the packet is forwarded to table 47 after writing the external network
+metadata.
 
-Table 46 (NAPT OUTBOUND TABLE) => if it is an established connection which indicates the
-translation is done and the packet is forwarded to table 44.
 If it is a new connection the connection will be committed to netfilter and this entry will be
-used for napt. The translated packet will be resubmitted to table 44.
+used for NAPT. The translated packet will be resubmitted to table 47. The external network
+metadata will be written before sending the packet to netfilter.
 
 Table 47 (NAPT FIB TABLE) => The translated packet will be sent to the egress group.
 
@@ -97,29 +96,25 @@ Sample Flows
 ::
 
  table=26, priority=5,ip,metadata=0x222e2/0xfffffffe actions=ct(table=46,zone=5003,nat)
- table=44, priority=5,ct_state=+snat,ip,metadata=0x222e2/0xfffffffe,nw_src=192.168.111.21 actions=write_metadata:0x222e0/0xfffffffe,goto_table:47
- table=46, priority=6,ct_state=+snat,ip actions=resubmit(,44)
- table=46, priority=5,ct_state=+new+trk,ip,metadata=0x222e2/0xfffffffe actions=ct(commit,table=44,zone=5003,nat(src=192.168.111.21))
- table=47, priority=6,ct_state=+snat,ip,nw_src=192.168.111.21 actions=group:200003
+ table=46, priority=6,ct_state=+snat,ip,metadata=0x222e2/0xfffffffe actions=set_field:0x222e0->metadata,resubmit(,47)
+ table=46, priority=5,ct_state=+new+trk,ip,metadata=0x222e2/0xfffffffe actions=set_field:0x222e0->metadata,ct(commit,table=47,zone=5003,nat(src=192.168.111.21))
+ table=47, n_packets=0, n_bytes=0, priority=6,ct_state=+snat,ip,nw_src=192.168.111.21 actions=group:200000
+
 
 Inbound NAPT
 
-Table 43 (NAPT INBOUND Table)=> submits the packet to netfilter to check for an existing
-connection. The packet will be submitted back to table 44.
+Table 44 (NAPT INBOUND Table)=> submits the packet to netfilter to check for an existing
+connection after changing the metadata to that of the internal network. The packet will be
+submitted back to table 47.
 
-Table 44 => The metadata will be swapped here to that of the internal network and packet will
-be send to table 47.
-
-Table 47 (NAPT FIB TABLE) => The translated packet will be sent to table 43 for writing the
-appropriate metadata and will be submitted back to table 21.
+Table 47 (NAPT FIB TABLE) => The translated packet will be submitted back to table 21.
 
 Sample Flows
 
 ::
 
- table=21, priority=42,ip,metadata=0x222e0/0xfffffffe,nw_dst=192.168.111.21 actions=resubmit(,43)
- table=43, priority=10,ip actions=ct(table=44,zone=5003,nat)
- table=44, priority=5,ct_state=+dnat,ip,metadata=0x222e0/0xfffffffe actions=write_metadata:0x222e2/0xfffffffe,goto_table:47
+ table=21, priority=42,ip,metadata=0x222e0/0xfffffffe,nw_dst=192.168.111.21 actions=resubmit(,44)
+ table=44, priority=10,ip,metadata=0x222e0/0xfffffffe,nw_dst=192.168.111.21 actions=set_field:0x222e2->metadata,ct(table=47,zone=5003,nat)
  table=47, priority=5,ct_state=+dnat,ip actions=resubmit(,21)
 
 Yang changes
