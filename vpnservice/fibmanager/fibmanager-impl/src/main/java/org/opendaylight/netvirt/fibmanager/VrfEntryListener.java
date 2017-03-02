@@ -1375,26 +1375,14 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
             //remove adjacency corr to prefix
             if (numAdj > 1) {
-                boolean isPrimaryAdj = false;
-                List<Adjacency> adjacencyList = optAdjacencies.get().getAdjacency();
-                for (Adjacency adj : adjacencyList) {
-                    if (adj.getIpAddress().equals(vrfEntry.getDestPrefix())) {
-                        isPrimaryAdj = adj.isPrimaryAdjacency();
-                        break;
-                    }
-                }
-                //We should only delete secondary adjacencies, as primary adjacency is used to
-                //cleanup prefix-to-interface in the subscriber vpnInterfaceOpListener
-                if (!isPrimaryAdj) {
-                    LOG.info("cleanUpOpDataForFib: remove adjacency for prefix: {} {}", vpnId,
-                            vrfEntry.getDestPrefix());
-                    writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                            FibUtil.getAdjacencyIdentifier(ifName, vrfEntry.getDestPrefix()));
-                }
-            }
-            if ((numAdj - 1) == 0) { //there are no adjacencies left for this vpn interface, clean up
+                LOG.info("cleanUpOpDataForFib: remove adjacency for prefix: {} {}", vpnId,
+                        vrfEntry.getDestPrefix());
+                writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                        FibUtil.getAdjacencyIdentifier(ifName, vrfEntry.getDestPrefix()));
+            } else {
+                //this is last adjacency (or) no more adjacency left for this vpn interface, so
                 //clean up the vpn interface from DpnToVpn list
-                LOG.trace("Clean up vpn interface {} from dpn {} to vpn {} list.", ifName, prefixInfo.getDpnId(), rd);
+                LOG.info("Clean up vpn interface {} from dpn {} to vpn {} list.", ifName, prefixInfo.getDpnId(), rd);
                 writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, FibUtil.getVpnInterfaceIdentifier(ifName));
             }
             List<ListenableFuture<Void>> futures = new ArrayList<>();
