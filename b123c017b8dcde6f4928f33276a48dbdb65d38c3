@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c04deac5",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-02T15:15:52Z",
+      "side": 1,
+      "message": "please ignore all of my previous comments! i was thinking of chained acls, not dependent acls(openstack terminology challenged)",
+      "parentUuid": "fafc7978_fe7b95bb",
+      "range": {
+        "startLine": 60,
+        "startChar": 6,
+        "endLine": 60,
+        "endChar": 7
+      },
+      "revId": "b123c017b8dcde6f4928f33276a48dbdb65d38c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5e7bc1f4",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 14
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "See comment above.",
       "parentUuid": "fafc7978_5e7bc1f4",
+      "range": {
+        "startLine": 75,
+        "startChar": 67,
+        "endLine": 75,
+        "endChar": 68
+      },
+      "revId": "b123c017b8dcde6f4928f33276a48dbdb65d38c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8ea673ac",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-02T15:15:52Z",
+      "side": 1,
+      "message": "will this work if the remote endpt is using a floating ip, or a VIP? if not, how do we fall back to the default impl",
+      "parentUuid": "fafc7978_3e519d36",
       "range": {
         "startLine": 75,
         "startChar": 67,
@@ -278,6 +326,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_63524868",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-02T15:15:52Z",
+      "side": 1,
+      "message": "yikes! ok, i cant think of a better way right now, can you pls make sure you do an api call to get the elan instance id instead of a data store read?\naswin and alon, during implementation, or even bug fix cycle, i would like to discuss these usecases with you and see if they can be handled differently to kep the separation between services in place. lets discuss this separately in the mailing list",
+      "parentUuid": "fafc7978_b2a3fcfe",
+      "range": {
+        "startLine": 110,
+        "startChar": 95,
+        "endLine": 110,
+        "endChar": 96
+      },
+      "revId": "b123c017b8dcde6f4928f33276a48dbdb65d38c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5ec90125",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 14
@@ -313,6 +385,30 @@
       "side": 1,
       "message": "But different lports have different rules that can be conflicting? This is the current implementation of security rules, regardless of remote ACLs, how would this change help?\n\nAlso it seems you are proposing to set the remote_acl ID in ACL1? Why, unless you are trying to prevent addition of a new table?\nACL1 is used today for various default allow rules (DHCP etc)",
       "parentUuid": "fafc7978_5ec90125",
+      "range": {
+        "startLine": 116,
+        "startChar": 25,
+        "endLine": 116,
+        "endChar": 30
+      },
+      "revId": "b123c017b8dcde6f4928f33276a48dbdb65d38c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a329d09c",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-02T15:15:52Z",
+      "side": 1,
+      "message": "i was thinking of the simple case, irrespective of chained acls, where setting current sgid in the metadata and pushing the sgid based on lport tag in the preceding table (acl1 o acl2) would consolidate if a sg is applied on some number of ports on a switch.",
+      "parentUuid": "fafc7978_3e387dee",
       "range": {
         "startLine": 116,
         "startChar": 25,
