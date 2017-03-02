@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_9801a06c",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-02T06:16:15Z",
+      "side": 1,
+      "message": "vrf is an l3vpn service construct, can we not scope the allocation pool differently using maybe provider netword id or something else?\nalso, what happens in a pure l2 setting, where there may not even be a vrf?\nyou could also use the subnet id, but we need to make sure the subnet uuid comes from neutron, to ensure uniqueness. is this taken care of in overall design?",
+      "range": {
+        "startLine": 45,
+        "startChar": 17,
+        "endLine": 45,
+        "endChar": 18
+      },
+      "revId": "aeca75888b7a15cf9b2bd02580b45ea010e5dc55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d83de82c",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-02T06:16:15Z",
+      "side": 1,
+      "message": "same comment as above. pls try and decouple dhcp service from l3 service",
+      "range": {
+        "startLine": 76,
+        "startChar": 28,
+        "endLine": 76,
+        "endChar": 29
+      },
+      "revId": "aeca75888b7a15cf9b2bd02580b45ea010e5dc55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
