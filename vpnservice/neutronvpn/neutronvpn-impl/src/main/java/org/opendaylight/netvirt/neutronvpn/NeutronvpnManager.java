@@ -192,8 +192,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected Subnetmap updateSubnetNode(Uuid subnetId, String subnetIp, Uuid tenantId, Uuid networkId, Uuid routerId,
-                                         Uuid vpnId) {
+    protected Subnetmap updateSubnetNode(Uuid subnetId, Uuid tenantId, Uuid networkId, Uuid routerId, Uuid vpnId) {
         Subnetmap subnetmap = null;
         SubnetmapBuilder builder = null;
         InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class)
@@ -206,12 +205,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     builder = new SubnetmapBuilder(sn.get());
                     LOG.debug("updating existing subnetmap node for subnet ID {}", subnetId.getValue());
                 } else {
-                    builder = new SubnetmapBuilder().setKey(new SubnetmapKey(subnetId)).setId(subnetId);
-                    LOG.debug("creating new subnetmap node for subnet ID {}", subnetId.getValue());
-                }
-
-                if (subnetIp != null) {
-                    builder.setSubnetIp(subnetIp);
+                    LOG.error("subnetmap node for subnet {} does not exist, returning", subnetId.getValue());
+                    return null;
                 }
                 if (routerId != null) {
                     builder.setRouterId(routerId);
@@ -1122,7 +1117,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     protected void addSubnetToVpn(final Uuid vpnId, Uuid subnet) {
         LOG.debug("Adding subnet {} to vpn {}", subnet.getValue(), vpnId.getValue());
-        Subnetmap sn = updateSubnetNode(subnet, null, null, null, null, vpnId);
+        Subnetmap sn = updateSubnetNode(subnet, null, null, null, vpnId);
         VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, vpnId);
         if (vpnMap == null) {
             LOG.error("No vpnMap for vpnId {}, cannot add subnet {} to VPN", vpnId.getValue(), subnet.getValue());
@@ -1172,7 +1167,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
             }
         }
-        sn = updateSubnetNode(subnet, null, null, null, null, vpnId);
+        sn = updateSubnetNode(subnet, null, null, null, vpnId);
         // Check for ports on this subnet and update association of
         // corresponding vpn-interfaces to external vpn
         List<Uuid> portList = sn.getPortList();

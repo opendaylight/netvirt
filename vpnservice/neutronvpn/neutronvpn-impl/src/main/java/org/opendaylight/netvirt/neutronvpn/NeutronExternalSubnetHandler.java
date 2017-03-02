@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.neutronvpn;
 
 import java.util.List;
 
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.slf4j.Logger;
@@ -31,34 +30,32 @@ public class NeutronExternalSubnetHandler implements AutoCloseable {
         LOG.info("{} close", getClass().getSimpleName());
     }
 
-    public void handleExternalSubnetAdded(Network network, Uuid subnetId, List<Uuid> routerIds,
-            WriteTransaction writeConfigTxn) {
+    public void handleExternalSubnetAdded(Network network, Uuid subnetId, List<Uuid> routerIds) {
         Uuid networkId = network.getUuid();
         if (NeutronvpnUtils.getIsExternal(network) && NeutronvpnUtils.isFlatOrVlanNetwork(network)) {
             LOG.trace("Added external subnet {} part of external network {} will create NAT external subnet",
                     subnetId.getValue(), networkId.getValue());
             nvpnManager.createVpnInstanceForSubnet(subnetId);
-            nvpnNatManager.updateOrAddExternalSubnet(networkId, subnetId, routerIds, writeConfigTxn);
+            nvpnNatManager.updateOrAddExternalSubnet(networkId, subnetId, routerIds);
         }
     }
 
-    public void handleExternalSubnetUpdated(Network network, Uuid subnetId, List<Uuid> routerIds,
-            WriteTransaction writeConfigTxn) {
+    public void handleExternalSubnetUpdated(Network network, Uuid subnetId, List<Uuid> routerIds) {
         Uuid networkId = network.getUuid();
         if (NeutronvpnUtils.getIsExternal(network) && NeutronvpnUtils.isFlatOrVlanNetwork(network)) {
             LOG.trace("Updated subnet {} part of external network {} will update NAT external subnet",
                     subnetId.getValue(), networkId.getValue());
-            nvpnNatManager.updateExternalSubnet(networkId, subnetId, routerIds, writeConfigTxn);
+            nvpnNatManager.updateExternalSubnet(networkId, subnetId, routerIds);
         }
     }
 
-    public void handleExternalSubnetRemoved(Network network, Uuid subnetId, WriteTransaction writeConfigTxn) {
+    public void handleExternalSubnetRemoved(Network network, Uuid subnetId) {
         Uuid networkId = network.getUuid();
         if (NeutronvpnUtils.getIsExternal(network) && NeutronvpnUtils.isFlatOrVlanNetwork(network)) {
             LOG.trace("Removed subnet {} part of external network {} will remove NAT external subnet",
                     subnetId.getValue(), networkId.getValue());
             nvpnManager.removeVpnInstanceForSubnet(subnetId);
-            nvpnNatManager.removeExternalSubnet(subnetId, writeConfigTxn);
+            nvpnNatManager.removeExternalSubnet(subnetId);
         }
     }
 }
