@@ -953,7 +953,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 LOG.info("Importing subnet route fib entry rd {} prefix {} nexthop {} label {}"
                                         + " to vpn {}", vpnRd, prefix, nh, label, vpn.getVpnInstanceName());
                                 SubnetRoute route = vrfEntry.getAugmentation(SubnetRoute.class);
-                                importSubnetRouteForNewVpn(vpnRd, prefix, nh, (int) label, route, writeConfigTxn);
+                                importSubnetRouteForNewVpn(vpnRd, prefix, nh, label, route, writeConfigTxn);
                             }
                         });
                     } catch (Exception e) {
@@ -1456,10 +1456,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     }
 
     public void addSubnetRouteFibEntryToDS(String rd, String vpnName, String prefix, String nextHop, int label,
-        long elantag, BigInteger dpnId, WriteTransaction writeTxn) {
+        long elantag, BigInteger dpnId, String networkName, WriteTransaction writeTxn) {
         SubnetRoute route = new SubnetRouteBuilder().setElantag(elantag).build();
         RouteOrigin origin = RouteOrigin.CONNECTED; // Only case when a route is considered as directly connected
-        VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop, origin)
+        VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop, origin, networkName)
                 .addAugmentation(SubnetRoute.class, route).build();
 
         LOG.debug("Created vrfEntry for {} nexthop {} label {} and elantag {}", prefix, nextHop, label, elantag);
@@ -1499,8 +1499,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
         List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
         if (vpnsToImportRoute.size() > 0) {
-            VrfEntry importingVrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop, RouteOrigin.SELF_IMPORTED)
-                    .addAugmentation(SubnetRoute.class, route).build();
+            VrfEntry importingVrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop, RouteOrigin.SELF_IMPORTED,
+                    networkName).addAugmentation(SubnetRoute.class, route).build();
             List<VrfEntry> importingVrfEntryList = Collections.singletonList(importingVrfEntry);
             for (VpnInstanceOpDataEntry vpnInstance : vpnsToImportRoute) {
                 LOG.info("Exporting subnet route rd {} prefix {} nexthop {} label {} to vpn {}", rd, prefix, nextHop,
@@ -1525,7 +1525,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         SubnetRoute route, WriteTransaction writeConfigTxn) {
 
         RouteOrigin origin = RouteOrigin.SELF_IMPORTED;
-        VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop, origin)
+        VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop, origin, null /* parentVpnRd */)
                 .addAugmentation(SubnetRoute.class, route).build();
         LOG.debug("Created vrfEntry for {} nexthop {} label {} and elantag {}", prefix, nextHop, label,
                 route.getElantag());
