@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_0399bc1f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1400,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-02T13:56:24Z",
+      "side": 1,
+      "message": "extra route handling flops here, because you removed the entire interface with extra-route adjacencies !\n\nThis will work only for reverse order and not for typical order.\n\nsee review: https://git.opendaylight.org/gerrit/52655",
+      "revId": "cd32882d45a0a2e79cb1daceb8311dc1be0b5532",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
