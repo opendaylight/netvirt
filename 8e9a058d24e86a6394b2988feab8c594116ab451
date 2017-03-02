@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b4b3c84b",
+        "filename": "docs/specs/ipv6-interdc-l3vpn.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-03-02T17:44:52Z",
+      "side": 1,
+      "message": "what\u0027s the meaning of gr8 ?, do you want me to delete mandatory ?",
+      "parentUuid": "fafc7978_49d125cc",
+      "revId": "8e9a058d24e86a6394b2988feab8c594116ab451",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e9cd7932",
         "filename": "docs/specs/ipv6-interdc-l3vpn.rst",
         "patchSetId": 11
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-02T17:03:48Z",
       "side": 1,
       "message": "why do we need a separate vrfTablesIPv6.  Can\u0027t existing VrfTables be re-used for this?\n\nThe destPrefix today in vrfEntry itself is a String only !",
+      "revId": "8e9a058d24e86a6394b2988feab8c594116ab451",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_347fd867",
+        "filename": "docs/specs/ipv6-interdc-l3vpn.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-03-02T17:44:52Z",
+      "side": 1,
+      "message": "i try to have a separate table for vpnv4 and vpnv6 entries, that\u0027s better than having one unique table which has all entries",
+      "parentUuid": "fafc7978_e9cd7932",
       "revId": "8e9a058d24e86a6394b2988feab8c594116ab451",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
