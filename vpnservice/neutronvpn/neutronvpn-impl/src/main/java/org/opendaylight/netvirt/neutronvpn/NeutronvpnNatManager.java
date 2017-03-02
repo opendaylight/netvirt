@@ -581,8 +581,8 @@ public class NeutronvpnNatManager implements AutoCloseable {
             LOG.trace("Updated successfully Routers to CONFIG Datastore");
 
         } catch (Exception ex) {
-            LOG.error("Updation of snat for extrouters failed for router " + routerId.getValue() +
-                    " with " + ex.getMessage());
+            LOG.error("Updation of snat for extrouters failed for router {} with {}",
+                routerId.getValue(), ex.getMessage());
         }
     }
 }
