@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_49e8057c",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-02T17:05:23Z",
+      "side": 1,
+      "message": "please see comment in the spec",
+      "revId": "0047de5ef84c31875b86c5ac8563b175fc2a8090",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_09f27d6f",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-02T17:05:23Z",
+      "side": 1,
+      "message": "can a subkey in a composite key have a mandate \u0027false\u0027?",
+      "revId": "0047de5ef84c31875b86c5ac8563b175fc2a8090",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
