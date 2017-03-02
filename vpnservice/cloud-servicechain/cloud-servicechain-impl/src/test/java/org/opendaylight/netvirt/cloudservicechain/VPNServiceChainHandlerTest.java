@@ -299,7 +299,8 @@ public class VPNServiceChainHandlerTest {
         /////////////////////
         stubGetRouteDistinguisher(VPN_NAME, RD);
         stubGetVpnInstance(RD, "1.2.3.4", "eth0");
-        VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder("11.12.13.14", 2000L, DC_GW_IP, RouteOrigin.STATIC).build();
+        VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder("11.12.13.14", 2000L, DC_GW_IP, RouteOrigin.STATIC, null)
+                .build();
         stubGetVrfEntries(RD, Collections.singletonList(vrfEntry));
         stubReadVpnToDpnList(RD, DPN_ID, Collections.singletonList("iface1"));
         /////////
@@ -337,7 +338,8 @@ public class VPNServiceChainHandlerTest {
         String ifaceName = "eth0";
         stubGetRouteDistinguisher(VPN_NAME, RD);
         stubGetVpnInstance(RD, "1.2.3.4", ifaceName);
-        VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder("11.12.13.14", 2000L, DC_GW_IP, RouteOrigin.STATIC).build();
+        VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder("11.12.13.14", 2000L, DC_GW_IP, RouteOrigin.STATIC, null)
+                .build();
         stubGetVrfEntries(RD, Collections.singletonList(vrfEntry));
         stubReadVpnToDpnList(RD, DPN_ID, Collections.singletonList(ifaceName));
         stubScfIsBoundOnIface(SCF_TAG, ifaceName);
@@ -377,7 +379,8 @@ public class VPNServiceChainHandlerTest {
         String ifaceName = "eth0";
         stubGetRouteDistinguisher(VPN_NAME, RD);
         stubGetVpnInstance(RD, "1.2.3.4", ifaceName);
-        VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder("11.12.13.14", 2000L, DC_GW_IP, RouteOrigin.STATIC).build();
+        VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder("11.12.13.14", 2000L, DC_GW_IP, RouteOrigin.STATIC, null)
+                .build();
         stubGetVrfEntries(RD, Collections.singletonList(vrfEntry));
         stubReadVpnToDpnList(RD, DPN_ID, Collections.singletonList(ifaceName));
         stubScfIsNotBoundOnIface(SCF_TAG, ifaceName);
