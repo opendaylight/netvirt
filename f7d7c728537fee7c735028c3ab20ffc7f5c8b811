@@ -213,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5a70cd71",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-02T09:55:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0fef36ea",
+      "range": {
+        "startLine": 106,
+        "startChar": 31,
+        "endLine": 106,
+        "endChar": 37
+      },
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f8b0c544",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 4
@@ -224,6 +248,30 @@
       "writtenOn": "2017-02-27T13:52:05Z",
       "side": 1,
       "message": "Please take a look at this spec https://git.opendaylight.org/gerrit/#/c/51457 it proposes something quite similar for policy classifications over ACE matches/actions\n\nmaybe it can be extended to cover SFC classifications so code and models can be shared?",
+      "range": {
+        "startLine": 105,
+        "startChar": 8,
+        "endLine": 107,
+        "endChar": 50
+      },
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7aeaf1db",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-02T09:55:46Z",
+      "side": 1,
+      "message": "We will end up creating a new Classifier service in Genius. Details coming in the next patch set.",
+      "parentUuid": "fafc7978_f8b0c544",
       "range": {
         "startLine": 105,
         "startChar": 8,
@@ -388,6 +436,30 @@
       "writtenOn": "2017-02-28T17:05:11Z",
       "side": 1,
       "message": "Explain this is a different set of ITM tunnels than the ones currently used by Netvirt. As you say, for SFC we have to use vxlan-gpe, but Netvirt is using vxlan. As far as I know, it is not possible to change a VxLAN ITM tunnel to support GPE extension.\nOn the other hand, Netvirt is creating tunnels on demand and to my understanding SFC is expecting these set of tunnels is pre-created. If we follow this last approach for Netvirt classifier we are going to the general Netvirt approach, but on the other hand, it is easier to implement (maybe as a first step)",
+      "range": {
+        "startLine": 132,
+        "startChar": 55,
+        "endLine": 133,
+        "endChar": 7
+      },
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_faa421bb",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-02T09:55:46Z",
+      "side": 1,
+      "message": "Via the SFC integration with Genius, SFC requests VXGPE tunnel creation via the ITM. I\u0027ll update the blueprint accordinly.",
+      "parentUuid": "fafc7978_8f0de6ea",
       "range": {
         "startLine": 132,
         "startChar": 55,
