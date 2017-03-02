@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b8a90492",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-02T05:59:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3b46b94f",
+      "revId": "77876b849817594d1205060ca361ce91978028a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fb3f11b2",
         "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-01T11:19:11Z",
       "side": 1,
       "message": "can this feature co-exist in a cloud with a DHCP Agent installed and running in the openstack cluster?\n\ni.e., The ODL Controller will use either the DHCP Agent (or) the DHCP Proxy service depending on the dhcp-config mode setting.",
+      "revId": "77876b849817594d1205060ca361ce91978028a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_788afc1b",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-02T05:59:32Z",
+      "side": 1,
+      "message": "Yes, The existing dhcp-config mode settings will be retained.",
+      "parentUuid": "fafc7978_fb3f11b2",
       "revId": "77876b849817594d1205060ca361ce91978028a7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_588f382a",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-02T05:59:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_bbf629f7",
+      "revId": "77876b849817594d1205060ca361ce91978028a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9b07e5c9",
         "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
         "patchSetId": 3
@@ -64,6 +118,24 @@
       "writtenOn": "2017-03-01T11:19:11Z",
       "side": 1,
       "message": "Current DHCP Service residing in the controller (without this feature) responds in the Offer with the Subnet Gateway IP as the default gateway attribute.  \n\nCan this para be rephrased on what role does LB play when it is up.  Also please clarify when LB is up, is there a role for DHCP other than servicing dhcp requests (be it release or new-lease).",
+      "revId": "77876b849817594d1205060ca361ce91978028a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b880e4f7",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-02T05:59:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9b07e5c9",
       "revId": "77876b849817594d1205060ca361ce91978028a7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b8974439",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-02T05:59:32Z",
+      "side": 1,
+      "message": "when LB VM exists, then DHCP renew request will be sent to it  instead of designated compute node which punts dhcp pkt to controller. So when we have separate neutron port dhcp agent, then this problem might go away.",
+      "parentUuid": "fafc7978_3b9a396e",
+      "revId": "77876b849817594d1205060ca361ce91978028a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_dbe5eddc",
         "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
         "patchSetId": 3
@@ -98,6 +188,24 @@
       "writtenOn": "2017-03-01T11:19:11Z",
       "side": 1,
       "message": "router g/w mac-address or you wanted to mean subnet-gateway-mac-address?",
+      "revId": "77876b849817594d1205060ca361ce91978028a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_989c005f",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-02T05:59:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_dbe5eddc",
       "revId": "77876b849817594d1205060ca361ce91978028a7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -127,6 +235,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f8a42ca7",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-02T05:59:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_6656e42b",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 95,
+        "endChar": 220
+      },
+      "revId": "77876b849817594d1205060ca361ce91978028a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fb939158",
         "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
         "patchSetId": 3
@@ -138,6 +270,24 @@
       "writtenOn": "2017-03-01T11:19:11Z",
       "side": 1,
       "message": "you can mention that will be available only from Pike release in upstream openstack.",
+      "revId": "77876b849817594d1205060ca361ce91978028a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d8a16895",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-02T05:59:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_fb939158",
       "revId": "77876b849817594d1205060ca361ce91978028a7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -167,6 +317,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_38ab5476",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-02T05:59:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_4653e038",
+      "range": {
+        "startLine": 173,
+        "startChar": 0,
+        "endLine": 176,
+        "endChar": 38
+      },
+      "revId": "77876b849817594d1205060ca361ce91978028a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a633ac12",
         "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
         "patchSetId": 3
@@ -178,6 +352,24 @@
       "writtenOn": "2017-03-01T13:31:06Z",
       "side": 1,
       "message": "Refer other specs on how to capture yang changes. USe code-block, include file name and for modifications to existing files use emphasis to highlight changes. It will make yang reviews much easier and faster.",
+      "revId": "77876b849817594d1205060ca361ce91978028a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_18a81076",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-02T05:59:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a633ac12",
       "revId": "77876b849817594d1205060ca361ce91978028a7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
