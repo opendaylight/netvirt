@@ -39,23 +39,33 @@ public class FibHelper {
         });
     }
 
-    public static VrfEntryBuilder getVrfEntryBuilder(String prefix, List<RoutePaths> routePaths,
-            RouteOrigin origin) {
+    public static VrfEntryBuilder getVrfEntryBuilder(String prefix, RouteOrigin origin, String parentVpnRd) {
         return new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
-                .setRoutePaths(routePaths).setOrigin(origin.getValue());
+                .setOrigin(origin.getValue()).setParentVpnRd(parentVpnRd);
     }
 
-    public static VrfEntryBuilder getVrfEntryBuilder(String prefix, long label, String nextHop, RouteOrigin origin) {
-        RoutePaths routePath = buildRoutePath(nextHop, label);
-        return getVrfEntryBuilder(prefix, Arrays.asList(routePath), origin);
+    public static VrfEntryBuilder getVrfEntryBuilder(String prefix, List<RoutePaths> routePaths,
+            RouteOrigin origin, String parentVpnRd) {
+        return new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
+                .setRoutePaths(routePaths).setOrigin(origin.getValue()).setParentVpnRd(parentVpnRd);
+    }
+
+    public static VrfEntryBuilder getVrfEntryBuilder(String prefix, long label, String nextHop, RouteOrigin origin,
+            String parentVpnRd) {
+        if (nextHop != null) {
+            RoutePaths routePath = buildRoutePath(nextHop, label);
+            return getVrfEntryBuilder(prefix, Arrays.asList(routePath), origin, parentVpnRd);
+        } else {
+            return getVrfEntryBuilder(prefix, origin, parentVpnRd);
+        }
     }
 
     public static VrfEntryBuilder getVrfEntryBuilder(VrfEntry vrfEntry, long label,
-            List<String> nextHopList, RouteOrigin origin) {
+            List<String> nextHopList, RouteOrigin origin, String parentvpnRd) {
         List<RoutePaths> routePaths =
                 nextHopList.stream().map(nextHop -> buildRoutePath(nextHop, label))
                         .collect(toList());
-        return getVrfEntryBuilder(vrfEntry.getDestPrefix(), routePaths, origin);
+        return getVrfEntryBuilder(vrfEntry.getDestPrefix(), routePaths, origin, parentvpnRd);
     }
 
     public static InstanceIdentifier<RoutePaths> buildRoutePathId(String rd, String prefix, String nextHop) {
