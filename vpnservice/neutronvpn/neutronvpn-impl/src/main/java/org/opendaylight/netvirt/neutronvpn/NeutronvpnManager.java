@@ -26,6 +26,7 @@ import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
@@ -147,6 +148,66 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
+    protected void createSubnetmapNode(Uuid subnetId, String subnetIp, Uuid tenantId, Uuid networkId) {
+        try {
+            InstanceIdentifier<Subnetmap> subnetMapIdentifier = NeutronvpnUtils.buildSubnetMapIdentifier(subnetId);
+            synchronized (subnetId.getValue().intern()) {
+                Optional<Subnetmap> sn = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                        subnetMapIdentifier);
+                SubnetmapBuilder subnetmapBuilder = null;
+                if (sn.isPresent()) {
+                    LOG.error("subnetmap node for subnet ID {} already exists, returning", subnetId.getValue());
+                    return;
+                } else {
+                    subnetmapBuilder = new SubnetmapBuilder().setKey(new SubnetmapKey(subnetId)).setId(subnetId)
+                            .setSubnetIp(subnetIp).setTenantId(tenantId).setNetworkId(networkId);
+                    LOG.debug("Adding a new subnet node in Subnetmaps DS for subnet {}", subnetId.getValue());
+                }
+                SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                        subnetMapIdentifier, subnetmapBuilder.build());
+            }
+        } catch (Exception e) {
+            LOG.error("Creating subnetmap node failed for subnet {}", subnetId.getValue());
+        }
+    }
+
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    private Subnetmap updateSubnetNode(Uuid subnetId, Uuid routerId, Uuid vpnId) {
+        Subnetmap subnetmap = null;
+        SubnetmapBuilder builder = null;
+        InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class)
+                .child(Subnetmap.class, new SubnetmapKey(subnetId))
+                .build();
+        try {
+            synchronized (subnetId.getValue().intern()) {
+                Optional<Subnetmap> sn = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+                if (sn.isPresent()) {
+                    builder = new SubnetmapBuilder(sn.get());
+                    LOG.debug("updating existing subnetmap node for subnet ID {}", subnetId.getValue());
+                } else {
+                    LOG.error("subnetmap node for subnet {} does not exist, returning", subnetId.getValue());
+                    return null;
+                }
+                if (routerId != null) {
+                    builder.setRouterId(routerId);
+                }
+                if (vpnId != null) {
+                    builder.setVpnId(vpnId);
+                }
+
+                subnetmap = builder.build();
+                LOG.debug("Creating/Updating subnetMap node: {} ", subnetId.getValue());
+                SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, subnetmap);
+            }
+        } catch (Exception e) {
+            LOG.error("Updation of subnetMap failed for node: {}", subnetId.getValue());
+        }
+        return subnetmap;
+    }
+
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     protected void updateSubnetNodeWithFixedIps(Uuid subnetId, Uuid routerId,
                                                 Uuid routerInterfaceName, String fixedIp,
                                                 String routerIntfMacAddress) {
@@ -182,98 +243,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 subnetmap = builder.build();
                 LOG.debug("WithRouterFixedIPs Creating/Updating subnetMap node for Router FixedIps: {} ",
                     subnetId.getValue());
-                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, subnetmap);
+                SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, subnetmap);
             }
         } catch (Exception e) {
             LOG.error("WithRouterFixedIPs: Updation of subnetMap for Router FixedIps failed for node: {}",
                 subnetId.getValue());
         }
-    }
-
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    protected Subnetmap updateSubnetNode(Uuid subnetId, String subnetIp, Uuid tenantId, Uuid networkId, Uuid routerId,
-                                         Uuid vpnId) {
-        Subnetmap subnetmap = null;
-        SubnetmapBuilder builder = null;
-        InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class)
-                .child(Subnetmap.class, new SubnetmapKey(subnetId))
-                .build();
-        try {
-            synchronized (subnetId.getValue().intern()) {
-                Optional<Subnetmap> sn = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
-                if (sn.isPresent()) {
-                    builder = new SubnetmapBuilder(sn.get());
-                    LOG.debug("updating existing subnetmap node for subnet ID {}", subnetId.getValue());
-                } else {
-                    builder = new SubnetmapBuilder().setKey(new SubnetmapKey(subnetId)).setId(subnetId);
-                    LOG.debug("creating new subnetmap node for subnet ID {}", subnetId.getValue());
-                }
-
-                if (subnetIp != null) {
-                    builder.setSubnetIp(subnetIp);
-                }
-                if (routerId != null) {
-                    builder.setRouterId(routerId);
-                }
-                if (networkId != null) {
-                    builder.setNetworkId(networkId);
-                }
-                if (vpnId != null) {
-                    builder.setVpnId(vpnId);
-                }
-                if (tenantId != null) {
-                    builder.setTenantId(tenantId);
-                }
-
-                subnetmap = builder.build();
-                LOG.debug("Creating/Updating subnetMap node: {} ", subnetId.getValue());
-                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, subnetmap);
-            }
-        } catch (Exception e) {
-            LOG.error("Updation of subnetMap failed for node: {}", subnetId.getValue());
-        }
-        return subnetmap;
-    }
-
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    protected Subnetmap removeFromSubnetNode(Uuid subnetId, Uuid networkId, Uuid routerId, Uuid vpnId, Uuid portId) {
-        Subnetmap subnetmap = null;
-        InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class)
-                .child(Subnetmap.class, new SubnetmapKey(subnetId))
-                .build();
-        try {
-            synchronized (subnetId.getValue().intern()) {
-                Optional<Subnetmap> sn = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
-                if (sn.isPresent()) {
-                    SubnetmapBuilder builder = new SubnetmapBuilder(sn.get());
-                    if (routerId != null) {
-                        builder.setRouterId(null);
-                    }
-                    if (networkId != null) {
-                        builder.setNetworkId(null);
-                    }
-                    if (vpnId != null) {
-                        builder.setVpnId(null);
-                    }
-                    if (portId != null && builder.getPortList() != null) {
-                        List<Uuid> portList = builder.getPortList();
-                        portList.remove(portId);
-                        builder.setPortList(portList);
-                    }
-
-                    subnetmap = builder.build();
-                    LOG.debug("Removing from existing subnetmap node: {} ", subnetId.getValue());
-                    MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, subnetmap);
-                } else {
-                    LOG.warn("removing from non-existing subnetmap node: {} ", subnetId.getValue());
-                }
-            }
-        } catch (Exception e) {
-            LOG.error("Removal from subnetmap failed for node: {}", subnetId.getValue());
-        }
-        return subnetmap;
     }
 
     // TODO Clean up the exception handling
@@ -308,7 +283,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                 directPortId.getValue());
                     }
                     subnetmap = builder.build();
-                    MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, subnetmap);
+                    SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id,
+                            subnetmap);
                 } else {
                     LOG.error("Trying to update non-existing subnetmap node {} ", subnetId.getValue());
                 }
@@ -316,6 +292,47 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         } catch (Exception e) {
             LOG.error("Updating port list of a given subnetMap failed for node: {} with exception{}",
                     subnetId.getValue(), e);
+        }
+        return subnetmap;
+    }
+
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    protected Subnetmap removeFromSubnetNode(Uuid subnetId, Uuid networkId, Uuid routerId, Uuid vpnId, Uuid portId) {
+        Subnetmap subnetmap = null;
+        InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class)
+                .child(Subnetmap.class, new SubnetmapKey(subnetId))
+                .build();
+        try {
+            synchronized (subnetId.getValue().intern()) {
+                Optional<Subnetmap> sn = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+                if (sn.isPresent()) {
+                    SubnetmapBuilder builder = new SubnetmapBuilder(sn.get());
+                    if (routerId != null) {
+                        builder.setRouterId(null);
+                    }
+                    if (networkId != null) {
+                        builder.setNetworkId(null);
+                    }
+                    if (vpnId != null) {
+                        builder.setVpnId(null);
+                    }
+                    if (portId != null && builder.getPortList() != null) {
+                        List<Uuid> portList = builder.getPortList();
+                        portList.remove(portId);
+                        builder.setPortList(portList);
+                    }
+
+                    subnetmap = builder.build();
+                    LOG.debug("Removing from existing subnetmap node: {} ", subnetId.getValue());
+                    SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id,
+                            subnetmap);
+                } else {
+                    LOG.warn("removing from non-existing subnetmap node: {} ", subnetId.getValue());
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("Removal from subnetmap failed for node: {}", subnetId.getValue());
         }
         return subnetmap;
     }
@@ -346,7 +363,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                 .getValue(), subnetId.getValue());
                     }
                     subnetmap = builder.build();
-                    MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, subnetmap);
+                    SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id,
+                            subnetmap);
                 } else {
                     LOG.error("Trying to remove port from non-existing subnetmap node {}", subnetId.getValue());
                 }
@@ -366,7 +384,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         LOG.debug("removing subnetMap node: {} ", subnetId.getValue());
         try {
             synchronized (subnetId.getValue().intern()) {
-                MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetMapIdentifier);
+                SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                        subnetMapIdentifier);
             }
         } catch (Exception e) {
             LOG.error("Delete subnetMap node failed for subnet : {} ", subnetId.getValue());
@@ -1122,7 +1141,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     protected void addSubnetToVpn(final Uuid vpnId, Uuid subnet) {
         LOG.debug("Adding subnet {} to vpn {}", subnet.getValue(), vpnId.getValue());
-        Subnetmap sn = updateSubnetNode(subnet, null, null, null, null, vpnId);
+        Subnetmap sn = updateSubnetNode(subnet, null, vpnId);
+        if (sn == null) {
+            LOG.error("subnetmap is null, cannot add subnet {} to VPN {}", subnet.getValue(), vpnId.getValue());
+            return;
+        }
         VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, vpnId);
         if (vpnMap == null) {
             LOG.error("No vpnMap for vpnId {}, cannot add subnet {} to VPN", vpnId.getValue(), subnet.getValue());
@@ -1172,7 +1195,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
             }
         }
-        sn = updateSubnetNode(subnet, null, null, null, null, vpnId);
+        sn = updateSubnetNode(subnet, null, vpnId);
+        if (sn == null) {
+            LOG.error("subnetmap is null, cannot update VPN {} for subnet {}", vpnId.getValue(), subnet.getValue());
+            return;
+        }
         // Check for ports on this subnet and update association of
         // corresponding vpn-interfaces to external vpn
         List<Uuid> portList = sn.getPortList();
