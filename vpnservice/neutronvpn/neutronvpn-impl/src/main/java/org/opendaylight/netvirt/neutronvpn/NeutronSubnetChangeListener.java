@@ -8,11 +8,12 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.base.Optional;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
@@ -65,9 +66,9 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
                     input.getUuid().getValue(), network);
             return;
         }
+        NeutronvpnUtils.addToSubnetCache(input);
         handleNeutronSubnetCreated(input.getUuid(), String.valueOf(input.getCidr().getValue()), networkId,
                 input.getTenantId());
-        NeutronvpnUtils.addToSubnetCache(input);
     }
 
     @Override
@@ -88,20 +89,11 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
     @Override
     protected void update(InstanceIdentifier<Subnet> identifier, Subnet original, Subnet update) {
         LOG.trace("Updating Subnet : key: {}, original value={}, update value={}", identifier, original, update);
-        Uuid networkId = update.getNetworkId();
-        Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, networkId);
-        if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
-            LOG.warn("neutron vpn received a subnet update() for a network without a provider extension augmentation "
-                            + "or with an unsupported network type for the subnet {} which is part of network {}",
-                    update.getUuid().getValue(), network);
-            return;
-        }
-        handleNeutronSubnetUpdated(update.getUuid(), networkId, update.getTenantId());
         NeutronvpnUtils.addToSubnetCache(update);
     }
 
     private void handleNeutronSubnetCreated(Uuid subnetId, String subnetIp, Uuid networkId, Uuid tenantId) {
-        nvpnManager.updateSubnetNode(subnetId, subnetIp, tenantId, networkId, null/*routerID*/, null/*vpnID*/);
+        nvpnManager.createSubnetmapNode(subnetId, subnetIp, tenantId, networkId);
         if (networkId != null) {
             createSubnetToNetworkMapping(subnetId, networkId);
         }
@@ -118,17 +110,8 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         nvpnManager.deleteSubnetMapNode(subnetId);
     }
 
-    private void handleNeutronSubnetUpdated(Uuid subnetId, Uuid networkId, Uuid tenantId) {
-        Uuid oldNetworkId = NeutronvpnUtils.getSubnetmap(dataBroker, subnetId).getNetworkId();
-        if (oldNetworkId != null && !oldNetworkId.equals(networkId)) {
-            deleteSubnetToNetworkMapping(subnetId, oldNetworkId);
-        }
-        if (networkId != null && !networkId.equals(oldNetworkId)) {
-            createSubnetToNetworkMapping(subnetId, networkId);
-        }
-        nvpnManager.updateSubnetNode(subnetId, null, tenantId, networkId, null/*routerID*/, null/*vpnID*/);
-    }
-
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private void createSubnetToNetworkMapping(Uuid subnetId, Uuid networkId) {
         try {
             InstanceIdentifier networkMapIdentifier = NeutronvpnUtils.buildNetworkMapIdentifier(networkId);
