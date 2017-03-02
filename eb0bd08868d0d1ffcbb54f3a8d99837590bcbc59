@@ -1,0 +1,220 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_5d6ba71d",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2017-03-02T10:26:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9bbec563",
+      "range": {
+        "startLine": 2,
+        "startChar": 7,
+        "endLine": 2,
+        "endChar": 15
+      },
+      "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bd761304",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2017-03-02T10:26:25Z",
+      "side": 1,
+      "message": "included it",
+      "parentUuid": "fafc7978_bb15894a",
+      "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fd637b3f",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2017-03-02T10:26:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_1b049548",
+      "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dd667750",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2017-03-02T10:26:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3b8eb9d0",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 74
+      },
+      "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1d5d9f79",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2017-03-02T10:26:25Z",
+      "side": 1,
+      "message": "No idea why it\u0027s happening, but I\u0027ve merged two lines. I\u0027ll check again if it\u0027s happening.",
+      "parentUuid": "fafc7978_1bb2d593",
+      "range": {
+        "startLine": 140,
+        "startChar": 1,
+        "endLine": 140,
+        "endChar": 23
+      },
+      "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7d578b58",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2017-03-02T10:26:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_db6b2def",
+      "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5d528767",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2017-03-02T10:26:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_fb7551cb",
+      "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3de8637b",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2017-03-02T10:26:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_bb3e29d8",
+      "range": {
+        "startLine": 413,
+        "startChar": 3,
+        "endLine": 426,
+        "endChar": 11
+      },
+      "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bd4d73c6",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2017-03-02T10:26:25Z",
+      "side": 1,
+      "message": "tried to fix this by putting extra blank line. I\u0027ll check again if it\u0027s reflecting into HTML.",
+      "parentUuid": "fafc7978_3b2a3990",
+      "range": {
+        "startLine": 481,
+        "startChar": 25,
+        "endLine": 481,
+        "endChar": 33
+      },
+      "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1dd47fbb",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2017-03-02T10:26:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_db104d5b",
+      "range": {
+        "startLine": 532,
+        "startChar": 5,
+        "endLine": 535,
+        "endChar": 6
+      },
+      "revId": "eb0bd08868d0d1ffcbb54f3a8d99837590bcbc59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
