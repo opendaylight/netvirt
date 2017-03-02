@@ -16,6 +16,24 @@
       "revId": "143ebc1ce71f287971379a6d4ea4f5197cc7e74d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dde317d7",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 6822
+      },
+      "writtenOn": "2017-03-02T10:08:26Z",
+      "side": 1,
+      "message": "QosNeutronUtils.handleNeutronPortQosUpdate is already making use of per port DJC.\n\nAnd adding the same logic to add( ) in QosPortChangeListener might throw \"Could not retrieve DPN Id for interface\" which we were seeing earlier",
+      "parentUuid": "fafc7978_9d47d276",
+      "revId": "143ebc1ce71f287971379a6d4ea4f5197cc7e74d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
