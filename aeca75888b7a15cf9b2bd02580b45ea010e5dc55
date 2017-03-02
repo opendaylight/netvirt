@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_5819f8d5",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-02T06:21:33Z",
+      "side": 1,
+      "message": "please clarify what is meant by non-neutron controller network..\n\nDoes this mean neutron network and neutron subnet will be created and be available, but ports on such subnet will not be orchestrated thru neutron, but by something other than neutron ie., ports will not be neutron-aware?",
+      "revId": "aeca75888b7a15cf9b2bd02580b45ea010e5dc55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d824c80e",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-02T06:21:33Z",
+      "side": 1,
+      "message": "IMHO, we should base both config and operation DHCP allocation pools per network and not per VRF.\n\nThis is because network information is always retrievable from received packet of the dataplane and all overlapping MACs/ overlapping IPs apply per network scope.",
+      "revId": "aeca75888b7a15cf9b2bd02580b45ea010e5dc55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9801a06c",
         "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
         "patchSetId": 3
