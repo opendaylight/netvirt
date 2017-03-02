@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_a0454644",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-02T11:06:04Z",
+      "side": 1,
+      "message": "Align to one of my previous comments, is SFC creating and deleting the set of ITM tunnels using Genius interface whenever an SF is added/removed to logical SFF? (or is it assuming the full mesh is pre-created?)\nIf that was the case, then we should do something similar in Netvirt since we cannot ensure classifier is collocated with an existing SF",
+      "range": {
+        "startLine": 172,
+        "startChar": 7,
+        "endLine": 172,
+        "endChar": 10
+      },
+      "revId": "1f40853e36e381b128636e85b2a8ccb6c153eba3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
