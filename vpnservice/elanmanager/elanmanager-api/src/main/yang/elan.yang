@@ -59,6 +59,11 @@ module elan {
                 type string;
                 description "Optional. The name of the physical network attached to the ELAN.";
             }
+            leaf external {
+                description "indicates whether the network has external router attached to it";
+                type boolean;
+                default false;
+            }
             leaf mac-timeout {
                 type uint32 {
                     range "0..65535";
