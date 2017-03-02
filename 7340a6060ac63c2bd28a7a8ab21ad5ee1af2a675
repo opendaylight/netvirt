@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5a660dee",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 19
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-03-02T07:38:26Z",
+      "side": 1,
+      "message": "Alon, my suggestion was to keep the current design ready for future enhancement of supporting multiple remote ACLs.\n\nMy suggestion was to have an extra table (ACL dispatcher) but will not provide the ACL dispatcher functionality for now.\n\nLater without this, when we plan of supporting multiple remote ACLs, I believe most of this activity will be repeated again to re-align the tables.\nFelt that it might duplicate the work again later.\nAdditionally, AAP with value 0.0.0.0/0 will also be addressed.",
+      "parentUuid": "fafc7978_93eb4912",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 5
+      },
+      "revId": "7340a6060ac63c2bd28a7a8ab21ad5ee1af2a675",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2115e63f",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 19
