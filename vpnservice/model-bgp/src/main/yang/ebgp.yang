@@ -24,6 +24,38 @@ module ebgp {
   revision "2015-09-01" {
   }
 
+
+  typedef tcp-md5-signature-password-type {
+    type string {
+      length 1..80;
+    } // subtype string
+    description
+      "The shared secret used by TCP MD5 Signature Option.  The length is
+       limited to 80 chars because A) it is identified by the RFC as current
+       practice and B) it is the maximum length accepted by Quagga
+       implementation.";
+    reference "RFC 2385";
+  } // typedef tcp-md5-signature-password-type
+
+
+  grouping tcp-security-option-grouping {
+    description "TCP security options.";
+    choice tcp-security-option {
+      description "The tcp security option in use, if any.";
+
+      case tcp-md5-signature-option {
+        description "The connection uses TCP MD5 Signature Option.";
+        reference "RFC 2385";
+        leaf tcp-md5-signature-password {
+          type tcp-md5-signature-password-type;
+          description "The shared secret used to sign the packets.";
+        } // leaf tcp-md5-signature-password
+      } // case tcp-md5-signature-option
+
+    } // choice tcp-security-option
+  } // grouping tcp-security-option-grouping
+
+
  container bgp {
   config "true";
   container config-server {
@@ -80,6 +112,7 @@ module ebgp {
       type uint32;
       mandatory "true";
     }
+    uses tcp-security-option-grouping;
     container ebgp-multihop {
       leaf nhops {
         type uint32;
