@@ -424,7 +424,7 @@ public class FibUtil {
 
             // Filling the nextHop with dummy nextHopAddress
             VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(prefix, label,
-                    FibConstants.DEFAULT_NEXTHOP_IP, RouteOrigin.LOCAL)
+                    FibConstants.DEFAULT_NEXTHOP_IP, RouteOrigin.LOCAL, null /* networkName */ )
                 .addAugmentation(RouterInterface.class, routerInterface).build();
 
             if (writeConfigTxn != null) {
@@ -548,8 +548,8 @@ public class FibUtil {
         if (entry.isPresent()) {
             RouteOrigin routeOrigin = RouteOrigin.value(entry.get().getOrigin());
             // Update the VRF entry with nextHopList
-            VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(entry.get(), label, nextHopList, routeOrigin)
-                    .setGatewayMacAddress(gwMacAddress).build();
+            VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(entry.get(), label, nextHopList, routeOrigin
+                    , null /* networkName */).setGatewayMacAddress(gwMacAddress).build();
 
             if (nextHopList.isEmpty()) {
                 if (writeConfigTxn != null) {
