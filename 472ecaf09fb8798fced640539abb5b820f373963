@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_c976b505",
+        "filename": "vpnservice/ipv6service/api/src/main/yang/neighbor-discovery.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-02T16:58:12Z",
+      "side": 1,
+      "message": "these changes are not mentioned in the spec.. Please mention them too..",
+      "revId": "472ecaf09fb8798fced640539abb5b820f373963",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
