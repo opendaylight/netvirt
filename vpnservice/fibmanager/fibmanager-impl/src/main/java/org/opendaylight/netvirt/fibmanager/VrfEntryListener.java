@@ -1374,8 +1374,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 numAdj = optAdjacencies.get().getAdjacency().size();
             }
             //remove adjacency corr to prefix
+            boolean isPrimaryAdj = false;
             if (numAdj > 1) {
-                boolean isPrimaryAdj = false;
                 List<Adjacency> adjacencyList = optAdjacencies.get().getAdjacency();
                 for (Adjacency adj : adjacencyList) {
                     if (adj.getIpAddress().equals(vrfEntry.getDestPrefix())) {
@@ -1392,7 +1392,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             FibUtil.getAdjacencyIdentifier(ifName, vrfEntry.getDestPrefix()));
                 }
             }
-            if ((numAdj - 1) == 0) { //there are no adjacencies left for this vpn interface, clean up
+            if ((numAdj - 1) == 0 || (isPrimaryAdj && optvpnInterface.get().isScheduledForRemove())) {
+                // there are no adjacencies left for this vpn interface
+                // or primary adjacency has been deleted - clean up
                 //clean up the vpn interface from DpnToVpn list
                 LOG.trace("Clean up vpn interface {} from dpn {} to vpn {} list.", ifName, prefixInfo.getDpnId(), rd);
                 writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, FibUtil.getVpnInterfaceIdentifier(ifName));
