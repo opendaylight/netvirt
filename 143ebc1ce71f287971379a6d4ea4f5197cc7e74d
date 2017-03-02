@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_9d47d276",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-02T04:26:12Z",
+      "side": 1,
+      "message": "move this entire logic to per port DJC.\n\nFurhter make sure this same logic is handled in port add() handling in QosPortChangeListener with the same DJC.. there you need to check if interfaceState is available for the port.",
+      "revId": "143ebc1ce71f287971379a6d4ea4f5197cc7e74d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
