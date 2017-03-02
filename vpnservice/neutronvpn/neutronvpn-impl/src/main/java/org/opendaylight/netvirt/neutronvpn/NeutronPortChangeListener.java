@@ -118,14 +118,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(input.getDeviceOwner())) {
                 handleRouterGatewayUpdated(input);
             } else if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(input.getDeviceOwner())) {
-
-                // populate floating-ip uuid and floating-ip port attributes (uuid, mac and subnet id for the ONLY
-                // fixed IP) to be used by NAT, depopulated in NATService once mac is retrieved in the removal path
-                addToFloatingIpPortInfo(new Uuid(input.getDeviceId()), input.getUuid(), input.getFixedIps().get(0)
-                                .getSubnetId(), input.getMacAddress().getValue());
-
-                elanService.handleKnownL3DmacAddress(input.getMacAddress().getValue(), input.getNetworkId().getValue(),
-                        NwConstants.ADD_FLOW);
+                handleFloatingIpPortUpdated(null /* original */, input);
             }
         }
         if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
@@ -229,9 +222,20 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(update.getDeviceOwner())) {
             handleRouterGatewayUpdated(update);
         } else if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(update.getDeviceOwner())) {
-            elanService.handleKnownL3DmacAddress(update.getMacAddress().getValue(), update.getNetworkId().getValue(),
-                    NwConstants.ADD_FLOW);
+            handleFloatingIpPortUpdated(original, update);
         }
+    }
+
+    private void handleFloatingIpPortUpdated(Port original, Port update) {
+        if (((original == null) || original.getDeviceId().equals("PENDING"))
+            && !update.getDeviceId().equals("PENDING")) {
+            // populate floating-ip uuid and floating-ip port attributes (uuid, mac and subnet id for the ONLY
+            // fixed IP) to be used by NAT, depopulated in NATService once mac is retrieved in the removal path
+            addToFloatingIpPortInfo(new Uuid(update.getDeviceId()), update.getUuid(), update.getFixedIps().get(0)
+                    .getSubnetId(), update.getMacAddress().getValue());
+        }
+        elanService.handleKnownL3DmacAddress(update.getMacAddress().getValue(), update.getNetworkId().getValue(),
+                NwConstants.ADD_FLOW);
     }
 
     private void handleRouterInterfaceAdded(Port routerPort) {
