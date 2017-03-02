@@ -520,6 +520,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_20d4b6bb",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-02T12:03:25Z",
+      "side": 1,
+      "message": "I\u0027m not referring to SF to SFF communication, I know there it will be Eth+NSH, but I\u0027m referring to switch to switch communication within a logical SFF.\nLet me explain it better, let\u0027s imagine we have a logical SFF configured. As far as I remember, when configuring a logical SFF we are not configuring the switches belonging to this logical SFF, but it is when I associate an SF to the logical SFF with its neutron port when we are \"associating\" the switch to the logical SFF. So, let\u0027s imagine I have associated a couple of SFs to a logical SFF:\n- if they are in different switches, I need a VxLAN-GPE tunnel between those two switches, when is this tunnel created? When associating the second SF to the second switch?\n- if they are in the same switch, then is SFC logic aware that no VxLAN-GPE tunnel must be created?\nNow, let\u0027s imagine I want to decomision one of the SFs in one of the switches, does SFC know it has to delete the previously created tunnel from this switch to any other switch?",
+      "parentUuid": "fafc7978_809922c6",
+      "range": {
+        "startLine": 132,
+        "startChar": 55,
+        "endLine": 133,
+        "endChar": 7
+      },
+      "revId": "f7d7c728537fee7c735028c3ab20ffc7f5c8b811",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4d6af1ee",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 4
