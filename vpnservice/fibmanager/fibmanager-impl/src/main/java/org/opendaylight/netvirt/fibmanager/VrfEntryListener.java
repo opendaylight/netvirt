@@ -379,19 +379,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             LOG.trace("SubnetRoute augmented vrfentry found for rd {} prefix {} with elantag {}",
                 rd, vrfEntry.getDestPrefix(), elanTag);
             if (vpnToDpnList != null) {
-                DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                dataStoreCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(),
-                    () -> {
-                        WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-                        for (final VpnToDpnList curDpn : vpnToDpnList) {
-                            if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
-                                installSubnetRouteInFib(curDpn.getDpnId(), elanTag, rd, vpnId, vrfEntry, tx);
-                            }
-                        }
-                        List<ListenableFuture<Void>> futures = new ArrayList<>();
-                        futures.add(tx.submit());
-                        return futures;
-                    });
+                addJobToInstallSubnetRouteInFib(vrfEntry, vpnToDpnList, vpnId, rd, elanTag);
+            } else {
+               final Collection<VpnToDpnList> parentVpnToDpnList =
+                        getVpnInstance(vrfEntry.getParentVpnRd()).getVpnToDpnList();
+                if (parentVpnToDpnList != null) {
+                    addJobToInstallSubnetRouteInFib(vrfEntry, parentVpnToDpnList, vpnId, rd, elanTag);
+                }
             }
             return;
         }
@@ -439,6 +433,23 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 });
             }
         }
+    }
+
+    private void addJobToInstallSubnetRouteInFib(final VrfEntry vrfEntry, final Collection<VpnToDpnList> vpnToDpnList,
+                 final Long vpnId, final String rd, final long elanTag) {
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(),
+            () -> {
+                WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+                for (final VpnToDpnList curDpn : vpnToDpnList) {
+                    if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
+                        installSubnetRouteInFib(curDpn.getDpnId(), elanTag, rd, vpnId, vrfEntry, tx);
+                    }
+                }
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                futures.add(tx.submit());
+                return futures;
+            });
     }
 
 
@@ -556,20 +567,22 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         instructions.add(new InstructionGotoTable(NwConstants.L3_SUBNET_ROUTE_TABLE));
         makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx);
 
-        for (RoutePaths routePath : vrfEntry.getRoutePaths()) {
-            if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
-                List<ActionInfo> actionsInfos = new ArrayList<>();
-                // reinitialize instructions list for LFIB Table
-                final List<InstructionInfo> LFIBinstructions = new ArrayList<>();
+        if (vrfEntry.getRoutePaths() != null) {
+            for (RoutePaths routePath : vrfEntry.getRoutePaths()) {
+                if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
+                    List<ActionInfo> actionsInfos = new ArrayList<>();
+                    // reinitialize instructions list for LFIB Table
+                    final List<InstructionInfo> LFIBinstructions = new ArrayList<>();
 
-                actionsInfos.add(new ActionPopMpls());
-                LFIBinstructions.add(new InstructionApplyActions(actionsInfos));
-                LFIBinstructions.add(new InstructionWriteMetadata(subnetRouteMeta,
-                        MetaDataUtil.METADATA_MASK_SUBNET_ROUTE));
-                LFIBinstructions.add(new InstructionGotoTable(NwConstants.L3_SUBNET_ROUTE_TABLE));
+                    actionsInfos.add(new ActionPopMpls());
+                    LFIBinstructions.add(new InstructionApplyActions(actionsInfos));
+                    LFIBinstructions.add(new InstructionWriteMetadata(subnetRouteMeta,
+                            MetaDataUtil.METADATA_MASK_SUBNET_ROUTE));
+                    LFIBinstructions.add(new InstructionGotoTable(NwConstants.L3_SUBNET_ROUTE_TABLE));
 
-                makeLFibTableEntry(dpnId, routePath.getLabel(), LFIBinstructions, DEFAULT_FIB_FLOW_PRIORITY,
-                        NwConstants.ADD_FLOW, tx);
+                    makeLFibTableEntry(dpnId, routePath.getLabel(), LFIBinstructions, DEFAULT_FIB_FLOW_PRIORITY,
+                            NwConstants.ADD_FLOW, tx);
+                }
             }
         }
         if (!wrTxPresent) {
@@ -1987,7 +2000,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     if (routePathList == null || (routePathList.isEmpty())) {
                         modVrfEntry = FibHelper.getVrfEntryBuilder(vrfEntry, label,
                                 Collections.singletonList(destTepIp),
-                                RouteOrigin.value(vrfEntry.getOrigin()))
+                                RouteOrigin.value(vrfEntry.getOrigin()), null /* networkName*/)
                                 .build();
                     } else {
                         modVrfEntry = vrfEntry;
