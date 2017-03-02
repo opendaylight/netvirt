@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_49d125cc",
+        "filename": "docs/specs/ipv6-interdc-l3vpn.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-02T17:03:48Z",
+      "side": 1,
+      "message": "gr8 to see this went out of being mandatory.",
+      "revId": "8e9a058d24e86a6394b2988feab8c594116ab451",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e9cd7932",
+        "filename": "docs/specs/ipv6-interdc-l3vpn.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-02T17:03:48Z",
+      "side": 1,
+      "message": "why do we need a separate vrfTablesIPv6.  Can\u0027t existing VrfTables be re-used for this?\n\nThe destPrefix today in vrfEntry itself is a String only !",
+      "revId": "8e9a058d24e86a6394b2988feab8c594116ab451",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
