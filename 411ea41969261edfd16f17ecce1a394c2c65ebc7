@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_dd24ba0e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-02T03:42:38Z",
+      "side": 1,
+      "message": "general note going forward - try to separate your patches so it won\u0027t contain unreachable code",
+      "revId": "411ea41969261edfd16f17ecce1a394c2c65ebc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5de44ae0",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-02T03:42:38Z",
+      "side": 1,
+      "message": "this should be renamed to getEncapType",
+      "range": {
+        "startLine": 90,
+        "startChar": 30,
+        "endLine": 90,
+        "endChar": 50
+      },
+      "revId": "411ea41969261edfd16f17ecce1a394c2c65ebc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fdf9be80",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-02T03:42:38Z",
+      "side": 1,
+      "message": "what are the custom instructions? why can\u0027t IVpnManager.setupSubnetMacIntoVpnInstance be used to install/remove this flow?",
+      "revId": "411ea41969261edfd16f17ecce1a394c2c65ebc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3d9d0667",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 1663,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-02T03:42:38Z",
+      "side": 1,
+      "message": "Could you explain why is this decision based on the *external* network type here? the way I see it, this value is used when the packet is still in the scope of the internal VPN and should be affected by the tenant (private) network type. Only once the packet has traversed the SNAT pipeline and the internal VPN id was replaced by the internet VPN these kinds of conditions needs to be considered.",
+      "revId": "411ea41969261edfd16f17ecce1a394c2c65ebc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
