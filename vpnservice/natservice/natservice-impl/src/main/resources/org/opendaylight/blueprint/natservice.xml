@@ -20,6 +20,9 @@
              interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" />
   <reference id="vpnManager"
              interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
+  <reference id="notificationPublishService"
+             interface="org.opendaylight.controller.md.sal.binding.api.NotificationPublishService" />
+
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
@@ -67,6 +70,8 @@
         init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="sNATDefaultRouteProgrammer" />
+    <argument ref="elanService" />
+    <argument ref="notificationPublishService" />
   </bean>
 
   <bean id="naptManager"

@@ -215,7 +215,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         String rd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
         LOG.debug("ADD: Adding Fib Entry rd {} prefix {} route-paths {}",
                 rd, vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths());
-        if (vrfEntry.getEncapType().equals(VrfEntry.EncapType.Vxlan)) {
+        if (VrfEntry.EncapType.Vxlan.equals(vrfEntry.getEncapType())) {
             LOG.info("EVPN flows need to be programmed.");
             EVPNVrfEntryProcessor evpnVrfEntryProcessor = new EVPNVrfEntryProcessor(identifier,
                     vrfEntry, dataBroker, this);
@@ -564,20 +564,22 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         instructions.add(new InstructionGotoTable(NwConstants.L3_SUBNET_ROUTE_TABLE));
         makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx);
 
-        for (RoutePaths routePath : vrfEntry.getRoutePaths()) {
-            if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
-                List<ActionInfo> actionsInfos = new ArrayList<>();
-                // reinitialize instructions list for LFIB Table
-                final List<InstructionInfo> LFIBinstructions = new ArrayList<>();
+        if (vrfEntry.getRoutePaths() != null) {
+            for (RoutePaths routePath : vrfEntry.getRoutePaths()) {
+                if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
+                    List<ActionInfo> actionsInfos = new ArrayList<>();
+                    // reinitialize instructions list for LFIB Table
+                    final List<InstructionInfo> LFIBinstructions = new ArrayList<>();
 
-                actionsInfos.add(new ActionPopMpls());
-                LFIBinstructions.add(new InstructionApplyActions(actionsInfos));
-                LFIBinstructions.add(new InstructionWriteMetadata(subnetRouteMeta,
-                        MetaDataUtil.METADATA_MASK_SUBNET_ROUTE));
-                LFIBinstructions.add(new InstructionGotoTable(NwConstants.L3_SUBNET_ROUTE_TABLE));
+                    actionsInfos.add(new ActionPopMpls());
+                    LFIBinstructions.add(new InstructionApplyActions(actionsInfos));
+                    LFIBinstructions.add(new InstructionWriteMetadata(subnetRouteMeta,
+                            MetaDataUtil.METADATA_MASK_SUBNET_ROUTE));
+                    LFIBinstructions.add(new InstructionGotoTable(NwConstants.L3_SUBNET_ROUTE_TABLE));
 
-                makeLFibTableEntry(dpnId, routePath.getLabel(), LFIBinstructions, DEFAULT_FIB_FLOW_PRIORITY,
-                        NwConstants.ADD_FLOW, tx);
+                    makeLFibTableEntry(dpnId, routePath.getLabel(), LFIBinstructions, DEFAULT_FIB_FLOW_PRIORITY,
+                            NwConstants.ADD_FLOW, tx);
+                }
             }
         }
         if (!wrTxPresent) {
@@ -2035,8 +2037,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     if (routePathList == null || (routePathList.isEmpty())) {
                         modVrfEntry = FibHelper.getVrfEntryBuilder(vrfEntry, label,
                                 Collections.singletonList(destTepIp),
-                                RouteOrigin.value(vrfEntry.getOrigin()))
-                                .build();
+                                RouteOrigin.value(vrfEntry.getOrigin()), null /* parentVpnRd */).build();
                     } else {
                         modVrfEntry = vrfEntry;
                     }

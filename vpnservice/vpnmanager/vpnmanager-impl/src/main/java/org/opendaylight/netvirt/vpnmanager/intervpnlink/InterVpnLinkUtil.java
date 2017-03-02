@@ -464,7 +464,8 @@ public class InterVpnLinkUtil {
         String endpointIp = destinationIs1stEndpoint ? interVpnLink.getSecondEndpoint().getIpAddress().getValue()
             : interVpnLink.getFirstEndpoint().getIpAddress().getValue();
 
-        VrfEntry newVrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, endpointIp, RouteOrigin.INTERVPN).build();
+        VrfEntry newVrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, endpointIp, RouteOrigin.INTERVPN,
+                null /* parentVpnRd */).build();
 
         String dstVpnRd = VpnUtil.getVpnRd(broker, dstVpnUuid);
         InstanceIdentifier<VrfEntry> newVrfEntryIid =

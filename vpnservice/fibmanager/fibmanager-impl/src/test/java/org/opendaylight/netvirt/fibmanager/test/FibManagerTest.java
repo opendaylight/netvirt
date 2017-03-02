@@ -74,7 +74,7 @@ public class FibManagerTest {
     private void setupMocks() {
         dpn = BigInteger.valueOf(100000L);
         identifier = buildVrfEntryId(TEST_RD, PREFIX);
-        vrfEntry = FibHelper.getVrfEntryBuilder(PREFIX, LABEL, NEXTHOP, origin).build();
+        vrfEntry = FibHelper.getVrfEntryBuilder(PREFIX, LABEL, NEXTHOP, origin, null).build();
         when(vrfTableKey.getRouteDistinguisher()).thenReturn(TEST_RD);
     }
 
