@@ -62,7 +62,6 @@ public class BgpCounters extends TimerTask {
             fetchCmdOutputs("cmd_bgp_ipv4_unicast_statistics.txt", "show bgp ipv4 unicast statistics");
             fetchCmdOutputs("cmd_ip_bgp_vpnv4_all.txt", "show ip bgp vpnv4 all");
             parse_ip_bgp_summary();
-            parse_bgp_ipv4_unicast_statistics();
             parse_ip_bgp_vpnv4_all();
             if (LOGGER.isDebugEnabled()) {
                 dumpCounters();
@@ -378,7 +377,6 @@ public class BgpCounters extends TimerTask {
        File file = new File("cmd_bgp_ipv4_unicast_statistics.txt");
        Scanner scanner;
        String lineFromFile;
-       StringBuilder key = new StringBuilder();
        String totPfx = "";
        List<String> inputStrs = new ArrayList<String>();
        try {
@@ -408,10 +406,8 @@ public class BgpCounters extends TimerTask {
            }
            i++;
        }
-        key.setLength(0);
-        key.append(BgpConstants.BGP_COUNTER_TOTAL_PFX).append(":").
-                append("Bgp_Total_Prefixes");
-        countersMap.put(key.toString(), totPfx);
+
+        countersMap.put(BgpConstants.BGP_COUNTER_TOTAL_PFX, totPfx);
     }
 
     /*
@@ -460,6 +456,11 @@ public class BgpCounters extends TimerTask {
             }
             i++;
         }
+        /*populate the "BgpTotalPrefixes" counter by combining
+        the prefixes that are calculated per RD basis*/
+        int bgpTotalPfxs = calculateBgpTotalPrefixes();
+        LOGGER.trace("BGP Total Prefixes:{}",bgpTotalPfxs);
+        countersMap.put(BgpConstants.BGP_COUNTER_TOTAL_PFX,String.valueOf(bgpTotalPfxs));
 
     }
 
@@ -497,6 +498,10 @@ public class BgpCounters extends TimerTask {
                 append("BGP_RD_").append(rd).append("_route_count");
         countersMap.put(key.toString(), Integer.toString(route_count));
         return num - 1;
+    }
+    private int calculateBgpTotalPrefixes() {
+        return countersMap.entrySet().stream().filter(entry -> entry.getKey().contains(BgpConstants
+                .BGP_COUNTER_RD_ROUTE_COUNT)).map(Map.Entry::getValue).mapToInt(Integer::parseInt).sum();
     }
 
     public void resetCounters() {
