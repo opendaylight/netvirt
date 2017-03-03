@@ -227,6 +227,24 @@
       "revId": "411ea41969261edfd16f17ecce1a394c2c65ebc7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a4a6f3ab",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 1663,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-03T08:22:14Z",
+      "side": 1,
+      "message": "For the last question, all Internal DC communications will be either VXLAN (or) VLAN.  They won\u0027t be anything else.\n\nToday we donot support VLAN internal To VLAN external use-case at all.   When it comes, we can go through that use-case.\nSo for the question 2), you MUST allocate a router-lport-tag if the router is part of an L3VPNOverVxlan.  If you have questions on how to check that, please ask KiranN as he has provided APIs to use.\n\nFor question 1), NO IT IS NOT REQUIRED in the EVPN change review here to check if the attahced subnets are part of a VXLAN Tenant network.   Please only see if router is part of L3VPNOverVXLAN and then direcly allocate lport-tag per router and use it, otherwise leave the code to use legacy router-id.",
+      "parentUuid": "fafc7978_61999d6d",
+      "revId": "411ea41969261edfd16f17ecce1a394c2c65ebc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
