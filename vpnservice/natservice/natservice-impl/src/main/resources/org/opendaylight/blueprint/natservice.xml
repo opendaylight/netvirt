@@ -138,6 +138,7 @@
     <argument ref="fibManager" />
     <argument ref="vpnManager"/>
     <argument ref="evpnSnatFlowProgrammer"/>
+    <argument ref="neutronvpnManager" />
   </bean>
 
   <bean id="externalNetworksChangeListener"
@@ -195,6 +196,7 @@
     <argument ref="fibRpcService" />
     <argument ref="fibManager" />
     <argument ref="evpnNaptSwitchHA" />
+    <argument ref="neutronvpnManager" />
   </bean>
 
   <bean id="natNodeEventListener"
@@ -218,6 +220,7 @@
     <argument ref="naptSwitchHA" />
     <argument ref="idManagerService" />
     <argument ref="externalNetworkGroupInstaller" />
+    <argument ref="neutronvpnManager" />
   </bean>
 
   <bean id="routerToVpnListener"
