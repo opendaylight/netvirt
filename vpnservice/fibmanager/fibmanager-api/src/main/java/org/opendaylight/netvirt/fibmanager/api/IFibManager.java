@@ -64,7 +64,7 @@ public interface IFibManager {
                                 String destTepIp,
                                 long label);
 
-    void addOrUpdateFibEntry(DataBroker broker, String rd, String macAddress, String prefix, List<String> nextHopList,
+    void addOrUpdateFibEntry(DataBroker broker, String rd, String macAddress, String prefix, String nextHopIp,
                              VrfEntry.EncapType encapType, long label, long l3vni, String gwMacAddress,
                              String parentVpnRd, RouteOrigin origin, WriteTransaction writeConfigTxn);
 

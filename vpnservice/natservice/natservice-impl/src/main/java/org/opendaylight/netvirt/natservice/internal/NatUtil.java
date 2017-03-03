@@ -673,7 +673,7 @@ public class NatUtil {
             addPrefixToInterface(broker, getVpnId(broker, vpnName), null /*interfaceName*/,prefix, dpId, subnetId,
                     /*isNatPrefix*/ true);
             fibManager.addOrUpdateFibEntry(broker, rd, macAddress, prefix,
-                    Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, (int)label, 0 /*l3vni*/,
+                    nextHopIp, VrfEntry.EncapType.Mplsgre, (int)label, 0 /*l3vni*/,
                     null /*gatewayMacAddress*/, parentVpnRd, origin, null /*writeTxn*/);
             if ((rd != null) && (!rd.equalsIgnoreCase(vpnName))) {
             /* Publish to Bgp only if its an INTERNET VPN */

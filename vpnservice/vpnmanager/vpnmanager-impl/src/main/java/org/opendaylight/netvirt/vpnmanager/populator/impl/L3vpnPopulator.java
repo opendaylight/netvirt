@@ -56,12 +56,12 @@ public class L3vpnPopulator implements VpnPopulator {
             List<String> nextHopList = Collections.singletonList(nextHopIp);
             LOG.info("ADD: Adding Fib entry rd {} prefix {} nextHop {} label {} l3vni {} origin {}",
                      rd, prefix, nextHopIp, label, l3vni, origin.getValue());
-            fibManager.addOrUpdateFibEntry(broker, primaryRd, macAddress, prefix, nextHopList,
-                    encapType, (int)label, l3vni, gatewayMac, null /*parentVpnRd*/, origin, writeConfigTxn);
+            fibManager.addOrUpdateFibEntry(broker, primaryRd, macAddress, prefix, nextHopIp,
+                    encapType, (int)label, l3vni, gatewayMac, origin, writeConfigTxn);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}, l3vni {} origin {}",
                      rd, prefix, nextHopIp, label, l3vni, origin.getValue());
             // Advertise the prefix to BGP only if nexthop ip is available
-            if (nextHopList != null && !nextHopList.isEmpty()) {
+            if (nextHopList != null && nextHopList.get(0) != null) {
                 bgpManager.advertisePrefix(rd, macAddress, prefix, nextHopList, encapType, (int)label,
                         l3vni, gatewayMac);
             } else {

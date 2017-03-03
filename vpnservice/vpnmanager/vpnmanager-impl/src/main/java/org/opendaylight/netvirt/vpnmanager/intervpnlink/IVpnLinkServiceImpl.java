@@ -160,7 +160,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
             long leakedLabel = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME, key);
             String leakedNexthop = interVpnLink.getEndpointIpAddr(vpnName);
             fibManager.addOrUpdateFibEntry(dataBroker, dstVpnRd, null /*macAddress*/, prefix,
-                                           Collections.singletonList(leakedNexthop), VrfEntry.EncapType.Mplsgre,
+                                           leakedNexthop, VrfEntry.EncapType.Mplsgre,
                                            (int) leakedLabel, 0 /*l3vni*/, null /*gatewayMacAddress*/,
                                            null /*parentVpnRd*/, RouteOrigin.INTERVPN, null /*writeConfigTxn*/);
 
