@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.neutronvpn;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -1355,7 +1356,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     protected List<Adjacency> getAdjacencyforExtraRoute(Uuid vpnId, List<Routes> routeList, String fixedIp) {
         List<Adjacency> adjList = new ArrayList<>();
-        Map<String, List<String>> adjMap = new HashMap<>();
+        Map<String, String> adjMap = new HashMap<>();
         for (Routes route : routeList) {
             if (route == null || route.getNexthop() == null || route.getDestination() == null) {
                 LOG.error("Incorrect input received for extra route. {}", route);
@@ -1368,16 +1369,13 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
                 LOG.trace("Adding extra route for destination {} onto vpn {} with nexthop {} ", destination,
                         vpnId.getValue(), nextHop);
-                List<String> hops = adjMap.computeIfAbsent(destination, k -> new ArrayList<>());
-                if (!hops.contains(nextHop)) {
-                    hops.add(nextHop);
-                }
+                adjMap.put(destination, nextHop);
             }
         }
 
         for (String destination : adjMap.keySet()) {
             Adjacency erAdj = new AdjacencyBuilder().setIpAddress(destination)
-                .setNextHopIpList(adjMap.get(destination)).setKey(new AdjacencyKey(destination)).build();
+                .setNextHopIp(adjMap.get(destination)).setKey(new AdjacencyKey(destination)).build();
             adjList.add(erAdj);
         }
         return  adjList;
@@ -1404,7 +1402,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         InstanceIdentifier<Adjacency> path = identifier.augmentation(Adjacencies.class)
                             .child(Adjacency.class, new AdjacencyKey(destination));
                         Adjacency erAdj = new AdjacencyBuilder().setIpAddress(destination)
-                            .setNextHopIpList(Collections.singletonList(nextHop)).setKey(new AdjacencyKey(destination))
+                            .setNextHopIp(nextHop).setKey(new AdjacencyKey(destination))
                             .build();
                         isLockAcquired = NeutronvpnUtils.lock(infName);
                         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, path, erAdj);
@@ -1454,16 +1452,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 Optional<Adjacency> adjacency = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
                         adjacencyIdentifier);
                 boolean updateNextHops = false;
-                List<String> nextHopList = new ArrayList<>();
+                String nextHopIp = null;
                 if (adjacency.isPresent()) {
-                    List<String> nhListRead = adjacency.get().getNextHopIpList();
-                    if (nhListRead.size() > 1) { // ECMP case
-                        for (String nextHopRead : nhListRead) {
-                            if (nextHopRead.equals(nextHop)) {
-                                updateNextHops = true;
-                            } else {
-                                nextHopList.add(nextHopRead);
-                            }
+                    String nhRead = adjacency.get().getNextHopIp();
+                    if (nhRead != null) { // ECMP case
+                        if (nhRead.equals(nextHop)) {
+                            updateNextHops = true;
+                        } else {
+                            nextHopIp = nhRead;
                         }
                     }
                 }
@@ -1475,7 +1471,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         InstanceIdentifier<VpnInterface> vpnIfIdentifier = InstanceIdentifier.builder(
                                 VpnInterfaces.class).child(VpnInterface.class, new VpnInterfaceKey(infName)).build();
                         Adjacency newAdj = new AdjacencyBuilder(adjacency.get()).setIpAddress(destination)
-                                .setNextHopIpList(nextHopList)
+                                .setNextHopIp((nextHopIp != null) ? nextHopIp : "")
                                 .setKey(new AdjacencyKey(destination))
                                 .build();
                         Adjacencies erAdjs =
