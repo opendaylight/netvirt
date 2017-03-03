@@ -11,16 +11,8 @@ module neutronvpn-config {
     }
 
     container neutronvpn-config {
-        status deprecated;
         config true;
-        leaf use-transport-zone {
-            type boolean;
-            default true;
-        }
-        leaf use-of-tunnels {
-            type boolean;
-            default false;
-        }
+
         leaf opendaylight-vni-ranges {
             type string;
             default "70000:99999";
