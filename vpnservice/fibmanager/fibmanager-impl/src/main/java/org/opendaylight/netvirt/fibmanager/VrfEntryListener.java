@@ -1889,7 +1889,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                 /* Ignore SubnetRoute entry */
                                 return (FibHelper.isControllerManagedVpnInterfaceRoute(RouteOrigin.value(
                                         vrfEntry.getOrigin())));
-                            } )
+                            })
                             .forEach(getConsumerForCreatingRemoteFib(dpnId, vpnId,
                                        rd, remoteNextHopIp, vrfTable,
                                        writeCfgTxn));
