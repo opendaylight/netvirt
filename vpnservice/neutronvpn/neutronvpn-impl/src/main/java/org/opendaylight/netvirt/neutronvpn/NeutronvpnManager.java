@@ -51,6 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.config.rev160806.NeutronvpnConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.AssociateNetworksInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.AssociateNetworksOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.AssociateNetworksOutputBuilder;
@@ -127,22 +128,29 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     private final VpnRpcService vpnRpcService;
     private final NeutronFloatingToFixedIpMappingChangeListener floatingIpMapListener;
     private final IElanService elanService;
+    private final NeutronvpnConfig neutronvpnConfig;
 
     public NeutronvpnManager(
             final DataBroker dataBroker, final NotificationPublishService notiPublishService,
             final NeutronvpnNatManager vpnNatMgr, final VpnRpcService vpnRpcSrv, final IElanService elanService,
-            final NeutronFloatingToFixedIpMappingChangeListener neutronFloatingToFixedIpMappingChangeListener) {
+            final NeutronFloatingToFixedIpMappingChangeListener neutronFloatingToFixedIpMappingChangeListener,
+            final NeutronvpnConfig neutronvpnConfig) {
         this.dataBroker = dataBroker;
         nvpnNatManager = vpnNatMgr;
         notificationPublishService = notiPublishService;
         vpnRpcService = vpnRpcSrv;
         this.elanService = elanService;
         floatingIpMapListener = neutronFloatingToFixedIpMappingChangeListener;
+        this.neutronvpnConfig = neutronvpnConfig;
     }
 
     @Override
     public void close() throws Exception {
         LOG.info("{} close", getClass().getSimpleName());
+    }
+
+    public NeutronvpnConfig getNeutronvpnConfig() {
+        return neutronvpnConfig;
     }
 
     // TODO Clean up the exception handling
