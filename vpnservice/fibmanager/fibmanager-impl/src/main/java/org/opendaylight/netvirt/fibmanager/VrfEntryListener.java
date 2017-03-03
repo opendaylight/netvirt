@@ -1884,15 +1884,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     synchronized (vpnInstance.getVpnInstanceName().intern()) {
                         WriteTransaction writeCfgTxn = dataBroker.newWriteOnlyTransaction();
                         // Handle Vpn Interface driven Routes only (i.e., STATIC and LOCAL)
-                        vrfTable.get().getVrfEntry().stream()
-                            .filter(vrfEntry -> {
+                        vrfTable.get().getVrfEntry().stream().filter(vrfEntry -> {
                                 /* Ignore SubnetRoute entry */
-                                return (FibHelper.isControllerManagedVpnInterfaceRoute(RouteOrigin.value(
-                                        vrfEntry.getOrigin())));
-                            } )
-                            .forEach(getConsumerForCreatingRemoteFib(dpnId, vpnId,
-                                       rd, remoteNextHopIp, vrfTable,
-                                       writeCfgTxn));
+                            return (FibHelper.isControllerManagedVpnInterfaceRoute(RouteOrigin.value(
+                                    vrfEntry.getOrigin())));
+                        }).forEach(getConsumerForCreatingRemoteFib(dpnId, vpnId, rd, remoteNextHopIp, vrfTable,
+                                writeCfgTxn));
                         futures.add(writeCfgTxn.submit());
                     }
                     return futures;
