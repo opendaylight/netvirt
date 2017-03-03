@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_3aa85eda",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/yang/elan.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-03T10:52:53Z",
+      "side": 1,
+      "message": "better to put \u0027 indicates that this is an external network\u0027.",
+      "revId": "a072a47f2d2c6e4ea33028d0f98593674f1a4d0f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
