@@ -11,7 +11,6 @@ import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import java.math.BigInteger;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -196,8 +195,8 @@ public class ArpNotificationHandler implements OdlArputilListener {
                     }
                     String nextHopIp = nextHopIpAddr.split("/")[0];
                     AdjacencyBuilder newAdjBuilder =
-                            new AdjacencyBuilder().setIpAddress(ip).setKey(new AdjacencyKey(ip)).setNextHopIpList(
-                                    Collections.singletonList(nextHopIp));
+                            new AdjacencyBuilder().setIpAddress(ip).setKey(new AdjacencyKey(ip))
+                                    .setNextHopIp(nextHopIp);
                     if (mipMacAddress != null && !mipMacAddress.equalsIgnoreCase(nextHopMacAddress)) {
                         newAdjBuilder.setMacAddress(mipMacAddress);
                     }
