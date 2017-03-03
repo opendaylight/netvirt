@@ -1369,7 +1369,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         InstanceIdentifier<Adjacency> path = identifier.augmentation(Adjacencies.class)
                             .child(Adjacency.class, new AdjacencyKey(destination));
                         Adjacency erAdj = new AdjacencyBuilder().setIpAddress(destination)
-                            .setNextHopIpList(Collections.singletonList(nextHop)).setKey(new AdjacencyKey(destination))
+                            .setNextHopIp(nextHop).setKey(new AdjacencyKey(destination))
                             .build();
                         isLockAcquired = NeutronvpnUtils.lock(infName);
                         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, path, erAdj);
@@ -1418,29 +1418,15 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 // Looking for existing prefix in MDSAL database
                 Optional<Adjacency> adjacency = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
                         adjacencyIdentifier);
-                boolean updateNextHops = false;
-                List<String> nextHopList = new ArrayList<>();
-                if (adjacency.isPresent()) {
-                    List<String> nhListRead = adjacency.get().getNextHopIpList();
-                    if (nhListRead.size() > 1) { // ECMP case
-                        for (String nextHopRead : nhListRead) {
-                            if (nextHopRead.equals(nextHop)) {
-                                updateNextHops = true;
-                            } else {
-                                nextHopList.add(nextHopRead);
-                            }
-                        }
-                    }
-                }
 
                 try {
                     isLockAcquired = NeutronvpnUtils.lock(infName);
-                    if (updateNextHops) {
+                    if (adjacency.isPresent() && adjacency.get().getNextHopIp() != null) {
                         // An update must be done, not including the current next hop
                         InstanceIdentifier<VpnInterface> vpnIfIdentifier = InstanceIdentifier.builder(
                                 VpnInterfaces.class).child(VpnInterface.class, new VpnInterfaceKey(infName)).build();
                         Adjacency newAdj = new AdjacencyBuilder(adjacency.get()).setIpAddress(destination)
-                                .setNextHopIpList(nextHopList)
+                                .setNextHopIp(adjacency.get().getNextHopIp())
                                 .setKey(new AdjacencyKey(destination))
                                 .build();
                         Adjacencies erAdjs =
