@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.vpnmanager.populator.impl;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -90,7 +89,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         Adjacency nextHop = input.getNextHop();
         String nextHopIp = input.getNextHopIp();
         String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
-        List<String> adjNextHop = nextHop.getNextHopIpList();
+        String adjNextHop = nextHop.getNextHopIp();
         String rd = input.getRd();
         String primaryRd = input.getPrimaryRd();
         String vpnName = input.getVpnName();
@@ -101,9 +100,8 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
                     + input.getInterfaceName() + " for vpn " + vpnName;
             throw new NullPointerException(error);
         }
-        List<String> nextHopList = (adjNextHop != null && !adjNextHop.isEmpty()) ? adjNextHop
-                : (nextHopIp == null ? Collections.emptyList() : Collections.singletonList(nextHopIp));
-        return new AdjacencyBuilder(nextHop).setLabel(label).setNextHopIpList(nextHopList)
+        String nextHopList = (adjNextHop != null) ? adjNextHop : (nextHopIp == null ? null : nextHopIp);
+        return new AdjacencyBuilder(nextHop).setLabel(label).setNextHopIp(nextHopList)
                 .setIpAddress(prefix).setVrfId(rd).setKey(new AdjacencyKey(prefix))
                 .setPrimaryAdjacency(nextHop.isPrimaryAdjacency()).build();
     }

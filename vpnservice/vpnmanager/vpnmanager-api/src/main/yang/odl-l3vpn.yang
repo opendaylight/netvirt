@@ -18,7 +18,7 @@ module odl-l3vpn {
     grouping adjacency-list{
         list adjacency{
             key "ip_address";
-            leaf-list next-hop-ip-list { type string; }
+            leaf next-hop-ip { type string; }
             leaf ip_address {type string;}
             leaf primary-adjacency {
                 type boolean;

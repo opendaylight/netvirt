@@ -121,13 +121,11 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                     prefixToInterface.add(prefix.get());
                 }
                 if (prefixToInterface.isEmpty()) {
-                    for (String nh : adjacency.getNextHopIpList()) {
-                        prefix = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                    prefix = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                             VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
-                                VpnUtil.getIpPrefix(nh)));
-                        if (prefix.isPresent()) {
-                            prefixToInterface.add(prefix.get());
-                        }
+                                    VpnUtil.getIpPrefix(adjacency.getNextHopIp())));
+                    if (prefix.isPresent()) {
+                        prefixToInterface.add(prefix.get());
                     }
                 }
                 for (Prefixes pref : prefixToInterface) {
@@ -210,13 +208,11 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                 if (prefixToInterface.isPresent()) {
                     prefixToInterfaceList.add(prefixToInterface.get());
                 } else {
-                    for (String adj : adjacency.getNextHopIpList()) {
-                        prefixToInterface = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                    prefixToInterface = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                             VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
-                                VpnUtil.getIpPrefix(adj)));
-                        if (prefixToInterface.isPresent()) {
-                            prefixToInterfaceList.add(prefixToInterface.get());
-                        }
+                                    VpnUtil.getIpPrefix(adjacency.getNextHopIp())));
+                    if (prefixToInterface.isPresent()) {
+                        prefixToInterfaceList.add(prefixToInterface.get());
                     }
                 }
                 for (Prefixes prefix : prefixToInterfaceList) {
