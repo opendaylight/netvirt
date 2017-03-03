@@ -20,6 +20,7 @@ import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
@@ -44,13 +45,15 @@ public class RouterDpnChangeListener
     private final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer;
     private final NaptSwitchHA naptSwitchHA;
     private final IdManagerService idManager;
+    private final INeutronVpnManager nvpnManager;
     private final ExternalNetworkGroupInstaller extNetGroupInstaller;
 
     public RouterDpnChangeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                                    final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer,
                                    final NaptSwitchHA naptSwitchHA,
                                    final IdManagerService idManager,
-                                   final ExternalNetworkGroupInstaller extNetGroupInstaller) {
+                                   final ExternalNetworkGroupInstaller extNetGroupInstaller,
+                                   final INeutronVpnManager nvpnManager) {
         super(DpnVpninterfacesList.class, RouterDpnChangeListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
@@ -58,6 +61,7 @@ public class RouterDpnChangeListener
         this.naptSwitchHA = naptSwitchHA;
         this.idManager = idManager;
         this.extNetGroupInstaller = extNetGroupInstaller;
+        this.nvpnManager = nvpnManager;
     }
 
     @Override
@@ -224,6 +228,12 @@ public class RouterDpnChangeListener
                     return;
                 }
                 LOG.debug("Switch {} is elected as NaptSwitch for router {}", dpnId, routerName);
+
+                // When NAPT switch is elected during first VM comes up for the given Router
+                if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                    NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager,
+                            idManager, NatConstants.ODL_VNI_POOL_NAME);
+                }
 
                 Routers extRouters = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
                 if (extRouters != null) {
