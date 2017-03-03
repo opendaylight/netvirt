@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1703b30e",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-03-03T09:00:50Z",
+      "side": 1,
+      "message": "For NAT/floating IP feature, internal vpn and vpn interface are created on network creation for provider network of type external. The VPN interface creation depends on the vlan provider interface. So doing the dynamic binding for VLAN provider of type external network can break the feature.",
+      "parentUuid": "fafc7978_8042c2ab",
+      "range": {
+        "startLine": 39,
+        "startChar": 73,
+        "endLine": 39,
+        "endChar": 74
+      },
+      "revId": "40a1e69e41c051c9bc7e9ad08318a111c9f294b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6024fe0c",
         "filename": "docs/specs/vlan-provider-enhancement.rst",
         "patchSetId": 5
