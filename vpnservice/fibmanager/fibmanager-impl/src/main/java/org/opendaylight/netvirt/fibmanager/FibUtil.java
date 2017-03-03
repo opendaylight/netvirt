@@ -372,7 +372,7 @@ public class FibUtil {
             return;
         }
 
-        Preconditions.checkNotNull(nextHopList, "NextHopList can't be null");
+        Preconditions.checkNotNull(nextHopList.get(0), "NextHopIp can't be null");
 
         try {
             InstanceIdentifier<VrfEntry> vrfEntryId =

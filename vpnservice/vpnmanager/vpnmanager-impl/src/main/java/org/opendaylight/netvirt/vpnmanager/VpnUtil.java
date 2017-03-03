@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -335,8 +336,8 @@ public class VpnUtil {
         return null;
     }
 
-    static  Routes getVpnToExtraroute(String ipPrefix, List<String> nextHopList) {
-        return new RoutesBuilder().setPrefix(ipPrefix).setNexthopIpList(nextHopList).build();
+    static  Routes getVpnToExtraroute(String ipPrefix, String nextHopIp) {
+        return new RoutesBuilder().setPrefix(ipPrefix).setNexthopIpList(Arrays.asList(nextHopIp)).build();
     }
 
     static  List<String> getUsedRds(DataBroker broker, long vpnId, String destPrefix) {
