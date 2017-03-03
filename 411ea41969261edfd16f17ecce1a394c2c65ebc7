@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_38c23434",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-03T06:19:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_dd24ba0e",
+      "revId": "411ea41969261edfd16f17ecce1a394c2c65ebc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5de44ae0",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
         "patchSetId": 13
@@ -83,6 +101,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_18bf70ab",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-03T06:19:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9db9927b",
+      "range": {
+        "startLine": 90,
+        "startChar": 30,
+        "endLine": 90,
+        "endChar": 50
+      },
+      "revId": "411ea41969261edfd16f17ecce1a394c2c65ebc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5dc3aaec",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
         "patchSetId": 13
@@ -111,6 +153,24 @@
       "writtenOn": "2017-03-02T03:42:38Z",
       "side": 1,
       "message": "what are the custom instructions? why can\u0027t IVpnManager.setupSubnetMacIntoVpnInstance be used to install/remove this flow?",
+      "revId": "411ea41969261edfd16f17ecce1a394c2c65ebc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_78067c87",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-03T06:19:09Z",
+      "side": 1,
+      "message": "As of now removed this unused code from this review. Will add this method in subsequent review (SNAT review).",
+      "parentUuid": "fafc7978_fdf9be80",
       "revId": "411ea41969261edfd16f17ecce1a394c2c65ebc7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -146,6 +206,24 @@
       "side": 1,
       "message": "Tali,\n\nThe packet is just relayed on the router-arm in a proprietary way from Non-NAPT switch to NAPT-switch.   This review is for EVPN and not for L3-VNI-Forwarding.\n\nWhen the L3VNI-Forwarding changes land, there we need to follow tenant (private) network arm of the router (if that arm is of VXLAN-type) and then use that VNI to be enforced from Non-NAPT to NAPT.\n\nThe second part is why are we then checking the external-network-type to be VXLAN.  That is incorrect.  What should be checked here is just if the Router is part of an L3VPNOverVXLAN. If yes, allocate LPortTag per router and use that.  If not just use the legacy router-Id.\n\nKarthikeyan, please address this change appropriately and make sure spec is aligned here.",
       "parentUuid": "fafc7978_3d9d0667",
+      "revId": "411ea41969261edfd16f17ecce1a394c2c65ebc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_61999d6d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 1663,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-03T06:19:09Z",
+      "side": 1,
+      "message": "Hi Vivek,\n \n I accept your comment for Non-NAPT to NAPT, we should not use external network at all. Requesting your comment on below proposal approach.\n\n For checking if the router is part of L3VPNOverVXLAN, \n\n1) whether do we need to check associated all the internal sub-networks provider type as VXLAN. If yes then tunnel-id will be setting as router-lport-tag else router-id as tunnel-id.\n\n2) Between Non-NAPT to NAPT if tunnel endpoint is VXLAN then can we allocate router-lport-tag as tunnel-id?\n\nAs per my understanding, By default all the internal DC communication would be established with VXLAN Mesh topology right?",
+      "parentUuid": "fafc7978_dd003a36",
       "revId": "411ea41969261edfd16f17ecce1a394c2c65ebc7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
