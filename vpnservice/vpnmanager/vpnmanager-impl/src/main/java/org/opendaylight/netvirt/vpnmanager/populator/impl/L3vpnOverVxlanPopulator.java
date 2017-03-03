@@ -63,11 +63,11 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
         String nextHopIp = input.getNextHopIp();
         String rd = input.getRd();
         String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
-        List<String> adjNextHop = nextHop.getNextHopIpList();
-        List<String> nextHopList = (adjNextHop != null && !adjNextHop.isEmpty()) ? adjNextHop
-                : (nextHopIp == null ? Collections.emptyList() : Collections.singletonList(nextHopIp));
+        String adjNextHop = nextHop.getNextHopIp();
+        String nextHopList = (adjNextHop != null) ? adjNextHop
+                : (nextHopIp == null ? null : nextHopIp);
 
-        return new AdjacencyBuilder(nextHop).setNextHopIpList(nextHopList).setIpAddress(prefix).setVrfId(rd)
+        return new AdjacencyBuilder(nextHop).setNextHopIp(nextHopList).setIpAddress(prefix).setVrfId(rd)
                 .setKey(new AdjacencyKey(prefix)).setPrimaryAdjacency(nextHop.isPrimaryAdjacency()).build();
     }
 }
