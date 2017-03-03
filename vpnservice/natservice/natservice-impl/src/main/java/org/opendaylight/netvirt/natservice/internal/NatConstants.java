@@ -23,6 +23,9 @@ public class NatConstants {
     public static final String FLOWID_PREFIX = "L3.";
     public static final int DEFAULT_DNAT_FLOW_PRIORITY = 10;
     public static final long INVALID_ID = -1;
+    public static final short SNAT_FIB_FLOW_PRIORITY = 42;
+    public static final short SNAT_TRK_FLOW_PRIORITY = 6;
+    public static final short SNAT_NEW_FLOW_PRIORITY = 5;
     public static final short DEFAULT_SNAT_FLOW_PRIORITY = 10;
     public static final short DEFAULT_PSNAT_FLOW_PRIORITY = 5;
     public static final String SNAT_FLOW_NAME = "SNAT";
@@ -38,6 +41,8 @@ public class NatConstants {
     public static final long DEFAULT_L3VNI_VALUE = 0;
     public static final int DEFAULT_LABEL_VALUE = 0;
     public static final String DNAT_FLOW_NAME = "DNAT";
+    public static final short DEFAULT_HARD_TIMEOUT = 0;
+    public static final short DEFAULT_IDLE_TIMEOUT = 0;
 
     // Flow Actions
     public static final int ADD_FLOW = 0;
