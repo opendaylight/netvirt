@@ -33,6 +33,24 @@
       "revId": "0047de5ef84c31875b86c5ac8563b175fc2a8090",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_97de83db",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-03-03T10:13:26Z",
+      "side": 1,
+      "message": "if i understand, you suggest to remove the mandatory field ?",
+      "parentUuid": "fafc7978_09f27d6f",
+      "revId": "0047de5ef84c31875b86c5ac8563b175fc2a8090",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
