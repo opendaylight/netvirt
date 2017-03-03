@@ -9,6 +9,8 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
 
+import jline.internal.Log;
+
 import java.math.BigInteger;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -37,6 +39,16 @@ import org.slf4j.LoggerFactory;
 public class NatOverVxlanUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatOverVxlanUtil.class);
+
+    public static BigInteger getRouterVni(IdManagerService idManager, String routerName, long routerId) {
+        BigInteger routerVni = getVNI(routerName, idManager);
+        if (routerVni.longValue() == -1) {
+            Log.warn("NAT Service : Unable to obtain Router VNI from VNI POOL for router {}."
+                    + "Router ID will be used as tun_id", routerName);
+            return BigInteger.valueOf(routerId);
+        }
+        return routerVni;
+    }
 
     public static BigInteger getVNI(String vniKey, IdManagerService idManager) {
         AllocateIdInput getIdInput = new AllocateIdInputBuilder().setPoolName(NatConstants.ODL_VNI_POOL_NAME)
