@@ -149,10 +149,10 @@ public class FibManagerImpl implements IFibManager {
 
     @Override
     public void addOrUpdateFibEntry(DataBroker broker, String rd, String macAddress, String prefix,
-                                    List<String> nextHopList, VrfEntry.EncapType encapType, long label,
+                                    String nextHopIp, VrfEntry.EncapType encapType, long label,
                                     long l3vni, String gwMacAddress, String parentVpnRd, RouteOrigin origin,
                                     WriteTransaction writeConfigTxn) {
-        FibUtil.addOrUpdateFibEntry(broker, rd, macAddress, prefix , nextHopList, encapType, label, l3vni,
+        FibUtil.addOrUpdateFibEntry(broker, rd, macAddress, prefix , nextHopIp, encapType, label, l3vni,
                 gwMacAddress, parentVpnRd, origin, writeConfigTxn);
     }
 

@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.vpnmanager.populator.impl;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.base.Preconditions;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -52,17 +53,18 @@ public class L3vpnPopulator implements VpnPopulator {
     protected void addPrefixToBGP(String rd, String primaryRd, String macAddress, String prefix, String nextHopIp,
                                   VrfEntry.EncapType encapType, long label, long l3vni, String gatewayMac,
                                   RouteOrigin origin, WriteTransaction writeConfigTxn) {
+        Preconditions.checkNotNull(nextHopIp,"NextHopIp is null. Hence rd {} " +
+                "prefix {} is not advertised to BGP", rd, prefix);
         try {
-            List<String> nextHopList = Collections.singletonList(nextHopIp);
             LOG.info("ADD: Adding Fib entry rd {} prefix {} nextHop {} label {} l3vni {} origin {}",
                      rd, prefix, nextHopIp, label, l3vni, origin.getValue());
-            fibManager.addOrUpdateFibEntry(broker, primaryRd, macAddress, prefix, nextHopList,
-                    encapType, (int)label, l3vni, gatewayMac, null /*parentVpnRd*/, origin, writeConfigTxn);
+            fibManager.addOrUpdateFibEntry(broker, primaryRd, macAddress, prefix, nextHopIp,
+                    encapType, (int)label, l3vni, gatewayMac, null, origin, writeConfigTxn);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}, l3vni {} origin {}",
                      rd, prefix, nextHopIp, label, l3vni, origin.getValue());
             // Advertise the prefix to BGP only if nexthop ip is available
-            if (nextHopList != null && !nextHopList.isEmpty()) {
-                bgpManager.advertisePrefix(rd, macAddress, prefix, nextHopList, encapType, (int)label,
+            if (nextHopIp != null) {
+                bgpManager.advertisePrefix(rd, macAddress, prefix, nextHopIp, encapType, (int)label,
                         l3vni, 0 /*l2vni*/, gatewayMac);
             } else {
                 LOG.warn("NextHopList is null/empty. Hence rd {} prefix {} is not advertised to BGP", rd, prefix);

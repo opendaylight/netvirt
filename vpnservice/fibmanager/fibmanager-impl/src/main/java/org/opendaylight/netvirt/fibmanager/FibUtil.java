@@ -378,7 +378,7 @@ public class FibUtil {
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     public static void addOrUpdateFibEntry(DataBroker broker, String rd, String macAddress, String prefix,
-                                           List<String> nextHopList, VrfEntry.EncapType encapType, long label,
+                                           String nextHopIp, VrfEntry.EncapType encapType, long label,
                                            long l3vni, String gwMacAddress, String parentVpnRd, RouteOrigin origin,
                                            WriteTransaction writeConfigTxn) {
         if (rd == null || rd.isEmpty()) {
@@ -386,7 +386,7 @@ public class FibUtil {
             return;
         }
 
-        Preconditions.checkNotNull(nextHopList, "NextHopList can't be null");
+        Preconditions.checkNotNull(nextHopIp, "NextHopIp can't be null");
 
         try {
             InstanceIdentifier<VrfEntry> vrfEntryId =
@@ -394,9 +394,9 @@ public class FibUtil {
                     .child(VrfTables.class, new VrfTablesKey(rd))
                     .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
 
-            writeFibEntryToDs(vrfEntryId, prefix, nextHopList, label, l3vni, encapType, origin, macAddress,
+            writeFibEntryToDs(vrfEntryId, prefix, nextHopIp, label, l3vni, encapType, origin, macAddress,
                     gwMacAddress, parentVpnRd, writeConfigTxn, broker);
-            LOG.debug("Created/Updated vrfEntry for {} nexthop {} label {}", prefix, nextHopList, label);
+            LOG.debug("Created/Updated vrfEntry for {} nexthop {} label {}", prefix, nextHopIp, label);
         } catch (Exception e) {
             LOG.error("addFibEntryToDS: error ", e);
         }
@@ -405,11 +405,12 @@ public class FibUtil {
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     public static void writeFibEntryToDs(InstanceIdentifier<VrfEntry> vrfEntryId, String prefix,
-                                         List<String> nextHopList, long label, Long l3vni,
+                                         String nextHopIp, long label, Long l3vni,
                                          VrfEntry.EncapType encapType, RouteOrigin origin, String macAddress,
                                          String gatewayMacAddress, String parentVpnRd,
                                          WriteTransaction writeConfigTxn, DataBroker broker) {
         VrfEntryBuilder vrfEntryBuilder = new VrfEntryBuilder().setDestPrefix(prefix).setOrigin(origin.getValue());
+        List<String> nextHopList = Collections.singletonList(nextHopIp);
         if (parentVpnRd != null) {
             vrfEntryBuilder.setParentVpnRd(parentVpnRd);
         }
