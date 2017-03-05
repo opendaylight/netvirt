@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_c898651e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1152,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-05T09:28:44Z",
+      "side": 1,
+      "message": "nit: Usually we do (old, new) as order of parameters in update()",
+      "revId": "2dec98fc2d4b9baf75eb5beed1ce93c37087dcb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a8c241e6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1168,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-05T09:28:44Z",
+      "side": 1,
+      "message": "I wonder if we should use the old portName as key, or the new name.\nWe are both deleting the old port and creating a new port in createVpnInterface if i\u0027m not mistaken.\nMaybe there should be a separate DJC inside createVpnInterface for the delete() and the add()?\n\nIn any case I believe these problems exist across the board.. this probably improves the situation in any case..",
+      "revId": "2dec98fc2d4b9baf75eb5beed1ce93c37087dcb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
