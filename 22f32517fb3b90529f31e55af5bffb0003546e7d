@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ee00d167",
+        "filename": "docs/specs/federation-plugin.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-05T21:46:27Z",
+      "side": 1,
+      "message": "shouldn\u0027t this suppose to be removed?",
+      "revId": "22f32517fb3b90529f31e55af5bffb0003546e7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
