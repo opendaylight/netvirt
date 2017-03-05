@@ -199,11 +199,11 @@ public class PortSecurityHandler extends AbstractHandler
                 }
             } else {
                 for (Neutron_IPs vmIp : vmIpList) {
-                    securityServicesManager.syncSecurityRule(port, securityRule, vmIp, nodeId, securityGroup, write);
+                    securityServicesManager.syncSecurityRule(port, securityRule, vmIp, nodeId, write);
                 }
             }
         } else {
-            securityServicesManager.syncSecurityRule(port, securityRule, null, nodeId, securityGroup, write);
+            securityServicesManager.syncSecurityRule(port, securityRule, null, nodeId, write);
         }
     }
 

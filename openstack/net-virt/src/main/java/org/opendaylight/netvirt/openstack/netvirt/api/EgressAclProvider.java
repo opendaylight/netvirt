@@ -42,12 +42,11 @@ public interface EgressAclProvider {
      * @param segmentationId the segmentation id
      * @param attachedMac the attached mac
      * @param portSecurityRule the security rule
-     * @param securityGroup the security group
      * @param vmIp the ip of the remote vm if it has a remote security group.
      * @param write  is this flow write or delete
      */
-    void programPortSecurityRule(Long dpid, String segmentationId, String attachedMac, NeutronSecurityRule portSecurityRule,
-                                    NeutronSecurityGroup securityGroup, Neutron_IPs vmIp, boolean write);
+    void programPortSecurityRule(Long dpid, String segmentationId, String attachedMac,
+                                 NeutronSecurityRule portSecurityRule, Neutron_IPs vmIp, boolean write);
     /**
      *  Program fixed egress security group rules that will be associated with the VM port when a vm is spawned.
      *

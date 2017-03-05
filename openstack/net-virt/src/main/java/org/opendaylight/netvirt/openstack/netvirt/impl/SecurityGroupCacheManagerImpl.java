@@ -165,9 +165,9 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
                     }
                     for (Neutron_IPs vmIp : currentPort.getFixedIPs()) {
                         if (write) {
-                            securityServicesManager.syncSecurityRule(cachedport, securityRule, vmIp, nodeId, securityGroup, true);
+                            securityServicesManager.syncSecurityRule(cachedport, securityRule, vmIp, nodeId, true);
                         } else {
-                            securityServicesManager.syncSecurityRule(cachedport, securityRule, vmIp, nodeId, securityGroup, false);
+                            securityServicesManager.syncSecurityRule(cachedport, securityRule, vmIp, nodeId, false);
                         }
                     }
                 }
