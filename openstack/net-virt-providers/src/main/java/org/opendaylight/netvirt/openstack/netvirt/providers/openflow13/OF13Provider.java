@@ -1149,6 +1149,12 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
         String segmentationId = network.getProviderSegmentationID();
         Node srcBridgeNode = southbound.getBridgeNode(srcNode, configurationService.getIntegrationBridgeName());
 
+        // VINH
+        if (srcBridgeNode == null) {
+            LOG.debug("VINH handleInterfaceUpdate null srcBridgeNode");
+            return true;
+        }
+
         programLocalRules(networkType, network.getProviderSegmentationID(), srcBridgeNode, intf);
 
         if (isVlan(networkType)) {

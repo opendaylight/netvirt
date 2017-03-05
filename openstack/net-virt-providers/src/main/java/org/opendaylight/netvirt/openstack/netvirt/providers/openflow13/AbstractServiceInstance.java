@@ -173,6 +173,8 @@ public abstract class AbstractServiceInstance {
 
     protected void removeFlow(FlowBuilder flowBuilder, NodeBuilder nodeBuilder) {
         if (NetvirtProvidersProvider.isMasterProviderInstance()) {
+            LOG.debug("removeFlow: flowBuilder: {}, nodeBuilder: {}",
+                    flowBuilder.build(), nodeBuilder.build());
             WriteTransaction modification = dataBroker.newWriteOnlyTransaction();
             modification.delete(LogicalDatastoreType.CONFIGURATION, createFlowPath(flowBuilder, nodeBuilder));
 
