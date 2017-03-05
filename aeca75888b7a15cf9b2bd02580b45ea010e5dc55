@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_08b6ed89",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 6947
+      },
+      "writtenOn": "2017-03-05T09:49:33Z",
+      "side": 1,
+      "message": "Done\n\nthis is a non-neutron northbounds environment - fixed the description",
+      "parentUuid": "fafc7978_5819f8d5",
+      "revId": "aeca75888b7a15cf9b2bd02580b45ea010e5dc55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d824c80e",
         "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-02T06:21:33Z",
       "side": 1,
       "message": "IMHO, we should base both config and operation DHCP allocation pools per network and not per VRF.\n\nThis is because network information is always retrievable from received packet of the dataplane and all overlapping MACs/ overlapping IPs apply per network scope.",
+      "revId": "aeca75888b7a15cf9b2bd02580b45ea010e5dc55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e8b8c976",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 6947
+      },
+      "writtenOn": "2017-03-05T09:49:33Z",
+      "side": 1,
+      "message": "Agreed",
+      "parentUuid": "fafc7978_d824c80e",
       "revId": "aeca75888b7a15cf9b2bd02580b45ea010e5dc55",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_28ae512e",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 6947
+      },
+      "writtenOn": "2017-03-05T09:49:33Z",
+      "side": 1,
+      "message": "Done\n\ncancelled the binding between dhcp pools and vrf, will use network instead",
+      "parentUuid": "fafc7978_9801a06c",
+      "range": {
+        "startLine": 45,
+        "startChar": 17,
+        "endLine": 45,
+        "endChar": 18
+      },
+      "revId": "aeca75888b7a15cf9b2bd02580b45ea010e5dc55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d83de82c",
         "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
         "patchSetId": 3
@@ -70,6 +130,30 @@
       "writtenOn": "2017-03-02T06:16:15Z",
       "side": 1,
       "message": "same comment as above. pls try and decouple dhcp service from l3 service",
+      "range": {
+        "startLine": 76,
+        "startChar": 28,
+        "endLine": 76,
+        "endChar": 29
+      },
+      "revId": "aeca75888b7a15cf9b2bd02580b45ea010e5dc55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_083b8deb",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 6947
+      },
+      "writtenOn": "2017-03-05T09:49:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d83de82c",
       "range": {
         "startLine": 76,
         "startChar": 28,
