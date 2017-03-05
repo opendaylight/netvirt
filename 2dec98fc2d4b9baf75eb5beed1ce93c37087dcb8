@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ae952934",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1162,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-05T19:00:06Z",
+      "side": 1,
+      "message": "is it really possible that multiple router-interface ips from the same subnet will be associated to more than one neutron port?\n\nAlso, Subnetmap has a member called routerInterfaceName is it different from the port name in line #1164? is this extra DS access really needed?",
+      "revId": "2dec98fc2d4b9baf75eb5beed1ce93c37087dcb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a8c241e6",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 8
@@ -30,6 +47,29 @@
       "writtenOn": "2017-03-05T09:28:44Z",
       "side": 1,
       "message": "I wonder if we should use the old portName as key, or the new name.\nWe are both deleting the old port and creating a new port in createVpnInterface if i\u0027m not mistaken.\nMaybe there should be a separate DJC inside createVpnInterface for the delete() and the add()?\n\nIn any case I believe these problems exist across the board.. this probably improves the situation in any case..",
+      "revId": "2dec98fc2d4b9baf75eb5beed1ce93c37087dcb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ce8b4d1d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1028,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-05T19:00:06Z",
+      "side": 1,
+      "message": "not needed",
+      "range": {
+        "startLine": 1028,
+        "startChar": 16,
+        "endLine": 1028,
+        "endChar": 38
+      },
       "revId": "2dec98fc2d4b9baf75eb5beed1ce93c37087dcb8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
