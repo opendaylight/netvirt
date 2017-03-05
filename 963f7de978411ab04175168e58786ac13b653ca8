@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_8b577725",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-05T14:38:39Z",
+      "side": 1,
+      "message": "Please break lines to a maximum of 100 chars, its a bit hard to review like this and without HTML.",
+      "revId": "963f7de978411ab04175168e58786ac13b653ca8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0b442772",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-05T14:38:39Z",
+      "side": 1,
+      "message": "No need for use case 1 if there is only 1 :)\n\nWhat does \u0027not from a neutron port mean\u0027 - would it actually be a DHCP requests from a MAC address that does not have a static IP allocation from Neutron?\n\nAlso, what does receiving OVS port mean? I thought the allocation pool is configured on the network the port is associated with?",
+      "revId": "963f7de978411ab04175168e58786ac13b653ca8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6b521336",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-05T14:38:39Z",
+      "side": 1,
+      "message": "The first part of this should be in the problem description.. the second part is what we\u0027re actually proposing - please add to it the actual logic we\u0027re proposing (punt, check if the MAC already has a static allocation, and if it doesn\u0027t - dynamically allocate one).",
+      "revId": "963f7de978411ab04175168e58786ac13b653ca8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4b28ef99",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-05T14:38:39Z",
+      "side": 1,
+      "message": "I think mentioning neutron in netvirt yangs is problematic, no need.",
+      "revId": "963f7de978411ab04175168e58786ac13b653ca8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cb1b3f7f",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-05T14:38:39Z",
+      "side": 1,
+      "message": "could these be optional?\nwould be convenient to configure a full subnet and have allocate-from and allocate-to filled automatically",
+      "revId": "963f7de978411ab04175168e58786ac13b653ca8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4b7aafbd",
+        "filename": "docs/specs/index.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-05T14:38:39Z",
+      "side": 1,
+      "message": "If you rebase your commit, this is now sorted - please put it in the right spot and add the link \u003c\u003e\n\nThen you can view the HTML view of it and fix formatting errors.\nYou can also use this online editor for fixing formatting related issues: http://rst.ninjs.org/",
+      "revId": "963f7de978411ab04175168e58786ac13b653ca8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
