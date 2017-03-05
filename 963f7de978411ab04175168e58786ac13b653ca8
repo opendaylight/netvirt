@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ce9eadb8",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6947
+      },
+      "writtenOn": "2017-03-05T16:45:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_8b577725",
+      "revId": "963f7de978411ab04175168e58786ac13b653ca8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_0b442772",
         "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-05T14:38:39Z",
       "side": 1,
       "message": "No need for use case 1 if there is only 1 :)\n\nWhat does \u0027not from a neutron port mean\u0027 - would it actually be a DHCP requests from a MAC address that does not have a static IP allocation from Neutron?\n\nAlso, what does receiving OVS port mean? I thought the allocation pool is configured on the network the port is associated with?",
+      "revId": "963f7de978411ab04175168e58786ac13b653ca8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6eb3414d",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 6947
+      },
+      "writtenOn": "2017-03-05T16:45:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0b442772",
       "revId": "963f7de978411ab04175168e58786ac13b653ca8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_aeefe91c",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 6947
+      },
+      "writtenOn": "2017-03-05T16:45:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_6b521336",
+      "revId": "963f7de978411ab04175168e58786ac13b653ca8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4b28ef99",
         "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
         "patchSetId": 4
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6e17c145",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 6947
+      },
+      "writtenOn": "2017-03-05T16:45:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_4b28ef99",
+      "revId": "963f7de978411ab04175168e58786ac13b653ca8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_cb1b3f7f",
         "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
         "patchSetId": 4
@@ -81,6 +153,24 @@
       "writtenOn": "2017-03-05T14:38:39Z",
       "side": 1,
       "message": "could these be optional?\nwould be convenient to configure a full subnet and have allocate-from and allocate-to filled automatically",
+      "revId": "963f7de978411ab04175168e58786ac13b653ca8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8ee66542",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 6947
+      },
+      "writtenOn": "2017-03-05T16:45:27Z",
+      "side": 1,
+      "message": "I don\u0027t 100% support.. might be better to automatically suggest a range in UI than make it optional in the db",
+      "parentUuid": "fafc7978_cb1b3f7f",
       "revId": "963f7de978411ab04175168e58786ac13b653ca8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
