@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_fc252b5c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 637,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-03-06T08:47:03Z",
+      "side": 1,
+      "message": "Please print which RD is allocated here. I had given this comment earlier in Manu\u0027s review. Looks like its not addressed.",
+      "revId": "638a1b32e4607d5ffcada2477b04254b205787de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3c233357",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 993,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-03-06T08:47:03Z",
+      "side": 1,
+      "message": "Print primaryRd here. I had given this comment earlier in Manu\u0027s review. Looks like its not addressed.",
+      "revId": "638a1b32e4607d5ffcada2477b04254b205787de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
