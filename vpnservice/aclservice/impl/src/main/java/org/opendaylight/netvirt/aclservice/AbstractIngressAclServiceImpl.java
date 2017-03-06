@@ -85,7 +85,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
         List<Instruction> instructions = new ArrayList<>();
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.EGRESS_ACL_TABLE, ++instructionKey));
         BoundServices serviceInfo = AclServiceUtils.getBoundServices(
-                String.format("%s.%s.%s", "vpn", "ingressacl", interfaceName),
+                String.format("%s.%s.%s", "acl", "ingressacl", interfaceName),
                 ServiceIndex.getIndex(NwConstants.EGRESS_ACL_SERVICE_NAME, NwConstants.EGRESS_ACL_SERVICE_INDEX),
                 flowPriority, AclConstants.COOKIE_ACL_BASE, instructions);
         InstanceIdentifier<BoundServices> path = AclServiceUtils.buildServiceId(interfaceName,
