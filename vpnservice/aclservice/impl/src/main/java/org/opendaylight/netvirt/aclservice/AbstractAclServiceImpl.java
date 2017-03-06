@@ -100,9 +100,9 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         // if port security is changed, apply/remove Acls
         if (isPortSecurityEnableBefore != isPortSecurityEnable) {
             if (isPortSecurityEnable) {
-                result = applyAcl(portAfter);
+                result = applyAcl(portAfter) && bindAcl(portAfter);
             } else {
-                result = removeAcl(portAfter);
+                result = removeAcl(portAfter) && unbindAcl(portAfter);
             }
         } else if (isPortSecurityEnable) {
             // Acls has been updated, find added/removed Acls and act accordingly.
