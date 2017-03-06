@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_5d7b91bd",
+        "filename": "docs/specs/federation-plugin.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2017-03-06T15:03:02Z",
+      "side": 1,
+      "message": "planned",
+      "range": {
+        "startLine": 93,
+        "startChar": 46,
+        "endLine": 93,
+        "endChar": 52
+      },
+      "revId": "f14f93783bc39c9606c47e47bb5f34060da61871",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
