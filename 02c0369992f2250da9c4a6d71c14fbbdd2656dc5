@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_31387cd2",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T05:29:32Z",
+      "side": 1,
+      "message": "Doesn\u0027t it mandate all compute node having same no. of underlay2-net ?",
+      "revId": "02c0369992f2250da9c4a6d71c14fbbdd2656dc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d102d008",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T05:29:32Z",
+      "side": 1,
+      "message": "Is this match 0x222e0 on vpn Id ? Don\u0027t we also need to match on logical group interface\u0027s lport tag ?",
+      "revId": "02c0369992f2250da9c4a6d71c14fbbdd2656dc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d129308b",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T05:29:32Z",
+      "side": 1,
+      "message": "shouldn\u0027t it be egress-interface ? Because policy based tunnel selection is done on egress traffic.",
+      "revId": "02c0369992f2250da9c4a6d71c14fbbdd2656dc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_712e848d",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T05:29:32Z",
+      "side": 1,
+      "message": "change it to 231",
+      "revId": "02c0369992f2250da9c4a6d71c14fbbdd2656dc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d177709e",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T05:29:32Z",
+      "side": 1,
+      "message": "do we need vlan-id attribute ? because if:interface-ref contains the info related to the actual interface (if it is VLAN member interface, then it contains vlan id).",
+      "revId": "02c0369992f2250da9c4a6d71c14fbbdd2656dc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_11a57803",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T05:29:32Z",
+      "side": 1,
+      "message": "Don\u0027t we need acl augmentation with 5 tuple matches ?",
+      "revId": "02c0369992f2250da9c4a6d71c14fbbdd2656dc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
