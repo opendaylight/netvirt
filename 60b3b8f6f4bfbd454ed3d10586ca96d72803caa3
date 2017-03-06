@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_223dc82b",
+        "filename": "vpnservice/features/pom.xml",
+        "patchSetId": 14
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-03-06T12:58:18Z",
+      "side": 1,
+      "message": "Or just pull in groupbasedpolicy-artifacts.",
+      "parentUuid": "fafc7978_b72e1cf9",
+      "revId": "60b3b8f6f4bfbd454ed3d10586ca96d72803caa3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_37706c0a",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 14
