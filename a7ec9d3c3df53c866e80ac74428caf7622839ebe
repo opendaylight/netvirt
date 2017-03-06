@@ -201,6 +201,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_4270cc0a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-06T13:40:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_ae0a4987",
+      "revId": "a7ec9d3c3df53c866e80ac74428caf7622839ebe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_cee06dcf",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
         "patchSetId": 10
