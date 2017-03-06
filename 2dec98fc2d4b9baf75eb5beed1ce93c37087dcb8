@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5198a077",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1152,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-06T07:27:16Z",
+      "side": 1,
+      "message": "+1..let us have consistency.",
+      "parentUuid": "fafc7978_c898651e",
+      "revId": "2dec98fc2d4b9baf75eb5beed1ce93c37087dcb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ae952934",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-05T19:00:06Z",
       "side": 1,
       "message": "is it really possible that multiple router-interface ips from the same subnet will be associated to more than one neutron port?\n\nAlso, Subnetmap has a member called routerInterfaceName is it different from the port name in line #1164? is this extra DS access really needed?",
+      "revId": "2dec98fc2d4b9baf75eb5beed1ce93c37087dcb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_115a9882",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1162,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-06T07:27:16Z",
+      "side": 1,
+      "message": "On a given subnet, we can have more than one router interface ip, but each such ip can be owned by a different router.\n\nWith one router, only one fixed-ip per internal subnet is possible on a neutron router.\n\nI think we can alter the routerInterfaceFixedIps to be a non-list element, because routerInterfaceName represents the single port uuid of the router-interface-port.\n\nYes, we can use the routerInterfaceName itself instead of looping through the router-Interface-Fixed-Ips.",
+      "parentUuid": "fafc7978_ae952934",
       "revId": "2dec98fc2d4b9baf75eb5beed1ce93c37087dcb8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
