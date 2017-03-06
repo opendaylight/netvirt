@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3dea0ddb",
+        "filename": "vpnservice/federation-plugin/api/src/main/yang/federation-plugin-routed-rpc.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-06T14:11:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_621a30c7",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 1
+      },
+      "revId": "9779856ccd060d053295ce1c0bd380b5fc4d1c47",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2224a80b",
         "filename": "vpnservice/federation-plugin/api/src/main/yang/federation-plugin-routed-rpc.yang",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-06T13:04:58Z",
       "side": 1,
       "message": "this should be update-federated-networks",
+      "range": {
+        "startLine": 23,
+        "startChar": 8,
+        "endLine": 23,
+        "endChar": 31
+      },
+      "revId": "9779856ccd060d053295ce1c0bd380b5fc4d1c47",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1de58908",
+        "filename": "vpnservice/federation-plugin/api/src/main/yang/federation-plugin-routed-rpc.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-06T14:11:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2224a80b",
       "range": {
         "startLine": 23,
         "startChar": 8,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5deb91db",
+        "filename": "vpnservice/federation-plugin/api/src/main/yang/federation-plugin-rpc.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-06T14:11:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_028364cc",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 4
+      },
+      "revId": "9779856ccd060d053295ce1c0bd380b5fc4d1c47",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a27ff8de",
         "filename": "vpnservice/federation-plugin/api/src/main/yang/federation-plugin-rpc.yang",
         "patchSetId": 5
@@ -82,6 +154,30 @@
       "writtenOn": "2017-03-06T13:04:58Z",
       "side": 1,
       "message": "update-federated-networks",
+      "range": {
+        "startLine": 23,
+        "startChar": 8,
+        "endLine": 23,
+        "endChar": 31
+      },
+      "revId": "9779856ccd060d053295ce1c0bd380b5fc4d1c47",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bdbd5dda",
+        "filename": "vpnservice/federation-plugin/api/src/main/yang/federation-plugin-rpc.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-06T14:11:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a27ff8de",
       "range": {
         "startLine": 23,
         "startChar": 8,
