@@ -293,6 +293,56 @@ public class Ipv6ServiceUtils {
         return ipv6LLA;
     }
 
+    public Ipv6Address getIpv6SolicitedNodeMcastAddress(Ipv6Address ipv6Address) {
+
+        /* According to RFC 4291, a Solicited Node Multicast Address is derived by adding the 24
+           lower order bits with the Solicited Node multicast prefix (i.e., FF02::1:FF00:0/104).
+           Example: For IPv6Address of FE80::2AA:FF:FE28:9C5A, the corresponding solicited node
+           multicast address would be FF02::1:FF28:9C5A
+         */
+
+        byte[] octets;
+        try {
+            octets = InetAddress.getByName(ipv6Address.getValue()).getAddress();
+        } catch (UnknownHostException e) {
+            LOG.error("getIpv6SolicitedNodeMcastAddress: Failed to serialize ipv6Address ", e);
+            return null;
+        }
+
+        // Return the address in its fully expanded format.
+        Ipv6Address solictedV6Address = new Ipv6Address(InetAddresses.forString("ff02::1:ff"
+                 + StringUtils.leftPad(Integer.toHexString(0xFF & octets[13]), 2, "0") + ":"
+                 + StringUtils.leftPad(Integer.toHexString(0xFF & octets[14]), 2, "0")
+                 + StringUtils.leftPad(Integer.toHexString(0xFF & octets[15]), 2, "0")).getHostAddress());
+
+        return solictedV6Address;
+    }
+
+    public MacAddress getIpv6MulticastMacAddress(Ipv6Address ipv6Address) {
+
+        /* According to RFC 2464, a Multicast MAC address is derived by concatenating 32 lower
+           order bits of IPv6 Multicast Address with the multicast prefix (i.e., 33:33).
+           Example: For Multicast IPv6Address of FF02::1:FF28:9C5A, the corresponding L2 multicast
+           address would be 33:33:28:9C:5A
+         */
+        byte[] octets;
+        try {
+            octets = InetAddress.getByName(ipv6Address.getValue()).getAddress();
+        } catch (UnknownHostException e) {
+            LOG.error("getIpv6MulticastMacAddress: Failed to serialize ipv6Address ", e);
+            return null;
+        }
+
+        StringBuffer macAddress = new StringBuffer();
+        macAddress.append("33:33:");
+        macAddress.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[12]), 2, "0") + ":");
+        macAddress.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[13]), 2, "0") + ":");
+        macAddress.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[14]), 2, "0") + ":");
+        macAddress.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[15]), 2, "0"));
+
+        return new MacAddress(macAddress.toString());
+    }
+
     private static List<MatchInfo> getIcmpv6RSMatch(Long elanTag) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV6);
