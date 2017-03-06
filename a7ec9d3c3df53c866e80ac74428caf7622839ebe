@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_517a60bd",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-06T11:36:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_eeb291e3",
+      "range": {
+        "startLine": 16,
+        "startChar": 20,
+        "endLine": 16,
+        "endChar": 31
+      },
+      "revId": "a7ec9d3c3df53c866e80ac74428caf7622839ebe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8ec30537",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 10
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-05T20:53:53Z",
       "side": 1,
       "message": "would look neater if lines 933-942 would be extracted to method",
+      "range": {
+        "startLine": 933,
+        "startChar": 42,
+        "endLine": 933,
+        "endChar": 68
+      },
+      "revId": "a7ec9d3c3df53c866e80ac74428caf7622839ebe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3ca693ae",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 933,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-06T11:36:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_8ec30537",
       "range": {
         "startLine": 933,
         "startChar": 42,
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1cc8ef53",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 938,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-06T11:36:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2ec81954",
+      "revId": "a7ec9d3c3df53c866e80ac74428caf7622839ebe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6ebea1af",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
         "patchSetId": 10
@@ -76,6 +142,24 @@
       "writtenOn": "2017-03-05T20:53:53Z",
       "side": 1,
       "message": "NatUtil.getFloatingIpPortSubnetIdFromFloatingIpId",
+      "revId": "a7ec9d3c3df53c866e80ac74428caf7622839ebe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3c05f345",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-06T11:36:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_6ebea1af",
       "revId": "a7ec9d3c3df53c866e80ac74428caf7622839ebe",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -99,6 +183,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3cb33399",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-06T11:36:19Z",
+      "side": 1,
+      "message": "No, we need to have the ExternalIps that include also the IP address - so will get the subnetId for the specific externalIp",
+      "parentUuid": "fafc7978_ae0a4987",
+      "revId": "a7ec9d3c3df53c866e80ac74428caf7622839ebe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_cee06dcf",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
         "patchSetId": 10
@@ -110,6 +212,30 @@
       "writtenOn": "2017-03-05T20:53:53Z",
       "side": 1,
       "message": "null check",
+      "range": {
+        "startLine": 497,
+        "startChar": 30,
+        "endLine": 497,
+        "endChar": 41
+      },
+      "revId": "a7ec9d3c3df53c866e80ac74428caf7622839ebe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5ca4374a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-06T11:36:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_cee06dcf",
       "range": {
         "startLine": 497,
         "startChar": 30,
@@ -145,6 +271,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bc660328",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-06T11:36:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_aee369d7",
+      "range": {
+        "startLine": 499,
+        "startChar": 20,
+        "endLine": 499,
+        "endChar": 48
+      },
+      "revId": "a7ec9d3c3df53c866e80ac74428caf7622839ebe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_0ee715e5",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
         "patchSetId": 10
@@ -156,6 +306,30 @@
       "writtenOn": "2017-03-05T20:53:53Z",
       "side": 1,
       "message": "return here otherwise\nno need to traverse the rest of the list",
+      "range": {
+        "startLine": 508,
+        "startChar": 20,
+        "endLine": 508,
+        "endChar": 21
+      },
+      "revId": "a7ec9d3c3df53c866e80ac74428caf7622839ebe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dc6f87fa",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-06T11:36:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0ee715e5",
       "range": {
         "startLine": 508,
         "startChar": 20,
@@ -185,6 +359,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bc4d639c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 513,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-06T11:36:19Z",
+      "side": 1,
+      "message": "Nice catch - it should be invalid ID\nDone",
+      "parentUuid": "fafc7978_eee9f1b7",
+      "revId": "a7ec9d3c3df53c866e80ac74428caf7622839ebe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4ed47deb",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
         "patchSetId": 10
@@ -196,6 +388,24 @@
       "writtenOn": "2017-03-05T20:53:53Z",
       "side": 1,
       "message": "the log is only appropriate when vpnId \u003d\u003d NatConstants.INVALID_ID\n\nWhen shouldInstallNaptPfibWithExtNetworkVpnId is false this log does not need to be produced",
+      "revId": "a7ec9d3c3df53c866e80ac74428caf7622839ebe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5c527735",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 864,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-06T11:36:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_4ed47deb",
       "revId": "a7ec9d3c3df53c866e80ac74428caf7622839ebe",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -219,6 +429,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_572ed08c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-06T11:36:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2ecf7957",
+      "revId": "a7ec9d3c3df53c866e80ac74428caf7622839ebe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6ed501e4",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 10
@@ -236,6 +464,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_173f28b5",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1656,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-06T11:36:19Z",
+      "side": 1,
+      "message": "Not really, this is currently use only for externalRouters (only called from NaptSwitchHa.installSnatFlows() that get externalNetwork before that).\n\nI still think that this validation is needed because it\u0027s a utility and in the future might be use in other places.",
+      "parentUuid": "fafc7978_6ed501e4",
+      "revId": "a7ec9d3c3df53c866e80ac74428caf7622839ebe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ce07cd80",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
         "patchSetId": 10
@@ -247,6 +493,24 @@
       "writtenOn": "2017-03-05T20:53:53Z",
       "side": 1,
       "message": "why does vpnName doesn\u0027t have the same logic on remote like in add?",
+      "revId": "a7ec9d3c3df53c866e80ac74428caf7622839ebe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b7b9fccd",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-06T11:36:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_ce07cd80",
       "revId": "a7ec9d3c3df53c866e80ac74428caf7622839ebe",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false

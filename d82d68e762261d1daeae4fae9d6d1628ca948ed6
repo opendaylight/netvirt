@@ -16,6 +16,24 @@
       "revId": "d82d68e762261d1daeae4fae9d6d1628ca948ed6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bca443ba",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-06T11:36:19Z",
+      "side": 0,
+      "message": "Yes, this method installed the flow in table 47 - that was per externalIp. We change it so that the match will be only the vpnId.\nWhich is done from \"handlePrimaryNaptSwitch()-\u003ehandleEnableSnat()-\u003ebuildNaptPfibFlowEntity()\"",
+      "parentUuid": "fafc7978_4ecd9d65",
+      "revId": "d82d68e762261d1daeae4fae9d6d1628ca948ed6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
