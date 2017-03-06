@@ -69,4 +69,12 @@
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />
   </bean>
+
+  <bean id="Ipv6NdUtilServiceImpl"
+        class="org.opendaylight.netvirt.ipv6service.Ipv6NdUtilServiceImpl">
+    <argument ref="dataBroker" />
+    <argument ref="odlInterfaceRpcService" />
+  </bean>
+  <odl:rpc-implementation ref="Ipv6NdUtilServiceImpl" />
+
 </blueprint>

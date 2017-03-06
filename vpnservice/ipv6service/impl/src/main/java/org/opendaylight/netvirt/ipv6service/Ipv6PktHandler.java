@@ -245,7 +245,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             naPacket.setFlowLabel(pdu.getFlowLabel());
             naPacket.setIpv6Length(32);
             naPacket.setNextHeader(pdu.getNextHeader());
-            naPacket.setOptionType((short)2);
+            naPacket.setOptionType(Ipv6Constants.ICMP_V6_OPTION_TARGET_LLA);
             naPacket.setTargetAddrLength((short)1);
             naPacket.setTargetAddress(pdu.getTargetIpAddress());
             naPacket.setTargetLlAddress(new MacAddress(port.getMacAddress()));
@@ -368,7 +368,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
                     bitOffset = bitOffset + 8;
                     rsPdu.setSourceAddrLength(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
                     bitOffset = bitOffset + 8;
-                    if (rsPdu.getOptionType() == 1) {
+                    if (rsPdu.getOptionType() == Ipv6Constants.ICMP_V6_OPTION_SOURCE_LLA) {
                         rsPdu.setSourceLlAddress(new MacAddress(
                                 ipv6Utils.bytesToHexString(BitBufferHelper.getBits(data, bitOffset, 48))));
                     }
