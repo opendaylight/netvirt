@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_97c03851",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/test/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkLocatorTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-03-06T10:36:00Z",
+      "side": 1,
+      "message": "in general, I don\u0027t recommend that you @Mock these kind of APIs, and if I were you I would use extends AbstractConcurrentDataBrokerTest instead of Mockito ..",
+      "revId": "d411f7a8c486671d5ebfc20ab922756729871007",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9732f8a4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/test/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkLocatorTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-03-06T10:36:00Z",
+      "side": 1,
+      "message": "This looks like something you could perhaps contribute into yangtools/common/testutils/src/main/java/org/opendaylight/yangtools/testutils/mockito/ if you like...",
+      "revId": "d411f7a8c486671d5ebfc20ab922756729871007",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7702f4b4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/test/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkLocatorTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-03-06T10:36:00Z",
+      "side": 1,
+      "message": "I wouldn\u0027t do this, in a *Test, I would just let it propagate, so just add \"throws Exception\" to this method",
+      "revId": "d411f7a8c486671d5ebfc20ab922756729871007",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_57fd30b0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/test/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkLocatorTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-03-06T10:36:00Z",
+      "side": 1,
+      "message": "as above",
+      "revId": "d411f7a8c486671d5ebfc20ab922756729871007",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
