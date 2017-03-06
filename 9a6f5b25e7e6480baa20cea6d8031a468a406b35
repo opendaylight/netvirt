@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_b79e1cb7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T10:02:29Z",
+      "side": 1,
+      "message": "Do we ensure adjacency-list to be used only inside /l3vpn:vpn-interfaces/l3vpn:vpn-interface ? Only in this case, it makes sense to have next-hop-ip as leaf property.",
+      "revId": "9a6f5b25e7e6480baa20cea6d8031a468a406b35",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
