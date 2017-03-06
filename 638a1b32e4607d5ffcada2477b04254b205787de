@@ -2,6 +2,108 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_fc824bc6",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibConstants.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T09:41:56Z",
+      "side": 1,
+      "message": "As per OF spec, the valid group id can be of anything unsigned 32 bit, so 0 also can be part of it. so let us have -1 for INVALID_GROUP_ID.",
+      "revId": "638a1b32e4607d5ffcada2477b04254b205787de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dc5ca77f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T09:41:56Z",
+      "side": 1,
+      "message": "{} is more than no. of input values passed :)",
+      "revId": "638a1b32e4607d5ffcada2477b04254b205787de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bcf1e36c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T09:41:56Z",
+      "side": 1,
+      "message": "you may need to introduce Thread.sleep(waitTimeForSyncInstall); after syncInstallGroup. isn\u0027t it ?",
+      "revId": "638a1b32e4607d5ffcada2477b04254b205787de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7cfbfb46",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 829,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T09:41:56Z",
+      "side": 1,
+      "message": "This is about programming local nexthop groups in parallel for each VM prefix adding its nexthop group id to listBucketInfo. so you could do it with parallel stream. Also change listBucketInfo into CopyOnWriteArrayList",
+      "revId": "638a1b32e4607d5ffcada2477b04254b205787de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fcb52b7e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 833,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T09:41:56Z",
+      "side": 1,
+      "message": "If this job key is used in multiple places, then move it to a common method.",
+      "revId": "638a1b32e4607d5ffcada2477b04254b205787de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3c617305",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 2120,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T09:41:56Z",
+      "side": 1,
+      "message": "again you can use parallel stream here for both for loops",
+      "revId": "638a1b32e4607d5ffcada2477b04254b205787de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fc252b5c",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 20
