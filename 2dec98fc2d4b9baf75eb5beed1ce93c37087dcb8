@@ -90,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bcec432b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1162,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-06T08:21:15Z",
+      "side": 1,
+      "message": "Abhinav,\nI leave it to you/hanumant to decide whether you need yange change in this review, as I don\u0027t know the extant of making such chage.\n\nVivek",
+      "parentUuid": "fafc7978_b1cd8c33",
+      "revId": "2dec98fc2d4b9baf75eb5beed1ce93c37087dcb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a8c241e6",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 8
