@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_31499c31",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T05:55:04Z",
+      "side": 1,
+      "message": "How do we ensure this ip range doesn\u0027t clash with neutron port\u0027s ip ?",
+      "revId": "6b763183727647108b57b60be8598d3f4c5b73ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
