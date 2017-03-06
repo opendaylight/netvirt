@@ -2,6 +2,125 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_7c8f7b75",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 659,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T09:16:20Z",
+      "side": 1,
+      "message": "use Collections.EmptyList();",
+      "revId": "8d3666850490973f3beb8a4c60e7d89d2db4cfe3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5c8a7764",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 663,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T09:16:20Z",
+      "side": 1,
+      "message": "use Optional\u003cString\u003e as return type",
+      "revId": "8d3666850490973f3beb8a4c60e7d89d2db4cfe3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dc5ae7f0",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 863,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T09:16:20Z",
+      "side": 1,
+      "message": "change it to nexthopPrefixIp",
+      "revId": "8d3666850490973f3beb8a4c60e7d89d2db4cfe3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3c75f363",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 864,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T09:16:20Z",
+      "side": 1,
+      "message": "use prefixIp",
+      "revId": "8d3666850490973f3beb8a4c60e7d89d2db4cfe3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1c490f31",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T09:16:20Z",
+      "side": 1,
+      "message": "use tepIpAddresses",
+      "revId": "8d3666850490973f3beb8a4c60e7d89d2db4cfe3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9c321fa5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 867,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T09:16:20Z",
+      "side": 1,
+      "message": "replace the following if-else with Optional.ofNullable(nextHopAddresses).ifPresent(tepIpAddresses -\u003e tepIpOptional \u003d tepIpAddresses.stream().findFirst());",
+      "revId": "8d3666850490973f3beb8a4c60e7d89d2db4cfe3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dcb667f8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 876,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T09:16:20Z",
+      "side": 1,
+      "message": "To avoid long if loop, you can immediately return if adjacencyResult \u003d\u003d null, !FibUtil.isTunnelInterface(adjacencyResult) and !tunnelType.equals(TunnelTypeVxlan.class) checks\nThis will allow stream.forEach to proceed with next nexthopPrefixIp",
+      "revId": "8d3666850490973f3beb8a4c60e7d89d2db4cfe3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9ca7bfbc",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 7
@@ -13,6 +132,57 @@
       "writtenOn": "2017-03-06T09:05:05Z",
       "side": 1,
       "message": "What is meaning of this error log statement ? Is there a typo here?",
+      "revId": "8d3666850490973f3beb8a4c60e7d89d2db4cfe3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fc988b6b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T09:16:20Z",
+      "side": 1,
+      "message": "use Optional\u003cLong\u003e for parentVpnId argument",
+      "revId": "8d3666850490973f3beb8a4c60e7d89d2db4cfe3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fcafeb7a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1625,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T09:16:20Z",
+      "side": 1,
+      "message": "use vpnsToImportRoute.stream().forEach(vpn -\u003e {String vpnRd \u003d vpn.getVrfId(); Optional.ofNullable(vpnRd).....}.....)",
+      "revId": "8d3666850490973f3beb8a4c60e7d89d2db4cfe3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9c0a1f88",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1689,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-06T09:16:20Z",
+      "side": 1,
+      "message": "same as above.",
       "revId": "8d3666850490973f3beb8a4c60e7d89d2db4cfe3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
