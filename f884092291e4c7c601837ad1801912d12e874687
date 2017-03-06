@@ -1,0 +1,259 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_6ffcd8b8",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 629,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-06T15:48:53Z",
+      "side": 1,
+      "message": "print the routerName here.",
+      "revId": "f884092291e4c7c601837ad1801912d12e874687",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0f29cc36",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 697,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-06T15:48:53Z",
+      "side": 1,
+      "message": "routerName to be added in error message here.",
+      "revId": "f884092291e4c7c601837ad1801912d12e874687",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_efd60827",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 711,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-06T15:48:53Z",
+      "side": 1,
+      "message": "why this debug is required?",
+      "revId": "f884092291e4c7c601837ad1801912d12e874687",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cfc06452",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 1583,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-06T15:48:53Z",
+      "side": 1,
+      "message": "bunch the above methods in to new NatEvpnUtil method\nreleaseTunnelIdForRouter() and just invoke that method here.",
+      "revId": "f884092291e4c7c601837ad1801912d12e874687",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8f993c7b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-06T15:48:53Z",
+      "side": 1,
+      "message": "Wrong rebase here..  We need to retain INBOUND rules write first, followed OUTBOUND TABLE here.  Please make the dhange.",
+      "revId": "f884092291e4c7c601837ad1801912d12e874687",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ef8ba81c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-06T15:48:53Z",
+      "side": 1,
+      "message": "debug unnecessary.",
+      "revId": "f884092291e4c7c601837ad1801912d12e874687",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ef2e08fa",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-06T15:48:53Z",
+      "side": 1,
+      "message": "comment about printing exception in the other file applies here too.",
+      "revId": "f884092291e4c7c601837ad1801912d12e874687",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0f854c06",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-06T15:48:53Z",
+      "side": 1,
+      "message": "debug unnecessary",
+      "revId": "f884092291e4c7c601837ad1801912d12e874687",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2f99306e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-06T15:48:53Z",
+      "side": 1,
+      "message": "return here.",
+      "revId": "f884092291e4c7c601837ad1801912d12e874687",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6fa698af",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-06T15:48:53Z",
+      "side": 1,
+      "message": "remove this debug.",
+      "revId": "f884092291e4c7c601837ad1801912d12e874687",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ef92884a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-06T15:48:53Z",
+      "side": 1,
+      "message": "just do \u0027e\u0027 in the arugment instead of e.getStackTrace(), also print Router-ID-Key first in the error message followed by {}, then routerIdKey, e);",
+      "revId": "f884092291e4c7c601837ad1801912d12e874687",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8fa77ca6",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-06T15:48:53Z",
+      "side": 1,
+      "message": "only if the router is part of an L3VPN-Over-VXLAN, otherwise we will continue to use router-id as the tunnel-id \n\nPSSNAT_TABLE (on Non-NAPT) -\u003e Send to Remote Group \nINTERNAL_TUNNEL_TABLE (on NAPT) -\u003e Send to OUTBOUND_NAPT_TABLE",
+      "revId": "f884092291e4c7c601837ad1801912d12e874687",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4ff63490",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-06T15:48:53Z",
+      "side": 1,
+      "message": "getLportTagForRouter.. no need for NatEvpnUtil prefix here.",
+      "revId": "f884092291e4c7c601837ad1801912d12e874687",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_aff1a096",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-06T15:48:53Z",
+      "side": 1,
+      "message": "this is incorrect. you must return null here and handle null in the caller.\n\nFurther this statement must be error.",
+      "revId": "f884092291e4c7c601837ad1801912d12e874687",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cf0a2489",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-06T15:48:53Z",
+      "side": 1,
+      "message": "if (vpnInstanceOpDataEntry !\u003d null \u0026\u0026 vpnInstanceOpDataEntry.getL3vni() !\u003d null) {\n    return vpnInstanceOpData.getL3Vni():\n}\nreturn NatConstants.DEFAULT_L3VNI_VALUE;\n}",
+      "revId": "f884092291e4c7c601837ad1801912d12e874687",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
