@@ -92,7 +92,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.INGRESS_ACL_TABLE, ++instructionKey));
         short serviceIndex = ServiceIndex.getIndex(NwConstants.ACL_SERVICE_NAME, NwConstants.ACL_SERVICE_INDEX);
         BoundServices serviceInfo =
-                AclServiceUtils.getBoundServices(String.format("%s.%s.%s", "vpn", "egressacl", interfaceName),
+                AclServiceUtils.getBoundServices(String.format("%s.%s.%s", "acl", "egressacl", interfaceName),
                 serviceIndex, flowPriority, AclConstants.COOKIE_ACL_BASE, instructions);
         InstanceIdentifier<BoundServices> path =
                 AclServiceUtils.buildServiceId(interfaceName, serviceIndex, ServiceModeIngress.class);
