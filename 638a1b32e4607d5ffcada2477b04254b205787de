@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_973dd891",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibConstants.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-03-06T12:05:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_fc824bc6",
+      "revId": "638a1b32e4607d5ffcada2477b04254b205787de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_dc5ca77f",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 20
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-06T09:41:56Z",
       "side": 1,
       "message": "{} is more than no. of input values passed :)",
+      "revId": "638a1b32e4607d5ffcada2477b04254b205787de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f740a408",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-03-06T12:05:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_dc5ca77f",
       "revId": "638a1b32e4607d5ffcada2477b04254b205787de",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_374eac3b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-03-06T12:05:16Z",
+      "side": 1,
+      "message": "There is a delay already in syncinstallgroup. Is further delay needed too? Cant we just increade the delay time if needed.",
+      "parentUuid": "fafc7978_bcf1e36c",
+      "revId": "638a1b32e4607d5ffcada2477b04254b205787de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7cfbfb46",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 20
@@ -64,6 +118,24 @@
       "writtenOn": "2017-03-06T09:41:56Z",
       "side": 1,
       "message": "This is about programming local nexthop groups in parallel for each VM prefix adding its nexthop group id to listBucketInfo. so you could do it with parallel stream. Also change listBucketInfo into CopyOnWriteArrayList",
+      "revId": "638a1b32e4607d5ffcada2477b04254b205787de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b72f3c3e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 829,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-03-06T12:05:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_7cfbfb46",
       "revId": "638a1b32e4607d5ffcada2477b04254b205787de",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_970b18d5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 833,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-03-06T12:05:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_fcb52b7e",
+      "revId": "638a1b32e4607d5ffcada2477b04254b205787de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3c617305",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 20
@@ -98,6 +188,24 @@
       "writtenOn": "2017-03-06T09:41:56Z",
       "side": 1,
       "message": "again you can use parallel stream here for both for loops",
+      "revId": "638a1b32e4607d5ffcada2477b04254b205787de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b73a9c96",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 2120,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-03-06T12:05:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3c617305",
       "revId": "638a1b32e4607d5ffcada2477b04254b205787de",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b729fc8b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 637,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-03-06T12:05:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_fc252b5c",
+      "revId": "638a1b32e4607d5ffcada2477b04254b205787de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3c233357",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 20
@@ -132,6 +258,24 @@
       "writtenOn": "2017-03-06T08:47:03Z",
       "side": 1,
       "message": "Print primaryRd here. I had given this comment earlier in Manu\u0027s review. Looks like its not addressed.",
+      "revId": "638a1b32e4607d5ffcada2477b04254b205787de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9c505f33",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 993,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-03-06T12:05:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3c233357",
       "revId": "638a1b32e4607d5ffcada2477b04254b205787de",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
