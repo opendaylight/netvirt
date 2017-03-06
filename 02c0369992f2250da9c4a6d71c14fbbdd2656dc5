@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3c2973e6",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-06T12:50:20Z",
+      "side": 1,
+      "message": "No. for underlay networks not configured to some DPN, the DPN/TEP ip won\u0027t be part of the corresponding underlay-network transport zone. The bucket content of each fast-failover group in each compute node will be determined by the available TEPs so it can be asymmetric across DPNs",
+      "parentUuid": "fafc7978_31387cd2",
+      "revId": "02c0369992f2250da9c4a6d71c14fbbdd2656dc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d102d008",
         "filename": "docs/specs/policy-based-path-selection.rst",
         "patchSetId": 10
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-06T05:29:32Z",
       "side": 1,
       "message": "Is this match 0x222e0 on vpn Id ? Don\u0027t we also need to match on logical group interface\u0027s lport tag ?",
+      "revId": "02c0369992f2250da9c4a6d71c14fbbdd2656dc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_42e0cc28",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-06T12:50:20Z",
+      "side": 1,
+      "message": "policy-classifier is in a global scope so no need to create a flow per logical group here but the flows in the policy routing table should route to specific group based on the logical group. I\u0027ll update it in the next PS",
+      "parentUuid": "fafc7978_d102d008",
       "revId": "02c0369992f2250da9c4a6d71c14fbbdd2656dc5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e2cc60bd",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-06T12:50:20Z",
+      "side": 1,
+      "message": "the idea here is to offer personalized services for specific VM instances so it would be possible to route all/part of the VM egress traffic to a specific uplink/set of uplinks. The ingress port is needed here to classify specific VM instances configured for the service",
+      "parentUuid": "fafc7978_d129308b",
+      "revId": "02c0369992f2250da9c4a6d71c14fbbdd2656dc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_712e848d",
         "filename": "docs/specs/policy-based-path-selection.rst",
         "patchSetId": 10
@@ -64,6 +118,24 @@
       "writtenOn": "2017-03-06T05:29:32Z",
       "side": 1,
       "message": "change it to 231",
+      "revId": "02c0369992f2250da9c4a6d71c14fbbdd2656dc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_82bd9404",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-06T12:50:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_712e848d",
       "revId": "02c0369992f2250da9c4a6d71c14fbbdd2656dc5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_42fc4cb8",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-06T12:50:20Z",
+      "side": 1,
+      "message": "In case the if:interface-ref is the vlan member name it\u0027s not really needed.\n\nSince it\u0027s not always trivial for orchestration service to know what is the internal representation of the vlan-member interface, there is a possibility to set the trunk name as  if:interface-ref and netvirt would be able to find the vlan-member based on provided VID",
+      "parentUuid": "fafc7978_d177709e",
+      "revId": "02c0369992f2250da9c4a6d71c14fbbdd2656dc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_11a57803",
         "filename": "docs/specs/policy-based-path-selection.rst",
         "patchSetId": 10
@@ -98,6 +188,24 @@
       "writtenOn": "2017-03-06T05:29:32Z",
       "side": 1,
       "message": "Don\u0027t we need acl augmentation with 5 tuple matches ?",
+      "revId": "02c0369992f2250da9c4a6d71c14fbbdd2656dc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_624fd034",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-06T12:50:20Z",
+      "side": 1,
+      "message": "5-tuple can be composed based on the standard ACL matches from [4]\n\nmodule: ietf-access-control-list\n   +--rw access-lists\n      +--rw acl* [acl-type acl-name]\n         +--rw acl-name               string\n         +--rw acl-type               acl-type\n         +--ro acl-oper-data\n         +--rw access-list-entries\n            +--rw ace* [rule-name]\n               +--rw rule-name        string\n               +--rw matches\n               |  +--rw (ace-type)?\n               |     +--:(ace-ip)\n               |     |  +--rw (ace-ip-version)?\n               |     |  |  +--:(ace-ipv4)\n               |     |  |  |  +--rw destination-ipv4-network?       inet:ipv4-prefix\n               |     |  |  |  +--rw source-ipv4-network?            inet:ipv4-prefix\n               |     |  |  +--:(ace-ipv6)\n               |     |  |     +--rw destination-ipv6-network?       inet:ipv6-prefix\n               |     |  |     +--rw source-ipv6-network?            inet:ipv6-prefix\n               |     |  |     +--rw flow-label?                     inet:ipv6-flow-label\n               |     |  +--rw dscp?                           inet:dscp\n               |     |  +--rw protocol?                       uint8\n               |     |  +--rw source-port-range!\n               |     |  |  +--rw lower-port    inet:port-number\n               |     |  |  +--rw upper-port?   inet:port-number\n               |     |  +--rw destination-port-range!\n               |     |     +--rw lower-port    inet:port-number\n               |     |     +--rw upper-port?   inet:port-number",
+      "parentUuid": "fafc7978_11a57803",
       "revId": "02c0369992f2250da9c4a6d71c14fbbdd2656dc5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
