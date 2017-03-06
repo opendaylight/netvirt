@@ -49,6 +49,7 @@ public class Ipv6PktHandlerTest {
     private IfMgr ifMgrInstance;
     private long counter;
     private static final int THREAD_WAIT_TIME = 100;
+    private Ipv6TestUtils ipv6TestUtils;
 
     @Before
     public void initTest() {
@@ -58,6 +59,7 @@ public class Ipv6PktHandlerTest {
         pktHandler = new Ipv6PktHandler(pktProcessService);
         Ipv6RouterAdvt.setPacketProcessingService(pktProcessService);
         counter = pktHandler.getPacketProcessedCounter();
+        ipv6TestUtils = new Ipv6TestUtils();
     }
 
     @Test
@@ -73,7 +75,7 @@ public class Ipv6PktHandlerTest {
     @Test
     public void testOnPacketReceivedWithInvalidParams() throws Exception {
         //invalid ethtype
-        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(buildPacket(
+        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(ipv6TestUtils.buildPacket(
                 "33 33 FF F5 00 00",                               // Destination MAC
                 "00 01 02 03 04 05",                               // Source MAC
                 "80 00",                                           // Invalid (fake IPv6)
@@ -87,7 +89,7 @@ public class Ipv6PktHandlerTest {
         verify(pktProcessService, times(0)).transmitPacket(any(TransmitPacketInput.class));
 
         //invalid ipv6 header
-        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(buildPacket(
+        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(ipv6TestUtils.buildPacket(
                 "33 33 FF F5 00 00",                               // Destination MAC
                 "00 01 02 03 04 05",                               // Source MAC
                 "86 DD",                                           // IPv6
@@ -101,7 +103,7 @@ public class Ipv6PktHandlerTest {
         verify(pktProcessService, times(0)).transmitPacket(any(TransmitPacketInput.class));
 
         //invalid icmpv6 header
-        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(buildPacket(
+        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(ipv6TestUtils.buildPacket(
                 "33 33 FF F5 00 00",                               // Destination MAC
                 "00 01 02 03 04 05",                               // Source MAC
                 "86 DD",                                           // IPv6
@@ -123,7 +125,7 @@ public class Ipv6PktHandlerTest {
     @Test
     public void testonPacketReceivedNeighborSolicitationWithInvalidPayload() throws Exception {
         //incorrect checksum
-        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(buildPacket(
+        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(ipv6TestUtils.buildPacket(
                 "33 33 FF F5 00 00",                               // Destination MAC
                 "00 01 02 03 04 05",                               // Source MAC
                 "86 DD",                                           // IPv6
@@ -146,7 +148,7 @@ public class Ipv6PktHandlerTest {
         //unavailable ip
         when(ifMgrInstance.obtainV6Interface(any())).thenReturn(null);
         counter = pktHandler.getPacketProcessedCounter();
-        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(buildPacket(
+        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(ipv6TestUtils.buildPacket(
                 "33 33 FF F5 00 00",                               // Destination MAC
                 "00 01 02 03 04 05",                               // Source MAC
                 "86 DD",                                           // IPv6
@@ -170,7 +172,7 @@ public class Ipv6PktHandlerTest {
     @Test
     public void testonPacketReceivedRouterSolicitationWithInvalidPayload() throws Exception {
         // incorrect checksum in Router Solicitation
-        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(buildPacket(
+        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(ipv6TestUtils.buildPacket(
                 "33 33 FF F5 00 00",                               // Destination MAC
                 "00 01 02 03 04 05",                               // Source MAC
                 "86 DD",                                           // IPv6
@@ -193,7 +195,7 @@ public class Ipv6PktHandlerTest {
         // Request from an unknown port (i.e., unknown MAC Address)
         when(ifMgrInstance.obtainV6Interface(any())).thenReturn(null);
         counter = pktHandler.getPacketProcessedCounter();
-        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(buildPacket(
+        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(ipv6TestUtils.buildPacket(
                 "33 33 FF F5 00 00",                               // Destination MAC
                 "00 01 02 03 04 05",                               // Source MAC
                 "86 DD",                                           // IPv6
@@ -236,7 +238,7 @@ public class Ipv6PktHandlerTest {
         BigInteger mdata = new BigInteger(String.valueOf(0x1000000));
         Metadata metadata = new MetadataBuilder().setMetadata(mdata).build();
         MatchBuilder matchbuilder = new MatchBuilder().setMetadata(metadata);
-        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(buildPacket(
+        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(ipv6TestUtils.buildPacket(
                 "33 33 FF FE 8F 95",                               // Destination MAC
                 "08 00 27 D4 10 BB",                               // Source MAC
                 "86 DD",                                           // IPv6
@@ -259,7 +261,7 @@ public class Ipv6PktHandlerTest {
         waitForPacketProcessing();
         verify(pktProcessService, times(1)).transmitPacket(any(TransmitPacketInput.class));
 
-        byte[] expectedPayload = buildPacket(
+        byte[] expectedPayload = ipv6TestUtils.buildPacket(
                 "08 00 27 D4 10 BB",                               // Destination MAC
                 "08 00 27 FE 8F 95",                               // Source MAC
                 "86 DD",                                           // Ethertype - IPv6
@@ -312,7 +314,7 @@ public class Ipv6PktHandlerTest {
         BigInteger mdata = new BigInteger(String.valueOf(0x1000000));
         Metadata metadata = new MetadataBuilder().setMetadata(mdata).build();
         MatchBuilder matchbuilder = new MatchBuilder().setMetadata(metadata);
-        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(buildPacket(
+        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(ipv6TestUtils.buildPacket(
                 "33 33 00 00 00 02",                               // Destination MAC
                 "FA 16 3E 69 2C F3",                               // Source MAC
                 "86 DD",                                           // IPv6
@@ -335,7 +337,7 @@ public class Ipv6PktHandlerTest {
         waitForPacketProcessing();
         verify(pktProcessService, times(1)).transmitPacket(any(TransmitPacketInput.class));
 
-        byte[] expectedPayload = buildPacket(
+        byte[] expectedPayload = ipv6TestUtils.buildPacket(
                 "FA 16 3E 69 2C F3",                               // Destination MAC
                 "FA 16 3E 4E 18 0C",                               // Source MAC
                 "86 DD",                                           // IPv6
@@ -415,7 +417,7 @@ public class Ipv6PktHandlerTest {
         BigInteger mdata = new BigInteger(String.valueOf(0x1000000));
         Metadata metadata = new MetadataBuilder().setMetadata(mdata).build();
         MatchBuilder matchbuilder = new MatchBuilder().setMetadata(metadata);
-        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(buildPacket(
+        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(ipv6TestUtils.buildPacket(
                 "33 33 00 00 00 02",                               // Destination MAC
                 "FA 16 3E 69 2C F3",                               // Source MAC
                 "86 DD",                                           // IPv6
@@ -438,7 +440,7 @@ public class Ipv6PktHandlerTest {
         waitForPacketProcessing();
         verify(pktProcessService, times(1)).transmitPacket(any(TransmitPacketInput.class));
 
-        byte[] expectedPayload = buildPacket(
+        byte[] expectedPayload = ipv6TestUtils.buildPacket(
                 "FA 16 3E 69 2C F3",                               // Destination MAC
                 "50 7B 9D 78 54 F3",                               // Source MAC
                 "86 DD",                                           // IPv6
@@ -499,25 +501,5 @@ public class Ipv6PktHandlerTest {
             }
             timeOut++;
         }
-    }
-
-    private byte[] buildPacket(String... contents) {
-        List<String[]> splitContents = new ArrayList<>();
-        int packetLength = 0;
-        for (String content : contents) {
-            String[] split = content.split(" ");
-            packetLength += split.length;
-            splitContents.add(split);
-        }
-        byte[] packet = new byte[packetLength];
-        int index = 0;
-        for (String[] split : splitContents) {
-            for (String component : split) {
-                // We can't use Byte.parseByte() here, it refuses anything > 7F
-                packet[index] = (byte) Integer.parseInt(component, 16);
-                index++;
-            }
-        }
-        return packet;
     }
 }

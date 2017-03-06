@@ -46,6 +46,7 @@ public class Ipv6ServiceImpl {
         ifMgr.setMdsalUtilManager(mdsalUtil);
         final Ipv6PeriodicRAThread ipv6Thread = Ipv6PeriodicRAThread.getInstance();
         Ipv6RouterAdvt.setPacketProcessingService(pktProcessingService);
+        Ipv6NeighborSolicitation.setPacketProcessingService(pktProcessingService);
     }
 
     public void close() {
