@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_9ca7bfbc",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1506,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-03-06T09:05:05Z",
+      "side": 1,
+      "message": "What is meaning of this error log statement ? Is there a typo here?",
+      "revId": "8d3666850490973f3beb8a4c60e7d89d2db4cfe3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
