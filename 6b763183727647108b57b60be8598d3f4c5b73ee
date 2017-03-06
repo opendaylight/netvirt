@@ -16,6 +16,24 @@
       "revId": "6b763183727647108b57b60be8598d3f4c5b73ee",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f13d54de",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 6947
+      },
+      "writtenOn": "2017-03-06T07:54:17Z",
+      "side": 1,
+      "message": "in the longer-term we can save the neutron port ips as allocations in the dhcp allocation pool",
+      "parentUuid": "fafc7978_31499c31",
+      "revId": "6b763183727647108b57b60be8598d3f4c5b73ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
