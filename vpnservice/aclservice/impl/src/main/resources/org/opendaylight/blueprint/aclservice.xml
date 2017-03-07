@@ -28,4 +28,7 @@
   </bean>
   <odl:rpc-implementation ref="aclLiveStatisticsRpcServiceImpl" />
 
+  <service ref="aclServiceUtilFacade"
+        interface="org.opendaylight.netvirt.aclservice.api.utils.IAclServiceUtil" />
+
 </blueprint>
