@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_9c8b311e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 3316
+      },
+      "writtenOn": "2017-03-07T17:46:28Z",
+      "side": 1,
+      "message": "the check of PENDING is needed.",
+      "range": {
+        "startLine": 174,
+        "startChar": 1,
+        "endLine": 180,
+        "endChar": 9
+      },
+      "revId": "507d931505b707c75f56048b5ded02b10eed8bc8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e9e3b9d6",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 2
@@ -31,6 +54,24 @@
       "side": 1,
       "message": "Yea, but not sure I understand the comment :) Anything wrong with the logic here?",
       "parentUuid": "fafc7978_e9e3b9d6",
+      "revId": "507d931505b707c75f56048b5ded02b10eed8bc8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1cd10123",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 3316
+      },
+      "writtenOn": "2017-03-07T17:46:28Z",
+      "side": 1,
+      "message": "Vivek is claiming that we need this method to be called by update() method line 161.",
+      "parentUuid": "fafc7978_094efd96",
       "revId": "507d931505b707c75f56048b5ded02b10eed8bc8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
