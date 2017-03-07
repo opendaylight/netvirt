@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_28576603",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1478,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-07T04:31:29Z",
+      "side": 1,
+      "message": "nexthop not required here anymore ...Please alter this definition.",
+      "revId": "f72bba81c4686b03612a9312a1befd9b5c4004a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4838ead2",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-07T04:31:29Z",
+      "side": 1,
+      "message": "this can be nextHopAddress.equals(nextHop)\n\nThis will help protect when nextHop input is null",
+      "revId": "f72bba81c4686b03612a9312a1befd9b5c4004a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a83356f4",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-07T04:31:29Z",
+      "side": 1,
+      "message": "if routePaths.size() is zoer, this will throw arrayoutofbounds ..  \nCan routePaths be empty list for a vrfentry?",
+      "revId": "f72bba81c4686b03612a9312a1befd9b5c4004a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
