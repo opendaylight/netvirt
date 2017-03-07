@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c80a1a89",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1478,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-07T07:22:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_28576603",
+      "revId": "f72bba81c4686b03612a9312a1befd9b5c4004a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4838ead2",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e82efef9",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-07T07:22:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_4838ead2",
+      "revId": "f72bba81c4686b03612a9312a1befd9b5c4004a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a83356f4",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2017-03-07T04:31:29Z",
       "side": 1,
       "message": "if routePaths.size() is zoer, this will throw arrayoutofbounds ..  \nCan routePaths be empty list for a vrfentry?",
+      "revId": "f72bba81c4686b03612a9312a1befd9b5c4004a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8871320e",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-07T07:22:45Z",
+      "side": 1,
+      "message": "Ideally, routePaths will not be empty for BGP routes. But it always better to handle such cases. Have switched the main if condition to handle such scenarios.",
+      "parentUuid": "fafc7978_a83356f4",
       "revId": "f72bba81c4686b03612a9312a1befd9b5c4004a5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
