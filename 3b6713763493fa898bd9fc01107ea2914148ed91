@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b6ad749d",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-03-07T14:42:13Z",
+      "side": 1,
+      "message": "ok, i\u0027ll add more references",
+      "parentUuid": "fafc7978_39521a67",
+      "revId": "3b6713763493fa898bd9fc01107ea2914148ed91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_598c3eda",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f6925c55",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-03-07T14:42:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_598c3eda",
+      "revId": "3b6713763493fa898bd9fc01107ea2914148ed91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_74df87d6",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2017-03-07T13:56:20Z",
       "side": 1,
       "message": "nit: space",
+      "revId": "3b6713763493fa898bd9fc01107ea2914148ed91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_569ec863",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-03-07T14:42:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_74df87d6",
       "revId": "3b6713763493fa898bd9fc01107ea2914148ed91",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
