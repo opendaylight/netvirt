@@ -151,6 +151,8 @@
   </bean>
   <service ref="elanService" odl:type="default"
     interface="org.opendaylight.netvirt.elanmanager.api.IElanService" />
+  <service ref="elanBridgeManager" odl:type="default"
+    interface="org.opendaylight.netvirt.elanmanager.api.IElanBridgeManager" />
 
   <bean id="cacheElanInterfaceListener"
     class="org.opendaylight.netvirt.elan.utils.CacheElanInterfaceListener"

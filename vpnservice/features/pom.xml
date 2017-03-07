@@ -276,6 +276,16 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>policyservice-api</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>policyservice-impl</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>aclservice-impl</artifactId>
       <version>${project.version}</version>
       <type>xml</type>
