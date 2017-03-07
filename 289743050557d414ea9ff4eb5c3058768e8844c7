@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d4d63327",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-07T13:02:46Z",
+      "side": 1,
+      "message": "Simply, closer to the point of use !\n\nanyway these two lines donot do any DS reads !",
+      "parentUuid": "fafc7978_f9a1b246",
+      "revId": "289743050557d414ea9ff4eb5c3058768e8844c7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fe46b879",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 12
