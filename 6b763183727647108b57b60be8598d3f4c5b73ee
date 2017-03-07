@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fea19846",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 6947
+      },
+      "writtenOn": "2017-03-07T10:06:28Z",
+      "side": 1,
+      "message": "this is correct - added to spec",
+      "parentUuid": "fafc7978_0371a3a7",
+      "revId": "6b763183727647108b57b60be8598d3f4c5b73ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_31499c31",
         "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
         "patchSetId": 6
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "Okay, if you plan to use dhcp_allocations for storing neutron port ips, then i think its just an another lookup before allocating ip to non-neutron VMs. So it can be done as part of this spec implementation.",
       "parentUuid": "fafc7978_f13d54de",
+      "revId": "6b763183727647108b57b60be8598d3f4c5b73ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9e920cf4",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 6947
+      },
+      "writtenOn": "2017-03-07T10:06:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a31c176b",
       "revId": "6b763183727647108b57b60be8598d3f4c5b73ee",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
