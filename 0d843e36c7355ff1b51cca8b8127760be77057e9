@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_97d6784d",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-07T04:31:29Z",
+      "side": 1,
+      "message": "since you are attempting to removing a single route-path from a fib entry ,please rename this method as removeOrUpdateFibEntryFromDS()",
+      "revId": "0d843e36c7355ff1b51cca8b8127760be77057e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
