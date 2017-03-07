@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_0371a3a7",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-07T07:21:14Z",
+      "side": 1,
+      "message": "since you are using id manager, you could support dhcp-release use case if it is needed. This allows ip can be reassigned to VMs.",
+      "revId": "6b763183727647108b57b60be8598d3f4c5b73ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_31499c31",
         "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
         "patchSetId": 6
@@ -31,6 +48,24 @@
       "side": 1,
       "message": "in the longer-term we can save the neutron port ips as allocations in the dhcp allocation pool",
       "parentUuid": "fafc7978_31499c31",
+      "revId": "6b763183727647108b57b60be8598d3f4c5b73ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a31c176b",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-07T07:21:14Z",
+      "side": 1,
+      "message": "Okay, if you plan to use dhcp_allocations for storing neutron port ips, then i think its just an another lookup before allocating ip to non-neutron VMs. So it can be done as part of this spec implementation.",
+      "parentUuid": "fafc7978_f13d54de",
       "revId": "6b763183727647108b57b60be8598d3f4c5b73ee",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
