@@ -1,0 +1,56 @@
+/*
+ * Copyright (c) 2017 Hewlett Packard Enterprise, Co. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
+package org.opendaylight.netvirt.policyservice.util;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.InstructionInfo;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.MatchInfoBase;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+
+@Singleton
+public class PolicyServiceFlowUtil {
+
+    private final IMdsalApiManager iMdsalApiManager;
+
+    @Inject
+    public PolicyServiceFlowUtil(final IMdsalApiManager iMdsalApiManager) {
+        this.iMdsalApiManager = iMdsalApiManager;
+    }
+
+    public List<InstructionInfo> getPolicyClassifierInstructions(long policyClassifierId) {
+        List<InstructionInfo> instructions = new ArrayList<>();
+        instructions.add(new InstructionWriteMetadata(MetaDataUtil.getServiceMetaData(policyClassifierId),
+                MetaDataUtil.METADATA_MASK_SERVICE));
+        instructions.add(new InstructionGotoTable(NwConstants.EGRESS_POLICY_CLASSIFIER_TABLE));
+        return instructions;
+    }
+
+    public void syncFlow(BigInteger dpId, short tableId, String flowName, int priority, BigInteger cookie,
+            List<? extends MatchInfoBase> matches, List<InstructionInfo> instructions, int addOrRemove) {
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowName, priority, flowName, 0, 0, cookie,
+                matches, instructions);
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            iMdsalApiManager.installFlow(flowEntity);
+        } else {
+            iMdsalApiManager.removeFlow(flowEntity);
+        }
+    }
+}
