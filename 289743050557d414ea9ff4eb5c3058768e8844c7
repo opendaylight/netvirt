@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_5e61c403",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-07T10:12:42Z",
+      "side": 1,
+      "message": "both these above can be moved within the synchronized block below.",
+      "revId": "289743050557d414ea9ff4eb5c3058768e8844c7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fe46b879",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-07T10:12:42Z",
+      "side": 1,
+      "message": "both these above can be moved within the synchronized below.",
+      "revId": "289743050557d414ea9ff4eb5c3058768e8844c7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7e7be8bd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1176,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-07T10:12:42Z",
+      "side": 1,
+      "message": "how do you know there is a routerInterface on this subnet?",
+      "revId": "289743050557d414ea9ff4eb5c3058768e8844c7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7e52c835",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1183,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-07T10:12:42Z",
+      "side": 1,
+      "message": "you can simply return Collections.EMPTY_LIST here..",
+      "revId": "289743050557d414ea9ff4eb5c3058768e8844c7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_de3494fd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1201,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-07T10:12:42Z",
+      "side": 1,
+      "message": "same comment, you can return Collections.EMPTY_LIST here.",
+      "revId": "289743050557d414ea9ff4eb5c3058768e8844c7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
