@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_0b93715b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-03-08T15:20:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_65022cb5",
+      "revId": "2765259262fa796e7077634322410c8028319130",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c5115805",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 9
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-08T06:25:52Z",
       "side": 1,
       "message": "As discussed, Let us populate usedRd\u0027s DS even for extra routes created for router based VPNs. It makes fib handling to be uniform both bgp (or) router based VPNs.",
+      "revId": "2765259262fa796e7077634322410c8028319130",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6b9e7d64",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 677,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-03-08T15:20:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c5115805",
       "revId": "2765259262fa796e7077634322410c8028319130",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_eb81cdfb",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 866,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-03-08T15:20:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_051ec00b",
+      "revId": "2765259262fa796e7077634322410c8028319130",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_85d91059",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 9
@@ -87,6 +141,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_0baed12d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1625,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-03-08T15:20:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_85d91059",
+      "revId": "2765259262fa796e7077634322410c8028319130",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e5dc5c48",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 9
@@ -98,6 +170,24 @@
       "writtenOn": "2017-03-08T06:25:52Z",
       "side": 1,
       "message": "same comment as above.",
+      "revId": "2765259262fa796e7077634322410c8028319130",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2bb3d598",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1683,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-03-08T15:20:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e5dc5c48",
       "revId": "2765259262fa796e7077634322410c8028319130",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
