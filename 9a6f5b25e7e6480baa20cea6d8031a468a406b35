@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f00b7c7a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-08T09:15:35Z",
+      "side": 1,
+      "message": "adjacency-list is used only inside l3vpn:vpn-interfaces.  It might be used in cloudservicechain also, but am not aware of the impact of this change in cloudservicechain and I request Miguel to help me here.\n\nThat said, having a next-hop-ip here is good as its used to clean up prefix to interface, when the last removed prefix is an extra-route instead of a primary-route.",
+      "parentUuid": "fafc7978_b79e1cb7",
+      "revId": "9a6f5b25e7e6480baa20cea6d8031a468a406b35",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_850ab087",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
         "patchSetId": 4
