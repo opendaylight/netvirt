@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_25982477",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T06:52:43Z",
+      "side": 1,
+      "message": "why do you take vrfEntry ? just have destIpPrefix.",
+      "revId": "9a2e833ab0b741796411d9fdbf4e474879ec0d15",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_659eac64",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 831,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T06:52:43Z",
+      "side": 1,
+      "message": "same comment for /32",
+      "revId": "9a2e833ab0b741796411d9fdbf4e474879ec0d15",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a5a414ba",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 2122,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T06:52:43Z",
+      "side": 1,
+      "message": "use HOST_PREFIX constant",
+      "revId": "9a2e833ab0b741796411d9fdbf4e474879ec0d15",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
