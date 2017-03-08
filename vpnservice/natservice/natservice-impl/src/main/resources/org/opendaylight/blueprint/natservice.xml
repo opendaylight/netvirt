@@ -115,6 +115,8 @@
     <argument ref="vpnManager" />
     <argument ref="elanService" />
     <argument ref="evpnDnatFlowProgrammer" />
+    <argument ref="neutronvpnManager" />
+    <argument ref="idManagerService" />
   </bean>
   <service ref="vpnFloatingIpHandler"
            interface="org.opendaylight.netvirt.natservice.internal.FloatingIPHandler" />
@@ -282,6 +284,7 @@
     <argument ref="odlInterfaceRpcService" />
     <argument ref="floatingIPListener" />
     <argument ref="fibRpcService" />
+    <argument ref="neutronvpnManager" />
   </bean>
 
   <bean id="natRpcServiceImpl" class="org.opendaylight.netvirt.natservice.rpcservice.NatRpcServiceImpl">

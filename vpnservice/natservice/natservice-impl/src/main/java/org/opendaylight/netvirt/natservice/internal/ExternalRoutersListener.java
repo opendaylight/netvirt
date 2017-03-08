@@ -297,7 +297,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager,
                     idManager, NatConstants.ODL_VNI_POOL_NAME);
         }
-
         primarySwitchId = naptSwitchSelector.selectNewNAPTSwitch(routerName);
         LOG.debug("NAT Service : Primary NAPT switch DPN ID {}", primarySwitchId);
         if (primarySwitchId == null || primarySwitchId.equals(BigInteger.ZERO)) {
@@ -977,23 +976,32 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                     + "routerId {} in DS", label, externalIp, routerId);
                         }
                         //Inform BGP
+                        long l3vni = 0;
+                        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                            l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
+                        }
                         Routers extRouter = router != null ? router :
                             NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
                         Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(dataBroker, externalIp,
                                 extRouter);
                         NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, externalSubnetId,
-                            externalIp, nextHopIp, extRouter.getNetworkId().getValue(), null, label, log,
+                            externalIp, nextHopIp, extRouter.getNetworkId().getValue(), null, label, l3vni, log,
                             RouteOrigin.STATIC, dpnId);
 
                         //Install custom FIB routes
                         List<Instruction> tunnelTableCustomInstructions = new ArrayList<>();
                         tunnelTableCustomInstructions.add(new InstructionGotoTable(tableId).buildInstruction(0));
-                        makeTunnelTableEntry(dpnId, label, tunnelTableCustomInstructions);
+                        makeTunnelTableEntry(dpnId, label, l3vni, tunnelTableCustomInstructions);
                         makeLFibTableEntry(dpnId, label, tableId);
 
                         //Install custom FIB routes - FIB table.
                         List<Instruction> fibTableCustomInstructions = createFibTableCustomInstructions(dataBroker,
                                 tableId, routerName, externalIp);
+                        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                            //Install the flow table 25->44 If there is no FIP Match on table 25 (PDNAT_TABLE)
+                            NatUtil.makePreDnatToSnatTableEntry(mdsalManager, dpnId,
+                                    NwConstants.INBOUND_NAPT_TABLE);
+                        }
                         String fibExternalIp = externalIp.contains("/32") ? externalIp : (externalIp + "/32");
                         CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
                             .setSourceDpid(dpnId).setIpAddress(fibExternalIp).setServiceId(label)
@@ -1069,12 +1077,18 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         LOG.debug("NAT Service : LFIB Entry for dpID {} : label : {} modified successfully {}", dpId, serviceId);
     }
 
-    private void makeTunnelTableEntry(BigInteger dpnId, long serviceId, List<Instruction> customInstructions) {
+    private void makeTunnelTableEntry(BigInteger dpnId, long serviceId, long l3Vni,
+             List<Instruction> customInstructions) {
         List<MatchInfo> mkMatches = new ArrayList<>();
 
         LOG.debug("NAT Service : Create terminatingServiceAction on DpnId = {} and serviceId = {} and actions = {}",
             dpnId, serviceId);
-        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(serviceId)));
+
+        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+            mkMatches.add(new MatchTunnelId(BigInteger.valueOf(l3Vni)));
+        } else {
+            mkMatches.add(new MatchTunnelId(BigInteger.valueOf(serviceId)));
+        }
 
         Flow terminatingServiceTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
             getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""), 5,
@@ -1620,6 +1634,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 LOG.debug("Failed to remove fib entries for routerId {} in naptSwitchDpnId {} : {}",
                     routerId, naptSwitchDpnId, ex);
             }
+            NatOverVxlanUtil.releaseVNI(vpnId, idManager);
         } catch (Exception ex) {
             LOG.error("Exception while handling disableSNATInternetVpn : {}", ex);
         }
@@ -2003,6 +2018,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     if (result.isSuccessful()) {
                         removeTunnelTableEntry(dpnId, label);
                         removeLFibTableEntry(dpnId, label);
+                        NatUtil.removePreDnatToSnatTableEntry(mdsalManager, dpnId);
                         RemoveVpnLabelInput labelInput =
                             new RemoveVpnLabelInputBuilder().setVpnName(vpnName).setIpPrefix(externalIp).build();
                         Future<RpcResult<Void>> labelFuture1 = vpnService.removeVpnLabel(labelInput);
@@ -2455,11 +2471,11 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
 
-        long tunnelId = changedVpnId;
+        BigInteger tunnelId = BigInteger.valueOf(changedVpnId);
         if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
             tunnelId = NatOverVxlanUtil.getRouterVni(idManager, routerName, changedVpnId);
         }
-        matches.add(new MatchTunnelId(BigInteger.valueOf(tunnelId)));
+        matches.add(new MatchTunnelId(tunnelId));
 
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionWriteMetadata(MetaDataUtil.getVpnIdMetadata(changedVpnId),

@@ -45,6 +45,8 @@ import org.opendaylight.genius.mdsalutil.actions.ActionPushVlan;
 import org.opendaylight.genius.mdsalutil.actions.ActionRegLoad;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldVlanVid;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -63,6 +65,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.acti
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PushVlanActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.SetFieldCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -665,6 +669,7 @@ public class NatUtil {
                                       String parentVpnRd,
                                       String macAddress,
                                       long label,
+                                      long l3vni,
                                       Logger log, RouteOrigin origin, BigInteger dpId) {
         try {
             LOG.info("NAT Service : ADD: Adding Fib entry rd {} prefix {} nextHop {} label {}", rd,
@@ -677,7 +682,7 @@ public class NatUtil {
             addPrefixToInterface(broker, getVpnId(broker, vpnName), null /*interfaceName*/,prefix, dpId, subnetId,
                     /*isNatPrefix*/ true);
             fibManager.addOrUpdateFibEntry(broker, rd, macAddress, prefix,
-                    Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, (int)label, 0 /*l3vni*/,
+                    Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, (int)label, l3vni /*l3vni*/,
                     null /*gatewayMacAddress*/, parentVpnRd, origin, null /*writeTxn*/);
             if ((rd != null) && (!rd.equalsIgnoreCase(vpnName))) {
             /* Publish to Bgp only if its an INTERNET VPN */
@@ -1762,9 +1767,44 @@ public class NatUtil {
             IdManagerService idManager, long routerId, String routerName) {
         if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
             // Router VNI will be set as tun_id if OpenStackSemantics is enabled
-            return NatOverVxlanUtil.getRouterVni(idManager, routerName, routerId);
+            return NatOverVxlanUtil.getRouterVni(idManager, routerName, routerId).longValue();
         } else {
             return NatEvpnUtil.getTunnelIdForRouter(idManager, dataBroker, routerName, routerId);
         }
+    }
+
+    public static void makePreDnatToSnatTableEntry(IMdsalApiManager mdsalManager, BigInteger naptDpnId,
+            short tableId) {
+        LOG.debug("NAT Service : Create Pre-DNAT table {} --> table {} flow on NAPT DpnId {} ",
+                NwConstants.PDNAT_TABLE, tableId, naptDpnId);
+
+        List<Instruction> preDnatToSnatInstructions = new ArrayList<>();
+        preDnatToSnatInstructions.add(new InstructionGotoTable(tableId).buildInstruction(0));
+        List<MatchInfo> matches = new ArrayList<>();
+        matches.add(MatchEthernetType.IPV4);
+        String flowRef = getFlowRefPreDnatToSnat(naptDpnId, NwConstants.PDNAT_TABLE, "PreDNATToSNAT");
+        Flow preDnatToSnatTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.PDNAT_TABLE,flowRef,
+                5, flowRef, 0, 0,  NwConstants.COOKIE_DNAT_TABLE,
+                matches, preDnatToSnatInstructions);
+
+        mdsalManager.installFlow(naptDpnId, preDnatToSnatTableFlowEntity);
+        LOG.debug("NAT Service : Successfully installed Pre-DNAT flow {} on NAPT DpnId {} ",
+                preDnatToSnatTableFlowEntity,  naptDpnId);
+    }
+
+    public static void removePreDnatToSnatTableEntry(IMdsalApiManager mdsalManager, BigInteger naptDpnId) {
+        LOG.debug("NAT Service : Remove Pre-DNAT table {} --> table {} flow on NAPT DpnId {} ",
+                NwConstants.PDNAT_TABLE, NwConstants.INBOUND_NAPT_TABLE, naptDpnId);
+        String flowRef = getFlowRefPreDnatToSnat(naptDpnId, NwConstants.PDNAT_TABLE, "PreDNATToSNAT");
+        Flow preDnatToSnatTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.PDNAT_TABLE,flowRef,
+                5, flowRef, 0, 0,  NwConstants.COOKIE_DNAT_TABLE, null, null);
+        mdsalManager.removeFlow(naptDpnId, preDnatToSnatTableFlowEntity);
+        LOG.debug("NAT Service : Successfully removed Pre-DNAT flow {} on NAPT DpnId = {}",
+                preDnatToSnatTableFlowEntity, naptDpnId);
+    }
+
+    private static String getFlowRefPreDnatToSnat(BigInteger dpnId, short tableId, String uniqueId) {
+        return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId
+                + NwConstants.FLOWID_SEPARATOR + uniqueId;
     }
 }
