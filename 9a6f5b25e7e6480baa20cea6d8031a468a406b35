@@ -16,6 +16,46 @@
       "revId": "9a6f5b25e7e6480baa20cea6d8031a468a406b35",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_850ab087",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-03-08T07:26:28Z",
+      "side": 1,
+      "message": "change this variable name to nextHopIp",
+      "revId": "9a6f5b25e7e6480baa20cea6d8031a468a406b35",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e5fd7c6f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverVxlanPopulator.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-03-08T07:26:28Z",
+      "side": 1,
+      "message": "change this variable name to nextHopIp",
+      "range": {
+        "startLine": 65,
+        "startChar": 15,
+        "endLine": 65,
+        "endChar": 26
+      },
+      "revId": "9a6f5b25e7e6480baa20cea6d8031a468a406b35",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
