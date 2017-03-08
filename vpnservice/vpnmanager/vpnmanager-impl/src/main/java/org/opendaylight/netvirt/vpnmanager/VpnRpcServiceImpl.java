@@ -228,7 +228,8 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             fibManager.removeOrUpdateFibEntry(dataBroker,  vpnRd, destination, nexthop, null);
             bgpManager.withdrawPrefix(vpnRd, destination);
         } else {
-            vpnInterfaceMgr.delExtraRoute(destination, nexthop, vpnRd, null /*routerId*/, null /*intfName*/, null);
+            vpnInterfaceMgr.delExtraRoute(vpnInstanceName, destination,
+                    nexthop, vpnRd, null /* routerId */, null /* intfName */, null);
         }
         result.set(RpcResultBuilder.<Void>success().build());
 
