@@ -89,7 +89,10 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                                     interfaceName, e);
                                             return futures;
                                         }
-                                        vpnSubnetRouteHandler.onInterfaceUp(dpnId, intrf.getName());
+                                        if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
+                                            /* Only if the interface is up, consider it for subnetRoute */
+                                            vpnSubnetRouteHandler.onInterfaceUp(dpnId, intrf.getName());
+                                        }
                                     } else {
                                         LOG.debug("SubnetRouteInterfaceListener add: Interface {} is not a vpninterface, ignoring.", intrf.getName());
                                     }
@@ -173,7 +176,12 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                     }
                                     if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
                                         vpnSubnetRouteHandler.onInterfaceUp(dpnId, update.getName());
-                                    } else if (update.getOperStatus().equals(Interface.OperStatus.Down)) {
+                                    } else if (update.getOperStatus().equals(Interface.OperStatus.Down)
+                                            || update.getOperStatus().equals(Interface.OperStatus.Unknown)) {
+                                        /*
+                                         * If the interface went down voluntarily (or) if the interface is not
+                                         * reachable from control-path involuntarily, trigger subnetRoute election
+                                         */
                                         vpnSubnetRouteHandler.onInterfaceDown(dpnId, update.getName());
                                     }
                                 } else {
