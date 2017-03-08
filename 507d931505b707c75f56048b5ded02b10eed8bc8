@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_cbd329d3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2017-03-08T11:02:59Z",
+      "side": 1,
+      "message": "Where? The internal if checks whether this is a router interface, and therefore PENDING check is irrelevant (at least from what I understand, PENDING deviceId is relevant only in floatingips)",
+      "parentUuid": "fafc7978_9c8b311e",
+      "range": {
+        "startLine": 174,
+        "startChar": 1,
+        "endLine": 180,
+        "endChar": 9
+      },
+      "revId": "507d931505b707c75f56048b5ded02b10eed8bc8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e9e3b9d6",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 2
@@ -143,6 +167,24 @@
       "side": 1,
       "message": "If the state is PENDING, why would you want to process it?",
       "parentUuid": "fafc7978_496da503",
+      "revId": "507d931505b707c75f56048b5ded02b10eed8bc8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_abf1856c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2017-03-08T11:02:59Z",
+      "side": 1,
+      "message": "All the information for this method is available, but I guess we can delay the handling until it becomes fully active",
+      "parentUuid": "fafc7978_0a5c0f4a",
       "revId": "507d931505b707c75f56048b5ded02b10eed8bc8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
