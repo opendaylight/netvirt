@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_65022cb5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T06:25:52Z",
+      "side": 1,
+      "message": "Nit: you could directly invoke getNextHopListFromRoutePaths(vrfEntry.get())",
+      "revId": "2765259262fa796e7077634322410c8028319130",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c5115805",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 677,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T06:25:52Z",
+      "side": 1,
+      "message": "As discussed, Let us populate usedRd\u0027s DS even for extra routes created for router based VPNs. It makes fib handling to be uniform both bgp (or) router based VPNs.",
+      "revId": "2765259262fa796e7077634322410c8028319130",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e5257c5c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 864,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T06:25:52Z",
+      "side": 1,
+      "message": "can you move /32 into FibConstants with the name HOST_MASK",
+      "revId": "2765259262fa796e7077634322410c8028319130",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_051ec00b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 866,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T06:25:52Z",
+      "side": 1,
+      "message": "I don\u0027t see a need for map here. you can directly use tepIpAddresses.stream().findFirst()",
+      "revId": "2765259262fa796e7077634322410c8028319130",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_85d91059",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1625,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T06:25:52Z",
+      "side": 1,
+      "message": "you could still improve this code block as per my review comment in PS#7.",
+      "revId": "2765259262fa796e7077634322410c8028319130",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e5dc5c48",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1683,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-08T06:25:52Z",
+      "side": 1,
+      "message": "same comment as above.",
+      "revId": "2765259262fa796e7077634322410c8028319130",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
