@@ -19,7 +19,6 @@ import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -101,10 +100,7 @@ public class EvpnSnatFlowProgrammer {
         /* Install the flow PDNAT_TABLE (table=25)-> INBOUND_NAPT_TABLE (table=44)
          * If there is no FIP Match on table 25 (PDNAT_TABLE)
          */
-        List<Instruction> preDnatToSnatInstructions = new ArrayList<>();
-        preDnatToSnatInstructions.add(new InstructionGotoTable(tableId).buildInstruction(0));
-        makePreDnatToSnatTableEntry(dpnId, preDnatToSnatInstructions, tableId);
-
+        NatUtil.makePreDnatToSnatTableEntry(mdsalManager, dpnId, tableId);
     }
 
     public void evpnDelFibTsAndReverseTraffic(final BigInteger dpnId, final long routerId, final String externalIp,
@@ -144,41 +140,9 @@ public class EvpnSnatFlowProgrammer {
         //remove INTERNAL_TUNNEL_TABLE (table=36)-> INBOUND_NAPT_TABLE (table=44) flow
         removeTunnelTableEntry(dpnId, l3Vni);
         //remove L3_GW_MAC_TABLE (table=19)-> INBOUND_NAPT_TABLE (table=44) flow
-        removePreDnatToSnatTableEntry(dpnId);
+        NatUtil.removePreDnatToSnatTableEntry(mdsalManager, dpnId);
         //remove PDNAT_TABLE (table=25)-> INBOUND_NAPT_TABLE (table=44) flow
         NatEvpnUtil.removeL3GwMacTableEntry(dpnId, vpnId, gwMacAddress, mdsalManager);
-    }
-
-    private String getFlowRefPreDnatToSnat(BigInteger dpnId, short tableId, String uniqueId) {
-        return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId
-                + NwConstants.FLOWID_SEPARATOR + uniqueId;
-    }
-
-    public void makePreDnatToSnatTableEntry(BigInteger naptDpnId, List<Instruction> preDnatToSnatInstructions,
-                                            short tableId) {
-        LOG.debug("NAT Service : Create Pre-DNAT table {} --> table {} flow on NAPT DpnId {} ", NwConstants.PDNAT_TABLE,
-                tableId, naptDpnId);
-        List<MatchInfo> matches = new ArrayList<>();
-        matches.add(MatchEthernetType.IPV4);
-        String flowRef = getFlowRefPreDnatToSnat(naptDpnId, NwConstants.PDNAT_TABLE, "PreDNATToSNAT");
-        Flow preDnatToSnatTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.PDNAT_TABLE,flowRef,
-                5, flowRef, 0, 0,  NwConstants.COOKIE_DNAT_TABLE,
-                matches, preDnatToSnatInstructions);
-
-        mdsalManager.installFlow(naptDpnId, preDnatToSnatTableFlowEntity);
-        LOG.debug("NAT Service : Successfully installed Pre-DNAT flow {} on NAPT DpnId {} ",
-                preDnatToSnatTableFlowEntity,  naptDpnId);
-    }
-
-    public void removePreDnatToSnatTableEntry(BigInteger naptDpnId) {
-        LOG.debug("NAT Service : Remove Pre-DNAT table {} --> table {} flow on NAPT DpnId {} ", NwConstants.PDNAT_TABLE,
-                NwConstants.INBOUND_NAPT_TABLE, naptDpnId);
-        String flowRef = getFlowRefPreDnatToSnat(naptDpnId, NwConstants.PDNAT_TABLE, "PreDNATToSNAT");
-        Flow preDnatToSnatTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.PDNAT_TABLE,flowRef,
-                5, flowRef, 0, 0,  NwConstants.COOKIE_DNAT_TABLE, null, null);
-        mdsalManager.removeFlow(naptDpnId, preDnatToSnatTableFlowEntity);
-        LOG.debug("NAT Service : Successfully removed Pre-DNAT flow {} on NAPT DpnId = {}",
-                preDnatToSnatTableFlowEntity, naptDpnId);
     }
 
     public void makeTunnelTableEntry(BigInteger dpnId, long l3Vni, List<Instruction> customInstructions,

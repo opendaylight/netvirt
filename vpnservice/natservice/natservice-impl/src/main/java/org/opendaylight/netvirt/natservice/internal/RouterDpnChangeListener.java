@@ -220,7 +220,6 @@ public class RouterDpnChangeListener
             BigInteger naptId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
             if (naptId == null || naptId.equals(BigInteger.ZERO) || !naptSwitchHA.getSwitchStatus(naptId)) {
                 LOG.debug("No NaptSwitch is selected for router {}", routerName);
-
                 naptSwitch = dpnId;
                 boolean naptstatus = naptSwitchHA.updateNaptSwitch(routerName, naptSwitch);
                 if (!naptstatus) {
@@ -228,13 +227,11 @@ public class RouterDpnChangeListener
                     return;
                 }
                 LOG.debug("Switch {} is elected as NaptSwitch for router {}", dpnId, routerName);
-
                 // When NAPT switch is elected during first VM comes up for the given Router
                 if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
                     NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager,
                             idManager, NatConstants.ODL_VNI_POOL_NAME);
                 }
-
                 Routers extRouters = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
                 if (extRouters != null) {
                     NatUtil.createRouterIdsConfigDS(dataBroker, routerName);

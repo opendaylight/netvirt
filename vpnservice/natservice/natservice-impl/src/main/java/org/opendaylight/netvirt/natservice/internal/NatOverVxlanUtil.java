@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
 
+import java.math.BigInteger;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -37,29 +38,39 @@ public class NatOverVxlanUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatOverVxlanUtil.class);
 
-    public static long getRouterVni(IdManagerService idManager, String routerName, long routerId) {
-        long routerVni = getVNI(routerName, idManager);
-        if (routerVni == -1) {
+    public static BigInteger getInternetVpnVni(IdManagerService idManager, String vpnUuid, long vpnid) {
+        BigInteger internetVpnVni = getVNI(vpnUuid, idManager);
+        if (internetVpnVni.longValue() == -1) {
+            LOG.warn("NAT Service : Unable to obtain Router VNI from VNI POOL for router {}."
+                    + "Router ID will be used as tun_id", vpnUuid);
+            return BigInteger.valueOf(vpnid);
+        }
+        return internetVpnVni;
+    }
+
+    public static BigInteger getRouterVni(IdManagerService idManager, String routerName, long routerId) {
+        BigInteger routerVni = getVNI(routerName, idManager);
+        if (routerVni.longValue() == -1) {
             LOG.warn("NAT Service : Unable to obtain Router VNI from VNI POOL for router {}."
                     + "Router ID will be used as tun_id", routerName);
-            return routerId;
+            return BigInteger.valueOf(routerId);
         }
         return routerVni;
     }
 
-    public static long getVNI(String vniKey, IdManagerService idManager) {
+    public static BigInteger getVNI(String vniKey, IdManagerService idManager) {
         AllocateIdInput getIdInput = new AllocateIdInputBuilder().setPoolName(NatConstants.ODL_VNI_POOL_NAME)
                 .setIdKey(vniKey).build();
         try {
             Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
             RpcResult<AllocateIdOutput> rpcResult = result.get();
             if (rpcResult.isSuccessful()) {
-                return rpcResult.getResult().getIdValue();
+                return BigInteger.valueOf(rpcResult.getResult().getIdValue());
             }
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
             LOG.error("NAT Service : getVNI Exception {}", e);
         }
-        return -1;
+        return BigInteger.valueOf(-1);
     }
 
     public static void releaseVNI(String vniKey, IdManagerService idManager) {
