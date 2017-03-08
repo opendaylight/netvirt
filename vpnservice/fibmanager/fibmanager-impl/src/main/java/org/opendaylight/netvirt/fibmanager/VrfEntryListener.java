@@ -309,6 +309,15 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     update.getDestPrefix());
                 return;
             }
+            //Update the used rds and vpntoextraroute containers only for the deleted nextHops.
+            List<String> nextHopsRemoved = FibUtil.getNextHopListFromRoutePaths(original);
+            nextHopsRemoved.removeAll(FibUtil.getNextHopListFromRoutePaths(update));
+            WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+            nextHopsRemoved.parallelStream()
+                    .forEach(nextHopRemoved -> FibUtil.updateUsedRdAndVpnToExtraRoute(
+                             writeOperTxn, dataBroker, nextHopRemoved, rd,
+                             update.getDestPrefix()));
+            writeOperTxn.submit();
             createFibEntries(identifier, update);
             LOG.info("UPDATE: Updated Fib Entries to rd {} prefix {} route-paths {}",
                 rd, update.getDestPrefix(), update.getRoutePaths());
@@ -471,6 +480,16 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(), vrfTableKey, vrfEntry, writeTx);
                 }
             }
+        }
+    }
+
+    void refreshFibTables(String rd, String prefix) {
+        InstanceIdentifier<VrfEntry> vrfEntryId =
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
+                        .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+        Optional<VrfEntry> vrfEntry = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        if (vrfEntry.isPresent()) {
+            createFibEntries(vrfEntryId, vrfEntry.get());
         }
     }
 
@@ -1133,11 +1152,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         new ExtraRoutesKey(vrfId)).child(Routes.class, new RoutesKey(ipPrefix)).build();
     }
 
-    public Routes getVpnToExtraroute(String vpnRd, String destPrefix) {
-        Optional<String> optVpnName = FibUtil.getVpnNameFromRd(dataBroker, vpnRd);
-        if (optVpnName.isPresent()) {
+    public Routes getVpnToExtraroute(Long vpnId, String vpnRd, String destPrefix) {
+        String optVpnName = FibUtil.getVpnNameFromId(dataBroker, vpnId);
+        if (optVpnName != null) {
             InstanceIdentifier<Routes> vpnExtraRoutesId = getVpnToExtrarouteIdentifier(
-                    optVpnName.get(), vpnRd, destPrefix);
+                    optVpnName, vpnRd, destPrefix);
             return FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, vpnExtraRoutesId).orNull();
         }
         return null;
@@ -1317,7 +1336,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         Prefixes prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
         Routes extraRoute = null;
         if (prefixInfo == null) {
-            extraRoute = getVpnToExtraroute(rd, vrfEntry.getDestPrefix());
+            List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
+            String usedRd = usedRds.isEmpty() ? rd : usedRds.get(0);
+            extraRoute = getVpnToExtraroute(vpnId, usedRd, vrfEntry.getDestPrefix());
             if (extraRoute != null) {
                 for (String nextHopIp : extraRoute.getNexthopIpList()) {
                     LOG.debug("NextHop IP for destination {} is {}", vrfEntry.getDestPrefix(), nextHopIp);
@@ -1438,9 +1459,14 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
             if (extraRoute != null) {
                 Optional<String> optVpnName = FibUtil.getVpnNameFromRd(dataBroker, rd);
+                List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
+                //Only one used Rd present in case of removal event
+                String usedRd = usedRds.get(0);
                 if (optVpnName.isPresent()) {
                     writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                            getVpnToExtrarouteIdentifier(optVpnName.get(), rd, vrfEntry.getDestPrefix()));
+                            getVpnToExtrarouteIdentifier(optVpnName.get(), usedRd, vrfEntry.getDestPrefix()));
+                    writeOperTxn.delete(LogicalDatastoreType.CONFIGURATION,
+                            VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, vrfEntry.getDestPrefix()));
                 }
             }
             Optional<Adjacencies> optAdjacencies = FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
