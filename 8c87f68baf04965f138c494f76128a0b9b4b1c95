@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_cb5cc97f",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-08T11:10:35Z",
+      "side": 1,
+      "message": "We should also specify the level of integration of SFC with Genius. My understanding is it is only integrated when it comes to logical SFF, is that right? If that was the case, then I guess this Netvirt classifier will only work with logical SFF.\nCan we include the level of Genius integration in SFC and whether we will only support logical SFF?",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 23
+      },
+      "revId": "8c87f68baf04965f138c494f76128a0b9b4b1c95",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6bfb1d47",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-08T11:10:35Z",
+      "side": 1,
+      "message": "I guess you have already discussed that, but why should we classify in all netvirt ports? That would affect the performance of the system and what is worse, we might enter in executing SFC several times unnecessarily.\n\nLet\u0027s imagine a case where in the same neutron network we have the client and the server, both as two VMs (this is what we test in OPNFV, right?). If we introduce a Service Chain for part of the traffic, the classifier will send the traffic to the Service Chain from the client and from the server, and hence it will be executed twice.\n\nWhy don\u0027t we include a new parameter in the classifier specifyin the interface (for instance the client interface)?, something similar to what we have in SFC Classifier (I think this is not used) or in logical SFF (see below)\n\n**SFC Classifier**\n  grouping attachment-point {\n    description\n      \"Reusable group of all possible attachment point types\";\n    choice attachment-point-type {\n      description\n        \"Provides a choice between access list\n         attachment point types\";\n      case bridge {\n        leaf bridge {\n          type string;\n          description\n            \"OVS bridge as an attachment point\";\n        }\n      }\n      case **interface** {\n        leaf interface {\n          type string;\n          description\n            \"interface name as attachment point\";\n        }\n      }\n    }\n  }\n\nFor more info see https://github.com/opendaylight/sfc/blob/master/sfc-model/src/main/yang/service-function-forwarder-logical.yang\n\n** Logical SFF **\n  grouping logical-interface-locator {\n    description \"Interface name of the VM on which the SF is running\";\n    leaf **interface-name** {\n      type string;\n      description \"Name of the interface\";\n    }\n  }\nFor more info see https://github.com/opendaylight/sfc/blob/master/sfc-model/src/main/yang/service-function-forwarder-logical.yang",
+      "range": {
+        "startLine": 189,
+        "startChar": 0,
+        "endLine": 189,
+        "endChar": 29
+      },
+      "revId": "8c87f68baf04965f138c494f76128a0b9b4b1c95",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
