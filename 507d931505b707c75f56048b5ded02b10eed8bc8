@@ -78,6 +78,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8a50ff32",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-08T04:30:29Z",
+      "side": 1,
+      "message": "Isaku,\n\nKoby has done that in Line 225.",
+      "parentUuid": "fafc7978_1cd10123",
+      "revId": "507d931505b707c75f56048b5ded02b10eed8bc8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a9bed1ab",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 2
@@ -107,6 +125,24 @@
       "side": 1,
       "message": "Why? this was done in any floatingip add() or update()..",
       "parentUuid": "fafc7978_a9bed1ab",
+      "revId": "507d931505b707c75f56048b5ded02b10eed8bc8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0a5c0f4a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-08T04:30:29Z",
+      "side": 1,
+      "message": "If the state is PENDING, why would you want to process it?",
+      "parentUuid": "fafc7978_496da503",
       "revId": "507d931505b707c75f56048b5ded02b10eed8bc8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
