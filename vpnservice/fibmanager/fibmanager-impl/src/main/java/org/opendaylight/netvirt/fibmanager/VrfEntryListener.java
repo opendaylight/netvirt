@@ -314,6 +314,15 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     update.getDestPrefix());
                 return;
             }
+            //Update the used rds and vpntoextraroute containers only for the deleted nextHops.
+            List<String> nextHopsRemoved = FibUtil.getNextHopListFromRoutePaths(original);
+            nextHopsRemoved.removeAll(FibUtil.getNextHopListFromRoutePaths(update));
+            WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+            nextHopsRemoved.parallelStream()
+                    .forEach(nextHopRemoved -> FibUtil.updateUsedRdAndVpnToExtraRoute(
+                             writeOperTxn, dataBroker, nextHopRemoved, rd,
+                             update.getDestPrefix()));
+            writeOperTxn.submit();
             createFibEntries(identifier, update);
             LOG.info("UPDATE: Updated Fib Entries to rd {} prefix {} route-paths {}",
                 rd, update.getDestPrefix(), update.getRoutePaths());
@@ -470,6 +479,16 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(), vrfTableKey, vrfEntry, writeTx);
                 }
             }
+        }
+    }
+
+    void refreshFibTables(String rd, String prefix) {
+        InstanceIdentifier<VrfEntry> vrfEntryId =
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
+                        .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+        Optional<VrfEntry> vrfEntry = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        if (vrfEntry.isPresent()) {
+            createFibEntries(vrfEntryId, vrfEntry.get());
         }
     }
 
@@ -1275,7 +1294,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         Prefixes prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
         Routes extraRoute = null;
         if (prefixInfo == null) {
-            extraRoute = getVpnToExtraroute(rd, vrfEntry.getDestPrefix());
+            List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
+            String usedRd = usedRds.get(0);
+            extraRoute = getVpnToExtraroute(usedRd, vrfEntry.getDestPrefix());
             if (extraRoute != null) {
                 for (String nextHopIp : extraRoute.getNexthopIpList()) {
                     LOG.debug("NextHop IP for destination {} is {}", vrfEntry.getDestPrefix(), nextHopIp);
@@ -1396,9 +1417,14 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
             if (extraRoute != null) {
                 Optional<String> optVpnName = FibUtil.getVpnNameFromRd(dataBroker, rd);
+                List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
+                //Only one used Rd present in case of removal event
+                String usedRd = usedRds.get(0);
                 if (optVpnName.isPresent()) {
                     writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                            getVpnToExtrarouteIdentifier(optVpnName.get(), rd, vrfEntry.getDestPrefix()));
+                            getVpnToExtrarouteIdentifier(optVpnName.get(), usedRd, vrfEntry.getDestPrefix()));
+                    writeOperTxn.delete(LogicalDatastoreType.CONFIGURATION,
+                            VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, vrfEntry.getDestPrefix()));
                 }
             }
             Optional<Adjacencies> optAdjacencies = FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
@@ -1511,7 +1537,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             } else {
                 // The first rd is retrieved from usedrds as Only 1 rd would be present as extra route prefix
                 //is not present in any other DPN
-                usedRd = usedRds.get(0);
+                // For primary adjacency use the primary rd which is the key of the current vrftable
+                usedRd = FibUtil.getPrefixToInterface(dataBroker,
+                        vpnInstance.getVpnId(), vrfEntry.getDestPrefix()) == null ? usedRds.get(0) : rd;
             }
 
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
