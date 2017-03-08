@@ -40,6 +40,7 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
@@ -53,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.Se
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpRequestInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.interfaces.InterfaceAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.interfaces.InterfaceAddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
@@ -86,6 +88,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     private final OdlArputilService arpUtilService;
     private final IElanService elanService;
     private final EvpnDnatFlowProgrammer evpnDnatFlowProgrammer;
+    private final INeutronVpnManager nvpnManager;
+    private final IdManagerService idManager;
 
     static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     static final String FLOWID_PREFIX = "NAT.";
@@ -99,8 +103,9 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                                 final OdlArputilService arputilService,
                                 final IVpnManager vpnManager,
                                 final IElanService elanService,
-                                final EvpnDnatFlowProgrammer evpnDnatFlowProgrammer
-    ) {
+                                final EvpnDnatFlowProgrammer evpnDnatFlowProgrammer,
+                                final INeutronVpnManager nvpnManager,
+                                final IdManagerService idManager) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.vpnService = vpnService;
@@ -112,6 +117,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         this.vpnManager = vpnManager;
         this.elanService = elanService;
         this.evpnDnatFlowProgrammer = evpnDnatFlowProgrammer;
+        this.nvpnManager = nvpnManager;
+        this.idManager = idManager;
     }
 
     @Override
@@ -149,6 +156,12 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             }
             return;
         }
+
+        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+            NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager,
+                    idManager, NatConstants.ODL_VNI_POOL_NAME);
+        }
+
         GenerateVpnLabelInput labelInput = new GenerateVpnLabelInputBuilder().setVpnName(vpnName)
             .setIpPrefix(externalIp).build();
         Future<RpcResult<GenerateVpnLabelOutput>> labelFuture = vpnService.generateVpnLabel(labelInput);
@@ -161,15 +174,19 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     LOG.debug("Generated label {} for prefix {}", label, externalIp);
                     floatingIPListener.updateOperationalDS(routerId, interfaceName, label, internalIp, externalIp);
                     //Inform BGP
+                    long l3vni = 0;
+                    if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                        l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
+                    }
                     NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, subnetId,
                             externalIp + "/32", nextHopIp, networkId.getValue(), floatingIpPortMacAddress,
-                            label, LOG, RouteOrigin.STATIC, dpnId);
+                            label, l3vni, LOG, RouteOrigin.STATIC, dpnId);
 
                     List<Instruction> instructions = new ArrayList<>();
                     List<ActionInfo> actionsInfos = new ArrayList<>();
                     actionsInfos.add(new ActionNxResubmit(NwConstants.PDNAT_TABLE));
                     instructions.add(new InstructionApplyActions(actionsInfos).buildInstruction(0));
-                    makeTunnelTableEntry(dpnId, label, instructions);
+                    makeTunnelTableEntry(vpnName, dpnId, label, instructions);
 
                     //Install custom FIB routes
                     List<ActionInfo> actionInfoFib = new ArrayList<>();
@@ -337,15 +354,24 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         LOG.debug("Terminating service Entry for dpID {} : label : {} removed successfully {}", dpnId, serviceId);
     }
 
-    private void makeTunnelTableEntry(BigInteger dpnId, long serviceId, List<Instruction> customInstructions) {
+    private void makeTunnelTableEntry(String vpnName, BigInteger dpnId, long serviceId,
+            List<Instruction> customInstructions) {
         List<MatchInfo> mkMatches = new ArrayList<>();
 
         LOG.info("create terminatingServiceAction on DpnId = {} and serviceId = {} and actions = {}", dpnId, serviceId);
-
-        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(serviceId)));
+        int flowPriority = 5;
+        // Increased the 36->25 flow priority. If SNAT is also configured on the same
+        // DPN, then the traffic will be hijacked to DNAT and if there are no DNAT match,
+        // then handled back to using using flow 25->44(which will be installed as part of SNAT)
+        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+            mkMatches.add(new MatchTunnelId(NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, serviceId)));
+            flowPriority = 6;
+        } else {
+            mkMatches.add(new MatchTunnelId(BigInteger.valueOf(serviceId)));
+        }
 
         Flow terminatingServiceTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
-            getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""), 5,
+            getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""), flowPriority,
             String.format("%s:%d", "TST Flow Entry ", serviceId),
             0, 0, COOKIE_TUNNEL.add(BigInteger.valueOf(serviceId)), mkMatches, customInstructions);
 
