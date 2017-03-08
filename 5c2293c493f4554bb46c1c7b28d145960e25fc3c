@@ -71,6 +71,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_4bbe19af",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 990,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-08T10:58:44Z",
+      "side": 1,
+      "message": "I think this check needs to be changed. addPrexixToBGP is being called by addExtraRoute() by adding nextHop to a singletonList. In case the nextHop is null, You will have a singleton list with null as its only element. So, for a null nextHop, the nextHopList above will (1) not be null, and (2) not be empty.\nThis needs to check if nextHopList !\u003d null, \u0026\u0026 nextHopList().get(0) !\u003d null.\n\nPlease handle this conditions similarly in L3VpnPopulator.java as well",
+      "range": {
+        "startLine": 990,
+        "startChar": 16,
+        "endLine": 990,
+        "endChar": 64
+      },
+      "revId": "5c2293c493f4554bb46c1c7b28d145960e25fc3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_909b1017",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 5
@@ -94,6 +117,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_4b71f90a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-08T10:58:44Z",
+      "side": 1,
+      "message": "Potential NPE candidate. Please use Collections.singletonList(). Also, modify the notNull check in addOrUpdateFibEntry() appropriately.",
+      "range": {
+        "startLine": 75,
+        "startChar": 46,
+        "endLine": 75,
+        "endChar": 70
+      },
+      "revId": "5c2293c493f4554bb46c1c7b28d145960e25fc3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6b8f9d75",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
         "patchSetId": 5
@@ -105,6 +151,30 @@
       "writtenOn": "2017-03-08T10:02:32Z",
       "side": 1,
       "message": "this could be null, is that Ok?",
+      "range": {
+        "startLine": 104,
+        "startChar": 74,
+        "endLine": 104,
+        "endChar": 78
+      },
+      "revId": "5c2293c493f4554bb46c1c7b28d145960e25fc3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2b575559",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-08T10:58:44Z",
+      "side": 1,
+      "message": "I dont think nextHopIP from operational adjacency is being used anywhere. This should be fine",
+      "parentUuid": "fafc7978_6b8f9d75",
       "range": {
         "startLine": 104,
         "startChar": 74,
