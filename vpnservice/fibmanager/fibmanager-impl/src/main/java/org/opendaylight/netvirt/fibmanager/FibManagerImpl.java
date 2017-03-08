@@ -8,9 +8,12 @@
 package org.opendaylight.netvirt.fibmanager;
 
 import com.google.common.util.concurrent.FutureCallback;
+
 import io.netty.util.concurrent.GlobalEventExecutor;
+
 import java.math.BigInteger;
 import java.util.List;
+
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -107,8 +110,8 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void deleteStaticRoute(String prefix, String nextHop, String rd) {
-        vpnmanager.delExtraRoute(prefix, nextHop, rd, null);
+    public void deleteStaticRoute(String vpnName, String prefix, String nextHop, String rd) {
+        vpnmanager.delExtraRoute(vpnName, prefix, nextHop, rd, null);
     }
 
     @Override
@@ -200,5 +203,10 @@ public class FibManagerImpl implements IFibManager {
                                              final boolean isVpnFirstEndPoint,
                                              final VrfEntry vrfEntry) {
         vrfEntryListener.removeInterVPNLinkRouteFlows(interVpnLinkName, isVpnFirstEndPoint, vrfEntry);
+    }
+
+    @Override
+    public void refreshFibTables(String rd, String prefix) {
+        vrfEntryListener.refreshFibTables(rd, prefix);
     }
 }
