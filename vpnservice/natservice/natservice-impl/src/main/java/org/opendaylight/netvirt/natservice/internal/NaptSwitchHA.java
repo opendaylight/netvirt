@@ -37,6 +37,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
@@ -88,6 +89,7 @@ public class NaptSwitchHA {
     private final VpnRpcService vpnService;
     private final FibRpcService fibService;
     private final IFibManager fibManager;
+    private final INeutronVpnManager nvpnManager;
     private List<String> externalIpsCache;
     private HashMap<String, Long> externalIpsLabel;
 
@@ -100,7 +102,8 @@ public class NaptSwitchHA {
                         final IBgpManager bgpManager,
                         final VpnRpcService vpnService,
                         final FibRpcService fibService,
-                        final IFibManager fibManager) {
+                        final IFibManager fibManager,
+                        final INeutronVpnManager nvpnManager) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.externalRouterListener = externalRouterListener;
@@ -112,6 +115,7 @@ public class NaptSwitchHA {
         this.vpnService = vpnService;
         this.fibService = fibService;
         this.fibManager = fibManager;
+        this.nvpnManager = nvpnManager;
     }
 
     /* This method checks the switch that gone down is a NaptSwitch for a router.
@@ -565,18 +569,18 @@ public class NaptSwitchHA {
                     //Install the flow in newNaptSwitch Outbound NAPT table.
                     try {
                         NaptEventHandler.buildAndInstallNatFlows(newNaptSwitch, NwConstants.OUTBOUND_NAPT_TABLE,
-                                vpnId, routerId, bgpVpnId, sourceAddress, externalAddress, proto, extGwMacAddress);
+                            vpnId, routerId, bgpVpnId, sourceAddress, externalAddress, proto, extGwMacAddress);
                     } catch (Exception ex) {
                         LOG.error("Failed to add flow in OUTBOUND_NAPT_TABLE for routerid {} dpnId {} "
-                                        + "ipport {}:{} proto {} extIpport {}:{} BgpVpnId {} - {}",
-                                routerId, newNaptSwitch, internalIpAddress,
-                                intportnum, proto, externalAddress, extportNumber, bgpVpnId, ex);
+                            + "ipport {}:{} proto {} extIpport {}:{} BgpVpnId {} - {}",
+                            routerId, newNaptSwitch, internalIpAddress,
+                            intportnum, proto, externalAddress, extportNumber, bgpVpnId, ex);
                         return false;
                     }
                     LOG.debug("Successfully installed a flow in Primary switch {} Outbound NAPT table for router {} "
-                                    + "ipport {}:{} proto {} extIpport {}:{} BgpVpnId {}",
-                            newNaptSwitch, routerId, internalIpAddress,
-                            intportnum, proto, externalAddress, extportNumber, bgpVpnId);
+                            + "ipport {}:{} proto {} extIpport {}:{} BgpVpnId {}",
+                        newNaptSwitch, routerId, internalIpAddress,
+                        intportnum, proto, externalAddress, extportNumber, bgpVpnId);
                 } else {
                     LOG.error("NewNaptSwitch {} gone down while installing flows from oldNaptswitch {}",
                         newNaptSwitch, oldNaptSwitch);
