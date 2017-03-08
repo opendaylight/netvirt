@@ -45,6 +45,30 @@
       "revId": "8c87f68baf04965f138c494f76128a0b9b4b1c95",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1371e70b",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-03-08T16:25:13Z",
+      "side": 1,
+      "message": "Please do not consider the comment about calling SFC back in the destination VM, but explain how this re-classification is avoided (by not doing any classification check in the VxLAN-GPE port)\nI still see it is better to change the netvirt classifier API to allow introducing an interface known by Genius. With that we will avoid the provisioning of the classification rules in all the VMs and we will facilitate the introduction of the classification from external networks (e.g L3VPN, L2VPNs..)",
+      "parentUuid": "fafc7978_6bfb1d47",
+      "range": {
+        "startLine": 189,
+        "startChar": 0,
+        "endLine": 189,
+        "endChar": 29
+      },
+      "revId": "8c87f68baf04965f138c494f76128a0b9b4b1c95",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
