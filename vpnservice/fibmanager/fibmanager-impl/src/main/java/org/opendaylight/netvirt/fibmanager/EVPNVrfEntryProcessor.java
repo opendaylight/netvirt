@@ -93,7 +93,7 @@ public class EVPNVrfEntryProcessor {
         List<BigInteger> returnLocalDpnId = new ArrayList<>();
         if (localNextHopInfo == null) {
             //Handle extra routes and imported routes
-            Routes extraRoute = vrfEntryListener.getVpnToExtraroute(rd, vrfEntry.getDestPrefix());
+            Routes extraRoute = vrfEntryListener.getVpnToExtraroute(vpnId, rd, vrfEntry.getDestPrefix());
             if (extraRoute != null) {
                 for (String nextHopIp : extraRoute.getNexthopIpList()) {
                     logger.info("NextHop IP for destination {} is {}", vrfEntry.getDestPrefix(), nextHopIp);

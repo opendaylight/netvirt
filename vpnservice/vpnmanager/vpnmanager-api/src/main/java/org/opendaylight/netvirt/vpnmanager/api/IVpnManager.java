@@ -25,7 +25,7 @@ public interface IVpnManager {
     void addExtraRoute(String vpnName, String destination, String nextHop,
             String rd, String routerID, int label, RouteOrigin origin);
 
-    void delExtraRoute(String destination, String nextHop, String rd, String routerID);
+    void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID);
 
     /**
      * Returns true if the specified VPN exists.
