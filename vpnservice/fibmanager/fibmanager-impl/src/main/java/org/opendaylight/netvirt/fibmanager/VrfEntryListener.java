@@ -297,6 +297,17 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     update.getDestPrefix());
                 return;
             }
+            //Update the used rds and vpntoextraroute containers only for the deleted nextHops.
+            //Update of the same containers are already done in Vpn Engine when nexthops are added.
+            List<String> nextHopsRemoved = FibUtil.getNextHopListFromRoutePaths(original);
+            nextHopsRemoved.removeAll(FibUtil.getNextHopListFromRoutePaths(update));
+            WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+            nextHopsRemoved.parallelStream()
+                    .forEach(
+                            nextHopRemoved -> FibUtil.updateUsedRdAndVpnToExtraRoute(
+                                    writeOperTxn, dataBroker, nextHopRemoved, rd,
+                                    update.getDestPrefix()));
+            writeOperTxn.submit();
             createFibEntries(identifier, update);
             LOG.info("UPDATE: Updated Fib Entries to rd {} prefix {} route-paths {}",
                 rd, update.getDestPrefix(), update.getRoutePaths());
@@ -453,6 +464,16 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(), vrfTableKey, vrfEntry, writeTx);
                 }
             }
+        }
+    }
+
+    void refreshFibTables(String rd, String prefix) {
+        InstanceIdentifier<VrfEntry> vrfEntryId =
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
+                        .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+        Optional<VrfEntry> vrfEntry = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        if (vrfEntry.isPresent()) {
+            createFibEntries(vrfEntryId, vrfEntry.get());
         }
     }
 
@@ -1365,6 +1386,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 if (optVpnName.isPresent()) {
                     writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
                             getVpnToExtrarouteIdentifier(optVpnName.get(), rd, vrfEntry.getDestPrefix()));
+                    writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                            FibUtil.getUsedRdsIdentifier(vpnId, vrfEntry.getDestPrefix()));
                 }
             }
             Optional<Adjacencies> optAdjacencies = FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,

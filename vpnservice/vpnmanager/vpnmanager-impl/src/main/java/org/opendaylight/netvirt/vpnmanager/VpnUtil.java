@@ -105,6 +105,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortKey;
@@ -1548,6 +1549,18 @@ public class VpnUtil {
 
     static String getVpnNamePrefixKey(String vpnName, String prefix) {
         return vpnName + VpnConstants.SEPARATOR + prefix;
+    }
+
+    static InstanceIdentifier<Adjacency> getAdjacencyIdentifier(String vpnInterfaceName, String ipAddress) {
+        return InstanceIdentifier.builder(VpnInterfaces.class)
+                .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName))
+                .augmentation(Adjacencies.class).child(Adjacency.class, new AdjacencyKey(ipAddress)).build();
+    }
+
+    public static Optional<Routes> getVpnExtraroutes(DataBroker broker,
+            String vpnName, String vpnRd, String destPrefix) {
+        InstanceIdentifier<Routes> vpnExtraRoutesId = getVpnToExtrarouteIdentifier(vpnName, vpnRd, destPrefix);
+        return read(broker, LogicalDatastoreType.OPERATIONAL, vpnExtraRoutesId);
     }
 
     public static List<String> getIpsListFromExternalIps(List<ExternalIps> externalIps) {

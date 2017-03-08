@@ -201,4 +201,9 @@ public class FibManagerImpl implements IFibManager {
                                              final VrfEntry vrfEntry) {
         vrfEntryListener.removeInterVPNLinkRouteFlows(interVpnLinkName, isVpnFirstEndPoint, vrfEntry);
     }
+
+    @Override
+    public void refreshFibTables(String rd, String prefix) {
+        vrfEntryListener.refreshFibTables(rd, prefix);
+    }
 }
