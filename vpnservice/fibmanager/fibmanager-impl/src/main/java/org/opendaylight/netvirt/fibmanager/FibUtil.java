@@ -618,4 +618,8 @@ public class FibUtil {
         }
         return java.util.Optional.of(vrfEntry.getRoutePaths().get(0).getNexthopAddress());
     }
+
+    public static String getGreLbGroupKey(List<String> availableDcGws) {
+        return "gre-" + availableDcGws.stream().sorted().collect(Collectors.joining(":"));
+    }
 }
