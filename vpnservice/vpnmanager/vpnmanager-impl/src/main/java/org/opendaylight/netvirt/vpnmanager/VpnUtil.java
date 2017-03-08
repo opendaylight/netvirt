@@ -91,11 +91,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev16041
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanTagNameMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagNameKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.ExtrarouteRdsMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.ExtrarouteRds;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.ExtrarouteRdsKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.extraroute.rds.DestPrefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.extraroute.rds.DestPrefixesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.extraroute.rds.DestPrefixesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
@@ -116,6 +112,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortKey;
@@ -381,18 +378,6 @@ public class VpnUtil {
         interfaceFromIfIndexOutput = rpcResult.getResult();
         String interfaceName = interfaceFromIfIndexOutput.getInterfaceName();
         return interfaceName;
-    }
-
-    static  List<String> getUsedRds(DataBroker broker, long vpnId, String destPrefix) {
-        InstanceIdentifier<DestPrefixes> usedRdsId = getUsedRdsIdentifier(vpnId, destPrefix);
-        Optional<DestPrefixes> usedRds = read(broker, LogicalDatastoreType.CONFIGURATION, usedRdsId);
-        return usedRds.isPresent() ? usedRds.get().getRds() : new ArrayList<String>();
-    }
-
-    static  InstanceIdentifier<DestPrefixes> getUsedRdsIdentifier(long vpnId, String destPrefix) {
-        return InstanceIdentifier.builder(ExtrarouteRdsMap.class)
-                .child(ExtrarouteRds.class, new ExtrarouteRdsKey(vpnId))
-                .child(DestPrefixes.class, new DestPrefixesKey(destPrefix)).build();
     }
 
     static DestPrefixesBuilder getDestPrefixesBuilder(String destPrefix, List<String> rd) {
@@ -1538,8 +1523,8 @@ public class VpnUtil {
     static java.util.Optional<String> allocateRdForExtraRouteAndUpdateUsedRdsMap(
             DataBroker dataBroker, long vpnId, Optional<Long> parentVpnId, String prefix, String vpnName,
             BigInteger dpnId, WriteTransaction writeOperTxn) {
-        List<String> usedRds = getUsedRds(dataBroker, vpnId, prefix);
-        //Check if rd is already allocated for the same prefix. Use same rd if extra route is behind same CSS.
+        List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, prefix);
+        //Check if rd is already allocated for the same prefix. Use same rd if extra route is behind same OVS.
         java.util.Optional<String> rdToAllocate = usedRds.stream()
                 .map(usedRd -> {
                     Optional<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getVpnExtraroutes(dataBroker,
@@ -1569,7 +1554,8 @@ public class VpnUtil {
         if (availableRds.isEmpty()) {
             LOG.debug("Internal vpn. Returning vpn name {} as rd", vpnName);
             usedRds.add(vpnName);
-            syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, getUsedRdsIdentifier(vpnId, prefix),
+            syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix),
                     getDestPrefixesBuilder(prefix, usedRds).build());
             return java.util.Optional.ofNullable(vpnName);
         }
@@ -1581,16 +1567,23 @@ public class VpnUtil {
             LOG.error("No rd available from VpnInstance to allocate for prefix {}", prefix);
             return java.util.Optional.empty();
         }
-        // If rd is not allocated for this prefix or if extra route is behind different CSS, select a new rd.
+        // If rd is not allocated for this prefix or if extra route is behind different OVS, select a new rd.
         String rd = availableRds.get(0);
         usedRds.add(rd);
-        syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, getUsedRdsIdentifier(vpnId, prefix),
+        syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix),
                 getDestPrefixesBuilder(prefix, usedRds).build());
         return java.util.Optional.ofNullable(rd);
     }
 
     static String getVpnNamePrefixKey(String vpnName, String prefix) {
         return vpnName + VpnConstants.SEPARATOR + prefix;
+    }
+
+    static InstanceIdentifier<Adjacency> getAdjacencyIdentifier(String vpnInterfaceName, String ipAddress) {
+        return InstanceIdentifier.builder(VpnInterfaces.class)
+                .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName))
+                .augmentation(Adjacencies.class).child(Adjacency.class, new AdjacencyKey(ipAddress)).build();
     }
 
     public static List<String> getIpsListFromExternalIps(List<ExternalIps> externalIps) {
