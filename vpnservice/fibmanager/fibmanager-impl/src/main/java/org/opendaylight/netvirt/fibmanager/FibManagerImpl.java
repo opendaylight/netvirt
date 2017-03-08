@@ -201,4 +201,23 @@ public class FibManagerImpl implements IFibManager {
                                              final VrfEntry vrfEntry) {
         vrfEntryListener.removeInterVPNLinkRouteFlows(interVpnLinkName, isVpnFirstEndPoint, vrfEntry);
     }
+
+    @Override
+    public void createDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId,
+            String destinationIp) {
+        nexthopManager.createDcGwLoadBalancingGroup(availableDcGws, dpnId, destinationIp);
+    }
+
+    @Override
+    public void removeOrUpdateDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId,
+            String destinationIp) {
+        nexthopManager.removeOrUpdateDcGwLoadBalancingGroup(availableDcGws, dpnId, destinationIp);
+    }
+
+    @Override
+    public void updateDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId,
+            String destinationIp, boolean isTunnelUp) {
+        nexthopManager.updateDcGwLoadBalancingGroup(availableDcGws, dpnId, destinationIp,
+                isTunnelUp);
+    }
 }

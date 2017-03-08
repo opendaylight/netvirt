@@ -86,4 +86,13 @@ public interface IFibManager {
     void removeInterVPNLinkRouteFlows(String interVpnLinkName,
                                       boolean isVpnFirstEndPoint,
                                       VrfEntry vrfEntry);
+
+    void createDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId,
+            String destinationIp);
+
+    void removeOrUpdateDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId,
+            String destinationIp);
+
+    void updateDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId,
+            String destinationIp, boolean isTunnelUp);
 }

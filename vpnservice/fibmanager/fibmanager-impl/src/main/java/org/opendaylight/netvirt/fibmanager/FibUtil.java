@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.fibmanager;
 
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -20,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -49,10 +51,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.DpidL3vpnLbNexthops;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.L3vpnLbNexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpid.l3vpn.lb.nexthops.DpnLbNexthops;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpid.l3vpn.lb.nexthops.DpnLbNexthopsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpid.l3vpn.lb.nexthops.DpnLbNexthopsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.l3vpn.lb.nexthops.Nexthops;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.l3vpn.lb.nexthops.NexthopsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.l3vpn.lb.nexthops.NexthopsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIdsKey;
@@ -446,7 +456,7 @@ public class FibUtil {
                         .filter(nextHop -> nextHop != null && !nextHop.isEmpty())
                         .map(nextHop -> {
                             return FibHelper.buildRoutePath(nextHop, lbl);
-                        }).collect(Collectors.toList());
+                        }).collect(toList());
         builder.setRoutePaths(routePaths);
     }
 
@@ -602,7 +612,7 @@ public class FibUtil {
         }
         return routePaths.stream()
                 .map(routePath -> routePath.getNexthopAddress())
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     public static java.util.Optional<Long> getLabelFromRoutePaths(final VrfEntry vrfEntry) {
@@ -643,5 +653,51 @@ public class FibUtil {
         }
 
         return null;
+    }
+
+    public static String getGreLbGroupKey(List<String> availableDcGws) {
+        return "gre-" + availableDcGws.stream().sorted().collect(joining(":"));
+    }
+
+    public static void updateLbGroupInfo(BigInteger dpnId, String destinationIp, String groupIdKey,
+            String groupId, WriteTransaction tx) {
+        InstanceIdentifier<DpnLbNexthops> id = InstanceIdentifier.builder(DpidL3vpnLbNexthops.class)
+                .child(DpnLbNexthops.class, new DpnLbNexthopsKey(destinationIp, dpnId))
+                .build();
+        DpnLbNexthops dpnToLbNextHop = new DpnLbNexthopsBuilder().setKey(new DpnLbNexthopsKey(destinationIp, dpnId))
+                .setDstDeviceId(destinationIp).setSrcDpId(dpnId)
+                .setNexthopKey(Collections.singletonList(groupIdKey)).build();
+        tx.merge(LogicalDatastoreType.OPERATIONAL, id, dpnToLbNextHop);
+        InstanceIdentifier<Nexthops> nextHopsId = InstanceIdentifier.builder(L3vpnLbNexthops.class)
+                .child(Nexthops.class, new NexthopsKey(groupIdKey)).build();
+        Nexthops nextHopsToGroupId = new NexthopsBuilder().setKey(new NexthopsKey(groupIdKey))
+                .setNexthopKey(groupIdKey)
+                .setGroupId(groupId)
+                .setTargetDeviceId(Collections.singletonList(destinationIp)).build();
+        tx.merge(LogicalDatastoreType.OPERATIONAL, nextHopsId, nextHopsToGroupId);
+    }
+
+    public static void removeDpnIdToNextHopInfo(String destinationIp, BigInteger dpnId, WriteTransaction tx) {
+        InstanceIdentifier<DpnLbNexthops> id = InstanceIdentifier.builder(DpidL3vpnLbNexthops.class)
+                .child(DpnLbNexthops.class, new DpnLbNexthopsKey(destinationIp, dpnId))
+                .build();
+        tx.delete(LogicalDatastoreType.OPERATIONAL, id);
+    }
+
+    public static void removeOrUpdateNextHopInfo(String destinationIp, String nextHopKey, String groupId,
+            Nexthops nexthops, WriteTransaction tx) {
+        InstanceIdentifier<Nexthops> nextHopsId = InstanceIdentifier.builder(L3vpnLbNexthops.class)
+                .child(Nexthops.class, new NexthopsKey(nextHopKey)).build();
+        List<String> targetDeviceIds = nexthops.getTargetDeviceId();
+        targetDeviceIds.remove(destinationIp);
+        if (targetDeviceIds.size() == 0) {
+            tx.delete(LogicalDatastoreType.OPERATIONAL, nextHopsId);
+        } else {
+            Nexthops nextHopsToGroupId = new NexthopsBuilder().setKey(new NexthopsKey(nextHopKey))
+                .setNexthopKey(nextHopKey)
+                .setGroupId(groupId)
+                .setTargetDeviceId(targetDeviceIds).build();
+            tx.put(LogicalDatastoreType.OPERATIONAL, nextHopsId, nextHopsToGroupId);
+        }
     }
 }
