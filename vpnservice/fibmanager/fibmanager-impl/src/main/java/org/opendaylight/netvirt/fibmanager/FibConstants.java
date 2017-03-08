@@ -8,6 +8,12 @@
 package org.opendaylight.netvirt.fibmanager;
 
 import java.math.BigInteger;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg0;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg1;
 
 public class FibConstants {
     static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
@@ -18,4 +24,10 @@ public class FibConstants {
     static final String SEPARATOR = ".";
     static final String DEFAULT_NEXTHOP_IP = "0.0.0.0";
     public static final long INVALID_GROUP_ID = -1;
+    public static final Map<Integer,  Class<? extends NxmNxReg>> NXM_REG_MAPPING = new ConcurrentHashMap<>();
+
+    static {
+        NXM_REG_MAPPING.put(0, NxmNxReg0.class);
+        NXM_REG_MAPPING.put(1, NxmNxReg1.class);
+    }
 }
