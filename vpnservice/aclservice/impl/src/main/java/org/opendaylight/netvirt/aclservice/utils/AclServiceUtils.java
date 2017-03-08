@@ -526,7 +526,7 @@ public final class AclServiceUtils {
                 for (AllowedAddressPairs aap : allowedAddressPair) {
                     List<MatchInfoBase> matchInfoBaseList;
                     String flowId;
-                    if (flows.contains(ipv4Match) && isIPv4Address(aap)) {
+                    if (flows.contains(ipv4Match) && isIPv4Address(aap) && isNotIpv4AllNetwork(aap)) {
                         matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
                         flowId = flowName + "_ipv4_remoteACL_interface_aap_" + getAapFlowId(aap);
                         updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
@@ -578,7 +578,7 @@ public final class AclServiceUtils {
             for (AllowedAddressPairs aap : syncAllowedAddresses) {
                 List<MatchInfoBase> matchInfoBaseList;
                 String flowId;
-                if (flows.contains(ipv4Match) && isIPv4Address(aap)) {
+                if (flows.contains(ipv4Match) && isIPv4Address(aap) && isNotIpv4AllNetwork(aap)) {
                     matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
                     flowId = flowName + "_ipv4_remoteACL_interface_aap_" + getAapFlowId(aap);
                     updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
@@ -591,6 +591,15 @@ public final class AclServiceUtils {
 
         }
         return updatedFlowMatchesMap;
+    }
+
+    protected static boolean isNotIpv4AllNetwork(AllowedAddressPairs aap) {
+        IpPrefix ipPrefix = aap.getIpAddress().getIpPrefix();
+        if (ipPrefix != null && ipPrefix.getIpv4Prefix() != null
+                && ipPrefix.getIpv4Prefix().getValue().equals(AclConstants.IPV4_ALL_NETWORK)) {
+            return false;
+        }
+        return true;
     }
 
     private static String getAapFlowId(AllowedAddressPairs aap) {
