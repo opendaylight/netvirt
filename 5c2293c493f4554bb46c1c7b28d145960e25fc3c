@@ -48,6 +48,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3d75dc31",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 679,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-03-08T12:36:52Z",
+      "side": 1,
+      "message": "This nhList is not used anymore. Its not populated, but its still used every where in this function which is wrong. Please update this function appropriately.",
+      "range": {
+        "startLine": 679,
+        "startChar": 21,
+        "endLine": 679,
+        "endChar": 27
+      },
+      "revId": "5c2293c493f4554bb46c1c7b28d145960e25fc3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1000c032",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 5
@@ -65,6 +88,23 @@
         "endLine": 701,
         "endChar": 26
       },
+      "revId": "5c2293c493f4554bb46c1c7b28d145960e25fc3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5d954031",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-03-08T12:36:52Z",
+      "side": 1,
+      "message": "same comments as above. Its not populated , but empty list is being passed every where in this function. Please change the code appropriately.",
       "revId": "5c2293c493f4554bb46c1c7b28d145960e25fc3c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
