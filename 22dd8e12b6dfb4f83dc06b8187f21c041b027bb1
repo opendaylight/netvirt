@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_8b7ac185",
+        "filename": "docs/specs/index.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-08T09:53:06Z",
+      "side": 1,
+      "message": "Shai can you resolve conflict and put this in the right line (abc) ?\n\nThanks",
+      "revId": "22dd8e12b6dfb4f83dc06b8187f21c041b027bb1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
