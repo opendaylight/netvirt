@@ -656,6 +656,7 @@ public class NatUtil {
                                       String prefix,
                                       String nextHopIp,
                                       long label,
+                                      long l3vni,
                                       Logger log, RouteOrigin origin, BigInteger dpId) {
         try {
             LOG.info("NAT Service : ADD: Adding Fib entry rd {} prefix {} nextHop {} label {}", rd,
@@ -666,7 +667,7 @@ public class NatUtil {
             }
             addPrefixToInterface(broker, getVpnId(broker, vpnName), prefix, dpId, /*isNatPrefix*/ true);
             fibManager.addOrUpdateFibEntry(broker, rd, null /*macAddress*/, prefix,
-                    Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, (int)label, 0 /*l3vni*/,
+                    Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, (int)label,  l3vni/*l3vni*/,
                     null /*gatewayMacAddress*/, origin, null /*writeTxn*/);
             if ((rd != null) && (!rd.equalsIgnoreCase(vpnName))) {
             /* Publish to Bgp only if its an INTERNET VPN */
