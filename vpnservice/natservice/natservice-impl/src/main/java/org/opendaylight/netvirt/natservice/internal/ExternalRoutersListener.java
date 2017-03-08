@@ -56,6 +56,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -140,6 +141,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     private final NaptPacketInHandler naptPacketInHandler;
     private final IFibManager fibManager;
     private final IVpnManager vpnManager;
+    private final INeutronVpnManager nvpnManager;
     private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000022", 16);
 
@@ -156,7 +158,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                    final NaptEventHandler naptEventHandler,
                                    final NaptPacketInHandler naptPacketInHandler,
                                    final IFibManager fibManager,
-                                   final IVpnManager vpnManager) {
+                                   final IVpnManager vpnManager,
+                                   final INeutronVpnManager nvpnManager) {
         super(Routers.class, ExternalRoutersListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
@@ -173,6 +176,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         this.naptPacketInHandler = naptPacketInHandler;
         this.fibManager = fibManager;
         this.vpnManager = vpnManager;
+        this.nvpnManager = nvpnManager;
     }
 
     @Override
@@ -283,6 +287,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             return primarySwitchId;
         }
 
+        // Validating and creating VNI pool during when NAPT switch is selected.
+        // With Assumption this might be the first NAT service comes up.
+        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+            NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager,
+                    idManager, NatConstants.ODL_VNI_POOL_NAME);
+        }
         primarySwitchId = naptSwitchSelector.selectNewNAPTSwitch(routerName);
         LOG.debug("NAT Service : Primary NAPT switch DPN ID {}", primarySwitchId);
         if (primarySwitchId == null || primarySwitchId.equals(BigInteger.ZERO)) {
@@ -942,15 +952,23 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         //Inform BGP
                         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
                         String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
+                        long l3vni = 0;
+                        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                            l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
+                        }
                         NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd,
-                            externalIp, nextHopIp, label, log, RouteOrigin.STATIC, dpnId);
+                            externalIp, nextHopIp, label, l3vni, log, RouteOrigin.STATIC, dpnId);
 
                         //Install custom FIB routes
                         List<Instruction> customInstructions = new ArrayList<>();
                         customInstructions.add(new InstructionGotoTable(tableId).buildInstruction(0));
-                        makeTunnelTableEntry(dpnId, label, customInstructions);
+                        makeTunnelTableEntry(dpnId, label, l3vni, customInstructions);
                         makeLFibTableEntry(dpnId, label, tableId);
-
+                        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                            //Install the flow table 25->44 If there is no FIP Match on table 25 (PDNAT_TABLE)
+                            NatOverVxlanUtil.makePreDnatToSnatTableEntry(mdsalManager, dpnId,
+                                    NwConstants.INBOUND_NAPT_TABLE);
+                        }
                         String fibExternalIp = externalIp.contains("/32") ? externalIp : (externalIp + "/32");
                         CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
                             .setSourceDpid(dpnId).setIpAddress(fibExternalIp).setServiceId(label)
@@ -1008,13 +1026,18 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         LOG.debug("NAT Service : LFIB Entry for dpID {} : label : {} modified successfully {}", dpId, serviceId);
     }
 
-    private void makeTunnelTableEntry(BigInteger dpnId, long serviceId, List<Instruction> customInstructions) {
+    private void makeTunnelTableEntry(BigInteger dpnId, long serviceId, long l3Vni,
+             List<Instruction> customInstructions) {
         List<MatchInfo> mkMatches = new ArrayList<>();
 
         LOG.debug("NAT Service : Create terminatingServiceAction on DpnId = {} and serviceId = {} and actions = {}",
             dpnId, serviceId);
 
-        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(serviceId)));
+        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+            mkMatches.add(new MatchTunnelId(BigInteger.valueOf(l3Vni)));
+        } else {
+            mkMatches.add(new MatchTunnelId(BigInteger.valueOf(serviceId)));
+        }
 
         Flow terminatingServiceTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
             getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""), 5,
@@ -1546,6 +1569,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 LOG.debug("Failed to remove fib entries for routerId {} in naptSwitchDpnId {} : {}",
                     routerId, naptSwitchDpnId, ex);
             }
+            NatOverVxlanUtil.releaseVNI(vpnId, idManager);
         } catch (Exception ex) {
             LOG.error("Exception while handling disableSNATInternetVpn : {}", ex);
         }
