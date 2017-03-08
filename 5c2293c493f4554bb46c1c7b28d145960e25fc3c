@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_10a1e093",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1458,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-08T10:02:32Z",
+      "side": 1,
+      "message": "this comment should be removed",
+      "range": {
+        "startLine": 1458,
+        "startChar": 42,
+        "endLine": 1458,
+        "endChar": 54
+      },
+      "revId": "5c2293c493f4554bb46c1c7b28d145960e25fc3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_907f90df",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1469,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-08T10:02:32Z",
+      "side": 1,
+      "message": "I think this code made some sense before there were several nexthops and we wanted to remove just one. But now, if there\u0027s only one nexthop, I think we should remove the whole adjacency (as in the \u0027else\u0027 below), or just clean the \u0027nexthop\u0027 attribute of the adjacency.\n\nThere\u0027s a \u0027nextHop\u0027 vble retrieved from the \"Route\" above. Not sure where it\u0027s coming from, but looks like if that nextHop matches the current one in the adjacency, the adjacency should be removed, isn\u0027t it?",
+      "range": {
+        "startLine": 1469,
+        "startChar": 24,
+        "endLine": 1469,
+        "endChar": 38
+      },
+      "revId": "5c2293c493f4554bb46c1c7b28d145960e25fc3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1000c032",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 701,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-08T10:02:32Z",
+      "side": 1,
+      "message": "if (nextHopIp \u003d\u003d null || !nextHopIp.equalsIgnoreCase(srcTepIp)) {...\n\nbtw, why \u0027equalsIgnoreCase\u0027? Can \u0027srcTepIp\u0027 be something different from an IpAddress?",
+      "range": {
+        "startLine": 698,
+        "startChar": 20,
+        "endLine": 701,
+        "endChar": 26
+      },
+      "revId": "5c2293c493f4554bb46c1c7b28d145960e25fc3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_909b1017",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1174,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-08T10:02:32Z",
+      "side": 1,
+      "message": "this can be assigned to a \u0027nextHopIp\u0027 vble and reused.",
+      "range": {
+        "startLine": 1174,
+        "startChar": 44,
+        "endLine": 1174,
+        "endChar": 66
+      },
+      "revId": "5c2293c493f4554bb46c1c7b28d145960e25fc3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6b8f9d75",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-08T10:02:32Z",
+      "side": 1,
+      "message": "this could be null, is that Ok?",
+      "range": {
+        "startLine": 104,
+        "startChar": 74,
+        "endLine": 104,
+        "endChar": 78
+      },
+      "revId": "5c2293c493f4554bb46c1c7b28d145960e25fc3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
