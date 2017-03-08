@@ -31,6 +31,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -73,6 +74,7 @@ public class NatTunnelInterfaceStateListener
     private OdlInterfaceRpcService interfaceService;
     private FloatingIPListener floatingIPListener;
     private FibRpcService fibRpcService;
+    private final INeutronVpnManager nvpnManager;
 
     protected enum TunnelAction {
         TUNNEL_EP_ADD,
@@ -105,7 +107,8 @@ public class NatTunnelInterfaceStateListener
                                            final ExternalRoutersListener externalRouterListner,
                                            final OdlInterfaceRpcService interfaceService,
                                            final FloatingIPListener floatingIPListener,
-                                           final FibRpcService fibRpcService) {
+                                           final FibRpcService fibRpcService,
+                                           final INeutronVpnManager nvpnManager) {
         super(StateTunnelList.class, NatTunnelInterfaceStateListener.class);
         this.dataBroker = dataBroker;
         this.bgpManager = bgpManager;
@@ -118,6 +121,7 @@ public class NatTunnelInterfaceStateListener
         this.interfaceService = interfaceService;
         this.floatingIPListener = floatingIPListener;
         this.fibRpcService = fibRpcService;
+        this.nvpnManager = nvpnManager;
     }
 
     @Override
@@ -602,8 +606,12 @@ public class NatTunnelInterfaceStateListener
 
                 LOG.debug("NAT Service : SNAT -> Advertise the route to the externalIp {} having nextHopIp {}",
                     externalIp, nextHopIp);
+                long l3vni = 0;
+                if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                    l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, externalVpnName, l3vni).longValue();
+                }
                 NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, externalVpnName, rd, externalIp,
-                    nextHopIp, label, LOG, RouteOrigin.STATIC, srcDpnId);
+                    nextHopIp, label, l3vni, LOG, RouteOrigin.STATIC, srcDpnId);
 
                 LOG.debug("NAT Service : SNAT -> Install custom FIB routes "
                     + "(Table 21 -> Push MPLS label to Tunnel port");
@@ -691,8 +699,12 @@ public class NatTunnelInterfaceStateListener
                     LOG.debug("NAT Service : DNAT -> Unable to advertise to the DC GW since label is invalid");
                     return;
                 }
+                long l3vni = 0;
+                if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                    l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
+                }
                 NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd,
-                    externalIp + "/32", nextHopIp, label, LOG, RouteOrigin.STATIC, fipCfgdDpnId);
+                    externalIp + "/32", nextHopIp, label, l3vni, LOG, RouteOrigin.STATIC, fipCfgdDpnId);
 
                 //Install custom FIB routes (Table 21 -> Push MPLS label to Tunnel port
                 List<Instruction> customInstructions = new ArrayList<>();

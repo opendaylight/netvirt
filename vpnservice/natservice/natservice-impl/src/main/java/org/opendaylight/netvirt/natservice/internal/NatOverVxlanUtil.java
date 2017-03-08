@@ -10,12 +10,22 @@ package org.opendaylight.netvirt.natservice.internal;
 import com.google.common.base.Optional;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -37,6 +47,16 @@ import org.slf4j.LoggerFactory;
 public class NatOverVxlanUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatOverVxlanUtil.class);
+
+    public static BigInteger getInternetVpnVni(IdManagerService idManager, String vpnUuid, long vpnid) {
+        BigInteger internetVpnVni = getVNI(vpnUuid, idManager);
+        if (internetVpnVni.longValue() == -1) {
+            LOG.warn("NAT Service : Unable to obtain Router VNI from VNI POOL for router {}."
+                    + "Router ID will be used as tun_id", vpnUuid);
+            return BigInteger.valueOf(vpnid);
+        }
+        return internetVpnVni;
+    }
 
     public static BigInteger getVNI(String vniKey, IdManagerService idManager) {
         AllocateIdInput getIdInput = new AllocateIdInputBuilder().setPoolName(NatConstants.ODL_VNI_POOL_NAME)
@@ -151,5 +171,30 @@ public class NatOverVxlanUtil {
                 .child(IdPool.class, new IdPoolKey(poolName));
         InstanceIdentifier<IdPool> id = idPoolBuilder.build();
         return id;
+    }
+
+    //TODO this is duplicate in EVPN spec. Need to have one API
+    // when both EVPN and VNI spec code in place
+    public static void makePreDnatToSnatTableEntry(IMdsalApiManager mdsalManager,
+             BigInteger naptDpnId, short tableId) {
+        List<Instruction> preDnatToSnatInstructions = new ArrayList<>();
+        preDnatToSnatInstructions.add(new InstructionGotoTable(tableId).buildInstruction(0));
+        LOG.info("NAT Service : Create Pre-DNAT table {} --> table {} flow on NAPT DpnId {} ", NwConstants.PDNAT_TABLE,
+                NwConstants.INBOUND_NAPT_TABLE, naptDpnId);
+        List<MatchInfo> matches = new ArrayList<>();
+        matches.add(MatchEthernetType.IPV4);
+        String flowRef = getFlowRefPreDnatToSnat(naptDpnId, NwConstants.PDNAT_TABLE, "PreDNATToSNAT");
+        Flow preDnatToSnatTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.PDNAT_TABLE,flowRef,
+                NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,  NwConstants.COOKIE_DNAT_TABLE,
+                matches, preDnatToSnatInstructions);
+
+        mdsalManager.installFlow(naptDpnId, preDnatToSnatTableFlowEntity);
+        LOG.debug("NAT Service : Successfully installed Pre-DNAT flow {} on NAPT DpnId {} ",
+                preDnatToSnatTableFlowEntity,  naptDpnId);
+    }
+
+    private static String getFlowRefPreDnatToSnat(BigInteger dpnId, short tableId, String uniqueId) {
+        return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId
+                + NwConstants.FLOWID_SEPARATOR + uniqueId;
     }
 }
