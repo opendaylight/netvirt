@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_8098db1c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-08T14:34:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a09b5f64",
+      "range": {
+        "startLine": 193,
+        "startChar": 0,
+        "endLine": 195,
+        "endChar": 43
+      },
+      "revId": "7759dc472ab95a05e81f37bc7f42e63deac03bfd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
