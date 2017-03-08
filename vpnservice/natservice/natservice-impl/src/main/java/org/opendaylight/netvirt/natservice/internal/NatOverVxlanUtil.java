@@ -38,6 +38,16 @@ public class NatOverVxlanUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatOverVxlanUtil.class);
 
+    public static BigInteger getInternetVpnVni(IdManagerService idManager, String vpnUuid, long vpnid) {
+        BigInteger internetVpnVni = getVNI(vpnUuid, idManager);
+        if (internetVpnVni.longValue() == -1) {
+            LOG.warn("NAT Service : Unable to obtain Router VNI from VNI POOL for router {}."
+                    + "Router ID will be used as tun_id", vpnUuid);
+            return BigInteger.valueOf(vpnid);
+        }
+        return internetVpnVni;
+    }
+
     public static BigInteger getVNI(String vniKey, IdManagerService idManager) {
         AllocateIdInput getIdInput = new AllocateIdInputBuilder().setPoolName(NatConstants.ODL_VNI_POOL_NAME)
                 .setIdKey(vniKey).build();
