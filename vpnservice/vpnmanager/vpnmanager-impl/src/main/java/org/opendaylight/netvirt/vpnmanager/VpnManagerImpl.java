@@ -123,9 +123,9 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
-    public void delExtraRoute(String destination, String nextHop, String rd, String routerID) {
+    public void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID) {
         LOG.info("Deleting extra route with destination {} and nextHop {}", destination, nextHop);
-        vpnInterfaceManager.delExtraRoute(destination, nextHop, rd, routerID, null, null);
+        vpnInterfaceManager.delExtraRoute(vpnName, destination, nextHop, rd, routerID, null, null);
     }
 
     @Override
