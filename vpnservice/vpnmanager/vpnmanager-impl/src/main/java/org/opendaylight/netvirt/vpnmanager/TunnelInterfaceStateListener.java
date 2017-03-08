@@ -7,8 +7,11 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import static java.util.stream.Collectors.toList;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,15 +21,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeMplsOverGre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpnInterfaceListInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpnInterfaceListOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -36,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.Tep
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelOperStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelsState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.DcGatewayIpList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PortOpData;
@@ -111,12 +120,28 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     @Override
     protected void remove(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList del) {
         LOG.trace("Tunnel deletion---- {}", del);
+        if (isGreTunnel(del)) {
+            programDcGwLoadBalancingGroup(del, NwConstants.DEL_FLOW);
+        }
         handleTunnelEventForDPN(del, UpdateRouteAction.WITHDRAW_ROUTE, TunnelAction.TUNNEL_EP_DELETE);
     }
 
     @Override
     protected void update(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList original,
         StateTunnelList update) {
+        LOG.trace("Tunnel updation---- {}", update);
+        LOG.trace("ITM Tunnel {} of type {} state event changed from :{} to :{}",
+            update.getTunnelInterfaceName(),
+            fibManager.getTransportTypeStr(update.getTransportType().toString()),
+            original.getOperState(), update.getOperState());
+        TunnelOperStatus tunOpStatus = update.getOperState();
+        if ((tunOpStatus != TunnelOperStatus.Down) && (tunOpStatus != TunnelOperStatus.Up)) {
+            LOG.trace("Returning from unsupported tunnelOperStatus {}", tunOpStatus);
+            return;
+        }
+        if (isGreTunnel(update)) {
+            programDcGwLoadBalancingGroup(update, NwConstants.MOD_FLOW);
+        }
     }
 
     @Override
@@ -129,6 +154,9 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         }
         if (tunOpStatus != TunnelOperStatus.Up) {
             LOG.trace("Tunnel {} is not yet UP.", add.getTunnelInterfaceName());
+        }
+        if (isGreTunnel(add)) {
+            programDcGwLoadBalancingGroup(add, NwConstants.ADD_FLOW);
         }
         LOG.trace("ITM Tunnel ,type {} ,added between src: {} and dest: {}",
             fibManager.getTransportTypeStr(add.getTransportType().toString()),
@@ -371,5 +399,37 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             tunTypeVal = VpnConstants.ITMTunnelLocType.Invalid.getValue();
         }
         return tunTypeVal;
+    }
+
+    private boolean isGreTunnel(StateTunnelList del) {
+        return del.getDstInfo().getTepDeviceType() == TepTypeExternal.class
+                && del.getTransportType() == TunnelTypeMplsOverGre.class;
+    }
+
+    private void programDcGwLoadBalancingGroup(StateTunnelList tunnelState, int addOrRemove) {
+        IpAddress dcGwIp = tunnelState.getDstInfo().getTepIp();
+        if (dcGwIp == null) {
+            return;
+        }
+        String dcGwIpAddress = String.valueOf(dcGwIp.getValue());
+        List<String> availableDcGws = getDcGwIps();
+        BigInteger dpId = new BigInteger(tunnelState.getSrcInfo().getTepDeviceId());
+        boolean isTunnelUp = TunnelOperStatus.Up == tunnelState.getOperState();
+        fibManager.programDcGwLoadBalancingGroup(availableDcGws, dpId, dcGwIpAddress, addOrRemove, isTunnelUp);
+    }
+
+    private List<String> getDcGwIps() {
+        InstanceIdentifier<DcGatewayIpList> dcGatewayIpListid =
+                InstanceIdentifier.builder(DcGatewayIpList.class).build();
+        DcGatewayIpList dcGatewayIpListConfig =
+                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, dcGatewayIpListid).orNull();
+        if (dcGatewayIpListConfig == null) {
+            return Collections.EMPTY_LIST;
+        }
+        return dcGatewayIpListConfig.getDcGatewayIp()
+                .stream()
+                .filter(dcGwIp -> dcGwIp.getTunnnelType().equals(TunnelTypeMplsOverGre.class))
+                .map(dcGwIp -> String.valueOf(dcGwIp.getIpAddress().getValue())).sorted()
+                .collect(toList());
     }
 }
