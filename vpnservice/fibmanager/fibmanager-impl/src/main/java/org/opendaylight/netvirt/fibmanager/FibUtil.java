@@ -461,7 +461,9 @@ public class FibUtil {
             builder.setMac(macAddress);
             return;
         }
-        if (!encapType.equals(VrfEntry.EncapType.Mplsgre)) {
+        //if (!encapType.equals(VrfEntry.EncapType.Mplsgre)) {
+        // TODO - validate this check
+        if (l3vni != 0) {
             builder.setL3vni(l3vni);
         }
         builder.setEncapType(encapType);
