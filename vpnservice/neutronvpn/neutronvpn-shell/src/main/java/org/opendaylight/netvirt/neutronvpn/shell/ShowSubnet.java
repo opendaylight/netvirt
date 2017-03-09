@@ -93,8 +93,8 @@ public class ShowSubnet extends OsgiCommandSupport {
                 System.out.println("Key: " + data.getKey() + "\n" + "VpnId: " + data.getVpnId() + "\n" +
                         "DirectPortList: " + data.getDirectPortList() + "\n" + "NetworkId: " + data.getNetworkId()
                         + "\n" + "PortList: " + data.getPortList() + "\n" + "RouterInterfaceFixedIps: " + data
-                        .getRouterInterfaceFixedIps() + "\n" + "RouterInterfaceName: " + data.getRouterInterfaceName
-                        () + "\n" + "RouterIntfMacAddress: " + data.getRouterIntfMacAddress() + "\n" + "SubnetIp: "
+                        .getRouterInterfaceFixedIp() + "\n" + "RouterInterfacePortId: " + data.getRouterInterfacePortId().getValue()
+                        + "\n" + "RouterIntfMacAddress: " + data.getRouterIntfMacAddress() + "\n" + "SubnetIp: "
                         + data.getSubnetIp() + "\n" + "TenantId: " + data.getTenantId() + "\n");
                 System.out.println("------------------------------------------------------------------------------");
             }
