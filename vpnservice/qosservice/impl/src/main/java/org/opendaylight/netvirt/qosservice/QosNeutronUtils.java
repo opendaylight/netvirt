@@ -73,6 +73,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.port.ext.rev151125.TrunkportExt;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.port.ext.rev151125.TrunkportTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.port.ext.rev151125.TrunkportTypeSubport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosNetworkExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosPortExtension;
@@ -474,9 +477,17 @@ public class QosNeutronUtils {
         Optional<Node> bridgeNode = MDSALUtil.read(LogicalDatastoreType.OPERATIONAL,
                 bridgeRefEntry.getValue().firstIdentifierOf(Node.class), db);
 
+        TrunkportExt trunkportExt = port.getAugmentation(TrunkportExt.class);
+        if (trunkportExt != null) {
+            Class<? extends TrunkportTypeBase> trunkportType = trunkportExt.getType();
+            if (trunkportType != null && trunkportType.isAssignableFrom(TrunkportTypeSubport.class)) {
+                LOG.debug("Port {} is subport, skipping setting of bandwidth limit rules.", port.getUuid().getValue());
+                return;
+            }
+        }
 
-        TerminationPoint tp = SouthboundUtils.getTerminationPointByExternalId(bridgeNode.get(),
-                port.getUuid().getValue());
+        TerminationPoint tp =
+                SouthboundUtils.getTerminationPointByExternalId(bridgeNode.get(), port.getUuid().getValue());
         OvsdbTerminationPointAugmentation ovsdbTp = tp.getAugmentation(OvsdbTerminationPointAugmentation.class);
 
         OvsdbTerminationPointAugmentationBuilder tpAugmentationBuilder = new OvsdbTerminationPointAugmentationBuilder();
