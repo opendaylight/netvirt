@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.vpnmanager.populator.impl;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -48,9 +49,10 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
         String primaryRd = input.getPrimaryRd();
         Adjacency nextHop = input.getNextHop();
         if (!rd.equalsIgnoreCase(input.getVpnName())) {
+            Objects.requireNonNull(input.getRouteOrigin(), "RouteOrigin is mandatory");
             addPrefixToBGP(rd, primaryRd, nextHop.getMacAddress(), nextHop.getIpAddress(), input.getNextHopIp(),
-                    input.getEncapType(), 0 /*label*/, Long.valueOf(input.getL3vni()), input.getGatewayMac(),
-                    broker, writeConfigTxn);
+                    input.getEncapType(), 0 /*label*/, input.getL3vni(), input.getGatewayMac(),
+                    input.getRouteOrigin(), writeConfigTxn);
         } else {
             LOG.error("Internal VPN for L3 Over VxLAN is not supported. Aborting.");
             return;

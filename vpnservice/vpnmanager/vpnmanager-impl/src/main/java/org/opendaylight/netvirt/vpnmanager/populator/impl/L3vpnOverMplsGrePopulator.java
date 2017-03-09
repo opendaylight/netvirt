@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.vpnmanager.populator.impl;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -49,8 +50,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
     }
 
     @Override
-    public void populateFib(L3vpnInput input, WriteTransaction writeConfigTxn,
-                            WriteTransaction writeOperTxn) {
+    public void populateFib(L3vpnInput input, WriteTransaction writeConfigTxn, WriteTransaction writeOperTxn) {
         Adjacency nextHop = input.getNextHop();
         long label = nextHop.getLabel();
         String vpnName = input.getVpnName();
@@ -64,8 +64,10 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         if (!rd.equalsIgnoreCase(vpnName)) {
             vpnInterfaceManager.addToLabelMapper(label, input.getDpnId(), nextHopIpAddress,
                     Arrays.asList(nextHopIp), vpnId, input.getInterfaceName(), null,false, primaryRd, writeOperTxn);
+
+            Objects.requireNonNull(input.getRouteOrigin(), "RouteOrigin is mandatory");
             addPrefixToBGP(rd, primaryRd, null /*macAddress*/, nextHopIpAddress, nextHopIp, encapType, label,
-                    0 /*l3vni*/, input.getGatewayMac(), broker, writeConfigTxn);
+                    0 /*l3vni*/, input.getGatewayMac(), input.getRouteOrigin(), writeConfigTxn);
             //TODO: ERT - check for VPNs importing my route
             for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                 String vpnRd = vpn.getVrfId();
