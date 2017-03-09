@@ -81,6 +81,15 @@ module odl-fib {
         leaf ip-address {type string;}
     }
 
+    augment "/odl-fib:fibEntries/odl-fib:vrfTables/odl-fib:vrfEntry" {
+        ext:augment-identifier "parent-vpn";
+        description "Stores information about the VPN from which the VRF Entry was imported, if it was imported";
+        leaf primary-rd {
+            description "RD of the VPN from which the Vrf Entry has been imported.";
+            type string;
+        }
+    }
+
     container fibEntries {
         config true;
         list vrfTables{
@@ -131,4 +140,66 @@ module odl-fib {
             }
         }
    }
+
+   container ip-prefix-map {
+        description "Stores information about all the VPNs that are importing a prefix from a parent VPN.";
+        config false;
+        list ip-prefix-info {
+            key "prefix parent-primary-rd";
+            leaf prefix {
+                type string;
+            }
+            leaf parent-primary-rd {
+                type string;
+            }
+            leaf dpn-id {
+                type uint64;
+            }
+            leaf-list vpn-instance-list {
+                type string;
+            }
+            leaf parent-vpnid {
+                type uint32;
+            }
+            leaf vpn-interface-name {
+                type string;
+            }
+            leaf elan-tag {
+                type uint32;
+            }
+            leaf is-subnet-route {
+                type boolean;
+            }
+            leaf encap-type {
+                type enumeration {
+                    enum mplsgre {
+                        value "0";
+                    }
+                    enum vxlan {
+                        value "1";
+                    }
+                }
+                default "mplsgre";
+            }
+            leaf l3vni {
+                type uint32;
+            }
+            leaf l2vni {
+                 type uint32;
+            }
+            list route-paths {
+                 key "nexthop-address";
+                 leaf nexthop-address {
+                      type string;
+                 }
+                 leaf label {
+                      type uint32;
+                 }
+                 leaf gateway_mac_address {
+                      type string;
+                 }
+            }
+        }
+   }
+
 }
