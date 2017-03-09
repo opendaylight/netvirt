@@ -1027,9 +1027,11 @@ public class ElanUtils {
             return;
         }
 
-        Flow flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTag, elanTag, macAddress, displayName,
-                elanInstance);
-        mdsalManager.addFlowToTx(srcDpId, flowEntity, writeFlowGroupTx);
+        Optional<Flow> flowEntityOptional = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTag, elanTag,
+                macAddress, displayName, elanInstance);
+        if (flowEntityOptional.isPresent()) {
+            mdsalManager.addFlowToTx(srcDpId, flowEntityOptional.get(), writeFlowGroupTx);
+        }
         setupEtreeRemoteDmacFlow(srcDpId, destDpId, lportTag, elanTag, macAddress, displayName, interfaceName,
                 writeFlowGroupTx, elanInstance);
     }
@@ -1037,7 +1039,6 @@ public class ElanUtils {
     private void setupEtreeRemoteDmacFlow(BigInteger srcDpId, BigInteger destDpId, int lportTag, long elanTag,
                                 String macAddress, String displayName, String interfaceName,
                                 WriteTransaction writeFlowGroupTx, ElanInstance elanInstance) throws ElanException {
-        Flow flowEntity;
         EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(broker, interfaceName);
         if (etreeInterface != null) {
             if (etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
@@ -1046,9 +1047,11 @@ public class ElanUtils {
                     LOG.warn("Interface " + interfaceName
                             + " seems like it belongs to Etree but etreeTagName from elanTag " + elanTag + " is null.");
                 } else {
-                    flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTag,
+                    Optional<Flow> flowEntityOptional = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTag,
                             etreeTagName.getEtreeLeafTag().getValue(), macAddress, displayName, elanInstance);
-                    mdsalManager.addFlowToTx(srcDpId, flowEntity, writeFlowGroupTx);
+                    if (flowEntityOptional.isPresent()) {
+                        mdsalManager.addFlowToTx(srcDpId, flowEntityOptional.get(), writeFlowGroupTx);
+                    }
                 }
             }
         }
@@ -1076,14 +1079,9 @@ public class ElanUtils {
      * @throws ElanException in case of issues creating the flow objects
      */
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public Flow buildRemoteDmacFlowEntry(BigInteger srcDpId, BigInteger destDpId, int lportTag, long elanTag,
+    public Optional<Flow> buildRemoteDmacFlowEntry(BigInteger srcDpId, BigInteger destDpId, int lportTag, long elanTag,
             String macAddress, String displayName, ElanInstance elanInstance) throws ElanException {
-        List<MatchInfo> mkMatches = new ArrayList<>();
-        mkMatches.add(new MatchMetadata(getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
-        mkMatches.add(new MatchEthernetDestination(new MacAddress(macAddress)));
-
         List<Instruction> mkInstructions = new ArrayList<>();
-
         // List of Action for the provided Source and Destination DPIDs
         try {
             List<Action> actions = null;
@@ -1097,21 +1095,25 @@ public class ElanUtils {
             } else {
                 actions = getInternalTunnelItmEgressAction(srcDpId, destDpId, lportTag);
             }
+            // return Optional.absent() if actions not present. Because it doesn't make any sense
+            // to program remote dmac entry without any actions (it would happen when tunnel is not present)
+            if (actions == null || actions.isEmpty()) {
+                return Optional.absent();
+            }
             mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
         } catch (Exception e) {
             LOG.error("Could not get egress actions to add to flow for srcDpId=" + srcDpId + ", destDpId=" + destDpId
                     + ", lportTag=" + lportTag, e);
         }
-
-        Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
+        List<MatchInfo> mkMatches = new ArrayList<>();
+        mkMatches.add(new MatchMetadata(getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
+        mkMatches.add(new MatchEthernetDestination(new MacAddress(macAddress)));
+        return Optional.of(MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
                 getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, srcDpId, destDpId, macAddress, elanTag),
                 20, /* prio */
                 displayName, 0, /* idleTimeout */
                 0, /* hardTimeout */
-                ElanConstants.COOKIE_ELAN_KNOWN_DMAC.add(BigInteger.valueOf(elanTag)), mkMatches, mkInstructions);
-
-        return flow;
-
+                ElanConstants.COOKIE_ELAN_KNOWN_DMAC.add(BigInteger.valueOf(elanTag)), mkMatches, mkInstructions));
     }
 
     public void deleteMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, MacEntry macEntry,
