@@ -34,6 +34,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
@@ -126,6 +127,14 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     private FlowEntity buildPreDNATFlowEntity(BigInteger dpId, InternalToExternalPortMap mapping, long routerId, long
             associatedVpn) {
         String externalIp = mapping.getExternalIp();
+        Uuid floatingIpId = mapping.getExternalId();
+        //Get the FIP MAC address for DNAT
+        String floatingIpPortMacAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
+        if (floatingIpPortMacAddress == null) {
+            LOG.error("NAT Service : Unable to retrieve floatingIpPortMacAddress from floating IP UUID {} "
+                    + "for floating IP {}", floatingIpId, externalIp);
+            return null;
+        }
         LOG.info("NAT Service : Bulding DNAT Flow entity for ip {} ", externalIp);
         long segmentId = (associatedVpn == NatConstants.INVALID_ID) ? routerId : associatedVpn;
         LOG.debug("NAT Service : Segment id {} in build preDNAT Flow", segmentId);
@@ -134,6 +143,8 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         matches.add(MatchEthernetType.IPV4);
 
         matches.add(new MatchIpv4Destination(externalIp, "32"));
+        //Match Destination Floating IP MAC Address on table = 25 (PDNAT_TABLE)
+        matches.add(new MatchEthernetDestination(new MacAddress(floatingIpPortMacAddress)));
 
 //        matches.add(new MatchMetadata(
 //                BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
@@ -255,7 +266,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             LOG.warn("No MAC address found for floating IP {}", externalIp);
         }
 
-        if (provType != ProviderTypes.GRE) {
+        if (provType != ProviderTypes.GRE && provType != ProviderTypes.VXLAN) {
             Uuid subnetId = NatUtil.getFloatingIpPortSubnetIdFromFloatingIpId(dataBroker, floatingIpId);
             if (subnetId != null) {
                 long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(subnetId.getValue()), idManager);
@@ -282,8 +293,12 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     private void createDNATTblEntry(BigInteger dpnId, InternalToExternalPortMap mapping, long routerId, long vpnId,
                                     long associatedVpnId) {
         FlowEntity preFlowEntity = buildPreDNATFlowEntity(dpnId, mapping, routerId, associatedVpnId);
-        mdsalManager.installFlow(preFlowEntity);
-
+        if (preFlowEntity == null) {
+            LOG.error("NAT Service : Flow entity received as NULL. Cannot proceed with installation of Pre-DNAT flow "
+                    + "table {} --> table {} on DpnId {}", NwConstants.PDNAT_TABLE, NwConstants.DNAT_TABLE, dpnId);
+        } else {
+            mdsalManager.installFlow(preFlowEntity);
+        }
         FlowEntity flowEntity = buildDNATFlowEntity(dpnId, mapping, routerId, associatedVpnId);
         mdsalManager.installFlow(flowEntity);
     }
@@ -538,13 +553,21 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             return;
         }
         removeSNATTblEntry(dpnId, internalIp, externalIp, routerId, vpnId);
-
-        long label = getOperationalIpMapping(routerName, interfaceName, internalIp);
-        if (label < 0) {
-            LOG.error("NAT Service : Could not retrieve label for prefix {} in router {}", internalIp, routerId);
+        ProviderTypes provType = NatUtil.getProviderTypefromNetworkId(dataBroker, extNwId);
+        if (provType == null) {
+            LOG.error("NAT Service : Unable to get Provider Type for external network {}", extNwId);
             return;
         }
-        floatingIPHandler.onRemoveFloatingIp(dpnId, routerName, extNwId, mapping, (int) label);
+        if (provType == ProviderTypes.VXLAN) {
+            floatingIPHandler.onRemoveFloatingIp(dpnId, routerName, extNwId, mapping, NatConstants.DEFAULT_L3VNI_VALUE);
+        } else {
+            long label = getOperationalIpMapping(routerName, interfaceName, internalIp);
+            if (label < 0) {
+                LOG.error("NAT Service : Could not retrieve label for prefix {} in router {}", internalIp, routerId);
+                return;
+            }
+            floatingIPHandler.onRemoveFloatingIp(dpnId, routerName, extNwId, mapping, (int) label);
+        }
         removeOperationalDS(routerName, interfaceName, internalIp, externalIp);
     }
 
@@ -567,13 +590,26 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         removeDNATTblEntry(dpnId, internalIp, externalIp, routerId);
 
         removeSNATTblEntry(dpnId, internalIp, externalIp, routerId, vpnId);
-
-        long label = getOperationalIpMapping(routerName, interfaceName, internalIp);
-        if (label < 0) {
-            LOG.error("NAT Service : Could not retrieve label for prefix {} in router {}", internalIp, routerId);
+        Uuid extNwId = NatUtil.getNetworkIdFromRouterName(dataBroker,routerName);
+        if (extNwId == null) {
+            LOG.error("NAT Service : Could not retrieve external network UUID for router {}", routerName);
             return;
         }
-        floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, label);
+        ProviderTypes provType = NatUtil.getProviderTypefromNetworkId(dataBroker, extNwId);
+        if (provType == null) {
+            LOG.error("NAT Service : Unable to get Provider Type for external network {}", extNwId);
+            return;
+        }
+        if (provType == ProviderTypes.VXLAN) {
+            floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, NatConstants.DEFAULT_L3VNI_VALUE);
+        } else {
+            long label = getOperationalIpMapping(routerName, interfaceName, internalIp);
+            if (label < 0) {
+                LOG.error("NAT Service : Could not retrieve label for prefix {} in router {}", internalIp, routerId);
+                return;
+            }
+            floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, label);
+        }
         removeOperationalDS(routerName, interfaceName, internalIp, externalIp);
     }
 
