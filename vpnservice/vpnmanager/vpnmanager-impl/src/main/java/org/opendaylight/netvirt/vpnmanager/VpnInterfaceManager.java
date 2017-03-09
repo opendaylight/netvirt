@@ -624,10 +624,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         for (Adjacency nextHop : aug.getAdjacency()) {
             long label = nextHop.getLabel();
             if (rd != null) {
-                addToLabelMapper(label, dpnId, nextHop.getIpAddress(), nhList, vpnId,
-                        interfaceName, null,false, rd, writeOperTxn);
-                addPrefixToBGP(rd, nextHop.getIpAddress(), nhList, label, gwMac.isPresent() ? gwMac.get() : null,
-                        RouteOrigin.LOCAL, writeConfigTxn);
+                addToLabelMapper(label, dpnId, nextHop.getIpAddress(), nhList, vpnId, interfaceName, /*elanTag*/ null,
+                                 /*isSubnetRoute*/ false, rd, writeOperTxn);
+
+                RouteOrigin origin = nextHop.isPrimaryAdjacency() ? RouteOrigin.LOCAL : RouteOrigin.STATIC;
+                addPrefixToBGP(rd, nextHop.getIpAddress(), nhList, label, gwMac.orNull(), origin, writeConfigTxn);
+
                 //TODO: ERT - check for VPNs importing my route
                 for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                     String vpnRd = vpn.getVrfId();
