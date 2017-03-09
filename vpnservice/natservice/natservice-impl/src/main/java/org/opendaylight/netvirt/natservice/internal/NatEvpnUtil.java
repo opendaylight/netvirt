@@ -50,6 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.pre
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.PrefixesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMapping;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -197,6 +198,7 @@ public class NatEvpnUtil {
         }
     }
 
+
     static void addPrefixToInterface(DataBroker broker, long vpnId, String interfaceName, String ipPrefix,
                                      BigInteger dpId, boolean isNatPrefix) {
         InstanceIdentifier<Prefixes> prefixId = InstanceIdentifier.builder(PrefixToInterface.class)
@@ -247,4 +249,13 @@ public class NatEvpnUtil {
         LOG.trace("NAT Service : Successfully removed flow entity {} on DPN = {}", l3GwMacTableFlowEntity, dpnId);
     }
 
+    public static Uuid getFloatingIpInterfaceIdFromFloatingIpId(DataBroker broker, Uuid floatingIpId) {
+        InstanceIdentifier id = NatUtil.buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
+        Optional<FloatingIpIdToPortMapping> optFloatingIpIdToPortMapping = NatUtil.read(broker, LogicalDatastoreType
+                .CONFIGURATION, id);
+        if (optFloatingIpIdToPortMapping.isPresent()) {
+            return optFloatingIpIdToPortMapping.get().getFloatingIpPortId();
+        }
+        return null;
+    }
 }
