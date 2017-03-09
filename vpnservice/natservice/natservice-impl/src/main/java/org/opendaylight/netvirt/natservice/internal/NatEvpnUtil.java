@@ -44,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMapping;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -226,5 +227,15 @@ public class NatEvpnUtil {
     public static String getFlowRef(BigInteger dpnId, short tableId, long l3Vni, String flowName) {
         return flowName + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants
                 .FLOWID_SEPARATOR + l3Vni;
+    }
+
+    public static Uuid getFloatingIpInterfaceIdFromFloatingIpId(DataBroker broker, Uuid floatingIpId) {
+        InstanceIdentifier id = NatUtil.buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
+        Optional<FloatingIpIdToPortMapping> optFloatingIpIdToPortMapping = NatUtil.read(broker, LogicalDatastoreType
+                .CONFIGURATION, id);
+        if (optFloatingIpIdToPortMapping.isPresent()) {
+            return optFloatingIpIdToPortMapping.get().getFloatingIpPortId();
+        }
+        return null;
     }
 }
