@@ -1,0 +1,472 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_d6862db8",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/AbstractAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Not really, we can\u0027t combine them\n\noptionalFlow !\u003d null is a simply a null pointer guard\n\nThe main logic follows \nif (optionalFlow.isPresent())\n  increment the counter\nelse \n  set the cookie for the first time",
+      "parentUuid": "fafc7978_90531016",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d6a0ed91",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/AbstractAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f056dc04",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5176c706",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/AbstractAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_50b88810",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_36acd98b",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/AbstractAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d043d810",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_768b011f",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d05ab8f0",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d6c74d43",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9066704f",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d6ce2d59",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "I\u0027d like the two lines as is for consistency with the rest of the code. They don\u0027t add any extra cost execution-wise",
+      "parentUuid": "fafc7978_b0929449",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b6e729ab",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9095d034",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_36da1917",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d09bd863",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_76078182",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 574,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "I\u0027d like the two lines as is for consistency with the rest of the code. They don\u0027t add any extra cost execution-wise",
+      "parentUuid": "fafc7978_70daec17",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_560a3d8a",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_900af087",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b6fd6970",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d000f867",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d6f58d83",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_30fb447a",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_762e61fc",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_b07c54ed",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_56319d58",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f0825cc6",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b634494a",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d08598cf",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9637854c",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3070640a",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d66aad18",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_106ba01e",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_36769906",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_70766c07",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_76630142",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_5071a80a",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1671d50b",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_10528066",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b659e98f",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 662,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Same response as EgressAclService",
+      "parentUuid": "fafc7978_b0ca9418",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b6d0c9c9",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 668,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_90cdd033",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_96d305d4",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 682,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f0d09cca",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f6dd31e1",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d0d3d8d2",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d6d8edf0",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 709,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-09T01:24:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_30dea4dd",
+      "revId": "fb568797becb1d15f20fac0d1736d4459e3e5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
