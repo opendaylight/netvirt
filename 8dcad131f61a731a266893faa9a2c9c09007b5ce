@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e7ce1959",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 874,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-03-09T09:55:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_93003767",
+      "range": {
+        "startLine": 874,
+        "startChar": 24,
+        "endLine": 874,
+        "endChar": 47
+      },
+      "revId": "8dcad131f61a731a266893faa9a2c9c09007b5ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5366cf51",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 11
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-08T16:30:33Z",
       "side": 1,
       "message": "not needed after return",
+      "range": {
+        "startLine": 1133,
+        "startChar": 10,
+        "endLine": 1133,
+        "endChar": 16
+      },
+      "revId": "8dcad131f61a731a266893faa9a2c9c09007b5ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_670a298b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 1133,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-03-09T09:55:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_5366cf51",
       "range": {
         "startLine": 1133,
         "startChar": 10,
