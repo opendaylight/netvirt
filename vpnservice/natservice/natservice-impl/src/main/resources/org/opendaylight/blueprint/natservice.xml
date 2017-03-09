@@ -110,6 +110,7 @@
     <argument ref="odlArputilService" />
     <argument ref="vpnManager" />
     <argument ref="elanService" />
+    <argument ref="evpnDnatFlowProgrammer" />
   </bean>
   <service ref="vpnFloatingIpHandler"
            interface="org.opendaylight.netvirt.natservice.internal.FloatingIPHandler" />
@@ -296,5 +297,15 @@
     <argument ref="mdsalUtils" />
     <argument ref="evpnSnatFlowProgrammer" />
     <argument ref="idManagerService" />
+  </bean>
+
+  <bean id="evpnDnatFlowProgrammer" class="org.opendaylight.netvirt.natservice.internal.EvpnDnatFlowProgrammer">
+    <argument ref="dataBroker" />
+    <argument ref="mdsalUtils" />
+    <argument ref="bgpManager" />
+    <argument ref="fibManager" />
+    <argument ref="fibRpcService" />
+    <argument ref="vpnManager" />
+    <argument ref="floatingIPListener" />
   </bean>
 </blueprint>
