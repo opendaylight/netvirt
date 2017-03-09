@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_4c02acb4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-09T03:01:39Z",
+      "side": 1,
+      "message": "recursive reveiew link.. points to itself instead of spec.",
+      "revId": "07fac94ecb30fc911bf838ca85711227c1f2c0d8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
