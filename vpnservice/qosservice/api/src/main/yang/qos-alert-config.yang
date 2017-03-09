@@ -1,6 +1,6 @@
 module qosalert-config {
     yang-version 1;
-    namespace "urn:opendaylight:params:xml:ns:yang:netvirt:qosalert:config";
+    namespace "urn:opendaylight:netvirt:qosalert:config";
     prefix "qosalert";
 
     revision "2017-03-01" {

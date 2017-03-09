@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and
+<!-- Copyright (c) 2015 - 2017 Ericsson India Global Services Pvt Ltd. and
   others. All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0 which
   accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -261,8 +261,20 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>qosservice-api</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>qosservice-impl</artifactId>
       <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>qosservice-impl</artifactId>
+      <version>${project.version}</version>
+      <type>xml</type>
+      <classifier>config</classifier>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
