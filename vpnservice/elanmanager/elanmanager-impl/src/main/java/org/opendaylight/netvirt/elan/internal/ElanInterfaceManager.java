@@ -666,6 +666,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 if (isInterfaceOperational) {
                     // Setting SMAC, DMAC, UDMAC in this DPN and also in other
                     // DPNs
+                    LOG.debug("Programing the MAC flows for the ElanInterface {}", interfaceName);
                     elanUtils.setupMacFlows(elanInstance, interfaceInfo, ElanConstants.STATIC_MAC_TIMEOUT,
                             physAddress.getValue(), true, writeFlowGroupTx);
                 }
@@ -831,6 +832,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                         if (listActionInfo.isEmpty()) {
                             continue;
                         }
+                        LOG.debug("Logical Group Interface between source DPN {}, destination Dpn {} for "
+                            + "Elan Instance {}", dpnId, dpnInterface.getDpId(), elanDpns.getElanInstanceName());
                         listBucketInfo.add(MDSALUtil.buildBucket(listActionInfo, MDSALUtil.GROUP_WEIGHT, bucketId,
                                 MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
                         bucketId++;
@@ -1040,12 +1043,15 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         listBucket.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
                 MDSALUtil.WATCH_GROUP));
         bucketId++;
+
         List<Bucket> listBucketInfoRemote = getRemoteBCGroupBuckets(elanInfo, dpnInterfaces, dpnId, bucketId,
                 elanInfo.getElanTag());
         listBucket.addAll(listBucketInfoRemote);
+
         long groupId = ElanUtils.getElanRemoteBCGId(elanTag);
         Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                 MDSALUtil.buildBucketLists(listBucket));
+        LOG.debug("Installing the StandardElanBroadcastGroups:{}", group);
         LOG.trace("Installing the remote BroadCast Group:{}", group);
         mdsalManager.syncInstallGroup(dpnId, group, ElanConstants.DELAY_TIME_IN_MILLISECOND);
     }
