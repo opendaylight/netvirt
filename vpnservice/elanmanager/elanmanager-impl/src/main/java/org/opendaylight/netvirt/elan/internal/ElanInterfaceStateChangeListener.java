@@ -67,6 +67,9 @@ public class ElanInterfaceStateChangeListener
         interfaceInfo.setInterfaceTag(delIf.getIfIndex());
         String elanInstanceName = elanInterface.getElanInstanceName();
         ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
+        if (elanInstance == null) {
+            return;
+        }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         InterfaceRemoveWorkerOnElan removeWorker = new InterfaceRemoveWorkerOnElan(elanInstanceName, elanInstance,
             interfaceName, interfaceInfo, true, elanInterfaceManager);
@@ -89,6 +92,8 @@ public class ElanInterfaceStateChangeListener
                         InternalTunnel internalTunnel = getTunnelState(interfaceName);
                         if (internalTunnel != null) {
                             try {
+                                LOG.debug("ITM Tunnel Up event between source DPN {} and destination DPN {} ",
+                                    internalTunnel.getSourceDPN(), internalTunnel.getDestinationDPN());
                                 elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
                                         internalTunnel.getDestinationDPN());
                             } catch (ElanException e) {
