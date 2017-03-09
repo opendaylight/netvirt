@@ -100,8 +100,8 @@ public class ArpNotificationHandler implements OdlArputilListener {
     @Override
     public void onArpResponseReceived(ArpResponseReceived notification) {
         String srcInterface = notification.getInterface();
-        IpAddress srcIP = notification.getIpaddress();
-        PhysAddress srcMac = notification.getMacaddress();
+        IpAddress srcIP = notification.getSrcIpaddress();
+        PhysAddress srcMac = notification.getSrcMac();
         BigInteger metadata = notification.getMetadata();
         LOG.trace("ArpNotification Response Received from interface {} and IP {} having MAC {}, learning MAC",
                 srcInterface, srcIP.getIpv4Address().getValue(), srcMac.getValue());
