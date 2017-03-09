@@ -8,7 +8,7 @@
 package org.opendaylight.netvirt.vpnmanager.populator.input;
 
 import java.math.BigInteger;
-
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 
@@ -23,6 +23,7 @@ public class L3vpnInput {
     private String vpnName;
     private BigInteger dpnId;
     private VrfEntry.EncapType encapType;
+    private RouteOrigin routeOrigin;
 
     public String getRd() {
         return rd;
@@ -62,6 +63,10 @@ public class L3vpnInput {
 
     public VrfEntry.EncapType getEncapType() {
         return encapType;
+    }
+
+    public RouteOrigin getRouteOrigin() {
+        return routeOrigin;
     }
 
     public L3vpnInput setPrimaryRd(String primaryRd) {
@@ -113,4 +118,10 @@ public class L3vpnInput {
         this.encapType = encapType;
         return this;
     }
+
+    public L3vpnInput setRouteOrigin(RouteOrigin routeOrigin) {
+        this.routeOrigin = routeOrigin;
+        return this;
+    }
+
 }
