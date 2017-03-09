@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- vi: set et smarttab sw=4 tabstop=4: -->
 <!--
-Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+Copyright (c) 2015 - 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
 
 This program and the accompanying materials are made available under the
 terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -47,6 +47,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.netvirt/elanmanager-api/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/statistics-api/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/cloud-servicechain-api/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/qosservice-api/{{VERSION}}</bundle>
   </feature>
 
   <feature name='odl-netvirt-impl' version='${project.version}' description='OpenDaylight :: NetVirt :: impl'>
@@ -84,6 +85,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-aclservice-config.xml">mvn:org.opendaylight.netvirt/aclservice-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-dhcpservice-config.xml">mvn:org.opendaylight.netvirt/dhcpservice-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-elanmanager-config.xml">mvn:org.opendaylight.netvirt/elanmanager-impl/{{VERSION}}/xml/config</configfile>
+    <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-qosalert-config.xml">mvn:org.opendaylight.netvirt/qosservice-impl/{{VERSION}}/xml/config</configfile>
   </feature>
 
   <feature name='odl-netvirt-openstack' version='${project.version}' description='OpenDaylight :: NetVirt :: OpenStack'>
