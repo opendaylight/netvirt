@@ -49,8 +49,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
     }
 
     @Override
-    public void populateFib(L3vpnInput input, WriteTransaction writeConfigTxn,
-                            WriteTransaction writeOperTxn) {
+    public void populateFib(L3vpnInput input, WriteTransaction writeConfigTxn, WriteTransaction writeOperTxn) {
         Adjacency nextHop = input.getNextHop();
         long label = nextHop.getLabel();
         String vpnName = input.getVpnName();
@@ -64,8 +63,10 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         if (!rd.equalsIgnoreCase(vpnName)) {
             vpnInterfaceManager.addToLabelMapper(label, input.getDpnId(), nextHopIpAddress,
                     Arrays.asList(nextHopIp), vpnId, input.getInterfaceName(), null,false, primaryRd, writeOperTxn);
+
+            RouteOrigin origin = nextHop.isPrimaryAdjacency() ? RouteOrigin.LOCAL : RouteOrigin.STATIC;
             addPrefixToBGP(rd, primaryRd, null /*macAddress*/, nextHopIpAddress, nextHopIp, encapType, label,
-                    0 /*l3vni*/, null /*gatewayMacAddress*/, broker, writeConfigTxn);
+                    0 /*l3vni*/, null /*gatewayMacAddress*/, origin, writeConfigTxn);
             //TODO: ERT - check for VPNs importing my route
             for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                 String vpnRd = vpn.getVrfId();
