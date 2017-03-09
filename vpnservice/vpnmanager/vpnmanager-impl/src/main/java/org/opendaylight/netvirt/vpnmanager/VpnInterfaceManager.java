@@ -659,7 +659,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 .setGatewayMac(gwMac.isPresent() ? gwMac.get() : null).setInterfaceName(interfaceName)
                 .setVpnName(vpnName).setInterfaceName(interfaceName).setDpnId(dpnId).setEncapType(encapType);
         for (Adjacency nextHop : aug.getAdjacency()) {
-            input.setNextHop(nextHop).setRd(nextHop.getVrfId());
+            RouteOrigin origin = nextHop.isPrimaryAdjacency() ? RouteOrigin.LOCAL : RouteOrigin.STATIC;
+            input.setNextHop(nextHop).setRd(nextHop.getVrfId()).setRouteOrigin(origin);
             registeredPopulator.populateFib(input, writeConfigTxn, writeOperTxn);
         }
     }
