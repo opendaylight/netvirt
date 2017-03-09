@@ -51,15 +51,15 @@ public class L3vpnPopulator implements VpnPopulator {
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void addPrefixToBGP(String rd, String primaryRd, String macAddress, String prefix, String nextHopIp,
                                   VrfEntry.EncapType encapType, long label, long l3vni, String gatewayMac,
-                                  DataBroker broker, WriteTransaction writeConfigTxn) {
+                                  RouteOrigin origin, WriteTransaction writeConfigTxn) {
         try {
             List<String> nextHopList = Collections.singletonList(nextHopIp);
-            LOG.info("ADD: Adding Fib entry rd {} prefix {} nextHop {} label {} l3vni {}", rd, prefix, nextHopIp,
-                    label, l3vni);
+            LOG.info("ADD: Adding Fib entry rd {} prefix {} nextHop {} label {} l3vni {} origin {}",
+                     rd, prefix, nextHopIp, label, l3vni, origin.getValue());
             fibManager.addOrUpdateFibEntry(broker, primaryRd, macAddress, prefix, nextHopList,
-                    encapType, (int)label, l3vni, gatewayMac, RouteOrigin.LOCAL, writeConfigTxn);
-            LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}, l3vni {}", rd, prefix, nextHopIp,
-                    label, l3vni);
+                    encapType, (int)label, l3vni, gatewayMac, origin, writeConfigTxn);
+            LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}, l3vni {} origin {}",
+                     rd, prefix, nextHopIp, label, l3vni, origin.getValue());
             // Advertise the prefix to BGP only if nexthop ip is available
             if (nextHopList != null && !nextHopList.isEmpty()) {
                 bgpManager.advertisePrefix(rd, macAddress, prefix, nextHopList, encapType, (int)label,
