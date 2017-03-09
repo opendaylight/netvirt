@@ -67,6 +67,10 @@ public class ElanInterfaceStateChangeListener
         interfaceInfo.setInterfaceTag(delIf.getIfIndex());
         String elanInstanceName = elanInterface.getElanInstanceName();
         ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
+        if (elanInstance == null) {
+            LOG.debug("No Elan instance is available for the interface:{} ", interfaceName);
+            return;
+        }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         InterfaceRemoveWorkerOnElan removeWorker = new InterfaceRemoveWorkerOnElan(elanInstanceName, elanInstance,
             interfaceName, interfaceInfo, true, elanInterfaceManager);
