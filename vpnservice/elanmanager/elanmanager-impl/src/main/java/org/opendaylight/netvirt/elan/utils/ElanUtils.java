@@ -2257,4 +2257,12 @@ public class ElanUtils {
     public static String getElanMacKey(long elanTag, String macAddress) {
         return ("MAC-" + macAddress + " ELAN_TAG-" + elanTag).intern();
     }
+
+    public static void addToListenableFutureIfTxException(RuntimeException exception,
+            List<ListenableFuture<Void>> futures) {
+        Throwable cause = exception.getCause();
+        if (cause != null && cause instanceof TransactionCommitFailedException) {
+            futures.add(Futures.immediateFailedCheckedFuture((TransactionCommitFailedException) cause));
+        }
+    }
 }
