@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6750660b",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-09T12:18:51Z",
+      "side": 1,
+      "message": "asymmetric topology should be valid\nNot all underlay networks needs to be connected to all ovs nodes.\nThe fast-failover groups in each ovs will be composed from buckets to existing tunnels.\nOnly if there isn\u0027t any matching policy rule or none of the configured underlay networks is has a tunnel representation in the OVS it will fallback to the egress table and routed to the default service of the logical tunnel defined in the genius spec",
+      "parentUuid": "fafc7978_fd6fd428",
+      "revId": "02c0369992f2250da9c4a6d71c14fbbdd2656dc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d102d008",
         "filename": "docs/specs/policy-based-path-selection.rst",
         "patchSetId": 10
@@ -225,6 +243,24 @@
       "side": 1,
       "message": "you mean if:interface-ref is just OF port name on which VLAN trunk/member is created ?",
       "parentUuid": "fafc7978_42fc4cb8",
+      "revId": "02c0369992f2250da9c4a6d71c14fbbdd2656dc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_87590a37",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-09T12:18:51Z",
+      "side": 1,
+      "message": "yes",
+      "parentUuid": "fafc7978_3d4ddcc4",
       "revId": "02c0369992f2250da9c4a6d71c14fbbdd2656dc5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
