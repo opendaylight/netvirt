@@ -666,6 +666,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 if (isInterfaceOperational) {
                     // Setting SMAC, DMAC, UDMAC in this DPN and also in other
                     // DPNs
+                    LOG.debug("Programing the MAC flows for the ElanInterface {}", interfaceName);
                     elanUtils.setupMacFlows(elanInstance, interfaceInfo, ElanConstants.STATIC_MAC_TIMEOUT,
                             physAddress.getValue(), true, writeFlowGroupTx);
                 }
@@ -831,6 +832,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                         if (listActionInfo.isEmpty()) {
                             continue;
                         }
+                        LOG.debug("Logical Group Interface between source DPN {}, destination Dpn {} for " +
+                            "Elan Instance {}", dpnId, dpnInterface.getDpId(), elanDpns.getElanInstanceName());
                         listBucketInfo.add(MDSALUtil.buildBucket(listActionInfo, MDSALUtil.GROUP_WEIGHT, bucketId,
                                 MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
                         bucketId++;
