@@ -196,6 +196,7 @@ public class NatEvpnUtil {
         }
     }
 
+
     static void addPrefixToInterface(DataBroker broker, long vpnId, String interfaceName, String ipPrefix,
                                      BigInteger dpId, boolean isNatPrefix) {
         InstanceIdentifier<Prefixes> prefixId = InstanceIdentifier.builder(PrefixToInterface.class)
@@ -243,6 +244,16 @@ public class NatEvpnUtil {
 
         mdsalManager.removeFlow(dpnId, l3GwMacTableFlowEntity);
         LOG.trace("NAT Service : Successfully removed flow entity {} on DPN = {}", l3GwMacTableFlowEntity, dpnId);
+    }
+
+    public static Uuid getFloatingIpInterfaceIdFromFloatingIpId(DataBroker broker, Uuid floatingIpId) {
+        InstanceIdentifier id = NatUtil.buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
+        Optional<FloatingIpIdToPortMapping> optFloatingIpIdToPortMapping = NatUtil.read(broker, LogicalDatastoreType
+                .CONFIGURATION, id);
+        if (optFloatingIpIdToPortMapping.isPresent()) {
+            return optFloatingIpIdToPortMapping.get().getFloatingIpPortId();
+        }
+        return null;
     }
 
 }
