@@ -81,6 +81,11 @@ module odl-fib {
         leaf ip-address {type string;}
     }
 
+    augment "/odl-fib:fibEntries/odl-fib:vrfTables/odl-fib:vrfEntry" {
+        ext:augment-identifier "parent-vpn";
+        leaf rd {type string;}
+    }
+
     container fibEntries {
         config true;
         list vrfTables{
@@ -131,4 +136,65 @@ module odl-fib {
             }
         }
    }
+
+   container ip-prefix-map {
+        config false;
+        list ip-prefix-info {
+            key "prefix parent-rd";
+            leaf prefix {
+                type string;
+            }
+            leaf parent-rd {
+                type string;
+            }
+            leaf label {
+                type uint32;
+            }
+            leaf dpn-id {
+                type uint64;
+            }
+            leaf-list next-hop-ip-list {
+                type string;
+            }
+            leaf-list vpn-instance-list {
+                type string;
+            }
+            leaf parent-vpnid {
+                type uint32;
+            }
+            leaf vpn-interface-name {
+                type string;
+            }
+            leaf elan-tag {
+                type uint32;
+            }
+            leaf is-subnet-route {
+                type boolean;
+            }
+            leaf encap-type {
+                type enumeration {
+                    enum mplsgre {
+                        value "0";
+                    }
+                    enum vxlan {
+                        value "1";
+                    }
+                }
+                default "mplsgre";
+            }
+            leaf l3vni {
+                type uint32;
+                mandatory false;
+            }
+            leaf l2vni {
+                 type uint32;
+      		     mandatory false;
+            }
+            leaf gateway_mac_address {
+                 type string;
+      		     mandatory false;
+            }
+        }
+   }
+
 }
