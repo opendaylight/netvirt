@@ -8,6 +8,9 @@
 package org.opendaylight.netvirt.qosservice;
 
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -22,6 +25,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class QosNeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBase<Network,
         QosNeutronNetworkChangeListener> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(QosNeutronNetworkChangeListener.class);
@@ -31,6 +35,7 @@ public class QosNeutronNetworkChangeListener extends AsyncDataTreeChangeListener
     private final IMdsalApiManager mdsalUtils;
 
 
+    @Inject
     public QosNeutronNetworkChangeListener(final DataBroker dataBroker,
                                            final INeutronVpnManager neutronVpnManager,
                                            final OdlInterfaceRpcService odlInterfaceRpcService,
@@ -40,11 +45,14 @@ public class QosNeutronNetworkChangeListener extends AsyncDataTreeChangeListener
         this.neutronVpnManager = neutronVpnManager;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
         this.mdsalUtils = mdsalUtils;
+        LOG.info("{} created",  getClass().getSimpleName());
     }
 
-    public void start() {
-        LOG.info("{} start", getClass().getSimpleName());
+    @Override
+    @PostConstruct
+    public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+        LOG.info("{} init and registerListener done", getClass().getSimpleName());
     }
 
     @Override
