@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c76dd5cd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1458,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2017-03-09T05:39:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_10a1e093",
+      "range": {
+        "startLine": 1458,
+        "startChar": 42,
+        "endLine": 1458,
+        "endChar": 54
+      },
+      "revId": "5c2293c493f4554bb46c1c7b28d145960e25fc3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_907f90df",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 5
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8c1bf47f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 679,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2017-03-09T05:39:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3d75dc31",
+      "range": {
+        "startLine": 679,
+        "startChar": 21,
+        "endLine": 679,
+        "endChar": 27
+      },
+      "revId": "5c2293c493f4554bb46c1c7b28d145960e25fc3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1000c032",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 5
@@ -82,6 +130,30 @@
       "writtenOn": "2017-03-08T10:02:32Z",
       "side": 1,
       "message": "if (nextHopIp \u003d\u003d null || !nextHopIp.equalsIgnoreCase(srcTepIp)) {...\n\nbtw, why \u0027equalsIgnoreCase\u0027? Can \u0027srcTepIp\u0027 be something different from an IpAddress?",
+      "range": {
+        "startLine": 698,
+        "startChar": 20,
+        "endLine": 701,
+        "endChar": 26
+      },
+      "revId": "5c2293c493f4554bb46c1c7b28d145960e25fc3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e73e19b7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 701,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2017-03-09T05:39:37Z",
+      "side": 1,
+      "message": "Yes Miguel, I think you are right. Will remove this equalsignorecase check.",
+      "parentUuid": "fafc7978_1000c032",
       "range": {
         "startLine": 698,
         "startChar": 20,
@@ -111,6 +183,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_67534917",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2017-03-09T05:39:37Z",
+      "side": 1,
+      "message": "Here anyway we were not populating this before. Keeping this empty only.",
+      "parentUuid": "fafc7978_5d954031",
+      "revId": "5c2293c493f4554bb46c1c7b28d145960e25fc3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4bbe19af",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 5
@@ -122,6 +212,30 @@
       "writtenOn": "2017-03-08T10:58:44Z",
       "side": 1,
       "message": "I think this check needs to be changed. addPrexixToBGP is being called by addExtraRoute() by adding nextHop to a singletonList. In case the nextHop is null, You will have a singleton list with null as its only element. So, for a null nextHop, the nextHopList above will (1) not be null, and (2) not be empty.\nThis needs to check if nextHopList !\u003d null, \u0026\u0026 nextHopList().get(0) !\u003d null.\n\nPlease handle this conditions similarly in L3VpnPopulator.java as well",
+      "range": {
+        "startLine": 990,
+        "startChar": 16,
+        "endLine": 990,
+        "endChar": 64
+      },
+      "revId": "5c2293c493f4554bb46c1c7b28d145960e25fc3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_673d098f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 990,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2017-03-09T05:39:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_4bbe19af",
       "range": {
         "startLine": 990,
         "startChar": 16,
@@ -157,6 +271,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c7567505",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1174,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2017-03-09T05:39:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_909b1017",
+      "range": {
+        "startLine": 1174,
+        "startChar": 44,
+        "endLine": 1174,
+        "endChar": 66
+      },
+      "revId": "5c2293c493f4554bb46c1c7b28d145960e25fc3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4b71f90a",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
         "patchSetId": 5
@@ -168,6 +306,30 @@
       "writtenOn": "2017-03-08T10:58:44Z",
       "side": 1,
       "message": "Potential NPE candidate. Please use Collections.singletonList(). Also, modify the notNull check in addOrUpdateFibEntry() appropriately.",
+      "range": {
+        "startLine": 75,
+        "startChar": 46,
+        "endLine": 75,
+        "endChar": 70
+      },
+      "revId": "5c2293c493f4554bb46c1c7b28d145960e25fc3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_274f8135",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2017-03-09T05:39:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_4b71f90a",
       "range": {
         "startLine": 75,
         "startChar": 46,
@@ -214,6 +376,30 @@
       "writtenOn": "2017-03-08T10:58:44Z",
       "side": 1,
       "message": "I dont think nextHopIP from operational adjacency is being used anywhere. This should be fine",
+      "parentUuid": "fafc7978_6b8f9d75",
+      "range": {
+        "startLine": 104,
+        "startChar": 74,
+        "endLine": 104,
+        "endChar": 78
+      },
+      "revId": "5c2293c493f4554bb46c1c7b28d145960e25fc3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4bc29953",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2017-03-09T05:39:37Z",
+      "side": 1,
+      "message": "Discussed with KiranN, who is primarily developing EVPN feature, it\u0027s okay if nhIp is null some time.",
       "parentUuid": "fafc7978_6b8f9d75",
       "range": {
         "startLine": 104,
