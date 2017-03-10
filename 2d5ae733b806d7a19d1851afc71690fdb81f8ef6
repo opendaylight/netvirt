@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_7ea74f0b",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-10T07:14:57Z",
+      "side": 1,
+      "message": "if an interface name does not start with tapxxx tunxxx vhuxxx, only then send it to getNeutronPort() call of NeutronVpnManager.\n\nReplicating the same method here and handling exception in your own way is not a good idea.",
+      "revId": "2d5ae733b806d7a19d1851afc71690fdb81f8ef6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_deb11b48",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-10T07:14:57Z",
+      "side": 1,
+      "message": "remove this.. instead have a local method to check if the input interface is tapxxx, vhuxxx, tunxxx as you donot want to service such ports here for Qos.\n\nIn fact you can see if genius intfmanager already has sucha  method and re-use it here.",
+      "revId": "2d5ae733b806d7a19d1851afc71690fdb81f8ef6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
