@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.aclservice.listeners;
 
+import com.google.common.util.concurrent.Futures;
+
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -17,6 +20,7 @@ import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeLis
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
@@ -68,17 +72,22 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     @Override
     protected void remove(InstanceIdentifier<Interface> key, Interface dataObjectModification) {
         String interfaceId = dataObjectModification.getName();
-        AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
-        if (AclServiceUtils.isOfInterest(aclInterface)) {
-            AclInterfaceCacheUtil.removeAclInterfaceFromCache(interfaceId);
-            if (aclClusterUtil.isEntityOwner()) {
-                aclServiceManger.notify(aclInterface, null, Action.REMOVE);
-            }
-            List<Uuid> aclList = aclInterface.getSecurityGroups();
-            if (aclList != null) {
-                aclDataUtil.removeAclInterfaceMap(aclList, aclInterface);
-            }
-        }
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(interfaceId,
+            () -> {
+                AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
+                if (AclServiceUtils.isOfInterest(aclInterface)) {
+                    AclInterfaceCacheUtil.removeAclInterfaceFromCache(interfaceId);
+                    if (aclClusterUtil.isEntityOwner()) {
+                        aclServiceManger.notify(aclInterface, null, Action.REMOVE);
+                    }
+                    List<Uuid> aclList = aclInterface.getSecurityGroups();
+                    if (aclList != null) {
+                        aclDataUtil.removeAclInterfaceMap(aclList, aclInterface);
+                    }
+                }
+                return Arrays.asList(Futures.immediateCheckedFuture(null));
+            });
     }
 
     @Override
@@ -92,16 +101,21 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
 
     @Override
     protected void add(InstanceIdentifier<Interface> key, Interface dataObjectModification) {
-        AclInterface aclInterface = updateAclInterfaceCache(dataObjectModification);
-        if (AclServiceUtils.isOfInterest(aclInterface)) {
-            List<Uuid> aclList = aclInterface.getSecurityGroups();
-            if (aclList != null) {
-                aclDataUtil.addAclInterfaceMap(aclList, aclInterface);
-            }
-            if (aclClusterUtil.isEntityOwner()) {
-                aclServiceManger.notify(aclInterface, null, Action.ADD);
-            }
-        }
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(dataObjectModification.getName(),
+            () -> {
+                AclInterface aclInterface = updateAclInterfaceCache(dataObjectModification);
+                if (AclServiceUtils.isOfInterest(aclInterface)) {
+                    List<Uuid> aclList = aclInterface.getSecurityGroups();
+                    if (aclList != null) {
+                        aclDataUtil.addAclInterfaceMap(aclList, aclInterface);
+                    }
+                    if (aclClusterUtil.isEntityOwner()) {
+                        aclServiceManger.notify(aclInterface, null, Action.ADD);
+                    }
+                }
+                return Arrays.asList(Futures.immediateCheckedFuture(null));
+            });
     }
 
     @Override

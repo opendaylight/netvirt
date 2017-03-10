@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -22,6 +23,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.testutils.AsyncEventsWaiter;
+import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorEventsWaiter;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
@@ -90,6 +92,7 @@ public abstract class AclServiceTestBase {
     SingleTransactionDataBroker singleTransactionDataBroker;
     @Inject TestIMdsalApiManager mdsalApiManager;
     @Inject AsyncEventsWaiter asyncEventsWaiter;
+    @Inject JobCoordinatorEventsWaiter coordinatorEventsWaiter;
 
     @Before
     public void beforeEachTest() throws Exception {
@@ -438,6 +441,7 @@ public abstract class AclServiceTestBase {
     abstract void newInterfaceWithAapIpv4AllCheck();
 
     protected void assertFlowsInAnyOrder(Iterable<FlowEntity> expectedFlows) {
+        coordinatorEventsWaiter.awaitEventsConsumption();
         mdsalApiManager.assertFlowsInAnyOrder(expectedFlows);
     }
 
