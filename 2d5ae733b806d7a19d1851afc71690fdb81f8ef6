@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_feb7bf1e",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-03-10T07:50:31Z",
+      "side": 1,
+      "message": "check intrf.getType() and if it is tunnel skip it.",
+      "range": {
+        "startLine": 70,
+        "startChar": 82,
+        "endLine": 70,
+        "endChar": 83
+      },
+      "revId": "2d5ae733b806d7a19d1851afc71690fdb81f8ef6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7ea74f0b",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
         "patchSetId": 1
@@ -19,6 +42,47 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_dec63b99",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-03-10T07:50:31Z",
+      "side": 1,
+      "message": "I think this is cleaner. If it is a valid uuid and neutron port exists for it, it is a valid neutron port. Using port prefix for guesstimating neutron ports is not a solution we\u0027d like to continue long term, esp when you consider the user can give any custom prefix in port-binding on n-odl side. It is not replicating the method, it is using the same method with try-catch for non uuid ports.",
+      "parentUuid": "fafc7978_7ea74f0b",
+      "revId": "2d5ae733b806d7a19d1851afc71690fdb81f8ef6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3e3dc78f",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-03-10T07:50:31Z",
+      "side": 1,
+      "message": "not needed",
+      "range": {
+        "startLine": 94,
+        "startChar": 13,
+        "endLine": 96,
+        "endChar": 13
+      },
+      "revId": "2d5ae733b806d7a19d1851afc71690fdb81f8ef6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_deb11b48",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
         "patchSetId": 1
@@ -30,6 +94,24 @@
       "writtenOn": "2017-03-10T07:14:57Z",
       "side": 1,
       "message": "remove this.. instead have a local method to check if the input interface is tapxxx, vhuxxx, tunxxx as you donot want to service such ports here for Qos.\n\nIn fact you can see if genius intfmanager already has sucha  method and re-use it here.",
+      "revId": "2d5ae733b806d7a19d1851afc71690fdb81f8ef6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1ebd6302",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-03-10T07:50:31Z",
+      "side": 1,
+      "message": "It will add unnecessary dependency on interfaceMgr when it is not needed. As mentioned above, assumptions shouldn\u0027t be made on prefix used for a port. Tunxxx is not needed coz type can already tell us.",
+      "parentUuid": "fafc7978_deb11b48",
       "revId": "2d5ae733b806d7a19d1851afc71690fdb81f8ef6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
