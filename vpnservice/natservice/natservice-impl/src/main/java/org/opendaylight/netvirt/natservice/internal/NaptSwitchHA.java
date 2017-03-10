@@ -59,6 +59,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProtocolTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
@@ -90,6 +91,7 @@ public class NaptSwitchHA {
     private final IFibManager fibManager;
     private List<String> externalIpsCache;
     private HashMap<String, Long> externalIpsLabel;
+    private final EvpnNaptSwitchHA evpnNaptSwitchHA;
 
     public NaptSwitchHA(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                         final ExternalRoutersListener externalRouterListener,
@@ -100,7 +102,8 @@ public class NaptSwitchHA {
                         final IBgpManager bgpManager,
                         final VpnRpcService vpnService,
                         final FibRpcService fibService,
-                        final IFibManager fibManager) {
+                        final IFibManager fibManager,
+                        final EvpnNaptSwitchHA evpnNaptSwitchHA) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.externalRouterListener = externalRouterListener;
@@ -112,6 +115,7 @@ public class NaptSwitchHA {
         this.vpnService = vpnService;
         this.fibService = fibService;
         this.fibManager = fibManager;
+        this.evpnNaptSwitchHA = evpnNaptSwitchHA;
     }
 
     /* This method checks the switch that gone down is a NaptSwitch for a router.
@@ -159,13 +163,30 @@ public class NaptSwitchHA {
             LOG.error("Invalid routerId returned for routerName {}", routerName);
             return;
         }
-        //Remove the Terminating Service table entry which forwards the packet to Outbound NAPT Table
-        String tsFlowRef = externalRouterListener.getFlowRefTs(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE, routerId);
-        FlowEntity tsNatFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE, tsFlowRef);
+        String vpnName = getExtNetworkVpnName(routerName);
+        if (vpnName == null) {
+            LOG.error("Vpn is not associated to externalN/w of router {}", routerName);
+            return;
+        }
+        ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName);
+        if (extNwProvType == null) {
+            LOG.error("NAT Service : Unable to retrieve the External Network Provider Type for Router {}",
+                    routerName);
+            return;
+        }
+        if (extNwProvType == ProviderTypes.VXLAN) {
+            evpnNaptSwitchHA.evpnRemoveSnatFlowsInOldNaptSwitch(routerName, routerId, vpnName, naptSwitch);
+        } else {
+            //Remove the Terminating Service table entry which forwards the packet to Outbound NAPT Table
+            String tsFlowRef = externalRouterListener.getFlowRefTs(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE,
+                    routerId);
+            FlowEntity tsNatFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE,
+                    tsFlowRef);
 
-        LOG.info("Remove the flow in table {} for the old napt switch with the DPN ID {} and router ID {}",
-                NwConstants.INTERNAL_TUNNEL_TABLE, naptSwitch, routerId);
-        mdsalManager.removeFlow(tsNatFlowEntity);
+            LOG.info("Remove the flow in table {} for the old napt switch with the DPN ID {} and router ID {}",
+                    NwConstants.INTERNAL_TUNNEL_TABLE, naptSwitch, routerId);
+            mdsalManager.removeFlow(tsNatFlowEntity);
+        }
         //Remove the Outbound flow entry which forwards the packet to Outbound NAPT Table
         String outboundNatFlowRef = externalRouterListener.getFlowRefOutbound(naptSwitch,
             NwConstants.OUTBOUND_NAPT_TABLE, routerId);
@@ -221,36 +242,30 @@ public class NaptSwitchHA {
         }
 
         //Remove Fib entries,tables 20->44 ,36-> 44
-        String vpnName = getExtNetworkVpnName(routerName);
-        if (vpnName == null) {
-            LOG.debug("Vpn is not associated to externalN/w of router {}", routerName);
+        if (externalIpsLabel != null && !externalIpsLabel.isEmpty()) {
+            for (String externalIp : externalIpsLabel.keySet()) {
+                Long label = externalIpsLabel.get(externalIp);
+                externalRouterListener.delFibTsAndReverseTraffic(naptSwitch, routerId, externalIp, vpnName, label);
+                LOG.debug("Successfully removed fib entries in old naptswitch {} for router {} and "
+                        + "externalIps {} label {}", naptSwitch, routerId, externalIp, label);
+            }
         } else {
-            if (externalIpsLabel != null && !externalIpsLabel.isEmpty()) {
-                for (String externalIp : externalIpsLabel.keySet()) {
-                    Long label = externalIpsLabel.get(externalIp);
-                    externalRouterListener.delFibTsAndReverseTraffic(naptSwitch, routerId, externalIp, vpnName, label);
-                    LOG.debug("Successfully removed fib entries in old naptswitch {} for router {} and "
-                        + "externalIps {} label {}",
-                        naptSwitch, routerId, externalIp, label);
-                }
-            } else {
-                List<String> externalIps = NatUtil.getExternalIpsFromRouter(dataBroker, routerName);
-                if (externalIps != null) {
-                    Uuid networkId = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
-                    if (networkId != null) {
-                        externalRouterListener.clearFibTsAndReverseTraffic(naptSwitch, routerId, networkId,
+            List<String> externalIps = NatUtil.getExternalIpsFromRouter(dataBroker, routerName);
+            if (externalIps != null) {
+                Uuid networkId = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
+                if (networkId != null) {
+                    externalRouterListener.clearFibTsAndReverseTraffic(naptSwitch, routerId, networkId,
                             externalIps, null);
-                        LOG.debug("Successfully removed fib entries in old naptswitch {} for "
-                            + "router {} with networkId {} and externalIps {}",
-                            naptSwitch, routerId, networkId, externalIps);
-                    } else {
-                        LOG.debug("External network not associated to router {}", routerId);
-                    }
-                    externalRouterListener.removeNaptFibExternalOutputFlows(routerId, naptSwitch,
-                        extNetworkId, externalIps);
+                    LOG.debug("Successfully removed fib entries in old naptswitch {} for "
+                            + "router {} with networkId {} and externalIps {}", naptSwitch, routerId, networkId,
+                            externalIps);
                 } else {
-                    LOG.debug("ExternalIps not found for router {}", routerName);
+                    LOG.debug("External network not associated to router {}", routerId);
                 }
+                externalRouterListener.removeNaptFibExternalOutputFlows(routerId, naptSwitch, extNetworkId,
+                        externalIps);
+            } else {
+                LOG.debug("ExternalIps not found for router {}", routerName);
             }
         }
 
@@ -884,28 +899,42 @@ public class NaptSwitchHA {
                 LOG.debug("Vpn is not associated to externalN/w of router {}", routerName);
                 return;
             }
-            if (externalIpLabel == null || externalIpLabel.size() == 0) {
-                LOG.debug("ExternalIpLabel map is empty for router {}", routerName);
-                return;
-            }
             BigInteger naptSwitch = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
             if (naptSwitch == null || naptSwitch.equals(BigInteger.ZERO)) {
                 LOG.debug("No naptSwitch is selected for router {}", routerName);
                 return;
             }
-            Long label;
-            for (String externalIp : removedExternalIps) {
-                if (externalIpLabel.containsKey(externalIp)) {
-                    label = externalIpLabel.get(externalIp);
-                    LOG.debug("Label {} for ExternalIp {} for router {}", label, externalIp, routerName);
-                } else {
-                    LOG.debug("Label for ExternalIp {} is not found for router {}", externalIp, routerName);
-                    continue;
+            ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker,routerName);
+            if (extNwProvType == null) {
+                return;
+            }
+            if (extNwProvType == ProviderTypes.VXLAN) {
+                for (String externalIp : removedExternalIps) {
+                    externalRouterListener.clearBgpRoutes(externalIp, vpnName);
+                    externalRouterListener.delFibTsAndReverseTraffic(naptSwitch, routerId, externalIp, vpnName,
+                            NatConstants.DEFAULT_LABEL_VALUE);
+                    LOG.debug("NAT Service: Successfully removed fib entry for externalIp {} for routerId {} "
+                                    + "on NAPT switch {} ", externalIp, routerId, naptSwitch);
                 }
-                externalRouterListener.clearBgpRoutes(externalIp, vpnName);
-                externalRouterListener.delFibTsAndReverseTraffic(naptSwitch, routerId, externalIp, vpnName, label);
-                LOG.debug("Successfully removed fib entries in switch {} for router {} and externalIps {}",
-                    naptSwitch, routerId, externalIp);
+            } else {
+                if (externalIpLabel == null || externalIpLabel.size() == 0) {
+                    LOG.debug("ExternalIpLabel map is empty for router {}", routerName);
+                    return;
+                }
+                Long label;
+                for (String externalIp : removedExternalIps) {
+                    if (externalIpLabel.containsKey(externalIp)) {
+                        label = externalIpLabel.get(externalIp);
+                        LOG.debug("Label {} for ExternalIp {} for router {}", label, externalIp, routerName);
+                    } else {
+                        LOG.debug("Label for ExternalIp {} is not found for router {}", externalIp, routerName);
+                        continue;
+                    }
+                    externalRouterListener.clearBgpRoutes(externalIp, vpnName);
+                    externalRouterListener.delFibTsAndReverseTraffic(naptSwitch, routerId, externalIp, vpnName, label);
+                    LOG.debug("Successfully removed fib entries in switch {} for router {} and externalIps {}",
+                            naptSwitch, routerId, externalIp);
+                }
             }
         } else {
             LOG.debug("No external IP found for router {}", routerId);
