@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_733dc8dc",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-10T06:54:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_735ca87d",
+      "revId": "9f44915711c3f6be5adc2dfab078088a8819eae3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d356345b",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d32754c8",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-10T06:54:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d356345b",
+      "revId": "9f44915711c3f6be5adc2dfab078088a8819eae3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_134d5cc4",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2017-03-10T05:18:13Z",
       "side": 1,
       "message": "do you want to use leaf-list route-paths here that will embrace within it the gateway-mac-address also?",
+      "revId": "9f44915711c3f6be5adc2dfab078088a8819eae3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d30e343a",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-10T06:54:17Z",
+      "side": 1,
+      "message": "THanks Vivek:) RoutePaths will be much more useful. Fixed.",
+      "parentUuid": "fafc7978_134d5cc4",
       "revId": "9f44915711c3f6be5adc2dfab078088a8819eae3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
