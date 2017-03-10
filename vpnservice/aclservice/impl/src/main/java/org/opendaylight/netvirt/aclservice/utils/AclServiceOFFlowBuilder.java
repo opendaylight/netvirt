@@ -143,7 +143,14 @@ public class AclServiceOFFlowBuilder {
                         + destinationPortRange.getUpperPort().getValue() + "_";
             }
         }
-        flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
+
+        if (acl.getAceIpVersion() instanceof AceIpv6 && acl.getProtocol() == NwConstants.IP_PROT_ICMP) {
+            // We are aligning our implementation similar to Neutron Firewall driver where a Security
+            // Group rule with "Ethertype as IPv6 and Protocol as icmp" is treated as ICMPV6 SG Rule.
+            flowMatches.add(new MatchIpProtocol(AclConstants.IP_PROT_ICMPV6));
+        } else {
+            flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
+        }
         Map<String,List<MatchInfoBase>> flowMatchesMap = new HashMap<>();
         flowMatchesMap.put(flowId,flowMatches);
         return flowMatchesMap;
