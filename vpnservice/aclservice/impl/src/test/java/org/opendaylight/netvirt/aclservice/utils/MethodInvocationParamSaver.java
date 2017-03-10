@@ -25,7 +25,7 @@ public class  MethodInvocationParamSaver<T> implements Answer<T> {
 
     @Override
     public T answer(InvocationOnMock invocation) throws Throwable {
-        invocationParams.add(Arrays.asList(invocation.getArguments()));
+        invocationParams.add(Arrays.asList(invocation.getArguments()[1]));
         return answer;
     }
 

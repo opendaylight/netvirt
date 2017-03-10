@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.aclservice.utils;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -20,7 +21,10 @@ import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.awaitility.Awaitility;
 import org.junit.Assert;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -203,7 +207,9 @@ public class AclServiceTestUtils {
         if (entityOwnerCache != null) {
             entityOwnerCache.put(entityName, true);
         }
-
     }
 
+    public static void waitForAllCoordinatorJobs() {
+        Awaitility.await().until(() -> DataStoreJobCoordinator.getInstance().getIncompleteTaskCount(), is(0L));
+    }
 }
