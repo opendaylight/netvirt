@@ -194,6 +194,7 @@
     <argument ref="vpnRpcService" />
     <argument ref="fibRpcService" />
     <argument ref="fibManager" />
+    <argument ref="evpnFlowProgrammerHA" />
   </bean>
 
   <bean id="natNodeEventListener"
@@ -289,5 +290,12 @@
     <argument ref="bgpManager" />
     <argument ref="fibManager" />
     <argument ref="fibRpcService" />
+  </bean>
+
+  <bean id="evpnFlowProgrammerHA" class="org.opendaylight.netvirt.natservice.internal.EvpnFlowProgrammerHA">
+    <argument ref="dataBroker" />
+    <argument ref="mdsalUtils" />
+    <argument ref="evpnSnatFlowProgrammer" />
+    <argument ref="idManagerService" />
   </bean>
 </blueprint>
