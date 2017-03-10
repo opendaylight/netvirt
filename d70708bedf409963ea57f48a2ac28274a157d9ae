@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_feeb3fa1",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-10T09:06:04Z",
+      "side": 1,
+      "message": "Please correct as below:\n\n\"Stores information about a parent vpn + prefix in that parentvpn, along with what other vpn-instances import the parent vpn.\n\"\n\nWe could have potentially re-used prefix-to-interface here instead of reconstructing one more datastore, but we need to delay removal of prefix-to-interface until all the references become empty.\n\nWe will revisit if prefix-to-interface can be re-used during implementation and accordingly come back to this premise.",
+      "revId": "d70708bedf409963ea57f48a2ac28274a157d9ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
