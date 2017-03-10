@@ -70,31 +70,44 @@ public class QosInterfaceStateChangeListener extends AsyncDataTreeChangeListener
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
         try {
             final String interfaceName = intrf.getName();
-            Port port = neutronVpnManager.getNeutronPort(new Uuid(interfaceName));
-            Network network =  neutronVpnManager.getNeutronNetwork(port.getNetworkId());
-            LOG.trace("Qos Service : Received interface {} PORT UP event ", interfaceName);
-            if (port.getAugmentation(QosPortExtension.class) != null) {
-                Uuid portQosUuid = port.getAugmentation(QosPortExtension.class).getQosPolicyId();
-                if (portQosUuid != null) {
-                    QosNeutronUtils.addToQosPortsCache(portQosUuid, port);
-                    QosNeutronUtils.handleNeutronPortQosAdd(dataBroker, odlInterfaceRpcService, mdsalUtils,
-                            port, portQosUuid);
-                }
-
-            } else {
-                if (network.getAugmentation(QosNetworkExtension.class) != null) {
-                    Uuid networkQosUuid = network.getAugmentation(QosNetworkExtension.class).getQosPolicyId();
-                    if (networkQosUuid != null) {
+            Port port = getNeutronPort(interfaceName);
+            if (port != null) {
+                Network network =  neutronVpnManager.getNeutronNetwork(port.getNetworkId());
+                LOG.trace("Qos Service : Received interface {} PORT UP event ", interfaceName);
+                if (port.getAugmentation(QosPortExtension.class) != null) {
+                    Uuid portQosUuid = port.getAugmentation(QosPortExtension.class).getQosPolicyId();
+                    if (portQosUuid != null) {
+                        QosNeutronUtils.addToQosPortsCache(portQosUuid, port);
                         QosNeutronUtils.handleNeutronPortQosAdd(dataBroker, odlInterfaceRpcService, mdsalUtils,
-                                port, networkQosUuid);
+                                port, portQosUuid);
+                    }
+
+                } else {
+                    if (network.getAugmentation(QosNetworkExtension.class) != null) {
+                        Uuid networkQosUuid = network.getAugmentation(QosNetworkExtension.class).getQosPolicyId();
+                        if (networkQosUuid != null) {
+                            QosNeutronUtils.handleNeutronPortQosAdd(dataBroker, odlInterfaceRpcService, mdsalUtils,
+                                    port, networkQosUuid);
+                        }
                     }
                 }
+            } else {
+                return ;
             }
 
         } catch (Exception e) {
             LOG.error("Qos:Exception caught in Interface Operational State Up event", e);
         }
     }
+
+    private Port getNeutronPort(String portName) {
+        try {
+            return neutronVpnManager.getNeutronPort(new Uuid(portName));
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
 
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
