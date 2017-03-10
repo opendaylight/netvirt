@@ -65,6 +65,7 @@ public final class AclConstants {
     public static final int ALL_LAYER4_PORT = 65535;
     public static final int ALL_LAYER4_PORT_MASK = 0x0000;
 
+    public static final Short IP_PROT_ICMPV6 = 58;
     public static final int ICMPV6_TYPE_MLD_QUERY = 130;
     public static final int ICMPV6_TYPE_RS = 133;
     public static final int ICMPV6_TYPE_RA = 134;
