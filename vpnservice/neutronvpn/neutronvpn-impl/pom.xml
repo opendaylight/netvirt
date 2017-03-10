@@ -95,6 +95,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>utils.config</artifactId>
       <version>${vpns.ovsdb.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.google.truth</groupId>
+      <artifactId>truth</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <!--
