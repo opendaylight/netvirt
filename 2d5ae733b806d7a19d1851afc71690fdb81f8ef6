@@ -78,6 +78,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_de563b5b",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-03-10T09:15:47Z",
+      "side": 1,
+      "message": "what you mean original method? the one in neutronvpnManager requires UUID, not the interface name. do you want to add a new API?",
+      "parentUuid": "fafc7978_7e374f4d",
+      "revId": "2d5ae733b806d7a19d1851afc71690fdb81f8ef6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3e3dc78f",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
         "patchSetId": 1
