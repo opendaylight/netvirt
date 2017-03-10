@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f9bd19b2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-10T11:15:34Z",
+      "side": 1,
+      "message": "Miguel, remove this one too..",
+      "parentUuid": "fafc7978_be09b732",
+      "revId": "cc540b2ed75569c2ca14b44f1e0b75a68c7da567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fe7a1fb8",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
         "patchSetId": 2
