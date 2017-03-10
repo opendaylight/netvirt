@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_3e882770",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-10T07:19:22Z",
+      "side": 1,
+      "message": "please give useful descriptions for this attribute and also for \"parent-vpn\" on why this augmentation is necessary.",
+      "revId": "5631e9f2b8677998d51a8510c344548076688a7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1e8f2376",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-10T07:19:22Z",
+      "side": 1,
+      "message": "give a description of what this container is used for.",
+      "revId": "5631e9f2b8677998d51a8510c344548076688a7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7e7e2f6b",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-10T07:19:22Z",
+      "side": 1,
+      "message": "parent-primary-rd",
+      "revId": "5631e9f2b8677998d51a8510c344548076688a7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_be9377a1",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-10T07:19:22Z",
+      "side": 1,
+      "message": "this has gone into route-paths.. why is this retained here?",
+      "revId": "5631e9f2b8677998d51a8510c344548076688a7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9e7b137a",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-10T07:19:22Z",
+      "side": 1,
+      "message": "this is not required as route-paths is available to substitute this.",
+      "revId": "5631e9f2b8677998d51a8510c344548076688a7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
