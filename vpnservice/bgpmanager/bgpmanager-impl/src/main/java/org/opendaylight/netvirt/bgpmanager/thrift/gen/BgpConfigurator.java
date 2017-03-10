@@ -40,7 +40,7 @@ public class BgpConfigurator {
 
     public int stopBgp(long asNumber) throws org.apache.thrift.TException;
 
-    public int createPeer(String ipAddress, long asNumber) throws org.apache.thrift.TException;
+    public int createPeer(String ipAddress, long asNumber, String rfc2385_sharedSecret) throws org.apache.thrift.TException;
 
     public int deletePeer(String ipAddress) throws org.apache.thrift.TException;
 
@@ -80,7 +80,7 @@ public class BgpConfigurator {
 
     public void stopBgp(long asNumber, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void createPeer(String ipAddress, long asNumber, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void createPeer(String ipAddress, long asNumber, String rfc2385_sharedSecret, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void deletePeer(String ipAddress, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
@@ -186,17 +186,18 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "stopBgp failed: unknown result");
     }
 
-    public int createPeer(String ipAddress, long asNumber) throws org.apache.thrift.TException
+    public int createPeer(String ipAddress, long asNumber, String rfc2385_sharedSecret) throws org.apache.thrift.TException
     {
-      send_createPeer(ipAddress, asNumber);
+      send_createPeer(ipAddress, asNumber, rfc2385_sharedSecret);
       return recv_createPeer();
     }
 
-    public void send_createPeer(String ipAddress, long asNumber) throws org.apache.thrift.TException
+    public void send_createPeer(String ipAddress, long asNumber, String rfc2385_sharedSecret) throws org.apache.thrift.TException
     {
       createPeer_args args = new createPeer_args();
       args.setIpAddress(ipAddress);
       args.setAsNumber(asNumber);
+      args.setRfc2385_sharedSecret(rfc2385_sharedSecret);
       sendBase("createPeer", args);
     }
 
@@ -681,9 +682,9 @@ public class BgpConfigurator {
       }
     }
 
-    public void createPeer(String ipAddress, long asNumber, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void createPeer(String ipAddress, long asNumber, String rfc2385_sharedSecret, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      createPeer_call method_call = new createPeer_call(ipAddress, asNumber, resultHandler, this, ___protocolFactory, ___transport);
+      createPeer_call method_call = new createPeer_call(ipAddress, asNumber, rfc2385_sharedSecret, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
@@ -691,10 +692,12 @@ public class BgpConfigurator {
     public static class createPeer_call extends org.apache.thrift.async.TAsyncMethodCall {
       private String ipAddress;
       private long asNumber;
-      public createPeer_call(String ipAddress, long asNumber, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      private String rfc2385_sharedSecret;
+      public createPeer_call(String ipAddress, long asNumber, String rfc2385_sharedSecret, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.ipAddress = ipAddress;
         this.asNumber = asNumber;
+        this.rfc2385_sharedSecret = rfc2385_sharedSecret;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
@@ -702,6 +705,7 @@ public class BgpConfigurator {
         createPeer_args args = new createPeer_args();
         args.setIpAddress(ipAddress);
         args.setAsNumber(asNumber);
+        args.setRfc2385_sharedSecret(rfc2385_sharedSecret);
         args.write(prot);
         prot.writeMessageEnd();
       }
@@ -1365,7 +1369,7 @@ public class BgpConfigurator {
 
       public createPeer_result getResult(I iface, createPeer_args args) throws org.apache.thrift.TException {
         createPeer_result result = new createPeer_result();
-        result.success = iface.createPeer(args.ipAddress, args.asNumber);
+        result.success = iface.createPeer(args.ipAddress, args.asNumber, args.rfc2385_sharedSecret);
         result.setSuccessIsSet(true);
         return result;
       }
@@ -1871,7 +1875,7 @@ public class BgpConfigurator {
       }
 
       public void start(I iface, createPeer_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
-        iface.createPeer(args.ipAddress, args.asNumber,resultHandler);
+        iface.createPeer(args.ipAddress, args.asNumber, args.rfc2385_sharedSecret,resultHandler);
       }
     }
 
@@ -4643,6 +4647,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField IP_ADDRESS_FIELD_DESC = new org.apache.thrift.protocol.TField("ipAddress", org.apache.thrift.protocol.TType.STRING, (short)1);
     private static final org.apache.thrift.protocol.TField AS_NUMBER_FIELD_DESC = new org.apache.thrift.protocol.TField("asNumber", org.apache.thrift.protocol.TType.I64, (short)2);
+    private static final org.apache.thrift.protocol.TField RFC2385_SHARED_SECRET_FIELD_DESC = new org.apache.thrift.protocol.TField("rfc2385_sharedSecret", org.apache.thrift.protocol.TType.STRING, (short)3);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
@@ -4652,11 +4657,13 @@ public class BgpConfigurator {
 
     public String ipAddress; // required
     public long asNumber; // required
+    public String rfc2385_sharedSecret; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       IP_ADDRESS((short)1, "ipAddress"),
-      AS_NUMBER((short)2, "asNumber");
+      AS_NUMBER((short)2, "asNumber"),
+      RFC2385_SHARED_SECRET((short)3, "rfc2385_sharedSecret");
 
       private static final Map<String, _Fields> byName = new HashMap<>();
 
@@ -4675,6 +4682,8 @@ public class BgpConfigurator {
             return IP_ADDRESS;
           case 2: // AS_NUMBER
             return AS_NUMBER;
+          case 3: // RFC2385_SHARED_SECRET
+            return RFC2385_SHARED_SECRET;
           default:
             return null;
         }
@@ -4724,6 +4733,8 @@ public class BgpConfigurator {
               new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.AS_NUMBER, new org.apache.thrift.meta_data.FieldMetaData("asNumber", org.apache.thrift.TFieldRequirementType.DEFAULT,
               new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+      tmpMap.put(_Fields.RFC2385_SHARED_SECRET, new org.apache.thrift.meta_data.FieldMetaData("rfc2385_sharedSecret", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(createPeer_args.class, metaDataMap);
     }
@@ -4733,12 +4744,14 @@ public class BgpConfigurator {
 
     public createPeer_args(
             String ipAddress,
-            long asNumber)
+      long asNumber,
+      String rfc2385_sharedSecret)
     {
       this();
       this.ipAddress = ipAddress;
       this.asNumber = asNumber;
       setAsNumberIsSet(true);
+      this.rfc2385_sharedSecret = rfc2385_sharedSecret;
     }
 
     /**
@@ -4750,6 +4763,9 @@ public class BgpConfigurator {
         this.ipAddress = other.ipAddress;
       }
       this.asNumber = other.asNumber;
+      if (other.isSetRfc2385_sharedSecret()) {
+        this.rfc2385_sharedSecret = other.rfc2385_sharedSecret;
+      }
     }
 
     public createPeer_args deepCopy() {
@@ -4761,6 +4777,7 @@ public class BgpConfigurator {
       this.ipAddress = null;
       setAsNumberIsSet(false);
       this.asNumber = 0;
+      this.rfc2385_sharedSecret = null;
     }
 
     public String getIpAddress() {
@@ -4810,6 +4827,30 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ASNUMBER_ISSET_ID, value);
     }
 
+    public String getRfc2385_sharedSecret() {
+      return this.rfc2385_sharedSecret;
+    }
+
+    public createPeer_args setRfc2385_sharedSecret(String rfc2385_sharedSecret) {
+      this.rfc2385_sharedSecret = rfc2385_sharedSecret;
+      return this;
+    }
+
+    public void unsetRfc2385_sharedSecret() {
+      this.rfc2385_sharedSecret = null;
+    }
+
+    /** Returns true if field rfc2385_sharedSecret is set (has been assigned a value) and false otherwise */
+    public boolean isSetRfc2385_sharedSecret() {
+      return this.rfc2385_sharedSecret != null;
+    }
+
+    public void setRfc2385_sharedSecretIsSet(boolean value) {
+      if (!value) {
+        this.rfc2385_sharedSecret = null;
+      }
+    }
+
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
         case IP_ADDRESS:
@@ -4828,6 +4869,14 @@ public class BgpConfigurator {
           }
           break;
 
+      case RFC2385_SHARED_SECRET:
+        if (value == null) {
+          unsetRfc2385_sharedSecret();
+        } else {
+          setRfc2385_sharedSecret((String)value);
+        }
+        break;
+
       }
     }
 
@@ -4838,6 +4887,9 @@ public class BgpConfigurator {
 
         case AS_NUMBER:
           return Long.valueOf(getAsNumber());
+
+      case RFC2385_SHARED_SECRET:
+        return getRfc2385_sharedSecret();
 
       }
       throw new IllegalStateException();
@@ -4854,6 +4906,8 @@ public class BgpConfigurator {
           return isSetIpAddress();
         case AS_NUMBER:
           return isSetAsNumber();
+      case RFC2385_SHARED_SECRET:
+        return isSetRfc2385_sharedSecret();
       }
       throw new IllegalStateException();
     }
@@ -4886,6 +4940,15 @@ public class BgpConfigurator {
         if (!(this_present_asNumber && that_present_asNumber))
           return false;
         if (this.asNumber != that.asNumber)
+          return false;
+      }
+
+      boolean this_present_rfc2385_sharedSecret = true && this.isSetRfc2385_sharedSecret();
+      boolean that_present_rfc2385_sharedSecret = true && that.isSetRfc2385_sharedSecret();
+      if (this_present_rfc2385_sharedSecret || that_present_rfc2385_sharedSecret) {
+        if (!(this_present_rfc2385_sharedSecret && that_present_rfc2385_sharedSecret))
+          return false;
+        if (!this.rfc2385_sharedSecret.equals(that.rfc2385_sharedSecret))
           return false;
       }
 
@@ -4925,6 +4988,16 @@ public class BgpConfigurator {
           return lastComparison;
         }
       }
+      lastComparison = Boolean.valueOf(isSetRfc2385_sharedSecret()).compareTo(other.isSetRfc2385_sharedSecret());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetRfc2385_sharedSecret()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.rfc2385_sharedSecret, other.rfc2385_sharedSecret);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
       return 0;
     }
 
@@ -4955,6 +5028,14 @@ public class BgpConfigurator {
       if (!first) sb.append(", ");
       sb.append("asNumber:");
       sb.append(this.asNumber);
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("rfc2385_sharedSecret:");
+      if (this.rfc2385_sharedSecret == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.rfc2385_sharedSecret);
+      }
       first = false;
       sb.append(")");
       return sb.toString();
@@ -5017,6 +5098,14 @@ public class BgpConfigurator {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
+            case 3: // RFC2385_SHARED_SECRET
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.rfc2385_sharedSecret = iprot.readString();
+                struct.setRfc2385_sharedSecretIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -5040,6 +5129,11 @@ public class BgpConfigurator {
         oprot.writeFieldBegin(AS_NUMBER_FIELD_DESC);
         oprot.writeI64(struct.asNumber);
         oprot.writeFieldEnd();
+        if (struct.rfc2385_sharedSecret != null) {
+          oprot.writeFieldBegin(RFC2385_SHARED_SECRET_FIELD_DESC);
+          oprot.writeString(struct.rfc2385_sharedSecret);
+          oprot.writeFieldEnd();
+        }
         oprot.writeFieldStop();
         oprot.writeStructEnd();
       }
@@ -5064,19 +5158,25 @@ public class BgpConfigurator {
         if (struct.isSetAsNumber()) {
           optionals.set(1);
         }
-        oprot.writeBitSet(optionals, 2);
+        if (struct.isSetRfc2385_sharedSecret()) {
+          optionals.set(2);
+        }
+        oprot.writeBitSet(optionals, 3);
         if (struct.isSetIpAddress()) {
           oprot.writeString(struct.ipAddress);
         }
         if (struct.isSetAsNumber()) {
           oprot.writeI64(struct.asNumber);
         }
+        if (struct.isSetRfc2385_sharedSecret()) {
+          oprot.writeString(struct.rfc2385_sharedSecret);
+        }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, createPeer_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(2);
+        BitSet incoming = iprot.readBitSet(3);
         if (incoming.get(0)) {
           struct.ipAddress = iprot.readString();
           struct.setIpAddressIsSet(true);
@@ -5084,6 +5184,10 @@ public class BgpConfigurator {
         if (incoming.get(1)) {
           struct.asNumber = iprot.readI64();
           struct.setAsNumberIsSet(true);
+        }
+        if (incoming.get(2)) {
+          struct.rfc2385_sharedSecret = iprot.readString();
+          struct.setRfc2385_sharedSecretIsSet(true);
         }
       }
     }

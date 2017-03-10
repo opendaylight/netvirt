@@ -121,7 +121,15 @@ service BgpConfigurator {
                        4:i32 holdTime, 5:i32 keepAliveTime,
                        6:i32 stalepathTime, 7:bool announceFlush),
     i32 stopBgp(1:i64 asNumber),
-    i32 createPeer(1:string ipAddress, 2:i64 asNumber),
+
+    /*
+     *  'rfc2385_sharedSecret' is the password used with RFC 2385 "TCP MD5
+     *  Signature Option".  If this field is empty or missing "TCP MD5
+     *  Signature Option" will be not used.  An otherwise invalid string (e.g.
+     *  Quagga limits the length to 80) MUST fail with error code
+     *  BGP_ERR_PARAM.
+     */
+    i32 createPeer(1:string ipAddress, 2:i64 asNumber, 3:string rfc2385_sharedSecret),
     i32 deletePeer(1:string ipAddress)
     i32 addVrf(1:layer_type l_type, 2:string rd, 3:list<string> irts, 4:list<string> erts),
     i32 delVrf(1:string rd),
