@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_1e80c389",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-10T09:31:45Z",
+      "side": 1,
+      "message": "these routes must have routeorigin set to SELF_IMPORTED, but I see that the entire chunk to use this list has disappeared from this method here...\n\nThis needs to be addressed in the next EVPN review by KiranN.",
+      "revId": "cc540b2ed75569c2ca14b44f1e0b75a68c7da567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fe7a1fb8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-10T09:31:45Z",
+      "side": 1,
+      "message": "i suggest that if its non-null we throw an error and bail out rather than setting LOCAL, as this value must be set consciously by the VPNEngine and not through data-hiding.",
+      "revId": "cc540b2ed75569c2ca14b44f1e0b75a68c7da567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
