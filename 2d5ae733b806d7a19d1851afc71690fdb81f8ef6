@@ -114,6 +114,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7eb8ef74",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-03-10T09:24:33Z",
+      "side": 1,
+      "message": "it takes UUID as argument, not port name. so we either modify api or add a new one. This is the code that adds to cache, so can\u0027t check for presence in cache.",
+      "parentUuid": "fafc7978_7eeaaf74",
+      "revId": "2d5ae733b806d7a19d1851afc71690fdb81f8ef6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3e3dc78f",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
         "patchSetId": 1
