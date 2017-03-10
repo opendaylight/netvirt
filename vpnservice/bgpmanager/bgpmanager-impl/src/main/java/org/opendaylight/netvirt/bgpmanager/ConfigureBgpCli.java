@@ -225,6 +225,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
             return;
         }
         if(!validateAsNumber(asNumber)) {
+            printStartBgpHelp();
             return;
         }
         validRouterId = validateIp(routerId);
@@ -246,6 +247,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
 
     protected void addNeighbor() throws Exception {
         if(!validateAsNumber(asNumber)) {
+            printAddNeighborHelp();
             return;
         }
 
@@ -365,17 +367,14 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
                 case 65535:
                 case 23456:
                     System.out.println("reserved AS Number supplied ");
-                    printStartBgpHelp();
                     return false;
             }
             if (asNum <= AS_MIN || asNum > AS_MAX) {
                 System.out.println("invalid AS Number , supported range [1,"+AS_MAX+"]");
-                printStartBgpHelp();
                 return false;
             }
         } catch (Exception e) {
             System.out.println("invalid AS Number ");
-            printStartBgpHelp();
             return false;
         }
         return true;
