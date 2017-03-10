@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_1eac438b",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-10T08:49:12Z",
+      "side": 1,
+      "message": "what happens if the neutron port has not been created yet, and neutron creates the port with the same IP after it has been given out by this service? i think it is better to reserve the subnet allocation pool separately from what is being used by neutron, to avoid such situations. this could be done at the openstack orchestration level, or through pluggable IPAM in neutron.",
+      "range": {
+        "startLine": 39,
+        "startChar": 49,
+        "endLine": 39,
+        "endChar": 51
+      },
+      "revId": "a944c1325dfaa4841de878950119ecfd684a98a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
