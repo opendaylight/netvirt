@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_be09b732",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-10T09:44:14Z",
+      "side": 1,
+      "message": "The block is not missing. It has been moved to L3VpnOverMplsGrePopulator.populateFib().\nThe above statement will have to be removed, as the vpnsToImportRoute is not being used anywhere within this method",
+      "parentUuid": "fafc7978_1e80c389",
+      "revId": "cc540b2ed75569c2ca14b44f1e0b75a68c7da567",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fe7a1fb8",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
         "patchSetId": 2
