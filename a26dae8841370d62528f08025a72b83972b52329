@@ -34,6 +34,23 @@
       "revId": "a26dae8841370d62528f08025a72b83972b52329",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d3b11448",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/VLANProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-10T00:45:40Z",
+      "side": 1,
+      "message": "Thank you for explaining. My comments are below:\n\n1) block 61-66 is duplicated from BridgeConfigurationManagerImpl. We could move the logic to set the patch port name from BridgeConfigurationManagerImpl to this method.\n\n2) In this method if configurationService.getPatchPortName() returns null we calculate the patch port name and call configurationService.setPatchPortName(). Now we properly cache the patch port name.\n\n3) Is the cache useful? I mean does this method get calls multiple times? If it is only called once then I think we don\u0027t need to maintain the cache. But we still need to do 1) to avoid duplicate codes\n\nWhat do you think?",
+      "revId": "a26dae8841370d62528f08025a72b83972b52329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
