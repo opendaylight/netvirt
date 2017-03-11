@@ -1570,10 +1570,43 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 //This code will not be hit since VM adjacency will always be there
                 adjacencies = new ArrayList<>();
             }
+            VpnInstanceOpDataEntry vpnOpEntry = VpnUtil.getVpnInstanceOpData(dataBroker, primaryRd);
+            Boolean isVxlan = VpnUtil.isL3VpnOverVxLan(vpnOpEntry.getL3vni());
+            VrfEntry.EncapType encapType = (isVxlan == true) ? VrfEntry.EncapType.Vxlan : VrfEntry.EncapType.Mplsgre;
             long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-            AdjacencyBuilder adjBuilder = new AdjacencyBuilder(adj).setLabel(label)
-                    .setNextHopIpList(adj.getNextHopIpList()).setIpAddress(prefix).setKey(new AdjacencyKey(prefix));
-            if (adj.getNextHopIpList() != null && !adj.getNextHopIpList().isEmpty()) {
+            if (encapType == VrfEntry.EncapType.Mplsgre) {
+                AdjacencyBuilder adjBuilder = new AdjacencyBuilder(adj).setLabel(label)
+                        .setNextHopIpList(adj.getNextHopIpList()).setIpAddress(prefix).setKey(new AdjacencyKey(prefix));
+                if (adj.getNextHopIpList() != null && !adj.getNextHopIpList().isEmpty()) {
+                    RouteOrigin origin = adj.isPrimaryAdjacency() ? RouteOrigin.LOCAL : RouteOrigin.STATIC;
+                    String nh = adj.getNextHopIpList().get(0);
+                    String vpnPrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
+                    synchronized (vpnPrefixKey.intern()) {
+                        java.util.Optional<String> rdToAllocate = VpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(
+                                dataBroker, vpnId, Optional.absent(), prefix, vpnName, dpnId,writeOperTxn);
+                        if (rdToAllocate.isPresent()) {
+                            adjBuilder.setVrfId(rdToAllocate.get());
+                            addExtraRoute(vpnName, adj.getIpAddress(), nh,rdToAllocate.get(),
+                                    currVpnIntf.getVpnInstanceName(), (int) label,
+                                    origin, currVpnIntf.getName(), writeConfigTxn, encapType, vpnOpEntry.getL3vni());
+                        } else {
+                            LOG.error("No rds to allocate extraroute {}", prefix);
+                            return;
+                        }
+                    }
+                } else {
+                    adjBuilder.setVrfId(primaryRd);
+                }
+                adjacencies.add(adjBuilder.build());
+                Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencies);
+                VpnInterface newVpnIntf =
+                        VpnUtil.getVpnInterface(currVpnIntf.getName(), currVpnIntf.getVpnInstanceName(), aug, dpnId,
+                                currVpnIntf.isScheduledForRemove());
+                writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf, true);
+            } else {
+                VpnPopulator vpnPopulator = L3vpnRegistry.getRegisteredPopulator(encapType);
+                L3vpnInput input = new L3vpnInput().setRd(primaryRd).setNextHop(adj).setNextHopIp(adj.getIpAddress());
+                Adjacency adjacency = vpnPopulator.createOperationalAdjacency(input);
                 RouteOrigin origin = adj.isPrimaryAdjacency() ? RouteOrigin.LOCAL : RouteOrigin.STATIC;
                 String nh = adj.getNextHopIpList().get(0);
                 String vpnPrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
@@ -1581,10 +1614,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     java.util.Optional<String> rdToAllocate = VpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(
                             dataBroker, vpnId, Optional.absent(), prefix, vpnName, dpnId,writeOperTxn);
                     if (rdToAllocate.isPresent()) {
-                        adjBuilder.setVrfId(rdToAllocate.get());
                         addExtraRoute(vpnName, adj.getIpAddress(), nh,rdToAllocate.get(),
                                 currVpnIntf.getVpnInstanceName(), (int) label,
-                                origin, currVpnIntf.getName(), writeConfigTxn);
+                                origin, currVpnIntf.getName(), writeConfigTxn, encapType, vpnOpEntry.getL3vni());
                     } else {
                         LOG.error("No rds to allocate extraroute {}", prefix);
                         return;
@@ -1592,6 +1624,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
                     vpnsToImportRoute.stream().forEach(vpn -> {
                         java.util.Optional.ofNullable(vpn.getVrfId()).ifPresent(vpnRd -> {
+                            Boolean isVxlanTnl = VpnUtil.isL3VpnOverVxLan(vpn.getL3vni());
+                            VrfEntry.EncapType encapTypeVal = (isVxlanTnl == true) ? VrfEntry.EncapType.Vxlan :
+                                    VrfEntry.EncapType.Mplsgre;
                             java.util.Optional.ofNullable(VpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(
                                     dataBroker, vpn.getVpnId(), Optional.fromNullable(vpnId), prefix,
                                     VpnUtil.getVpnName(dataBroker, vpn.getVpnId()), dpnId,
@@ -1599,21 +1634,19 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                         addExtraRoute(VpnUtil.getVpnName(dataBroker, vpn.getVpnId()),
                                                 adj.getIpAddress(), nh, rdsToAllocate.get(),
                                                 currVpnIntf.getVpnInstanceName(), (int) label,
-                                                RouteOrigin.SELF_IMPORTED, currVpnIntf.getName(), writeConfigTxn);
+                                                RouteOrigin.SELF_IMPORTED, currVpnIntf.getName(), writeConfigTxn,
+                                                encapTypeVal, vpn.getL3vni());
                                     });
                         });
                     });
                 }
-            } else {
-                adjBuilder.setVrfId(primaryRd);
+                adjacencies.add(adjacency);
+                Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencies);
+                VpnInterface newVpnIntf =
+                        VpnUtil.getVpnInterface(currVpnIntf.getName(), currVpnIntf.getVpnInstanceName(), aug, dpnId,
+                                currVpnIntf.isScheduledForRemove());
+                writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf, true);
             }
-            adjacencies.add(adjBuilder.build());
-            Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencies);
-            VpnInterface newVpnIntf =
-                VpnUtil.getVpnInterface(currVpnIntf.getName(), currVpnIntf.getVpnInstanceName(), aug, dpnId,
-                    currVpnIntf.isScheduledForRemove());
-
-            writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf, true);
         }
     }
 
@@ -1671,7 +1704,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
     protected void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
                                  int label, RouteOrigin origin, String intfName,
-                                 WriteTransaction writeConfigTxn) {
+                                 WriteTransaction writeConfigTxn, VrfEntry.EncapType encapType, long l3vni) {
 
         Boolean writeConfigTxnPresent = true;
         if (writeConfigTxn == null) {
@@ -1732,15 +1765,27 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                        srcVpnUuid, dstVpnUuid, destination, newLabel);
         } else {
             if (rd != null) {
-                addPrefixToBGP(rd, VpnUtil.getPrimaryRd(dataBroker, vpnName), destination, nextHopIpList,
-                        VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*macAddress*/,
-                        null /*gatewayMacAddress*/, origin, writeConfigTxn);
+                if (encapType == VrfEntry.EncapType.Mplsgre) {
+                    addPrefixToBGP(rd, VpnUtil.getPrimaryRd(dataBroker, vpnName), destination, nextHopIpList,
+                            encapType, label, 0 /*l3vni*/, null /*macAddress*/,
+                            null /*gatewayMacAddress*/, origin, writeConfigTxn);
+                } else {
+                    addPrefixToBGP(rd, VpnUtil.getPrimaryRd(dataBroker, vpnName), destination, nextHopIpList,
+                            encapType, 0, l3vni /*l3vni*/, null /*macAddress*/,
+                            null /*gatewayMacAddress*/, origin, writeConfigTxn);
+                }
             } else {
                 // ### add FIB route directly
                 // ### add FIB route directly
-                fibManager.addOrUpdateFibEntry(dataBroker, routerID, null /*macAddress*/, destination,
-                        Collections.singletonList(nextHop), VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/,
-                        null /*gatewayMacAddress*/, null /*parentVpnRd*/, origin, writeConfigTxn);
+                if (encapType == VrfEntry.EncapType.Mplsgre) {
+                    fibManager.addOrUpdateFibEntry(dataBroker, routerID, null /*macAddress*/, destination,
+                            Collections.singletonList(nextHop), encapType, label, 0 /*l3vni*/,
+                            null /*gatewayMacAddress*/, null, origin, writeConfigTxn);
+                } else {
+                    fibManager.addOrUpdateFibEntry(dataBroker, routerID, null /*macAddress*/, destination,
+                            Collections.singletonList(nextHop), encapType, 0, l3vni /*l3vni*/,
+                            null /*gatewayMacAddress*/, null, origin, writeConfigTxn);
+                }
             }
         }
         if (!writeConfigTxnPresent) {
