@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_a1ad1333",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-03-11T00:49:40Z",
+      "side": 1,
+      "message": "This \"Ingress SFC Service\" is the same as  SFC SFF service mentioned above right?",
+      "range": {
+        "startLine": 217,
+        "startChar": 23,
+        "endLine": 217,
+        "endChar": 24
+      },
+      "revId": "2f1cd034068d1acd52a399289a022b004d2bca06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e151db30",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-03-11T00:49:40Z",
+      "side": 1,
+      "message": "Is it correct to say that  the Egress SFC Classifier Service is \u0027bound\u0027 to the Service Function Neutron ports?",
+      "revId": "2f1cd034068d1acd52a399289a022b004d2bca06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_21376300",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-03-11T00:49:40Z",
+      "side": 1,
+      "message": "This action is controlled by the Ingress SFC Classifier service right? (packet has just ingressed from a service function).  If the original src/dst tunnel was VXLAN, does this last hop SFF need to have a VXLAN tunnel to the original dst (assuming different host)?",
+      "revId": "2f1cd034068d1acd52a399289a022b004d2bca06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
