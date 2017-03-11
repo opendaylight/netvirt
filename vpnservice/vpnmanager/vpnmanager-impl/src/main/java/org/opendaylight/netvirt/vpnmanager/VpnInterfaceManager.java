@@ -1565,7 +1565,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             InstanceIdentifier<Adjacencies> adjPath = identifier.augmentation(Adjacencies.class);
             Optional<Adjacencies> optAdjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, adjPath);
             boolean isL3VpnOverVxLan = VpnUtil.isL3VpnOverVxLan(vpnInstanceOpData.getL3vni());
-            VrfEntry.EncapType encapType = isL3VpnOverVxLan ? VrfEntry.EncapType.Vxlan : VrfEntry.EncapType.Mplsgre;
+            VrfEntry.EncapType encapType = VpnUtil.getEncapType(isL3VpnOverVxLan);
             VpnPopulator populator = L3vpnRegistry.getRegisteredPopulator(encapType);
             List<Adjacency> adjacencies;
             if (optAdjacencies.isPresent()) {
@@ -1599,6 +1599,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
                     vpnsToImportRoute.stream().forEach(vpn -> {
                         java.util.Optional.ofNullable(vpn.getVrfId()).ifPresent(vpnRd -> {
+                            Boolean isVxlanTnl = VpnUtil.isL3VpnOverVxLan(vpn.getL3vni());
+                            VrfEntry.EncapType encapTypeVal = (isVxlanTnl == true) ? VrfEntry.EncapType.Vxlan :
+                                    VrfEntry.EncapType.Mplsgre;
                             java.util.Optional.ofNullable(VpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(
                                     dataBroker, vpn.getVpnId(), Optional.fromNullable(vpnId), prefix,
                                     VpnUtil.getVpnName(dataBroker, vpn.getVpnId()), dpnId,
@@ -1606,7 +1609,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                         addExtraRoute(VpnUtil.getVpnName(dataBroker, vpn.getVpnId()),
                                                 adj.getIpAddress(), nh, rdsToAllocate.get(),
                                                 currVpnIntf.getVpnInstanceName(), (int) label,
-                                                RouteOrigin.SELF_IMPORTED, currVpnIntf.getName(), writeConfigTxn);
+                                                RouteOrigin.SELF_IMPORTED, currVpnIntf.getName(), writeConfigTxn,
+                                                encapTypeVal, vpn.getL3vni());
                                     });
                         });
                     });
