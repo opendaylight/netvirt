@@ -1569,7 +1569,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             InstanceIdentifier<Adjacencies> adjPath = identifier.augmentation(Adjacencies.class);
             Optional<Adjacencies> optAdjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, adjPath);
             boolean isL3VpnOverVxLan = VpnUtil.isL3VpnOverVxLan(vpnInstanceOpData.getL3vni());
-            VrfEntry.EncapType encapType = isL3VpnOverVxLan ? VrfEntry.EncapType.Vxlan : VrfEntry.EncapType.Mplsgre;
+            VrfEntry.EncapType encapType = VpnUtil.getEncapType(isL3VpnOverVxLan);
             VpnPopulator populator = L3vpnRegistry.getRegisteredPopulator(encapType);
             List<Adjacency> adjacencies;
             if (optAdjacencies.isPresent()) {
