@@ -35,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -127,8 +128,11 @@ public class VpnManagerImpl implements IVpnManager {
         int label,RouteOrigin origin) {
         LOG.info("Adding extra route with destination {}, nextHop {}, label{} and origin {}",
             destination, nextHop, label, origin);
-        vpnInterfaceManager.addExtraRoute(vpnName, destination, nextHop, rd, routerID, label, 0 /*l3vni*/, origin,
-            /*intfName*/ null, null /*Adjacency*/, VrfEntry.EncapType.Mplsgre, null);
+        VpnInstanceOpDataEntry vpnOpEntry = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
+        Boolean isVxlan = VpnUtil.isL3VpnOverVxLan(vpnOpEntry.getL3vni());
+        VrfEntry.EncapType encapType = VpnUtil.getEncapType(isVxlan);
+        vpnInterfaceManager.addExtraRoute(vpnName, destination, nextHop, rd, routerID, label, vpnOpEntry.getL3vni(),
+                origin,/*intfName*/ null, null /*Adjacency*/, encapType, null);
     }
 
     @Override
