@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.vpnmanager.populator.impl;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -63,11 +64,11 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         String nextHopIpAddress = nextHop.getIpAddress(); // it is a valid case for nextHopIpAddress to be null
         if (!rd.equalsIgnoreCase(vpnName)) {
             vpnInterfaceManager.addToLabelMapper(label, input.getDpnId(), nextHopIpAddress,
-                    Arrays.asList(nextHopIp), vpnId, input.getInterfaceName(), null,false, primaryRd, writeOperTxn);
-
+                    Arrays.asList(nextHopIp), vpnId, input.getInterfaceName(), null,false,
+                    primaryRd, writeOperTxn);
             Objects.requireNonNull(input.getRouteOrigin(), "RouteOrigin is mandatory");
-            addPrefixToBGP(rd, primaryRd, null /*macAddress*/, nextHopIpAddress, nextHopIp, encapType, label,
-                    0 /*l3vni*/, input.getGatewayMac(), input.getRouteOrigin(), writeConfigTxn);
+            addPrefixToBGP(rd, primaryRd, null /*macAddress*/, nextHopIpAddress, nextHopIp, encapType,
+                    label, 0 /*l3vni*/, input.getGatewayMac(), input.getRouteOrigin(), writeConfigTxn);
             //TODO: ERT - check for VPNs importing my route
             for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                 String vpnRd = vpn.getVrfId();
@@ -109,6 +110,12 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         return new AdjacencyBuilder(nextHop).setLabel(label).setNextHopIpList(nextHopList)
                 .setIpAddress(prefix).setVrfId(rd).setKey(new AdjacencyKey(prefix))
                 .setPrimaryAdjacency(nextHop.isPrimaryAdjacency()).build();
+    }
+
+    @Override
+    public void addSubnetRouteFibEntry(String rd, String vpnName, String prefix, String nextHop, int label,
+                                       long elantag, BigInteger dpnId, WriteTransaction writeTxn,
+                                       VrfEntry.EncapType encapType) {
     }
 
 }
