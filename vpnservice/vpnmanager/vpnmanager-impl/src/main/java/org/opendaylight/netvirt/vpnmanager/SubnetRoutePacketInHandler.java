@@ -58,6 +58,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void onPacketReceived(PacketReceived notification) {
         LOG.trace("SubnetRoutePacketInHandler: PacketReceived invoked...");
+        LOG.trace("SubnetRoutePacketInHandler: {}", notification);
 
         short tableId = notification.getTableId().getValue();
         byte[] data = notification.getPayload();

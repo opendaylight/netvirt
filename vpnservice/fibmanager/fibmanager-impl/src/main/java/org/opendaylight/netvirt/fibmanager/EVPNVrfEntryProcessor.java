@@ -12,8 +12,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -29,14 +32,22 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.vpnnexthops.VpnNexthop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.Vpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.VpnKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.ExtraRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.ExtraRoutesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.RoutesKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +59,7 @@ public class EVPNVrfEntryProcessor {
     private InstanceIdentifier<VrfEntry> identifier;
     private DataBroker dataBroker;
     private VrfEntryListener vrfEntryListener;
+    private HashMap<BigInteger, Prefixes> adjMap = new HashMap<>();
 
     EVPNVrfEntryProcessor(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, DataBroker broker,
                           VrfEntryListener vrfEntryListener) {
@@ -69,31 +81,74 @@ public class EVPNVrfEntryProcessor {
         final String rd = vrfTableKey.getRouteDistinguisher();
         final VpnInstanceOpDataEntry vpnInstance = FibUtil.getVpnInstanceOpData(dataBroker,
                 vrfTableKey.getRouteDistinguisher()).get();
+        final Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
+        logger.debug("*****vrfEntry {}", vrfEntry);
+        final long vpnId = vpnInstance.getVpnId();
         Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available " + vrfTableKey.getRouteDistinguisher());
         Preconditions.checkNotNull(vpnInstance.getVpnId(), "Vpn Instance with rd " + vpnInstance.getVrfId()
                 + " has null vpnId!");
-        Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnInstance.getVpnId(),
-                vrfEntry.getDestPrefix());
-        Interface interfaceState = FibUtil.getInterfaceStateFromOperDS(dataBroker,
-                localNextHopInfo.getVpnInterfaceName());
-        final int lportTag = interfaceState.getIfIndex();
-        List<BigInteger> localDpnId = createLocalEvpnFlows(vpnInstance.getVpnId(), rd, vrfEntry,
-                localNextHopInfo);
-        createRemoteEvpnFlows(rd, localNextHopInfo, vrfEntry, vpnInstance, localDpnId, vrfTableKey, lportTag);
+        SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
+        logger.debug("*****EVPNVrfentryprocessor***** {}", subnetRoute);
+        if (subnetRoute != null) {
+            final long elanTag = subnetRoute.getElantag();
+            logger.trace("SubnetRoute augmented vrfentry found for rd {} prefix {} with elantag {}",
+                    rd, vrfEntry.getDestPrefix(), elanTag);
+            if (vpnToDpnList != null) {
+                DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+                dataStoreCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(),
+                        () -> {
+                            WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+                            for (final VpnToDpnList curDpn : vpnToDpnList) {
+                                if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
+                                    vrfEntryListener.installSubnetRouteInFib(curDpn.getDpnId(), elanTag, rd, vpnId, vrfEntry, tx);
+                                }
+                            }
+                            List<ListenableFuture<Void>> futures = new ArrayList<>();
+                            futures.add(tx.submit());
+                            return futures;
+                        });
+            }
+            return;
+        } else {
+            logger.debug("Inside else");
+            Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnInstance.getVpnId(),
+                    vrfEntry.getDestPrefix());
+            logger.debug("Inside else {}", localNextHopInfo);
+            List<BigInteger> localDpnId = createLocalEvpnFlows(vpnInstance.getVpnId(), rd, vrfEntry,
+                    localNextHopInfo);
+            createRemoteEvpnFlows(rd, localNextHopInfo, vrfEntry, vpnInstance, localDpnId, vrfTableKey, adjMap);
+        }
     }
 
     private List<BigInteger> createLocalEvpnFlows(long vpnId, String rd, VrfEntry vrfEntry,
                                                   Prefixes localNextHopInfo) {
         List<BigInteger> returnLocalDpnId = new ArrayList<>();
+        String localNextHopIP = vrfEntry.getDestPrefix();
+        logger.debug("Inside createLocalEvpnFlows {}", localNextHopInfo);
         if (localNextHopInfo == null) {
             //Handle extra routes and imported routes
+            Routes extraRoute = getVpnToExtraroute(rd, vrfEntry.getDestPrefix());
+            logger.debug("Extra route {}", extraRoute);
+            if (extraRoute != null) {
+                for (String nextHopIp : extraRoute.getNexthopIpList()) {
+                    logger.info("NextHop IP for destination {} is {}", vrfEntry.getDestPrefix(), nextHopIp);
+                    if (nextHopIp != null) {
+                        localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, nextHopIp + "/32");
+                        localNextHopIP = nextHopIp + "/32";
+                        BigInteger dpnId = checkCreateLocalEvpnFlows(localNextHopInfo, localNextHopIP, vpnId,
+                                rd, vrfEntry);
+                        returnLocalDpnId.add(dpnId);
+                    }
+                }
+            }
         } else {
             logger.info("Creating local EVPN flows for prefix {} rd {} route-paths {} evi {}.",
                     vrfEntry.getDestPrefix(), rd, vrfEntry.getRoutePaths(), vrfEntry.getL3vni());
-            String localNextHopIP = vrfEntry.getDestPrefix();
             BigInteger dpnId = checkCreateLocalEvpnFlows(localNextHopInfo, localNextHopIP, vpnId,
                     rd, vrfEntry);
             returnLocalDpnId.add(dpnId);
+            adjMap.put(dpnId, localNextHopInfo);
+            logger.debug("AdjMap {}", adjMap);
         }
         return returnLocalDpnId;
     }
@@ -121,7 +176,6 @@ public class EVPNVrfEntryProcessor {
                         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                         vrfEntryListener.makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, instructions,
                                 NwConstants.ADD_FLOW, tx);
-
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
                         futures.add(tx.submit());
                         return futures;
@@ -132,12 +186,13 @@ public class EVPNVrfEntryProcessor {
 
     private void createRemoteEvpnFlows(String rd, Prefixes localNextHopInfo, VrfEntry vrfEntry,
                            VpnInstanceOpDataEntry vpnInstance, List<BigInteger> localDpnId,
-                                       VrfTablesKey vrfTableKey, int lportTag) {
+                                       VrfTablesKey vrfTableKey, Map<BigInteger, Prefixes> adjcMap) {
         logger.info("Creating remote EVPN flows for prefix {} rd {} route-paths {} evi {}",
                 vrfEntry.getDestPrefix(), rd, vrfEntry.getRoutePaths(), vrfEntry.getL3vni());
         Optional<Adjacency> adjacencyData =  FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                 vrfEntryListener.getNextHopManager().getAdjacencyIdentifier(localNextHopInfo.getVpnInterfaceName(),
                         vrfEntry.getDestPrefix()));
+        logger.debug("AdjacencyData {}", adjacencyData);
         String macAddress = adjacencyData.get().getMacAddress();
         if (macAddress == null) {
             logger.error("Mac address not found in operational vpn interface for rd {} prefix {} interface {}", rd,
@@ -146,17 +201,29 @@ public class EVPNVrfEntryProcessor {
         }
 
         List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
+        logger.debug("vpnToDpnList {}", vpnToDpnList);
         if (vpnToDpnList != null) {
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+            logger.debug("DJC {}", dataStoreCoordinator);
             dataStoreCoordinator.enqueueJob("FIB" + rd.toString() + vrfEntry.getDestPrefix(),
                     new Callable<List<ListenableFuture<Void>>>() {
                         @Override
                         public List<ListenableFuture<Void>> call() throws Exception {
                             WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                             for (VpnToDpnList vpnDpn : vpnToDpnList) {
-                                if (!localDpnId.contains(vpnDpn.getDpnId())) {
+                                logger.debug("localDpnId {} vpnDpn {}", localDpnId, vpnDpn);
+                                if ( !localDpnId.contains(vpnDpn.getDpnId())) {
                                     if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
+                                        logger.debug("create remote flows: vrfEntryprefix {}, rd {}, l3vni {}, dpnId {}",
+                                                vrfEntry.getDestPrefix(), rd, vrfEntry.getL3vni(), vpnDpn.getDpnId());
+                                        logger.debug("AdjMap1 {}", adjcMap);
+                                        Prefixes p = adjcMap.get(vpnDpn.getDpnId());
+                                        logger.debug("adjacency {}", p);
+                                        Interface interfaceState = FibUtil.getInterfaceStateFromOperDS(dataBroker,
+                                                p.getVpnInterfaceName());
+                                        logger.debug("Interfacestate {}", interfaceState);
+                                        final int lportTag = interfaceState.getIfIndex();
                                         createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(),
                                                 vrfTableKey, vrfEntry, lportTag, macAddress, tx);
                                     }
@@ -312,5 +379,21 @@ public class EVPNVrfEntryProcessor {
             returnLocalDpnId.add(dpnId);
         }
         return returnLocalDpnId;
+    }
+
+    static  InstanceIdentifier<Routes> getVpnToExtrarouteIdentifier(String vpnName, String vrfId, String ipPrefix) {
+        return InstanceIdentifier.builder(VpnToExtraroutes.class)
+                .child(Vpn.class, new VpnKey(vpnName)).child(ExtraRoutes.class,
+                        new ExtraRoutesKey(vrfId)).child(Routes.class, new RoutesKey(ipPrefix)).build();
+    }
+
+    public Routes getVpnToExtraroute(String vpnRd, String destPrefix) {
+        Optional<String> optVpnName = FibUtil.getVpnNameFromRd(dataBroker, vpnRd);
+        if (optVpnName.isPresent()) {
+            InstanceIdentifier<Routes> vpnExtraRoutesId = getVpnToExtrarouteIdentifier(
+                    optVpnName.get(), vpnRd, destPrefix);
+            return FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, vpnExtraRoutesId).orNull();
+        }
+        return null;
     }
 }

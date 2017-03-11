@@ -193,6 +193,8 @@ public class FibUtil {
     }
 
     static Prefixes getPrefixToInterface(DataBroker broker, Long vpnId, String ipPrefix) {
+        LOG.debug("Inside FibUtil {} {}", vpnId, ipPrefix);
+        LOG.debug("Inside FibUtil {}", getPrefixToInterfaceIdentifier(vpnId, ipPrefix));
         Optional<Prefixes> localNextHopInfoData = read(broker, LogicalDatastoreType.OPERATIONAL,
             getPrefixToInterfaceIdentifier(vpnId, ipPrefix));
         return localNextHopInfoData.isPresent() ? localNextHopInfoData.get() : null;
