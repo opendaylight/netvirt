@@ -529,7 +529,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         return prefixBuilder.build();
     }
 
-    private void installSubnetRouteInFib(final BigInteger dpnId, final long elanTag, final String rd,
+    void installSubnetRouteInFib(final BigInteger dpnId, final long elanTag, final String rd,
                                          final long vpnId, final VrfEntry vrfEntry, WriteTransaction tx) {
         Boolean wrTxPresent = true;
         if (tx == null) {
