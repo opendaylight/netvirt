@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_fab7c437",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-13T05:29:17Z",
+      "side": 1,
+      "message": "Nit: can you move Optional.absent() to a final local variable extraRouteOptional as pass it to deleteRemoteRoute?",
+      "revId": "d1c1a7e286113ef60f1b838d8ed60f2260d7fcd9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
