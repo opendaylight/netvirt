@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_b528ade2",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-13T12:57:36Z",
+      "side": 1,
+      "message": "Why are these two use cases, how does the NIC and L2 switch matter?\n\nIsn\u0027t it just generally forwarding of VXLAN traffic between hypervisors where there is more than one logical port that could lead to that hypervisor?\n\nTheoretically we could be load balancing between two logical ports that use the same NIC but with different UDP port or something.",
+      "revId": "d4ec147f1d1974a08335125b45b2d70803dff584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_70e773ac",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-13T12:57:36Z",
+      "side": 1,
+      "message": "I hate to raise this, but maybe we should rename this to \"local_ips\" sometime.. understand we prefer to avoid the change at this time though :)\n\nWe can alternatively keep local_ip as is, and use local_ips for tun_ip:net syntax\n\nAlso what does \u0027underlay1-net\u0027 name mean? Assuming underlay networks aren\u0027t configured in neutron.. is this a logical name?",
+      "revId": "d4ec147f1d1974a08335125b45b2d70803dff584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_90adb733",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-13T12:57:36Z",
+      "side": 1,
+      "message": "start of line, need to correct english a bit",
+      "revId": "d4ec147f1d1974a08335125b45b2d70803dff584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_706c9308",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-13T12:57:36Z",
+      "side": 1,
+      "message": "nit: syntax, look in generated doc\ngood to know, why does this limitation exist?\nso assume we will handle redundancy on same underlay network using a bond, and redundancy between underlay networks using this feature.. worth mentioning",
+      "revId": "d4ec147f1d1974a08335125b45b2d70803dff584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_520d1437",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-13T12:57:36Z",
+      "side": 1,
+      "message": "Do we really want fast-failover groups? I thought we wanted load balancing between the buckets, not just active-standby.\n\nAlso we need to verify OVS  supports these modes and behavior.\nAccording to the spec, SELECT group might be enough:\n\n\" When a port specified in a bucket in a select group goes down, the\nswitch may restrict bucket selection to the remaining set (those with forwarding actions to live ports) instead of dropping packets destined to that port\"\n\n(https://www.opennetworking.org/images/stories/downloads/sdn-resources/onf-specifications/openflow/openflow-spec-v1.3.3.pdf page 19)",
+      "revId": "d4ec147f1d1974a08335125b45b2d70803dff584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b211e055",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-13T12:57:36Z",
+      "side": 1,
+      "message": "See above note - this means we have a strict priority between underlay networks - I thought we\u0027d want it more dynamic (e.g. udp has higher priority on first link, tcp has higher priority on second)",
+      "revId": "d4ec147f1d1974a08335125b45b2d70803dff584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
