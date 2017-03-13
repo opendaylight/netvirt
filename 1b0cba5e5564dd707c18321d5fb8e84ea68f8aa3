@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_a16d089c",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/VLANProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5444
+      },
+      "writtenOn": "2017-03-13T21:52:28Z",
+      "side": 1,
+      "message": "I think the point of this gerrit change is that we cannot rely on constants? See the constructor of ConfigurationServiceImpl() - there\u0027s a bunch of entries based on constants in there already.\n\nWe should leave the assignment of portNameInt and portNameExt as retrievals from the cache via configurationService.getPatchPortName().",
+      "revId": "1b0cba5e5564dd707c18321d5fb8e84ea68f8aa3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_189f2db6",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/ConfigurationServiceImpl.java",
         "patchSetId": 2
@@ -30,6 +47,24 @@
       "writtenOn": "2017-03-13T21:10:37Z",
       "side": 1,
       "message": "this variable can be removed and use a constant in line 205",
+      "revId": "1b0cba5e5564dd707c18321d5fb8e84ea68f8aa3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2130f89d",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/ConfigurationServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5444
+      },
+      "writtenOn": "2017-03-13T21:52:28Z",
+      "side": 1,
+      "message": "my \u0027magic number\u0027 comment is no longer as relevant now that we\u0027ve consolidated the logic into a single place (i.e. no multiple references to index \u00271\u0027). It may be helpful to future readers to explain in a comment why we grab only the 2nd element of that array.",
+      "parentUuid": "fafc7978_787bd97b",
       "revId": "1b0cba5e5564dd707c18321d5fb8e84ea68f8aa3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
