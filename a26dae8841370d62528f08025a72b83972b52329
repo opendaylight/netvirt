@@ -72,6 +72,42 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_70fdb36d",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/VLANProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-03-13T12:33:03Z",
+      "side": 1,
+      "message": "Thank you for your comment. I\u0027ve addressed the comment.",
+      "parentUuid": "fafc7978_d3b11448",
+      "revId": "a26dae8841370d62528f08025a72b83972b52329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_906ad717",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/VLANProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-03-13T12:33:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f3eb78a1",
+      "revId": "a26dae8841370d62528f08025a72b83972b52329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_73cca8bb",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/VLANProvider.java",
         "patchSetId": 1
@@ -89,6 +125,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_302e8bfb",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/VLANProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-03-13T12:33:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_73cca8bb",
+      "revId": "a26dae8841370d62528f08025a72b83972b52329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_131f1cb8",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/ConfigurationService.java",
         "patchSetId": 1
@@ -100,6 +154,24 @@
       "writtenOn": "2017-03-10T04:53:31Z",
       "side": 1,
       "message": "This method should be cleaned up if we are removing addPatchPortName()",
+      "revId": "a26dae8841370d62528f08025a72b83972b52329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b06f1b2a",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/ConfigurationService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-03-13T12:33:03Z",
+      "side": 1,
+      "message": "It is being called by some other places and classes.",
+      "parentUuid": "fafc7978_131f1cb8",
       "revId": "a26dae8841370d62528f08025a72b83972b52329",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
