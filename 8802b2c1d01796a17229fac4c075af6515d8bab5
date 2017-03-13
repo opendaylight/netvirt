@@ -1,0 +1,129 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_555cdeed",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-13T15:46:38Z",
+      "side": 1,
+      "message": "nit: trailing whitespace",
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1509b6dd",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-13T15:46:38Z",
+      "side": 1,
+      "message": "Not sure I understand this - why can\u0027t we use lports both in ingress and egress services?",
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_750e42e7",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-13T15:46:38Z",
+      "side": 1,
+      "message": "Will there actually be a drop mechanism or are you suggesting an alternative way to understand there are drops?",
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_55133e0d",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-13T15:46:38Z",
+      "side": 1,
+      "message": "You mean there will be only ingress service binding?\nWill there be a dstip match in the ingress service?",
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_352b1a35",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-13T15:46:38Z",
+      "side": 1,
+      "message": "umm, the maximum table is 254.. so 260 can\u0027t be working.. what are you using now to test?",
+      "range": {
+        "startLine": 50,
+        "startChar": 75,
+        "endLine": 50,
+        "endChar": 84
+      },
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_35d2fa34",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-13T15:46:38Z",
+      "side": 1,
+      "message": "Though mentioning this is configurable and not on by default definitely implies there are is no performance degradation, what happens when the feature is applied?\nIn terms of rate of background flow stats, service binding etc.",
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_15d7f624",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-13T15:46:38Z",
+      "side": 1,
+      "message": "Remove this section please",
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
