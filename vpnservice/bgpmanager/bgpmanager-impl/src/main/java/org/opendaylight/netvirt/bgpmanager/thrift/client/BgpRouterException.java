@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.bgpmanager.thrift.client;
 
 import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
 
@@ -37,17 +38,47 @@ public class BgpRouterException extends Exception {
             .build();
 
     private final int errcode;
+    private final Function functionCode;
+
+    public enum Function {
+        DEFAULT(ImmutableMap.of()),
+        SET_PEER_PASSWORD(ImmutableMap.of(
+                    BGP_ERR_FAILED, "(" + BGP_ERR_FAILED + ") Attempt to set the password of an unknown peer",
+                    BGP_ERR_PARAM, "(" + BGP_ERR_PARAM + ") Attempt to set an invalid password"));
+
+        private final Map<Integer, String> messageMap;
+
+        Function(Map<Integer, String> messages) {
+            messageMap = messages;
+        } // ctor
+
+        public Map<Integer, String> messages() {
+            return messageMap;
+        } // messages getter
+    } // enum Function
+
+    public BgpRouterException(BgpRouterException.Function func, int cause) {
+        functionCode = func;
+        errcode = cause;
+    } // public ctor
 
     public BgpRouterException(int cause) {
-        errcode = cause;
+        this(Function.DEFAULT, cause);
     }
 
     public int getErrorCode() {
         return errcode;
     }
 
+    public Function getFunctionCode() {
+        return functionCode;
+    } // getter getFunctionCode
+
     public String toString() {
-        String message = MESSAGES.get(errcode);
+        String message = functionCode.messages().get(errcode);
+        if (message == null) { // there is no function specific message
+            message = MESSAGES.get(errcode);
+        }
         if (message != null) {
             return message;
         }

@@ -122,6 +122,30 @@ service BgpConfigurator {
                        6:i32 stalepathTime, 7:bool announceFlush),
     i32 stopBgp(1:i64 asNumber),
     i32 createPeer(1:string ipAddress, 2:i64 asNumber),
+
+    /* 'setPeerSecret' sets the shared secret needed to protect the peer
+     * connection using TCP MD5 Signature Option (see rfc 2385).
+     *
+     * Params:
+     *
+     *   'ipAddress' is the peer (neighbour) address.  Mandatory.
+     *
+     *   'rfc2385_sharedSecret' is the secret.  Mandatory.  Length must be
+     *   greater than zero.
+     *
+     * Return codes:
+     *
+     *   0 on success.
+     *
+     *   BGP_ERR_FAILED if 'ipAddress' is missing or unknown.
+     *
+     *   BGP_ERR_PARAM if 'rfc2385_sharedSecret' is missing or invalid (e.g.
+     *   it is too short or too long).
+     *
+     *   BGP_ERR_INACTIVE when there is no session.
+     *
+     */
+    i32 setPeerSecret(1:string ipAddress, 2:string rfc2385_sharedSecret),
     i32 deletePeer(1:string ipAddress)
     i32 addVrf(1:layer_type l_type, 2:string rd, 3:list<string> irts, 4:list<string> erts),
     i32 delVrf(1:string rd),
