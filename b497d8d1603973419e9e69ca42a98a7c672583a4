@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9ace7858",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-13T08:00:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3df15c95",
+      "revId": "b497d8d1603973419e9e69ca42a98a7c672583a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fd04f44a",
         "filename": "docs/specs/policy-based-path-selection.rst",
         "patchSetId": 12
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-08T12:57:33Z",
       "side": 1,
       "message": "vrf-id, elantag etc. is internal to ODL. why shouldn\u0027t expose servicename to northbound so that acl can be defined for network/router names etc.",
+      "revId": "b497d8d1603973419e9e69ca42a98a7c672583a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7ae634e9",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-13T08:00:00Z",
+      "side": 1,
+      "message": "I meant this yang will expose the string representation of the network/router uuid and not the long id allocated by the id-manager\nI will change this attribute to service-name",
+      "parentUuid": "fafc7978_fd04f44a",
       "revId": "b497d8d1603973419e9e69ca42a98a7c672583a4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
