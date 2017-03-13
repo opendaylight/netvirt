@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_eaebd3d9",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 758,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_0bb80cc7",
+      "revId": "7fc4be9a26d95d3ad50c61d2bde383125af6184c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_cb773439",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-27T08:02:28Z",
       "side": 1,
       "message": "How do you ensure availableDcGws always in sorted order ?\nSo abstract it with getLbGroupKey(routePathList) in FibUtil which can take availableDcGwsand return groupIdKey. This can be reused in vrfEnryListener.",
+      "revId": "7fc4be9a26d95d3ad50c61d2bde383125af6184c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b429199d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 760,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_cb773439",
       "revId": "7fc4be9a26d95d3ad50c61d2bde383125af6184c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_9c91bb49",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 777,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_2bb508cd",
+      "revId": "7fc4be9a26d95d3ad50c61d2bde383125af6184c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_4bb204e7",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 2
@@ -64,6 +118,24 @@
       "writtenOn": "2016-12-27T08:02:28Z",
       "side": 1,
       "message": "use Collections.emptyList() to initialize actions to ensure empty list is returned when getEgressActionsForInterface is not successful.",
+      "revId": "7fc4be9a26d95d3ad50c61d2bde383125af6184c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0aef2fea",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 784,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_4bb204e7",
       "revId": "7fc4be9a26d95d3ad50c61d2bde383125af6184c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -93,6 +165,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_bceab7a9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_41430514",
+      "range": {
+        "startLine": 165,
+        "startChar": 12,
+        "endLine": 165,
+        "endChar": 35
+      },
+      "revId": "7fc4be9a26d95d3ad50c61d2bde383125af6184c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_215d29ea",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/jobs/TunnelStateAddJob.java",
         "patchSetId": 2
@@ -104,6 +200,24 @@
       "writtenOn": "2016-12-27T08:02:28Z",
       "side": 1,
       "message": "is there any reason for passing tx here ? Let fibManager create tx and use it.",
+      "revId": "7fc4be9a26d95d3ad50c61d2bde383125af6184c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5c744335",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/jobs/TunnelStateAddJob.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_215d29ea",
       "revId": "7fc4be9a26d95d3ad50c61d2bde383125af6184c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -127,6 +241,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_4a8ac71b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/jobs/TunnelStateAddJob.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_0160eda3",
+      "revId": "7fc4be9a26d95d3ad50c61d2bde383125af6184c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_415ae5f3",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/jobs/TunnelStateAddJob.java",
         "patchSetId": 2
@@ -138,6 +270,24 @@
       "writtenOn": "2016-12-27T08:02:28Z",
       "side": 1,
       "message": "Collections.emptyList()",
+      "revId": "7fc4be9a26d95d3ad50c61d2bde383125af6184c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_8aa97f92",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/jobs/TunnelStateAddJob.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_415ae5f3",
       "revId": "7fc4be9a26d95d3ad50c61d2bde383125af6184c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
