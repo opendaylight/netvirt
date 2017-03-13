@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_fae344a1",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1100,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-13T08:33:19Z",
+      "side": 1,
+      "message": "I\u0027m ok with this review and the future exceptions in general.\n\nDo we want to remove this though? I find having a dst_mac\u003dXXX,action\u003ddrop rule better than not having the rule at all (I think), both for debugging and to prevent default flows from taking action.",
+      "revId": "d712ea385c0800d1bef635c4b986d16ec245a097",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
