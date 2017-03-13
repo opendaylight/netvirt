@@ -29,6 +29,11 @@ module odl-l3vpn {
             leaf mac_address {type string;} /* optional */
             leaf subnet_id {type yang:uuid;} /* optional */
             leaf vrf-id { type string; config "false"; }
+            leaf learnt-adjacency {
+                type boolean;
+                default false;
+                description "Value of True indicates this is a learnt adjacency";
+            }
         }
     }
 
