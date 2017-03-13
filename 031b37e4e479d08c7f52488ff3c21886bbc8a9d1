@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_d2f74458",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-13T14:39:23Z",
+      "side": 1,
+      "message": "Maybe we should\u0027ve used some constant to keep the TODO in one place.\nIn any case, assume this is planned to be cleaned up quickly.",
+      "range": {
+        "startLine": 115,
+        "startChar": 58,
+        "endLine": 115,
+        "endChar": 76
+      },
+      "revId": "031b37e4e479d08c7f52488ff3c21886bbc8a9d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
