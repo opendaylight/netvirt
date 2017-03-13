@@ -145,40 +145,48 @@ public class VpnFootprintService {
         String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
         synchronized (vpnName.intern()) {
             InstanceIdentifier<VpnToDpnList> id = VpnUtil.getVpnToDpnListIdentifier(rd, dpnId);
-            Optional<VpnToDpnList> dpnInVpn = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-            WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-            if (dpnInVpn.isPresent()) {
-                List<VpnInterfaces> vpnInterfaces = dpnInVpn.get().getVpnInterfaces();
-                VpnInterfaces currVpnInterface = new VpnInterfacesBuilder().setInterfaceName(intfName).build();
+            VpnToDpnList dpnInVpn = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id).orNull();
+            if (dpnInVpn == null) {
+                LOG.error("removeOrUpdateVpnToDpnList: Could not find DpnToVpn map for VPN=[name={} rd={} id={}].",
+                         vpnName, rd, id);
+                return;
+            }
+            List<VpnInterfaces> vpnInterfaces = dpnInVpn.getVpnInterfaces();
+            if (vpnInterfaces == null) {
+                LOG.error("Could not find vpnInterfaces for DpnInVpn map for VPN=[name={} rd={} id={}]",
+                         vpnName, rd, id);
+                return;
+            }
 
-                if (vpnInterfaces.remove(currVpnInterface)) {
-                    if (vpnInterfaces.isEmpty()) {
-                        List<IpAddresses> ipAddresses = dpnInVpn.get().getIpAddresses();
-                        if (ipAddresses == null || ipAddresses.isEmpty()) {
-                            VpnToDpnListBuilder dpnInVpnBuilder =
-                                new VpnToDpnListBuilder(dpnInVpn.get()).setDpnState(VpnToDpnList.DpnState.Inactive)
-                                    .setVpnInterfaces(null);
-                            writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, dpnInVpnBuilder.build(), true);
-                            lastDpnOnVpn = Boolean.TRUE;
-                        } else {
-                            LOG.warn("vpn interfaces are empty but ip addresses are present for the vpn {} in dpn {}",
-                                vpnName, dpnId);
-                        }
+            VpnInterfaces currVpnInterface = new VpnInterfacesBuilder().setInterfaceName(intfName).build();
+            if (vpnInterfaces.remove(currVpnInterface)) {
+                WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+                if (vpnInterfaces.isEmpty()) {
+                    List<IpAddresses> ipAddresses = dpnInVpn.getIpAddresses();
+                    VpnToDpnListBuilder dpnInVpnBuilder = new VpnToDpnListBuilder(dpnInVpn).setVpnInterfaces(null);
+                    if (ipAddresses == null || ipAddresses.isEmpty()) {
+                        dpnInVpnBuilder.setDpnState(VpnToDpnList.DpnState.Inactive);
                     } else {
-                        writeTxn.delete(LogicalDatastoreType.OPERATIONAL, id.child(VpnInterfaces.class,
-                            new VpnInterfacesKey(intfName)));
+                        LOG.warn("vpn interfaces are empty but ip addresses are present for the vpn {} in dpn {}",
+                                 vpnName, dpnId);
                     }
+                    writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, dpnInVpnBuilder.build(), true);
+
+                } else {
+                    writeTxn.delete(LogicalDatastoreType.OPERATIONAL, id.child(VpnInterfaces.class,
+                                                                               new VpnInterfacesKey(intfName)));
+                }
+                CheckedFuture<Void, TransactionCommitFailedException> futures = writeTxn.submit();
+                try {
+                    futures.get();
+                } catch (InterruptedException | ExecutionException e) {
+                    LOG.error("Error removing from dpnToVpnList for vpn {} interface {} dpn {}",
+                              vpnName, intfName, dpnId, e);
+                    throw new RuntimeException(e.getMessage());
                 }
             }
-            CheckedFuture<Void, TransactionCommitFailedException> futures = writeTxn.submit();
-            try {
-                futures.get();
-            } catch (InterruptedException | ExecutionException e) {
-                LOG.error("Error removing from dpnToVpnList for vpn {} interface {} dpn {}",
-                          vpnName, intfName, dpnId, e);
-                throw new RuntimeException(e.getMessage());
-            }
-        }
+        } // Ends synchronized block
+
         if (lastDpnOnVpn) {
             LOG.debug("Sending cleanup event for dpn {} in VPN {}", dpnId, vpnName);
             fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd, new DpnEnterExitVpnWorker(dpnId, vpnName, rd,
