@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_75c925ab",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/utils/AclServiceTestUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-03-13T09:35:22Z",
+      "side": 1,
+      "message": "it would be better not to create this new static method here.. when DataStoreJobCoordinator becomes non-static in https://git.opendaylight.org/gerrit/#/c/51431/, then this will make it a bit (not much) issue to move to it.  Can I suggest that instead of doing this you write a new implementation of AsyncEventsWaiter, maybe named class JobCoordinatorEventsWaiter implements DataStoreJobCoordinator which does this, and inject that in your test instead?",
+      "revId": "058b43a4c7424baec56b5d92c86b9d562329de66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_75f2c506",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/utils/MethodInvocationParamSaver.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-03-13T09:35:22Z",
+      "side": 1,
+      "message": "This doens\u0027t seem right, very wrong.. why is this needed? You seem to hard-coding for this to answer with only the 2nd argument instead of the list.  For a generic Mockito util like this one here, that doesn\u0027t make sense, to me.  Don\u0027t you need to adapt the test using this util instead of hard-coding this generic util to something your test needs following this change?",
+      "revId": "058b43a4c7424baec56b5d92c86b9d562329de66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
