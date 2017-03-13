@@ -22,6 +22,30 @@
       "revId": "a944c1325dfaa4841de878950119ecfd684a98a2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_50850fcd",
+        "filename": "docs/specs/dhcp-dynamic-allocation-pool.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 6947
+      },
+      "writtenOn": "2017-03-13T12:34:24Z",
+      "side": 1,
+      "message": "you are right, but in practice, the dhcp allocation-pool extension is designated mainly to the unimgr northbound with currently no intention of using both unimgr and neutron on the same network. in order to avoid overlapping ip allocations in such cases, the dhcp extension can stay disabled (default), or enable it but under the restrictions of configuring non-overlapping subnets.",
+      "parentUuid": "fafc7978_1eac438b",
+      "range": {
+        "startLine": 39,
+        "startChar": 49,
+        "endLine": 39,
+        "endChar": 51
+      },
+      "revId": "a944c1325dfaa4841de878950119ecfd684a98a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
