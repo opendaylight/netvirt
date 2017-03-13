@@ -16,6 +16,24 @@
       "revId": "8a706ed4797b435fef017b6a43d079c124bcb5b6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_75b3e509",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-13T09:50:00Z",
+      "side": 1,
+      "message": "Route paths were introduced as part of the ECMP feature. http://docs.opendaylight.org/en/latest/submodules/netvirt/docs/specs/ecmp-bgp-l3vpn.html\nEach route path might be on different subnets, hence each of them will have to be associated with a gateway Mac.\nCurrently, even with the route paths added to vrfEntry, there is only one gateway mac associated to the vrf entry. Gateway mac per route path will be addressed in the future by the team working on ECMP.\nHence, there is a gatewayMac attribute inside route path in ip-prefix-info as well",
+      "parentUuid": "fafc7978_9593e9a1",
+      "revId": "8a706ed4797b435fef017b6a43d079c124bcb5b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
