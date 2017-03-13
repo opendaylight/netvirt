@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7945c241",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 817,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_b69ed754",
+      "revId": "799aaa05f2d1a4870b42bf27742b82f9e88afa78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f69fbf4e",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-27T06:59:44Z",
       "side": 1,
       "message": "change it to FibUtil.getGreLbGroupId(availableDcGws). because we don\u0027t do anything with groupIdKey apart from getting groupId. I hope this is the same case in other places as well.",
+      "revId": "799aaa05f2d1a4870b42bf27742b82f9e88afa78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f97092a5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 887,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f69fbf4e",
       "revId": "799aaa05f2d1a4870b42bf27742b82f9e88afa78",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
