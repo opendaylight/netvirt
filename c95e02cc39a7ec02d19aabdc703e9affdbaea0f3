@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d0ebbfa1",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 838,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-03-13T12:25:01Z",
+      "side": 1,
+      "message": "The localNextHopIP passed is used for creating localnexthop not the vrf prefix(as it is extra route and macaddress would be null). So the for loop is need.",
+      "parentUuid": "fafc7978_d0c1ff4e",
+      "revId": "c95e02cc39a7ec02d19aabdc703e9affdbaea0f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9092d754",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 28
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-13T12:09:08Z",
       "side": 1,
       "message": "is there point calling setupLoadBalancingNextHop when dpnId is ZERO?",
+      "revId": "c95e02cc39a7ec02d19aabdc703e9affdbaea0f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d0bd7fb2",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 1041,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-03-13T12:25:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9092d754",
       "revId": "c95e02cc39a7ec02d19aabdc703e9affdbaea0f3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b0cc3b6b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 1514,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-03-13T12:25:01Z",
+      "side": 1,
+      "message": "Hi..this was fixed in the dependent review already.\nhttps://git.opendaylight.org/gerrit/#/c/51999/18/vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+      "parentUuid": "fafc7978_f51eb5b9",
+      "revId": "c95e02cc39a7ec02d19aabdc703e9affdbaea0f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d098df76",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 28
@@ -64,6 +118,24 @@
       "writtenOn": "2017-03-13T12:09:08Z",
       "side": 1,
       "message": "ditto",
+      "revId": "c95e02cc39a7ec02d19aabdc703e9affdbaea0f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_90c77744",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 1608,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-03-13T12:25:01Z",
+      "side": 1,
+      "message": "Hi..this was fixed in the dependent review already.\nhttps://git.opendaylight.org/gerrit/#/c/51999/18/vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+      "parentUuid": "fafc7978_d098df76",
       "revId": "c95e02cc39a7ec02d19aabdc703e9affdbaea0f3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
