@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_7598056a",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-03-13T09:59:03Z",
+      "side": 1,
+      "message": "-1 because doing this, to catch an exception for something that can happen a lot during normal runtime operation, not just.. exceptionally, is both very very ugly, generally considered a bad code smell anti pattern indicative of a design issue, as well as known to have bad runtime characteristics at run-time..",
+      "revId": "5372b55344dd2ee6281dccd4a1fd9bc8b3c7dd7a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
