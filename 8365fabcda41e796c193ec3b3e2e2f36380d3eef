@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_d5d60ef1",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 879,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-13T16:32:53Z",
+      "side": 1,
+      "message": "getTunnelType would better be called only after verifying egressInterface is indeed a tunnel",
+      "revId": "8365fabcda41e796c193ec3b3e2e2f36380d3eef",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d5e0ce98",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 892,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-13T16:32:53Z",
+      "side": 1,
+      "message": "is this an extra-route entry where mac address is expected to be null?",
+      "revId": "8365fabcda41e796c193ec3b3e2e2f36380d3eef",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
