@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9af678d5",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-13T07:07:20Z",
+      "side": 1,
+      "message": "Yes",
+      "parentUuid": "fafc7978_a1ad1333",
+      "range": {
+        "startLine": 217,
+        "startChar": 23,
+        "endLine": 217,
+        "endChar": 24
+      },
+      "revId": "2f1cd034068d1acd52a399289a022b004d2bca06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e151db30",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 9
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5ab6d0f9",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-13T07:07:20Z",
+      "side": 1,
+      "message": "No, I would say that the Egress SFC classifier service is bound to the same Neutron ports as the Ingress SFC classifier, which would be all the VMs in the Neutron Network specified in the SFC classification ACL. The Neutron Network specified in the SFC classification ACL will most likely not include the SFs, although it may be possible to classify Non-NSH (ie management) packets from the SFs.",
+      "parentUuid": "fafc7978_e151db30",
+      "revId": "2f1cd034068d1acd52a399289a022b004d2bca06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_21376300",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 9
@@ -53,6 +95,24 @@
       "writtenOn": "2017-03-11T00:49:40Z",
       "side": 1,
       "message": "This action is controlled by the Ingress SFC Classifier service right? (packet has just ingressed from a service function).  If the original src/dst tunnel was VXLAN, does this last hop SFF need to have a VXLAN tunnel to the original dst (assuming different host)?",
+      "revId": "2f1cd034068d1acd52a399289a022b004d2bca06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_daeac0d6",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-13T07:07:20Z",
+      "side": 1,
+      "message": "Ingress NSH packets from a service function will be handled by the Ingress SFC service (SFF), not the Ingress SFC classifier, as is configured by the Neutron port binding. If, for some reason the Ingress SFC classifier and SFF are bound on the same Neutron ports, when the classifier detects the packet already has NSH, it wont process the packet again.\n\nThe Ingress SFC classifier service will have set the C1/C2 fields in the NSH header. Its the SFF that will use those fields on chain ingress.\n\nThe last SFF will indeed need a VXLAN tunnel to the original dst, which should be ok since Netvirt will have created a VXLAN tunnel mesh to all compute hosts.",
+      "parentUuid": "fafc7978_21376300",
       "revId": "2f1cd034068d1acd52a399289a022b004d2bca06",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
