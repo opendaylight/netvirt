@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d8a9257d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 743,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_555dfee8",
+      "revId": "90aa7daf90e19613a09b0cf1d21d5b081a05389b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b571ca79",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-23T05:37:59Z",
       "side": 1,
       "message": "using dcGwIp here is wrong.",
+      "revId": "90aa7daf90e19613a09b0cf1d21d5b081a05389b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1bd56743",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 780,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Done. Thanks :)",
+      "parentUuid": "fafc7978_b571ca79",
       "revId": "90aa7daf90e19613a09b0cf1d21d5b081a05389b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b8f8a1c5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f50232b3",
+      "revId": "90aa7daf90e19613a09b0cf1d21d5b081a05389b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d5ff2ea9",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
         "patchSetId": 3
@@ -87,6 +141,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_98f5ddcd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d5ff2ea9",
+      "revId": "90aa7daf90e19613a09b0cf1d21d5b081a05389b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_156376b2",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
         "patchSetId": 3
@@ -98,6 +170,24 @@
       "writtenOn": "2017-01-23T05:37:59Z",
       "side": 1,
       "message": "move it to a method isGreTunnel(del)",
+      "revId": "90aa7daf90e19613a09b0cf1d21d5b081a05389b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f80229b3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_156376b2",
       "revId": "90aa7daf90e19613a09b0cf1d21d5b081a05389b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -166,6 +256,24 @@
       "writtenOn": "2017-01-23T05:37:59Z",
       "side": 1,
       "message": "why do you pass dcGwIp here ? Anyway you are passing availableDcGws which has ip address for remote tep ip to retrieve egress action in each bucket.",
+      "revId": "90aa7daf90e19613a09b0cf1d21d5b081a05389b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7883d9cc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d551eed9",
       "revId": "90aa7daf90e19613a09b0cf1d21d5b081a05389b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
