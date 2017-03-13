@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_da4e4037",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-13T06:26:07Z",
+      "side": 1,
+      "message": "this is the proposal for odl, neutron dhcp is probably using some other qualifier",
+      "range": {
+        "startLine": 70,
+        "startChar": 42,
+        "endLine": 70,
+        "endChar": 44
+      },
+      "revId": "eeb1ce68aa8f6320ecc3e54d749340add3f2329b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1a6448b7",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-13T06:26:07Z",
+      "side": 1,
+      "message": "please also provide an abstract pipeline workflow with table names, will be easier to follow",
+      "range": {
+        "startLine": 95,
+        "startChar": 16,
+        "endLine": 95,
+        "endChar": 20
+      },
+      "revId": "eeb1ce68aa8f6320ecc3e54d749340add3f2329b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bafb7cbf",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-13T06:26:07Z",
+      "side": 1,
+      "message": "we should probably have a concept of owner separate from whether the mac is static or learned, eg allow for owner types as neutron-l2, neutron-l3, neutron-dhcp, and add a separate qualifier for each mac of static or learned. for basic macs that are dynamically learnt, owner could be elan itself.",
+      "range": {
+        "startLine": 216,
+        "startChar": 28,
+        "endLine": 216,
+        "endChar": 29
+      },
+      "revId": "eeb1ce68aa8f6320ecc3e54d749340add3f2329b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9a6f9891",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-13T06:26:07Z",
+      "side": 1,
+      "message": "please add table names and reference numbers in ()",
+      "range": {
+        "startLine": 241,
+        "startChar": 32,
+        "endLine": 241,
+        "endChar": 33
+      },
+      "revId": "eeb1ce68aa8f6320ecc3e54d749340add3f2329b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
