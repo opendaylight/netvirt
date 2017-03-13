@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 public class RemoveVpnPseudoPortDataJob extends VpnPseudoPortDataBaseJob {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AddVpnPseudoPortDataJob.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RemoveVpnPseudoPortDataJob.class);
 
     public RemoveVpnPseudoPortDataJob(DataBroker dataBroker, String vpnRd) {
         super(dataBroker, vpnRd);

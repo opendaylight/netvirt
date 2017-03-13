@@ -214,6 +214,8 @@ public class VpnServiceChainUtils {
      */
     public static void programLPortDispatcherFlowForScfToVpn(IMdsalApiManager mdsalManager, long vpnId, BigInteger dpId,
                                                              Integer vpnPseudoLportTag, int addOrRemove) {
+        LOG.trace("programLPortDispatcherFlowForScfToVpn: vpnId={} dpId={}, vpnPseudoLportTag={} addOrRemove={}",
+                  vpnId, dpId, vpnPseudoLportTag, addOrRemove);
         Flow flow = buildLPortDispFromScfToL3VpnFlow(vpnId, dpId, vpnPseudoLportTag, addOrRemove);
         if (addOrRemove == NwConstants.ADD_FLOW) {
             mdsalManager.installFlow(dpId, flow);
@@ -343,6 +345,7 @@ public class VpnServiceChainUtils {
      */
     public static void programLFibEntriesForSCF(IMdsalApiManager mdsalMgr, BigInteger dpId, List<VrfEntry> vrfEntries,
             int lportTag, int addOrRemove) {
+        LOG.trace("programLFibEntriesForSCF:  dpId={}  lportTag={}  addOrRemove={}", dpId, lportTag, addOrRemove);
         java.util.Optional.ofNullable(vrfEntries).ifPresent(entries -> {
             entries.stream()
                     .forEach(vrfEntry -> vrfEntry.getRoutePaths()
@@ -350,8 +353,7 @@ public class VpnServiceChainUtils {
                             .forEach(routePath -> {
                                 Long label = routePath.getLabel();
                                 String nextHop = routePath.getNexthopAddress();
-                                FlowEntity flowEntity =
-                                        buildLFibVpnPseudoPortFlow(dpId, label, nextHop, lportTag);
+                                FlowEntity flowEntity = buildLFibVpnPseudoPortFlow(dpId, label, nextHop, lportTag);
                                 if (addOrRemove == NwConstants.ADD_FLOW) {
                                     mdsalMgr.installFlow(flowEntity);
                                 } else {
@@ -360,8 +362,7 @@ public class VpnServiceChainUtils {
                                 LOG.debug(
                                         "LFIBEntry for label={}, destination={}, nexthop={} {} successfully in dpn={}",
                                         label, vrfEntry.getDestPrefix(), nextHop,
-                                        addOrRemove == NwConstants.DEL_FLOW ? "removed"
-                                                : "installed", dpId);
+                                        addOrRemove == NwConstants.DEL_FLOW ? "removed" : "installed", dpId);
                             }));
         });
     }
@@ -374,6 +375,8 @@ public class VpnServiceChainUtils {
     public static void programLPortDispatcherFlowForVpnToScf(IMdsalApiManager mdsalManager, BigInteger dpId,
                                                              int lportTag, long scfTag, short gotoTableId,
                                                              int addOrRemove) {
+        LOG.trace("programLPortDispatcherFlowForVpnToScf: dpId={} lportTag={} scfTag={} gotoTableId={} addOrRemove={}",
+                  dpId, lportTag, scfTag, gotoTableId, addOrRemove);
         FlowEntity flowEntity = VpnServiceChainUtils.buildLportFlowDispForVpnToScf(dpId, lportTag, scfTag, gotoTableId);
         if (addOrRemove == NwConstants.ADD_FLOW) {
             mdsalManager.installFlow(flowEntity);
