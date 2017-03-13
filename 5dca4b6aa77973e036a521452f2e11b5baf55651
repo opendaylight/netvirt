@@ -2,6 +2,236 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_159ff6b5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibConstants.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-13T16:10:01Z",
+      "side": 1,
+      "message": "NwConstants.IPV4PREFIX",
+      "range": {
+        "startLine": 21,
+        "startChar": 24,
+        "endLine": 21,
+        "endChar": 41
+      },
+      "revId": "5dca4b6aa77973e036a521452f2e11b5baf55651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d5fe0eae",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 648,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-13T16:10:01Z",
+      "side": 1,
+      "message": "Name \u0027getJobKey\u0027 is too generic. I think it is better if the name of this method expresses the purpose of the DSJC job.",
+      "range": {
+        "startLine": 648,
+        "startChar": 25,
+        "endLine": 648,
+        "endChar": 34
+      },
+      "revId": "5dca4b6aa77973e036a521452f2e11b5baf55651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9591269d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-13T16:10:01Z",
+      "side": 1,
+      "message": "waitTimeForSyncInstall \u003d Long.getLong(\"wai..\", 1000L);",
+      "range": {
+        "startLine": 156,
+        "startChar": 8,
+        "endLine": 159,
+        "endChar": 9
+      },
+      "revId": "5dca4b6aa77973e036a521452f2e11b5baf55651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_35cf9ab5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 810,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-13T16:10:01Z",
+      "side": 1,
+      "message": "This is not a good idea. Either we block the thread more than needed or, worse, we don\u0027t wait enough time.\nIsnt there any condition that can be checked in order decide if proceed or wait a little bit more?\n\nBesides that, the name \u0027syncInstallGroup\u0027 leads to think that after its execution the group is fully installed, so the \u0027sleep\u0027 is kind of a mistery. It should at least be explained why it is needed.",
+      "range": {
+        "startLine": 810,
+        "startChar": 16,
+        "endLine": 810,
+        "endChar": 53
+      },
+      "revId": "5dca4b6aa77973e036a521452f2e11b5baf55651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_95bf66fc",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 828,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-13T16:10:01Z",
+      "side": 1,
+      "message": "this is 104 chars long, it can be left in one single line.",
+      "range": {
+        "startLine": 827,
+        "startChar": 0,
+        "endLine": 828,
+        "endChar": 64
+      },
+      "revId": "5dca4b6aa77973e036a521452f2e11b5baf55651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_153b769d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 835,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-13T16:10:01Z",
+      "side": 1,
+      "message": "NwConstants.IPv4PREFIX",
+      "range": {
+        "startLine": 835,
+        "startChar": 48,
+        "endLine": 835,
+        "endChar": 53
+      },
+      "revId": "5dca4b6aa77973e036a521452f2e11b5baf55651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b549ca34",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 836,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-13T16:10:01Z",
+      "side": 1,
+      "message": "NwConstants.IPv4PREFIX",
+      "range": {
+        "startLine": 836,
+        "startChar": 100,
+        "endLine": 836,
+        "endChar": 105
+      },
+      "revId": "5dca4b6aa77973e036a521452f2e11b5baf55651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_156256ad",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 857,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-13T16:10:01Z",
+      "side": 1,
+      "message": "NwConstants.IPv4PREFIX",
+      "range": {
+        "startLine": 857,
+        "startChar": 59,
+        "endLine": 857,
+        "endChar": 64
+      },
+      "revId": "5dca4b6aa77973e036a521452f2e11b5baf55651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f56a3280",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 1027,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-13T16:10:01Z",
+      "side": 1,
+      "message": "Take the chance to print as much as you can: vpnId, rd, vrfEntry....",
+      "range": {
+        "startLine": 1027,
+        "startChar": 16,
+        "endLine": 1027,
+        "endChar": 82
+      },
+      "revId": "5dca4b6aa77973e036a521452f2e11b5baf55651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3504bac5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 1037,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-13T16:10:01Z",
+      "side": 1,
+      "message": "NwConstants.IPv4PREFIX",
+      "range": {
+        "startLine": 1037,
+        "startChar": 63,
+        "endLine": 1037,
+        "endChar": 68
+      },
+      "revId": "5dca4b6aa77973e036a521452f2e11b5baf55651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_758122fb",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 30
@@ -13,6 +243,98 @@
       "writtenOn": "2017-03-13T16:06:10Z",
       "side": 1,
       "message": "I meant this call could be inside the block !dpnId.equals(BigInteger.ZERO) so it would not be performed on invalid DPNs",
+      "revId": "5dca4b6aa77973e036a521452f2e11b5baf55651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d5ec4ef6",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 1214,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-13T16:10:01Z",
+      "side": 1,
+      "message": "There\u0027s a getTunnelType() method in line 1123. Remove it if it\u0027s no longer needed.",
+      "range": {
+        "startLine": 1214,
+        "startChar": 73,
+        "endLine": 1214,
+        "endChar": 86
+      },
+      "revId": "5dca4b6aa77973e036a521452f2e11b5baf55651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_75dc8247",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 1518,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-13T16:10:01Z",
+      "side": 1,
+      "message": "is the FibUtil.getJobKey() to be used here?",
+      "range": {
+        "startLine": 1518,
+        "startChar": 44,
+        "endLine": 1518,
+        "endChar": 92
+      },
+      "revId": "5dca4b6aa77973e036a521452f2e11b5baf55651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b5938a5b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnExtraRouteHelper.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-13T16:10:01Z",
+      "side": 1,
+      "message": "There are 3 methods called \u0027getVpnToExtrarouteIdentifier\u0027 returning different things.",
+      "range": {
+        "startLine": 70,
+        "startChar": 43,
+        "endLine": 70,
+        "endChar": 71
+      },
+      "revId": "5dca4b6aa77973e036a521452f2e11b5baf55651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_35a03aa5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnExtraRouteHelper.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-13T16:10:01Z",
+      "side": 1,
+      "message": "not needed here",
+      "range": {
+        "startLine": 81,
+        "startChar": 28,
+        "endLine": 81,
+        "endChar": 47
+      },
       "revId": "5dca4b6aa77973e036a521452f2e11b5baf55651",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
