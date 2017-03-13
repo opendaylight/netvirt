@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d304744b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2729419b",
+      "revId": "969f561ed37d1806f223320084b4a09007f8e37a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e2da8776",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-09T08:28:07Z",
       "side": 1,
       "message": "This method has become bit complex. why can\u0027t have 3 methods like addDcGwLbGroup/updateDcGwLbGroup/deleteDcGwLbGroup instead of combining add/update/delete logic in single method ?",
+      "revId": "969f561ed37d1806f223320084b4a09007f8e37a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b3ff3033",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 799,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e2da8776",
       "revId": "969f561ed37d1806f223320084b4a09007f8e37a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_13fb9c47",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 801,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_27002101",
+      "revId": "969f561ed37d1806f223320084b4a09007f8e37a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e248c72e",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 5
@@ -64,6 +118,24 @@
       "writtenOn": "2017-03-09T08:28:07Z",
       "side": 1,
       "message": "You can move all the builder logic into FibUtil class.",
+      "revId": "969f561ed37d1806f223320084b4a09007f8e37a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f3f53851",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 892,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e248c72e",
       "revId": "969f561ed37d1806f223320084b4a09007f8e37a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5398841b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Missed out to remove this after rebase.",
+      "parentUuid": "fafc7978_425433c9",
+      "revId": "969f561ed37d1806f223320084b4a09007f8e37a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_224f6f35",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
         "patchSetId": 5
@@ -98,6 +188,24 @@
       "writtenOn": "2017-03-09T08:28:07Z",
       "side": 1,
       "message": "static import",
+      "revId": "969f561ed37d1806f223320084b4a09007f8e37a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9a8678b7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-13T08:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_224f6f35",
       "revId": "969f561ed37d1806f223320084b4a09007f8e37a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
