@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_9593e9a1",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-13T09:26:32Z",
+      "side": 1,
+      "message": "Why is gw mac needs to be contained per route-path?\nvrf-entry has one gw mac for each vrf-entry and also in the EVPN spec http://docs.opendaylight.org/en/latest/submodules/netvirt/docs/specs/l3vpn-over-vxlan-with-evpn-rt5.html#odl-fib-yang-changes the gw mac is single for each combination of prefix+parent rd",
+      "revId": "8a706ed4797b435fef017b6a43d079c124bcb5b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
