@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_758122fb",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 30
+      },
+      "lineNbr": 1042,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-13T16:06:10Z",
+      "side": 1,
+      "message": "I meant this call could be inside the block !dpnId.equals(BigInteger.ZERO) so it would not be performed on invalid DPNs",
+      "revId": "5dca4b6aa77973e036a521452f2e11b5baf55651",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
