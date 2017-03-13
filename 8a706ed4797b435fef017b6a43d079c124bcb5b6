@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_d2e0e498",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-13T14:35:36Z",
+      "side": 1,
+      "message": "nit: spaces",
+      "revId": "8a706ed4797b435fef017b6a43d079c124bcb5b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9593e9a1",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
         "patchSetId": 6
