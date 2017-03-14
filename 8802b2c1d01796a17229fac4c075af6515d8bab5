@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ccc84359",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-14T08:25:03Z",
+      "side": 1,
+      "message": "We use lports in both egress and ingress services. Please look at the \u0027pipline changes\u0027 section",
+      "parentUuid": "fafc7978_1509b6dd",
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_750e42e7",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 16
@@ -47,6 +65,24 @@
       "writtenOn": "2017-03-13T15:46:38Z",
       "side": 1,
       "message": "Will there actually be a drop mechanism or are you suggesting an alternative way to understand there are drops?",
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_acc5ff3e",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-14T08:25:03Z",
+      "side": 1,
+      "message": "There is no built in drop mechanism at this point - but activating this service both on VM A and on VM B - would give indication regarding drops",
+      "parentUuid": "fafc7978_750e42e7",
       "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ecbf07a9",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-14T08:25:03Z",
+      "side": 1,
+      "message": "The activation of the ingress or egress services is done based on the counter request. The user specifies if he is interested in incoming traffic from an IP, or in outgoing traffic.\nThe dstip match will indeed be n the ingress pipline",
+      "parentUuid": "fafc7978_55133e0d",
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_352b1a35",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 16
@@ -81,6 +135,30 @@
       "writtenOn": "2017-03-13T15:46:38Z",
       "side": 1,
       "message": "umm, the maximum table is 254.. so 260 can\u0027t be working.. what are you using now to test?",
+      "range": {
+        "startLine": 50,
+        "startChar": 75,
+        "endLine": 50,
+        "endChar": 84
+      },
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ecd6e7f0",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-14T08:25:03Z",
+      "side": 1,
+      "message": "Will change - the table chosen was 230.",
+      "parentUuid": "fafc7978_352b1a35",
       "range": {
         "startLine": 50,
         "startChar": 75,
