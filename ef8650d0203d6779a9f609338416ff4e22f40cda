@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a784f8b1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-14T10:12:07Z",
+      "side": 1,
+      "message": "I did a quick google search and there seem to be no clear guidelines on when to use warn or error. If we stick to slf4j API [1], it feels like \u0027ERROR\u0027 suits better here, but WARN can also be applied.\n\nIf we take this stackoverflow response [2], then it\u0027s ERROR 100%. And that\u0027s why I changed it to ERROR. Btw, I also searched the code for FATALs and there\u0027s no single use of FATAL. Aren\u0027t we using FATAL on purpose?\n\n[1] https://www.slf4j.org/api/org/apache/log4j/Level.html\n[2] http://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels",
+      "parentUuid": "fafc7978_67b4d0d1",
+      "revId": "ef8650d0203d6779a9f609338416ff4e22f40cda",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c7c2dc85",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
         "patchSetId": 1
