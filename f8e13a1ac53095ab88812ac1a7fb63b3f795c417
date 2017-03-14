@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ac4fbfbd",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2017-03-14T08:22:26Z",
+      "side": 1,
+      "message": "Don\u0027t we need to do something similar for IPv6? Or in IPv6 there is no such problem?",
+      "revId": "f8e13a1ac53095ab88812ac1a7fb63b3f795c417",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
