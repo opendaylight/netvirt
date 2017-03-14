@@ -8,10 +8,12 @@
 
 package org.opendaylight.netvirt.fibmanager.api;
 
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
@@ -52,7 +54,7 @@ public class FibHelper {
             List<String> nextHopList, RouteOrigin origin) {
         List<RoutePaths> routePaths =
                 nextHopList.stream().map(nextHop -> buildRoutePath(nextHop, label))
-                        .collect(Collectors.toList());
+                        .collect(toList());
         return getVrfEntryBuilder(vrfEntry.getDestPrefix(), routePaths, origin);
     }
 
@@ -81,5 +83,10 @@ public class FibHelper {
     public static boolean isControllerManagedVpnInterfaceRoute(RouteOrigin routeOrigin) {
         return routeOrigin == RouteOrigin.STATIC
                 || routeOrigin == RouteOrigin.LOCAL;
+    }
+
+    public static void sortIpAddress(List<RoutePaths> routePathList) {
+        Optional.ofNullable(routePathList).ifPresent(
+            routePaths -> routePaths.sort(comparing(RoutePaths::getNexthopAddress)));
     }
 }
