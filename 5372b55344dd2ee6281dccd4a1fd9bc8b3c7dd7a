@@ -34,6 +34,24 @@
       "revId": "5372b55344dd2ee6281dccd4a1fd9bc8b3c7dd7a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2fbe1ed5",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-03-14T16:49:25Z",
+      "side": 1,
+      "message": "Sure, I\u0027ve added a new patch set with a counter proposal",
+      "parentUuid": "fafc7978_a791989c",
+      "revId": "5372b55344dd2ee6281dccd4a1fd9bc8b3c7dd7a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
