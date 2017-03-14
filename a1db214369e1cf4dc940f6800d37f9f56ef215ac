@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_5c2a42e8",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-14T14:03:03Z",
+      "side": 1,
+      "message": "Can you please clarify which patch-port is meant here?\n\nIs that the patch-port that connects br-int to \u003cbr-prv?\u003e (certainly not br-ex), and that patch-port will be amended to include the VLAN Tag of the new VM port just-in-time, when the VM port appears on the OVS Switch?\n\nWhile in earlier, when the VLAN Provider Network is created, at that time itself the patch-port on all OVS Switches were tagged to include the VLAN-ID representing that VLAN Provider Network !",
+      "revId": "a1db214369e1cf4dc940f6800d37f9f56ef215ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
