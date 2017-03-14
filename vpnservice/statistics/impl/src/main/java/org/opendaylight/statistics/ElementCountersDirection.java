@@ -8,6 +8,6 @@
 
 package org.opendaylight.statistics;
 
-public enum CounterRequestType {
-    OF_PORT, FLOW
+public enum ElementCountersDirection {
+    INGRESS, EGRESS
 }
