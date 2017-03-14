@@ -16,6 +16,24 @@
       "revId": "5372b55344dd2ee6281dccd4a1fd9bc8b3c7dd7a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a791989c",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-14T09:15:19Z",
+      "side": 1,
+      "message": "Michael, any constructive advice on correcting this behavior besides blocking the commit?\n\nThough I agree this isn\u0027t elegant at all, this is existing behavior already taking place around Uuid creation, since new Uuid initialization throws exceptions (see VpnInterfaceManager for example).\n\nWe could add a boolean method that validates if a port name has a valid Uuid syntax - but this seems out of scope for this bug fix. Would also like Vivek/Vishal\u0027s input as this is old code behavior that we have inherited.",
+      "parentUuid": "fafc7978_7598056a",
+      "revId": "5372b55344dd2ee6281dccd4a1fd9bc8b3c7dd7a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
