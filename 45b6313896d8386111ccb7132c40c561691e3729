@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_2f629ead",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-14T16:12:48Z",
+      "side": 1,
+      "message": "all learnt adjacencies are not primary adjacencies today.\n\nSo this will cause more ambiguity.  \n\nWhy can\u0027t you just name that field as \"boolean phys-network-func\" ?\n\nBTW, we are removing next-hop-list from adjacency and instead replacing it with nextHopIpAddress as in review here:\nhttps://git.opendaylight.org/gerrit/#/c/52771/",
+      "revId": "45b6313896d8386111ccb7132c40c561691e3729",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
