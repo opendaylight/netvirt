@@ -10,6 +10,7 @@ package org.opendaylight.statistics;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -27,13 +28,18 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.NotificationService;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.infrautils.counters.api.OccurenceCounter;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.statistics.rev130819.AggregateFlowStatisticsUpdate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.statistics.rev130819.FlowsStatisticsUpdate;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.statistics.rev130819.GetFlowStatisticsFromFlowTableInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.statistics.rev130819.GetFlowStatisticsFromFlowTableInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.statistics.rev130819.OpendaylightFlowStatisticsListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.statistics.rev130819.OpendaylightFlowStatisticsService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.statistics.rev130819.flow.and.statistics.map.list.FlowAndStatisticsMapList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.transaction.rev150304.MultipartTransactionAware;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.transaction.rev150304.TransactionAware;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.transaction.rev150304.TransactionId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
@@ -63,6 +69,7 @@ public class CounterRetriever implements OpendaylightFlowStatisticsListener, Ope
     private final NotificationService notificationService;
 
     private static ConcurrentMap<TransactionImpl, NodeConnectorCounterResult> nodeConnectorStatCallers = null;
+    private static ConcurrentMap<TransactionImpl, FlowCounterResult> flowStatCallers = null;
 
     @Inject
     public CounterRetriever(final RpcProviderRegistry rpcProviderRegistry,
@@ -70,16 +77,17 @@ public class CounterRetriever implements OpendaylightFlowStatisticsListener, Ope
         this.rpcProviderRegistry = rpcProviderRegistry;
         this.notificationService = notificationService;
         nodeConnectorStatCallers = new ConcurrentHashMap<>();
+        flowStatCallers = new ConcurrentHashMap<>();
     }
 
     @PreDestroy
     public void destroy() {
-        LOG.info("{} destroy", getClass().getSimpleName());
+        LOG.info("{} close", getClass().getSimpleName());
     }
 
     @PostConstruct
     public void init() {
-        LOG.info("{} init", getClass().getSimpleName());
+        LOG.info("{} start", getClass().getSimpleName());
         notificationService.registerNotificationListener(this);
         ofss = rpcProviderRegistry.getRpcService(OpendaylightFlowStatisticsService.class);
         opss = rpcProviderRegistry.getRpcService(OpendaylightPortStatisticsService.class);
@@ -107,6 +115,36 @@ public class CounterRetriever implements OpendaylightFlowStatisticsListener, Ope
         }
 
         public List<NodeConnectorStatisticsUpdate> getResult() {
+            return result;
+        }
+
+        public CyclicBarrier getBarrier() {
+            return syncObject;
+        }
+    }
+
+    static class FlowCounterResult {
+        List<FlowsStatisticsUpdate> result;
+        boolean finished = false;
+        CyclicBarrier syncObject = new CyclicBarrier(2);
+
+        FlowCounterResult() {
+            result = new ArrayList<>();
+        }
+
+        boolean isFinished() {
+            return finished;
+        }
+
+        public void addResult(FlowsStatisticsUpdate resultUpdate) {
+            result.add(resultUpdate);
+        }
+
+        public void setFinished() {
+            finished = true;
+        }
+
+        public List<FlowsStatisticsUpdate> getResult() {
             return result;
         }
 
@@ -188,10 +226,13 @@ public class CounterRetriever implements OpendaylightFlowStatisticsListener, Ope
         CounterRetrieverCounters.sending_request_to_switch.inc();
         TransactionImpl transaction = new TransactionImpl(nodeId, mdsalTransactionId.getValue());
 
-        if (CounterRequestType.OF_PORT.equals(type)) {
+        if (CounterRequestType.FLOW.equals(type)) {
+            flowStatCallers.put(transaction, new FlowCounterResult());
+        } else if (CounterRequestType.OF_PORT.equals(type)) {
             nodeConnectorStatCallers.put(transaction, new NodeConnectorCounterResult());
         }
         return transaction;
+
     }
 
     @Override
@@ -222,8 +263,37 @@ public class CounterRetriever implements OpendaylightFlowStatisticsListener, Ope
         return transactifyFuture != null ? createNodeConnectorResultMap(transactifyFuture) : null;
     }
 
+    public CounterResultDataStructure getSwitchFlowCounters(BigInteger dpId, Match match, short tableId) {
+        Flow flow = CountersServiceUtils.createFlowOnTable(match,
+                CountersServiceUtils.COUNTER_TABLE_COUNTER_FLOW_PRIORITY, tableId);
+        GetFlowStatisticsFromFlowTableInputBuilder flowBuilder = new GetFlowStatisticsFromFlowTableInputBuilder(flow);
+        NodeRef nodeRef = new NodeRef(InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, new NodeKey(new NodeId(CountersUtils.getNodeId(dpId)))).toInstance());
+        GetFlowStatisticsFromFlowTableInput gfsffti = flowBuilder.setNode(nodeRef).build();
+        TransactionImpl transactifyFuture = transactifyFuture(new NodeId(CountersUtils.getNodeId(dpId)),
+                ofss.getFlowStatisticsFromFlowTable(gfsffti), CounterRequestType.FLOW);
+        return transactifyFuture != null ? createSwitchFlowResultMap(transactifyFuture) : null;
+    }
+
     @Override
     public void onFlowsStatisticsUpdate(FlowsStatisticsUpdate notification) {
+        CounterRetrieverCounters.got_switch_flow_counters.inc();
+        LOG.debug("got notification {}", notification.getTransactionId());
+
+        FlowCounterResult result = getFlowStatTransactionResult(notification.getId(), notification);
+        if (result == null) {
+            LOG.debug("got notification on non exist transaction {}", notification.getTransactionId());
+            return;
+        }
+        result.addResult(notification);
+        if (!notification.isMoreReplies()) {
+            try {
+                result.getBarrier().await(CountersUtils.REPLIES_TIMOUT, TimeUnit.MILLISECONDS);
+                LOG.trace("counter retrieval finished for transaction {}", notification.getTransactionId().getValue());
+            } catch (InterruptedException | BrokenBarrierException | TimeoutException e) {
+                LOG.trace("timeout - do nothing");
+            }
+        }
 
     }
 
@@ -240,7 +310,7 @@ public class CounterRetriever implements OpendaylightFlowStatisticsListener, Ope
         result.addResult(notification);
         if (!notification.isMoreReplies()) {
             try {
-                result.getBarrier().await(CountersUtils.NODE_CONNECTOR_REPLIES_TIMOUT, TimeUnit.MILLISECONDS);
+                result.getBarrier().await(CountersUtils.REPLIES_TIMOUT, TimeUnit.MILLISECONDS);
                 LOG.trace("counter retrieval finished for transaction {}", notification.getTransactionId().getValue());
             } catch (InterruptedException | BrokenBarrierException | TimeoutException e) {
                 LOG.trace("timeout - do nothing");
@@ -272,6 +342,72 @@ public class CounterRetriever implements OpendaylightFlowStatisticsListener, Ope
             return nodeConnectorStatCallers.get(transaction);
         }
         return null;
+    }
+
+    private FlowCounterResult getFlowStatTransactionResult(NodeId nodeId, TransactionAware notification) {
+        TransactionId mdsalTransactionId = notification.getTransactionId();
+
+        if (mdsalTransactionId == null) {
+            CounterRetrieverCounters.failed_update_null_transaction_id.inc();
+            return null;
+        }
+        TransactionImpl transaction = new TransactionImpl(nodeId, mdsalTransactionId.getValue());
+
+        if (!flowStatCallers.containsKey(transaction)) {
+            CounterRetrieverCounters.failed_unknown_transaction_id.inc();
+            LOG.warn("unknown notification id {}, data {}", notification.getTransactionId(), notification);
+            return null;
+        }
+
+        if (notification instanceof MultipartTransactionAware) {
+            CounterRetrieverCounters.got_flow_partial_multipart_result.inc();
+            return flowStatCallers.get(transaction);
+        } else if (notification instanceof FlowsStatisticsUpdate) {
+            CounterRetrieverCounters.got_flow_partial_stat_result.inc();
+            return flowStatCallers.get(transaction);
+        }
+        return null;
+    }
+
+    private CounterResultDataStructure createSwitchFlowResultMap(TransactionImpl transactifyFuture) {
+        FlowCounterResult result = flowStatCallers.get(transactifyFuture);
+        if (result != null) {
+            try {
+                result.getBarrier().await(CountersUtils.CREATE_RESULT_TIMEOUT, TimeUnit.SECONDS);
+            } catch (InterruptedException | BrokenBarrierException | TimeoutException e) {
+                LOG.debug("got interrupt while waiting for flow statistics result");
+                return null;
+            }
+        } else {
+            LOG.debug("didn't find node connector result waiting for transaction {}", transactifyFuture.treanactionId);
+            return null;
+        }
+
+        List<FlowsStatisticsUpdate> flowUpdates = result.getResult();
+        CounterResultDataStructure crds = new CounterResultDataStructure();
+        for (FlowsStatisticsUpdate flowUpdate : flowUpdates) {
+            List<FlowAndStatisticsMapList> statistics = flowUpdate.getFlowAndStatisticsMapList();
+            for (FlowAndStatisticsMapList stat : statistics) {
+                String resultId = stat.getTableId().toString() + CountersUtils.OF_DELIMITER + UUID.randomUUID();
+                crds.addCounterResult(resultId);
+                if (stat.getByteCount() != null) {
+                    crds.addCounterToGroup(resultId, CountersUtils.BYTES_GROUP_NAME, CountersUtils.BYTE_COUNTER_NAME,
+                            stat.getByteCount().getValue());
+                }
+                if (stat.getPacketCount() != null) {
+                    crds.addCounterToGroup(resultId, CountersUtils.PACKETS_GROUP_NAME,
+                            CountersUtils.PACKET_COUNTER_NAME, stat.getPacketCount().getValue());
+                }
+                if (stat.getDuration() != null) {
+                    crds.addCounterToGroup(resultId, CountersUtils.DURATION_GROUP_NAME,
+                            CountersUtils.DURATION_SECOND_COUNTER_NAME, big(stat.getDuration().getSecond().getValue()));
+                    crds.addCounterToGroup(resultId, CountersUtils.DURATION_GROUP_NAME,
+                            CountersUtils.DURATION_NANO_SECOND_COUNTER_NAME,
+                            big(stat.getDuration().getNanosecond().getValue()));
+                }
+            }
+        }
+        return crds;
     }
 
     private CounterResultDataStructure createNodeConnectorResultMap(TransactionImpl transactifyFuture) {
