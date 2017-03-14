@@ -21,6 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.Node
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.NodeExperimenterErrorNotification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SwitchFlowRemoved;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.RemovedFlowReason;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.TcpMatchFields;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.UdpMatchFields;
@@ -87,8 +88,9 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener {
 */
 
         short tableId = flowRemoved.getTableId();
-
-        if (tableId == NwConstants.OUTBOUND_NAPT_TABLE) {
+        RemovedFlowReason removedReasonFlag = flowRemoved.getReason();
+        if (tableId == NwConstants.OUTBOUND_NAPT_TABLE
+                && RemovedFlowReason.OFPRRIDLETIMEOUT.equals(removedReasonFlag)) {
             LOG.info("NaptFlowRemovedEventHandler : onSwitchFlowRemoved() entry");
 
             //Get the internal internal IP address and the port number from the IPv4 match.
