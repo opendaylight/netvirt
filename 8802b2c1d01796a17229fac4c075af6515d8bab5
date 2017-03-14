@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d95c844f",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-14T12:33:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_555cdeed",
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1509b6dd",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 16
@@ -165,6 +183,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b959c05d",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-14T12:33:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_679df059",
+      "range": {
+        "startLine": 43,
+        "startChar": 4,
+        "endLine": 43,
+        "endChar": 14
+      },
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_352b1a35",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 16
@@ -236,6 +278,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_19572c28",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-14T12:33:21Z",
+      "side": 1,
+      "message": "The service is after the ACL service in both ingress and egress pipelines. I will add some comments on that in the document.",
+      "parentUuid": "fafc7978_a777d83a",
+      "range": {
+        "startLine": 50,
+        "startChar": 75,
+        "endLine": 50,
+        "endChar": 84
+      },
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_cc5cc34f",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 16
@@ -247,6 +313,30 @@
       "writtenOn": "2017-03-14T08:47:04Z",
       "side": 1,
       "message": "we should distinguish between 2 cases -\n1. traffic ingressing from vm interface - in this case any pkt coming in from that interface should be counted, whether it has the sip set or not, this could include pkts that are forwarded by service functions, or pkts generated with floating IP or invisible IP addresses from these vms.\n2. traffic ingressing from the vm with src Ip A, - in this case you only want to count pkts which have been originated in that vm with a specific IP, and here the flow rules should have a match on IP address.\nsimilar comments would apply for egress pkts vs dst IP in the classifier",
+      "range": {
+        "startLine": 57,
+        "startChar": 64,
+        "endLine": 57,
+        "endChar": 65
+      },
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_59309407",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-14T12:33:21Z",
+      "side": 1,
+      "message": "This 2 cases are supported by the feature. Since our leading use case was the one containing a VM\u0027s IP, I have chosen to show this example here. I will add an example for the other scenario.",
+      "parentUuid": "fafc7978_cc5cc34f",
       "range": {
         "startLine": 57,
         "startChar": 64,
@@ -282,6 +372,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9c082a2a",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-14T12:33:21Z",
+      "side": 1,
+      "message": "No, since it counts the traffic going from vmA to vmB.",
+      "parentUuid": "fafc7978_8c43db6b",
+      "range": {
+        "startLine": 60,
+        "startChar": 50,
+        "endLine": 60,
+        "endChar": 53
+      },
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_0c57eb27",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 16
@@ -305,6 +419,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5c2522ad",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-14T12:33:21Z",
+      "side": 1,
+      "message": "This is traffic sent from vmB",
+      "parentUuid": "fafc7978_0c57eb27",
+      "range": {
+        "startLine": 65,
+        "startChar": 57,
+        "endLine": 65,
+        "endChar": 58
+      },
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8798d46b",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 16
@@ -316,6 +454,30 @@
       "writtenOn": "2017-03-14T09:42:32Z",
       "side": 1,
       "message": "don\u0027t forget to update these according to what you choose",
+      "range": {
+        "startLine": 66,
+        "startChar": 27,
+        "endLine": 66,
+        "endChar": 30
+      },
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7c2466af",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-14T12:33:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_8798d46b",
       "range": {
         "startLine": 66,
         "startChar": 27,
@@ -403,6 +565,24 @@
       "writtenOn": "2017-03-13T15:46:38Z",
       "side": 1,
       "message": "Remove this section please",
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3c781e8f",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-14T12:33:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_15d7f624",
       "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
