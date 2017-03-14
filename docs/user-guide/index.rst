@@ -5,3 +5,4 @@ NetVirt User Guide
    :maxdepth: 2
 
    ../specs/index
+   l3vpn-service_-user-guide
