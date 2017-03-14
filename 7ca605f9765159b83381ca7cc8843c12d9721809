@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_dc3d922e",
+        "filename": "docs/specs/listener-dependency-helper.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-14T14:16:02Z",
+      "side": 1,
+      "message": "\"events (please leave out the word config) not getting processed\"",
+      "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bc3a4e32",
+        "filename": "docs/specs/listener-dependency-helper.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-14T14:16:02Z",
+      "side": 1,
+      "message": "bgp control plane and also data plane failures.",
+      "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3c7dbee8",
+        "filename": "docs/specs/listener-dependency-helper.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-14T14:16:02Z",
+      "side": 1,
+      "message": "it would be good to put here what is this listener-dependent-queue and its format.   \n\nWhat will be the HEAD KEY for the listener-dependent-queue and what will each element in the queue carry for the use-case 1 example.",
+      "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7c8746d8",
+        "filename": "docs/specs/listener-dependency-helper.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-14T14:16:02Z",
+      "side": 1,
+      "message": "is this API for the consumer, or it is going to be internally used by this framework?",
+      "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bc688e22",
+        "filename": "docs/specs/listener-dependency-helper.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-14T14:16:02Z",
+      "side": 1,
+      "message": "are both the approaches being made available in the framework and the consumer can select which one should apply on a per instance-identifier-type (eg., vpnInterface) to be processed ?",
+      "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
