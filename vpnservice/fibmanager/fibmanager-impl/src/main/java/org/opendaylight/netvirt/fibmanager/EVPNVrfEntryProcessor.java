@@ -13,7 +13,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -75,31 +77,38 @@ public class EVPNVrfEntryProcessor {
                 + " has null vpnId!");
         Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnInstance.getVpnId(),
                 vrfEntry.getDestPrefix());
-        int lportTag;
-        if (Boolean.TRUE.equals(localNextHopInfo.isNatPrefix())) {
-            // All Intra-DC NAT Traffic will carry L3VNI of the Internet EVPN
-            lportTag = vrfEntry.getL3vni().intValue();
-        } else {
-            Interface interfaceState = FibUtil.getInterfaceStateFromOperDS(dataBroker,
-                    localNextHopInfo.getVpnInterfaceName());
-            lportTag = interfaceState.getIfIndex();
-        }
+        Map<BigInteger, Prefixes> dpnToInterface = new HashMap<>();
         List<BigInteger> localDpnId = createLocalEvpnFlows(vpnInstance.getVpnId(), rd, vrfEntry,
-                localNextHopInfo);
-        createRemoteEvpnFlows(rd, localNextHopInfo, vrfEntry, vpnInstance, localDpnId, vrfTableKey, lportTag);
+                localNextHopInfo, dpnToInterface);
+        createRemoteEvpnFlows(rd, vrfEntry, vpnInstance, localDpnId, vrfTableKey, dpnToInterface);
     }
 
     private List<BigInteger> createLocalEvpnFlows(long vpnId, String rd, VrfEntry vrfEntry,
-                                                  Prefixes localNextHopInfo) {
+                                                  Prefixes localNextHopInfo, Map<BigInteger, Prefixes> dpnToInterface) {
         List<BigInteger> returnLocalDpnId = new ArrayList<>();
         if (localNextHopInfo == null) {
             //Handle extra routes and imported routes
+            Routes extraRoute = vrfEntryListener.getVpnToExtraroute(rd, vrfEntry.getDestPrefix());
+            if (extraRoute != null) {
+                for (String nextHopIp : extraRoute.getNexthopIpList()) {
+                    logger.info("NextHop IP for destination {} is {}", vrfEntry.getDestPrefix(), nextHopIp);
+                    if (nextHopIp != null) {
+                        localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, nextHopIp + "/32");
+                        dpnToInterface.put(localNextHopInfo.getDpnId(), localNextHopInfo);
+                        String localNextHopIP = nextHopIp + "/32";
+                        BigInteger dpnId = checkCreateLocalEvpnFlows(localNextHopInfo, localNextHopIP, vpnId,
+                                rd, vrfEntry);
+                        returnLocalDpnId.add(dpnId);
+                    }
+                }
+            }
         } else {
             logger.info("Creating local EVPN flows for prefix {} rd {} route-paths {} evi {}.",
                     vrfEntry.getDestPrefix(), rd, vrfEntry.getRoutePaths(), vrfEntry.getL3vni());
             String localNextHopIP = vrfEntry.getDestPrefix();
             BigInteger dpnId = checkCreateLocalEvpnFlows(localNextHopInfo, localNextHopIP, vpnId,
                     rd, vrfEntry);
+            dpnToInterface.put(dpnId, localNextHopInfo);
             returnLocalDpnId.add(dpnId);
         }
         return returnLocalDpnId;
@@ -137,21 +146,11 @@ public class EVPNVrfEntryProcessor {
         return dpnId;
     }
 
-    private void createRemoteEvpnFlows(String rd, Prefixes localNextHopInfo, VrfEntry vrfEntry,
-                           VpnInstanceOpDataEntry vpnInstance, List<BigInteger> localDpnId,
-                                       VrfTablesKey vrfTableKey, int lportTag) {
+    private void createRemoteEvpnFlows(String rd, VrfEntry vrfEntry, VpnInstanceOpDataEntry vpnInstance,
+                                       List<BigInteger> localDpnId, VrfTablesKey vrfTableKey,
+                                       Map<BigInteger, Prefixes> dpnToInterface) {
         logger.info("Creating remote EVPN flows for prefix {} rd {} route-paths {} evi {}",
                 vrfEntry.getDestPrefix(), rd, vrfEntry.getRoutePaths(), vrfEntry.getL3vni());
-        Optional<Adjacency> adjacencyData =  FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                vrfEntryListener.getNextHopManager().getAdjacencyIdentifier(localNextHopInfo.getVpnInterfaceName(),
-                        vrfEntry.getDestPrefix()));
-        String macAddress = adjacencyData.get().getMacAddress();
-        if (macAddress == null) {
-            logger.error("Mac address not found in operational vpn interface for rd {} prefix {} interface {}", rd,
-                    vrfEntry.getDestPrefix(), localNextHopInfo.getVpnInterfaceName());
-            return;
-        }
-
         List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
         if (vpnToDpnList != null) {
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
@@ -161,15 +160,37 @@ public class EVPNVrfEntryProcessor {
                         @Override
                         public List<ListenableFuture<Void>> call() throws Exception {
                             WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+                            List<ListenableFuture<Void>> futures = new ArrayList<>();
                             for (VpnToDpnList vpnDpn : vpnToDpnList) {
                                 if (!localDpnId.contains(vpnDpn.getDpnId())) {
                                     if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
+                                        Prefixes prefixesInfo = dpnToInterface.get(vpnDpn.getDpnId());
+                                        String interfaceName = prefixesInfo.getVpnInterfaceName();
+                                        int lportTag;
+                                        if (Boolean.TRUE.equals(prefixesInfo.isNatPrefix())) {
+                                            // All Intra-DC NAT Traffic will carry L3VNI of the Internet EVPN
+                                            lportTag = vrfEntry.getL3vni().intValue();
+                                        } else {
+                                            Interface interfaceState = FibUtil.getInterfaceStateFromOperDS(dataBroker,
+                                                    interfaceName);
+                                            lportTag = interfaceState.getIfIndex();
+                                        }
+                                        Optional<Adjacency> adjacencyData =  FibUtil.read(dataBroker,
+                                                LogicalDatastoreType.OPERATIONAL, vrfEntryListener.getNextHopManager()
+                                                        .getAdjacencyIdentifier(interfaceName,
+                                                                vrfEntry.getDestPrefix()));
+                                        String macAddress = adjacencyData.get().getMacAddress();
+                                        if (macAddress == null) {
+                                            logger.error("Mac address not found in operational vpn interface for "
+                                                    + "rd {} prefix {} interface {}", rd,
+                                                    vrfEntry.getDestPrefix(), interfaceName);
+                                            return futures;
+                                        }
                                         createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(),
                                                 vrfTableKey, vrfEntry, lportTag, macAddress, tx);
                                     }
                                 }
                             }
-                            List<ListenableFuture<Void>> futures = new ArrayList<>();
                             futures.add(tx.submit());
                             return futures;
                         }
