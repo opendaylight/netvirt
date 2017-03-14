@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_67b4d0d1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-14T09:49:25Z",
+      "side": 1,
+      "message": "Vivek, not that I don\u0027t agree with this, but we must follow up and verify these kind of errors don\u0027t trigger false alarms, as they don\u0027t assist us much if they do.\n\nWARNs are also valid to use as an indication of a problem..",
+      "parentUuid": "fafc7978_67ce90b6",
+      "revId": "ef8650d0203d6779a9f609338416ff4e22f40cda",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c7c2dc85",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
         "patchSetId": 1
