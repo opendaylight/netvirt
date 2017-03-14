@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7c7106e0",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/ConfigurationServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-03-14T14:46:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_189f2db6",
+      "revId": "1b0cba5e5564dd707c18321d5fb8e84ea68f8aa3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_787bd97b",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/ConfigurationServiceImpl.java",
         "patchSetId": 2
@@ -64,6 +82,42 @@
       "writtenOn": "2017-03-13T21:52:28Z",
       "side": 1,
       "message": "my \u0027magic number\u0027 comment is no longer as relevant now that we\u0027ve consolidated the logic into a single place (i.e. no multiple references to index \u00271\u0027). It may be helpful to future readers to explain in a comment why we grab only the 2nd element of that array.",
+      "parentUuid": "fafc7978_787bd97b",
+      "revId": "1b0cba5e5564dd707c18321d5fb8e84ea68f8aa3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3c677e27",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/ConfigurationServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-03-14T14:46:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2130f89d",
+      "revId": "1b0cba5e5564dd707c18321d5fb8e84ea68f8aa3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9c6caa0a",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/ConfigurationServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-03-14T14:46:24Z",
+      "side": 1,
+      "message": "Done",
       "parentUuid": "fafc7978_787bd97b",
       "revId": "1b0cba5e5564dd707c18321d5fb8e84ea68f8aa3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
