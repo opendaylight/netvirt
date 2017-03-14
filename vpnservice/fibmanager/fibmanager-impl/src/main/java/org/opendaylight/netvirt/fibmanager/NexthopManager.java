@@ -472,7 +472,7 @@ public class NexthopManager implements AutoCloseable {
 
         LOG.trace("NextHop pointer for prefixIp {} vpnId {} dpnId {} is {}", prefixIp, vpnId, remoteDpnId,
             egressIfName);
-        return egressIfName != null ? new AdjacencyResult(egressIfName, egressIfType) : null;
+        return egressIfName != null ? new AdjacencyResult(egressIfName, egressIfType, nextHopIp) : null;
     }
 
     public BigInteger getDpnForPrefix(long vpnId, String prefixIp) {
@@ -757,10 +757,12 @@ public class NexthopManager implements AutoCloseable {
     static class AdjacencyResult {
         private String interfaceName;
         private Class<? extends InterfaceType> interfaceType;
+        private String nextHopIp;
 
-        AdjacencyResult(String interfaceName, Class<? extends InterfaceType> interfaceType) {
+        AdjacencyResult(String interfaceName, Class<? extends InterfaceType> interfaceType, String nextHopIp) {
             this.interfaceName = interfaceName;
             this.interfaceType = interfaceType;
+            this.nextHopIp = nextHopIp;
         }
 
         public String getInterfaceName() {
@@ -769,6 +771,10 @@ public class NexthopManager implements AutoCloseable {
 
         public Class<? extends InterfaceType> getInterfaceType() {
             return interfaceType;
+        }
+
+        public String getNextHopIp() {
+            return nextHopIp;
         }
 
         @Override
