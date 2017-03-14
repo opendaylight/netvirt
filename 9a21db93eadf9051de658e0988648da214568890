@@ -16,6 +16,24 @@
       "revId": "9a21db93eadf9051de658e0988648da214568890",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f9ece8f5",
+        "filename": "vpnservice/policyservice/api/src/main/yang/policy-service.yang",
+        "patchSetId": 12
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-14T10:58:37Z",
+      "side": 1,
+      "message": "these are not default names, just network types and will currently be used only for UI presentation",
+      "parentUuid": "fafc7978_19b8cc29",
+      "revId": "9a21db93eadf9051de658e0988648da214568890",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
