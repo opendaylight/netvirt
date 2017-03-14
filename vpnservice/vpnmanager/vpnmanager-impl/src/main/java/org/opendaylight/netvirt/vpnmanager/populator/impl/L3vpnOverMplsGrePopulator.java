@@ -100,8 +100,8 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
                 VpnUtil.getNextHopLabelKey(primaryRd, prefix));
         if (label == VpnConstants.INVALID_LABEL) {
-            String error = "Unable to fetch label from Id Manager. Bailing out processing add/update of vpn interface"
-                    + input.getInterfaceName() + " for vpn " + vpnName;
+            String error = "Unable to fetch label from Id Manager. Bailing out of creation of operational "
+                    + "vpn interface adjacency " + prefix + "for vpn " + vpnName;
             throw new NullPointerException(error);
         }
         List<String> nextHopList = (adjNextHop != null && !adjNextHop.isEmpty()) ? adjNextHop
