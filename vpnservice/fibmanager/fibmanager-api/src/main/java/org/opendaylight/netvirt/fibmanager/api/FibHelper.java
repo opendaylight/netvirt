@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.fibmanager.api;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -81,5 +82,10 @@ public class FibHelper {
     public static boolean isControllerManagedVpnInterfaceRoute(RouteOrigin routeOrigin) {
         return routeOrigin == RouteOrigin.STATIC
                 || routeOrigin == RouteOrigin.LOCAL;
+    }
+
+    public static void sortIpAddress(List<RoutePaths> routePathList) {
+        Collections.sort(routePathList, (route1, route2) -> route1.getNexthopAddress()
+                .compareTo(route2.getNexthopAddress()));
     }
 }
