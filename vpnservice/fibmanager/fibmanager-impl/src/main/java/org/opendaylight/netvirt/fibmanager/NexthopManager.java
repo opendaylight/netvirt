@@ -57,6 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
@@ -483,9 +484,18 @@ public class NexthopManager implements AutoCloseable {
             egressIfName = getExtPortRemoteNextHopPointer(remoteDpnId, elanInstance);
         }
 
+        Prefixes prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, prefixIp);
+        String interfaceName = prefixInfo.getVpnInterfaceName();
+        Interface interfaceState = FibUtil.getInterfaceStateFromOperDS(dataBroker,
+                interfaceName);
+        int lportTag = interfaceState.getIfIndex();
+
+        String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker,interfaceName, prefixIp);
+
         LOG.trace("NextHop pointer for prefixIp {} vpnId {} dpnId {} is {}", prefixIp, vpnId, remoteDpnId,
             egressIfName);
-        return egressIfName != null ? new AdjacencyResult(egressIfName, egressIfType, nextHopIp) : null;
+        return egressIfName != null ? new AdjacencyResult(egressIfName, egressIfType, nextHopIp,
+                lportTag, macAddress) : null;
     }
 
     public BigInteger getDpnForPrefix(long vpnId, String prefixIp) {
@@ -771,11 +781,16 @@ public class NexthopManager implements AutoCloseable {
         private String interfaceName;
         private Class<? extends InterfaceType> interfaceType;
         private String nextHopIp;
+        private int lportTag;
+        private String macAddress;
 
-        AdjacencyResult(String interfaceName, Class<? extends InterfaceType> interfaceType, String nextHopIp) {
+        AdjacencyResult(String interfaceName, Class<? extends InterfaceType> interfaceType, String nextHopIp,
+                        int lportTag, String macAddress) {
             this.interfaceName = interfaceName;
             this.interfaceType = interfaceType;
             this.nextHopIp = nextHopIp;
+            this.lportTag = lportTag;
+            this.macAddress = macAddress;
         }
 
         public String getInterfaceName() {
@@ -788,6 +803,14 @@ public class NexthopManager implements AutoCloseable {
 
         public String getNextHopIp() {
             return nextHopIp;
+        }
+
+        public int getLportTag() {
+            return lportTag;
+        }
+
+        public String getMacAddress() {
+            return macAddress;
         }
 
         @Override
