@@ -643,6 +643,18 @@ public class FibUtil {
         return java.util.Optional.of(vrfEntry.getRoutePaths().get(0).getNexthopAddress());
     }
 
+    public static java.util.Optional<Long> getLabelForNextHop(final VrfEntry vrfEntry, String nextHopIp) {
+        List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
+        if (routePaths == null || routePaths.isEmpty()) {
+            return java.util.Optional.empty();
+        }
+        return routePaths.stream()
+                .filter(routePath -> routePath.getNexthopAddress().equals(nextHopIp))
+                .findFirst()
+                .map(routePath -> java.util.Optional.of(routePath.getLabel()))
+                .orElse(java.util.Optional.empty());
+    }
+
     public static InstanceIdentifier<Interface> buildStateInterfaceId(String interfaceName) {
         InstanceIdentifier.InstanceIdentifierBuilder<Interface> idBuilder =
                 InstanceIdentifier.builder(InterfacesState.class)
