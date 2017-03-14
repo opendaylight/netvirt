@@ -45,6 +45,23 @@
       "revId": "2248d218495f50f984854d27a7b010eba4445783",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5cc6c217",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 18
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-14T14:23:26Z",
+      "side": 1,
+      "message": "Could we add a section to verify these counters in CSIT?\nMor can assist, something like add a simple ping test, get counters between VMs before ping, then after verify ICMP counter goes up but TCP doesn\u0027t for example.",
+      "revId": "2248d218495f50f984854d27a7b010eba4445783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
