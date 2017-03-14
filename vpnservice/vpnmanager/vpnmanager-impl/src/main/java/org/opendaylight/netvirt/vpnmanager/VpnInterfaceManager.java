@@ -87,7 +87,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnListBuilder;
@@ -1562,18 +1561,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             String prefix = VpnUtil.getIpPrefix(adj.getIpAddress());
             String vpnName = currVpnIntf.getVpnInstanceName();
             String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
+            VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, primaryRd);
             InstanceIdentifier<Adjacencies> adjPath = identifier.augmentation(Adjacencies.class);
             Optional<Adjacencies> optAdjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, adjPath);
-            long label =
-                VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                    VpnUtil.getNextHopLabelKey(primaryRd, prefix));
-            if (label == 0) {
-                LOG.error(
-                    "Unable to fetch label from Id Manager. Bailing out of adding new adjacency {} to vpn interface "
-                        + "{} for vpn {}",
-                    adj.getIpAddress(), currVpnIntf.getName(), currVpnIntf.getVpnInstanceName());
-                return;
-            }
+            boolean isL3VpnOverVxLan = VpnUtil.isL3VpnOverVxLan(vpnInstanceOpData.getL3vni());
+            VrfEntry.EncapType encapType = isL3VpnOverVxLan ? VrfEntry.EncapType.Vxlan : VrfEntry.EncapType.Mplsgre;
+            VpnPopulator populator = L3vpnRegistry.getRegisteredPopulator(encapType);
             List<Adjacency> adjacencies;
             if (optAdjacencies.isPresent()) {
                 adjacencies = optAdjacencies.get().getAdjacency();
@@ -1582,8 +1575,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 adjacencies = new ArrayList<>();
             }
             long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-            AdjacencyBuilder adjBuilder = new AdjacencyBuilder(adj).setLabel(label)
-                    .setNextHopIpList(adj.getNextHopIpList()).setIpAddress(prefix).setKey(new AdjacencyKey(prefix));
+            L3vpnInput input = new L3vpnInput().setNextHop(adj).setVpnName(vpnName)
+                    .setInterfaceName(currVpnIntf.getName()).setPrimaryRd(primaryRd).setRd(primaryRd);
             if (adj.getNextHopIpList() != null && !adj.getNextHopIpList().isEmpty()) {
                 RouteOrigin origin = adj.isPrimaryAdjacency() ? RouteOrigin.LOCAL : RouteOrigin.STATIC;
                 String nh = adj.getNextHopIpList().get(0);
@@ -1592,10 +1585,13 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     java.util.Optional<String> rdToAllocate = VpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(
                             dataBroker, vpnId, Optional.absent(), prefix, vpnName, dpnId,writeOperTxn);
                     if (rdToAllocate.isPresent()) {
-                        adjBuilder.setVrfId(rdToAllocate.get());
+                        input.setRd(rdToAllocate.get());
+                        Adjacency operationalAdjacency = populator.createOperationalAdjacency(input);
+                        int label = operationalAdjacency.getLabel().intValue();
+                        adjacencies.add(operationalAdjacency);
                         addExtraRoute(vpnName, adj.getIpAddress(), nh,rdToAllocate.get(),
-                                currVpnIntf.getVpnInstanceName(), (int) label,
-                                origin, currVpnIntf.getName(), writeConfigTxn);
+                                currVpnIntf.getVpnInstanceName(), (int) label, vpnInstanceOpData.getL3vni(), origin,
+                                currVpnIntf.getName(), operationalAdjacency, encapType, writeConfigTxn);
                     } else {
                         LOG.error("No rds to allocate extraroute {}", prefix);
                         return;
@@ -1615,10 +1611,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         });
                     });
                 }
-            } else {
-                adjBuilder.setVrfId(primaryRd);
             }
-            adjacencies.add(adjBuilder.build());
             Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencies);
             VpnInterface newVpnIntf =
                 VpnUtil.getVpnInterface(currVpnIntf.getName(), currVpnIntf.getVpnInstanceName(), aug, dpnId,
@@ -1681,8 +1674,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     }
 
     protected void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
-                                 int label, RouteOrigin origin, String intfName,
-                                 WriteTransaction writeConfigTxn) {
+                                 int label, long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj,
+                                 VrfEntry.EncapType encapType, WriteTransaction writeConfigTxn) {
 
         Boolean writeConfigTxnPresent = true;
         if (writeConfigTxn == null) {
@@ -1710,13 +1703,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             }
             nextHop = nextHopIp;
         }
-        List<String> nextHopIpList = Collections.singletonList(nextHop);
-        if (rd != null) {
-            /* Label mapper is required only for BGP VPN and not for Internal VPN */
-            addToLabelMapper((long) label, dpnId, destination, nextHopIpList, VpnUtil.getVpnId(dataBroker, routerID),
-                intfName, null, false, rd, null);
-        }
-
         // TODO: This is a limitation to be stated in docs. When configuring static route to go to
         // another VPN, there can only be one nexthop or, at least, the nexthop to the interVpnLink should be in
         // first place.
@@ -1742,17 +1728,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, interVpnLink.getInterVpnLinkConfig(),
                                        srcVpnUuid, dstVpnUuid, destination, newLabel);
         } else {
-            if (rd != null) {
-                addPrefixToBGP(rd, VpnUtil.getPrimaryRd(dataBroker, vpnName), destination, nextHopIpList,
-                        VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*macAddress*/,
-                        null /*gatewayMacAddress*/, origin, writeConfigTxn);
-            } else {
-                // ### add FIB route directly
-                // ### add FIB route directly
-                fibManager.addOrUpdateFibEntry(dataBroker, routerID, null /*macAddress*/, destination,
-                        Collections.singletonList(nextHop), VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/,
-                        null /*gatewayMacAddress*/, null /*parentVpnRd*/, origin, writeConfigTxn);
-            }
+            L3vpnInput input = new L3vpnInput().setNextHop(operationalAdj).setNextHopIp(nextHop).setL3vni(l3vni)
+                    .setPrimaryRd(VpnUtil.getPrimaryRd(dataBroker, vpnName)).setVpnName(vpnName).setDpnId(dpnId)
+                    .setEncapType(encapType).setRd(rd);
+            L3vpnRegistry.getRegisteredPopulator(encapType).populateFib(input, writeConfigTxn, null);
         }
         if (!writeConfigTxnPresent) {
             writeConfigTxn.submit();
