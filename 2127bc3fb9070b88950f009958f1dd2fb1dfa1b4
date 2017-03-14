@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_2c510f0f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 659,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-14T07:01:59Z",
+      "side": 1,
+      "message": "add Preconditions.notNull for availableDcGws",
+      "revId": "2127bc3fb9070b88950f009958f1dd2fb1dfa1b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8c563b05",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 664,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-14T07:01:59Z",
+      "side": 1,
+      "message": "Move it to a common method like getDpnLbNexthopsIdentifier",
+      "revId": "2127bc3fb9070b88950f009958f1dd2fb1dfa1b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6c5b172f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-14T07:01:59Z",
+      "side": 1,
+      "message": "same here.",
+      "revId": "2127bc3fb9070b88950f009958f1dd2fb1dfa1b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0c4a4b55",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 673,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-14T07:01:59Z",
+      "side": 1,
+      "message": "move it to a method like getNexthops",
+      "revId": "2127bc3fb9070b88950f009958f1dd2fb1dfa1b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8cc91baf",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 857,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-14T07:01:59Z",
+      "side": 1,
+      "message": "add comment when this method is invoked when TEP is deleted and other one is invoked during tunnel up/down events. because comparing this method and updateDcGwLoadBalancingGroup is bit confusing.",
+      "revId": "2127bc3fb9070b88950f009958f1dd2fb1dfa1b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6c45d716",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 913,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-14T07:01:59Z",
+      "side": 1,
+      "message": "use common methods to retrieve ids",
+      "revId": "2127bc3fb9070b88950f009958f1dd2fb1dfa1b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
