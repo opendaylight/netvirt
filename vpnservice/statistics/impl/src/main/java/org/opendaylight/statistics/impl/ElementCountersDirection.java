@@ -6,8 +6,8 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.statistics;
+package org.opendaylight.statistics.impl;
 
-public enum CounterRequestType {
-    OF_PORT
+public enum ElementCountersDirection {
+    INGRESS, EGRESS
 }
