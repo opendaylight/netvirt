@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_5c5fe275",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 18
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-14T14:21:01Z",
+      "side": 1,
+      "message": "This conflicts with the ingress service being after the ingress ACL mentioned below..\nI think it makes sense to count after the ACLs, so you can just correct this line..",
+      "range": {
+        "startLine": 34,
+        "startChar": 19,
+        "endLine": 34,
+        "endChar": 115
+      },
+      "revId": "2248d218495f50f984854d27a7b010eba4445783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bc4feebd",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 18
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-14T14:21:01Z",
+      "side": 1,
+      "message": "Sorry for all the number changes - but maybe change 39 to 219.\n\nThis is in parallel to ACLs being 211-214 and 241-244, so counters being 219 and 249 is nice and symmetric",
+      "range": {
+        "startLine": 50,
+        "startChar": 35,
+        "endLine": 50,
+        "endChar": 37
+      },
+      "revId": "2248d218495f50f984854d27a7b010eba4445783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
