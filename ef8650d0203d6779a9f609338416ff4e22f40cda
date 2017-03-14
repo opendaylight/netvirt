@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_67ce90b6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-14T09:24:42Z",
+      "side": 1,
+      "message": "must be ERROR.. The method is called by teh caller with the intention to remove the intfName from the dpn-to-vpn list of vpnId.",
+      "revId": "ef8650d0203d6779a9f609338416ff4e22f40cda",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c7c2dc85",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-14T09:24:42Z",
+      "side": 1,
+      "message": "must be ERROR",
+      "revId": "ef8650d0203d6779a9f609338416ff4e22f40cda",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8740d408",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-14T09:24:42Z",
+      "side": 1,
+      "message": "you must still write since we removed the last vpnInterface and we need to record that back inside the DpnToVpnlist",
+      "revId": "ef8650d0203d6779a9f609338416ff4e22f40cda",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
