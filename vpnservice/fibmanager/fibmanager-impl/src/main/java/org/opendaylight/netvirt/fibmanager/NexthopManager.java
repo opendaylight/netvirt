@@ -87,6 +87,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.L3nexthop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthopsKey;
@@ -450,7 +451,8 @@ public class NexthopManager implements AutoCloseable {
     }
 
     public AdjacencyResult getRemoteNextHopPointer(BigInteger remoteDpnId, long vpnId, String prefixIp,
-                                                   String nextHopIp) {
+                                                   RoutePaths routePath) {
+        String nextHopIp = routePath.getNexthopAddress();
         String egressIfName = null;
         LOG.trace("getRemoteNextHopPointer: input [remoteDpnId {}, vpnId {}, prefixIp {}, nextHopIp {} ]", remoteDpnId,
             vpnId, prefixIp, nextHopIp);
@@ -472,7 +474,7 @@ public class NexthopManager implements AutoCloseable {
 
         LOG.trace("NextHop pointer for prefixIp {} vpnId {} dpnId {} is {}", prefixIp, vpnId, remoteDpnId,
             egressIfName);
-        return egressIfName != null ? new AdjacencyResult(egressIfName, egressIfType) : null;
+        return egressIfName != null ? new AdjacencyResult(egressIfName, egressIfType, routePath) : null;
     }
 
     public BigInteger getDpnForPrefix(long vpnId, String prefixIp) {
@@ -763,10 +765,12 @@ public class NexthopManager implements AutoCloseable {
     static class AdjacencyResult {
         private String interfaceName;
         private Class<? extends InterfaceType> interfaceType;
+        private RoutePaths routePath;
 
-        AdjacencyResult(String interfaceName, Class<? extends InterfaceType> interfaceType) {
+        AdjacencyResult(String interfaceName, Class<? extends InterfaceType> interfaceType, RoutePaths routePath) {
             this.interfaceName = interfaceName;
             this.interfaceType = interfaceType;
+            this.routePath = routePath;
         }
 
         public String getInterfaceName() {
@@ -775,6 +779,10 @@ public class NexthopManager implements AutoCloseable {
 
         public Class<? extends InterfaceType> getInterfaceType() {
             return interfaceType;
+        }
+
+        public RoutePaths getRoutePath() {
+            return routePath;
         }
 
         @Override
