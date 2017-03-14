@@ -19,7 +19,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>statistics-aggregator</artifactId>
   <name>ODL :: netvirt :: ${project.artifactId}</name>
+  <version>0.4.0-SNAPSHOT</version>
   <packaging>pom</packaging>
+
+  <prerequisites>
+    <maven>3.1.1</maven>
+  </prerequisites>
 
   <scm>
     <connection>scm:git:ssh://git.opendaylight.org:29418/statistics.git</connection>
