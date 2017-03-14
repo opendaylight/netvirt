@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -118,8 +119,8 @@ public class VpnManagerImpl implements IVpnManager {
         int label,RouteOrigin origin) {
         LOG.info("Adding extra route with destination {}, nextHop {}, label{} and origin {}",
             destination, nextHop, label, origin);
-        vpnInterfaceManager.addExtraRoute(vpnName, destination, nextHop, rd, routerID, label, origin,
-            /*intfName*/ null, null);
+        vpnInterfaceManager.addExtraRoute(vpnName, destination, nextHop, rd, routerID, label, 0 /*l3vni*/, origin,
+            /*intfName*/ null, null /*Adjacency*/, VrfEntry.EncapType.Mplsgre, null);
     }
 
     @Override
