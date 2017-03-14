@@ -860,7 +860,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             long groupId;
             long localGroupId;
             final BigInteger dpnId = localNextHopInfo.getDpnId();
-            if (Boolean.TRUE.equals(localNextHopInfo.isNatPrefix())) {
+            if (localNextHopInfo.isNatPrefix()) {
                 LOG.debug("NAT Prefix {} with vpnId {} rd {}. Skip local dpn {} FIB processing",
                         vrfEntry.getDestPrefix(), vpnId, rd, dpnId);
                 return dpnId;
@@ -1342,7 +1342,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             return; //Don't have any info for this prefix (shouldn't happen); need to return
         }
 
-        if (Boolean.TRUE.equals(prefixInfo.isNatPrefix())) {
+        if (prefixInfo.isNatPrefix()) {
             LOG.debug("NAT Prefix {} with vpnId {} rd {}. Skip FIB processing",
                     vrfEntry.getDestPrefix(), vpnId, rd);
             return;
