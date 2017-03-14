@@ -171,6 +171,98 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_cc5cc34f",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-14T08:47:04Z",
+      "side": 1,
+      "message": "we should distinguish between 2 cases -\n1. traffic ingressing from vm interface - in this case any pkt coming in from that interface should be counted, whether it has the sip set or not, this could include pkts that are forwarded by service functions, or pkts generated with floating IP or invisible IP addresses from these vms.\n2. traffic ingressing from the vm with src Ip A, - in this case you only want to count pkts which have been originated in that vm with a specific IP, and here the flow rules should have a match on IP address.\nsimilar comments would apply for egress pkts vs dst IP in the classifier",
+      "range": {
+        "startLine": 57,
+        "startChar": 64,
+        "endLine": 57,
+        "endChar": 65
+      },
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8c43db6b",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-14T08:47:04Z",
+      "side": 1,
+      "message": "should this be vmA IP?",
+      "range": {
+        "startLine": 60,
+        "startChar": 50,
+        "endLine": 60,
+        "endChar": 53
+      },
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0c57eb27",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-14T08:47:04Z",
+      "side": 1,
+      "message": "should be vmA",
+      "range": {
+        "startLine": 65,
+        "startChar": 57,
+        "endLine": 65,
+        "endChar": 58
+      },
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4c30d307",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-14T08:47:04Z",
+      "side": 1,
+      "message": "can acl.yang be re-used for this purpose, instead of defining separate classifiers?\nwe need to create a common classifier library across various services like acl, qos, counters, fwaas, taas, and be able to re-use most of the implementation other than actions and the southbound resources (tables) being used.",
+      "range": {
+        "startLine": 113,
+        "startChar": 21,
+        "endLine": 113,
+        "endChar": 22
+      },
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_35d2fa34",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 16
