@@ -51,6 +51,24 @@
       "revId": "8a706ed4797b435fef017b6a43d079c124bcb5b6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cf703276",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-14T16:16:20Z",
+      "side": 1,
+      "message": "eg.,\n\nextra-route 10.10.10.0/24 reachable via nexthop 1.1.1.3/32 and nexthop 2.2.2.4/32.\n\nIn the above case the gateway-mac that we need to set in the packet will be different (when pkt intended to somebody in 10.10.10.0/24) traverses either through 1.1.1.0 subnet or through 2.2.2.0 subnet each holding the potential nexthops of 1.1.1.3/32 and 2.2.2.4/32.",
+      "parentUuid": "fafc7978_75b3e509",
+      "revId": "8a706ed4797b435fef017b6a43d079c124bcb5b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
