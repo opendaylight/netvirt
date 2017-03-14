@@ -7,13 +7,13 @@
  */
 package org.opendaylight.statistics;
 
+import com.google.common.base.Optional;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CyclicBarrier;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -24,29 +24,24 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.opendaylight.controller.md.sal.binding.api.NotificationService;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.infrautils.counters.api.OccurenceCounter;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.statistics.rev130819.AggregateFlowStatisticsUpdate;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.statistics.rev130819.FlowsStatisticsUpdate;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.statistics.rev130819.OpendaylightFlowStatisticsListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.statistics.rev130819.OpendaylightFlowStatisticsService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.transaction.rev150304.MultipartTransactionAware;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.transaction.rev150304.TransactionAware;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.transaction.rev150304.TransactionId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetFlowStatisticsInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetFlowStatisticsOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetNodeConnectorStatisticsInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetNodeConnectorStatisticsInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetNodeConnectorStatisticsOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.statistics.rev130819.flow.and.statistics.map.list.FlowAndStatisticsMapList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.GetAllNodeConnectorsStatisticsInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.GetAllNodeConnectorsStatisticsInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.GetNodeConnectorStatisticsInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.GetNodeConnectorStatisticsInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.NodeConnectorStatisticsUpdate;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.OpendaylightPortStatisticsListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.OpendaylightPortStatisticsService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.config.rev170326.StatisticsConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.node.connector.statistics.and.port.number.map.NodeConnectorStatisticsAndPortNumberMap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -55,274 +50,215 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 @SuppressWarnings("deprecation")
-public class CounterRetriever implements OpendaylightFlowStatisticsListener, OpendaylightPortStatisticsListener {
+public class CounterRetriever {
     protected static final Logger LOG = LoggerFactory.getLogger(CounterRetriever.class);
-    private OpendaylightFlowStatisticsService ofss;
-    private OpendaylightPortStatisticsService opss;
-    private final RpcProviderRegistry rpcProviderRegistry;
-    private final NotificationService notificationService;
-
-    private static ConcurrentMap<TransactionImpl, NodeConnectorCounterResult> nodeConnectorStatCallers = null;
+    private final OpendaylightDirectStatisticsService odlDirectStatsService;
+    private static long nodeResultTimeout;
 
     @Inject
     public CounterRetriever(final RpcProviderRegistry rpcProviderRegistry,
-            final NotificationService notificationService) {
-        this.rpcProviderRegistry = rpcProviderRegistry;
-        this.notificationService = notificationService;
-        nodeConnectorStatCallers = new ConcurrentHashMap<>();
+            final StatisticsConfig statisticsConfig, final OpendaylightDirectStatisticsService odlDirectStatsService) {
+        this.odlDirectStatsService = odlDirectStatsService;
+        this.nodeResultTimeout = statisticsConfig.getNodeCounterResultTimeout();
     }
 
     @PreDestroy
     public void destroy() {
-        LOG.info("{} destroy", getClass().getSimpleName());
+        LOG.info("{} close", getClass().getSimpleName());
     }
 
     @PostConstruct
     public void init() {
-        LOG.info("{} init", getClass().getSimpleName());
-        notificationService.registerNotificationListener(this);
-        ofss = rpcProviderRegistry.getRpcService(OpendaylightFlowStatisticsService.class);
-        opss = rpcProviderRegistry.getRpcService(OpendaylightPortStatisticsService.class);
+        LOG.info("{} start", getClass().getSimpleName());
     }
 
-    static class NodeConnectorCounterResult {
-        List<NodeConnectorStatisticsUpdate> result;
-        boolean finished = false;
-        CyclicBarrier syncObject = new CyclicBarrier(2);
+    public CounterResultDataStructure getNodeConnectorCountersDirect(NodeId nodeId, NodeConnectorId nodeConnectorId) {
+        GetNodeConnectorStatisticsInput gncsi = getNodeConnectorStatisticsInputBuilder(nodeId, nodeConnectorId);
 
-        NodeConnectorCounterResult() {
-            result = new ArrayList<>();
-        }
-
-        boolean isFinished() {
-            return finished;
-        }
-
-        public void addResult(NodeConnectorStatisticsUpdate resultUpdate) {
-            result.add(resultUpdate);
-        }
-
-        public void setFinished() {
-            finished = true;
-        }
-
-        public List<NodeConnectorStatisticsUpdate> getResult() {
-            return result;
-        }
-
-        public CyclicBarrier getBarrier() {
-            return syncObject;
-        }
-    }
-
-    static class TransactionImpl {
-        private final NodeId nodeId;
-        private final BigInteger treanactionId;
-
-        TransactionImpl(NodeId nodeId, BigInteger treanactionId) {
-            this.nodeId = nodeId;
-            this.treanactionId = treanactionId;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + (nodeId == null ? 0 : nodeId.getValue().hashCode());
-            result = prime * result + (treanactionId == null ? 0 : treanactionId.hashCode());
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            TransactionImpl other = (TransactionImpl) obj;
-            if (nodeId == null) {
-                if (other.nodeId != null) {
-                    return false;
-                }
-            } else if (!nodeId.getValue().equals(other.nodeId.getValue())) {
-                return false;
-            }
-            if (treanactionId == null) {
-                if (other.treanactionId != null) {
-                    return false;
-                }
-            } else if (!treanactionId.equals(other.treanactionId)) {
-                return false;
-            }
-            return true;
-        }
-
-    }
-
-    private <T extends TransactionAware> TransactionImpl transactifyFuture(NodeId nodeId, Future<RpcResult<T>> future,
-            CounterRequestType type) {
-        if (future == null) {
-            CounterRetrieverCounters.failed_null_future.inc();
-            return null;
-        }
-
-        TransactionId mdsalTransactionId = null;
+        Future<RpcResult<GetNodeConnectorStatisticsOutput>> rpcResultFuture =
+                odlDirectStatsService.getNodeConnectorStatistics(gncsi);
+        RpcResult<GetNodeConnectorStatisticsOutput> rpcResult = null;
         try {
-            RpcResult<T> rpcResult = future.get();
-            T output = rpcResult.getResult();
-            mdsalTransactionId = output.getTransactionId();
+            rpcResult = rpcResultFuture.get();
         } catch (InterruptedException | ExecutionException e) {
-            CounterRetrieverCounters.failed_getting_transaction_id.inc();
-        }
-
-        if (mdsalTransactionId == null) {
-            CounterRetrieverCounters.failed_null_transaction_id.inc();
+            CounterRetrieverCounters.failed_getting_node_connector_counters.inc();
+            LOG.warn("Unable to retrieve node connector counters for port {}", nodeConnectorId);
             return null;
         }
 
-        CounterRetrieverCounters.sending_request_to_switch.inc();
-        TransactionImpl transaction = new TransactionImpl(nodeId, mdsalTransactionId.getValue());
-
-        if (CounterRequestType.OF_PORT.equals(type)) {
-            nodeConnectorStatCallers.put(transaction, new NodeConnectorCounterResult());
-        }
-        return transaction;
-    }
-
-    @Override
-    public void onAggregateFlowStatisticsUpdate(AggregateFlowStatisticsUpdate notification) {
-        // DO nothing
-    }
-
-    public CounterResultDataStructure getNodeConnectorCounters(BigInteger dpId, String portNumber) {
-        NodeRef nodeRef = new NodeRef(InstanceIdentifier.builder(Nodes.class)
-                .child(Node.class, new NodeKey(new NodeId(CountersUtils.getNodeId(dpId)))).toInstance());
-        GetNodeConnectorStatisticsInputBuilder nodeConnectorBuilder =
-                new GetNodeConnectorStatisticsInputBuilder().setNode(nodeRef)
-                        .setNodeConnectorId(new NodeConnectorId(CountersUtils.getNodeConnectorId(dpId, portNumber)));
-        GetNodeConnectorStatisticsInput gncsi = nodeConnectorBuilder.build();
-        TransactionImpl transactifyFuture = transactifyFuture(new NodeId(CountersUtils.getNodeId(dpId)),
-                opss.getNodeConnectorStatistics(gncsi), CounterRequestType.OF_PORT);
-        return transactifyFuture != null ? createNodeConnectorResultMap(transactifyFuture) : null;
-    }
-
-    public CounterResultDataStructure getNodeCounters(BigInteger dpId) {
-        NodeRef nodeRef = new NodeRef(InstanceIdentifier.builder(Nodes.class)
-                .child(Node.class, new NodeKey(new NodeId(CountersUtils.getNodeId(dpId)))).toInstance());
-        GetAllNodeConnectorsStatisticsInputBuilder nodeBuilder =
-                new GetAllNodeConnectorsStatisticsInputBuilder().setNode(nodeRef);
-        GetAllNodeConnectorsStatisticsInput gancsi = nodeBuilder.build();
-        TransactionImpl transactifyFuture = transactifyFuture(new NodeId(CountersUtils.getNodeId(dpId)),
-                opss.getAllNodeConnectorsStatistics(gancsi), CounterRequestType.OF_PORT);
-        return transactifyFuture != null ? createNodeConnectorResultMap(transactifyFuture) : null;
-    }
-
-    @Override
-    public void onFlowsStatisticsUpdate(FlowsStatisticsUpdate notification) {
-
-    }
-
-    @Override
-    public void onNodeConnectorStatisticsUpdate(NodeConnectorStatisticsUpdate notification) {
-        CounterRetrieverCounters.got_node_connector_counters.inc();
-        LOG.debug("got notification {}", notification.getTransactionId());
-
-        NodeConnectorCounterResult result = getNodeConnectorStatTransactionResult(notification.getId(), notification);
-        if (result == null) {
-            LOG.debug("got notification on non exist transaction {}", notification.getTransactionId());
-            return;
-        }
-        result.addResult(notification);
-        if (!notification.isMoreReplies()) {
-            try {
-                result.getBarrier().await(CountersUtils.NODE_CONNECTOR_REPLIES_TIMOUT, TimeUnit.MILLISECONDS);
-                LOG.trace("counter retrieval finished for transaction {}", notification.getTransactionId().getValue());
-            } catch (InterruptedException | BrokenBarrierException | TimeoutException e) {
-                LOG.trace("timeout - do nothing");
-            }
-        }
-    }
-
-    private NodeConnectorCounterResult getNodeConnectorStatTransactionResult(NodeId nodeId,
-            TransactionAware notification) {
-        TransactionId mdsalTransactionId = notification.getTransactionId();
-
-        if (mdsalTransactionId == null) {
-            CounterRetrieverCounters.failed_update_null_transaction_id.inc();
-            return null;
-        }
-        TransactionImpl transaction = new TransactionImpl(nodeId, mdsalTransactionId.getValue());
-
-        if (!nodeConnectorStatCallers.containsKey(transaction)) {
-            CounterRetrieverCounters.failed_unknown_transaction_id.inc();
-            LOG.warn("unknown notification id {}, data {}", notification.getTransactionId(), notification);
-            return null;
-        }
-
-        if (notification instanceof MultipartTransactionAware) {
-            CounterRetrieverCounters.got_node_connector_partial_multipart_result.inc();
-            return nodeConnectorStatCallers.get(transaction);
-        } else if (notification instanceof FlowsStatisticsUpdate) {
-            CounterRetrieverCounters.got_node_connector_partial_stat_result.inc();
-            return nodeConnectorStatCallers.get(transaction);
-        }
-        return null;
-    }
-
-    private CounterResultDataStructure createNodeConnectorResultMap(TransactionImpl transactifyFuture) {
-        NodeConnectorCounterResult result = nodeConnectorStatCallers.get(transactifyFuture);
-
-        if (result != null) {
-            try {
-                result.getBarrier().await(CountersUtils.CREATE_RESULT_TIMEOUT, TimeUnit.SECONDS);
-            } catch (InterruptedException | BrokenBarrierException | TimeoutException e) {
-                LOG.debug("got interrupt while waiting for node connector statistics result");
-                return null;
-            }
+        if (Optional.fromNullable(rpcResult).isPresent() && rpcResult.isSuccessful()
+                && Optional.fromNullable(rpcResult.getResult()).isPresent()) {
+            GetNodeConnectorStatisticsOutput nodeConnectorStatsOutput = rpcResult.getResult();
+            return createNodeConnectorResultMapDirect(nodeConnectorStatsOutput, nodeConnectorId);
         } else {
-            LOG.debug("didn't find node connector result waiting for transaction {}", transactifyFuture.treanactionId);
+            CounterRetrieverCounters.failed_getting_rpc_result_for_node_connector_counters.inc();
+            LOG.warn("Unable to retrieve node connector counters for port {}", nodeConnectorId);
+            return null;
+        }
+    }
+
+    public CounterResultDataStructure getNodeCountersDirect(Node node) {
+        List<CounterResultDataStructure> countersResults = new ArrayList<CounterResultDataStructure>();
+        List<CompletableFuture<NodeConnectorStatisticsSupplierOutput>> futureList = new ArrayList<>();
+        for (NodeConnector nodeConnector : node.getNodeConnector()) {
+            GetNodeConnectorStatisticsInput gncsi =
+                    getNodeConnectorStatisticsInputBuilder(node.getId(), nodeConnector.getId());
+            futureList.add(CompletableFuture.supplyAsync(
+                    new NodeConnectorStatisticsSupplier(odlDirectStatsService, gncsi, nodeConnector.getId())));
+        }
+        try {
+            CompletableFuture<Void> allOf = CompletableFuture.allOf(futureList.toArray(new CompletableFuture[0]));
+            allOf.get(nodeResultTimeout, TimeUnit.SECONDS);
+            for (int i = 0; i < futureList.size(); i++) {
+                CompletableFuture<NodeConnectorStatisticsSupplierOutput> completableCurrentResult = futureList.get(i);
+                if (completableCurrentResult == null) {
+                    LOG.warn("Unable to retrieve node counters");
+                    CounterRetrieverCounters.failed_getting_node_counters.inc();
+                    return null;
+                }
+                RpcResult<GetNodeConnectorStatisticsOutput> currentResult =
+                        completableCurrentResult.get().getNodeConnectorStatisticsOutput();
+                if (Optional.fromNullable(currentResult).isPresent() && currentResult.isSuccessful()
+                        && Optional.fromNullable(currentResult.getResult()).isPresent()) {
+                    GetNodeConnectorStatisticsOutput nodeConnectorStatsOutput = currentResult.getResult();
+                    countersResults.add(createNodeConnectorResultMapDirect(nodeConnectorStatsOutput,
+                            completableCurrentResult.get().getNodeConnectrId()));
+                } else {
+                    CounterRetrieverCounters.failed_getting_node_counters.inc();
+                    LOG.warn("Unable to retrieve node counters");
+                    return null;
+                }
+            }
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            CounterRetrieverCounters.failed_getting_node_counters.inc();
+            LOG.warn("Unable to retrieve node counters");
             return null;
         }
 
-        List<NodeConnectorStatisticsUpdate> nodeConnectorUpdates = result.getResult();
+        return mergeCountersResults(countersResults);
+    }
+
+    private CounterResultDataStructure mergeCountersResults(List<CounterResultDataStructure> countersResults) {
         CounterResultDataStructure crds = new CounterResultDataStructure();
-        for (NodeConnectorStatisticsUpdate nodeConnectorUpdate : nodeConnectorUpdates) {
-            List<NodeConnectorStatisticsAndPortNumberMap> statList =
-                    nodeConnectorUpdate.getNodeConnectorStatisticsAndPortNumberMap();
-            for (NodeConnectorStatisticsAndPortNumberMap stat : statList) {
-                if (stat.getNodeConnectorId() == null) {
-                    continue;
-                }
-                String resultId = stat.getNodeConnectorId().getValue();
-                crds.addCounterResult(resultId);
-                if (stat.getBytes() != null) {
-                    crds.addCounterToGroup(resultId, CountersUtils.BYTES_GROUP_NAME,
-                            CountersUtils.BYTES_RECEIVED_COUNTER_NAME, stat.getBytes().getReceived());
-                    crds.addCounterToGroup(resultId, CountersUtils.BYTES_GROUP_NAME,
-                            CountersUtils.BYTES_TRANSMITTED_COUNTER_NAME, stat.getBytes().getTransmitted());
-                }
-                if (stat.getPackets() != null) {
-                    crds.addCounterToGroup(resultId, CountersUtils.PACKETS_GROUP_NAME,
-                            CountersUtils.PACKETS_RECEIVED_COUNTER_NAME, stat.getPackets().getReceived());
-                    crds.addCounterToGroup(resultId, CountersUtils.PACKETS_GROUP_NAME,
-                            CountersUtils.PACKETS_TRANSMITTED_COUNTER_NAME, stat.getPackets().getTransmitted());
-                }
-                if (stat.getDuration() != null) {
-                    crds.addCounterToGroup(resultId, CountersUtils.DURATION_GROUP_NAME,
-                            CountersUtils.DURATION_SECOND_COUNTER_NAME, big(stat.getDuration().getSecond().getValue()));
-                    crds.addCounterToGroup(resultId, CountersUtils.DURATION_GROUP_NAME,
-                            CountersUtils.DURATION_NANO_SECOND_COUNTER_NAME,
-                            big(stat.getDuration().getNanosecond().getValue()));
-                }
+        for (CounterResultDataStructure currentCrds : countersResults) {
+            for (String resultId : currentCrds.getResults().keySet()) {
+                crds.addCounterResult(resultId, currentCrds.getResults().get(resultId));
+            }
+        }
+        return crds;
+    }
+
+    private GetNodeConnectorStatisticsInput getNodeConnectorStatisticsInputBuilder(NodeId nodeId,
+            NodeConnectorId nodeConnectorId) {
+        NodeRef nodeRef = new NodeRef(
+                InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(nodeId)).toInstance());
+        GetNodeConnectorStatisticsInputBuilder nodeConnectorBuilder =
+                new GetNodeConnectorStatisticsInputBuilder().setNode(nodeRef).setNodeConnectorId(nodeConnectorId);
+        GetNodeConnectorStatisticsInput gncsi = nodeConnectorBuilder.build();
+        return gncsi;
+    }
+
+    private CounterResultDataStructure createNodeConnectorResultMapDirect(
+            GetNodeConnectorStatisticsOutput nodeConnectorStatsOutput, NodeConnectorId nodeConnectorId) {
+        List<NodeConnectorStatisticsAndPortNumberMap> nodeConnectorUpdates =
+                nodeConnectorStatsOutput.getNodeConnectorStatisticsAndPortNumberMap();
+        if (!Optional.fromNullable(nodeConnectorUpdates).isPresent() || nodeConnectorUpdates.isEmpty()) {
+            CounterRetrieverCounters.failed_getting_result_map_for_node_connector.inc();
+            LOG.warn("Unable to retrieve statistics info for node connector");
+            return null;
+        }
+
+        CounterResultDataStructure crds = new CounterResultDataStructure();
+        for (NodeConnectorStatisticsAndPortNumberMap nodeConnectorUpdate : nodeConnectorUpdates) {
+            if (nodeConnectorUpdate.getNodeConnectorId() == null) {
+                continue;
+            }
+            String resultId = nodeConnectorId.getValue();
+            crds.addCounterResult(resultId);
+            if (nodeConnectorUpdate.getBytes() != null) {
+                crds.addCounterToGroup(resultId, CountersUtils.BYTES_GROUP_NAME,
+                        CountersUtils.BYTES_RECEIVED_COUNTER_NAME, nodeConnectorUpdate.getBytes().getReceived());
+                crds.addCounterToGroup(resultId, CountersUtils.BYTES_GROUP_NAME,
+                        CountersUtils.BYTES_TRANSMITTED_COUNTER_NAME, nodeConnectorUpdate.getBytes().getTransmitted());
+            }
+            if (nodeConnectorUpdate.getPackets() != null) {
+                crds.addCounterToGroup(resultId, CountersUtils.PACKETS_GROUP_NAME,
+                        CountersUtils.PACKETS_RECEIVED_COUNTER_NAME, nodeConnectorUpdate.getPackets().getReceived());
+                crds.addCounterToGroup(resultId, CountersUtils.PACKETS_GROUP_NAME,
+                        CountersUtils.PACKETS_TRANSMITTED_COUNTER_NAME,
+                        nodeConnectorUpdate.getPackets().getTransmitted());
+            }
+            if (nodeConnectorUpdate.getDuration() != null) {
+                crds.addCounterToGroup(resultId, CountersUtils.DURATION_GROUP_NAME,
+                        CountersUtils.DURATION_SECOND_COUNTER_NAME,
+                        big(nodeConnectorUpdate.getDuration().getSecond().getValue()));
+                crds.addCounterToGroup(resultId, CountersUtils.DURATION_GROUP_NAME,
+                        CountersUtils.DURATION_NANO_SECOND_COUNTER_NAME,
+                        big(nodeConnectorUpdate.getDuration().getNanosecond().getValue()));
             }
         }
 
-        nodeConnectorStatCallers.remove(transactifyFuture);
+        return crds;
+    }
+
+    public CounterResultDataStructure getSwitchFlowCountersDirect(BigInteger dpId, Match match, short tableId) {
+        NodeRef nodeRef = new NodeRef(InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, new NodeKey(new NodeId(CountersUtils.getNodeId(dpId)))).toInstance());
+        GetFlowStatisticsInputBuilder gfsib = new GetFlowStatisticsInputBuilder();
+        gfsib.setNode(nodeRef);
+        gfsib.setMatch(match);
+        gfsib.setStoreStats(false);
+
+        Future<RpcResult<GetFlowStatisticsOutput>> rpcResultFuture =
+                odlDirectStatsService.getFlowStatistics(gfsib.build());
+        RpcResult<GetFlowStatisticsOutput> rpcResult = null;
+        try {
+            rpcResult = rpcResultFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            CounterRetrieverCounters.failed_getting_flow_counters.inc();
+            LOG.warn("Unable to retrieve flow counters for match {}", match);
+            return null;
+        }
+
+        if (Optional.fromNullable(rpcResult).isPresent() && rpcResult.isSuccessful()
+                && Optional.fromNullable(rpcResult.getResult()).isPresent()) {
+            GetFlowStatisticsOutput flowStatsOutput = rpcResult.getResult();
+            return createSwitchFlowResultMapDirect(flowStatsOutput);
+        } else {
+            CounterRetrieverCounters.failed_getting_flow_counters.inc();
+            LOG.warn("Unable to retrieve flow counters for match {}", match);
+            return null;
+        }
+    }
+
+    private CounterResultDataStructure createSwitchFlowResultMapDirect(GetFlowStatisticsOutput flowStatsOutput) {
+        List<FlowAndStatisticsMapList> flowUpdates = flowStatsOutput.getFlowAndStatisticsMapList();
+        if (!Optional.fromNullable(flowUpdates).isPresent() || flowUpdates.isEmpty()) {
+            LOG.warn("Unable to retrieve flows statistics info");
+            return null;
+        }
+
+        CounterResultDataStructure crds = new CounterResultDataStructure();
+        for (FlowAndStatisticsMapList flowUpdate : flowUpdates) {
+            String resultId = flowUpdate.getTableId().toString() + CountersUtils.OF_DELIMITER + UUID.randomUUID();
+            crds.addCounterResult(resultId);
+            if (flowUpdate.getByteCount() != null) {
+                crds.addCounterToGroup(resultId, CountersUtils.BYTES_GROUP_NAME, CountersUtils.BYTE_COUNTER_NAME,
+                        flowUpdate.getByteCount().getValue());
+            }
+            if (flowUpdate.getPacketCount() != null) {
+                crds.addCounterToGroup(resultId, CountersUtils.PACKETS_GROUP_NAME, CountersUtils.PACKET_COUNTER_NAME,
+                        flowUpdate.getPacketCount().getValue());
+            }
+            if (flowUpdate.getDuration() != null) {
+                crds.addCounterToGroup(resultId, CountersUtils.DURATION_GROUP_NAME,
+                        CountersUtils.DURATION_SECOND_COUNTER_NAME,
+                        big(flowUpdate.getDuration().getSecond().getValue()));
+                crds.addCounterToGroup(resultId, CountersUtils.DURATION_GROUP_NAME,
+                        CountersUtils.DURATION_NANO_SECOND_COUNTER_NAME,
+                        big(flowUpdate.getDuration().getNanosecond().getValue()));
+            }
+        }
         return crds;
     }
 
@@ -331,18 +267,11 @@ public class CounterRetriever implements OpendaylightFlowStatisticsListener, Ope
     }
 
     enum CounterRetrieverCounters {
-        failed_getting_transaction_id, //
-        failed_null_future, //
-        failed_null_transaction_id, //
-        failed_unknown_transaction_id, //
-        failed_update_null_transaction_id, //
-        got_switch_flow_counters, //
-        got_node_connector_partial_multipart_result, //
-        got_node_connector_partial_stat_result, //
-        got_flow_partial_multipart_result, //
-        got_flow_partial_stat_result, //
-        sending_request_to_switch, //
-        got_node_connector_counters, //
+        failed_getting_node_connector_counters, //
+        failed_getting_rpc_result_for_node_connector_counters, //
+        failed_getting_node_counters, //
+        failed_getting_result_map_for_node_connector, //
+        failed_getting_flow_counters, //
         ;
         private OccurenceCounter counter;
 
