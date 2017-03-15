@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_832b9e32",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2017-03-15T15:06:37Z",
+      "side": 1,
+      "message": "Regarding underlay nets, I agree with Alon that we need a more clear definition of the source of this configuration. Possibly you are (also) referring to physical ports on the compute host?",
+      "parentUuid": "fafc7978_70e773ac",
+      "revId": "d4ec147f1d1974a08335125b45b2d70803dff584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_90adb733",
         "filename": "docs/specs/policy-based-path-selection.rst",
         "patchSetId": 14
