@@ -16,6 +16,24 @@
       "revId": "fa844b3c87b2f2b16c8c3a02cf50de051ae817d3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3e300e9e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-15T11:37:42Z",
+      "side": 1,
+      "message": "very true. Fixed in last PS",
+      "parentUuid": "fafc7978_23575528",
+      "revId": "fa844b3c87b2f2b16c8c3a02cf50de051ae817d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
