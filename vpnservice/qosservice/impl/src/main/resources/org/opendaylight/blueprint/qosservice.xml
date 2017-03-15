@@ -30,4 +30,25 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <odl:rpc-service id="opendaylightDirectStatisticsService"
                      interface="org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService" />
 
+
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
+
+        <command>
+            <action class="org.opendaylight.netvirt.qosservice.QosAlertEnableCLI">
+                <property name="qosAlertManager" ref="qosAlertManager"/>
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.netvirt.qosservice.QosAlertThresholdCLI">
+                <property name="qosAlertManager" ref="qosAlertManager"/>
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.netvirt.qosservice.QosAlertPollIntervalCLI">
+                <property name="qosAlertManager" ref="qosAlertManager"/>
+            </action>
+        </command>
+
+    </command-bundle>
+
 </blueprint>
