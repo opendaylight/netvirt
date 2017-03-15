@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_6603280e",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-15T16:17:08Z",
+      "side": 1,
+      "message": "use netvirt/sfc/{api,impl}",
+      "revId": "2f1cd034068d1acd52a399289a022b004d2bca06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a1ad1333",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 9
@@ -113,6 +130,74 @@
       "side": 1,
       "message": "Ingress NSH packets from a service function will be handled by the Ingress SFC service (SFF), not the Ingress SFC classifier, as is configured by the Neutron port binding. If, for some reason the Ingress SFC classifier and SFF are bound on the same Neutron ports, when the classifier detects the packet already has NSH, it wont process the packet again.\n\nThe Ingress SFC classifier service will have set the C1/C2 fields in the NSH header. Its the SFF that will use those fields on chain ingress.\n\nThe last SFF will indeed need a VXLAN tunnel to the original dst, which should be ok since Netvirt will have created a VXLAN tunnel mesh to all compute hosts.",
       "parentUuid": "fafc7978_21376300",
+      "revId": "2f1cd034068d1acd52a399289a022b004d2bca06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_461c246b",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-15T16:17:08Z",
+      "side": 1,
+      "message": "There is a change to the pipeline right? The new classifier is a bump in the pipeline.",
+      "revId": "2f1cd034068d1acd52a399289a022b004d2bca06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e63c38c2",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-15T16:17:08Z",
+      "side": 1,
+      "message": "odl-netvirt-sfc",
+      "revId": "2f1cd034068d1acd52a399289a022b004d2bca06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_86256cb0",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-15T16:17:08Z",
+      "side": 1,
+      "message": "as we talked should we remove this yang since the acl will take care of what the classifier.yang used to do?\n\nWe should also add comments around when the classifier is processed. if the acl augment is received before the rsp is rendered, then netvirt can not add the classifiers. There should be a rsp listener to check if an acl is available. The old netvirt does this. It listens on both the acl and the rsp, When both are available there is a common code that adds the classifiers.",
+      "revId": "2f1cd034068d1acd52a399289a022b004d2bca06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a65b502d",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-15T16:17:08Z",
+      "side": 1,
+      "message": "should we mention that the networking-sfc translator is currently in the old netvirt dir and should be moved out? it is not needed for this feature but it is an open item.",
       "revId": "2f1cd034068d1acd52a399289a022b004d2bca06",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
