@@ -374,21 +374,21 @@ public class ElanL2GatewayUtils {
     }
 
     public void installL2GwUcastMacInElan(final ElanInstance elan, final L2GatewayDevice extL2GwDevice,
-            final String macToBeAdded, String interfaceName) {
+            final String macToBeAdded, final LocalUcastMacs localUcastMacs, String interfaceName) {
         final String extDeviceNodeId = extL2GwDevice.getHwvtepNodeId();
         final String elanInstanceName = elan.getElanInstanceName();
+        final List<DpnInterfaces> elanDpns = getElanDpns(elanInstanceName);
 
         // Retrieve all participating DPNs in this Elan. Populate this MAC in
         // DMAC table.
         // Looping through all DPNs in order to add/remove mac flows in their
         // DMAC table
-        final List<DpnInterfaces> elanDpns = elanUtils.getInvolvedDpnsInElan(elanInstanceName);
         if (elanDpns != null && elanDpns.size() > 0) {
             String jobKey = elan.getElanInstanceName() + ":" + macToBeAdded;
             ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, jobKey, "install l2gw macs in dmac table",
                 () -> {
-                    List<ListenableFuture<Void>> fts = Lists.newArrayList();
-                    if (doesLocalUcastMacExistsInCache(extL2GwDevice, macToBeAdded)) {
+                    List<ListenableFuture<Void>> fts = new ArrayList<>();
+                    if (doesLocalUcastMacExistsInCache(extL2GwDevice, localUcastMacs)) {
                         for (DpnInterfaces elanDpn : elanDpns) {
                             // TODO batch the below call
                             fts.addAll(elanUtils.installDmacFlowsToExternalRemoteMac(elanDpn.getDpId(),
@@ -409,8 +409,8 @@ public class ElanL2GatewayUtils {
         String jobKey = "hwvtep:" + elan.getElanInstanceName() + ":" + macToBeAdded;
         ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, jobKey, "install remote ucast macs in l2gw device",
             () -> {
-                List<ListenableFuture<Void>> fts = Lists.newArrayList();
-                if (!doesLocalUcastMacExistsInCache(extL2GwDevice, macToBeAdded)) {
+                List<ListenableFuture<Void>> fts = new ArrayList<>();
+                if (!doesLocalUcastMacExistsInCache(extL2GwDevice, localUcastMacs)) {
                     LOG.trace(
                             "Skipping install of remote ucast macs {} in l2gw device as it is not found in cache",
                             macToBeAdded);
@@ -459,10 +459,8 @@ public class ElanL2GatewayUtils {
      *            the mac address to be verified
      * @return true, if successful
      */
-    private static boolean doesLocalUcastMacExistsInCache(L2GatewayDevice elanL2GwDevice, String macAddress) {
-        java.util.Optional<LocalUcastMacs> macExistsInCache = elanL2GwDevice.getUcastLocalMacs().stream()
-                .filter(mac -> mac.getMacEntryKey().getValue().equalsIgnoreCase(macAddress)).findFirst();
-        return macExistsInCache.isPresent();
+    private static boolean doesLocalUcastMacExistsInCache(L2GatewayDevice elanL2GwDevice, LocalUcastMacs macAddress) {
+        return elanL2GwDevice.containsUcastMac(macAddress);
     }
 
     /**
@@ -482,11 +480,12 @@ public class ElanL2GatewayUtils {
         }
         final String elanName = elan.getElanInstanceName();
 
+        final List<DpnInterfaces> elanDpns = getElanDpns(elanName);
+
         // Retrieve all participating DPNs in this Elan. Populate this MAC in
         // DMAC table. Looping through all DPNs in order to add/remove mac flows
         // in their DMAC table
         for (final MacAddress mac : macAddresses) {
-            final List<DpnInterfaces> elanDpns = elanUtils.getInvolvedDpnsInElan(elanName);
             if (elanDpns != null && !elanDpns.isEmpty()) {
                 String jobKey = elanName + ":" + mac.getValue();
                 ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, jobKey, "delete l2gw macs from dmac table",
@@ -496,7 +495,7 @@ public class ElanL2GatewayUtils {
                             BigInteger dpnId = elanDpn.getDpId();
                             // never batch deletes
                             fts.addAll(elanUtils.deleteDmacFlowsToExternalMac(elan.getElanTag(), dpnId,
-                                    l2GwDevice.getHwvtepNodeId(), mac.getValue()));
+                                    l2GwDevice.getHwvtepNodeId(), mac.getValue().toLowerCase()));
                         }
                         return fts;
                     });
@@ -710,7 +709,7 @@ public class ElanL2GatewayUtils {
                                     .createHwvtepPhysicalLocatorAugmentation(
                                             String.valueOf(otherDevice.getTunnelIp().getValue()));
                             RemoteUcastMacs remoteUcastMac = HwvtepSouthboundUtils.createRemoteUcastMac(hwVtepNodeId,
-                                    localUcastMac.getMacEntryKey().getValue(), localUcastMac.getIpaddr(),
+                                    localUcastMac.getMacEntryKey().getValue().toLowerCase(), localUcastMac.getIpaddr(),
                                     logicalSwitchName, physLocatorAug);
                             lstRemoteUcastMacs.add(remoteUcastMac);
                         }
@@ -780,7 +779,7 @@ public class ElanL2GatewayUtils {
             // MAC
             IpAddress ipAddress = null;
             RemoteUcastMacs remoteUcastMac = HwvtepSouthboundUtils.createRemoteUcastMac(hwVtepNodeId,
-                    macEntry.getMacAddress().getValue(), ipAddress, logicalSwitchName, physLocatorAug);
+                    macEntry.getMacAddress().getValue().toLowerCase(), ipAddress, logicalSwitchName, physLocatorAug);
             lstRemoteUcastMacs.add(remoteUcastMac);
         }
         return lstRemoteUcastMacs;
@@ -1118,5 +1117,13 @@ public class ElanL2GatewayUtils {
             logicalSwitchDeleteTask.cancel();
             logicalSwitchDeletedTasks.remove(nodeIdLogicalSwitchNamePair);
         }
+    }
+
+    public List<DpnInterfaces> getElanDpns(String elanName) {
+        Set<DpnInterfaces> dpnInterfaces = ElanUtils.getElanInvolvedDPNsFromCache(elanName);
+        if (dpnInterfaces == null) {
+            return elanUtils.getInvolvedDpnsInElan(elanName);
+        }
+        return new ArrayList(dpnInterfaces);
     }
 }
