@@ -89,6 +89,8 @@ public class ElanInterfaceStateChangeListener
                         InternalTunnel internalTunnel = getTunnelState(interfaceName);
                         if (internalTunnel != null) {
                             try {
+                                LOG.debug("ITM Tunnel Update event between source DPN {} and destination DPN {} ",
+                                    internalTunnel.getSourceDPN(), internalTunnel.getDestinationDPN());
                                 elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
                                         internalTunnel.getDestinationDPN());
                             } catch (ElanException e) {
@@ -115,6 +117,8 @@ public class ElanInterfaceStateChangeListener
                             InternalTunnel internalTunnel = getTunnelState(interfaceName);
                             if (internalTunnel != null) {
                                 try {
+                                    LOG.debug("ITM Tunnel Add event between source DPN {} and destination DPN {} ",
+                                        internalTunnel.getSourceDPN(), internalTunnel.getDestinationDPN());
                                     elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
                                             internalTunnel.getDestinationDPN());
                                 } catch (ElanException e) {
