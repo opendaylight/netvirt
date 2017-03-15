@@ -142,10 +142,10 @@ module neutronvpn {
         }
         leaf network-type {
             type enumeration {
-                enum "flat";
-                enum "vlan";
-                enum "vxlan";
-                enum "gre";
+                enum "FLAT";
+                enum "VLAN";
+                enum "VXLAN";
+                enum "GRE";
             }
         }
         leaf segmentation-id {
@@ -455,7 +455,7 @@ module neutronvpn {
             leaf vpn-name {
                 type string;
             }
-            leaf external-vpn {
+            leaf bgp-vpn {
                 type boolean;
             }
             leaf elan-tag {
@@ -475,7 +475,7 @@ module neutronvpn {
             leaf vpn-name {
                 type string;
             }
-            leaf external-vpn {
+            leaf bgp-vpn {
                 type boolean;
             }
             leaf elan-tag {
@@ -494,7 +494,7 @@ module neutronvpn {
             leaf vpn-name {
                  type string;
             }
-            leaf external-vpn {
+            leaf bgp-vpn {
                  type boolean;
             }
             leaf elan-tag {

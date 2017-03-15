@@ -670,10 +670,10 @@ YANG changes
            }
            leaf network-type {
                type enumeration {
-                   enum "flat";
-                   enum "vlan";
-                   enum "vxlan";
-                   enum "gre";
+                   enum "FLAT";
+                   enum "VLAN";
+                   enum "VXLAN";
+                   enum "GRE";
                }
            }
            leaf segmentation-id {
