@@ -26,6 +26,7 @@ import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -242,8 +243,15 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             delAdjFromVpnInterface(identifier, adj, dpnId, writeOperTxn, writeConfigTxn);
                         }
                     }
+                    ListenableFuture<Void> operFuture = writeOperTxn.submit();
+                    try {
+                        operFuture.get();
+                    } catch (ExecutionException e) {
+                        LOG.error("Exception encountered while submitting operational future {} for addVpnInterface "
+                                + "{}: {}", operFuture, vpnInterface.getName(), e);
+                        return null;
+                    }
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    futures.add(writeOperTxn.submit());
                     futures.add(writeConfigTxn.submit());
                     futures.add(writeInvTxn.submit());
                     return futures;
@@ -1048,7 +1056,14 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         processVpnInterfaceDown(dpnId.equals(BigInteger.ZERO) ? vpnOpInterface.getDpnId() : dpnId,
                                 interfaceName, ifIndex, false, true, writeConfigTxn, writeOperTxn,
                                 writeInvTxn, interfaceState);
-                        futures.add(writeOperTxn.submit());
+                        ListenableFuture<Void> operFuture = writeOperTxn.submit();
+                        try {
+                            operFuture.get();
+                        } catch (ExecutionException e) {
+                            LOG.error("Exception encountered while submitting operational future {} for " +
+                                    "remove VpnInterface {}: {}", operFuture, vpnInterface.getName(), e);
+                            return null;
+                        }
                         futures.add(writeConfigTxn.submit());
                         futures.add(writeInvTxn.submit());
                     } else {
@@ -1291,9 +1306,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         final VpnInterface update) {
         LOG.trace("Updating VPN Interface : key {},  original value={}, update value={}", identifier, original, update);
         LOG.info("VPN Interface update event - intfName {}", update.getName());
+        final String vpnInterfaceName = update.getName();
         final String oldVpnName = original.getVpnInstanceName();
         final String newVpnName = update.getVpnInstanceName();
-        final BigInteger dpnId = InterfaceUtils.getDpnForInterface(ifaceMgrRpcService, update.getName());
+        final BigInteger dpnId = InterfaceUtils.getDpnForInterface(ifaceMgrRpcService, vpnInterfaceName);
         final UpdateData updateData = new UpdateData(identifier, original, update);
         final Adjacencies origAdjs = original.getAugmentation(Adjacencies.class);
         final List<Adjacency> oldAdjs = (origAdjs != null && origAdjs.getAdjacency()
@@ -1310,11 +1326,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             return;
         }
         final DataStoreJobCoordinator vpnInfAdjUpdateDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        vpnInfAdjUpdateDataStoreCoordinator.enqueueJob("VPNINTERFACE-" + update.getName(),
+        vpnInfAdjUpdateDataStoreCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterfaceName,
             () -> {
                 WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
                 WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
                 //handle both addition and removal of adjacencies
                 //currently, new adjacency may be an extra route
                 if (!oldAdjs.equals(newAdjs)) {
@@ -1330,7 +1345,15 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         delAdjFromVpnInterface(identifier, adj, dpnId, writeOperTxn, writeConfigTxn);
                     }
                 }
-                futures.add(writeOperTxn.submit());
+                ListenableFuture<Void> operFuture = writeOperTxn.submit();
+                try {
+                    operFuture.get();
+                } catch (ExecutionException e) {
+                    LOG.error("Exception encountered while submitting operational future {} for update VpnInterface "
+                            + "{}: {}", operFuture, vpnInterfaceName, e);
+                    return null;
+                }
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
                 futures.add(writeConfigTxn.submit());
                 return futures;
             });
