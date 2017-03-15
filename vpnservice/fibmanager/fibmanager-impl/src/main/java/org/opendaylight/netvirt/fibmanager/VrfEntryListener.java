@@ -368,7 +368,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         final VpnInstanceOpDataEntry vpnInstance = getVpnInstance(vrfTableKey.getRouteDistinguisher());
         Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available " + vrfTableKey.getRouteDistinguisher());
         Preconditions.checkNotNull(vpnInstance.getVpnId(), "Vpn Instance with rd " + vpnInstance.getVrfId()
-            + " has null vpnId!");
+                + " has null vpnId!");
 
         final Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
         final Long vpnId = vpnInstance.getVpnId();
@@ -377,21 +377,21 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (subnetRoute != null) {
             final long elanTag = subnetRoute.getElantag();
             LOG.trace("SubnetRoute augmented vrfentry found for rd {} prefix {} with elantag {}",
-                rd, vrfEntry.getDestPrefix(), elanTag);
+                    rd, vrfEntry.getDestPrefix(), elanTag);
             if (vpnToDpnList != null) {
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 dataStoreCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(),
-                    () -> {
-                        WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-                        for (final VpnToDpnList curDpn : vpnToDpnList) {
-                            if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
-                                installSubnetRouteInFib(curDpn.getDpnId(), elanTag, rd, vpnId, vrfEntry, tx);
+                        () -> {
+                            WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+                            for (final VpnToDpnList curDpn : vpnToDpnList) {
+                                if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
+                                    installSubnetRouteInFib(curDpn.getDpnId(), elanTag, rd, vpnId, vrfEntry, tx);
+                                }
                             }
-                        }
-                        List<ListenableFuture<Void>> futures = new ArrayList<>();
-                        futures.add(tx.submit());
-                        return futures;
-                    });
+                            List<ListenableFuture<Void>> futures = new ArrayList<>();
+                            futures.add(tx.submit());
+                            return futures;
+                        });
             }
             return;
         }
@@ -402,23 +402,25 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         final List<BigInteger> localDpnIdList = createLocalFibEntry(vpnInstance.getVpnId(), rd, vrfEntry);
 
-        if (vpnToDpnList != null) {
-            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            dataStoreCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(),
-                () -> {
-                    WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-                    for (VpnToDpnList vpnDpn : vpnToDpnList) {
-                        if (!localDpnIdList.contains(vpnDpn.getDpnId())) {
-                            if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
-                                createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(),
-                                    vrfTableKey, vrfEntry, tx);
+        if (!localDpnIdList.isEmpty()) {
+            if (vpnToDpnList != null) {
+                DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+                dataStoreCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(),
+                        () -> {
+                            WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+                            for (VpnToDpnList vpnDpn : vpnToDpnList) {
+                                if (!localDpnIdList.contains(vpnDpn.getDpnId())) {
+                                    if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
+                                        createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(),
+                                                vrfTableKey, vrfEntry, tx);
+                                    }
+                                }
                             }
-                        }
-                    }
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    futures.add(tx.submit());
-                    return futures;
-                });
+                            List<ListenableFuture<Void>> futures = new ArrayList<>();
+                            futures.add(tx.submit());
+                            return futures;
+                        });
+            }
         }
 
         Optional<String> optVpnUuid = FibUtil.getVpnNameFromRd(dataBroker, rd);
@@ -833,6 +835,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         }
                     }
                 }
+            }
+            if (returnLocalDpnId.isEmpty()) {
+                LOG.error("Local DPNID is empty for rd {}, vpnId {}, vrfEntry {}", rd, vpnId, vrfEntry);
             }
         } else {
             BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP, vpnId,
