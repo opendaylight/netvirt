@@ -1716,7 +1716,7 @@ public class BgpConfigurationManager {
     }
 
     private static boolean isRouteModified(int label, Long labelInStaleMap) {
-        return labelInStaleMap != null && !labelInStaleMap.equals(label);
+        return labelInStaleMap != null && !labelInStaleMap.equals(Long.valueOf(label));
     }
 
     private static void replayNbrConfig(List<Neighbors> neighbors, BgpRouter br) {
