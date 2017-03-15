@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_de8742b5",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-15T12:29:42Z",
+      "side": 1,
+      "message": "this might break bgpvpn UC... subnet id can be retrieved from FIP but it must not be set in GW_MAC write_metadata",
+      "range": {
+        "startLine": 168,
+        "startChar": 80,
+        "endLine": 168,
+        "endChar": 100
+      },
+      "revId": "9cf0fecb74058e6169fa5b9b3a004d8e4c6a471b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
