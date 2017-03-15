@@ -16,6 +16,24 @@
       "revId": "a1139c93c934886bb9da1d345fa7aa987d3ff51a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e61b981a",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/UuidUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-03-15T16:50:43Z",
+      "side": 1,
+      "message": "https://git.opendaylight.org/gerrit/#/c/53363/ proposes it directly in mdsal, where IMHO this really belongs (where the source of Uuid is!) ...",
+      "parentUuid": "fafc7978_e03540dc",
+      "revId": "a1139c93c934886bb9da1d345fa7aa987d3ff51a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
