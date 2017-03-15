@@ -16,6 +16,24 @@
       "revId": "a1db214369e1cf4dc940f6800d37f9f56ef215ac",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0d7d22b2",
+        "filename": "docs/specs/vlan-provider-enhancement.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-03-15T06:39:05Z",
+      "side": 1,
+      "message": "The patch-port is from br-int to any other bridge which has external provider port. It can be br-prv or br-ext as well.\nThere is trunk interface that is created corresponding to this patch-port on br-int. Earlier the vlan member interface with tag of the network on the patch-port was created at the time of network creation. Now, this vlan member interface will be created once there is VM interface on the switch in this network.",
+      "parentUuid": "fafc7978_5c2a42e8",
+      "revId": "a1db214369e1cf4dc940f6800d37f9f56ef215ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
