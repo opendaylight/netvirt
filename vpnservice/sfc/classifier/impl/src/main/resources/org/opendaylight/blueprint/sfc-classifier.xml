@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (c) 2017 Red Hat, Inc. and others.  All rights reserved.
+
+This program and the accompanying materials are made available under the
+terms of the Eclipse Public License v1.0 which accompanies this distribution,
+and is available at http://www.eclipse.org/legal/epl-v10.html
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+  xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+  odl:use-default-for-reference-types="true">
+
+  <reference id="dataBroker"
+    interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" />
+
+  <!--<bean id="geniusProvider"
+    class="org.opendaylight.netvirt.sfc.classifier.providers.GeniusProvider">
+    <argument ref="dataBroker" />
+  </bean>
+  <bean id="netvirtProvider"
+    class="org.opendaylight.netvirt.sfc.classifier.providers.NetvirtProvider">
+    <argument ref="dataBroker" />
+  </bean>
+  <bean id="openFlow13Provider"
+    class="org.opendaylight.netvirt.sfc.classifier.providers.OpenFlow13Provider">
+    <argument ref="dataBroker" />
+  </bean>
+  <bean id="sfcProvider"
+    class="org.opendaylight.netvirt.sfc.classifier.providers.SfcProvider">
+    <argument ref="dataBroker" />
+  </bean>
+
+  <bean id="netvirtSfcAclDataProcessor"
+    class="org.opendaylight.netvirt.sfc.classifier.processors.netvirtSfcAclDataProcessor">
+    <argument ref="geniusProvider" />
+    <argument ref="netvirtProvider" />
+    <argument ref="openFlow13Provider" />
+    <argument ref="sfcProvider" />
+  </bean>
+
+  <bean id="netvirtSfcClassifierDataProcessor"
+    class="org.opendaylight.netvirt.sfc.classifier.processors.netvirtSfcAclDataProcessor">
+    <argument ref="geniusProvider" />
+    <argument ref="netvirtProvider" />
+    <argument ref="openFlow13Provider" />
+    <argument ref="sfcProvider" />
+  </bean>
+  <bean id="netvirtSfcRspDataProcessor"
+    class="org.opendaylight.netvirt.sfc.classifier.processors.netvirtSfcAclDataProcessor">
+    <argument ref="geniusProvider" />
+    <argument ref="netvirtProvider" />
+    <argument ref="openFlow13Provider" />
+    <argument ref="sfcProvider" />
+  </bean>
+
+  <bean id="netvirtSfcAclListener"
+    class="org.opendaylight.netvirt.sfc.classifier.listeners.netvirtSfcAclListener">
+    <argument ref="dataBroker" />
+    <argument ref="netvirtSfcAclDataProcessor" />
+  </bean>
+  <bean id="netvirtSfcClassifierListener"
+    class="org.opendaylight.netvirt.sfc.classifier.listeners.netvirtSfcClassifierListener">
+    <argument ref="dataBroker" />
+    <argument ref="netvirtSfcClassifierDataProcessor" />
+  </bean>
+  <bean id="netvirtSfcRspListener"
+    class="org.opendaylight.netvirt.sfc.classifier.listeners.netvirtSfcRspListener">
+    <argument ref="dataBroker" />
+    <argument ref="netvirtSfcRspDataProcessor" />
+  </bean>-->
+
+</blueprint>

@@ -24,6 +24,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <packaging>pom</packaging>
   <modules>
     <module>api</module>
+    <module>impl</module>
   </modules>
 
   <build>
