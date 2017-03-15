@@ -121,7 +121,8 @@ public class DhcpExternalTunnelManager {
                     designatedSwitchForTunnelOptional.get().getDesignatedSwitchForTunnel();
             for (DesignatedSwitchForTunnel designatedSwitchForTunnel : list) {
                 Set<Pair<IpAddress, String>> setOfTunnelIpElanNamePair =
-                        designatedDpnsToTunnelIpElanNameCache.get(designatedSwitchForTunnel.getDpId());
+                        designatedDpnsToTunnelIpElanNameCache
+                                .get(BigInteger.valueOf(designatedSwitchForTunnel.getDpId()));
                 if (setOfTunnelIpElanNamePair == null) {
                     setOfTunnelIpElanNamePair = new CopyOnWriteArraySet<>();
                 }

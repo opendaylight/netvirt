@@ -318,9 +318,9 @@ public class VPNServiceChainHandlerTest {
 
         // Verifying installed flows
         ArgumentCaptor<Flow> argumentCaptor = ArgumentCaptor.forClass(Flow.class);
-        verify(mdsalMgr, times(2)).installFlow((BigInteger)anyObject(), argumentCaptor.capture());
+        verify(mdsalMgr, times(1)).installFlow((BigInteger)anyObject(), argumentCaptor.capture());
         List<Flow> installedFlowsCaptured = argumentCaptor.getAllValues();
-        assert (installedFlowsCaptured.size() == 2);
+        assert (installedFlowsCaptured.size() == 1);
         Flow expectedLportDispatcherFlowEntity =
             VpnServiceChainUtils.buildLPortDispFromScfToL3VpnFlow(VPN_ID, DPN_ID, LPORT_TAG, NwConstants.ADD_FLOW);
         assert (new FlowMatcher(expectedLportDispatcherFlowEntity).matches(installedFlowsCaptured.get(0)));
