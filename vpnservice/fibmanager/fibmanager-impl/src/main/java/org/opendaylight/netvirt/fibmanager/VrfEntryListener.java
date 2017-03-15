@@ -834,6 +834,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     }
                 }
             }
+            if (returnLocalDpnId.isEmpty()) {
+                LOG.error("Local DPNID is empty for rd {}, vpnId {}, vrfEntry {}", rd, vpnId, vrfEntry);
+            }
         } else {
             BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP, vpnId,
                     rd, vrfEntry, vpnId, /*routes*/ null, /*vpnExtraRoutes*/ null);
