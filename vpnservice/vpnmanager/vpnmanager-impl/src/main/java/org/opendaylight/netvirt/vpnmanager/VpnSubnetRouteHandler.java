@@ -84,7 +84,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     public void onSubnetAddedToVpn(SubnetAddedToVpn notification) {
-        if (!notification.isExternalVpn()) {
+        if (!notification.isBgpVpn()) {
             return;
         }
 
@@ -270,7 +270,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
     public void onSubnetDeletedFromVpn(SubnetDeletedFromVpn notification) {
         Uuid subnetId = notification.getSubnetId();
 
-        if (!notification.isExternalVpn()) {
+        if (!notification.isBgpVpn()) {
             return;
         }
         LOG.info("onSubnetDeletedFromVpn: Subnet " + subnetId.getValue() + " being removed from vpn");
@@ -361,16 +361,16 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
         Optional<SubnetOpDataEntry> optionalSubs =
             VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
         if (optionalSubs.isPresent()) {
-            if (!notification.isExternalVpn()) {
+            if (!notification.isBgpVpn()) {
                 SubnetDeletedFromVpnBuilder bldr = new SubnetDeletedFromVpnBuilder().setVpnName(vpnName);
-                bldr.setElanTag(elanTag).setExternalVpn(true).setSubnetIp(subnetIp).setSubnetId(subnetId);
+                bldr.setElanTag(elanTag).setBgpVpn(true).setSubnetIp(subnetIp).setSubnetId(subnetId);
                 onSubnetDeletedFromVpn(bldr.build());
             }
             // TODO(vivek): Something got updated, but we donot know what ?
         } else {
-            if (notification.isExternalVpn()) {
+            if (notification.isBgpVpn()) {
                 SubnetAddedToVpnBuilder bldr = new SubnetAddedToVpnBuilder().setVpnName(vpnName).setElanTag(elanTag);
-                bldr.setSubnetIp(subnetIp).setSubnetId(subnetId).setExternalVpn(true);
+                bldr.setSubnetIp(subnetIp).setSubnetId(subnetId).setBgpVpn(true);
                 onSubnetAddedToVpn(bldr.build());
             }
             // TODO(vivek): Something got updated, but we donot know what ?
