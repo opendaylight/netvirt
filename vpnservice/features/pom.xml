@@ -46,6 +46,7 @@
     <dlux.version>0.5.0-SNAPSHOT</dlux.version>
     <federation.version>0.2.0-SNAPSHOT</federation.version>
     <sfc.version>0.5.0-SNAPSHOT</sfc.version>
+    <legacy.utils.version>1.4.0-SNAPSHOT</legacy.utils.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -381,6 +382,21 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>sfc.classifier-api</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>utils.mdsal-openflow</artifactId>
+      <version>${legacy.utils.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>utils.mdsal-utils</artifactId>
+      <version>${legacy.utils.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>sfc.classifier-impl</artifactId>
       <version>${vpnservices.version}</version>
     </dependency>
     <dependency>
