@@ -180,6 +180,7 @@
     <argument ref="itmRpcService" />
     <argument ref="entityOwnershipService" />
     <argument ref="elanUtils" />
+    <argument ref="l2gwService" />
   </bean>
 
   <bean id="hwvtepTerminationPointListener"
@@ -224,4 +225,49 @@
     <argument ref="elanUtils" />
     <argument ref="entityOwnershipService" />
   </bean>
+
+  <bean id="TransportZoneNotificationUtil"
+    class="org.opendaylight.netvirt.elan.utils.TransportZoneNotificationUtil">
+    <argument ref="dataBroker" />
+    <argument ref="interfaceManager" />
+    <argument ref="elanService" />
+    <argument ref="elanConfig" />
+  </bean>
+
+  <bean id="ElanDpnToTransportZoneListener"
+    class="org.opendaylight.netvirt.elan.internal.ElanDpnToTransportZoneListener"
+    init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="interfaceManager" />
+    <argument ref="elanConfig" />
+    <argument ref="TransportZoneNotificationUtil" />
+  </bean>
+
+  <bean id="VpnDpnToTransportZoneListener"
+    class="org.opendaylight.netvirt.elan.internal.VpnDpnToTransportZoneListener"
+    init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="interfaceManager" />
+    <argument ref="elanConfig" />
+    <argument ref="TransportZoneNotificationUtil" />
+  </bean>
+
+  <bean id="l2gwService"
+        class="org.opendaylight.netvirt.elan.l2gw.utils.L2gwServiceProvider"
+        init-method="init">
+    <argument ref="dataBroker" />
+    <argument ref="entityOwnershipService" />
+    <argument ref="itmRpcService" />
+    <argument ref="elanUtils" />
+  </bean>
+  <service ref="l2gwService" odl:type="default"
+           interface="org.opendaylight.netvirt.elanmanager.api.IL2gwService" />
+
+  <bean id="elanInstanceListener"
+        class="org.opendaylight.netvirt.elan.l2gw.listeners.ElanInstanceListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="elanUtils" />
+  </bean>
+
 </blueprint>
