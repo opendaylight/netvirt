@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_493397f6",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-15T18:26:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_6603280e",
+      "revId": "2f1cd034068d1acd52a399289a022b004d2bca06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a1ad1333",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 9
@@ -153,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_09406f34",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-15T18:26:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_461c246b",
+      "revId": "2f1cd034068d1acd52a399289a022b004d2bca06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e63c38c2",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 9
@@ -164,6 +200,24 @@
       "writtenOn": "2017-03-15T16:17:08Z",
       "side": 1,
       "message": "odl-netvirt-sfc",
+      "revId": "2f1cd034068d1acd52a399289a022b004d2bca06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e93c0bc2",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-15T18:26:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e63c38c2",
       "revId": "2f1cd034068d1acd52a399289a022b004d2bca06",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -187,6 +241,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e9aa4bd1",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-15T18:26:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_86256cb0",
+      "revId": "2f1cd034068d1acd52a399289a022b004d2bca06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a65b502d",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 9
@@ -198,6 +270,24 @@
       "writtenOn": "2017-03-15T16:17:08Z",
       "side": 1,
       "message": "should we mention that the networking-sfc translator is currently in the old netvirt dir and should be moved out? it is not needed for this feature but it is an open item.",
+      "revId": "2f1cd034068d1acd52a399289a022b004d2bca06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_29b57331",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-15T18:26:17Z",
+      "side": 1,
+      "message": "That doesnt have anything to do with the classifier and should probably be dealt with separately.",
+      "parentUuid": "fafc7978_a65b502d",
       "revId": "2f1cd034068d1acd52a399289a022b004d2bca06",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
