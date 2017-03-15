@@ -151,7 +151,7 @@ public class HwvtepLogicalSwitchListener extends
         LOG.debug("Received Add DataChange Notification for identifier: {}, LogicalSwitches: {}", identifier,
                 logicalSwitchNew);
         try {
-            L2GatewayDevice elanDevice = L2GatewayConnectionUtils.addL2DeviceToElanL2GwCache(
+            L2GatewayDevice elanDevice = L2GatewayConnectionUtils.addL2DeviceToElanL2GwCache(broker,
                     logicalSwitchNew.getHwvtepNodeName().getValue(), l2GatewayDevice, l2GwConnId,physicalDevice);
 
             LogicalSwitchAddedJob logicalSwitchAddedWorker = new LogicalSwitchAddedJob(broker, elanL2GatewayUtils,
