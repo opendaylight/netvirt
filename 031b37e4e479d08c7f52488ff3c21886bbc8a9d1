@@ -22,6 +22,23 @@
       "revId": "031b37e4e479d08c7f52488ff3c21886bbc8a9d1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0df88248",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-03-15T06:24:57Z",
+      "side": 1,
+      "message": "@Julien, in the spec[1] you have added \"mandatory false\". Please update this YANG model accordingly.\n\n[1] https://git.opendaylight.org/gerrit/#/c/50359/12..13/docs/specs/ipv6-interdc-l3vpn.rst",
+      "revId": "031b37e4e479d08c7f52488ff3c21886bbc8a9d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
