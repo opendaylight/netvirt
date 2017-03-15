@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_e03540dc",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/UuidUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-15T12:52:01Z",
+      "side": 1,
+      "message": "This looks to be a re-usable class at many places where we may want to retrieve port just from port-uuid..  Can\u0027t this be made available in genius rather than only under Qos?\n\nFor now, this can be there in this review, and once introduced in Genius, we can remove this class from here.",
+      "revId": "a1139c93c934886bb9da1d345fa7aa987d3ff51a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
