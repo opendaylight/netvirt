@@ -84,6 +84,7 @@ public class ElanDpnInterfaceClusteredListener
         final String elanName = getElanName(identifier);
         LOG.debug("Received ElanDpnInterface removed for for elan {} with Dp Id ", elanName,
             dpnInterfaces.getDpId());
+        ElanUtils.removeDPNInterfaceFromElanInCache(getElanName(identifier), dpnInterfaces);
 
         if (ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName).isEmpty()) {
             LOG.debug("dpnInterface removed, no external l2 devices to update for elan {} with Dp Id:", elanName,
@@ -106,6 +107,7 @@ public class ElanDpnInterfaceClusteredListener
                           final DpnInterfaces dpnInterfaces) {
         LOG.debug("dpninterfaces update fired new size {}", dpnInterfaces.getInterfaces().size());
         if (dpnInterfaces.getInterfaces().size() == 0) {
+            ElanUtils.removeDPNInterfaceFromElanInCache(getElanName(identifier), dpnInterfaces);
             LOG.debug("dpninterfaces last dpn interface on this elan {} ", dpnInterfaces.getKey());
             // this is the last dpn interface on this elan
             handleUpdate(identifier, dpnInterfaces);
@@ -114,6 +116,7 @@ public class ElanDpnInterfaceClusteredListener
 
     @Override
     protected void add(InstanceIdentifier<DpnInterfaces> identifier, final DpnInterfaces dpnInterfaces) {
+        ElanUtils.addDPNInterfaceToElanInCache(getElanName(identifier), dpnInterfaces);
         if (dpnInterfaces.getInterfaces().size() == 1) {
             LOG.debug("dpninterfaces first dpn interface on this elan {} {} ", dpnInterfaces.getKey(),
                 dpnInterfaces.getInterfaces().get(0));

@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -163,6 +164,7 @@ public class ElanUtils {
 
     private static Map<String, ElanInstance> elanInstanceLocalCache = new ConcurrentHashMap<>();
     private static Map<String, ElanInterface> elanInterfaceLocalCache = new ConcurrentHashMap<>();
+    private static Map<String, Set<DpnInterfaces>> elanInstancToDpnsCache = new ConcurrentHashMap<>();
 
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
@@ -2241,5 +2243,127 @@ public class ElanUtils {
         if (cause != null && cause instanceof TransactionCommitFailedException) {
             futures.add(Futures.immediateFailedCheckedFuture((TransactionCommitFailedException) cause));
         }
+    }
+
+    public static List<PhysAddress> getPhysAddress(List<String> macAddress) {
+        Preconditions.checkNotNull(macAddress, "macAddress cannot be null");
+        List<PhysAddress> physAddresses = new ArrayList<>();
+        for (String mac : macAddress) {
+            physAddresses.add(new PhysAddress(mac));
+        }
+        return physAddresses;
+    }
+
+    public static List<StaticMacEntries> getStaticMacEntries(List<String> staticMacAddresses) {
+        if (isEmpty(staticMacAddresses)) {
+            return Collections.EMPTY_LIST;
+        }
+        StaticMacEntriesBuilder staticMacEntriesBuilder = new StaticMacEntriesBuilder();
+        List<StaticMacEntries> staticMacEntries = new ArrayList<>();
+        List<PhysAddress> physAddressList = getPhysAddress(staticMacAddresses);
+        for (PhysAddress physAddress : physAddressList) {
+            staticMacEntries.add(staticMacEntriesBuilder.setMacAddress(physAddress).build());
+        }
+        return staticMacEntries;
+    }
+
+    public Optional<IpAddress> getSourceIpV4Address(byte[] data) {
+        IPv4 ip = new IPv4();
+        try {
+            ip.deserialize(data, 0, data.length * NetUtils.NumBitsInAByte);
+        } catch (PacketException e) {
+            LOG.error("ip.deserialize throws exception  {}", e);
+            return Optional.absent();
+        }
+        return Optional.of(IpAddressBuilder.getDefaultInstance(Integer.toString(ip.getSourceAddress())));
+    }
+
+    public Optional<IpAddress> getSrcIpAddrFromArp(byte[] data) {
+        ARP arp = new ARP();
+        try {
+            arp.deserialize(data, 0, data.length * NetUtils.NumBitsInAByte);
+        } catch (PacketException e) {
+            LOG.error("ip.deserialize throws exception  {}", e);
+            return Optional.absent();
+        }
+        return Optional.of(IpAddressBuilder.getDefaultInstance(
+                NWUtil.toStringIpAddress(arp.getSenderProtocolAddress())));
+    }
+
+    public Optional<IpAddress> getSourceIpAddress(Ethernet ethernet, byte[] data) {
+        /*IPV6 is not yet present in genius, hence V6 case ignored*/
+        Optional<IpAddress> srcIpAddress = Optional.absent();
+        if (NwConstants.ETHTYPE_IPV4 == ethernet.getEtherType()) {
+            srcIpAddress = getSourceIpV4Address(data);
+        } else if (NwConstants.ETHTYPE_ARP == ethernet.getEtherType()) {
+            srcIpAddress = getSrcIpAddrFromArp(data);
+        }
+        return srcIpAddress;
+    }
+
+    public static InstanceIdentifier<StaticMacEntries> getStaticMacEntriesCfgDataPathIdentifier(String interfaceName,
+                                                                                                String macAddress) {
+        return InstanceIdentifier.builder(ElanInterfaces.class)
+                .child(ElanInterface.class, new ElanInterfaceKey(interfaceName)).child(StaticMacEntries.class,
+                        new StaticMacEntriesKey(new PhysAddress(macAddress))).build();
+    }
+
+    public static List<StaticMacEntries> getDeletedEntries(List<StaticMacEntries> originalStaticMacEntries,
+                                                           List<StaticMacEntries> updatedStaticMacEntries) {
+        if (isEmpty(originalStaticMacEntries)) {
+            return Collections.EMPTY_LIST;
+        }
+        List<StaticMacEntries> deleted = Lists.newArrayList(originalStaticMacEntries);
+        if (isNotEmpty(updatedStaticMacEntries)) {
+            deleted.removeAll(updatedStaticMacEntries);
+        }
+        return deleted;
+    }
+
+    public static <T> List<T> diffOf(List<T> orig, List<T> updated) {
+        if (isEmpty(orig)) {
+            return Collections.EMPTY_LIST;
+        }
+        List<T> diff = Lists.newArrayList(orig);
+        if (isNotEmpty(updated)) {
+            diff.removeAll(updated);
+        }
+        return diff;
+    }
+
+    public static void segregateToBeDeletedAndAddEntries(List<StaticMacEntries> originalStaticMacEntries,
+                                                             List<StaticMacEntries> updatedStaticMacEntries) {
+        if (isNotEmpty(updatedStaticMacEntries)) {
+            List<StaticMacEntries> existingClonedStaticMacEntries = new ArrayList<>();
+            if (isNotEmpty(originalStaticMacEntries)) {
+                existingClonedStaticMacEntries.addAll(0, originalStaticMacEntries);
+                originalStaticMacEntries.removeAll(updatedStaticMacEntries);
+                updatedStaticMacEntries.removeAll(existingClonedStaticMacEntries);
+            }
+        }
+    }
+
+    public static boolean isEmpty(Collection collection) {
+        return collection == null || collection.isEmpty();
+    }
+
+    public static boolean isNotEmpty(Collection collection) {
+        return (!isEmpty(collection));
+    }
+
+    public static void setElanInstancToDpnsCache(Map<String, Set<DpnInterfaces>> elanInstancToDpnsCache) {
+        ElanUtils.elanInstancToDpnsCache = elanInstancToDpnsCache;
+    }
+
+    public static Set<DpnInterfaces> getElanInvolvedDPNsFromCache(String elanName) {
+        return elanInstancToDpnsCache.get(elanName);
+    }
+
+    public static void addDPNInterfaceToElanInCache(String elanName, DpnInterfaces dpnInterfaces) {
+        elanInstancToDpnsCache.computeIfAbsent(elanName, key -> new HashSet<>()).add(dpnInterfaces);
+    }
+
+    public static void removeDPNInterfaceFromElanInCache(String elanName, DpnInterfaces dpnInterfaces) {
+        elanInstancToDpnsCache.computeIfAbsent(elanName, key -> new HashSet<DpnInterfaces>()).remove(dpnInterfaces);
     }
 }

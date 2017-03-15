@@ -8,6 +8,8 @@
              odl:type="default" />
   <reference id="elanService"
              interface="org.opendaylight.netvirt.elanmanager.api.IElanService" />
+  <reference id="l2gwService"
+             interface="org.opendaylight.netvirt.elanmanager.api.IL2gwService" />
   <reference id="entityOwnershipService"
              interface="org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService" />
   <reference id="notificationPublishService"
@@ -146,6 +148,7 @@
     <argument ref="dataBroker" />
     <argument ref="entityOwnershipService" />
     <argument ref="itmRpcService" />
+    <argument ref="l2gwService" />
   </bean>
 
   <bean id="l2GwTransportZoneListener"

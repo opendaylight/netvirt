@@ -8,15 +8,19 @@
 
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
+import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
+
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -26,17 +30,16 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
+import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener;
-import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
-import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
+import org.opendaylight.netvirt.elan.l2gw.utils.L2gwServiceProvider;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.l2gatewayconnections.L2gatewayConnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalRef;
@@ -48,6 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +79,8 @@ public class HwvtepPhysicalSwitchListener
 
     private final HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
 
+    protected final L2gwServiceProvider l2gwServiceProvider;
+
     /**
      * Instantiates a new hwvtep physical switch listener.
      *
@@ -86,12 +92,13 @@ public class HwvtepPhysicalSwitchListener
      */
     public HwvtepPhysicalSwitchListener(final DataBroker dataBroker, ItmRpcService itmRpcService,
                                         EntityOwnershipService entityOwnershipService,
-                                        ElanUtils elanUtils) {
+                                        ElanUtils elanUtils, L2gwServiceProvider l2gwServiceProvider) {
         super(PhysicalSwitchAugmentation.class, HwvtepPhysicalSwitchListener.class);
         this.dataBroker = dataBroker;
         this.itmRpcService = itmRpcService;
         this.entityOwnershipService = entityOwnershipService;
         this.l2GatewayConnectionUtils = elanUtils.getL2GatewayConnectionUtils();
+        this.l2gwServiceProvider = l2gwServiceProvider;
     }
 
     public void init() {
@@ -173,13 +180,20 @@ public class HwvtepPhysicalSwitchListener
         NodeId nodeId = getNodeId(identifier);
         LOG.trace("Received PhysicalSwitch Update Event for node {}: PhysicalSwitch Before: {}, "
                 + "PhysicalSwitch After: {}", nodeId.getValue(), phySwitchBefore, phySwitchAfter);
-        String psName = phySwitchBefore.getHwvtepNodeName().getValue();
+        String psName = phySwitchAfter.getHwvtepNodeName() != null
+                ? phySwitchAfter.getHwvtepNodeName().getValue() : null;
+        if (psName == null) {
+            LOG.error("Could not find the physical switch name for node {}", nodeId.getValue());
+            return;
+        }
+        L2GatewayDevice existingDevice = L2GatewayCacheUtils.getL2DeviceFromCache(psName);
         LOG.info("Received physical switch {} update event for node {}", psName, nodeId.getValue());
-
-        if (isTunnelIpNewlyConfigured(phySwitchBefore, phySwitchAfter)) {
-            final L2GatewayDevice l2GwDevice =
-                    updateL2GatewayCache(psName, phySwitchAfter.getManagedBy(), phySwitchAfter.getTunnelIps());
-            handleAdd(l2GwDevice);
+        InstanceIdentifier<Node> globalNodeIid = getManagedByNodeIid(identifier);
+        if (isTunnelIpNewlyConfigured(phySwitchBefore, phySwitchAfter)
+                || existingDevice == null
+                || existingDevice.getHwvtepNodeId() == null
+                || !Objects.equals(existingDevice.getHwvtepNodeId(), globalNodeIid)) {
+            added(identifier, phySwitchAfter);
         } else {
             LOG.debug("Other updates in physical switch {} for node {}", psName, nodeId.getValue());
             // TODO: handle tunnel ip change
@@ -188,32 +202,55 @@ public class HwvtepPhysicalSwitchListener
 
     @Override
     protected void added(InstanceIdentifier<PhysicalSwitchAugmentation> identifier,
-            final PhysicalSwitchAugmentation phySwitchAdded) {
-        if (phySwitchAdded.getManagedBy() == null) {
-            LOG.info("managed by field is missing ");
+                         final PhysicalSwitchAugmentation phySwitchAdded) {
+        LOG.trace("L2gw node added {}", (phySwitchAdded.getHwvtepNodeName() != null
+                ? phySwitchAdded.getHwvtepNodeName() : "Node name doesn't exist"));
+        String globalNodeId = getManagedByNodeId(identifier);
+        final InstanceIdentifier<Node> globalNodeIid = getManagedByNodeIid(identifier);
+        final InstanceIdentifier<Node> wildCard = globalNodeIid.firstIdentifierOf(Topology.class).child(Node.class);
+        NodeId nodeId = getNodeId(identifier);
+        if (phySwitchAdded.getHwvtepNodeName() == null || HwvtepHAUtil.isEmpty(phySwitchAdded.getTunnelIps())) {
+            if (phySwitchAdded.getHwvtepNodeName() == null) {
+                LOG.error("Could not find the physical switch name for node {}", nodeId.getValue());
+            } else {
+                LOG.error("Could not find the /tunnel ips for node {}", nodeId.getValue());
+            }
             return;
         }
-        InstanceIdentifier<Node> globalNodeId = (InstanceIdentifier<Node>)phySwitchAdded.getManagedBy().getValue();
-        NodeId nodeId = getNodeId(identifier);
         final String psName = phySwitchAdded.getHwvtepNodeName().getValue();
-        LOG.info("Received physical switch {} added event received for node {}", psName, nodeId.getValue());
-
-        try {
-            if (updateHACacheIfHANode(dataBroker, globalNodeId)) {
-                updateL2GatewayCache(psName, new HwvtepGlobalRef(hwvtepHACache.getParent(globalNodeId)),
-                        phySwitchAdded.getTunnelIps());
-                return;
+        LOG.trace("Received physical switch {} added event received for node {}", psName, nodeId.getValue());
+        ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction();
+        ListenableFuture<Optional<Node>> ft = tx.read(OPERATIONAL, globalNodeIid);
+        Futures.addCallback(ft, new FutureCallback<Optional<Node>>() {
+            @Override
+            public void onSuccess(Optional<Node> globalNodeOptional) {
+                if (globalNodeOptional.isPresent()) {
+                    LOG.trace("Running job for node {} ", globalNodeIid);
+                    HAOpClusteredListener.addToCacheIfHAChildNode(globalNodeIid, (Node) globalNodeOptional.get());
+                    if (hwvtepHACache.isHAEnabledDevice(globalNodeIid)) {
+                        LOG.trace("Ha enabled device {}", globalNodeIid);
+                    }
+                    LOG.trace("Updating cache for node {}", globalNodeIid);
+                    L2GatewayDevice l2GwDevice = L2GatewayCacheUtils.getL2DeviceFromCache(psName);
+                    if (!hwvtepHACache.isHAParentNode(globalNodeIid)
+                            && l2GwDevice != null && l2GwDevice.getHwvtepNodeId() != null
+                            && !Objects.equals(l2GwDevice.getHwvtepNodeId(), globalNodeId)) {
+                        LOG.trace("Device {} {} is already Connected by ",
+                                psName, globalNodeId, l2GwDevice.getHwvtepNodeId());
+                    }
+                    l2GwDevice = L2GatewayCacheUtils.updateCacheUponSwitchConnect(
+                            psName, globalNodeId, phySwitchAdded.getTunnelIps());
+                    handleAdd(l2GwDevice);
+                } else {
+                    LOG.error("Global node doesn't exist for nodeiid {}", globalNodeIid);
+                }
             }
-        } catch (ExecutionException e) {
-            LOG.error("Failed to read operational node {}", globalNodeId);
-            //TODO add retry mechanism
-        } catch (InterruptedException e) {
-            LOG.error("Failed to read operational node {}", globalNodeId);
-            //TODO add retry mechanism
-        }
-        L2GatewayDevice l2GwDevice =
-                updateL2GatewayCache(psName, phySwitchAdded.getManagedBy(), phySwitchAdded.getTunnelIps());
-        handleAdd(l2GwDevice);
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                LOG.error("Failed to handle physical switch add {}", identifier.firstKeyOf(Node.class).getNodeId());
+            }
+        });
     }
 
     boolean updateHACacheIfHANode(DataBroker broker, InstanceIdentifier<Node> globalNodeId)
@@ -239,36 +276,9 @@ public class HwvtepPhysicalSwitchListener
                 if (L2GatewayConnectionUtils.isGatewayAssociatedToL2Device(l2GwDevice)) {
                     LOG.debug("L2Gateway {} associated for {} physical switch; creating ITM tunnels for {}",
                             l2GwDevice.getL2GatewayIds(), psName, tunnelIpAddr);
-
-                    // It's a pre-provision scenario
-                    // Initiate ITM tunnel creation
-                    ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService,
-                            "handling Physical Switch add create itm tunnels ",
-                            new Callable<List<ListenableFuture<Void>>>() {
-                                @Override
-                                public List<ListenableFuture<Void>> call() throws Exception {
-                                    ElanL2GatewayUtils.createItmTunnels(itmRpcService,
-                                            hwvtepNodeId, psName, tunnelIpAddr);
-                                    return Collections.emptyList();
-                                }
-                            });
-
-                    // Initiate Logical switch creation for associated L2
-                    // Gateway Connections
-                    List<L2gatewayConnection> l2GwConns = L2GatewayConnectionUtils.getAssociatedL2GwConnections(
-                            dataBroker, l2GwDevice.getL2GatewayIds());
-                    if (l2GwConns != null) {
-                        LOG.debug("L2GatewayConnections associated for {} physical switch", psName);
-
-                        for (L2gatewayConnection l2GwConn : l2GwConns) {
-                            LOG.trace("L2GatewayConnection {} changes executed on physical switch {}",
-                                    l2GwConn.getL2gatewayId(), psName);
-
-                            l2GatewayConnectionUtils.addL2GatewayConnection(l2GwConn, psName);
-                        }
-                    }
-                    // TODO handle deleted l2gw connections while the device is
-                    // offline
+                    l2gwServiceProvider.provisionItmAndL2gwConnection(l2GwDevice, psName, hwvtepNodeId, tunnelIpAddr);
+                } else {
+                    LOG.info("l2gw.provision.skip {}", hwvtepNodeId, psName);
                 }
             }
         }
@@ -301,18 +311,6 @@ public class HwvtepPhysicalSwitchListener
     }
 
     /**
-     * Gets the managed by node id.
-     *
-     * @param globalRef
-     *            the global ref
-     * @return the managed by node id
-     */
-    private String getManagedByNodeId(HwvtepGlobalRef globalRef) {
-        InstanceIdentifier<?> instId = globalRef.getValue();
-        return instId.firstKeyOf(Node.class).getNodeId().getValue();
-    }
-
-    /**
      * Gets the node id.
      *
      * @param identifier
@@ -336,6 +334,35 @@ public class HwvtepPhysicalSwitchListener
             PhysicalSwitchAugmentation phySwitchAfter) {
         return (phySwitchBefore.getTunnelIps() == null || phySwitchBefore.getTunnelIps().isEmpty())
                 && phySwitchAfter.getTunnelIps() != null && !phySwitchAfter.getTunnelIps().isEmpty();
+    }
+
+    /**
+     * Gets the managed by node id.
+     *
+     * @param globalRef
+     *            the global ref
+     * @return the managed by node id
+     */
+    private String getManagedByNodeId(HwvtepGlobalRef globalRef) {
+        InstanceIdentifier<?> instId = globalRef.getValue();
+        return instId.firstKeyOf(Node.class).getNodeId().getValue();
+    }
+
+    private String getManagedByNodeId(InstanceIdentifier<PhysicalSwitchAugmentation> identifier) {
+        String psNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
+        if (psNodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
+            return psNodeId.substring(0, psNodeId.indexOf(HwvtepHAUtil.PHYSICALSWITCH));
+        }
+        return psNodeId;
+    }
+
+    private InstanceIdentifier<Node> getManagedByNodeIid(InstanceIdentifier<PhysicalSwitchAugmentation> identifier) {
+        String psNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
+        if (psNodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
+            psNodeId = psNodeId.substring(0, psNodeId.indexOf(HwvtepHAUtil.PHYSICALSWITCH));
+            return identifier.firstIdentifierOf(Topology.class).child(Node.class, new NodeKey(new NodeId(psNodeId)));
+        }
+        return null;
     }
 
 }

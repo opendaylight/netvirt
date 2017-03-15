@@ -10,17 +10,23 @@ package org.opendaylight.netvirt.elan.l2gw.utils;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.l2gw.jobs.AssociateHwvtepToElanJob;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DisAssociateHwvtepFromElanJob;
+import org.opendaylight.netvirt.elan.l2gw.listeners.ElanInstanceListener;
 import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLogicalSwitchListener;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -36,8 +42,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev15071
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateways.attributes.l2gateways.L2gateway;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateways.attributes.l2gateways.L2gatewayKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,8 +162,18 @@ public class L2GatewayConnectionUtils {
 
         Uuid networkUuid = input.getNetworkId();
         ElanInstance elanInstance = elanInstanceManager.getElanInstanceByName(networkUuid.getValue());
-        if (elanInstance == null || (!ElanUtils.isVxlan(elanInstance) && !ElanUtils.isVxlanSegment(elanInstance))) {
-            LOG.error("Neutron network with id {} is not present", networkUuid.getValue());
+        //Taking cluster reboot scenario , if Elan instance is not available when l2GatewayConnection add events
+        //comes we need to wait for elaninstance to resolve. Hence updating the map with the runnable .
+        //When elanInstance add comes , it look in to the map and run the associated runnable associated with it.
+        if (elanInstance == null) {
+            LOG.info("Waiting for elan {}", networkUuid.getValue());
+            ElanInstanceListener.runJobAfterElanIsAvailable(networkUuid.getValue(), () -> {
+                addL2GatewayConnection(input, l2GwDeviceName);
+            });
+            return;
+        }
+        if (!ElanUtils.isVxlan(elanInstance) && !ElanUtils.isVxlanSegment(elanInstance)) {
+            LOG.error("Neutron network with id {} is not VxlanNetwork", networkUuid.getValue());
         } else {
             Uuid l2GatewayId = input.getL2gatewayId();
             L2gateway l2Gateway = getNeutronL2gateway(broker, l2GatewayId);
@@ -185,6 +204,17 @@ public class L2GatewayConnectionUtils {
                         .get(input.getKey().getUuid()));
             }
         }
+        if (l2gwDevicesToBeDeleted.isEmpty()) {
+            //delete logical switch
+            Uuid l2GatewayId = input.getL2gatewayId();
+            L2gateway l2Gateway = L2GatewayConnectionUtils.getNeutronL2gateway(broker, l2GatewayId);
+            if (l2Gateway == null) {
+                LOG.error("Failed to find the l2gateway for the connection {}", input.getUuid());
+                return;
+            } else {
+                l2gwDevicesToBeDeleted.addAll(l2Gateway.getDevices());
+            }
+        }
         for (Devices l2Device : l2gwDevicesToBeDeleted) {
             String l2DeviceName = l2Device.getDeviceName();
             L2GatewayDevice l2GatewayDevice = L2GatewayCacheUtils.getL2DeviceFromCache(l2DeviceName);
@@ -200,7 +230,11 @@ public class L2GatewayConnectionUtils {
                 Uuid l2GwConnId = input.getKey().getUuid();
                 LOG.debug("Elan L2Gw Conn cache with id {} is being referred by other L2Gw Conns; so only "
                         + "L2 Gw Conn {} reference is removed", hwvtepNodeId, l2GwConnId);
-                elanL2GwDevice.removeL2GatewayId(l2GwConnId);
+                if (elanL2GwDevice != null) {
+                    elanL2GwDevice.removeL2GatewayId(l2GwConnId);
+                } else {
+                    isLastL2GwConnDeleted = true;
+                }
             }
 
             DisAssociateHwvtepFromElanJob disAssociateHwvtepToElanJob =
@@ -251,7 +285,7 @@ public class L2GatewayConnectionUtils {
                     hwVTEPLogicalSwitchListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
                     createLogicalSwitch = true;
                 } else {
-                    addL2DeviceToElanL2GwCache(elanName, l2GatewayDevice, l2GwConnId, l2Device);
+                    addL2DeviceToElanL2GwCache(broker ,elanName, l2GatewayDevice, l2GwConnId, l2Device);
                     createLogicalSwitch = false;
                 }
                 AssociateHwvtepToElanJob associateHwvtepToElanJob = new AssociateHwvtepToElanJob(broker,
@@ -268,7 +302,8 @@ public class L2GatewayConnectionUtils {
         }
     }
 
-    public static L2GatewayDevice addL2DeviceToElanL2GwCache(String elanName, L2GatewayDevice l2GatewayDevice,
+    public static L2GatewayDevice addL2DeviceToElanL2GwCache(final DataBroker broker, String elanName,
+                                                             L2GatewayDevice l2GatewayDevice,
             Uuid l2GwConnId, Devices l2Device) {
         String l2gwDeviceNodeId = l2GatewayDevice.getHwvtepNodeId();
         L2GatewayDevice elanL2GwDevice = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanName, l2gwDeviceNodeId);
@@ -284,10 +319,9 @@ public class L2GatewayConnectionUtils {
                     l2gwDeviceNodeId, l2GwConnId);
         }
         elanL2GwDevice.addL2GatewayId(l2GwConnId);
-        if (elanL2GwDevice.getL2gwConnectionIdToDevices().get(l2GwConnId) == null) {
-            elanL2GwDevice.getL2gwConnectionIdToDevices().put(l2GwConnId, new ArrayList<Devices>());
-        }
-        elanL2GwDevice.getL2gwConnectionIdToDevices().get(l2GwConnId).add(l2Device);
+        elanL2GwDevice.getL2gwConnectionIdToDevices().computeIfAbsent(l2GwConnId, key -> new HashSet<>()).add(
+                l2Device);
+        readAndCopyLocalUcastMacsToCache(broker, elanName, l2GatewayDevice);
 
         LOG.trace("Elan L2GwConn cache updated with below details: {}", elanL2GwDevice);
         return elanL2GwDevice;
@@ -299,5 +333,35 @@ public class L2GatewayConnectionUtils {
 
     protected static boolean isLastL2GwConnBeingDeleted(L2GatewayDevice l2GwDevice) {
         return l2GwDevice.getL2GatewayIds().size() == 1;
+    }
+
+    private static void readAndCopyLocalUcastMacsToCache(final DataBroker broker,
+                                                         final String elanName,
+                                                         final L2GatewayDevice l2GatewayDevice) {
+
+        final InstanceIdentifier<Node> nodeIid = HwvtepSouthboundUtils.createInstanceIdentifier(
+                new NodeId(l2GatewayDevice.getHwvtepNodeId()));
+        DataStoreJobCoordinator.getInstance().enqueueJob(elanName + ":" + l2GatewayDevice.getDeviceName(), () -> {
+            final SettableFuture settableFuture = SettableFuture.create();
+            Futures.addCallback(broker.newReadOnlyTransaction().read(LogicalDatastoreType.OPERATIONAL,
+                    nodeIid),
+                    new SettableFutureCallback<Optional<Node>>(settableFuture) {
+                        @Override
+                        public void onSuccess(Optional<Node> resultNode) {
+                            Optional<Node> nodeOptional = (Optional<Node>) resultNode;
+                            if (nodeOptional.isPresent()) {
+                                Node node = nodeOptional.get();
+                                if (node.getAugmentation(HwvtepGlobalAugmentation.class) != null) {
+                                    List<LocalUcastMacs> localUcastMacs =
+                                            node.getAugmentation(HwvtepGlobalAugmentation.class).getLocalUcastMacs();
+                                    if (localUcastMacs != null) {
+                                        localUcastMacs.forEach((mac) -> l2GatewayDevice.addUcastLocalMac(mac));
+                                    }
+                                }
+                            }
+                        }
+                    });
+            return Lists.newArrayList(settableFuture);
+        } , 5);
     }
 }
