@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ad11765f",
+        "filename": "docs/specs/listener-dependency-helper.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-03-15T09:26:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_dc3d922e",
+      "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_bc3a4e32",
         "filename": "docs/specs/listener-dependency-helper.rst",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-14T14:16:02Z",
       "side": 1,
       "message": "bgp control plane and also data plane failures.",
+      "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8d163254",
+        "filename": "docs/specs/listener-dependency-helper.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-03-15T09:26:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_bc3a4e32",
       "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e8940c8e",
+        "filename": "docs/specs/listener-dependency-helper.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-03-15T09:26:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3c7dbee8",
+      "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7c8746d8",
         "filename": "docs/specs/listener-dependency-helper.rst",
         "patchSetId": 5
@@ -70,6 +124,96 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_28e61445",
+        "filename": "docs/specs/listener-dependency-helper.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-03-15T09:26:32Z",
+      "side": 1,
+      "message": "This will be exposed to consumer, consumer can override it (useful for consumers, who wants to choose cache).\n Default implementation is provided with infra (MDSAL-READ).",
+      "parentUuid": "fafc7978_7c8746d8",
+      "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_48c0b8e0",
+        "filename": "docs/specs/listener-dependency-helper.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-03-15T09:26:32Z",
+      "side": 1,
+      "message": "From the application/consumer perspective the api\u0027s remain same. Differentiation between these two approaches is chosen from a boolean flag.\n\nFor usecase-1: \nDeferedEvent deferedEvent \u003d new DeferedEvent(actualIdentifier, null, newData, DeferedEvent.EventType.ADD,\n\tVpnConstants.DEFER_EVENT_MIN_WAIT_TIME_IN_MILLISECONDS,\n\tdependencyDataList, VpnConstants.DEFER_EVENT_WAIT_RETRY_COUNT, false/*listener*/,\n\tdataBroker, getListenerDependencyHelperQueue());",
+      "parentUuid": "fafc7978_c83ae833",
+      "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c8ab081d",
+        "filename": "docs/specs/listener-dependency-helper.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-03-15T09:26:32Z",
+      "side": 1,
+      "message": "Yes, there is expiry time which gets calculated based on number of retries and interval between retries.",
+      "parentUuid": "fafc7978_e8240c10",
+      "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_48671826",
+        "filename": "docs/specs/listener-dependency-helper.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-03-15T09:26:32Z",
+      "side": 1,
+      "message": "we close the listener, when there is no dependent IID\u0027s registered with that wildcardPath",
+      "parentUuid": "fafc7978_68781cf9",
+      "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_887100e3",
+        "filename": "docs/specs/listener-dependency-helper.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-03-15T09:26:32Z",
+      "side": 1,
+      "message": "For initial phase, plan is to have pre-defined listeners for use-cases defined. will update the document with list of pre-defined listeners.",
+      "parentUuid": "fafc7978_281f34b9",
+      "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_bc688e22",
         "filename": "docs/specs/listener-dependency-helper.rst",
         "patchSetId": 5
@@ -81,6 +225,24 @@
       "writtenOn": "2017-03-14T14:16:02Z",
       "side": 1,
       "message": "are both the approaches being made available in the framework and the consumer can select which one should apply on a per instance-identifier-type (eg., vpnInterface) to be processed ?",
+      "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a8c964ae",
+        "filename": "docs/specs/listener-dependency-helper.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-03-15T09:26:32Z",
+      "side": 1,
+      "message": "Yes, proposal is to provide both register-listener and timer based approaches.",
+      "parentUuid": "fafc7978_bc688e22",
       "revId": "7ca605f9765159b83381ca7cc8843c12d9721809",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
