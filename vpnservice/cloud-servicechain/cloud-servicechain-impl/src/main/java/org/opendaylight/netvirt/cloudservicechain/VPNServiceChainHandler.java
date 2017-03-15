@@ -227,7 +227,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
                     for (VpnToDpnList dpnInVpn : vpnToDpnList ) {
                         dpns.add(dpnInVpn.getDpnId());
                     }
-                    if ( !dpns.contains(dpnId) ) {
+                    if (!dpns.contains(BigInteger.valueOf(dpnId))) {
                         LOG.debug("Dpn {} is not included in the current VPN Footprint", dpnId);
                         dpns.add(BigInteger.valueOf(dpnId));
                     }
