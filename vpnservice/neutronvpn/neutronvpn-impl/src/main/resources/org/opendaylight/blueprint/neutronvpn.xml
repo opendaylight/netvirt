@@ -13,9 +13,9 @@
   <reference id="notificationPublishService"
              interface="org.opendaylight.controller.md.sal.binding.api.NotificationPublishService" />
   <reference id="vpnManager"
-           interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
+             interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
   <reference id="centralizedSwitchProvider"
-           interface="org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider" />
+             interface="org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider" />
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
@@ -69,6 +69,13 @@
         class="org.opendaylight.netvirt.neutronvpn.NeutronHostConfigChangeListener"
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
+  </bean>
+
+  <bean id="qosInterfaceStateChangeListener"
+        class="org.opendaylight.netvirt.neutronvpn.QosInterfaceStateChangeListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="odlInterfaceRpcService" />
   </bean>
 
   <bean id="neutronNetworkChangeListener"
@@ -156,7 +163,7 @@
 
   <bean id="neutronvpnManagerImpl"
         class="org.opendaylight.netvirt.neutronvpn.NeutronvpnManagerImpl">
-        <argument ref="neutronvpnManager" />
+    <argument ref="neutronvpnManager" />
   </bean>
 
   <bean id="InterfaceStateToTransportZoneListener"
