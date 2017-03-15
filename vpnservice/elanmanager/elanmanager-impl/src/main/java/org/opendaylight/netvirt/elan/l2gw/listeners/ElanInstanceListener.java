@@ -7,7 +7,10 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -30,12 +33,16 @@ public class ElanInstanceListener extends AsyncDataTreeChangeListenerBase<ElanIn
 
     private final DataBroker broker;
     private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
+    private static final Map<String, List<Runnable>> WAITING_JOBS_LIST = new ConcurrentHashMap<>();
 
     public ElanInstanceListener(final DataBroker db, ElanUtils elanUtils) {
         super(ElanInstance.class, ElanInstanceListener.class);
         broker = db;
         this.l2GatewayConnectionUtils = elanUtils.getL2GatewayConnectionUtils();
-        registerListener(LogicalDatastoreType.CONFIGURATION, db);
+    }
+
+    public void init() {
+        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
     }
 
     @Override
@@ -61,7 +68,10 @@ public class ElanInstanceListener extends AsyncDataTreeChangeListenerBase<ElanIn
 
     @Override
     protected void add(InstanceIdentifier<ElanInstance> identifier, ElanInstance add) {
-
+        List<Runnable> runnables = WAITING_JOBS_LIST.get(add.getElanInstanceName());
+        if (runnables != null) {
+            runnables.forEach(Runnable::run);
+        }
     }
 
     @Override
@@ -72,6 +82,11 @@ public class ElanInstanceListener extends AsyncDataTreeChangeListenerBase<ElanIn
     @Override
     protected InstanceIdentifier<ElanInstance> getWildCardPath() {
         return InstanceIdentifier.create(ElanInstances.class).child(ElanInstance.class);
+    }
+
+    public static  void runJobAfterElanIsAvailable(String elanName, Runnable runnable) {
+        WAITING_JOBS_LIST.computeIfAbsent(elanName, (name) -> new ArrayList<>());
+        WAITING_JOBS_LIST.get(elanName).add(runnable);
     }
 
 }
