@@ -165,22 +165,23 @@ public class PolicyServiceUtil {
         }
     }
 
-    public void updateTunnelInterfaceForUnderlayNetwork(String underlayNetwork, BigInteger dpnId,
-            String tunnelInterface, boolean isAdded) {
+    public void updateTunnelInterfaceForUnderlayNetwork(String underlayNetwork, BigInteger srcId, BigInteger dstDpId,
+            String tunnelInterfaceName, boolean isAdded) {
         coordinator.enqueueJob(underlayNetwork, () -> {
             InstanceIdentifier<TunnelInterface> identifier = InstanceIdentifier.create(UnderlayNetworks.class)
                     .child(UnderlayNetwork.class, new UnderlayNetworkKey(underlayNetwork))
-                    .child(DpnToInterface.class, new DpnToInterfaceKey(dpnId))
-                    .child(TunnelInterface.class, new TunnelInterfaceKey(tunnelInterface));
+                    .child(DpnToInterface.class, new DpnToInterfaceKey(srcId))
+                    .child(TunnelInterface.class, new TunnelInterfaceKey(tunnelInterfaceName));
 
             WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
             if (isAdded) {
-                tx.merge(LogicalDatastoreType.OPERATIONAL, identifier,
-                        new TunnelInterfaceBuilder().setInterfaceName(tunnelInterface).build(), true);
-                LOG.info("Add tunnel {} on DPN {} to underlay network {}", tunnelInterface, dpnId, underlayNetwork);
+                TunnelInterface tunnelInterface = new TunnelInterfaceBuilder().setInterfaceName(tunnelInterfaceName)
+                        .setRemoteDpId(dstDpId).build();
+                tx.merge(LogicalDatastoreType.OPERATIONAL, identifier, tunnelInterface, true);
+                LOG.info("Add tunnel {} on DPN {} to underlay network {}", tunnelInterfaceName, srcId, underlayNetwork);
             } else {
                 tx.delete(LogicalDatastoreType.OPERATIONAL, identifier);
-                LOG.info("Remove tunnel {} from DPN {} on underlay network {}", tunnelInterface, dpnId,
+                LOG.info("Remove tunnel {} from DPN {} on underlay network {}", tunnelInterfaceName, srcId,
                         underlayNetwork);
             }
             return Collections.singletonList(tx.submit());
@@ -287,19 +288,22 @@ public class PolicyServiceUtil {
         return aclType != null && aclType.isAssignableFrom(PolicyAcl.class);
     }
 
-    private List<BigInteger> getUnderlayNetworkDpns(String underlayNetwork) {
+    public List<DpnToInterface> getUnderlayNetworkDpnToInterfaces(String underlayNetwork) {
         InstanceIdentifier<UnderlayNetwork> identifier = InstanceIdentifier.create(UnderlayNetworks.class)
                 .child(UnderlayNetwork.class, new UnderlayNetworkKey(underlayNetwork));
         try {
             Optional<UnderlayNetwork> optUnderlayNetwork = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.OPERATIONAL, identifier);
-            return optUnderlayNetwork.isPresent()
-                    ? getDpnsFromDpnToInterfaces(optUnderlayNetwork.get().getDpnToInterface())
+            return optUnderlayNetwork.isPresent() ? optUnderlayNetwork.get().getDpnToInterface()
                     : Collections.emptyList();
         } catch (ReadFailedException e) {
             LOG.warn("Failed to get DPNs for underlay network {}", underlayNetwork);
             return Collections.emptyList();
         }
+    }
+
+    public List<BigInteger> getUnderlayNetworkDpns(String underlayNetwork) {
+        return getDpnsFromDpnToInterfaces(getUnderlayNetworkDpnToInterfaces(underlayNetwork));
     }
 
     @SuppressWarnings("unchecked")
