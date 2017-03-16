@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_95a910e2",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnSnatFlowProgrammer.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-16T10:12:17Z",
+      "side": 1,
+      "message": "why can\u0027t just use table_id here too instead of hardcoding INBOUND_NAPT_TABLE ?",
+      "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_35b8242a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnSnatFlowProgrammer.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-16T10:12:17Z",
+      "side": 1,
+      "message": "can you please make sure all the above piece of info is recoverable when we directly delete an L3VPN-with-L3VNI (that has a router associated inside it when the SNAT Traffic is flowing on data plane via that router)?",
+      "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_356144d4",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnSnatFlowProgrammer.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-16T10:12:17Z",
+      "side": 1,
+      "message": "these all should be made Debug.\n\ntableId is passed from elsewhere, so why can\u0027t you just pass that table-Id here too and use that to log the debug, why hardcode INBOUND_NAPT_TABLE here?",
+      "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_daabc71c",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 36
