@@ -44,6 +44,8 @@ public interface IVpnManager {
      */
     List<BigInteger> getDpnsOnVpn(String vpnInstanceName);
 
+    String getPrimaryRdFromVpnInstance(VpnInstance vpnInstance);
+
     void setupSubnetMacIntoVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
             BigInteger dpnId, WriteTransaction writeTx, int addOrRemove);
 
@@ -68,5 +70,5 @@ public interface IVpnManager {
     String getVpnRd(DataBroker broker, String vpnName);
 
     VpnPortipToPort getNeutronPortFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp);
-
+    
 }
