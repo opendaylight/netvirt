@@ -141,12 +141,17 @@ public class DhcpServiceUtils {
         }
     }
 
-    private static List<MatchInfo> getDhcpMatch(String vmMacAddress) {
+    public static List<MatchInfo> getDhcpMatch() {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(MatchIpProtocol.UDP);
         matches.add(new MatchUdpSourcePort(DhcpMConstants.DHCP_CLIENT_PORT));
         matches.add(new MatchUdpDestinationPort(DhcpMConstants.DHCP_SERVER_PORT));
+        return matches;
+    }
+
+    public static List<MatchInfo> getDhcpMatch(String vmMacAddress) {
+        List<MatchInfo> matches = getDhcpMatch();
         matches.add(new MatchEthernetSource(new MacAddress(vmMacAddress)));
         return matches;
     }
