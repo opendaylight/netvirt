@@ -1,0 +1,94 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ba7b637a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/L2GatewayConnectionUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2017-03-16T08:40:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_7e10d6a8",
+      "revId": "d1abb2a4129026edcc7f42aacf58e6dccafa0c9d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9a801f48",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/l2gw/utils/L2GatewayCacheUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2017-03-16T08:40:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_def62290",
+      "revId": "d1abb2a4129026edcc7f42aacf58e6dccafa0c9d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fa94cb8d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/l2gw/utils/L2GatewayCacheUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2017-03-16T08:40:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_1ef1ca95",
+      "revId": "d1abb2a4129026edcc7f42aacf58e6dccafa0c9d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_da91079c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/l2gw/utils/L2GatewayCacheUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2017-03-16T08:40:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3e2f6ef8",
+      "revId": "d1abb2a4129026edcc7f42aacf58e6dccafa0c9d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1a8c2f7f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/l2gw/L2GatewayListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2017-03-16T08:40:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_be3a3e32",
+      "revId": "d1abb2a4129026edcc7f42aacf58e6dccafa0c9d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
