@@ -23,7 +23,6 @@ module odl-fib {
             }
             leaf mac {
                type string;
-               mandatory false;
             }
             leaf origin {
                 type string;
