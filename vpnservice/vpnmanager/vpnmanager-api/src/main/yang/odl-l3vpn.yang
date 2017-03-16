@@ -153,8 +153,8 @@ module odl-l3vpn {
         config false;
         description "Holds the networks to which given evpn is attached";
         list evpn-rd-to-network {
-           key vrf-id;
-           leaf vrf-id {
+           key rd;
+           leaf rd {
              type string;
            }
            leaf network-id {
