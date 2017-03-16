@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b58254c6",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnSnatFlowProgrammer.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-16T13:03:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_95a910e2",
+      "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_35b8242a",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnSnatFlowProgrammer.java",
         "patchSetId": 36
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-16T10:12:17Z",
       "side": 1,
       "message": "can you please make sure all the above piece of info is recoverable when we directly delete an L3VPN-with-L3VNI (that has a router associated inside it when the SNAT Traffic is flowing on data plane via that router)?",
+      "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e781cffc",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnSnatFlowProgrammer.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-16T13:03:49Z",
+      "side": 1,
+      "message": "Hi Vivek,\n\nHave tested the SNAT session recoverable for directly delete an L3vpn with l3vni. It works fine.",
+      "parentUuid": "fafc7978_35b8242a",
       "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b5d094ca",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnSnatFlowProgrammer.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-16T13:03:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_356144d4",
+      "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_daabc71c",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 36
@@ -64,6 +118,24 @@
       "writtenOn": "2017-03-16T09:40:55Z",
       "side": 1,
       "message": "if this writeTx is going to be used only for evpn case, plese allocate this within the VXLAN condition below..",
+      "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_070fb32f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 915,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-16T13:03:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_daabc71c",
       "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_671cbf6b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 926,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-16T13:03:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_faae8b2e",
+      "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3aa93325",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 36
@@ -98,6 +188,24 @@
       "writtenOn": "2017-03-16T09:40:55Z",
       "side": 1,
       "message": "why does this not use writeTx ?\n\nSimilarly, avoid else here and do an early return within the \u003d\u003d VXLAN if condition after writeTx.submit().\n\nFurther is there a possibility that add and remove can race, if so we need to use DJC here and in the add call earlier too!",
+      "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c79dab5b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 1957,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-16T13:03:49Z",
+      "side": 1,
+      "message": "writeTx is required for only in fibManager.addOrUpdateFibEntry().\n\nFor add and remove, there is no chance for race condition. Since remove method will invoke only on when the user has did manual removal of SNAT configuration.",
+      "parentUuid": "fafc7978_3aa93325",
       "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e71f0f5a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 2034,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-16T13:03:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_7a629b17",
+      "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fa5ccb4e",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
         "patchSetId": 36
@@ -132,6 +258,24 @@
       "writtenOn": "2017-03-16T09:40:55Z",
       "side": 1,
       "message": "please donot call advertisePrefix if its normal router case, ie., if its a transparent internet vpn.",
+      "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a7b507d2",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-16T13:03:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_fa5ccb4e",
       "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
