@@ -41,6 +41,7 @@ import org.opendaylight.infrautils.inject.AbstractLifecycle;
 import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
+import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.elanmanager.exceptions.MacNotFoundException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -156,7 +157,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                         .setDescription(description).setMacTimeout(macTimeout)
                         .setKey(new ElanInstanceKey(elanInstanceName)).build();
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
-                        ElanUtils.getElanInstanceConfigurationDataPath(elanInstanceName), updateElanInstance);
+                        ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName), updateElanInstance);
                 LOG.debug("Updating the Elan Instance {} with MAC TIME-OUT %l and Description %s ",
                         updateElanInstance, macTimeout, description);
             }
@@ -165,7 +166,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                     .setMacTimeout(macTimeout).setDescription(description).setKey(new ElanInstanceKey(elanInstanceName))
                     .build();
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
-                    ElanUtils.getElanInstanceConfigurationDataPath(elanInstanceName), elanInstance);
+                    ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName), elanInstance);
             LOG.debug("Creating the new Elan Instance {}", elanInstance);
         }
         return isSuccess;
@@ -186,7 +187,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                         .setKey(new ElanInstanceKey(elanInstanceName))
                         .addAugmentation(EtreeInstance.class, etreeInstance).build();
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
-                        ElanUtils.getElanInstanceConfigurationDataPath(elanInstanceName), updateElanInstance);
+                        ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName), updateElanInstance);
                 LOG.debug("Updating the Etree Instance {} with MAC TIME-OUT %l and Description %s ",
                         updateElanInstance, macTimeout, description);
             }
@@ -196,7 +197,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                     .setMacTimeout(macTimeout).setDescription(description).setKey(new ElanInstanceKey(elanInstanceName))
                     .addAugmentation(EtreeInstance.class, etreeInstance).build();
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
-                    ElanUtils.getElanInstanceConfigurationDataPath(elanInstanceName), elanInstance);
+                    ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName), elanInstance);
             LOG.debug("Creating the new Etree Instance {}", elanInstance);
         }
         return isSuccess;
@@ -237,7 +238,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         }
         LOG.debug("Deletion of the existing Elan Instance {}", existingElanInstance);
         ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
-                ElanUtils.getElanInstanceConfigurationDataPath(elanInstanceName));
+                ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName));
         isSuccess = true;
         return isSuccess;
     }
