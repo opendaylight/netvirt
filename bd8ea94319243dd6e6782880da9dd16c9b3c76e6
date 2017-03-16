@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_6f03fb76",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-16T07:27:39Z",
+      "side": 1,
+      "message": "guard against null argument.",
+      "revId": "bd8ea94319243dd6e6782880da9dd16c9b3c76e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2fc3b339",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-16T07:27:39Z",
+      "side": 1,
+      "message": "use routePathList.sort(comparing(RoutePaths::getNexthopAddress)) to make it more crisp :)",
+      "revId": "bd8ea94319243dd6e6782880da9dd16c9b3c76e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_afd043ca",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2528,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-16T07:27:39Z",
+      "side": 1,
+      "message": "have check for adjacencyResults.size() \u003d\u003d 1 and invoke programRemoteFib and return it. It can avoid longer if loop.",
+      "revId": "bd8ea94319243dd6e6782880da9dd16c9b3c76e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
