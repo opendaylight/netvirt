@@ -8,8 +8,10 @@
     interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" />
   <reference id="iMdsalApiManager"
     interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
+  <reference id="iInterfaceManager"
+    interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
   <reference id="iAclServiceUtil"
-        interface="org.opendaylight.netvirt.aclservice.api.utils.IAclServiceUtil" />
+    interface="org.opendaylight.netvirt.aclservice.api.utils.IAclServiceUtil" />
 
   <odl:rpc-service id="idManagerService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
