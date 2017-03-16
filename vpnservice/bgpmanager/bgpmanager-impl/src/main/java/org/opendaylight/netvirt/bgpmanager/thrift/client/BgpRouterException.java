@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.bgpmanager.thrift.client;
 
 import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
 
@@ -23,6 +24,7 @@ public class BgpRouterException extends Exception {
     public static final int BGP_ERR_INACTIVE = qbgpConstants.BGP_ERR_INACTIVE;
     public static final int BGP_ERR_NOT_ITER = qbgpConstants.BGP_ERR_NOT_ITER;
     public static final int BGP_ERR_PARAM = qbgpConstants.BGP_ERR_PARAM;
+    public static final int BGP_ERR_NOT_SUPPORTED = qbgpConstants.BGP_ERR_NOT_SUPPORTED;
 
     private static final Map<Integer, String> MESSAGES = ImmutableBiMap.<Integer, String>builder()
             .put(BGP_ERR_INITED, "(" + BGP_ERR_INITED + ") Attempt to reinitialize BgpRouter thrift client")
@@ -34,20 +36,51 @@ public class BgpRouterException extends Exception {
                     "(" + BGP_ERR_IN_ITER + ") Attempt to start route iteration when already in the middle of one")
             .put(BGP_ERR_NOT_ITER, "(" + BGP_ERR_NOT_ITER + ") Route iteration not initialized")
             .put(BGP_ERR_PARAM, "(" + BGP_ERR_PARAM + ") Parameter validation or Unknown error")
+            .put(BGP_ERR_NOT_SUPPORTED, "(" + BGP_ERR_NOT_SUPPORTED + ") Operation not supported")
             .build();
 
     private final int errcode;
+    private final Function functionCode;
+
+    public enum Function {
+        DEFAULT(ImmutableMap.of()),
+        SET_PEER_SECRET(ImmutableMap.of(
+                    BGP_ERR_FAILED, "(" + BGP_ERR_FAILED + ") Attempt to set the MD5 secret of an unknown peer",
+                    BGP_ERR_PARAM, "(" + BGP_ERR_PARAM + ") Attempt to set an invalid MD5 secret"));
+
+        private final Map<Integer, String> messageMap;
+
+        Function(Map<Integer, String> messages) {
+            messageMap = messages;
+        } // ctor
+
+        public Map<Integer, String> messages() {
+            return messageMap;
+        } // messages getter
+    } // enum Function
+
+    public BgpRouterException(BgpRouterException.Function func, int cause) {
+        functionCode = func;
+        errcode = cause;
+    } // public ctor
 
     public BgpRouterException(int cause) {
-        errcode = cause;
+        this(Function.DEFAULT, cause);
     }
 
     public int getErrorCode() {
         return errcode;
     }
 
+    public Function getFunctionCode() {
+        return functionCode;
+    } // getter getFunctionCode
+
     public String toString() {
-        String message = MESSAGES.get(errcode);
+        String message = functionCode.messages().get(errcode);
+        if (message == null) { // there is no function specific message
+            message = MESSAGES.get(errcode);
+        }
         if (message != null) {
             return message;
         }
