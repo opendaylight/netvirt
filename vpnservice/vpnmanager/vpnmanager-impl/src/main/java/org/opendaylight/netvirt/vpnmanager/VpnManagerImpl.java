@@ -266,6 +266,11 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
+    public String getPrimaryRdFromVpnInstance(VpnInstance vpnInstance) {
+        return VpnUtil.getPrimaryRd(vpnInstance);
+    }
+
+    @Override
     public List<MatchInfoBase> getEgressMatchesForVpn(String vpnName) {
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
         if (vpnId == VpnConstants.INVALID_ID) {

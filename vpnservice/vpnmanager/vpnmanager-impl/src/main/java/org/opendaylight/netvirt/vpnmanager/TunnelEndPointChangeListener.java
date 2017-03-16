@@ -20,6 +20,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.DpnEndpoints;
@@ -71,7 +72,7 @@ public class TunnelEndPointChangeListener
             return;
         }
 
-        List<VpnInstance> vpnInstances = VpnUtil.getAllVpnInstances(broker);
+        List<VpnInstance> vpnInstances = VpnHelper.getAllVpnInstances(broker);
         if (vpnInstances == null || vpnInstances.isEmpty()) {
             LOG.debug("No VPN instances defined");
             return;
