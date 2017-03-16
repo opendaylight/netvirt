@@ -13,6 +13,9 @@ public class PolicyServiceConstants {
     public static final String POLICY_CLASSIFIER_POOL_NAME = "policyClassifierPool";
     public static final Long POLICY_CLASSIFIER_LOW_ID = 1L;
     public static final Long POLICY_CLASSIFIER_HIGH_ID = 30000L;
+    public static final String POLICY_GROUP_POOL_NAME = "policyGroupPool";
+    public static final Long POLICY_GROUP_LOW_ID = 310000L;
+    public static final Long POLICY_GROUP_HIGH_ID = 320000L;
     public static final long INVALID_ID = 0;
     public static final int POLICY_FLOW_PRIOPITY = 42;
 }
