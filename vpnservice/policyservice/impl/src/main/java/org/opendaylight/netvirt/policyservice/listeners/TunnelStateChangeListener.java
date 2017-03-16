@@ -20,6 +20,7 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.policyservice.util.PolicyServiceUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepInfoAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelsState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay.network.DpnToInterface;
@@ -85,28 +86,30 @@ public class TunnelStateChangeListener
             return;
         }
 
-        BigInteger dpnId = getTunnelDpnId(tunnelState);
+        BigInteger srcDpId = getTepDpnId(tunnelState.getSrcInfo());
+        BigInteger dstDpId = getTepDpnId(tunnelState.getDstInfo());
         String tunnelInterfaceName = tunnelState.getTunnelInterfaceName();
-        if (BigInteger.ZERO.equals(dpnId)) {
+        if (BigInteger.ZERO.equals(srcDpId) || BigInteger.ZERO.equals(dstDpId)) {
             LOG.warn("No valid DPN found for tunnel {}", tunnelInterfaceName);
             return;
         }
 
         IpAddress tunnelIp = getTunnelIp(tunnelState);
         if (tunnelIp == null) {
-            LOG.warn("No tunnel ip found for tunnel {} DPN {}", tunnelInterfaceName, dpnId);
+            LOG.warn("No tunnel ip found for tunnel {} DPN {}", tunnelInterfaceName, srcDpId);
             return;
         }
 
-        String underlayNetwork = policyServiceUtil.getTunnelUnderlayNetwork(dpnId, tunnelIp);
+        String underlayNetwork = policyServiceUtil.getTunnelUnderlayNetwork(srcDpId, tunnelIp);
         if (underlayNetwork == null) {
-            LOG.debug("No underlay networks defined for tunnel {} DPN {}", tunnelInterfaceName, dpnId);
+            LOG.debug("No underlay networks defined for tunnel {} DPN {}", tunnelInterfaceName, srcDpId);
             return;
         }
 
-        LOG.info("Handle tunnel state update for interface {} on DPN {} underlay network", tunnelInterfaceName, dpnId,
+        LOG.info("Handle tunnel state update for interface {} on DPN {} underlay network", tunnelInterfaceName, srcDpId,
                 underlayNetwork);
-        policyServiceUtil.updateTunnelInterfaceForUnderlayNetwork(underlayNetwork, dpnId, tunnelInterfaceName, isAdded);
+        policyServiceUtil.updateTunnelInterfaceForUnderlayNetwork(underlayNetwork, srcDpId, dstDpId,
+                tunnelInterfaceName, isAdded);
     }
 
     private static boolean isVxlanTunnel(StateTunnelList tunnelState) {
@@ -114,9 +117,9 @@ public class TunnelStateChangeListener
                 && tunnelState.getTransportType().isAssignableFrom(TunnelTypeVxlan.class);
     }
 
-    private static BigInteger getTunnelDpnId(StateTunnelList tunnelState) {
-        if (tunnelState.getSrcInfo() != null && tunnelState.getSrcInfo().getTepDeviceId() != null) {
-            return new BigInteger(tunnelState.getSrcInfo().getTepDeviceId());
+    private static BigInteger getTepDpnId(TepInfoAttributes tepInfoAttributes) {
+        if (tepInfoAttributes != null && tepInfoAttributes.getTepDeviceId() != null) {
+            return new BigInteger(tepInfoAttributes.getTepDeviceId());
         }
 
         return BigInteger.ZERO;
