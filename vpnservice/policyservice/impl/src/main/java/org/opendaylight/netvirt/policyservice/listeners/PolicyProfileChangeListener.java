@@ -23,6 +23,7 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.policyservice.PolicyAceFlowProgrammer;
 import org.opendaylight.netvirt.policyservice.PolicyIdManager;
+import org.opendaylight.netvirt.policyservice.PolicyRouteGroupProgrammer;
 import org.opendaylight.netvirt.policyservice.util.PolicyServiceUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.PolicyProfiles;
@@ -53,14 +54,17 @@ public class PolicyProfileChangeListener
     private final PolicyIdManager policyIdManager;
     private final PolicyServiceUtil policyServiceUtil;
     private final PolicyAceFlowProgrammer aceFlowProgrammer;
+    private final PolicyRouteGroupProgrammer routeGroupProgramer;
 
     @Inject
     public PolicyProfileChangeListener(final DataBroker dataBroker, final PolicyIdManager policyIdManager,
-            final PolicyServiceUtil policyServiceUtil, final PolicyAceFlowProgrammer aceFlowProgrammer) {
+            final PolicyServiceUtil policyServiceUtil, final PolicyAceFlowProgrammer aceFlowProgrammer,
+            final PolicyRouteGroupProgrammer routeGroupProgramer) {
         this.dataBroker = dataBroker;
         this.policyIdManager = policyIdManager;
         this.policyServiceUtil = policyServiceUtil;
         this.aceFlowProgrammer = aceFlowProgrammer;
+        this.routeGroupProgramer = routeGroupProgramer;
     }
 
     @Override
@@ -86,40 +90,60 @@ public class PolicyProfileChangeListener
         LOG.info("Policy profile {} removed", policyClassifier);
         List<String> underlayNetworks = PolicyServiceUtil
                 .getUnderlayNetworksFromPolicyRoutes(policyProfile.getPolicyRoute());
-        handlePolicyProfileUpdate(policyClassifier, underlayNetworks, false);
+        policyServiceUtil.updatePolicyClassifierForUnderlayNetworks(underlayNetworks, policyClassifier, false);
+        List<BigInteger> dpnIds = policyServiceUtil.getUnderlayNetworksDpns(underlayNetworks);
+        List<BigInteger> remoteDpIds = policyServiceUtil.getUnderlayNetworksRemoteDpns(underlayNetworks);
+        routeGroupProgramer.programPolicyClassifierGroups(policyClassifier, dpnIds, remoteDpIds, NwConstants.DEL_FLOW);
+        updatePolicyAclRules(policyClassifier, underlayNetworks, NwConstants.DEL_FLOW);
         policyIdManager.releasePolicyClassifierId(policyClassifier);
-
+        releasePolicyClassifierGroupIds(policyClassifier, dpnIds);
     }
 
     @Override
     protected void update(InstanceIdentifier<PolicyProfile> key, PolicyProfile origPolicyProfile,
             PolicyProfile updatedPolicyProfile) {
-        LOG.info("Policy profile {} updated", updatedPolicyProfile.getPolicyClassifier());
         List<String> origUnderlayNetworks = PolicyServiceUtil
                 .getUnderlayNetworksFromPolicyRoutes(origPolicyProfile.getPolicyRoute());
         List<String> updatedUnderlayNetworks = PolicyServiceUtil
                 .getUnderlayNetworksFromPolicyRoutes(updatedPolicyProfile.getPolicyRoute());
-
         List<String> removedUnderlayNetworks = new ArrayList<>(origUnderlayNetworks);
         removedUnderlayNetworks.removeAll(updatedUnderlayNetworks);
-        policyServiceUtil.updatePolicyClassifierForUnderlayNetworks(removedUnderlayNetworks,
-                origPolicyProfile.getPolicyClassifier(), false);
+        List<String> addedUnderlayNetworks = new ArrayList<>(updatedUnderlayNetworks);
+        addedUnderlayNetworks.removeAll(origUnderlayNetworks);
+
+        String policyClassifier = updatedPolicyProfile.getPolicyClassifier();
+        LOG.info("Policy profile {} updated", policyClassifier);
+        policyServiceUtil.updatePolicyClassifierForUnderlayNetworks(removedUnderlayNetworks, policyClassifier, false);
+        policyServiceUtil.updatePolicyClassifierForUnderlayNetworks(addedUnderlayNetworks, policyClassifier, true);
+
+        // rewrite all group buckets
+        routeGroupProgramer.programPolicyClassifierGroupBuckets(policyClassifier, origUnderlayNetworks,
+                NwConstants.DEL_FLOW);
+        routeGroupProgramer.programPolicyClassifierGroupBuckets(policyClassifier, updatedUnderlayNetworks,
+                NwConstants.ADD_FLOW);
 
         updatedUnderlayNetworks.removeAll(origUnderlayNetworks);
         policyServiceUtil.updatePolicyClassifierForUnderlayNetworks(updatedUnderlayNetworks,
                 updatedPolicyProfile.getPolicyClassifier(), true);
+        updatePolicyAclRules(policyClassifier, updatedUnderlayNetworks, NwConstants.ADD_FLOW);
     }
 
     @Override
     protected void add(InstanceIdentifier<PolicyProfile> key, PolicyProfile policyProfile) {
-        LOG.info("Policy profile {} added", policyProfile.getPolicyClassifier());
+        String policyClassifier = policyProfile.getPolicyClassifier();
+        LOG.info("Policy profile {} added", policyClassifier);
         List<String> underlayNetworks = PolicyServiceUtil
                 .getUnderlayNetworksFromPolicyRoutes(policyProfile.getPolicyRoute());
-        handlePolicyProfileUpdate(policyProfile.getPolicyClassifier(), underlayNetworks, true);
+        policyServiceUtil.updatePolicyClassifierForUnderlayNetworks(underlayNetworks, policyClassifier, true);
+        List<BigInteger> dpnIds = policyServiceUtil.getUnderlayNetworksDpns(underlayNetworks);
+        List<BigInteger> remoteDpIds = policyServiceUtil.getUnderlayNetworksRemoteDpns(underlayNetworks);
+        routeGroupProgramer.programPolicyClassifierGroups(policyClassifier, dpnIds, remoteDpIds, NwConstants.ADD_FLOW);
+        routeGroupProgramer.programPolicyClassifierGroupBuckets(policyClassifier, underlayNetworks,
+                NwConstants.ADD_FLOW);
+        updatePolicyAclRules(policyClassifier, underlayNetworks, NwConstants.ADD_FLOW);
     }
 
-    private void handlePolicyProfileUpdate(String policyClassifier, List<String> underlayNetworks, boolean isAdded) {
-        policyServiceUtil.updatePolicyClassifierForUnderlayNetworks(underlayNetworks, policyClassifier, isAdded);
+    private void updatePolicyAclRules(String policyClassifier, List<String> underlayNetworks, int addOrRemove) {
         List<PolicyAclRule> aclRules = policyServiceUtil.getPolicyClassifierAclRules(policyClassifier);
         if (aclRules == null || aclRules.isEmpty()) {
             LOG.debug("No policy ACE rules found for policy classifier {}", policyClassifier);
@@ -139,7 +163,7 @@ public class PolicyProfileChangeListener
                             .getPolicyAce(aclRule.getAclName(), aceRule.getRuleName());
                     if (policyAceOpt.isPresent()) {
                         aceFlowProgrammer.programAceFlows(policyAceOpt.get(), policyClassifier, dpIds,
-                                isAdded ? NwConstants.ADD_FLOW : NwConstants.DEL_FLOW);
+                                addOrRemove);
                     }
                 });
                 return aceRules;
@@ -150,4 +174,9 @@ public class PolicyProfileChangeListener
         });
     }
 
+    private void releasePolicyClassifierGroupIds(String policyClassifier, List<BigInteger> dpnIds) {
+        dpnIds.forEach(dpnId -> {
+            policyIdManager.releasePolicyClassifierGroupId(policyClassifier, dpnId);
+        });
+    }
 }
