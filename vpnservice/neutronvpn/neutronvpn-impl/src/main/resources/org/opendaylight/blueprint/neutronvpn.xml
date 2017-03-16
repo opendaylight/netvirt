@@ -15,9 +15,12 @@
   <reference id="notificationPublishService"
              interface="org.opendaylight.controller.md.sal.binding.api.NotificationPublishService" />
   <reference id="iCentralizedSwitchProvider"
-           interface="org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider" />
+             interface="org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider" />
   <reference id="iInterfaceManager"
-    interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
+             interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
+  <reference id="iVpnManager"
+             interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager"
+             availability="optional" />
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
