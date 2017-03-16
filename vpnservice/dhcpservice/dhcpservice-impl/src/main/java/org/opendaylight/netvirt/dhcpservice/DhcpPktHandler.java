@@ -13,9 +13,12 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.opendaylight.controller.liblldp.EtherTypes;
@@ -43,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp_allocation_pool.rev161214.dhcp_allocation_pool.network.AllocationPool;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnet.attributes.HostRoutes;
@@ -58,6 +62,8 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Optional;
+
 public class DhcpPktHandler implements PacketProcessingListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpPktHandler.class);
@@ -68,19 +74,22 @@ public class DhcpPktHandler implements PacketProcessingListener {
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final IInterfaceManager interfaceManager;
     private final DhcpserviceConfig config;
+    private final DhcpAllocationPoolManager dhcpAllocationPoolMgr;
 
     public DhcpPktHandler(final DhcpManager dhcpManager,
                           final DhcpExternalTunnelManager dhcpExternalTunnelManager,
                           final OdlInterfaceRpcService interfaceManagerRpc,
                           final PacketProcessingService pktService,
                           final IInterfaceManager interfaceManager,
-                          final DhcpserviceConfig config) {
+                          final DhcpserviceConfig config,
+                          final DhcpAllocationPoolManager dhcpAllocationPoolMgr) {
         this.interfaceManagerRpc = interfaceManagerRpc;
         this.pktService = pktService;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.dhcpMgr = dhcpManager;
         this.interfaceManager = interfaceManager;
         this.config = config;
+        this.dhcpAllocationPoolMgr = dhcpAllocationPoolMgr;
     }
 
     //TODO: Handle this in a separate thread
@@ -149,9 +158,14 @@ public class DhcpPktHandler implements PacketProcessingListener {
         } else {
             port = getNeutronPort(interfaceName);
         }
-        Subnet subnet = getNeutronSubnet(port);
-        DhcpInfo dhcpInfo = getDhcpInfo(port, subnet);
-        LOG.trace("NeutronPort: {} \n NeutronSubnet: {}, dhcpInfo{}", port, subnet, dhcpInfo);
+        DhcpInfo dhcpInfo = null;
+        if (port != null) {
+            dhcpInfo = getDhcpInfoFromNeutron(port);
+        } else if (config.isDhcpDynamicAllocationPoolEnabled()) {
+            IpAddress requestedIp = DhcpAllocationPoolManager.convertIntToIp(dhcpPkt.getOptionInt(DHCPConstants
+                    .OPT_REQUESTED_ADDRESS));
+            dhcpInfo = getDhcpInfoFromAllocationPool(interfaceName, macAddress, requestedIp);
+        }
         DHCP reply = null;
         if (dhcpInfo != null) {
             if (msgType == DHCPConstants.MSG_DISCOVER) {
@@ -164,6 +178,29 @@ public class DhcpPktHandler implements PacketProcessingListener {
         return reply;
     }
 
+    private DhcpInfo getDhcpInfoFromNeutron(Port port) {
+        Subnet subnet = getNeutronSubnet(port);
+        DhcpInfo dhcpInfo = getDhcpInfo(port, subnet);
+        LOG.trace("NeutronPort: {} \n NeutronSubnet: {}, dhcpInfo{}", port, subnet, dhcpInfo);
+        return dhcpInfo;
+    }
+
+    private DhcpInfo getDhcpInfoFromAllocationPool(String interfaceName, String macAddress, IpAddress requestedIp) {
+        DhcpInfo dhcpInfo = null;
+        String networkId = dhcpAllocationPoolMgr.getNetworkByPort(interfaceName);
+        if (networkId != null) {
+            Optional<AllocationPool> optionalAllocationPoolByPort = dhcpAllocationPoolMgr.getAllocationPoolByNetwork(networkId);
+            if (!optionalAllocationPoolByPort.isPresent()) {
+                return null;
+            }
+            AllocationPool pool = optionalAllocationPoolByPort.get();
+            IpAddress allocatedIp = dhcpAllocationPoolMgr.getIpAllocation(networkId, pool, macAddress, requestedIp);
+            dhcpInfo = getAllocationPoolDhcpInfo(pool, allocatedIp);
+            LOG.info("Port: {} \n AllocationPoolSubnet: {}, dhcpInfo{}", interfaceName, networkId, dhcpInfo);
+        }
+        return dhcpInfo;
+    }
+    
     private DhcpInfo getDhcpInfo(Port port, Subnet subnet) {
         DhcpInfo dhcpInfo = null;
         if (port != null && subnet != null) {
@@ -180,6 +217,21 @@ public class DhcpPktHandler implements PacketProcessingListener {
                         .setDnsServersIpAddrs(dnsServers).setGatewayIp(serverIp);
             }
         }
+        return dhcpInfo;
+    }
+
+    private DhcpInfo getAllocationPoolDhcpInfo(AllocationPool ap, IpAddress allocatedIp) {
+        DhcpInfo dhcpInfo = null;
+
+        String clientIp = String.valueOf(allocatedIp.getValue());
+        String serverIp = String.valueOf(ap.getGateway().getValue());
+        if (clientIp != null && serverIp != null) {
+            List<IpAddress> dnsServers = ap.getDnsServers();
+            dhcpInfo = new DhcpInfo();
+            dhcpInfo.setClientIp(clientIp).setServerIp(serverIp).setCidr(String.valueOf(ap.getSubnet().getValue()))
+                    .setHostRoutes(Collections.emptyList()).setDnsServersIpAddrs(dnsServers).setGatewayIp(serverIp);
+        }
+
         return dhcpInfo;
     }
 
@@ -294,10 +346,10 @@ public class DhcpPktHandler implements PacketProcessingListener {
             if (dhcpPkt.containsOption(DHCPConstants.OPT_PARAMETER_REQUEST_LIST)) {
                 setParameterListOptions(dhcpPkt, reply, dhcpInfo);
             }
-            setCommonOptions(reply, dhcpInfo);
         } else {
             reply.setMsgType(DHCPConstants.MSG_NAK);
         }
+        setCommonOptions(reply, dhcpInfo);
         return reply;
     }
 
@@ -309,6 +361,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
             return null;
         }
         LOG.trace("Sending DHCP Pkt {}", reply);
+        InetAddress serverIp = reply.getOptionInetAddr(DHCPConstants.OPT_SERVER_IDENTIFIER);
         // create UDP pkt
         UDP udpPkt = new UDP();
         byte[] rawPkt;
@@ -332,13 +385,13 @@ public class DhcpPktHandler implements PacketProcessingListener {
         short checkSum = 0;
         boolean computeUdpChecksum = true;
         if (computeUdpChecksum) {
-            checkSum = computeChecksum(rawPkt, reply.getSiaddr(), NetUtils.intToByteArray4(DhcpMConstants.BCAST_IP));
+            checkSum = computeChecksum(rawPkt, serverIp.getAddress(), NetUtils.intToByteArray4(DhcpMConstants.BCAST_IP));
         }
         udpPkt.setChecksum(checkSum);
         IPv4 ip4Reply = new IPv4();
         ip4Reply.setPayload(udpPkt);
         ip4Reply.setProtocol(IPProtocols.UDP.byteValue());
-        ip4Reply.setSourceAddress(reply.getSiaddrAsInetAddr());
+        ip4Reply.setSourceAddress(serverIp);
         ip4Reply.setDestinationAddress(DhcpMConstants.BCAST_IP);
         ip4Reply.setTotalLength((short) (rawPkt.length + 20));
         ip4Reply.setTtl((byte) 32);
@@ -415,6 +468,28 @@ public class DhcpPktHandler implements PacketProcessingListener {
     }
 
     private void setCommonOptions(DHCP pkt, DhcpInfo dhcpInfo) {
+        String gwIp = dhcpInfo.getGatewayIp();
+        if (pkt.getMsgType() != DHCPConstants.MSG_NAK) {
+            setNonNakOptions(pkt, dhcpInfo);
+        }
+        try {
+            /*
+             * setParameterListOptions may have initialized some of these
+             * options to maintain order. If we can't fill them, unset to avoid
+             * sending wrong information in reply.
+             */
+            if (gwIp != null) {
+                pkt.setOptionInetAddr(DHCPConstants.OPT_SERVER_IDENTIFIER, gwIp);
+            } else {
+                pkt.unsetOption(DHCPConstants.OPT_SERVER_IDENTIFIER);
+            }
+        } catch (UnknownHostException e) {
+            // TODO Auto-generated catch block
+            LOG.warn("Failed to set option", e);
+        }
+    }
+
+    private void setNonNakOptions(DHCP pkt, DhcpInfo dhcpInfo) {
         pkt.setOptionInt(DHCPConstants.OPT_LEASE_TIME, dhcpMgr.getDhcpLeaseTime());
         if (dhcpMgr.getDhcpDefDomain() != null) {
             pkt.setOptionString(DHCPConstants.OPT_DOMAIN_NAME, dhcpMgr.getDhcpDefDomain());
@@ -436,10 +511,8 @@ public class DhcpPktHandler implements PacketProcessingListener {
              * sending wrong information in reply.
              */
             if (gwIp != null) {
-                pkt.setOptionInetAddr(DHCPConstants.OPT_SERVER_IDENTIFIER, gwIp);
                 pkt.setOptionInetAddr(DHCPConstants.OPT_ROUTERS, gwIp);
             } else {
-                pkt.unsetOption(DHCPConstants.OPT_SERVER_IDENTIFIER);
                 pkt.unsetOption(DHCPConstants.OPT_ROUTERS);
             }
             if (info != null) {
