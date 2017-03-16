@@ -14,6 +14,7 @@ import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 
@@ -59,4 +60,5 @@ public interface IVpnManager {
 
     List<MatchInfoBase> getEgressMatchesForVpn(String vpnName);
 
+    String getPrimaryRdFromVpnInstance(VpnInstance vpnInstance);
 }
