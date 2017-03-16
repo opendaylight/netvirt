@@ -206,7 +206,6 @@ module elan {
       }
 
       leaf prefix {
-        mandatory false;
         type inet:ip-address;
       }
     }

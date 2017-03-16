@@ -15,6 +15,7 @@ import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 
 public interface IVpnManager {
@@ -68,4 +69,5 @@ public interface IVpnManager {
             BigInteger dpnId, long vpnId, String extInterfaceName, int lportTag, WriteTransaction writeTx,
             int addOrRemove);
 
+    String getPrimaryRdFromVpnInstance (VpnInstance vpnInstance);
 }
