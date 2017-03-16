@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_07917352",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-16T13:29:23Z",
+      "side": 1,
+      "message": "remove duplicate calls to updateRemoteAclFilterTable",
+      "revId": "b33db9216c6d974ac5ee7b0233c58448aa6583a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_679e7f65",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-16T13:29:23Z",
+      "side": 1,
+      "message": "same",
+      "revId": "b33db9216c6d974ac5ee7b0233c58448aa6583a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a7bb4774",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-16T13:29:23Z",
+      "side": 1,
+      "message": "return string",
+      "revId": "b33db9216c6d974ac5ee7b0233c58448aa6583a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_07acd334",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-16T13:29:23Z",
+      "side": 1,
+      "message": "why the order changed?",
+      "revId": "b33db9216c6d974ac5ee7b0233c58448aa6583a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e73a6fe6",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-16T13:29:23Z",
+      "side": 1,
+      "message": "remove as it been handled in the manager",
+      "revId": "b33db9216c6d974ac5ee7b0233c58448aa6583a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c73f6bd5",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-16T13:29:23Z",
+      "side": 1,
+      "message": "will get IndexOutOfBoundsException when the port will not have any SGs",
+      "revId": "b33db9216c6d974ac5ee7b0233c58448aa6583a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
