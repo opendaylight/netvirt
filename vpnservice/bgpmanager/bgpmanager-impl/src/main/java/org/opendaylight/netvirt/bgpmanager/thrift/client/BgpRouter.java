@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.bgpmanager.thrift.client;
 
 import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
@@ -172,7 +173,17 @@ public class BgpRouter {
                 result = bgpClient.stopBgp(op.asNumber);
                 break;
             case NBR:
-                result = bop.add ? bgpClient.createPeer(op.strs[0], op.asNumber) : bgpClient.deletePeer(op.strs[0]);
+                if (bop.add) {
+                    result = bgpClient.createPeer(op.strs[0], op.asNumber);
+                    if (result == 0 && op.strs[1] != null) { // createPeer worked and password is specified
+                        result = bgpClient.setPeerSecret(op.strs[0], op.strs[1]);
+                        if (result != 0) {
+                            throw new BgpRouterException(BgpRouterException.Function.SET_PEER_SECRET, result);
+                        }
+                    }
+                } else { // delete
+                    result = bgpClient.deletePeer(op.strs[0]);
+                }
                 break;
             case VRF:
                 result = bop.add
@@ -263,13 +274,25 @@ public class BgpRouter {
     }
 
     public synchronized void addNeighbor(String nbrIp, long nbrAsNum) throws TException, BgpRouterException {
+        LOGGER.debug("Adding BGP Neighbor {} with as number {} ", nbrIp, nbrAsNum);
+        addNeighborAux(nbrIp, nbrAsNum, null);
+    }
+
+    public synchronized void addNeighbor(String nbrIp, long nbrAsNum, @Nullable String md5Secret)
+            throws TException, BgpRouterException {
+        LOGGER.debug("Adding BGP Neighbor {} with as number {} and MD5 secret {}", nbrIp, nbrAsNum, md5Secret);
+        addNeighborAux(nbrIp, nbrAsNum, md5Secret);
+    } // public addNeighbor( nbrIp, nbrAsNum, md5Secret )
+
+    private void addNeighborAux(String nbrIp, long nbrAsNum, @Nullable String md5Secret)
+            throws TException, BgpRouterException {
         bop.type = Optype.NBR;
         bop.add = true;
         bop.strs[0] = nbrIp;
         bop.asNumber = nbrAsNum;
-        LOGGER.debug("Adding BGP Neighbor {} with as number {} ", nbrIp, nbrAsNum);
+        bop.strs[1] = md5Secret;
         dispatch(bop);
-    }
+    } // private addNeighborAux
 
     public synchronized void delNeighbor(String nbrIp) throws TException, BgpRouterException {
         bop.type = Optype.NBR;
