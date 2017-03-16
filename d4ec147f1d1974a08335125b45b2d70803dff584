@@ -122,6 +122,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9a13ff0c",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2017-03-16T09:31:34Z",
+      "side": 1,
+      "message": "Are you limiting to these matches only on purpose? Don\u0027t you want to leave the door open to policy classification which also takes protocol/ports into consideration?",
+      "range": {
+        "startLine": 130,
+        "startChar": 2,
+        "endLine": 130,
+        "endChar": 17
+      },
+      "revId": "d4ec147f1d1974a08335125b45b2d70803dff584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1ec70a66",
         "filename": "docs/specs/policy-based-path-selection.rst",
         "patchSetId": 14
