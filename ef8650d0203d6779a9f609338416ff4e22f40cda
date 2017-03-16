@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8f861f12",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-16T07:06:11Z",
+      "side": 1,
+      "message": "This is a private method invoked explicitly to remove a vpnInterface from DpnToVpnList and in an attempt to remove if we don\u0027t even find either that DPN or the VPNinterface in that DPN, something is really wrong!\n\nSo this need to be ERROR only.",
+      "parentUuid": "fafc7978_a784f8b1",
+      "revId": "ef8650d0203d6779a9f609338416ff4e22f40cda",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c7c2dc85",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
         "patchSetId": 1
@@ -137,6 +155,24 @@
       "side": 1,
       "message": "I don\u0027t get what you mean. Under this condition no operation is added to writeTx, so I don\u0027t see the need for the submit. If what you mean is that under this condition something, which is not being considered in current code, must be written to MDSAL, then what is it?",
       "parentUuid": "fafc7978_8740d408",
+      "revId": "ef8650d0203d6779a9f609338416ff4e22f40cda",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cf9e6754",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-16T07:06:11Z",
+      "side": 1,
+      "message": "Meant that we should still do setVpnInterfaces(null) here for the dpnInVpn and then submit that transaction (we will not set the state to inactive though) \n\nI understand that the left pane doesn\u0027t do that earlier, but let us do so now :)",
+      "parentUuid": "fafc7978_27080891",
       "revId": "ef8650d0203d6779a9f609338416ff4e22f40cda",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
