@@ -16,6 +16,24 @@
       "revId": "53533d6a8f73c177d08471c0c9782b19601060a6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8a1c4a79",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBase.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-03-16T15:10:44Z",
+      "side": 1,
+      "message": "actually I think at least some of that you\u0027re after achieving here may be addressed by the ordering I\u0027m proposing in https://git.opendaylight.org/gerrit/#/c/53399/ - have a look? Some of it is probably complimentary too, and could and should go into genius, on top of c/53399.. if you do end up making a contribution to genius, it would be very cool if you could cover the functionality you\u0027re adding by extending the (new) TestIMdsalApiManagerTest from c/53394 accordingly, to illustrate and non-regression test the functionality you\u0027re adding, if possible at all.",
+      "parentUuid": "fafc7978_0afe9a38",
+      "revId": "53533d6a8f73c177d08471c0c9782b19601060a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
