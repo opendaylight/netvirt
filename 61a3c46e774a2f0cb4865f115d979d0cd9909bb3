@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_daabc71c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 915,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-16T09:40:55Z",
+      "side": 1,
+      "message": "if this writeTx is going to be used only for evpn case, plese allocate this within the VXLAN condition below..",
+      "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_faae8b2e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 926,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-16T09:40:55Z",
+      "side": 1,
+      "message": "please avoid if else here..\n\nHave\n\nif (extpro... \u003d\u003d VXLAN) {\n    evpnSnatFlo..\n    writeTx.submit();\n    return;\n}\n\n\u003cretain legacy label handling code\u003e",
+      "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3aa93325",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 1957,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-16T09:40:55Z",
+      "side": 1,
+      "message": "why does this not use writeTx ?\n\nSimilarly, avoid else here and do an early return within the \u003d\u003d VXLAN if condition after writeTx.submit().\n\nFurther is there a possibility that add and remove can race, if so we need to use DJC here and in the add call earlier too!",
+      "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7a629b17",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 2034,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-16T09:40:55Z",
+      "side": 1,
+      "message": "comments given above apply here too!",
+      "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fa5ccb4e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-16T09:40:55Z",
+      "side": 1,
+      "message": "please donot call advertisePrefix if its normal router case, ie., if its a transparent internet vpn.",
+      "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
