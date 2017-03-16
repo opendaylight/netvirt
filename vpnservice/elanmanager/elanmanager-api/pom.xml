@@ -51,6 +51,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>neutronvpn-api</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>vpnmanager-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
   <!--
