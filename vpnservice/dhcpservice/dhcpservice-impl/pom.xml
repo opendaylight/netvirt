@@ -83,7 +83,17 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>counters-api</artifactId>
       <version>${infrautils.version}</version>
     </dependency>
-   </dependencies>
+    <dependency>
+     <groupId>${project.groupId}</groupId>
+     <artifactId>vpnmanager-api</artifactId>
+     <version>${vpnservices.version}</version>
+   </dependency>
+   <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>idmanager-api</artifactId>
+      <version>${genius.version}</version>
+    </dependency>
+ </dependencies>
 
 
   <build>
