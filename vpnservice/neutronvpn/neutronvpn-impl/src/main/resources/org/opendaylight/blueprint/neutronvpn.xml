@@ -36,6 +36,19 @@
                             update-strategy="none">
   </odl:clustered-app-config>
 
+  <bean id="neutronvpnManager" class="org.opendaylight.netvirt.neutronvpn.NeutronvpnManager"
+        destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="notificationPublishService" />
+    <argument ref="neutronvpnNatManager" />
+    <argument ref="vpnRpcService" />
+    <argument ref="elanService" />
+    <argument ref="neutronFloatingToFixedIpMappingChangeListener" />
+    <argument ref="neutronvpnConfig" />
+    <argument ref="iVpnManager" />
+  </bean>
+
+
   <odl:rpc-implementation ref="neutronvpnManager" />
 
   <service ref="neutronvpnManagerImpl" odl:type="default"

@@ -296,16 +296,6 @@ public class VpnUtil {
         return (vpnInstance.isPresent()) ? vpnInstance.get() : null;
     }
 
-    static List<VpnInstance> getAllVpnInstances(DataBroker broker) {
-        InstanceIdentifier<VpnInstances> id = InstanceIdentifier.builder(VpnInstances.class).build();
-        Optional<VpnInstances> optVpnInstances = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
-        if (optVpnInstances.isPresent()) {
-            return optVpnInstances.get().getVpnInstance();
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
     static List<VpnInstanceOpDataEntry> getAllVpnInstanceOpData(DataBroker broker) {
         InstanceIdentifier<VpnInstanceOpData> id = InstanceIdentifier.builder(VpnInstanceOpData.class).build();
         Optional<VpnInstanceOpData> vpnInstanceOpDataOptional =
