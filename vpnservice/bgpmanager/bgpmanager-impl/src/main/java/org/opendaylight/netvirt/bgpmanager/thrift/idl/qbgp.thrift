@@ -31,6 +31,8 @@ const i32 GET_RTS_NEXT = 1
  * ERR_NOT_ITER when GET_RTS_NEXT is called without
  *    initializing with GET_RTS_INIT
  * ERR_PARAM when there is an issue with params
+ * ERR_NOT_SUPPORTED when the server does not support
+ *    the operation.
  */
 
 const i32 BGP_ERR_FAILED = 1
@@ -38,6 +40,7 @@ const i32 BGP_ERR_ACTIVE = 10
 const i32 BGP_ERR_INACTIVE = 11
 const i32 BGP_ERR_NOT_ITER = 15
 const i32 BGP_ERR_PARAM = 100
+const i32 BGP_ERR_NOT_SUPPORTED = 200
 
 // these are the supported afi-safi combinations
 enum af_afi {
@@ -122,6 +125,33 @@ service BgpConfigurator {
                        6:i32 stalepathTime, 7:bool announceFlush),
     i32 stopBgp(1:i64 asNumber),
     i32 createPeer(1:string ipAddress, 2:i64 asNumber),
+
+    /* 'setPeerSecret' sets the shared secret needed to protect the peer
+     * connection using TCP MD5 Signature Option (see rfc 2385).
+     *
+     * Params:
+     *
+     *   'ipAddress' is the peer (neighbour) address.  Mandatory.
+     *
+     *   'rfc2385_sharedSecret' is the secret.  Mandatory.  Length must be
+     *   greater than zero.
+     *
+     * Return codes:
+     *
+     *   0 on success.
+     *
+     *   BGP_ERR_FAILED if 'ipAddress' is missing or unknown.
+     *
+     *   BGP_ERR_PARAM if 'rfc2385_sharedSecret' is missing or invalid (e.g.
+     *   it is too short or too long).
+     *
+     *   BGP_ERR_INACTIVE when there is no session.
+     *
+     *   BGP_ERR_NOT_SUPPORTED when TCP MD5 Signature Option is not supported
+     *   (e.g. the underlying TCP stack does not support it)
+     *
+     */
+    i32 setPeerSecret(1:string ipAddress, 2:string rfc2385_sharedSecret),
     i32 deletePeer(1:string ipAddress)
     i32 addVrf(1:layer_type l_type, 2:string rd, 3:list<string> irts, 4:list<string> erts),
     i32 delVrf(1:string rd),
