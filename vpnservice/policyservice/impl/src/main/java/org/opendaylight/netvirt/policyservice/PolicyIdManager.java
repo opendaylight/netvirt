@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.policyservice;
 
+import java.math.BigInteger;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -45,14 +46,41 @@ public class PolicyIdManager {
     @PostConstruct
     public void init() {
         LOG.info("init");
-        createIdPool();
+        createIdPools();
     }
 
-    private void createIdPool() {
-        CreateIdPoolInput createPoolInput = new CreateIdPoolInputBuilder()
-                .setPoolName(PolicyServiceConstants.POLICY_CLASSIFIER_POOL_NAME)
-                .setLow(PolicyServiceConstants.POLICY_CLASSIFIER_LOW_ID)
-                .setHigh(PolicyServiceConstants.POLICY_CLASSIFIER_HIGH_ID).build();
+    public long getPolicyClassifierId(String policyClassifierName) {
+        return allocateId(policyClassifierName, PolicyServiceConstants.POLICY_CLASSIFIER_POOL_NAME);
+    }
+
+    public void releasePolicyClassifierId(String policyClassifierName) {
+        releaseId(policyClassifierName, PolicyServiceConstants.POLICY_CLASSIFIER_POOL_NAME);
+    }
+
+    public long getPolicyClassifierGroupId(String policyClassifierName, BigInteger remoteDpId) {
+        return allocateId(getPolicyClassifierGroupKey(policyClassifierName, remoteDpId),
+                PolicyServiceConstants.POLICY_GROUP_POOL_NAME);
+    }
+
+    public void releasePolicyClassifierGroupId(String policyClassifierName, BigInteger remoteDpId) {
+        releaseId(getPolicyClassifierGroupKey(policyClassifierName, remoteDpId),
+                PolicyServiceConstants.POLICY_GROUP_POOL_NAME);
+    }
+
+    public static String getPolicyClassifierGroupKey(String policyClassifier, BigInteger remoteDpId) {
+        return policyClassifier + '-' + remoteDpId;
+    }
+
+    private void createIdPools() {
+        createIdPool(PolicyServiceConstants.POLICY_CLASSIFIER_POOL_NAME,
+                PolicyServiceConstants.POLICY_CLASSIFIER_LOW_ID, PolicyServiceConstants.POLICY_CLASSIFIER_HIGH_ID);
+        createIdPool(PolicyServiceConstants.POLICY_GROUP_POOL_NAME, PolicyServiceConstants.POLICY_GROUP_LOW_ID,
+                PolicyServiceConstants.POLICY_GROUP_HIGH_ID);
+    }
+
+    private void createIdPool(String poolName, long lowId, long highId) {
+        CreateIdPoolInput createPoolInput = new CreateIdPoolInputBuilder().setPoolName(poolName).setLow(lowId)
+                .setHigh(highId).build();
 
         try {
             Future<RpcResult<Void>> result = idManager.createIdPool(createPoolInput);
@@ -64,32 +92,29 @@ public class PolicyIdManager {
         }
     }
 
-    public long getPolicyClassifierId(String policyClassifierName) {
-        AllocateIdInput getIdInput = new AllocateIdInputBuilder()
-                .setPoolName(PolicyServiceConstants.POLICY_CLASSIFIER_POOL_NAME).setIdKey(policyClassifierName).build();
+    private long allocateId(String key, String poolName) {
+        AllocateIdInput getIdInput = new AllocateIdInputBuilder().setPoolName(poolName).setIdKey(key).build();
         try {
             Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
             RpcResult<AllocateIdOutput> rpcResult = result.get();
             return rpcResult.getResult().getIdValue();
         } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Exception thrown while allocating id for key {}", policyClassifierName);
+            LOG.warn("Exception thrown while allocating id for key {}", key);
         }
 
         return PolicyServiceConstants.INVALID_ID;
     }
 
-    public void releasePolicyClassifierId(String policyClassifierName) {
-        ReleaseIdInput idInput = new ReleaseIdInputBuilder()
-                .setPoolName(PolicyServiceConstants.POLICY_CLASSIFIER_POOL_NAME).setIdKey(policyClassifierName).build();
+    private void releaseId(String key, String poolName) {
+        ReleaseIdInput idInput = new ReleaseIdInputBuilder().setPoolName(poolName).setIdKey(key).build();
         try {
             Future<RpcResult<Void>> result = idManager.releaseId(idInput);
             RpcResult<Void> rpcResult = result.get();
             if (!rpcResult.isSuccessful()) {
-                LOG.warn("RPC Call to release {} returned with Errors {}", policyClassifierName, rpcResult.getErrors());
+                LOG.warn("RPC Call to release {} returned with Errors {}", key, rpcResult.getErrors());
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Exception thrown while releasing id for key {}", policyClassifierName);
+            LOG.warn("Exception thrown while releasing id for key {}", key);
         }
     }
-
 }
