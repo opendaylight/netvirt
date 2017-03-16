@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9d8e5626",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-16T18:09:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_b528ade2",
+      "revId": "d4ec147f1d1974a08335125b45b2d70803dff584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_70e773ac",
         "filename": "docs/specs/policy-based-path-selection.rst",
         "patchSetId": 14
@@ -54,6 +72,42 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e711cf5e",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-16T18:09:01Z",
+      "side": 1,
+      "message": "I would add both as options. local_ips would override in case both exist\nthe underlay network names are later used in the policy models to associate between an ACL entry to a list of primary and backup paths.",
+      "parentUuid": "fafc7978_70e773ac",
+      "revId": "d4ec147f1d1974a08335125b45b2d70803dff584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7dd73224",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-16T18:09:01Z",
+      "side": 1,
+      "message": "I tried to rephrase this paragraph\nhopefully now it should be more understood",
+      "parentUuid": "fafc7978_832b9e32",
+      "revId": "d4ec147f1d1974a08335125b45b2d70803dff584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_90adb733",
         "filename": "docs/specs/policy-based-path-selection.rst",
         "patchSetId": 14
@@ -65,6 +119,24 @@
       "writtenOn": "2017-03-13T12:57:36Z",
       "side": 1,
       "message": "start of line, need to correct english a bit",
+      "revId": "d4ec147f1d1974a08335125b45b2d70803dff584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dddc5e49",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-16T18:09:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_90adb733",
       "revId": "d4ec147f1d1974a08335125b45b2d70803dff584",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -88,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9d877612",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-16T18:09:01Z",
+      "side": 1,
+      "message": "limitation exist only due to major changes in genius models to support this and nothing more.\nredundancy between underlay networks from the same type can also be handled by this feature and not only using bond. multiple underlay networks with the same type and different names can exist in a route-group in order to form OF select group where each bucket represent a port to different tunnel",
+      "parentUuid": "fafc7978_706c9308",
+      "revId": "d4ec147f1d1974a08335125b45b2d70803dff584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_520d1437",
         "filename": "docs/specs/policy-based-path-selection.rst",
         "patchSetId": 14
@@ -105,6 +195,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_87672325",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-16T18:09:01Z",
+      "side": 1,
+      "message": "there is support for both select and ff using route-group or basic-route accordingly. OF select group can\u0027t be used alone for all cases since one of the requirements of this feature was preferred path with backup paths only in failure cases",
+      "parentUuid": "fafc7978_520d1437",
+      "revId": "d4ec147f1d1974a08335125b45b2d70803dff584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b211e055",
         "filename": "docs/specs/policy-based-path-selection.rst",
         "patchSetId": 14
@@ -116,6 +224,24 @@
       "writtenOn": "2017-03-13T12:57:36Z",
       "side": 1,
       "message": "See above note - this means we have a strict priority between underlay networks - I thought we\u0027d want it more dynamic (e.g. udp has higher priority on first link, tcp has higher priority on second)",
+      "revId": "d4ec147f1d1974a08335125b45b2d70803dff584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fd77a239",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-16T18:09:01Z",
+      "side": 1,
+      "message": "this can be configured using route-group",
+      "parentUuid": "fafc7978_b211e055",
       "revId": "d4ec147f1d1974a08335125b45b2d70803dff584",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -145,6 +271,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_87c0c3e1",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-16T18:09:01Z",
+      "side": 1,
+      "message": "these are only enhancements to the ACL model. All the standard ACL port/ip/mac matches in [4] will be supported as well",
+      "parentUuid": "fafc7978_9a13ff0c",
+      "range": {
+        "startLine": 130,
+        "startChar": 2,
+        "endLine": 130,
+        "endChar": 17
+      },
+      "revId": "d4ec147f1d1974a08335125b45b2d70803dff584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1ec70a66",
         "filename": "docs/specs/policy-based-path-selection.rst",
         "patchSetId": 14
@@ -162,6 +312,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_67e4bfac",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-16T18:09:01Z",
+      "side": 1,
+      "message": "The convention throughout netvirt specs is to mark the OVS sourcing the traffic from VM as ingress and the OVS receiving the traffic to VM as egress.",
+      "parentUuid": "fafc7978_1ec70a66",
+      "revId": "d4ec147f1d1974a08335125b45b2d70803dff584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_be77de3a",
         "filename": "docs/specs/policy-based-path-selection.rst",
         "patchSetId": 14
@@ -173,6 +341,24 @@
       "writtenOn": "2017-03-15T14:25:21Z",
       "side": 1,
       "message": "We already have this scenario above - line 251.",
+      "revId": "d4ec147f1d1974a08335125b45b2d70803dff584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_478ffbcc",
+        "filename": "docs/specs/policy-based-path-selection.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-16T18:09:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_be77de3a",
       "revId": "d4ec147f1d1974a08335125b45b2d70803dff584",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
