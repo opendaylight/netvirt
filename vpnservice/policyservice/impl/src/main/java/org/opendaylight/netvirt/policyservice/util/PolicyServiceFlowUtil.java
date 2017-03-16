@@ -10,13 +10,17 @@ package org.opendaylight.netvirt.policyservice.util;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
@@ -25,15 +29,23 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.policyservice.PolicyServiceConstants;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.buckets.Bucket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class PolicyServiceFlowUtil {
+    private static final Logger LOG = LoggerFactory.getLogger(PolicyServiceFlowUtil.class);
 
     private final IMdsalApiManager mdsalManager;
+    private final IInterfaceManager interfaceManager;
 
     @Inject
-    public PolicyServiceFlowUtil(final IMdsalApiManager mdsalManager) {
+    public PolicyServiceFlowUtil(final IMdsalApiManager mdsalManager, final IInterfaceManager interfaceManager) {
         this.mdsalManager = mdsalManager;
+        this.interfaceManager = interfaceManager;
     }
 
     public List<InstructionInfo> getPolicyClassifierInstructions(long policyClassifierId) {
@@ -54,5 +66,54 @@ public class PolicyServiceFlowUtil {
         } else {
             mdsalManager.removeFlowToTx(flowEntity, tx);
         }
+    }
+
+    public void updateGroupToTx(BigInteger dpId, long groupId, String groupName, GroupTypes groupType, int addOrRemove,
+            WriteTransaction tx) {
+        if (addOrRemove == NwConstants.ADD_FLOW && mdsalManager.groupExists(dpId, groupId)) {
+            LOG.trace("Group {} id {} already exists", groupName, groupId);
+            return;
+        }
+
+        GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpId, groupId, groupName, groupType,
+                Collections.emptyList());
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            LOG.debug("Add group {} to DPN {}", groupId, dpId);
+            mdsalManager.addGroupToTx(groupEntity, tx);
+        } else {
+            LOG.debug("Remove group {} from DPN {}", groupId, dpId);
+            mdsalManager.removeGroupToTx(groupEntity, tx);
+        }
+    }
+
+    public void updateInterfaceBucketToTx(BigInteger dpId, long groupId, int bucketId, String interfaceName,
+            int addOrRemove, WriteTransaction tx) {
+        if (groupId == PolicyServiceConstants.INVALID_ID) {
+            LOG.error("No valid group id found for interface {} DPN {}", interfaceName, dpId);
+            return;
+        }
+
+        if (addOrRemove == NwConstants.DEL_FLOW) {
+            LOG.debug("Remove bucket for interface {} from group {} DPN {}", interfaceName, groupId, dpId);
+            mdsalManager.removeBucketToTx(dpId, groupId, bucketId, tx);
+            return;
+        }
+
+        List<ActionInfo> egressActions = interfaceManager.getInterfaceEgressActions(interfaceName);
+        if (egressActions == null || egressActions.isEmpty()) {
+            LOG.error("Failed to get egress actions for interface {} DPN {}", interfaceName, dpId);
+            return;
+        }
+
+        Long port = interfaceManager.getPortForInterface(interfaceName);
+        if (port == null) {
+            LOG.error("Failed to get port for interface {}", interfaceName);
+            return;
+        }
+
+        Bucket bucket = MDSALUtil.buildBucket(MDSALUtil.buildActions(egressActions), MDSALUtil.GROUP_WEIGHT, bucketId,
+                port, MDSALUtil.WATCH_GROUP);
+        LOG.debug("Add bucket for interface {} to group {} DPN {}", interfaceName, groupId, dpId);
+        mdsalManager.addBucketToTx(dpId, groupId, bucket, tx);
     }
 }
