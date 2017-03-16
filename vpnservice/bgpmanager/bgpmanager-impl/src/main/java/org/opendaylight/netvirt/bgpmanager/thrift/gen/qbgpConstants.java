@@ -57,5 +57,7 @@ public class qbgpConstants {
 
   public static final int BGP_ERR_PARAM = 100;
 
+  public static final int BGP_ERR_NOT_SUPPORTED = 200;
+
 }
 
