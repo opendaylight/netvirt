@@ -65,7 +65,7 @@ public class NodeListener extends AsyncDataTreeChangeListenerBase<Node, NodeList
             return;
         }
         BigInteger dpId = new BigInteger(node[1]);
-        dhcpManager.setupTableMissForDhcpTable(dpId);
+        dhcpManager.setupDefaultDhcpFlows(dpId);
         dhcpExternalTunnelManager.installDhcpDropActionOnDpn(dpId);
         List<BigInteger> listOfDpns = DhcpServiceUtils.getListOfDpns(broker);
         dhcpExternalTunnelManager.handleDesignatedDpnDown(DhcpMConstants.INVALID_DPID, listOfDpns);
