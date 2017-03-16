@@ -57,6 +57,7 @@
     <argument ref="elanService" />
     <argument ref="neutronFloatingToFixedIpMappingChangeListener" />
     <argument ref="neutronvpnConfig" />
+    <argument ref="vpnManager" />
   </bean>
   <odl:rpc-implementation ref="neutronvpnManager" />
 
