@@ -200,7 +200,7 @@ module ebgp {
 
     leaf l2vni {
       type uint32;
-      mandatory "false";
+      description "l2vni for EVPN RT2 route advertise";
     }
 
   } // networks
