@@ -8,6 +8,8 @@
     interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" />
   <reference id="iMdsalApiManager"
     interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
+  <reference id="iInterfaceManager"
+    interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
   <reference id="iAclServiceUtil"
     interface="org.opendaylight.netvirt.aclservice.api.utils.IAclServiceUtil" />
   <reference id="iElanBridgeManager"

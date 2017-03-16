@@ -100,6 +100,10 @@ module policy-service {
                     leaf interface-name {
                         type string;
                     }
+
+                    leaf remote-dp-id {
+                        type uint64;
+                    }
                 }
             }
 
