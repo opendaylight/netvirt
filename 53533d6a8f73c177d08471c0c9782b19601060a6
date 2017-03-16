@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_0afe9a38",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBase.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-03-16T14:54:01Z",
+      "side": 1,
+      "message": "this is interesting, but really should be contributed (by you, not by me... ;-) to genius instead of being done locally here only?  BTW FYI see also https://git.opendaylight.org/gerrit/#/c/53394/ and https://git.opendaylight.org/gerrit/#/c/53399/",
+      "revId": "53533d6a8f73c177d08471c0c9782b19601060a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
