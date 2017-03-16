@@ -50,6 +50,24 @@
       "revId": "81e4290d07c9286acafcfca6fbef5ceda84cedc8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cf466721",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-16T18:05:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a92a032a",
+      "revId": "81e4290d07c9286acafcfca6fbef5ceda84cedc8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
