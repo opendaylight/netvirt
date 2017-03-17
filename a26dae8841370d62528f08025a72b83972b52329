@@ -247,6 +247,24 @@
       "revId": "a26dae8841370d62528f08025a72b83972b52329",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b72feef5",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/ConfigurationService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-17T22:06:16Z",
+      "side": 1,
+      "message": "I am a little confused. Now we have two ways to get the patch port names:\n1) getting from the existing cache \u003c-- this always uses the default.\n2) getting from your new logic that uses constants and on-the-fly calculation.\n\nWhich one is correct? I prefer using a single logic (cache usage), it is easy to understand and maintain the code",
+      "parentUuid": "fafc7978_8ec73764",
+      "revId": "a26dae8841370d62528f08025a72b83972b52329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
