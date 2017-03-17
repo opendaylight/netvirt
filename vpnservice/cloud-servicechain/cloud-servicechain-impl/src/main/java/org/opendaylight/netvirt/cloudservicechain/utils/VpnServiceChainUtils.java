@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -10,30 +10,42 @@ package org.opendaylight.netvirt.cloudservicechain.utils;
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
+import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionPopMpls;
+import org.opendaylight.genius.mdsalutil.actions.ActionRegLoad;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.mdsalutil.matches.MatchMplsLabel;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.cloudservicechain.CloudServiceChainConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfoKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.VpnToPseudoPortList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.vpn.to.pseudo.port.list.VpnToPseudoPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.vpn.to.pseudo.port.list.VpnToPseudoPortDataKey;
@@ -49,6 +61,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg2;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +86,12 @@ public class VpnServiceChainUtils {
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd)).build();
     }
 
+    public static InstanceIdentifier<BoundServices> buildBoundServicesIid(short servicePrio, String ifaceName) {
+        return InstanceIdentifier.builder(ServiceBindings.class)
+                                 .child(ServicesInfo.class, new ServicesInfoKey(ifaceName, ServiceModeIngress.class))
+                                 .child(BoundServices.class, new BoundServicesKey(servicePrio))
+                                 .build();
+    }
 
     /**
      * Retrieves from MDSAL the Operational Data of the VPN specified by its
@@ -166,13 +185,7 @@ public class VpnServiceChainUtils {
     public static String getVpnRd(DataBroker broker, String vpnName) {
 
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        Optional<VpnInstance> vpnInstance = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
-
-        String rd = null;
-        if (vpnInstance.isPresent()) {
-            rd = vpnInstance.get().getVrfId();
-        }
-        return rd;
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVrfId).orNull();
     }
 
     /**
@@ -185,8 +198,8 @@ public class VpnServiceChainUtils {
     public static List<VrfEntry> getAllVrfEntries(DataBroker broker, String rd) {
         InstanceIdentifier<VrfTables> vpnVrfTables =
             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
-        Optional<VrfTables> vrfTable = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTables);
-        return vrfTable.isPresent() ? vrfTable.get().getVrfEntry() : new ArrayList<>();
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTables).transform(
+                VrfTables::getVrfEntry).or(new ArrayList<>());
     }
 
     /**
@@ -251,6 +264,7 @@ public class VpnServiceChainUtils {
         return result;
     }
 
+
     /**
      * Builds the Match for flows that must match on a given lportTag and
      * serviceIndex.
@@ -259,9 +273,8 @@ public class VpnServiceChainUtils {
      */
     public static List<MatchInfo> buildMatchOnLportTagAndSI(Integer lportTag, short serviceIndex) {
         return Collections.singletonList(
-                   new MatchInfo(MatchFieldType.metadata,
-                                 new BigInteger[] { MetaDataUtil.getMetaDataForLPortDispatcher(lportTag, serviceIndex),
-                                                    MetaDataUtil.getMetaDataMaskForLPortDispatcher() }));
+                new MatchMetadata(MetaDataUtil.getMetaDataForLPortDispatcher(lportTag, serviceIndex),
+                        MetaDataUtil.getMetaDataMaskForLPortDispatcher()));
     }
 
     /**
@@ -300,22 +313,20 @@ public class VpnServiceChainUtils {
     public static FlowEntity buildLFibVpnPseudoPortFlow(BigInteger dpId, Long label, String nextHop, int lportTag) {
 
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { NwConstants.ETHTYPE_MPLS_UC }));
-        matches.add(new MatchInfo(MatchFieldType.mpls_label, new String[] { label.toString() }));
+        matches.add(MatchEthernetType.MPLS_UNICAST);
+        matches.add(new MatchMplsLabel(label));
 
-        List<ActionInfo> actionsInfos =
-                Arrays.asList(new ActionInfo(ActionType.pop_mpls, new String[] { label.toString() }));
+        List<ActionInfo> actionsInfos = Collections.singletonList(new ActionPopMpls());
         List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionInfo(InstructionType.write_metadata,
-                new BigInteger[]{
+        instructions.add(new InstructionWriteMetadata(
                        MetaDataUtil.getMetaDataForLPortDispatcher(lportTag,
                                                                   ServiceIndex.getIndex(NwConstants.SCF_SERVICE_NAME,
                                                                                         NwConstants.SCF_SERVICE_INDEX)),
                        MetaDataUtil.getMetaDataMaskForLPortDispatcher()
-                }));
+        ));
 
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] {NwConstants.L3_INTERFACE_TABLE}));
+        instructions.add(new InstructionApplyActions(actionsInfos));
+        instructions.add(new InstructionGotoTable(NwConstants.L3_INTERFACE_TABLE));
         String flowRef = getLFibVpnPseudoPortFlowRef(lportTag, label, nextHop);
         return MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_LFIB_TABLE, flowRef,
                                          CloudServiceChainConstants.DEFAULT_SCF_FLOW_PRIORITY, flowRef, 0, 0,
@@ -331,21 +342,28 @@ public class VpnServiceChainUtils {
      *
      */
     public static void programLFibEntriesForSCF(IMdsalApiManager mdsalMgr, BigInteger dpId, List<VrfEntry> vrfEntries,
-                                                int lportTag, int addOrRemove) {
-        for (VrfEntry vrfEntry : vrfEntries) {
-            Long label = vrfEntry.getLabel();
-            for (String nexthop : vrfEntry.getNextHopAddressList()) {
-                FlowEntity flowEntity = buildLFibVpnPseudoPortFlow(dpId, label, nexthop, lportTag);
-                if (addOrRemove == NwConstants.ADD_FLOW) {
-                    mdsalMgr.installFlow(flowEntity);
-                } else {
-                    mdsalMgr.removeFlow(flowEntity);
-                }
-                LOG.debug("LFIB Entry for label={}, destination={}, nexthop={} {} successfully in dpn={}",
-                          label, vrfEntry.getDestPrefix(), vrfEntry.getNextHopAddressList(),
-                          addOrRemove == NwConstants.DEL_FLOW ? "removed" : "installed", dpId);
-            }
-        }
+            int lportTag, int addOrRemove) {
+        java.util.Optional.ofNullable(vrfEntries).ifPresent(entries -> {
+            entries.stream()
+                    .forEach(vrfEntry -> vrfEntry.getRoutePaths()
+                            .stream()
+                            .forEach(routePath -> {
+                                Long label = routePath.getLabel();
+                                String nextHop = routePath.getNexthopAddress();
+                                FlowEntity flowEntity =
+                                        buildLFibVpnPseudoPortFlow(dpId, label, nextHop, lportTag);
+                                if (addOrRemove == NwConstants.ADD_FLOW) {
+                                    mdsalMgr.installFlow(flowEntity);
+                                } else {
+                                    mdsalMgr.removeFlow(flowEntity);
+                                }
+                                LOG.debug(
+                                        "LFIBEntry for label={}, destination={}, nexthop={} {} successfully in dpn={}",
+                                        label, vrfEntry.getDestPrefix(), nextHop,
+                                        addOrRemove == NwConstants.DEL_FLOW ? "removed"
+                                                : "installed", dpId);
+                            }));
+        });
     }
 
     /**
@@ -375,16 +393,16 @@ public class VpnServiceChainUtils {
      */
     public static FlowEntity buildLportFlowDispForVpnToScf(BigInteger dpId, int lportTag, long scfTag,
                                                            short gotoTableId) {
-        List<MatchInfo> matches =
-            buildMatchOnLportTagAndSI(lportTag, ServiceIndex.getIndex(NwConstants.SCF_SERVICE_NAME,
-                                                                      NwConstants.SCF_SERVICE_INDEX));
         List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] {
-                VpnServiceChainUtils.getMetadataSCF(scfTag), CloudServiceChainConstants.METADATA_MASK_SCF_WRITE
-        }));
-        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { gotoTableId }));
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionRegLoad(NxmNxReg2.class, 0, 31, scfTag));
+        instructions.add(new InstructionApplyActions(actionsInfos));
+        instructions.add(new InstructionGotoTable(gotoTableId));
         String flowRef = getL3VpnToScfLportDispatcherFlowRef(lportTag);
 
+        List<MatchInfo> matches =
+                buildMatchOnLportTagAndSI(lportTag, ServiceIndex.getIndex(NwConstants.SCF_SERVICE_NAME,
+                        NwConstants.SCF_SERVICE_INDEX));
         return MDSALUtil.buildFlowEntity(dpId, NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
                                          CloudServiceChainConstants.DEFAULT_SCF_FLOW_PRIORITY, flowRef, 0, 0,
                                          getCookieSCHop(scfTag), matches, instructions);
@@ -393,10 +411,8 @@ public class VpnServiceChainUtils {
 
     public static Optional<Long> getVpnPseudoLportTag(DataBroker broker, String rd) {
         InstanceIdentifier<VpnToPseudoPortData> path = getVpnToPseudoPortTagIid(rd);
-        Optional<VpnToPseudoPortData> lportTagOpc = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, path);
-
-        return lportTagOpc.isPresent() ? Optional.fromNullable(lportTagOpc.get().getVpnLportTag())
-                                       : Optional.<Long>absent();
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, path).transform(
+                VpnToPseudoPortData::getVpnLportTag);
     }
 
     /**
@@ -472,4 +488,33 @@ public class VpnServiceChainUtils {
                                  .append(CloudServiceChainConstants.DEFAULT_SCF_FLOW_PRIORITY).toString();
     }
 
+    public static List<String> getAllVpnIfaceNames(DataBroker dataBroker, String vpnName) {
+
+        String vpnRd = getVpnRd(dataBroker, vpnName);
+        InstanceIdentifier<VpnInstanceOpDataEntry> vpnOpDataIid =
+            InstanceIdentifier.builder(VpnInstanceOpData.class)
+                              .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(vpnRd)).build();
+
+        try {
+            VpnInstanceOpDataEntry vpnOpData =
+                SingleTransactionDataBroker.syncRead(dataBroker, LogicalDatastoreType.OPERATIONAL, vpnOpDataIid);
+
+            if (vpnOpData == null) {
+                return Collections.emptyList();
+            }
+            List<VpnToDpnList> dpnToVpns = vpnOpData.getVpnToDpnList();
+            if (dpnToVpns == null) {
+                return Collections.emptyList();
+            }
+
+            return dpnToVpns.stream()
+                            .filter(dpn -> dpn.getVpnInterfaces() != null)
+                            .flatMap(dpn -> dpn.getVpnInterfaces().stream())
+                            .map(vpnIf -> vpnIf.getInterfaceName())
+                            .collect(Collectors.toList());
+        } catch (ReadFailedException e) {
+            LOG.warn("getAllVpnInterfaces for vpn {}: Failure on read operation", vpnName, e);
+            return Collections.emptyList();
+        }
+    }
 }

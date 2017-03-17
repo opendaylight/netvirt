@@ -8,16 +8,13 @@
 
 package org.opendaylight.netvirt.bgpmanager.oam;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Created by echiapt on 7/27/2015.
  */
 public enum BgpAlarmStatus {
-    UNKNOWN        ("Unknown"),
-    RAISED         ("Raised") ,
-    CLEARED        ("Cleared");
+    UNKNOWN("Unknown"),
+    RAISED("Raised"),
+    CLEARED("Cleared");
 
     private final String alarmStatus;
 

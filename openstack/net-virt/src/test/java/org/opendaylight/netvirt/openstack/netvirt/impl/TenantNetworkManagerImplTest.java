@@ -52,6 +52,7 @@ public class TenantNetworkManagerImplTest {
     @Mock private INeutronPortCRUD neutronPortCache;
     @Mock private INeutronNetworkCRUD neutronNetworkCache;
     @Mock private VlanConfigurationCache vlanConfigurationCache;
+    @Mock private NeutronL3Adapter neutronL3Adapter;
     @Mock private NetworkingProviderManager networkingProviderManager;
     @Mock private Southbound southbound;
 
@@ -111,7 +112,7 @@ public class TenantNetworkManagerImplTest {
         when(southbound.getInterfaceExternalIdsValue(any(OvsdbTerminationPointAugmentation.class), anyString())).thenReturn(INTERFACE_ID);
         NeutronPort neutronPort = mock(NeutronPort.class);
         when(neutronPort.getNetworkUUID()).thenReturn(NETWORK_ID);
-        when(neutronPortCache.getPort(anyString())).thenReturn(neutronPort);
+        when(neutronL3Adapter.getPortPreferablyFromCleanupCache(anyString())).thenReturn(neutronPort);
 
         List<OvsdbTerminationPointAugmentation> ports = new ArrayList<>();
         ports.add(mock(OvsdbTerminationPointAugmentation.class));
@@ -145,7 +146,7 @@ public class TenantNetworkManagerImplTest {
     public void testGetTenantNetwork() {
         when(southbound.getInterfaceExternalIdsValue(any(OvsdbTerminationPointAugmentation.class), anyString())).thenReturn(INTERFACE_ID);
         NeutronPort neutronPort = mock(NeutronPort.class);
-        when(neutronPortCache.getPort(anyString())).thenReturn(neutronPort);
+        when(neutronL3Adapter.getPortPreferablyFromCleanupCache(anyString())).thenReturn(neutronPort);
         NeutronNetwork neutronNetwork = mock(NeutronNetwork.class);
         when(neutronNetworkCache.getNetwork(anyString())).thenReturn(neutronNetwork);
 
@@ -156,7 +157,7 @@ public class TenantNetworkManagerImplTest {
     public void testGetTenantPort() {
         when(southbound.getInterfaceExternalIdsValue(any(OvsdbTerminationPointAugmentation.class), anyString())).thenReturn(INTERFACE_ID);
         NeutronPort neutronPort = mock(NeutronPort.class);
-        when(neutronPortCache.getPort(anyString())).thenReturn(neutronPort);
+        when(neutronL3Adapter.getPortPreferablyFromCleanupCache(anyString())).thenReturn(neutronPort);
 
         assertEquals("Error, did not return the correct tenant", neutronPort, tenantNetworkManagerImpl.getTenantPort(mock(OvsdbTerminationPointAugmentation.class)));
     }

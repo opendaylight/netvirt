@@ -1,3 +1,4 @@
 <neutronvpn-config xmlns="urn:opendaylight:netvirt:neutronvpn:config">
-  <use-transport-zone>true</use-transport-zone>
+  <opendaylight-vni-ranges>70000:99999</opendaylight-vni-ranges>
+  <enforce-openstack-semantics>true</enforce-openstack-semantics>
 </neutronvpn-config>

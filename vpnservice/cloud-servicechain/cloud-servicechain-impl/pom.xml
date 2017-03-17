@@ -15,6 +15,7 @@
 
  <modelVersion>4.0.0</modelVersion>
  <artifactId>cloud-servicechain-impl</artifactId>
+ <name>ODL :: netvirt :: ${project.artifactId}</name>
  <packaging>bundle</packaging>
 
  <properties>
@@ -71,7 +72,7 @@
   <!-- Only for unit-test -->
   <dependency>
    <groupId>org.mockito</groupId>
-   <artifactId>mockito-all</artifactId>
+   <artifactId>mockito-core</artifactId>
    <version>${mockitoall.version}</version>
    <scope>test</scope>
   </dependency>
@@ -88,17 +89,4 @@
    <scope>test</scope>
   </dependency>
  </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <configuration>
-          <propertyExpansion>checkstyle.violationSeverity=error</propertyExpansion>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-
 </project>

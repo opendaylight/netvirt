@@ -315,7 +315,7 @@ public class DhcpExternalTunnelManager {
     }
 
     public void updateExistingVMTunnelIPCache(IpAddress tunnelIp, String elanInstanceName, String vmMacAddress) {
-        Pair<IpAddress, String> tunnelIpElanName = new ImmutablePair<IpAddress, String>(tunnelIp, elanInstanceName);
+        Pair<IpAddress, String> tunnelIpElanName = new ImmutablePair<>(tunnelIp, elanInstanceName);
         Set<String> listExistingVmMacAddress;
         listExistingVmMacAddress = availableVMCache.get(tunnelIpElanName);
         if (listExistingVmMacAddress == null) {

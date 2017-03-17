@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
-import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.Map;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -44,7 +44,7 @@ public class NeutronHostConfigChangeListener extends AsyncDataTreeChangeListener
         DELETE
     }
 
-    public NeutronHostConfigChangeListener(final DataBroker dataBroker){
+    public NeutronHostConfigChangeListener(final DataBroker dataBroker) {
         super(Node.class,NeutronHostConfigChangeListener.class);
         this.dataBroker = dataBroker;
         this.mdsalUtils = new MdsalUtils(dataBroker);
@@ -57,7 +57,7 @@ public class NeutronHostConfigChangeListener extends AsyncDataTreeChangeListener
     }
 
     @Override
-    protected InstanceIdentifier<Node> getWildCardPath(){
+    protected InstanceIdentifier<Node> getWildCardPath() {
         return InstanceIdentifier
                 .create(NetworkTopology.class)
                 .child(Topology.class,new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
@@ -71,33 +71,33 @@ public class NeutronHostConfigChangeListener extends AsyncDataTreeChangeListener
 
 
     @Override
-    protected void remove(InstanceIdentifier<Node>identifier, Node del){
+    protected void remove(InstanceIdentifier<Node> identifier, Node del) {
         updateHostConfig(del, Action.DELETE);
     }
 
     @Override
-    protected void update(InstanceIdentifier<Node>identifier, Node original, Node update){
+    protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
         updateHostConfig(update, Action.UPDATE);
     }
 
     @Override
-    protected void add(InstanceIdentifier<Node>identifier, Node add){
+    protected void add(InstanceIdentifier<Node> identifier, Node add) {
         updateHostConfig(add, Action.ADD);
 
     }
 
     private void updateHostConfig(Node node, Action action) {
         String hostId = getExternalId(node, OS_HOST_CONFIG_HOST_ID_KEY);
-        if (hostId == null){
+        if (hostId == null) {
             return;
         }
-        for(Map.Entry<String,String> entry : extractHostConfig(node).entrySet()) {
+        for (Map.Entry<String,String> entry : extractHostConfig(node).entrySet()) {
             updateMdsal(buildHostConfigInfo(hostId, entry.getKey(), entry.getValue()), action);
         }
     }
 
     private Map<String, String> extractHostConfig(Node node) {
-        Map<String, String> config = Maps.newHashMap();
+        Map<String, String> config = new HashMap<>();
         OvsdbNodeAugmentation ovsdbNode = getOvsdbNodeAugmentation(node);
         if (ovsdbNode != null && ovsdbNode.getOpenvswitchExternalIds() != null) {
             for (OpenvswitchExternalIds openvswitchExternalIds : ovsdbNode.getOpenvswitchExternalIds()) {
@@ -111,8 +111,9 @@ public class NeutronHostConfigChangeListener extends AsyncDataTreeChangeListener
                             hostType = hostType.substring(0, HOST_TYPE_STR_LEN);
                         }
                         hostType = "ODL " + hostType.toUpperCase();
-                        if (null != openvswitchExternalIds.getExternalIdValue())
+                        if (null != openvswitchExternalIds.getExternalIdValue()) {
                             config.put(hostType, openvswitchExternalIds.getExternalIdValue());
+                        }
                     }
                 }
             }
@@ -138,6 +139,9 @@ public class NeutronHostConfigChangeListener extends AsyncDataTreeChangeListener
                 result = mdsalUtils.delete(LogicalDatastoreType.OPERATIONAL, hostConfigId);
                 LOG.trace("Delete Node: result: {}", result);
                 break;
+            default:
+                LOG.warn("Invalid action: %s", action);
+                break;
         }
     }
 
@@ -161,8 +165,7 @@ public class NeutronHostConfigChangeListener extends AsyncDataTreeChangeListener
         return null;
     }
 
-    private OvsdbNodeAugmentation getOvsdbNodeAugmentation(Node node)
-    {
+    private OvsdbNodeAugmentation getOvsdbNodeAugmentation(Node node) {
         OvsdbNodeAugmentation ovsdbNode = southboundUtils.extractOvsdbNode(node);
         if (ovsdbNode == null) {
             Node nodeFromReadOvsdbNode = southboundUtils.readOvsdbNode(node);

@@ -17,9 +17,11 @@ public class SessionAddress {
         this.ipAddress = ipAddress;
         this.portNumber = portNumber;
     }
+
     public String getIpAddress() {
         return ipAddress;
     }
+
     public int getPortNumber() {
         return portNumber;
     }

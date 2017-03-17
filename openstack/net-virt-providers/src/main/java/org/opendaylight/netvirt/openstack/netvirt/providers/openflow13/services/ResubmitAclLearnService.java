@@ -52,8 +52,6 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-
 public class ResubmitAclLearnService extends AbstractServiceInstance implements ConfigInterface, ResubmitAclLearnProvider {
     private static final Logger LOG = LoggerFactory.getLogger(ResubmitAclLearnService.class);
     public static final Class<? extends NxmNxReg> REG_FIELD = NxmNxReg3.class;
@@ -94,7 +92,7 @@ public class ResubmitAclLearnService extends AbstractServiceInstance implements 
         ApplyActionsCase applyActionsCase = new ApplyActionsCaseBuilder().setApplyActions(applyActions).build();
         InstructionsBuilder instructionsBuilder = new InstructionsBuilder();
         InstructionBuilder instructionBuilder = new InstructionBuilder();
-        List<Instruction> instructions = Lists.newArrayList();
+        List<Instruction> instructions = new ArrayList<>();
         instructionBuilder.setInstruction(applyActionsCase);
         instructionBuilder.setOrder(0);
         instructionBuilder.setKey(new InstructionKey(0));

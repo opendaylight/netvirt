@@ -20,7 +20,7 @@ public class FlowEntityMatcher extends ArgumentMatcher<FlowEntity> {
         this.expectedFlow = expectedFlow;
     }
 
-    public boolean sameMatch(MatchInfo match1, MatchInfo match2 ) {
+    public boolean sameMatch(MatchInfo match1, MatchInfo match2) {
         // TODO: implement this
         return true;
     }
@@ -32,16 +32,16 @@ public class FlowEntityMatcher extends ArgumentMatcher<FlowEntity> {
 
     @Override
     public boolean matches(Object actualFlow) {
-        if ( ! ( actualFlow instanceof FlowEntity ) ) {
+        if (! (actualFlow instanceof FlowEntity)) {
             return false;
         }
         boolean result = true;
         FlowEntity flow = (FlowEntity) actualFlow;
-//      flow.getId() != null && flow.getId().equals(expectedFlow.getId() )
+//      flow.getId() != null && flow.getId().equals(expectedFlow.getId())
 //      && flow.getTableId() == expectedFlow.getTableId()
-//      && StringUtils.equals(flow.getFlowName(), expectedFlow.getFlowName() )
+//      && StringUtils.equals(flow.getFlowName(), expectedFlow.getFlowName())
 //      && sameInstructions(flow.getInstructions(), expectedFlow.getInstructions())
-//      && sameMatch(flow.getMatch(), expectedFlow.getMatch() );
+//      && sameMatch(flow.getMatch(), expectedFlow.getMatch());
         return result;
     }
 

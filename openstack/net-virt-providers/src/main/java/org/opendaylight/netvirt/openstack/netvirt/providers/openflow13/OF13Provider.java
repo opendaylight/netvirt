@@ -8,23 +8,23 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.CheckedFuture;
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
-import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.MdsalHelper;
 import org.opendaylight.netvirt.openstack.netvirt.NetworkHandler;
 import org.opendaylight.netvirt.openstack.netvirt.api.BridgeConfigurationManager;
@@ -39,6 +39,7 @@ import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.ResubmitAclLearnProvider;
+import org.opendaylight.netvirt.openstack.netvirt.api.SecurityGroupCacheManger;
 import org.opendaylight.netvirt.openstack.netvirt.api.SecurityServicesManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.api.Status;
@@ -46,7 +47,10 @@ import org.opendaylight.netvirt.openstack.netvirt.api.StatusCode;
 import org.opendaylight.netvirt.openstack.netvirt.api.TenantNetworkManager;
 import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider;
-import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.ResubmitAclLearnService;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
+import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.InstructionUtils;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
@@ -98,13 +102,6 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.util.concurrent.CheckedFuture;
-
-
 /**
  * Open vSwitch OpenFlow 1.3 Networking Provider for OpenStack Neutron
  *
@@ -135,6 +132,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     private volatile ResubmitAclLearnProvider resubmitAclLearnProvider;
     private volatile L2ForwardingLearnProvider l2ForwardingLearnProvider;
     private volatile L2ForwardingProvider l2ForwardingProvider;
+    private volatile SecurityGroupCacheManger securityGroupCacheManger;
 
     public static final String NAME = "OF13Provider";
     private volatile BundleContext bundleContext;
@@ -190,14 +188,16 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     private boolean addTunnelPort (Node node, String tunnelType, InetAddress src, InetAddress dst) {
         String tunnelBridgeName = configurationService.getIntegrationBridgeName();
         String portName = getTunnelName(tunnelType, dst);
-        LOG.info("Added TunnelPort : portName: {}", portName);
+        LOG.trace("Added TunnelPort : portName: {}", portName);
         if (southbound.extractTerminationPointAugmentation(node, portName) != null
                 || southbound.isTunnelTerminationPointExist(node, tunnelBridgeName, portName)) {
-            LOG.info("Tunnel {} is present in {} of {}", portName, tunnelBridgeName, node.getNodeId().getValue());
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Tunnel {} is present in {} of {}", portName, tunnelBridgeName, node.getNodeId().getValue());
+            }
             return true;
         }
 
-        Map<String, String> options = Maps.newHashMap();
+        Map<String, String> options = new HashMap<>();
         options.put("key", "flow");
         options.put("local_ip", src.getHostAddress());
         options.put("remote_ip", dst.getHostAddress());
@@ -207,7 +207,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
             return false;
         }
 
-            LOG.info("addTunnelPort exit: portName: {}", portName);
+        LOG.info("addTunnelPort exit: portName: {}", portName);
         return true;
     }
 
@@ -280,30 +280,6 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
          */
 
         handleTunnelUnknownUcastFloodOut(dpid, TABLE_1_ISOLATE_TENANT, TABLE_2_LOCAL_FORWARD, segmentationId, localPort, true);
-
-        /*
-         * TODO : Optimize the following 2 writes to be restricted only for the very first port known in a segment.
-         */
-        /*
-         * Table(1) Rule #3
-         * ----------------
-         * Match:  Any remaining Ingress Local VM Packets
-         * Action: Drop w/ a low priority
-         * -------------------------------------------
-         * table=1,priority=8192,tun_id=0x5 actions=goto_table:2
-         */
-
-        handleTunnelMiss(dpid, TABLE_1_ISOLATE_TENANT, TABLE_2_LOCAL_FORWARD, segmentationId, true);
-
-        /*
-         * Table(2) Rule #3
-         * ----------------
-         * Match: Any Remaining Flows w/a TunID
-         * Action: Drop w/ a low priority
-         * table=2,priority=8192,tun_id=0x5 actions=drop
-         */
-
-        handleLocalTableMiss(dpid, TABLE_2_LOCAL_FORWARD, segmentationId, true);
     }
 
     private void removeLocalBridgeRules(Node node, Long dpid, String segmentationId, String attachedMac, long localPort) {
@@ -420,30 +396,6 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
 
     /* Remove tunnel rules if last node in this tenant network */
     private void removePerTunnelRules(Node node, Long dpid, String segmentationId, long tunnelOFPort) {
-        /*
-         * TODO : Optimize the following 2 writes to be restricted only for the very first port known in a segment.
-         */
-        /*
-         * Table(1) Rule #3
-         * ----------------
-         * Match:  Any remaining Ingress Local VM Packets
-         * Action: Drop w/ a low priority
-         * -------------------------------------------
-         * table=1,priority=8192,tun_id=0x5 actions=goto_table:2
-         */
-
-        handleTunnelMiss(dpid, TABLE_1_ISOLATE_TENANT, TABLE_2_LOCAL_FORWARD, segmentationId, false);
-
-        /*
-         * Table(2) Rule #3
-         * ----------------
-         * Match: Any Remaining Flows w/a TunID
-         * Action: Drop w/ a low priority
-         * table=2,priority=8192,tun_id=0x5 actions=drop
-         */
-
-        handleLocalTableMiss(dpid, TABLE_2_LOCAL_FORWARD, segmentationId, false);
-
         /*
          * Table(0) Rule #2
          * ----------------
@@ -1074,13 +1026,18 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                     .getSecurityGroupInPortList(intf);
             String neutronPortId = southbound.getInterfaceExternalIdsValue(intf,
                                                                            Constants.EXTERNAL_ID_INTERFACE_ID);
+            org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId nodeId = node.getNodeId();
             for (NeutronSecurityGroup securityGroupInPort:securityGroupListInPort) {
                 ingressAclProvider.programPortSecurityGroup(dpid, segmentationId, attachedMac, localPort,
-                                                            securityGroupInPort, neutronPortId, write);
+                                                            securityGroupInPort, neutronPortId, nodeId, write);
                 egressAclProvider.programPortSecurityGroup(dpid, segmentationId, attachedMac, localPort,
-                                                           securityGroupInPort, neutronPortId, write);
+                                                           securityGroupInPort, neutronPortId, nodeId, write);
+                if (write) {
+                    securityGroupCacheManger.portAdded(securityGroupInPort.getSecurityGroupUUID(), neutronPortId);
+                } else {
+                    securityGroupCacheManger.portRemoved(securityGroupInPort.getSecurityGroupUUID(), neutronPortId);
+                }
             }
-
         } else {
             LOG.warn("programLocalRules: No DCHP port seen in  network of {}", intf);
         }
@@ -1141,13 +1098,6 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                         if (segId != null && netType != null && dstAddr != null) {
                             programTunnelRules(netType, segId, dstAddr, srcBridgeNode, port, false);
                         }
-                    }
-
-                    if (network == tenantNetworkManager.getTenantNetwork(port)){
-                        programTunnelRules(networkType, segmentationId, dst, srcBridgeNode, port, false);
-                    }
-                    else{
-                        LOG.trace("Port {} is not part of network {}", port, network);
                     }
                 }
             }
@@ -1442,7 +1392,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
         InstructionsBuilder isb = new InstructionsBuilder();
 
         // Instructions List Stores Individual Instructions
-        List<Instruction> instructions = Lists.newArrayList();
+        List<Instruction> instructions = new ArrayList<>();
 
         // Call the InstructionBuilder Methods Containing Actions
         InstructionUtils.createNormalInstructions(FlowUtils.getNodeName(dpidLong), ib);
@@ -1600,20 +1550,6 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
 
     /*
      * (Table:1) Table Drain w/ Catch All
-     * Match: Tunnel ID
-     * Action: GOTO Local Table (10)
-     * table=2,priority=8192,tun_id=0x5 actions=drop
-     */
-
-    private void handleTunnelMiss(Long dpidLong, Short writeTable,
-            Short goToTableId, String segmentationId,
-            boolean write) {
-        l2ForwardingProvider.programTunnelMiss(dpidLong, segmentationId, write);
-    }
-
-
-    /*
-     * (Table:1) Table Drain w/ Catch All
      * Match: Vlan ID
      * Action: Output port eth interface
      * table=1,priority=8192,vlan_id=0x5 actions= output port:eth1
@@ -1676,18 +1612,6 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     private void handleLocalVlanBcastOut(Long dpidLong, Short writeTable, String segmentationId,
                                          Long localPort, Long ethPort, boolean write) {
         l2ForwardingProvider.programLocalVlanBcastOut(dpidLong, segmentationId, localPort, ethPort, write);
-    }
-
-    /*
-     * (Table:1) Local Table Miss
-     * Match: Any Remaining Flows w/a TunID
-     * Action: Drop w/ a low priority
-     * table=2,priority=8192,tun_id=0x5 actions=drop
-     */
-
-    private void handleLocalTableMiss(Long dpidLong, Short writeTable,
-            String segmentationId, boolean write) {
-        l2ForwardingProvider.programLocalTableMiss(dpidLong, segmentationId, write);
     }
 
     /*
@@ -1800,7 +1724,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
         NodeConnectorId ncid = new NodeConnectorId(Constants.OPENFLOW_NODE_PREFIX + dpidLong + ":" + port);
         LOG.debug("createOutputGroupInstructions() Node Connector ID is - Type=openflow: DPID={} port={} existingInstructions={}", dpidLong, port, instructions);
 
-        List<Action> actionList = Lists.newArrayList();
+        List<Action> actionList = new ArrayList<>();
         ActionBuilder ab = new ActionBuilder();
 
         List<Action> existingActions;
@@ -1866,7 +1790,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
             if (addNew && !buckets.getBucket().isEmpty()) {
                 /* the new output action is not in the bucket, add to bucket */
                 Bucket bucket = buckets.getBucket().get(0);
-                List<Action> bucketActionList = Lists.newArrayList();
+                List<Action> bucketActionList = new ArrayList<>();
                 bucketActionList.addAll(bucket.getAction());
                 /* set order for new action and add to action list */
                 ab.setOrder(bucketActionList.size());
@@ -1875,7 +1799,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
 
                 /* set bucket and buckets list. Reset groupBuilder with new buckets.*/
                 BucketsBuilder bucketsBuilder = new BucketsBuilder();
-                List<Bucket> bucketList = Lists.newArrayList();
+                List<Bucket> bucketList = new ArrayList<>();
                 BucketBuilder bucketBuilder = new BucketBuilder();
                 bucketBuilder.setBucketId(new BucketId((long) 1));
                 bucketBuilder.setKey(new BucketKey(new BucketId((long) 1)));
@@ -1895,13 +1819,13 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
             groupBuilder.setBarrier(false);
 
             BucketsBuilder bucketBuilder = new BucketsBuilder();
-            List<Bucket> bucketList = Lists.newArrayList();
+            List<Bucket> bucketList = new ArrayList<>();
             BucketBuilder bucket = new BucketBuilder();
             bucket.setBucketId(new BucketId((long) 1));
             bucket.setKey(new BucketKey(new BucketId((long) 1)));
 
             /* put output action to the bucket */
-            List<Action> bucketActionList = Lists.newArrayList();
+            List<Action> bucketActionList = new ArrayList<>();
             /* set order for new action and add to action list */
             ab.setOrder(bucketActionList.size());
             ab.setKey(new ActionKey(bucketActionList.size()));
@@ -1958,7 +1882,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
         NodeConnectorId ncid = new NodeConnectorId(Constants.OPENFLOW_NODE_PREFIX + dpidLong + ":" + port);
         LOG.debug("removeOutputPortFromGroup() Node Connector ID is - Type=openflow: DPID={} port={} existingInstructions={}", dpidLong, port, instructions);
 
-        List<Action> actionList = Lists.newArrayList();
+        List<Action> actionList = new ArrayList<>();
         ActionBuilder ab;
 
         List<Action> existingActions;
@@ -1997,7 +1921,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
             /* modify the action bucket in group */
             groupBuilder = new GroupBuilder(group);
             Buckets buckets = groupBuilder.getBuckets();
-            List<Action> bucketActions = Lists.newArrayList();
+            List<Action> bucketActions = new ArrayList<>();
             for (Bucket bucket : buckets.getBucket()) {
                 int index = 0;
                 boolean isPortDeleted = false;
@@ -2039,7 +1963,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                 /* rewrite the group to group table */
                 /* set bucket and buckets list. Reset groupBuilder with new buckets.*/
                 BucketsBuilder bucketsBuilder = new BucketsBuilder();
-                List<Bucket> bucketList = Lists.newArrayList();
+                List<Bucket> bucketList = new ArrayList<>();
                 BucketBuilder bucketBuilder = new BucketBuilder();
                 bucketBuilder.setBucketId(new BucketId((long) 1));
                 bucketBuilder.setKey(new BucketKey(new BucketId((long) 1)));
@@ -2114,6 +2038,8 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                 (SecurityServicesManager) ServiceHelper.getGlobalInstance(SecurityServicesManager.class, this);
         southbound =
                 (Southbound) ServiceHelper.getGlobalInstance(Southbound.class, this);
+        securityGroupCacheManger =
+                (SecurityGroupCacheManger) ServiceHelper.getGlobalInstance(SecurityGroupCacheManger.class, this);
     }
 
     @Override

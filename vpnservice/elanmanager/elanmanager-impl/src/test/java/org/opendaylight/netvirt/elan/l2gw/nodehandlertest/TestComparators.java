@@ -61,7 +61,7 @@ public class TestComparators {
         HwvtepGlobalAugmentation haAug = dst.getAugmentation(HwvtepGlobalAugmentation.class);
 
         List<LogicalSwitches> d1Values =
-                d1Aug.getLogicalSwitches() != null ? d1Aug.getLogicalSwitches() : new ArrayList<LogicalSwitches>();
+                d1Aug.getLogicalSwitches() != null ? d1Aug.getLogicalSwitches() : new ArrayList<>();
         List<LogicalSwitches> result1 = cmd.transform(nodePath, d1Values);
         List<LogicalSwitches> result2 = cmd.transform(nodePath, haAug.getLogicalSwitches());
 
@@ -78,10 +78,10 @@ public class TestComparators {
         HwvtepGlobalAugmentation haAug = ha.getAugmentation(HwvtepGlobalAugmentation.class);
 
         List<LogicalSwitches> d1Values =
-                d1Aug.getLogicalSwitches() != null ? d1Aug.getLogicalSwitches() : new ArrayList<LogicalSwitches>();
+                d1Aug.getLogicalSwitches() != null ? d1Aug.getLogicalSwitches() : new ArrayList<>();
         List<LogicalSwitches> result1 = cmd.transform(nodePath, d1Values);
         List<LogicalSwitches> d2Values =
-                d2Aug.getLogicalSwitches() != null ? d2Aug.getLogicalSwitches() : new ArrayList<LogicalSwitches>();
+                d2Aug.getLogicalSwitches() != null ? d2Aug.getLogicalSwitches() : new ArrayList<>();
         List<LogicalSwitches> result2 = cmd.transform(nodePath, d2Values);
         //Merge data of both d1 and d2 logical switch info should be same as ha
         Set<LogicalSwitches> set1 = new HashSet<>();
@@ -98,7 +98,7 @@ public class TestComparators {
         HwvtepGlobalAugmentation d1Aug = src.getAugmentation(HwvtepGlobalAugmentation.class);
         HwvtepGlobalAugmentation haAug = dst.getAugmentation(HwvtepGlobalAugmentation.class);
         List<RemoteUcastMacs> d1Values =
-                d1Aug.getRemoteUcastMacs() != null ? d1Aug.getRemoteUcastMacs() : new ArrayList<RemoteUcastMacs>();
+                d1Aug.getRemoteUcastMacs() != null ? d1Aug.getRemoteUcastMacs() : new ArrayList<>();
         List<RemoteUcastMacs> result1 = cmd.transform(nodePath, d1Values);
         List<RemoteUcastMacs> result2 = cmd.transform(nodePath, haAug.getRemoteUcastMacs());
 
@@ -118,13 +118,13 @@ public class TestComparators {
         HwvtepGlobalAugmentation haAug = ha.getAugmentation(HwvtepGlobalAugmentation.class);
 
         List<RemoteUcastMacs> d1Values =
-                d1Aug.getRemoteUcastMacs() != null ? d1Aug.getRemoteUcastMacs() : new ArrayList<RemoteUcastMacs>();
+                d1Aug.getRemoteUcastMacs() != null ? d1Aug.getRemoteUcastMacs() : new ArrayList<>();
         List<RemoteUcastMacs> result1 = cmd.transform(nodePath, d1Values);
 
         List<RemoteUcastMacs> d2Values =
-                d2Aug.getRemoteUcastMacs() != null ? d2Aug.getRemoteUcastMacs() : new ArrayList<RemoteUcastMacs>();
+                d2Aug.getRemoteUcastMacs() != null ? d2Aug.getRemoteUcastMacs() : new ArrayList<>();
         List<RemoteUcastMacs> result2 = cmd.transform(nodePath, d2Values);
-        List<RemoteUcastMacs> ruMacList = new ArrayList<RemoteUcastMacs>();
+        List<RemoteUcastMacs> ruMacList = new ArrayList<>();
         ruMacList.addAll(result1);
         ruMacList.addAll(result2);
         List<RemoteUcastMacs> result = cmd.transform(nodePath, haAug.getRemoteUcastMacs());
@@ -140,7 +140,7 @@ public class TestComparators {
         HwvtepGlobalAugmentation d1Aug = src.getAugmentation(HwvtepGlobalAugmentation.class);
         HwvtepGlobalAugmentation haAug = dst.getAugmentation(HwvtepGlobalAugmentation.class);
         List<RemoteMcastMacs> d1Values =
-                d1Aug.getRemoteMcastMacs() != null ? d1Aug.getRemoteMcastMacs() : new ArrayList<RemoteMcastMacs>();
+                d1Aug.getRemoteMcastMacs() != null ? d1Aug.getRemoteMcastMacs() : new ArrayList<>();
         List<RemoteMcastMacs> result1 = cmd.transform(nodePath, d1Values);
         List<RemoteMcastMacs> result2 = cmd.transform(nodePath, haAug.getRemoteMcastMacs());
 
@@ -157,13 +157,13 @@ public class TestComparators {
         HwvtepGlobalAugmentation haAug = ha.getAugmentation(HwvtepGlobalAugmentation.class);
 
         List<RemoteMcastMacs> d1Values =
-                d1Aug.getRemoteMcastMacs() != null ? d1Aug.getRemoteMcastMacs() : new ArrayList<RemoteMcastMacs>();
+                d1Aug.getRemoteMcastMacs() != null ? d1Aug.getRemoteMcastMacs() : new ArrayList<>();
         List<RemoteMcastMacs> result1 = cmd.transform(nodePath, d1Values);
 
         List<RemoteMcastMacs> d2Values =
-                d2Aug.getRemoteMcastMacs() != null ? d2Aug.getRemoteMcastMacs() : new ArrayList<RemoteMcastMacs>();
+                d2Aug.getRemoteMcastMacs() != null ? d2Aug.getRemoteMcastMacs() : new ArrayList<>();
         List<RemoteMcastMacs> result2 = cmd.transform(nodePath, d2Values);
-        List<RemoteMcastMacs> rmMacList = new ArrayList<RemoteMcastMacs>();
+        List<RemoteMcastMacs> rmMacList = new ArrayList<>();
         rmMacList.addAll(result1);
         rmMacList.addAll(result2);
 
@@ -180,7 +180,7 @@ public class TestComparators {
         HwvtepGlobalAugmentation d1Aug = src.getAugmentation(HwvtepGlobalAugmentation.class);
         HwvtepGlobalAugmentation haAug = dst.getAugmentation(HwvtepGlobalAugmentation.class);
         List<LocalUcastMacs> d1Values =
-                d1Aug.getLocalUcastMacs() != null ? d1Aug.getLocalUcastMacs() : new ArrayList<LocalUcastMacs>();
+                d1Aug.getLocalUcastMacs() != null ? d1Aug.getLocalUcastMacs() : new ArrayList<>();
         List<LocalUcastMacs> result1 = cmd.transform(nodePath, d1Values);
         List<LocalUcastMacs> result2 = cmd.transform(nodePath, haAug.getLocalUcastMacs());
 
@@ -197,15 +197,15 @@ public class TestComparators {
         HwvtepGlobalAugmentation haAug = ha.getAugmentation(HwvtepGlobalAugmentation.class);
 
         List<LocalUcastMacs> d1Values =
-                d1Aug.getLocalUcastMacs() != null ? d1Aug.getLocalUcastMacs() : new ArrayList<LocalUcastMacs>();
+                d1Aug.getLocalUcastMacs() != null ? d1Aug.getLocalUcastMacs() : new ArrayList<>();
         List<LocalUcastMacs> result1 = cmd.transform(nodePath, d1Values);
         List<LocalUcastMacs> d2Values =
-                d2Aug.getLocalUcastMacs() != null ? d2Aug.getLocalUcastMacs() : new ArrayList<LocalUcastMacs>();
+                d2Aug.getLocalUcastMacs() != null ? d2Aug.getLocalUcastMacs() : new ArrayList<>();
         List<LocalUcastMacs> result2 = cmd.transform(nodePath, d2Values);
 
         List<LocalUcastMacs> result = cmd.transform(nodePath, haAug.getLocalUcastMacs());
 
-        List<LocalUcastMacs> luMacList = new ArrayList<LocalUcastMacs>();
+        List<LocalUcastMacs> luMacList = new ArrayList<>();
         luMacList.addAll(result1);
         luMacList.addAll(result2);
 
@@ -219,7 +219,7 @@ public class TestComparators {
         HwvtepGlobalAugmentation d1Aug = src.getAugmentation(HwvtepGlobalAugmentation.class);
         HwvtepGlobalAugmentation haAug = dst.getAugmentation(HwvtepGlobalAugmentation.class);
         List<LocalMcastMacs> d1Values =
-                d1Aug.getLocalUcastMacs() != null ? d1Aug.getLocalMcastMacs() : new ArrayList<LocalMcastMacs>();
+                d1Aug.getLocalUcastMacs() != null ? d1Aug.getLocalMcastMacs() : new ArrayList<>();
         List<LocalMcastMacs> result1 = cmd.transform(nodePath, d1Values);
         List<LocalMcastMacs> result2 = cmd.transform(nodePath, haAug.getLocalMcastMacs());
 
@@ -235,15 +235,15 @@ public class TestComparators {
         HwvtepGlobalAugmentation d2Aug = d2.getAugmentation(HwvtepGlobalAugmentation.class);
         HwvtepGlobalAugmentation haAug = ha.getAugmentation(HwvtepGlobalAugmentation.class);
         List<LocalMcastMacs> d1Values =
-                d1Aug.getLocalUcastMacs() != null ? d1Aug.getLocalMcastMacs() : new ArrayList<LocalMcastMacs>();
+                d1Aug.getLocalUcastMacs() != null ? d1Aug.getLocalMcastMacs() : new ArrayList<>();
         List<LocalMcastMacs> result1 = cmd.transform(nodePath, d1Values);
         List<LocalMcastMacs> d2Values =
-                d2Aug.getLocalUcastMacs() != null ? d2Aug.getLocalMcastMacs() : new ArrayList<LocalMcastMacs>();
+                d2Aug.getLocalUcastMacs() != null ? d2Aug.getLocalMcastMacs() : new ArrayList<>();
         List<LocalMcastMacs> result2 = cmd.transform(nodePath, d2Values);
 
         List<LocalMcastMacs> result = cmd.transform(nodePath, haAug.getLocalMcastMacs());
 
-        List<LocalMcastMacs> lmMacList = new ArrayList<LocalMcastMacs>();
+        List<LocalMcastMacs> lmMacList = new ArrayList<>();
         lmMacList.addAll(result1);
         lmMacList.addAll(result2);
 

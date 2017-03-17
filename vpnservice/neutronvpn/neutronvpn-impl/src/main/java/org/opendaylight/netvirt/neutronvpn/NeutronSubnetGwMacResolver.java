@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.neutronvpn;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
@@ -16,7 +17,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider;
@@ -37,8 +37,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 public class NeutronSubnetGwMacResolver {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronSubnetGwMacResolver.class);
@@ -64,20 +62,17 @@ public class NeutronSubnetGwMacResolver {
         this.cswitchProvider = cswitchProvider;
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
 
-        arpFuture = executorService.scheduleAtFixedRate(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    sendArpRequestsToExtGateways();
-                } catch (Throwable t) {
-                    LOG.warn("Failed to send ARP request to GW ips", t);
-                }
+        arpFuture = executorService.scheduleAtFixedRate(() -> {
+            try {
+                sendArpRequestsToExtGateways();
+            } catch (Throwable t) {
+                LOG.warn("Failed to send ARP request to GW ips", t);
             }
-
         }, 0, vpnManager.getArpCacheTimeoutMillis(), TimeUnit.MILLISECONDS);
 
     }
@@ -90,14 +85,15 @@ public class NeutronSubnetGwMacResolver {
         // Let the FIB flows a chance to be installed
         // otherwise the ARP response will be routed straight to L2
         // and bypasses L3 arp cache
-        executorService.schedule(new Runnable() {
+        executorService.schedule(() -> sendArpRequestsToExtGatewayTask(router), L3_INSTALL_DELAY_MILLIS,
+                TimeUnit.MILLISECONDS);
+    }
 
-            @Override
-            public void run() {
-                sendArpRequestsToExtGatewayTask(router);
-            }
-
-        }, L3_INSTALL_DELAY_MILLIS, TimeUnit.MILLISECONDS);
+    private void sendArpRequestsToExtGateways() {
+        LOG.trace("Sending ARP requests to exteral gateways");
+        for (Router router : NeutronvpnUtils.routerMap.values()) {
+            sendArpRequestsToExtGateways(router);
+        }
     }
 
     private void sendArpRequestsToExtGatewayTask(Router router) {
@@ -137,13 +133,8 @@ public class NeutronSubnetGwMacResolver {
 
     }
 
-    private void sendArpRequestsToExtGateways() {
-        LOG.trace("Sending ARP requests to exteral gateways");
-        for (Router router : NeutronvpnUtils.routerMap.values()) {
-            sendArpRequestsToExtGateways(router);
-        }
-    }
-
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private void sendArpRequest(IpAddress srcIpAddress, IpAddress dstIpAddress, MacAddress srcMacAddress,
             String interfaceName) {
         if (srcIpAddress == null || dstIpAddress == null) {

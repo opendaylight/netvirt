@@ -8,14 +8,16 @@
 
 package org.opendaylight.netvirt.vpnmanager;
 
+import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
@@ -28,10 +30,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
 public class TunnelEndPointChangeListener
-        extends AsyncDataTreeChangeListenerBase<TunnelEndPoints, TunnelEndPointChangeListener> {
+    extends AsyncDataTreeChangeListenerBase<TunnelEndPoints, TunnelEndPointChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelEndPointChangeListener.class);
 
     private final DataBroker broker;
@@ -51,7 +51,7 @@ public class TunnelEndPointChangeListener
     @Override
     protected InstanceIdentifier<TunnelEndPoints> getWildCardPath() {
         return InstanceIdentifier.builder(DpnEndpoints.class).child(DPNTEPsInfo.class).child(TunnelEndPoints.class)
-                .build();
+            .build();
     }
 
     @Override
@@ -60,7 +60,7 @@ public class TunnelEndPointChangeListener
 
     @Override
     protected void update(InstanceIdentifier<TunnelEndPoints> key, TunnelEndPoints origTep,
-            TunnelEndPoints updatedTep) {
+        TunnelEndPoints updatedTep) {
     }
 
     @Override
@@ -88,22 +88,33 @@ public class TunnelEndPointChangeListener
                 for (VpnInterfaces vpnInterface : vpnInterfaces) {
                     String vpnInterfaceName = vpnInterface.getInterfaceName();
                     dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterfaceName,
-                            new Callable<List<ListenableFuture<Void>>>() {
-                                @Override
-                                public List<ListenableFuture<Void>> call() throws Exception {
-                                    LOG.trace("Handling TEP {} add for VPN instance {} VPN interface {}",
-                                            tep.getInterfaceName(), vpnName, vpnInterfaceName);
-                                    WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
-                                    WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
-                                    WriteTransaction writeInvTxn = broker.newWriteOnlyTransaction();
-                                    final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface interfaceState =
-                                            InterfaceUtils.getInterfaceStateFromOperDS(broker, vpnInterfaceName);
-                                    final int lPortTag = interfaceState.getIfIndex();
-                                    vpnInterfaceManager.processVpnInterfaceAdjacencies(dpnId, lPortTag, vpnName, vpnInterfaceName,
-                                            vpnId, writeConfigTxn, writeOperTxn, writeInvTxn);
-                                    return Arrays.asList(writeOperTxn.submit(), writeConfigTxn.submit(), writeInvTxn.submit());
-                                }
-                            });
+                        () -> {
+                            LOG.trace("Handling TEP {} add for VPN instance {} VPN interface {}",
+                                    tep.getInterfaceName(), vpnName, vpnInterfaceName);
+                            WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
+                            WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
+                            WriteTransaction writeInvTxn = broker.newWriteOnlyTransaction();
+                            List<ListenableFuture<Void>> futures = new ArrayList<>();
+
+                            final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces
+                                    .rev140508.interfaces.state.Interface
+                                    interfaceState =
+                                    InterfaceUtils.getInterfaceStateFromOperDS(broker, vpnInterfaceName);
+                            if (interfaceState == null) {
+                                LOG.debug("Cannot retrieve interfaceState for vpnInterfaceName {}, "
+                                        + "cannot generate lPortTag and process adjacencies", vpnInterfaceName);
+                                return futures;
+                            }
+                            final int lPortTag = interfaceState.getIfIndex();
+                            vpnInterfaceManager.processVpnInterfaceAdjacencies(dpnId, lPortTag, vpnName,
+                                vpnInterfaceName, vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
+                            List<CheckedFuture<Void, TransactionCommitFailedException>> checkedFutures =
+                                    Arrays.asList(writeOperTxn.submit(),
+                                            writeConfigTxn.submit(),
+                                            writeInvTxn.submit());
+                            futures.addAll(checkedFutures);
+                            return futures;
+                        });
                 }
             }
         }

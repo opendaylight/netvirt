@@ -7,9 +7,14 @@
 
 package org.opendaylight.netvirt.bgpmanager.thrift.gen;
 
+import java.util.Map;
+import java.util.HashMap;
+import org.apache.thrift.TEnum;
+
 public enum af_safi implements org.apache.thrift.TEnum {
   SAFI_IPV4_LABELED_UNICAST(4),
-  SAFI_MPLS_VPN(5);
+  SAFI_MPLS_VPN(5),
+  SAFI_EVPN(6);
 
   private final int value;
 
@@ -34,8 +39,11 @@ public enum af_safi implements org.apache.thrift.TEnum {
         return SAFI_IPV4_LABELED_UNICAST;
       case 5:
         return SAFI_MPLS_VPN;
+      case 6:
+        return SAFI_EVPN;
       default:
         return null;
     }
   }
 }
+

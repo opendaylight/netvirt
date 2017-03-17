@@ -21,6 +21,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>openstack.sfc-translator-artifacts</artifactId>
+  <name>ODL :: netvirt :: ${project.artifactId}</name>
   <version>1.4.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 

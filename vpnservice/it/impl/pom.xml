@@ -11,6 +11,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>it-impl</artifactId>
+  <name>ODL :: netvirt :: ${project.artifactId}</name>
 
   <dependencies>
     <dependency>
@@ -44,16 +45,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <configuration>
-          <propertyExpansion>checkstyle.violationSeverity=error</propertyExpansion>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

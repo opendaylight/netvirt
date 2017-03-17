@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
+import static org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils.buildfloatingIpIdToPortMappingIdentifier;
+
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +35,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils.buildfloatingIpIdToPortMappingIdentifier;
 
 public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTreeChangeListenerBase<Floatingip,
         NeutronFloatingToFixedIpMappingChangeListener> implements AutoCloseable {
@@ -107,6 +107,8 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
         }
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private void addToFloatingIpInfo(String routerName, Uuid extNetworkId, String fixedNeutronPortName, String
             fixedIpAddress, String floatingIpAddress, Uuid floatingIpId) {
         RouterPortsBuilder routerPortsBuilder;
@@ -117,14 +119,14 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
             Optional<RouterPorts> optionalRouterPorts = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
                     .CONFIGURATION, routerPortsIdentifier);
             if (optionalRouterPorts.isPresent()) {
-                LOG.debug("Updating routerPorts node {} in floatingIpInfo DS for floating IP () on fixed " +
-                        "neutron port {} : ", routerName, floatingIpAddress, fixedNeutronPortName);
+                LOG.debug("Updating routerPorts node {} in floatingIpInfo DS for floating IP () on fixed "
+                    + "neutron port {} : ", routerName, floatingIpAddress, fixedNeutronPortName);
                 routerPortsBuilder = new RouterPortsBuilder(optionalRouterPorts.get());
             } else {
-                LOG.debug("Creating new routerPorts node {} in floatingIpInfo DS for floating IP () on fixed " +
-                        "neutron port {} : ", routerName, floatingIpAddress, fixedNeutronPortName);
-                routerPortsBuilder = new RouterPortsBuilder().setKey(new RouterPortsKey(routerName)).setRouterId
-                        (routerName);
+                LOG.debug("Creating new routerPorts node {} in floatingIpInfo DS for floating IP () on fixed "
+                    + "neutron port {} : ", routerName, floatingIpAddress, fixedNeutronPortName);
+                routerPortsBuilder =
+                    new RouterPortsBuilder().setKey(new RouterPortsKey(routerName)).setRouterId(routerName);
             }
             if (extNetworkId != null) {
                 routerPortsBuilder.setExternalNetworkId(extNetworkId);
@@ -161,10 +163,10 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                 routerPortsBuilder.setPorts(portsList);
             }
             isLockAcquired = NeutronvpnUtils.lock(routerName);
-            LOG.debug("Creating/Updating routerPorts node {} in floatingIpInfo DS for floating IP () on fixed " +
-                    "neutron port {} : ", routerName, floatingIpAddress, fixedNeutronPortName);
-            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsIdentifier, routerPortsBuilder
-                    .build());
+            LOG.debug("Creating/Updating routerPorts node {} in floatingIpInfo DS for floating IP () on fixed "
+                + "neutron port {} : ", routerName, floatingIpAddress, fixedNeutronPortName);
+            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsIdentifier,
+                routerPortsBuilder.build());
             LOG.debug("FloatingIpInfo DS updated for floating IP {} ", floatingIpAddress);
         } catch (Exception e) {
             LOG.error("addToFloatingIpInfo failed for floating IP: {} ", floatingIpAddress);
@@ -175,6 +177,8 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
         }
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private void clearFromFloatingIpInfo(String routerName, String fixedNeutronPortName, String fixedIpAddress) {
         boolean isLockAcquired = false;
         InstanceIdentifier.InstanceIdentifierBuilder<RouterPorts> routerPortsIdentifierBuilder = InstanceIdentifier
@@ -223,6 +227,8 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
         }
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     protected void dissociatefixedIPFromFloatingIP(String fixedNeutronPortName) {
         boolean isLockAcquired = false;
         InstanceIdentifier.InstanceIdentifierBuilder<FloatingIpInfo> floatingIpInfoIdentifierBuilder =
@@ -240,8 +246,8 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                                 if (ports.getPortName().equals(fixedNeutronPortName)) {
                                     String routerName = routerPorts.getRouterId();
                                     InstanceIdentifier.InstanceIdentifierBuilder<RouterPorts>
-                                            routerPortsIdentifierBuilder = floatingIpInfoIdentifierBuilder.child
-                                            (RouterPorts.class, new RouterPortsKey(routerName));
+                                        routerPortsIdentifierBuilder = floatingIpInfoIdentifierBuilder
+                                        .child(RouterPorts.class, new RouterPortsKey(routerName));
                                     removeRouterPortsOrPortsNode(routerName, routerPortsIdentifierBuilder, portsList,
                                             fixedNeutronPortName, isLockAcquired);
                                     LOG.debug("Deletion from FloatingIpInfo DS successful for fixedIP neutron port {} ",
@@ -255,14 +261,16 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                     LOG.debug("No router present containing fixed to floating IP association(s)");
                 }
             } else {
-                LOG.debug("FloatingIPInfo DS empty. Hence, no router present containing fixed to floating IP " +
-                        "association(s)");
+                LOG.debug("FloatingIPInfo DS empty. Hence, no router present containing fixed to floating IP "
+                    + "association(s)");
             }
         } catch (Exception e) {
             LOG.error("Failed to dissociate fixedIP from FloatingIpInfo DS for neutron port {}", fixedNeutronPortName);
         }
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private void removeRouterPortsOrPortsNode(String routerName, InstanceIdentifier
             .InstanceIdentifierBuilder<RouterPorts> routerPortsIdentifierBuilder, List<Ports> portsList,
                                               String fixedNeutronPortName, boolean isLockAcquired) {
@@ -276,12 +284,12 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsIdentifierBuilder
                         .build());
             } else {
-                InstanceIdentifier.InstanceIdentifierBuilder<Ports> portsIdentifierBuilder =
-                        routerPortsIdentifierBuilder.child(Ports.class, new PortsKey(fixedNeutronPortName));
                 // remove entire ports node under this routerPorts node
                 lockName = fixedNeutronPortName;
                 isLockAcquired = NeutronvpnUtils.lock(lockName);
                 LOG.debug("removing ports node {} under routerPorts node {}", fixedNeutronPortName, routerName);
+                InstanceIdentifier.InstanceIdentifierBuilder<Ports> portsIdentifierBuilder =
+                    routerPortsIdentifierBuilder.child(Ports.class, new PortsKey(fixedNeutronPortName));
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, portsIdentifierBuilder.build());
             }
         } catch (Exception e) {
@@ -293,33 +301,37 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
         }
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     // updates FloatingIPPortInfo to have isFloatingIPDeleted set to true on a floating IP delete
     private void updateFloatingIpPortInfo(Uuid floatingIpId, Uuid floatingIpPortId) {
         InstanceIdentifier id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
         try {
             FloatingIpIdToPortMappingBuilder floatingIpIdToPortMappingBuilder = new
-                    FloatingIpIdToPortMappingBuilder().setFloatingIpDeleted(true);
-            LOG.debug("Updating floating IP UUID {} to Floating IP neutron port {} mapping in Floating IP" +
-                            " Port Info Config DS to set isFloatingIpDeleted flag as true", floatingIpId.getValue(),
-                    floatingIpPortId.getValue());
+                    FloatingIpIdToPortMappingBuilder().setFloatingIpId(floatingIpId).setFloatingIpDeleted(true);
+            LOG.debug("Updating floating IP UUID {} to Floating IP neutron port {} mapping in Floating IP"
+                    + " Port Info Config DS to set isFloatingIpDeleted flag as true",
+                floatingIpId.getValue(), floatingIpPortId.getValue());
             MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, id,
                     floatingIpIdToPortMappingBuilder.build());
         } catch (Exception e) {
-            LOG.error("Updating floating IP UUID {} to Floating IP neutron port {} mapping in Floating IP" +
-                    " Port Info Config DS to set isFloatingIpDeleted flag as true failed with exception {}",
-                    floatingIpId.getValue(), floatingIpPortId.getValue(), e);
+            LOG.error("Updating floating IP UUID {} to Floating IP neutron port {} mapping in Floating IP"
+                    + " Port Info Config DS to set isFloatingIpDeleted flag as true failed with exception {}",
+                floatingIpId.getValue(), floatingIpPortId.getValue(), e);
         }
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private void removeFromFloatingIpPortInfo(Uuid floatingIpId) {
         InstanceIdentifier id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
         try {
-            LOG.debug("Deleting floating IP UUID {} to Floating IP neutron port mapping from Floating " +
-                    "IP Port Info Config DS", floatingIpId.getValue());
+            LOG.debug("Deleting floating IP UUID {} to Floating IP neutron port mapping from Floating "
+                + "IP Port Info Config DS", floatingIpId.getValue());
             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         } catch (Exception e) {
-            LOG.error("Deleting floating IP UUID {} to Floating IP neutron port mapping from Floating " +
-                    "IP Port Info Config DS failed with exception {}", floatingIpId.getValue(), e);
+            LOG.error("Deleting floating IP UUID {} to Floating IP neutron port mapping from Floating "
+                + "IP Port Info Config DS failed with exception {}", floatingIpId.getValue(), e);
         }
     }
 }

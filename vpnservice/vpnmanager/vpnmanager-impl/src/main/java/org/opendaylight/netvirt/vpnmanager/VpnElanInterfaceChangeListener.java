@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class VpnElanInterfaceChangeListener
-        extends AsyncDataTreeChangeListenerBase<ElanInterface, VpnElanInterfaceChangeListener> {
+    extends AsyncDataTreeChangeListenerBase<ElanInterface, VpnElanInterfaceChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(VpnElanInterfaceChangeListener.class);
 
     private final DataBroker broker;
@@ -63,7 +63,7 @@ public class VpnElanInterfaceChangeListener
 
     @Override
     protected void update(InstanceIdentifier<ElanInterface> key, ElanInterface origElanInterface,
-            ElanInterface updatedElanInterface) {
+        ElanInterface updatedElanInterface) {
 
     }
 

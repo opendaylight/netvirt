@@ -8,6 +8,11 @@
 
 package org.opendaylight.netvirt.neutronvpn.shell;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.CheckedFuture;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -24,22 +29,17 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
 @Command(scope = "vpnservice", name = "dhcp-configure", description = "configuring parameters for DHCP Service")
 public class DhcpConfigureCommand extends OsgiCommandSupport {
 
-    final Logger Logger = LoggerFactory.getLogger(DhcpConfigureCommand.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DhcpConfigureCommand.class);
 
-    @Option(name = "-ld", aliases = {"--leaseDuration"}, description = "Lease Duration", required = false, multiValued = false)
+    @Option(name = "-ld", aliases = {"--leaseDuration"}, description = "Lease Duration", required = false,
+        multiValued = false)
     Integer leaseDuration;
 
-    @Option(name = "-dd", aliases = {"--defaultDomain"}, description = "Default Domain", required = false, multiValued = false)
+    @Option(name = "-dd", aliases = {"--defaultDomain"}, description = "Default Domain", required = false,
+        multiValued = false)
     String defaultDomain;
 
     private DataBroker dataBroker;
@@ -51,6 +51,8 @@ public class DhcpConfigureCommand extends OsgiCommandSupport {
     }
 
     @Override
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     protected Object doExecute() throws Exception {
         try {
             if ((defaultDomain == null) && (leaseDuration == null)) {
@@ -59,12 +61,11 @@ public class DhcpConfigureCommand extends OsgiCommandSupport {
             }
             Integer currLeaseDuration = defLeaseDuration;
             String currDefDomain = defDomain;
-            DhcpConfigBuilder dcBuilder = new DhcpConfigBuilder();
             ConfigsBuilder dccBuilder = new ConfigsBuilder();
             InstanceIdentifier<DhcpConfig> iid = InstanceIdentifier.create(DhcpConfig.class);
             DhcpConfig currentConfig = read(iid);
-            if (currentConfig != null && currentConfig.getConfigs() != null &&
-                    !currentConfig.getConfigs().isEmpty()) {
+            if (currentConfig != null && currentConfig.getConfigs() != null
+                && !currentConfig.getConfigs().isEmpty()) {
                 Configs dhcpConfig = currentConfig.getConfigs().get(0);
                 if (dhcpConfig.getLeaseDuration() != null) {
                     currLeaseDuration = dhcpConfig.getLeaseDuration();
@@ -77,12 +78,13 @@ public class DhcpConfigureCommand extends OsgiCommandSupport {
             dccBuilder.setLeaseDuration((leaseDuration == null) ? currLeaseDuration : leaseDuration);
             dccBuilder.setDefaultDomain((defaultDomain == null) ? currDefDomain : defaultDomain);
 
-            List<Configs> configList = Arrays.asList(dccBuilder.build());
+            List<Configs> configList = Collections.singletonList(dccBuilder.build());
+            DhcpConfigBuilder dcBuilder = new DhcpConfigBuilder();
             dcBuilder.setConfigs(configList);
             write(iid, dcBuilder.build());
         } catch (Exception e) {
             session.getConsole().println("Failed to configure. Try again");
-            Logger.error ("Failed to configure DHCP parameters",e);
+            LOG.error("Failed to configure DHCP parameters", e);
         }
         return null;
     }
@@ -94,11 +96,13 @@ public class DhcpConfigureCommand extends OsgiCommandSupport {
         try {
             futures.get();
         } catch (InterruptedException | ExecutionException e) {
-            Logger.error("Error writing to datastore (path, data) : ({}, {})", iid, dhcpConfig);
+            LOG.error("Error writing to datastore (path, data) : ({}, {})", iid, dhcpConfig);
             throw new RuntimeException(e.getMessage());
         }
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private DhcpConfig read(InstanceIdentifier<DhcpConfig> iid) {
 
         ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction();
@@ -106,7 +110,7 @@ public class DhcpConfigureCommand extends OsgiCommandSupport {
         try {
             result = tx.read(LogicalDatastoreType.CONFIGURATION, iid).get();
         } catch (Exception e) {
-            Logger.debug("DhcpConfig not present");
+            LOG.debug("DhcpConfig not present");
             return null;
         }
         if (result.isPresent()) {

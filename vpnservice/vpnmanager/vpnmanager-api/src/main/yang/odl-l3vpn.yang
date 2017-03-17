@@ -6,6 +6,10 @@ module odl-l3vpn {
     import l3vpn { prefix l3vpn; revision-date "2014-08-15"; }
     import ietf-yang-types { prefix "yang"; revision-date "2013-07-15"; }
     import odl-interface { prefix odlif; revision-date "2016-04-06"; }
+    import neutronvpn {
+        prefix nvpn;
+        revision-date "2015-06-02";
+    }
 
     revision "2013-09-11" {
         description "L3 VPN Service module";
@@ -24,6 +28,12 @@ module odl-l3vpn {
             leaf label { type uint32; config "false"; } /* optional */
             leaf mac_address {type string;} /* optional */
             leaf subnet_id {type yang:uuid;} /* optional */
+            leaf vrf-id { type string; config "false"; }
+            leaf phys-network-func {
+                type boolean;
+                default false;
+                description "Value of True indicates this is an adjacency of a device in a provider network";
+            }
         }
     }
 
@@ -58,27 +68,40 @@ module odl-l3vpn {
               leaf vpn-interface-name {
                   type string;
               }
+              leaf subnet-id {
+                  type yang:uuid;
+              }
+              leaf nat-prefix {
+                  type boolean;
+                  default false;
+              }
            }
         }
     }
 
-    container vpn-to-extraroute {
+    container vpn-to-extraroutes {
         config false;
         list vpn {
-           key vrf-id;
-           leaf vrf-id {
-              description
-                 "The vrf-id command configures a route distinguisher (RD)
-                  for the IPv4 or IPv6 address family of a VPN instance or
-                  vpn instance name for internal vpn case.";
-              type string;
+           key vpn-name;
+           leaf vpn-name {
+               type string;
+               description "VPN Instance name";
            }
-           list extraroute {
-              key prefix;
-              leaf prefix {type string;}
-              leaf-list nexthop-ip-list {
+           list extra-routes {
+               key vrf-id;
+               leaf vrf-id {
+                  description
+                     "The vrf-id configures unique route distinguisher (RD) for each ipv4
+                      or ipv6 prefix when its nexthop-ip-list connected to same compute node";
                   type string;
-              }
+               }
+               list routes {
+                  key prefix;
+                  leaf prefix {type string;}
+                  leaf-list nexthop-ip-list {
+                      type string;
+                  }
+               }
            }
         }
     }
@@ -126,6 +149,20 @@ module odl-l3vpn {
            }
     }
 
+    container evpn-rd-to-networks {
+        config false;
+        description "Holds the networks to which given evpn is attached";
+        list evpn-rd-to-network {
+           key vrf-id;
+           leaf vrf-id {
+             type string;
+           }
+           leaf network-id {
+             type string;
+           }
+        }
+    }
+
     container vpn-instance-op-data {
         config false;
         list vpn-instance-op-data-entry {
@@ -162,25 +199,46 @@ module odl-l3vpn {
                    leaf ip-address { type string; }
                }
                leaf dpn-state {
-                    description
-                    "This flag indicates the state of the DPN.
-                    Active state indicates atleast one vpn interface present on that DPN for the vpn.
-                    Inactive state indicates no vpn interface present on that DPN for this vpn.";
+                  description
+                  "This flag indicates the state of the DPN.
+                   Active state indicates atleast one vpn interface present on that DPN for the vpn.
+                   Inactive state indicates no vpn interface present on that DPN for this vpn.";
 
-                    type enumeration {
-                         enum active {
-                            value "0";
-                            description
-                            "Active state";
-                         }
-                         enum inactive {
-                             value "1";
-                             description
-                             "Inactive state";
-                         }
-                    }
-                    default "active";
+                  type enumeration {
+                     enum active {
+                        value "0";
+                        description
+                        "Active state";
+                     }
+                     enum inactive {
+                        value "1";
+                        description
+                        "Inactive state";
+                     }
+                  }
+                  default "active";
                }
+           }
+           leaf type {
+              description
+                 "The type of the VPN Instance.
+                  L3 indicates it is an L3VPN.
+                  L2 indicates it is an EVPN";
+
+              type enumeration {
+                 enum l3 {
+                    value "0";
+                    description “L3VPN";
+                 }
+                 enum l2{
+                    value "1";
+                    description "EVPN";
+                 }
+              }
+              default "l3";
+           }
+           leaf l3vni {
+              type uint32;
            }
            container vpnTargets {
               description
@@ -315,6 +373,8 @@ module odl-l3vpn {
                 }
             }
 
+            uses nvpn:network-attributes;
+
         }
     }
 
@@ -419,4 +479,42 @@ module odl-l3vpn {
         }
     }
 
+    container evpn-config {
+        config true;
+        leaf multi-homing-mode {
+            type enumeration {
+                enum "none";
+                enum "all-active";
+                enum "single-active";
+            }
+            default "none";
+        }
+        leaf irb-mode {
+            type enumeration {
+                enum "symmetric";
+                enum "asymmetric";
+            }
+            default "symmetric";
+        }
+    }
+
+    container l3vpn-lb-nexthops {
+        config false;
+        list nexthops {
+            key "nexthop-key";
+            leaf nexthop-key { type string; }
+            leaf group-id { type string; }
+            leaf-list target-device-id { type string; } //dpId or ip-address
+        }
+    }
+
+    container dpid-l3vpn-lb-nexthops {
+        config false;
+        list dpn-lb-nexthops {
+            key "src-dp-id dst-device-id";
+            leaf src-dp-id { type uint64; }
+            leaf dst-device-id { type string; } //dpId or ip-address
+            leaf-list nexthop-key { type string; }
+        }
+    }
 }

@@ -10,12 +10,12 @@ package org.opendaylight.netvirt.natservice.internal;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterInterfacesMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.Interfaces;
@@ -24,7 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class NatRouterInterfaceListener extends AsyncDataTreeChangeListenerBase<Interfaces, NatRouterInterfaceListener> {
+public class NatRouterInterfaceListener
+    extends AsyncDataTreeChangeListenerBase<Interfaces, NatRouterInterfaceListener> {
+
     private static final Logger LOG = LoggerFactory.getLogger(NatRouterInterfaceListener.class);
     private final DataBroker dataBroker;
     private final OdlInterfaceRpcService interfaceManager;
@@ -48,35 +50,38 @@ public class NatRouterInterfaceListener extends AsyncDataTreeChangeListenerBase<
 
     @Override
     protected InstanceIdentifier<Interfaces> getWildCardPath() {
-        return InstanceIdentifier.create(RouterInterfacesMap.class).child(RouterInterfaces.class).child(Interfaces.class);
+        return InstanceIdentifier.create(RouterInterfacesMap.class)
+            .child(RouterInterfaces.class).child(Interfaces.class);
     }
 
     @Override
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<Interfaces> identifier, Interfaces interfaceInfo) {
         LOG.trace("NAT Service : Add event - key: {}, value: {}", identifier, interfaceInfo);
         final String routerId = identifier.firstKeyOf(RouterInterfaces.class).getRouterId().getValue();
         final String interfaceName = interfaceInfo.getInterfaceId();
 
         try {
-            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, NatUtil.getRouterInterfaceId(interfaceName),
-                    getRouterInterface(interfaceName, routerId));
-        }catch (Exception e){
+            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                NatUtil.getRouterInterfaceId(interfaceName), getRouterInterface(interfaceName, routerId));
+        } catch (Exception e) {
             LOG.error("NAT Service : Unable to write data in RouterInterface model", e.getMessage());
         }
 
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface interfaceState =
-                NatUtil.getInterfaceStateFromOperDS(dataBroker, interfaceName);
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
+            .state.Interface interfaceState = NatUtil.getInterfaceStateFromOperDS(dataBroker, interfaceName);
         WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-        if (interfaceState!= null) {
+        if (interfaceState != null) {
             NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerId, interfaceName, interfaceManager, writeOperTxn);
             NatUtil.addToDpnRoutersMap(dataBroker, routerId, interfaceName, interfaceManager, writeOperTxn);
-        }else{
-            LOG.warn("NAT Service : Interface {} not yet operational to handle router interface add event in router {}",
-                    interfaceName, routerId);
+        } else {
+            LOG.warn("NAT Service : Interface {} not yet operational to handle router interface add event "
+                + "in router {}",
+                interfaceName, routerId);
         }
 
         writeOperTxn.submit();
-
     }
 
     @Override
@@ -104,7 +109,7 @@ public class NatRouterInterfaceListener extends AsyncDataTreeChangeListenerBase<
 
     static RouterInterface getRouterInterface(String interfaceName, String routerName) {
         return new RouterInterfaceBuilder().setKey(new RouterInterfaceKey(interfaceName))
-                .setInterfaceName(interfaceName).setRouterName(routerName).build();
+            .setInterfaceName(interfaceName).setRouterName(routerName).build();
     }
 
 }

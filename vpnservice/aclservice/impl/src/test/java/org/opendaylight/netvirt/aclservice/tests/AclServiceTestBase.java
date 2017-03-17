@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat, Inc. and others. All rights reserved.
+ * Copyright © 2016, 2017 Red Hat, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -7,19 +7,16 @@
  */
 package org.opendaylight.netvirt.aclservice.tests;
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
-import static org.opendaylight.mdsal.binding.testutils.AssertDataObjects.assertEqualBeans;
 import static org.opendaylight.netvirt.aclservice.tests.StateInterfaceBuilderHelper.putNewStateInterface;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -50,23 +47,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.EthertypeBase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.EthertypeV4;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public abstract class AclServiceTestBase {
 
+public abstract class AclServiceTestBase {
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceTestBase.class);
 
     static final String PORT_MAC_1 = "0D:AA:D8:42:30:F3";
     static final String PORT_MAC_2 = "0D:AA:D8:42:30:F4";
     static final String PORT_MAC_3 = "0D:AA:D8:42:30:F5";
+    static final String PORT_MAC_4 = "0D:AA:D8:42:30:F6";
     static final String PORT_1 = "port1";
     static final String PORT_2 = "port2";
     static final String PORT_3 = "port3";
+    static final String PORT_4 = "port4";
     static String SG_UUID  = "85cc3048-abc3-43cc-89b3-377341426ac5";
     static String SR_UUID_1 = "85cc3048-abc3-43cc-89b3-377341426ac6";
     static String SR_UUID_2 = "85cc3048-abc3-43cc-89b3-377341426ac7";
@@ -77,13 +74,11 @@ public abstract class AclServiceTestBase {
     static String SR_UUID_2_1 = "85cc3048-abc3-43cc-89b3-377341426a21";
     static String SR_UUID_2_2 = "85cc3048-abc3-43cc-89b3-377341426a22";
     static String ELAN = "elan1";
-    static String IP_PREFIX_1 = "10.0.0.1/24";
-    static String IP_PREFIX_2 = "10.0.0.2/24";
-    static String IP_PREFIX_3 = "10.0.0.3/24";
+    static String IP_PREFIX_1 = "10.0.0.1/32";
+    static String IP_PREFIX_2 = "10.0.0.2/32";
+    static String IP_PREFIX_3 = "10.0.0.3/32";
+    static String IP_PREFIX_4 = "10.0.0.4/32";
     static long ELAN_TAG = 5000L;
-
-    protected static final Integer FLOW_PRIORITY_SG_1 = 1001;
-    protected static final Integer FLOW_PRIORITY_SG_2 = 1002;
 
     @Inject DataBroker dataBroker;
     @Inject DataBrokerPairsUtil dataBrokerUtil;
@@ -99,6 +94,7 @@ public abstract class AclServiceTestBase {
 
     @Test
     public void newInterface() throws Exception {
+        LOG.info("newInterface - start");
         // Given
         // putNewInterface(dataBroker, "port1", true, Collections.emptyList(), Collections.emptyList());
         dataBrokerUtil.put(ImmutableIdentifiedInterfaceWithAclBuilder.builder()
@@ -112,14 +108,18 @@ public abstract class AclServiceTestBase {
 
         // Then
         newInterfaceCheck();
+        LOG.info("newInterface - end");
     }
 
     abstract void newInterfaceCheck();
 
     @Test
     public void newInterfaceWithEtherTypeAcl() throws Exception {
-        Matches matches = newMatch(EthertypeV4.class, -1, -1,-1, -1,
-            null, AclConstants.IPV4_ALL_NETWORK, (short)-1);
+        LOG.info("newInterfaceWithEtherTypeAcl - start");
+        Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
+            AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_UNSPECIFIED,
+            AclConstants.DEST_UPPER_PORT_UNSPECIFIED, AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED,
+            AclConstants.DEST_REMOTE_IP_PREFIX_SPECIFIED, (short)-1);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
             .newRuleName(SR_UUID_1_1)
@@ -127,8 +127,9 @@ public abstract class AclServiceTestBase {
             .newDirection(DirectionEgress.class)
             .build());
 
-        matches = newMatch(EthertypeV4.class, -1, -1,-1, -1,
-            AclConstants.IPV4_ALL_NETWORK, null, (short)-1);
+        matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED, AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED,
+            AclConstants.DEST_LOWER_PORT_UNSPECIFIED, AclConstants.DEST_UPPER_PORT_UNSPECIFIED,
+            AclConstants.SOURCE_REMOTE_IP_PREFIX_SPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_UNSPECIFIED, (short)-1);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
             .newRuleName(SR_UUID_1_2)
@@ -144,23 +145,29 @@ public abstract class AclServiceTestBase {
 
         // Then
         newInterfaceWithEtherTypeAclCheck();
+        LOG.info("newInterfaceWithEtherTypeAcl - end");
     }
 
     abstract void newInterfaceWithEtherTypeAclCheck();
 
     @Test
     public void newInterfaceWithTcpDstAcl() throws Exception {
+        LOG.info("newInterfaceWithTcpDstAcl - start");
         // Given
-        Matches matches = newMatch(EthertypeV4.class, -1, -1, 80, 80,
-            null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_TCP);
+        Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
+            AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_HTTP,
+            AclConstants.DEST_UPPER_PORT_HTTP, AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED,
+            AclConstants.DEST_REMOTE_IP_PREFIX_SPECIFIED, (short)NwConstants.IP_PROT_TCP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
             .newRuleName(SR_UUID_1_1)
             .newMatches(matches)
             .newDirection(DirectionEgress.class)
             .newRemoteGroupId(new Uuid(SG_UUID_1)).build());
-        matches = newMatch(EthertypeV4.class, -1, -1, 80, 80,
-            AclConstants.IPV4_ALL_NETWORK, null, (short)NwConstants.IP_PROT_TCP);
+        matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED, AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED,
+            AclConstants.DEST_LOWER_PORT_HTTP, AclConstants.DEST_UPPER_PORT_HTTP,
+            AclConstants.SOURCE_REMOTE_IP_PREFIX_SPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_UNSPECIFIED,
+            (short)NwConstants.IP_PROT_TCP);
 
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
@@ -177,15 +184,19 @@ public abstract class AclServiceTestBase {
 
         // Then
         newInterfaceWithTcpDstAclCheck();
+        LOG.info("newInterfaceWithTcpDstAcl - end");
     }
 
     abstract void newInterfaceWithTcpDstAclCheck();
 
     @Test
     public void newInterfaceWithUdpDstAcl() throws Exception {
+        LOG.info("newInterfaceWithUdpDstAcl - start");
         // Given
-        Matches matches = newMatch(EthertypeV4.class, -1, -1, 80, 80,
-            null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_UDP);
+        Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
+            AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_HTTP,
+            AclConstants.DEST_UPPER_PORT_HTTP, AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED,
+            AclConstants.DEST_REMOTE_IP_PREFIX_SPECIFIED, (short)NwConstants.IP_PROT_UDP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
             .newRuleName(SR_UUID_1_1)
@@ -193,8 +204,10 @@ public abstract class AclServiceTestBase {
             .newDirection(DirectionEgress.class)
             .build());
 
-        matches = newMatch(EthertypeV4.class, -1, -1, 80, 80,
-            AclConstants.IPV4_ALL_NETWORK, null, (short)NwConstants.IP_PROT_UDP);
+        matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED, AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED,
+            AclConstants.DEST_LOWER_PORT_HTTP, AclConstants.DEST_UPPER_PORT_HTTP,
+            AclConstants.SOURCE_REMOTE_IP_PREFIX_SPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_UNSPECIFIED,
+            (short)NwConstants.IP_PROT_UDP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
             .newRuleName(SR_UUID_1_2)
@@ -210,30 +223,16 @@ public abstract class AclServiceTestBase {
 
         // Then
         newInterfaceWithUdpDstAclCheck();
+        LOG.info("newInterfaceWithUdpDstAcl - end");
     }
 
     abstract void newInterfaceWithUdpDstAclCheck();
 
     @Test
     public void newInterfaceWithIcmpAcl() throws Exception {
+        LOG.info("newInterfaceWithIcmpAcl - start");
         // Given
-        Matches matches = newMatch(EthertypeV4.class, -1, -1, 2, 3,
-            null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_ICMP);
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
-            .sgUuid(SG_UUID_1)
-            .newRuleName(SR_UUID_1_1)
-            .newMatches(matches)
-            .newDirection(DirectionEgress.class)
-            .newRemoteGroupId(new Uuid(SG_UUID_1)).build());
-
-        matches = newMatch( EthertypeV4.class, -1, -1, 2, 3,
-            AclConstants.IPV4_ALL_NETWORK, null, (short)NwConstants.IP_PROT_ICMP);
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
-            .sgUuid(SG_UUID_1)
-            .newRuleName(SR_UUID_1_2)
-            .newMatches(matches)
-            .newDirection(DirectionIngress.class)
-            .build());
+        prepareInterfaceWithIcmpAcl();
 
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
@@ -243,23 +242,28 @@ public abstract class AclServiceTestBase {
 
         // Then
         newInterfaceWithIcmpAclCheck();
+        LOG.info("newInterfaceWithIcmpAcl - end");
     }
 
     abstract void newInterfaceWithIcmpAclCheck();
 
     @Test
     public void newInterfaceWithDstPortRange() throws Exception {
+        LOG.info("newInterfaceWithDstPortRange - start");
         // Given
-        Matches matches = newMatch(EthertypeV4.class, -1, -1, 333, 777,
-            null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_TCP);
+        Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
+            AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, 333, 777,
+            AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_SPECIFIED,
+            (short)NwConstants.IP_PROT_TCP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
             .newRuleName(SR_UUID_1_1)
             .newMatches(matches)
             .newDirection(DirectionEgress.class)
             .build());
-        matches = newMatch(EthertypeV4.class, -1, -1, 2000, 2003,
-            AclConstants.IPV4_ALL_NETWORK, null, (short)NwConstants.IP_PROT_UDP);
+        matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED, AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED,
+            2000, 2003, AclConstants.SOURCE_REMOTE_IP_PREFIX_SPECIFIED,
+            AclConstants.DEST_REMOTE_IP_PREFIX_UNSPECIFIED, (short)NwConstants.IP_PROT_UDP);
 
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
@@ -275,23 +279,28 @@ public abstract class AclServiceTestBase {
 
         // Then
         newInterfaceWithDstPortRangeCheck();
+        LOG.info("newInterfaceWithDstPortRange - end");
     }
 
     abstract void newInterfaceWithDstPortRangeCheck();
 
     @Test
     public void newInterfaceWithDstAllPorts() throws Exception {
+        LOG.info("newInterfaceWithDstAllPorts - start");
         // Given
-        Matches matches = newMatch(EthertypeV4.class, -1, -1, 1, 65535,
-            null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_TCP);
+        Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
+            AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, 1, 65535,
+            AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_SPECIFIED,
+            (short)NwConstants.IP_PROT_TCP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
             .newRuleName(SR_UUID_1_1)
             .newMatches(matches)
             .newDirection(DirectionEgress.class)
             .build());
-        matches = newMatch(EthertypeV4.class, -1, -1, 1, 65535,
-            AclConstants.IPV4_ALL_NETWORK, null, (short)NwConstants.IP_PROT_UDP);
+        matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED, AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED,
+            1, 65535, AclConstants.SOURCE_REMOTE_IP_PREFIX_SPECIFIED,
+            AclConstants.DEST_REMOTE_IP_PREFIX_UNSPECIFIED, (short)NwConstants.IP_PROT_UDP);
 
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
@@ -307,17 +316,23 @@ public abstract class AclServiceTestBase {
 
         // Then
         newInterfaceWithDstAllPortsCheck();
+        LOG.info("newInterfaceWithDstAllPorts - end");
     }
 
     abstract void newInterfaceWithDstAllPortsCheck();
 
     @Test
     public void newInterfaceWithTwoAclsHavingSameRules() throws Exception {
+        LOG.info("newInterfaceWithTwoAclsHavingSameRules - start");
         // Given
-        Matches icmpEgressMatches = newMatch(EthertypeV4.class, -1, -1, 2, 3, null, AclConstants.IPV4_ALL_NETWORK,
-                (short) NwConstants.IP_PROT_ICMP);
-        Matches icmpIngressMatches = newMatch(EthertypeV4.class, -1, -1, 2, 3, AclConstants.IPV4_ALL_NETWORK, null,
-                (short) NwConstants.IP_PROT_ICMP);
+        Matches icmpEgressMatches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
+            AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_2, AclConstants.DEST_UPPER_PORT_3,
+            AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_SPECIFIED,
+            (short) NwConstants.IP_PROT_ICMP);
+        Matches icmpIngressMatches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
+            AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_2, AclConstants.DEST_UPPER_PORT_3,
+            AclConstants.SOURCE_REMOTE_IP_PREFIX_SPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_UNSPECIFIED,
+            (short) NwConstants.IP_PROT_ICMP);
 
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_1)
                 .newMatches(icmpEgressMatches).newDirection(DirectionEgress.class).build());
@@ -338,73 +353,102 @@ public abstract class AclServiceTestBase {
 
         // Then
         newInterfaceWithTwoAclsHavingSameRulesCheck();
+        LOG.info("newInterfaceWithTwoAclsHavingSameRules - end");
     }
 
     abstract void newInterfaceWithTwoAclsHavingSameRulesCheck();
 
-    // TODO Remove this from here, use the one about to be merged in TestIMdsalApiManager
-    // under https://git.opendaylight.org/gerrit/#/c/47842/ *BUT* remember to integrate
-    // the ignore ordering fix recently added here to there...
-    protected void assertFlowsInAnyOrder(Iterable<FlowEntity> expectedFlows) {
-        List<FlowEntity> flows = mdsalApiManager.getFlows();
-        if (!Iterables.isEmpty(expectedFlows)) {
-            assertTrue("No Flows created (bean wiring may be broken?)", !flows.isEmpty());
-        }
+    @Test
+    public void newInterfaceWithIcmpAclHavingOverlappingMac() throws Exception {
+        // Given
+        prepareInterfaceWithIcmpAcl();
 
-        // TODO Support Iterable <-> List directly within XtendBeanGenerator
-        List<FlowEntity> expectedFlowsAsNewArrayList = Lists.newArrayList(expectedFlows);
+        // When
+        putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
+        putNewStateInterface(dataBroker, PORT_2, PORT_MAC_1);
 
-        // FYI: This containsExactlyElementsIn() assumes that FlowEntity, and everything in it,
-        // has correctly working equals() implementations.  assertEqualBeans() does not assume
-        // that, and would work even without equals, because it only uses property reflection.
-        // Normally this will lead to the same result, but if one day it doesn't (because of
-        // a bug in an equals() implementation somewhere), then it's worth to keep this diff
-        // in mind.
+        asyncEventsWaiter.awaitEventsConsumption();
 
-        // FTR: This use of G Truth and then catch AssertionError and using assertEqualBeans iff NOK
-        // (thus discarding the message from G Truth) is a bit of a hack, but it works well...
-        // If you're tempted to improve this, please remember that correctly re-implementing
-        // containsExactlyElementsIn (or Hamcrest's similar containsInAnyOrder) isn't a 1 line
-        // trivia... e.g. a.containsAll(b) && b.containsAll(a) isn't sufficient, because it
-        // won't work for duplicates (which we frequently have here); and ordering before is
-        // not viable because FlowEntity is not Comparable, and Comparator based on hashCode
-        // is not a good idea (different instances can have same hashCode), and e.g. on
-        // System#identityHashCode even less so.
-        try {
-            LOG.info("expectedFlows = {}", expectedFlowsAsNewArrayList);
-            LOG.info("flows = {}",flows);
-            assertThat(flows).containsExactlyElementsIn(expectedFlowsAsNewArrayList);
-        } catch (AssertionError e) {
-            // The point of this is basically just that our assertEqualBeans output,
-            // in case of a comparison failure, is *A LOT* more clearly readable
-            // than what G Truth (or Hamcrest) can do based on toString.
-            assertEqualBeans(expectedFlowsAsNewArrayList, flows);
-        }
+        // Then
+        newInterfaceWithIcmpAclCheck();
     }
 
-    private void newAllowedAddressPair(String portName, List<String> sgUuidList, String ipAddress, String macAddress )
+    /**
+     * Test new interface with allowed-address-pair (AAP) having IP prefix
+     * 0.0.0.0/0.
+     * <p>
+     * FIXME: This TC works locally but is failing in Jenkins, hence disabling
+     * TC for now. This is related to ordering issue (with FlowEntity objects)
+     * with test infra (AssertDataObjects.assertEqualBeans) which needs to be
+     * fixed.
+     * </p>
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    @Ignore
+    public void newInterfaceWithAapIpv4All() throws Exception {
+        LOG.info("newInterfaceWithAapIpv4All test - start");
+        // When
+        putNewStateInterface(dataBroker, PORT_4, PORT_MAC_4);
+
+        asyncEventsWaiter.awaitEventsConsumption();
+
+        // Then
+        newInterfaceWithAapIpv4AllCheck();
+        LOG.info("newInterfaceWithAapIpv4All test - end");
+    }
+
+    abstract void newInterfaceWithAapIpv4AllCheck();
+
+    protected void assertFlowsInAnyOrder(Iterable<FlowEntity> expectedFlows) {
+        mdsalApiManager.assertFlowsInAnyOrder(expectedFlows);
+    }
+
+    protected void prepareInterfaceWithIcmpAcl() throws TransactionCommitFailedException {
+        // Given
+        Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
+            AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_2, AclConstants.DEST_UPPER_PORT_3,
+            AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_SPECIFIED,
+            (short)NwConstants.IP_PROT_ICMP);
+        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
+            .sgUuid(SG_UUID_1)
+            .newRuleName(SR_UUID_1_1)
+            .newMatches(matches)
+            .newDirection(DirectionEgress.class)
+            .newRemoteGroupId(new Uuid(SG_UUID_1)).build());
+
+        matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED, AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED,
+            AclConstants.DEST_LOWER_PORT_2, AclConstants.DEST_UPPER_PORT_3,
+            AclConstants.SOURCE_REMOTE_IP_PREFIX_SPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_UNSPECIFIED,
+            (short)NwConstants.IP_PROT_ICMP);
+        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
+            .sgUuid(SG_UUID_1)
+            .newRuleName(SR_UUID_1_2)
+            .newMatches(matches)
+            .newDirection(DirectionIngress.class)
+            .build());
+    }
+
+    protected void newAllowedAddressPair(String portName, List<String> sgUuidList, List<AllowedAddressPairs> aapList)
             throws TransactionCommitFailedException {
-        AllowedAddressPairs allowedAddressPair = new AllowedAddressPairsBuilder()
-                .setIpAddress(new IpPrefixOrAddress(new IpPrefix(ipAddress.toCharArray())))
-                .setMacAddress(new MacAddress(macAddress))
-                .build();
-        List<Uuid> sgList = sgUuidList.stream().map(sg -> new Uuid(sg)).collect(Collectors.toList());
+        List<Uuid> sgList = sgUuidList.stream().map(Uuid::new).collect(Collectors.toList());
 
         dataBrokerUtil.put(ImmutableIdentifiedInterfaceWithAclBuilder.builder()
             .interfaceName(portName)
             .portSecurity(true)
             .addAllNewSecurityGroups(sgList)
-            .addIfAllowedAddressPair(allowedAddressPair).build());
+            .addAllIfAllowedAddressPairs(aapList).build());
     }
 
-    private void newElan(String elanName, long elanId) throws TransactionCommitFailedException {
+    protected void newElan(String elanName, long elanId) throws TransactionCommitFailedException {
         ElanInstance elan = new ElanInstanceBuilder().setElanInstanceName(elanName).setElanTag(5000L).build();
         singleTransactionDataBroker.syncWrite(CONFIGURATION,
                 AclServiceUtils.getElanInstanceConfigurationDataPath(elanName),
                 elan);
     }
 
-    private void newElanInterface(String elanName, String portName, boolean isWrite)
+    protected void newElanInterface(String elanName, String portName, boolean isWrite)
             throws TransactionCommitFailedException {
         ElanInterface elanInterface = new ElanInterfaceBuilder().setName(portName)
                 .setElanInstanceName(elanName).build();
@@ -417,9 +461,9 @@ public abstract class AclServiceTestBase {
     }
 
     // TODO refactor this instead of stealing it from org.opendaylight.netvirt.neutronvpn.NeutronSecurityRuleListener
-    private Matches newMatch( Class<? extends EthertypeBase> newEtherType,
-            int srcLowerPort, int srcUpperPort, int destLowerPort, int destupperPort, String srcRemoteIpPrefix,
-            String dstRemoteIpPrefix, short protocol) {
+    protected Matches newMatch(int srcLowerPort, int srcUpperPort, int destLowerPort, int destupperPort,
+            int srcRemoteIpPrefix, int dstRemoteIpPrefix, short protocol) {
+
         AceIpBuilder aceIpBuilder = new AceIpBuilder();
         if (destLowerPort != -1) {
             DestinationPortRangeBuilder destinationPortRangeBuilder = new DestinationPortRangeBuilder();
@@ -428,11 +472,11 @@ public abstract class AclServiceTestBase {
             aceIpBuilder.setDestinationPortRange(destinationPortRangeBuilder.build());
         }
         AceIpv4Builder aceIpv4Builder = new AceIpv4Builder();
-        if (srcRemoteIpPrefix != null) {
-            aceIpv4Builder.setSourceIpv4Network(new Ipv4Prefix(srcRemoteIpPrefix));
+        if (srcRemoteIpPrefix == AclConstants.SOURCE_REMOTE_IP_PREFIX_SPECIFIED) {
+            aceIpv4Builder.setSourceIpv4Network(new Ipv4Prefix(AclConstants.IPV4_ALL_NETWORK));
         }
-        if (dstRemoteIpPrefix != null) {
-            aceIpv4Builder.setSourceIpv4Network(new Ipv4Prefix(dstRemoteIpPrefix));
+        if (dstRemoteIpPrefix == AclConstants.DEST_REMOTE_IP_PREFIX_SPECIFIED) {
+            aceIpv4Builder.setSourceIpv4Network(new Ipv4Prefix(AclConstants.IPV4_ALL_NETWORK));
         }
         if (protocol != -1) {
             aceIpBuilder.setProtocol(protocol);
@@ -442,17 +486,31 @@ public abstract class AclServiceTestBase {
         MatchesBuilder matchesBuilder = new MatchesBuilder();
         matchesBuilder.setAceType(aceIpBuilder.build());
         return matchesBuilder.build();
-
     }
 
-    public void setUpData() throws Exception {
+    protected AllowedAddressPairs buildAap(String ipAddress, String macAddress) {
+        return new AllowedAddressPairsBuilder()
+                .setIpAddress(new IpPrefixOrAddress(new IpPrefix(ipAddress.toCharArray())))
+                .setMacAddress(new MacAddress(macAddress)).build();
+    }
+
+    protected void setUpData() throws Exception {
         newElan(ELAN, ELAN_TAG);
         newElanInterface(ELAN, PORT_1 ,true);
         newElanInterface(ELAN, PORT_2, true);
         newElanInterface(ELAN, PORT_3, true);
-        newAllowedAddressPair(PORT_1, Arrays.asList(SG_UUID_1), IP_PREFIX_1, PORT_MAC_1);
-        newAllowedAddressPair(PORT_2, Arrays.asList(SG_UUID_1), IP_PREFIX_2, PORT_MAC_2);
-        newAllowedAddressPair(PORT_3, Arrays.asList(SG_UUID_1, SG_UUID_2), IP_PREFIX_3, PORT_MAC_3);
+        newElanInterface(ELAN, PORT_4, true);
+
+        final AllowedAddressPairs aapPort1 = buildAap(IP_PREFIX_1, PORT_MAC_1);
+        final AllowedAddressPairs aapPort2 = buildAap(IP_PREFIX_2, PORT_MAC_2);
+        final AllowedAddressPairs aapPort3 = buildAap(IP_PREFIX_3, PORT_MAC_3);
+        final AllowedAddressPairs aapPort4 = buildAap(IP_PREFIX_4, PORT_MAC_4);
+
+        newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(aapPort1));
+        newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1), Collections.singletonList(aapPort2));
+        newAllowedAddressPair(PORT_3, Arrays.asList(SG_UUID_1, SG_UUID_2), Collections.singletonList(aapPort3));
+        newAllowedAddressPair(PORT_4, Collections.singletonList(SG_UUID_1),
+                Arrays.asList(aapPort4, buildAap(AclConstants.IPV4_ALL_NETWORK, PORT_MAC_4)));
     }
 
 }

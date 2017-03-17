@@ -8,17 +8,26 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.impl;
 
+import com.google.common.base.Preconditions;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
-import org.opendaylight.netvirt.openstack.netvirt.NetworkHandler;
-import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbTables;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.netvirt.openstack.netvirt.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.MdsalHelper;
+import org.opendaylight.netvirt.openstack.netvirt.NetworkHandler;
 import org.opendaylight.netvirt.openstack.netvirt.api.BridgeConfigurationManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager;
+import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbTables;
 import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
 import org.opendaylight.netvirt.utils.config.ConfigProperties;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeBase;
@@ -27,19 +36,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.ConnectionInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.ManagerEntry;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Random;
-
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -322,7 +318,7 @@ public class BridgeConfigurationManagerImpl implements BridgeConfigurationManage
 
     @Override
     public List<String> getAllPhysicalInterfaceNames(Node node) {
-        List<String> phyIfNames = Lists.newArrayList();
+        List<String> phyIfNames = new ArrayList<>();
         String providerMaps = southbound.getOtherConfig(node, OvsdbTables.OPENVSWITCH,
                 configurationService.getProviderMappingsKey());
         if (providerMaps == null) {

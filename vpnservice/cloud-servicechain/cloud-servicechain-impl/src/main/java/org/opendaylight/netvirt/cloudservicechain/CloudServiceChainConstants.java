@@ -21,14 +21,6 @@ public class CloudServiceChainConstants {
     public static final String FLOWID_PREFIX_SCF = "SCF.";
     public static final String FLOWID_PREFIX_L3 = "L3.";
 
-    public static final short SCF_SERVICE_INDEX = 1;
-    public static final short ELAN_SERVICE_INDEX = 3;
-    public static final short LPORT_DISPATCHER_TABLE = 17;
-    public static final short ELAN_SMAC_TABLE = 50;
-    public static final short FIB_TABLE = 21;
-    public static final short SCF_UP_SUB_FILTER_TCP_BASED_TABLE = 70;
-    public static final short SCF_DOWN_SUB_FILTER_TCP_BASED_TABLE = 72;
-    public static final short SCF_CHAIN_FWD_TABLE = 75;
     public static final String FLOWID_PREFIX = "L3.";
     public static final String L2_FLOWID_PREFIX = "L2.";
     public static final String VPN_PSEUDO_PORT_FLOWID_PREFIX = "VpnPseudoPort.";

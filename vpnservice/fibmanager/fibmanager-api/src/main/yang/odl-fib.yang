@@ -8,7 +8,7 @@ module odl-fib {
         description "FIB Manager module";
     }
 
-    grouping ipv4Entries{
+    grouping ipv4Entries {
         list ipv4Entry{
             key  "destPrefix";
             leaf destPrefix {type string;}
@@ -16,24 +16,73 @@ module odl-fib {
         }
     }
 
-    grouping vrfEntries{
-        list vrfEntry{
-            key  "destPrefix";
+    grouping vrfEntryBase {
             leaf destPrefix {
                 type string;
                 mandatory true;
             }
-            leaf label {
-                type uint32;
-                mandatory true;
-            }
-            leaf-list nextHopAddressList {
-                type string;
-                min-elements "1";
+            leaf mac {
+               type string;
+               mandatory false;
             }
             leaf origin {
                 type string;
                 mandatory true;
+            }
+            leaf encap-type {
+               description
+                  "This flag indicates how to interpret the existing label field.
+                   A value of mplsgre indicates that the label within route paths will continue to be considered as an MPLS Label.
+                   A value of vxlan indicates that l3vni should be used to advertise to bgp and label will be ignored.";
+
+               type enumeration {
+                  enum mplsgre {
+                     value "0";
+                     description "MPLSOverGRE";
+                  }
+                  enum vxlan {
+                     value "1";
+                     description “VNI";
+                  }
+               }
+               default "mplsgre";
+            }
+
+            leaf l3vni {
+               type uint32;
+            }
+            leaf gateway_mac_address {
+               type string;
+            }
+            leaf parent-vpn-rd {
+               description
+                 "If set will get the vpn-to-dpn information from the parent-vpn-rd";
+               type string;
+            }
+            list route-paths {
+                key "nexthop-address";
+                leaf nexthop-address {
+                    type string;
+                }
+                leaf label {
+                    type uint32;
+                }
+            }
+    }
+
+    grouping vrfEntries {
+        list vrfEntry{
+            key  "destPrefix";
+            uses vrfEntryBase;
+        }
+    }
+
+    grouping macVrfEntries {
+        list macVrfEntry {
+            key  "mac";
+            uses vrfEntryBase;
+            leaf l2vni {
+               type uint32;
             }
         }
     }
@@ -56,6 +105,7 @@ module odl-fib {
             key "routeDistinguisher";
             leaf routeDistinguisher {type string;}
             uses vrfEntries;
+            uses macVrfEntries;
         }
 
         container ipv4Table{
@@ -79,4 +129,88 @@ module odl-fib {
             leaf parent-vpn-rd { type string; }
          }
     }
+
+    container extraroute-rds-map {
+        config true;
+        list extraroute-rds {
+            description
+                "List of route distinguishers used to create a unique NLRI for the destination prefix";
+            key "vpnid";
+            leaf vpnid {
+                type uint32;
+            }
+            list dest-prefixes {
+                key "dest-prefix";
+                leaf dest-prefix {
+                    type string;
+                }
+                leaf-list rds {
+                   type string;
+                }
+            }
+        }
+   }
+
+   container ip-prefix-map {
+        description "Stores information about a parent vpn and prefix in that parent vpn,
+                    along with what other vpn-instances import the parent vpn";
+        config false;
+        list ip-prefix-info {
+            key "prefix parent-primary-rd";
+            leaf prefix {
+                type string;
+            }
+            leaf parent-primary-rd {
+                type string;
+            }
+            leaf dpn-id {
+                type uint64;
+            }
+            leaf-list vpn-instance-list {
+                type string;
+            }
+            leaf parent-vpnid {
+                type uint32;
+            }
+            leaf vpn-interface-name {
+                type string;
+            }
+            leaf elan-tag {
+                type uint32;
+            }
+            leaf is-subnet-route {
+                type boolean;
+            }
+            leaf encap-type {
+                type enumeration {
+                    enum mplsgre {
+                        value "0";
+                    }
+                    enum vxlan {
+                        value "1";
+                    }
+                }
+                default "mplsgre";
+            }
+            leaf l3vni {
+                type uint32;
+            }
+            leaf l2vni {
+                 type uint32;
+            }
+            list route-paths {
+                 key "nexthop-address";
+                 leaf nexthop-address {
+                      type string;
+                 }
+                 leaf label {
+                      type uint32;
+                 }
+                 leaf gateway_mac_address {
+                      type string;
+                 }
+            }
+        }
+   }
+
 }

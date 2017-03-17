@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -9,10 +9,13 @@ package org.opendaylight.netvirt.elan.l2gw.nodehandlertest;
 
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 
+import com.google.common.util.concurrent.CheckedFuture;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
@@ -33,9 +36,10 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 public class NodeConnectedHandlerUtils {
 
-    void addNode(InstanceIdentifier<Node> path, InstanceIdentifier<Node> psPath, String logicalSwitchData,
-                 String localUcasMacData, String localMcastData, String remoteMcastData, String remoteUcasteMacData,
-                 String globalTerminationPointIp, WriteTransaction transaction) throws Exception {
+    CheckedFuture<Void, TransactionCommitFailedException> addNode(InstanceIdentifier<Node> path,
+            InstanceIdentifier<Node> psPath, String logicalSwitchData, String localUcasMacData, String localMcastData,
+            String remoteMcastData, String remoteUcasteMacData, String globalTerminationPointIp,
+            WriteTransaction transaction) throws Exception {
         NodeBuilder nodeBuilder = null;
         HwvtepGlobalAugmentationBuilder augmentationBuilder = null;
         nodeBuilder = prepareOperationalNode(path);
@@ -57,13 +61,13 @@ public class NodeConnectedHandlerUtils {
 
         nodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, augmentationBuilder.build());
 
-        TestUtil.submitNode(OPERATIONAL, path, nodeBuilder.build(), transaction);
+        return TestUtil.submitNode(OPERATIONAL, path, nodeBuilder.build(), transaction);
     }
 
-    void addPsNode(InstanceIdentifier<Node> path, InstanceIdentifier<Node> parentPath, List<String> portNameList,
-                   WriteTransaction transaction) throws Exception {
+    CheckedFuture<Void, TransactionCommitFailedException> addPsNode(InstanceIdentifier<Node> path,
+            InstanceIdentifier<Node> parentPath, List<String> portNameList, WriteTransaction transaction)
+            throws Exception {
         NodeBuilder nodeBuilder = null;
-        HwvtepGlobalAugmentationBuilder augmentationBuilder = null;
 
         nodeBuilder = prepareOperationalNode(path);
         PhysicalSwitchAugmentationBuilder physicalSwitchAugmentationBuilder = new PhysicalSwitchAugmentationBuilder();
@@ -71,7 +75,6 @@ public class NodeConnectedHandlerUtils {
         physicalSwitchAugmentationBuilder.setPhysicalSwitchUuid(getUUid("d1s3"));
         physicalSwitchAugmentationBuilder.setHwvtepNodeName(new HwvtepNodeName("s3"));
         physicalSwitchAugmentationBuilder.setHwvtepNodeDescription("description");
-
 
         List<TunnelIps> tunnelIps = new ArrayList<>();
         IpAddress ip = new IpAddress("192.168.122.30".toCharArray());
@@ -83,7 +86,7 @@ public class NodeConnectedHandlerUtils {
         nodeBuilder.setTerminationPoint(PhysicalSwitchHelper
                 .addPhysicalSwitchTerminationPoints(path, transaction, portNameList));
 
-        TestUtil.submitNode(OPERATIONAL, path, nodeBuilder.build(), transaction);
+        return TestUtil.submitNode(OPERATIONAL, path, nodeBuilder.build(), transaction);
     }
 
     NodeBuilder prepareOperationalNode(InstanceIdentifier<Node> iid) {
@@ -99,12 +102,7 @@ public class NodeConnectedHandlerUtils {
     }
 
     public List<String> getData(String data) {
-        String[] dataArray = data.split(",");
-        List<String> logicalSwitch = new ArrayList<>();
-        for (int i = 0; i < dataArray.length; i++) {
-            logicalSwitch.add(dataArray[i]);
-        }
-        return logicalSwitch;
+        return Arrays.asList(data.split(","));
     }
 
     public static Uuid getUUid(String key) {

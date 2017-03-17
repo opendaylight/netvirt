@@ -74,6 +74,15 @@ module neighbor-discovery {
         leaf target-ip-address {
             type inet:ipv6-address;
         }
+        leaf option-type {
+            type uint8;
+        }
+        leaf source-addr-length {
+            type uint8;
+        }
+        leaf source-ll-address {
+            type yang:mac-address;
+        }
     }
 
     container neighbor-advertise-packet {

@@ -16,13 +16,13 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
@@ -74,9 +74,8 @@ public class Ipv6NodeListener extends AbstractDataChangeListener<FlowCapableNode
         List<MatchInfo> matches = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[]{
-                Short.toString(NwConstants.LPORT_DISPATCHER_TABLE)}));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        actionsInfos.add(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
+        instructions.add(new InstructionApplyActions(actionsInfos));
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.IPV6_TABLE, "IPv6TableMissFlow",
                 0, "IPv6 Table Miss Flow", 0, 0,
                 NwConstants.COOKIE_IPV6_TABLE, matches, instructions);

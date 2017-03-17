@@ -3,6 +3,8 @@ module elan {
     namespace "urn:opendaylight:netvirt:elan";
     prefix elan;
 
+    import yang-ext {prefix ext; revision-date "2013-07-09";}
+
     import ietf-interfaces {
         prefix if;
     }
@@ -57,7 +59,12 @@ module elan {
             }
             leaf physical-network-name {
                 type string;
-                description "Optional. The name of the phyiscal network attached to the ELAN.";
+                description "Optional. The name of the physical network attached to the ELAN.";
+            }
+            leaf external {
+                description "indicates whether this is an external network";
+                type boolean;
+                default false;
             }
             leaf mac-timeout {
                 type uint32 {
@@ -73,6 +80,39 @@ module elan {
 
                 type string {
                     length "1..254";
+                }
+            }
+            list elan-segments {
+                description "List of provider network(s) associated with this ELAN.";
+                key segmentation-index;
+                leaf segmentation-index {
+                    description "A hidden counter to act as a key, because segmentation id
+                    is not required.";
+                    type uint32;
+                }
+                leaf physical-network-name {
+                    description "Optional. The name of the physical network attached to the ELAN.";
+                    type string;
+                }
+                leaf segment-type {
+                    description "Optional. Network segment type. It's mandatory when there are external
+                                devices participating in the ELAN";
+                    type identityref {
+                        base segment-type-base;
+                    }
+                }
+                leaf segmentation-id {
+                    description "Optional. Isolated segment on the physical network. For example,
+                                if segment-type is vlan, this ID is a vlan identifier. If segment-type
+                                is vxlan, this ID is a vni";
+                    type uint32;
+                }
+            }
+            list external-teps {
+                description "Optional. The external tep ips of the nodes where this elan is present";
+                key tep-ip;
+                leaf tep-ip {
+                    type inet:ip-address;
                 }
             }
         }
@@ -163,6 +203,11 @@ module elan {
 
       leaf isStaticAddress {
         type boolean;
+      }
+
+      leaf prefix {
+        mandatory false;
+        type inet:ip-address;
       }
     }
   }
@@ -255,6 +300,17 @@ module elan {
                 description
                 "The name of the elan-instance.";
             }
+        }
+    }
+
+    augment "/elan:elan-instances/elan:elan-instance" {
+        ext:augment-identifier "evpn-augmentation";
+        leaf evpn-name {
+            type string;
+        }
+
+        leaf l3vpn-name {
+            type string;
         }
     }
 

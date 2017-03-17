@@ -48,7 +48,7 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener {
         for (InstanceIdentifier<Node> childSwitchId : childSwitchIds) {
             haEventHandler.copyHAPSUpdateToChild(haPSNode, null/*haOriginal*/, childSwitchId, tx);
         }
-        LOG.info("Handle config ps node add {}", psId);
+        LOG.trace("Handle config ps node add {}", psId);
     }
 
     @Override

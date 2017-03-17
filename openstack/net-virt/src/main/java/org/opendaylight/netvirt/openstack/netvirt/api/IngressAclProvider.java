@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.openstack.netvirt.api;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 
 /**
  *  This interface allows ingress Port Security flows to be written to devices.
@@ -26,25 +27,25 @@ public interface IngressAclProvider {
      * @param localPort the local port
      * @param securityGroup the security group
      * @param portUuid the uuid of the port.
+     * @param nodeId the NodeId of the node.
      * @param write  is this flow write or delete
      */
     void programPortSecurityGroup(Long dpid, String segmentationId, String attachedMac,
                                        long localPort, NeutronSecurityGroup securityGroup,
-                                       String portUuid, boolean write);
+                                       String portUuid, NodeId nodeId, boolean write);
     /**
      * Program port security rule.
      *
      * @param dpid the dpid
      * @param segmentationId the segmentation id
      * @param attachedMac the attached mac
-     * @param localPort the local port
      * @param portSecurityRule the security rule
+     * @param securityGroup the security group
      * @param vmIp the ip of the remote vm if it has a remote security group.
      * @param write  is this flow write or delete
      */
-    void programPortSecurityRule(Long dpid, String segmentationId, String attachedMac,
-                                 long localPort, NeutronSecurityRule portSecurityRule,
-                                 Neutron_IPs vmIp, boolean write);
+    void programPortSecurityRule(Long dpid, String segmentationId, String attachedMac, NeutronSecurityRule portSecurityRule,
+                                     NeutronSecurityGroup securityGroup, Neutron_IPs vmIp, boolean write);
     /**
      * Program fixed ingress ACL rules that will be associated with the VM port when a vm is spawned.
      * *

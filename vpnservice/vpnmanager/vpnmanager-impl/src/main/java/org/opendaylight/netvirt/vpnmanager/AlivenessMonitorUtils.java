@@ -7,11 +7,11 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import com.google.common.base.Optional;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
@@ -44,8 +44,6 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-
 public class AlivenessMonitorUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(AlivenessMonitorUtils.class);
@@ -58,43 +56,41 @@ public class AlivenessMonitorUtils {
         if (interfaceManager.isExternalInterface(macEntry.getInterfaceName())) {
             LOG.debug("ARP monitoring is currently not supported through external interfaces,"
                     + "skipping ARP monitoring from interface {} for IP {} (last known MAC {})",
-                    macEntry.getInterfaceName(), macEntry.getIpAddress().getHostAddress(), macEntry.getMacAddress());
+                macEntry.getInterfaceName(), macEntry.getIpAddress().getHostAddress(), macEntry.getMacAddress());
             return;
         }
         Optional<IpAddress> gatewayIpOptional =
-                VpnUtil.getGatewayIpAddressFromInterface(macEntry.getInterfaceName(), neutronVpnService, dataBroker);
-        IpAddress gatewayIp;
-        PhysAddress gatewayMac;
-        if(!gatewayIpOptional.isPresent()) {
+            VpnUtil.getGatewayIpAddressFromInterface(macEntry.getInterfaceName(), neutronVpnService, dataBroker);
+        if (!gatewayIpOptional.isPresent()) {
             LOG.error("Error while retrieving GatewayIp for interface{}", macEntry.getInterfaceName());
             return;
         }
-        gatewayIp = gatewayIpOptional.get();
+        final IpAddress gatewayIp = gatewayIpOptional.get();
         Optional<String> gatewayMacOptional = VpnUtil.getGWMacAddressFromInterface(macEntry,
-                gatewayIp, dataBroker, interfaceRpc);
-        if(!gatewayMacOptional.isPresent()) {
+            gatewayIp, dataBroker, interfaceRpc);
+        if (!gatewayMacOptional.isPresent()) {
             LOG.error("Error while retrieving GatewayMac for interface{}", macEntry.getInterfaceName());
             return;
         }
-        gatewayMac = new PhysAddress(gatewayMacOptional.get());
-        if(arpMonitorProfileId == null || arpMonitorProfileId.equals(0L)) {
+        final PhysAddress gatewayMac = new PhysAddress(gatewayMacOptional.get());
+        if (arpMonitorProfileId == null || arpMonitorProfileId.equals(0L)) {
             Optional<Long> profileIdOptional = allocateProfile(alivenessMonitorService,
-                    ArpConstants.FAILURE_THRESHOLD, ArpConstants.ARP_CACHE_TIMEOUT_MILLIS,
-                    ArpConstants.MONITORING_WINDOW, EtherTypes.Arp);
-            if(!profileIdOptional.isPresent()) {
+                ArpConstants.FAILURE_THRESHOLD, ArpConstants.ARP_CACHE_TIMEOUT_MILLIS,
+                ArpConstants.MONITORING_WINDOW, EtherTypes.Arp);
+            if (!profileIdOptional.isPresent()) {
                 LOG.error("Error while allocating Profile Id for alivenessMonitorService");
                 return;
             }
             arpMonitorProfileId = profileIdOptional.get();
         }
 
-        IpAddress targetIp =  new IpAddress(new Ipv4Address(macEntry.getIpAddress().getHostAddress()));
+        IpAddress targetIp = new IpAddress(new Ipv4Address(macEntry.getIpAddress().getHostAddress()));
         MonitorStartInput arpMonitorInput = new MonitorStartInputBuilder().setConfig(new ConfigBuilder()
-                .setSource(new SourceBuilder().setEndpointType(getSourceEndPointType(macEntry.getInterfaceName(),
-                        gatewayIp, gatewayMac)).build())
-                .setDestination(new DestinationBuilder().setEndpointType(getEndPointIpAddress(targetIp)).build())
-                .setMode(MonitoringMode.OneOne)
-                .setProfileId(arpMonitorProfileId).build()).build();
+            .setSource(new SourceBuilder().setEndpointType(getSourceEndPointType(macEntry.getInterfaceName(),
+                gatewayIp, gatewayMac)).build())
+            .setDestination(new DestinationBuilder().setEndpointType(getEndPointIpAddress(targetIp)).build())
+            .setMode(MonitoringMode.OneOne)
+            .setProfileId(arpMonitorProfileId).build()).build();
         try {
             Future<RpcResult<MonitorStartOutput>> result = alivenessMonitorService.monitorStart(arpMonitorInput);
             RpcResult<MonitorStartOutput> rpcResult = result.get();
@@ -112,7 +108,7 @@ public class AlivenessMonitorUtils {
     }
 
     public static void stopArpMonitoring(AlivenessMonitorService alivenessMonitorService,
-            Long monitorId) {
+        Long monitorId) {
         MonitorStopInput input = new MonitorStopInputBuilder().setMonitorId(monitorId).build();
         alivenessMonitorService.monitorStop(input);
         alivenessCache.remove(monitorId);
@@ -124,65 +120,72 @@ public class AlivenessMonitorUtils {
     }
 
     private static Interface getSourceEndPointType(String interfaceName, IpAddress ipAddress,
-            PhysAddress gwMac) {
+        PhysAddress gwMac) {
         return new InterfaceBuilder()
-                .setInterfaceIp(ipAddress)
-                .setInterfaceName(interfaceName)
-                .setMacAddress(gwMac)
-                .build();
+            .setInterfaceIp(ipAddress)
+            .setInterfaceName(interfaceName)
+            .setMacAddress(gwMac)
+            .build();
     }
 
     public static Optional<Long> allocateProfile(AlivenessMonitorService alivenessMonitor,
-            long FAILURE_THRESHOLD, long MONITORING_INTERVAL,
-            long MONITORING_WINDOW, EtherTypes etherTypes) {
+        long failureThreshold, long monitoringInterval,
+        long monitoringWindow, EtherTypes etherTypes) {
         MonitorProfileCreateInput input = new MonitorProfileCreateInputBuilder()
-                .setProfile(new ProfileBuilder().setFailureThreshold(FAILURE_THRESHOLD)
-                        .setMonitorInterval(MONITORING_INTERVAL).setMonitorWindow(MONITORING_WINDOW)
-                        .setProtocolType(etherTypes).build()).build();
+            .setProfile(new ProfileBuilder().setFailureThreshold(failureThreshold)
+                .setMonitorInterval(monitoringInterval).setMonitorWindow(monitoringWindow)
+                .setProtocolType(etherTypes).build()).build();
         return createMonitorProfile(alivenessMonitor, input);
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public static Optional<Long> createMonitorProfile(AlivenessMonitorService alivenessMonitor,
             MonitorProfileCreateInput monitorProfileCreateInput) {
-        Optional <Long> monitorProfileOptional = Optional.absent();
         try {
-            Future<RpcResult<MonitorProfileCreateOutput>> result = alivenessMonitor.monitorProfileCreate(monitorProfileCreateInput);
+            Future<RpcResult<MonitorProfileCreateOutput>> result =
+                alivenessMonitor.monitorProfileCreate(monitorProfileCreateInput);
             RpcResult<MonitorProfileCreateOutput> rpcResult = result.get();
-            if(rpcResult.isSuccessful()) {
+            if (rpcResult.isSuccessful()) {
                 return Optional.of(rpcResult.getResult().getProfileId());
             } else {
                 LOG.warn("RPC Call to Get Profile Id Id returned with Errors {}.. Trying to fetch existing profile ID",
-                        rpcResult.getErrors());
-                try{
+                    rpcResult.getErrors());
+                try {
                     Profile createProfile = monitorProfileCreateInput.getProfile();
                     Future<RpcResult<MonitorProfileGetOutput>> existingProfile =
-                            alivenessMonitor.monitorProfileGet(buildMonitorGetProfile(createProfile.getMonitorInterval(),
-                                    createProfile.getMonitorWindow(), createProfile.getFailureThreshold(), createProfile.getProtocolType()));
+                        alivenessMonitor.monitorProfileGet(buildMonitorGetProfile(createProfile.getMonitorInterval(),
+                            createProfile.getMonitorWindow(), createProfile.getFailureThreshold(),
+                            createProfile.getProtocolType()));
                     RpcResult<MonitorProfileGetOutput> rpcGetResult = existingProfile.get();
-                    if(rpcGetResult.isSuccessful()) {
+                    if (rpcGetResult.isSuccessful()) {
                         return Optional.of(rpcGetResult.getResult().getProfileId());
                     } else {
-                        LOG.warn("RPC Call to Get Existing Profile Id returned with Errors {}", rpcGetResult.getErrors());
+                        LOG.warn("RPC Call to Get Existing Profile Id returned with Errors {}",
+                            rpcGetResult.getErrors());
                     }
-                } catch(Exception e) {
+                } catch (Exception e) {
                     LOG.warn("Exception when getting existing profile", e);
                 }
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when allocating profile Id", e);
         }
-        return monitorProfileOptional;
+        return Optional.absent();
     }
 
     private static MonitorProfileGetInput buildMonitorGetProfile(long monitorInterval,
-            long monitorWindow, long failureThreshold, EtherTypes protocolType) {
+        long monitorWindow, long failureThreshold, EtherTypes protocolType) {
         MonitorProfileGetInputBuilder buildGetProfile = new MonitorProfileGetInputBuilder();
-        org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.monitor.profile.get.input.ProfileBuilder profileBuilder =
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.monitor.profile.get.input.ProfileBuilder();
+        org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.monitor.profile.get.input
+            .ProfileBuilder
+            profileBuilder =
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.monitor.profile.get
+                .input.ProfileBuilder();
         profileBuilder.setFailureThreshold(failureThreshold)
-        .setMonitorInterval(monitorInterval)
-        .setMonitorWindow(monitorWindow)
-        .setProtocolType(protocolType);
+            .setMonitorInterval(monitorInterval)
+            .setMonitorWindow(monitorWindow)
+            .setProtocolType(protocolType);
         buildGetProfile.setProfile(profileBuilder.build());
         return (buildGetProfile.build());
     }
@@ -192,16 +195,16 @@ public class AlivenessMonitorUtils {
     }
 
     private static org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411
-    .endpoint.endpoint.type.IpAddress getEndPointIpAddress(IpAddress ip) {
+        .endpoint.endpoint.type.IpAddress getEndPointIpAddress(IpAddress ip) {
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411
-                .endpoint.endpoint.type.IpAddressBuilder().setIpAddress(ip).build();
+            .endpoint.endpoint.type.IpAddressBuilder().setIpAddress(ip).build();
     }
 
     public static java.util.Optional<Long> getMonitorIdFromInterface(MacEntry macEntry) {
         java.util.Optional<Long> monitorId = alivenessCache.entrySet().parallelStream()
-                .filter(map -> macEntry.equals(map.getValue()))
-                .map(map->map.getKey())
-                .findFirst();
+            .filter(map -> macEntry.equals(map.getValue()))
+            .map(Map.Entry::getKey)
+            .findFirst();
         return monitorId;
     }
 
