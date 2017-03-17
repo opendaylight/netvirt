@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_771c66c2",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-17T23:18:07Z",
+      "side": 1,
+      "message": "Two comments:\n- \u0027action\u0027 can be null, see line 395.\n- Can you combine this logic with 393, having multiple \u0027return\u0027 statements in a method is not recommendable",
+      "revId": "7f2257970008a1203bf26cee66b43b607c270d2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b799ae21",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/NeutronL3Adapter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 819,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-17T23:18:07Z",
+      "side": 1,
+      "message": "Here you skip the update of dpid in the neutronPortToDpIdCache. Does it apply for all updates or only the update for live migration scenario?",
+      "revId": "7f2257970008a1203bf26cee66b43b607c270d2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
