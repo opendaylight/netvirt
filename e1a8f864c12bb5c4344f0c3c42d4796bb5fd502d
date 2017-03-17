@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_0efea76b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 971,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-17T13:17:12Z",
+      "side": 1,
+      "message": "these indentations seem to incorrect.. Fix all mis-indentation issues due to PS 39.",
+      "revId": "e1a8f864c12bb5c4344f0c3c42d4796bb5fd502d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8e48d7cd",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 1936,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-17T13:17:12Z",
+      "side": 1,
+      "message": "use like this everywhere (though this is C Style :) ) :\n\n/*\n * Remove\n * external network ...\n */",
+      "revId": "e1a8f864c12bb5c4344f0c3c42d4796bb5fd502d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ae167ba5",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 2006,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-17T13:17:12Z",
+      "side": 1,
+      "message": "ditto here",
+      "revId": "e1a8f864c12bb5c4344f0c3c42d4796bb5fd502d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4ec9cf59",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-17T13:17:12Z",
+      "side": 1,
+      "message": "move this info below the if } below.",
+      "revId": "e1a8f864c12bb5c4344f0c3c42d4796bb5fd502d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6ed773ee",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-17T13:17:12Z",
+      "side": 1,
+      "message": "what about removal of prefix, that should also be protected by the above if condition right?",
+      "revId": "e1a8f864c12bb5c4344f0c3c42d4796bb5fd502d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_eeeb63ae",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-17T13:17:12Z",
+      "side": 1,
+      "message": "are these indentations correct, they donot look so !",
+      "revId": "e1a8f864c12bb5c4344f0c3c42d4796bb5fd502d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
