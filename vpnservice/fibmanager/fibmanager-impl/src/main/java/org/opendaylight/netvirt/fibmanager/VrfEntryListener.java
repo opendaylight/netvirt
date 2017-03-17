@@ -1046,11 +1046,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 Routes extraRoute = extraRouteOptional.get();
                 localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId,
                         extraRoute.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX);
-                BigInteger dpnId = localNextHopInfo.getDpnId();
-                if (!dpnId.equals(BigInteger.ZERO)) {
-                    nextHopManager.setupLoadBalancingNextHop(vpnId, dpnId,
-                            vrfEntry.getDestPrefix(), /*listBucketInfo*/ null, /*remove*/ false);
-                    returnLocalDpnId.add(dpnId);
+                if (localNextHopInfo != null) {
+                    BigInteger dpnId = localNextHopInfo.getDpnId();
+                    if (!dpnId.equals(BigInteger.ZERO)) {
+                        nextHopManager.setupLoadBalancingNextHop(vpnId, dpnId,
+                                vrfEntry.getDestPrefix(), /*listBucketInfo*/ null, /*remove*/ false);
+                        returnLocalDpnId.add(dpnId);
+                    }
                 }
             }
 
@@ -2086,6 +2088,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             Optional<Routes> extraRouteOptional = VpnExtraRouteHelper.getVpnExtraroutes(dataBroker,
                                     FibUtil.getVpnNameFromId(dataBroker, vpnInstance.getVpnId()), usedRds.get(0),
                                     vrfEntry.getDestPrefix());
+                            LOG.info("extraRouteOptional {}", extraRouteOptional);
 
                             deleteRemoteRoute(null, dpnId, vpnId, vrfTable.get().getKey(), vrfEntry,
                                     extraRouteOptional, tx);
