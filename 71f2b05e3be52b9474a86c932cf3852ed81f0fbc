@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ee5ec375",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-17T13:53:31Z",
+      "side": 1,
+      "message": "how are these values communicated to the ingress classifier service? does it have to do a fetch in the control plane, or whenever an sfc classifier is created, it is communicated to the netvirt ingress classifier service?",
+      "range": {
+        "startLine": 213,
+        "startChar": 20,
+        "endLine": 213,
+        "endChar": 31
+      },
+      "revId": "71f2b05e3be52b9474a86c932cf3852ed81f0fbc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4e538f6c",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-03-17T13:53:31Z",
+      "side": 1,
+      "message": "should it not send the pkt down the forwarding pipeline here, so it can be forwarded to the 1st hop in the sfc chain? if sfc is not bound on the i/f here, it will not have programmed any tables on that particular switch.",
+      "range": {
+        "startLine": 215,
+        "startChar": 44,
+        "endLine": 215,
+        "endChar": 45
+      },
+      "revId": "71f2b05e3be52b9474a86c932cf3852ed81f0fbc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
