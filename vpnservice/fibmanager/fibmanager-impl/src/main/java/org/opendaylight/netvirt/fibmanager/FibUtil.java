@@ -565,39 +565,35 @@ public class FibUtil {
         }
     }
 
-    public static void updateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
-                                      String gwMacAddress, long label, WriteTransaction writeConfigTxn) {
+    /**
+     * Adds or removes nextHop from routePath based on the flag nextHopAdd.
+     */
+    public static void updateRoutePathForFibEntry(DataBroker broker, String rd, String prefix, String nextHop,
+                                      long label, boolean nextHopAdd, WriteTransaction writeConfigTxn) {
 
-        LOG.debug("Updating fib entry for prefix {} with nextHopList {} for rd {}", prefix, nextHopList, rd);
+        LOG.debug("Updating fib entry for prefix {} with nextHop {} for rd {}.", prefix, nextHop, rd);
 
-        // Looking for existing prefix in MDSAL database
-        InstanceIdentifier<VrfEntry> vrfEntryId =
-            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
-                .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
-        Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
-
-        if (entry.isPresent()) {
-            RouteOrigin routeOrigin = RouteOrigin.value(entry.get().getOrigin());
-            // Update the VRF entry with nextHopList
-            VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(entry.get(), label, nextHopList, routeOrigin,
-                    null /* parentVpnRd */).setGatewayMacAddress(gwMacAddress).build();
-
-            if (nextHopList.isEmpty()) {
-                if (writeConfigTxn != null) {
-                    writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
-                } else {
-                    MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
-                }
+        InstanceIdentifier<RoutePaths> routePathId = FibHelper.buildRoutePathId(rd, prefix, nextHop);
+        if (nextHopAdd) {
+            RoutePaths routePaths = FibHelper.buildRoutePath(nextHop, label);
+            if (writeConfigTxn != null) {
+                writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, routePathId, routePaths, true);
             } else {
-                if (writeConfigTxn != null) {
-                    writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
-                } else {
-                    MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
-                }
+                MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routePathId, routePaths);
             }
-            LOG.debug("Updated fib entry for prefix {} with nextHopList {} for rd {}", prefix, nextHopList, rd);
+            LOG.debug("Added routepath with nextHop {} for prefix {} and label {}.", nextHop, prefix, label);
         } else {
-            LOG.warn("Could not find VrfEntry for Route-Distinguisher={} and prefix={}", rd, prefix);
+            Optional<RoutePaths> routePath = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, routePathId);
+            if (!routePath.isPresent()) {
+                LOG.warn("Couldn't find RoutePath with rd {}, prefix {} and nh {} for deleting", rd, prefix, nextHop);
+                return;
+            }
+            if (writeConfigTxn != null) {
+                writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, routePathId);
+            } else {
+                MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routePathId);
+            }
+            LOG.debug("Removed routepath with nextHop {} for prefix {}.", nextHop, prefix);
         }
     }
 
@@ -628,16 +624,6 @@ public class FibUtil {
         } else {
             delete(broker, LogicalDatastoreType.CONFIGURATION, vrfTableId);
         }
-    }
-
-    public static List<String> getNextHopListFromRoutePaths(final VrfEntry vrfEntry) {
-        List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
-        if (routePaths == null || routePaths.isEmpty()) {
-            return Collections.EMPTY_LIST;
-        }
-        return routePaths.stream()
-                .map(routePath -> routePath.getNexthopAddress())
-                .collect(toList());
     }
 
     public static java.util.Optional<Long> getLabelFromRoutePaths(final VrfEntry vrfEntry) {
@@ -806,7 +792,7 @@ public class FibUtil {
         InstanceIdentifier<VrfEntry> vrfEntryId = getNextHopIdentifier(rd, prefix);
         Optional<VrfEntry> vrfEntry = read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
         if (vrfEntry.isPresent()) {
-            return getNextHopListFromRoutePaths(vrfEntry.get());
+            return FibHelper.getNextHopListFromRoutePaths(vrfEntry.get());
         } else {
             return Collections.emptyList();
         }
