@@ -38,6 +38,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.annotation.Nullable;
 
 
 import org.apache.thrift.TException;
@@ -88,6 +89,7 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.BgpControlPlaneType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.EncapType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.LayerType;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.TcpMd5SignaturePasswordType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsId;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.ConfigServer;
@@ -118,6 +120,8 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.EbgpMultihopBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.UpdateSource;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.UpdateSourceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.tcp.security.option.grouping.TcpSecurityOption;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.tcp.security.option.grouping.tcp.security.option.TcpMd5SignatureOptionBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
@@ -2004,16 +2008,29 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
+    public synchronized void addNeighbor(
+            String nbrIp, long remoteAs, @Nullable final TcpMd5SignaturePasswordType md5Secret) {
+        addNeighborAux(nbrIp, remoteAs, md5Secret);
+    } // public addNeighbor(nbrIp, remoteAs, md5Secret)
+
     public synchronized void addNeighbor(String nbrIp, long remoteAs) {
+        addNeighborAux(nbrIp, remoteAs, null);
+    } // public addNeighbor(nbrIp, remoteAs)
+
+    private void addNeighborAux(String nbrIp, long remoteAs, @Nullable final TcpMd5SignaturePasswordType md5Secret) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<Neighbors> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Neighbors.class, new NeighborsKey(nbrAddr));
         InstanceIdentifier<Neighbors> iid = iib.build();
+        TcpSecurityOption tcpSecOption = null;
+        if (md5Secret != null) {
+            tcpSecOption = new TcpMd5SignatureOptionBuilder().setTcpMd5SignaturePassword(md5Secret).build();
+        } // else let tcpSecOption be null
         Neighbors dto = new NeighborsBuilder().setAddress(nbrAddr)
-                .setRemoteAs(remoteAs).build();
+                .setRemoteAs(remoteAs).setTcpSecurityOption(tcpSecOption).build();
         update(iid, dto);
-    }
+    } // private addNeighborAux(nbrIp, remoteAs, md5Secret)
 
     public synchronized void addUpdateSource(String nbrIp, String srcIp) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
