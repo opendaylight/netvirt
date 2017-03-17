@@ -75,9 +75,14 @@ public class EVPNVrfEntryProcessor {
                 + " has null vpnId!");
         Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnInstance.getVpnId(),
                 vrfEntry.getDestPrefix());
-        Interface interfaceState = FibUtil.getInterfaceStateFromOperDS(dataBroker,
-                localNextHopInfo.getVpnInterfaceName());
-        final int lportTag = interfaceState.getIfIndex();
+        int lportTag;
+        if (localNextHopInfo.isNatPrefix()) {
+            lportTag = vrfEntry.getL3vni().intValue();
+        } else {
+            Interface interfaceState = FibUtil.getInterfaceStateFromOperDS(dataBroker,
+                    localNextHopInfo.getVpnInterfaceName());
+            lportTag = interfaceState.getIfIndex();
+        }
         List<BigInteger> localDpnId = createLocalEvpnFlows(vpnInstance.getVpnId(), rd, vrfEntry,
                 localNextHopInfo);
         createRemoteEvpnFlows(rd, localNextHopInfo, vrfEntry, vpnInstance, localDpnId, vrfTableKey, lportTag);
@@ -159,7 +164,8 @@ public class EVPNVrfEntryProcessor {
                                 if (!localDpnId.contains(vpnDpn.getDpnId())) {
                                     if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
                                         createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(),
-                                                vrfTableKey, vrfEntry, lportTag, macAddress, tx);
+                                                vrfTableKey, vrfEntry, lportTag, macAddress, tx,
+                                                localNextHopInfo.isNatPrefix());
                                     }
                                 }
                             }
@@ -172,7 +178,8 @@ public class EVPNVrfEntryProcessor {
     }
 
     private void createRemoteFibEntry(final BigInteger remoteDpnId, final long vpnId, final VrfTablesKey vrfTableKey,
-                                      final VrfEntry vrfEntry, int lportTag, String macAddress, WriteTransaction tx) {
+                                      final VrfEntry vrfEntry, int lportTag, String macAddress, WriteTransaction tx,
+                                      boolean isNatPrefix) {
         Boolean wrTxPresent = true;
         if (tx == null) {
             wrTxPresent = false;
@@ -181,9 +188,14 @@ public class EVPNVrfEntryProcessor {
         String rd = vrfTableKey.getRouteDistinguisher();
         logger.debug("createremotefibentry: adding route {} for rd {} with transaction {}",
                 vrfEntry.getDestPrefix(), rd, tx);
-        List<NexthopManager.AdjacencyResult> tunnelInterfaceList = vrfEntryListener
-                .resolveAdjacency(remoteDpnId, vpnId, vrfEntry, rd);
-
+        List<NexthopManager.AdjacencyResult> tunnelInterfaceList;
+        if (isNatPrefix) {
+            tunnelInterfaceList = vrfEntryListener
+                    .resolveAdjacencyForNatPrefix(remoteDpnId, vpnId, vrfEntry);
+        } else {
+            tunnelInterfaceList = vrfEntryListener
+                    .resolveAdjacency(remoteDpnId, vpnId, vrfEntry, rd);
+        }
         if (tunnelInterfaceList.isEmpty()) {
             logger.error("Could not get interface for route-paths: {} in vpn {}",
                     vrfEntry.getRoutePaths(), rd);

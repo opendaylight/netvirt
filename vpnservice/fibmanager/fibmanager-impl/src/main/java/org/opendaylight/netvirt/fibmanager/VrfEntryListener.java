@@ -2223,6 +2223,32 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         return adjacencyList;
     }
 
+    protected List<AdjacencyResult> resolveAdjacencyForNatPrefix(final BigInteger remoteDpnId, final long vpnId,
+                                                     final VrfEntry vrfEntry) {
+        List<AdjacencyResult> adjacencyList = new ArrayList<>();
+        List<String> prefixIpList = new ArrayList<>();
+        LOG.trace("resolveAdjacency called with remotedDpnId {}, vpnId{}, VrfEntry {}",
+                remoteDpnId, vpnId, vrfEntry);
+        try {
+            prefixIpList = Collections.singletonList(vrfEntry.getDestPrefix());
+            for (String prefixIp : prefixIpList) {
+                adjacencyList.addAll(vrfEntry.getRoutePaths().stream()
+                        .map(routePath -> {
+                            LOG.debug("NextHop IP for destination {} is {}", prefixIp,
+                                    routePath.getNexthopAddress());
+                            return nextHopManager.getRemoteNextHopPointer(remoteDpnId, vpnId,
+                                    prefixIp, routePath.getNexthopAddress());
+                        })
+                        .filter(adjacencyResult -> adjacencyResult != null && !adjacencyList.contains(adjacencyResult))
+                        .distinct()
+                        .collect(Collectors.toList()));
+            }
+        } catch (NullPointerException e) {
+            LOG.trace("", e);
+        }
+        return adjacencyList;
+    }
+
     protected VpnInstanceOpDataEntry getVpnInstance(String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id =
             InstanceIdentifier.create(VpnInstanceOpData.class)
