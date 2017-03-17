@@ -611,7 +611,7 @@ public class FibUtil {
 
     public static java.util.Optional<Long> getLabelFromRoutePaths(final VrfEntry vrfEntry) {
         List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
-        if (routePaths == null || routePaths.isEmpty()) {
+        if (routePaths == null || routePaths.isEmpty() || vrfEntry.getRoutePaths().get(0).getLabel() == null) {
             return java.util.Optional.empty();
         }
         return java.util.Optional.of(vrfEntry.getRoutePaths().get(0).getLabel());
