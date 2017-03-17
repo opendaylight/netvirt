@@ -279,6 +279,23 @@
       "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6ec0132b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-17T13:17:12Z",
+      "side": 1,
+      "message": "we donot need NAT Service keyword anymore in debugs :)",
+      "revId": "61a3c46e774a2f0cb4865f115d979d0cd9909bb3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
