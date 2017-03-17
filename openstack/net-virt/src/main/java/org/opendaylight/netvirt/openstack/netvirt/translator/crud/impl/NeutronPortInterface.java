@@ -18,6 +18,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort_AllowedAddressPairs;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort_ExtraDHCPOption;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort_VIFDetail;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
@@ -142,7 +143,7 @@ public class NeutronPortInterface extends AbstractNeutronInterface<Port, Neutron
         PortBindingExtension binding = port.getAugmentation(PortBindingExtension.class);
         result.setBindinghostID(binding.getHostId());
         if (binding.getVifDetails() != null) {
-            final Map<String, String> details = new HashMap<>(binding.getVifDetails().size());
+            final Map<String, String> details = new HashMap<String, String>(binding.getVifDetails().size());
             for (final VifDetails vifDetail : binding.getVifDetails()) {
                 details.put(vifDetail.getDetailsKey(), vifDetail.getValue());
             }
@@ -229,7 +230,7 @@ public class NeutronPortInterface extends AbstractNeutronInterface<Port, Neutron
         }
         if (neutronPort.getVIFDetails() != null) {
             final Map<String, String> vifDetails = neutronPort.getVIFDetails();
-            final List<VifDetails> listVifDetail = new ArrayList<>(vifDetails.size());
+            final List<VifDetails> listVifDetail = new ArrayList<VifDetails>(vifDetails.size());
             for (final Map.Entry<String, String> vifDetail : vifDetails.entrySet()) {
                 final VifDetailsBuilder vifDetailsBuilder = new VifDetailsBuilder();
                 if (vifDetail.getKey() != null) {

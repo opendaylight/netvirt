@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
+import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
-import java.util.function.Predicate;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
@@ -35,35 +36,70 @@ public class ChangeUtils {
     private ChangeUtils() { }
 
     private static <T extends DataObject> Predicate<DataObjectModification<T>> hasDataBefore() {
-        return input -> input != null && input.getDataBefore() != null;
+        return new Predicate<DataObjectModification<T>>() {
+            @Override
+            public boolean apply(@Nullable DataObjectModification<T> input) {
+                return input != null && input.getDataBefore() != null;
+            }
+        };
     }
 
     private static <T extends DataObject> Predicate<DataObjectModification<T>> hasDataBeforeAndDataAfter() {
-        return input -> input != null && input.getDataBefore() != null && input.getDataAfter() != null;
+        return new Predicate<DataObjectModification<T>>() {
+            @Override
+            public boolean apply(@Nullable DataObjectModification<T> input) {
+                return input != null && input.getDataBefore() != null && input.getDataAfter() != null;
+            }
+        };
     }
 
     private static <T extends DataObject> Predicate<DataObjectModification<T>> hasNoDataBefore() {
-        return input -> input != null && input.getDataBefore() == null;
+        return new Predicate<DataObjectModification<T>>() {
+            @Override
+            public boolean apply(@Nullable DataObjectModification<T> input) {
+                return input != null && input.getDataBefore() == null;
+            }
+        };
     }
 
     private static <T extends DataObject> Predicate<DataObjectModification<T>> hasDataAfterAndMatchesFilter(
             final Predicate<DataObjectModification<T>> filter) {
-        return input -> input != null && input.getDataAfter() != null && filter.test(input);
+        return new Predicate<DataObjectModification<T>>() {
+            @Override
+            public boolean apply(@Nullable DataObjectModification<T> input) {
+                return input != null && input.getDataAfter() != null && filter.apply(input);
+            }
+        };
     }
 
     private static <T extends DataObject> Predicate<DataObjectModification<T>> matchesEverything() {
-        return input -> true;
+        return new Predicate<DataObjectModification<T>>() {
+            @Override
+            public boolean apply(@Nullable DataObjectModification<T> input) {
+                return true;
+            }
+        };
     }
 
     private static <T extends DataObject> Predicate<DataObjectModification<T>> modificationIsDeletion() {
-        return input -> input != null && input.getModificationType() == DataObjectModification
-                .ModificationType.DELETE;
+        return new Predicate<DataObjectModification<T>>() {
+            @Override
+            public boolean apply(@Nullable DataObjectModification<T> input) {
+                return input != null && input.getModificationType() == DataObjectModification
+                        .ModificationType.DELETE;
+            }
+        };
     }
 
     private static <T extends DataObject> Predicate<DataObjectModification<T>>
         modificationIsDeletionAndHasDataBefore() {
-        return input -> input != null && input.getModificationType() == DataObjectModification
-                .ModificationType.DELETE && input.getDataBefore() != null;
+        return new Predicate<DataObjectModification<T>>() {
+            @Override
+            public boolean apply(@Nullable DataObjectModification<T> input) {
+                return input != null && input.getModificationType() == DataObjectModification
+                        .ModificationType.DELETE && input.getDataBefore() != null;
+            }
+        };
     }
 
     public static <T extends DataObject> Map<InstanceIdentifier<T>,T> extractCreated(
@@ -119,7 +155,7 @@ public class ChangeUtils {
             Collection<DataTreeModification<U>> changes, Class<T> clazz,
             Predicate<DataObjectModification<T>> filter) {
         Map<InstanceIdentifier<T>, T> result = new HashMap<>();
-        for (Entry<InstanceIdentifier<T>, DataObjectModification<T>> entry : extractDataObjectModifications(changes,
+        for (Map.Entry<InstanceIdentifier<T>, DataObjectModification<T>> entry : extractDataObjectModifications(changes,
                 clazz, hasDataAfterAndMatchesFilter(filter)).entrySet()) {
             result.put(entry.getKey(), entry.getValue().getDataAfter());
         }
@@ -191,7 +227,7 @@ public class ChangeUtils {
     public static <T extends DataObject, U extends DataObject> Map<InstanceIdentifier<T>, T> extractOriginal(
             Collection<DataTreeModification<U>> changes, Class<T> clazz) {
         Map<InstanceIdentifier<T>, T> result = new HashMap<>();
-        for (Entry<InstanceIdentifier<T>, DataObjectModification<T>> entry :
+        for (Map.Entry<InstanceIdentifier<T>, DataObjectModification<T>> entry :
                 extractDataObjectModifications(changes, clazz, hasDataBefore()).entrySet()) {
             result.put(entry.getKey(), entry.getValue().getDataBefore());
         }
@@ -276,7 +312,7 @@ public class ChangeUtils {
             DataObjectModification<? extends DataObject> change = remainingChanges.remove();
             InstanceIdentifier<? extends DataObject> path = remainingPaths.remove();
             // Is the change relevant?
-            if (clazz.isAssignableFrom(change.getDataType()) && filter.test((DataObjectModification<T>) change)) {
+            if (clazz.isAssignableFrom(change.getDataType()) && filter.apply((DataObjectModification<T>) change)) {
                 result.put((InstanceIdentifier<T>) path, (DataObjectModification<T>) change);
             }
             // Add any children to the queue
@@ -330,7 +366,7 @@ public class ChangeUtils {
     public static <T extends DataObject, U extends DataObject> Map<InstanceIdentifier<T>, T> extractRemovedObjects(
             Collection<DataTreeModification<U>> changes, Class<T> clazz) {
         Map<InstanceIdentifier<T>, T> result = new HashMap<>();
-        for (Entry<InstanceIdentifier<T>, DataObjectModification<T>> entry :
+        for (Map.Entry<InstanceIdentifier<T>, DataObjectModification<T>> entry :
                 extractDataObjectModifications(changes, clazz, modificationIsDeletionAndHasDataBefore()).entrySet()) {
             result.put(entry.getKey(), entry.getValue().getDataBefore());
         }

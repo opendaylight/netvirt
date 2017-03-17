@@ -18,7 +18,6 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -109,16 +108,11 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
         for (Uuid portIntf : portList) {
             NodeConnectorId nodeConnectorId = getNodeConnectorIdForPortIntf(portIntf);
             BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
-            String interfaceName = portIntf.getValue();
-            Port port = dhcpManager.getNeutronPort(interfaceName);
+            Port port = dhcpManager.getNeutronPort(portIntf.getValue());
             String vmMacAddress = port.getMacAddress().getValue();
             //check whether any changes have happened
             LOG.trace("DhcpSubnetListener installNeutronPortEntries dpId: {} vmMacAddress : {}", dpId, vmMacAddress);
-            //Bind the dhcp service when enabled
-            WriteTransaction bindTx = dataBroker.newWriteOnlyTransaction();
-            DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, bindTx);
-            DhcpServiceUtils.submitTransaction(bindTx);
-            //install the entries
+            //install the entriesd
             WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
             dhcpManager.installDhcpEntries(dpId, vmMacAddress, tx);
             DhcpServiceUtils.submitTransaction(tx);
@@ -130,17 +124,12 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
         for (Uuid portIntf : portList) {
             NodeConnectorId nodeConnectorId = getNodeConnectorIdForPortIntf(portIntf);
             BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
-            String interfaceName = portIntf.getValue();
-            Port port = dhcpManager.getNeutronPort(interfaceName);
+            Port port = dhcpManager.getNeutronPort(portIntf.getValue());
             String vmMacAddress = port.getMacAddress().getValue();
             //check whether any changes have happened
             LOG.trace("DhcpSubnetListener uninstallNeutronPortEntries dpId: {} vmMacAddress : {}",
                     dpId, vmMacAddress);
-            //Unbind the dhcp service when disabled
-            WriteTransaction unbindTx = dataBroker.newWriteOnlyTransaction();
-            DhcpServiceUtils.unbindDhcpService(interfaceName, unbindTx);
-            DhcpServiceUtils.submitTransaction(unbindTx);
-            //uninstall the entries
+            //install the entries
             WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
             dhcpManager.unInstallDhcpEntries(dpId, vmMacAddress, tx);
             DhcpServiceUtils.submitTransaction(tx);
@@ -233,7 +222,7 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
     }
 
     @Override
-    public void close() {
+    public void close() throws Exception {
         super.close();
         LOG.info("DhcpSubnetListener Closed");
     }

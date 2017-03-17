@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016, 2017 Red Hat, Inc. and others.  All rights reserved.
+ * Copyright (c) 2016 Red Hat, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -29,7 +29,7 @@ public class PortInfo {
         this.mac = macFor(ofPort);
         this.id = UUID.randomUUID().toString();
         this.name = "tap" + id.substring(0, 11);
-        this.fixedIpList = new HashMap<>();
+        this.fixedIpList = new HashMap<String, PortIp>();
         ipv6Utils = new Ipv6Utils();
     }
 
@@ -42,7 +42,11 @@ public class PortInfo {
     }
 
     public PortIp allocateFixedIp(int ipVersion, String ipPfx, String subnetId) {
-        PortIp portIp = fixedIpList.computeIfAbsent(ipPfx, k -> new PortIp(ipVersion, ipPfx, subnetId));
+        PortIp portIp = fixedIpList.get(ipPfx);
+        if (portIp == null) {
+            portIp = new PortIp(ipVersion, ipPfx, subnetId);
+            fixedIpList.put(ipPfx, portIp);
+        }
 
         if (NetvirtITConstants.IPV4 == ipVersion) {
             portIp.setFixedIp(ipFor(ipPfx, ofPort));

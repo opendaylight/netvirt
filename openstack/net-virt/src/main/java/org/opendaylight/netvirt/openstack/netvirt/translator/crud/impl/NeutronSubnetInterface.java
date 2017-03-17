@@ -68,7 +68,11 @@ public class NeutronSubnetInterface extends AbstractNeutronInterface<Subnet, Neu
 
     @Override
     public boolean subnetExists(String uuid) {
-        return readMd(createInstanceIdentifier(toMd(uuid))) != null;
+        Subnet subnet = readMd(createInstanceIdentifier(toMd(uuid)));
+        if (subnet == null) {
+            return false;
+        }
+        return true;
     }
 
     @Override

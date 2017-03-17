@@ -13,7 +13,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
@@ -223,7 +222,7 @@ public class DistributedArpService implements ConfigInterface {
                                     programStaticRuleStage1(dpid, providerSegmentationId, portMacAddress,
                                             portIpAddress, actionForNode));
                         } catch (RejectedExecutionException ex) {
-                            LOG.error("handleArpRule : unable to accept execution.", ex);
+                            LOG.error("handleArpRule : unable to accept execution." + ex);
                             programStaticRuleStage1(dpid, providerSegmentationId, portMacAddress,
                                     portIpAddress, actionForNode);
                         }
@@ -237,7 +236,7 @@ public class DistributedArpService implements ConfigInterface {
                                 programStaticRuleStage1(dpid, providerSegmentationId, macAddress,
                                         ipAddress, actionForNode));
                     } catch (RejectedExecutionException ex) {
-                        LOG.error("handleArpRule : unable to accept execution.", ex);
+                        LOG.error("handleArpRule : unable to accept execution." + ex);
                         programStaticRuleStage1(dpid, providerSegmentationId, macAddress,
                                 ipAddress, actionForNode);
                     }
@@ -258,13 +257,13 @@ public class DistributedArpService implements ConfigInterface {
                                         programStaticRuleStage1(dpid, providerSegmentationId, macAddress,
                                                 dhcpIpAddress, actionToPerform));
                             } catch (RejectedExecutionException ex) {
-                                LOG.error("handleArpRule : unable to accept execution.", ex);
+                                LOG.error("handleArpRule : unable to accept execution." + ex);
                                 programStaticRuleStage1(dpid, providerSegmentationId, macAddress,
                                         dhcpIpAddress, actionToPerform);
                             }
                     }
                 }
-                for (NeutronPort delPort : neutronL3Adapter.getPortCleanupCache().values()) {
+                for (NeutronPort delPort : neutronPortCache.getAllPorts()) {
                     if (!delPort.getDeviceOwner().equalsIgnoreCase(ROUTER_INTERFACE_DEVICE_OWNER)) {
                         final String delMacAddress = delPort.getMacAddress();
                         if (null == delMacAddress || delMacAddress.isEmpty()) {
@@ -280,7 +279,7 @@ public class DistributedArpService implements ConfigInterface {
                                         programStaticRuleStage1(dpid, providerSegmentationId, delMacAddress,
                                                 delIpAddress, actionToPerform));
                             } catch (RejectedExecutionException ex) {
-                                LOG.error("handleArpRule : unable to accept execution.", ex);
+                                LOG.error("handleArpRule : unable to accept execution." + ex);
                                 programStaticRuleStage1(dpid, providerSegmentationId, delMacAddress,
                                         delIpAddress, actionToPerform);
                             }

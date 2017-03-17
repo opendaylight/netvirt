@@ -41,7 +41,7 @@ public class DhcpConfigListener extends AsyncClusteredDataTreeChangeListenerBase
     }
 
     @Override
-    public void close() {
+    public void close() throws Exception {
         super.close();
         LOG.debug("DhcpConfig Listener Closed");
     }

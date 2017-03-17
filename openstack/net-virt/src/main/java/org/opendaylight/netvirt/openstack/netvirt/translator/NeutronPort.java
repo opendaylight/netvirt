@@ -241,10 +241,13 @@ public class NeutronPort implements Serializable, INeutronObject {
 
     public Boolean getPortSecurityEnabled() {
         if (portSecurityEnabled == null || portSecurityEnabled) {
-            // port with device owner of network:xxx is created by
-            // neutorn for its internal use. So security group doesn't apply.
-            // router interface, dhcp port and floating ip.
-            return !(deviceOwner != null && deviceOwner.startsWith("network:"));
+            if (deviceOwner != null && deviceOwner.startsWith("network:")) {
+                // port with device owner of network:xxx is created by
+                // neutorn for its internal use. So security group doesn't apply.
+                // router interface, dhcp port and floating ip.
+                return false;
+            }
+            return true;
         }
         return portSecurityEnabled;
     }

@@ -41,7 +41,7 @@ public class DhcpDesignatedDpnListener
     }
 
     @Override
-    public void close() {
+    public void close() throws Exception {
         super.close();
         LOG.debug("DhcpDesignatedDpnListener Listener Closed");
     }

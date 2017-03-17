@@ -67,7 +67,11 @@ public class NeutronNetworkInterface extends AbstractNeutronInterface<Network,Ne
 
     @Override
     public boolean networkExists(String uuid) {
-        return readMd(createInstanceIdentifier(toMd(uuid))) != null;
+        Network network = readMd(createInstanceIdentifier(toMd(uuid)));
+        if (network == null) {
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -125,7 +129,10 @@ public class NeutronNetworkInterface extends AbstractNeutronInterface<Network,Ne
 
     @Override
     public boolean networkInUse(String netUUID) {
-        return !networkExists(netUUID);
+        if (!networkExists(netUUID)) {
+            return true;
+        }
+        return false;
     }
 
     protected NeutronNetwork fromMd(Network network) {

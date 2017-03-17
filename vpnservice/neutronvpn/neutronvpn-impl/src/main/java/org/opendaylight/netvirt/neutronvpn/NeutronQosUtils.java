@@ -38,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.a
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.InterfaceExternalIds;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
@@ -54,6 +55,7 @@ import org.slf4j.LoggerFactory;
 
 public class NeutronQosUtils {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronQosUtils.class);
+    private static final String EXTERNAL_ID_INTERFACE_ID = "iface-id";
 
     public static void handleNeutronPortQosUpdate(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
             Port port, Uuid qosUuid) {
@@ -156,8 +158,7 @@ public class NeutronQosUtils {
                 bridgeRefEntry.getValue().firstIdentifierOf(Node.class), db);
 
 
-        TerminationPoint tp =
-                SouthboundUtils.getTerminationPointByExternalId(bridgeNode.get(), port.getUuid().getValue());
+        TerminationPoint tp = getTerminationPoint(bridgeNode.get(), port.getUuid().getValue());
         OvsdbTerminationPointAugmentation ovsdbTp = tp.getAugmentation(OvsdbTerminationPointAugmentation.class);
 
         OvsdbTerminationPointAugmentationBuilder tpAugmentationBuilder = new OvsdbTerminationPointAugmentationBuilder();
@@ -173,6 +174,27 @@ public class NeutronQosUtils {
                 .child(Topology.class, new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
                 .child(Node.class, bridgeNode.get().getKey())
                 .child(TerminationPoint.class, new TerminationPointKey(tp.getKey())), tpBuilder.build());
+    }
+
+    private static TerminationPoint getTerminationPoint(Node bridgeNode, String interfaceName) {
+        for (TerminationPoint tp : bridgeNode.getTerminationPoint()) {
+            Boolean found = false;
+            OvsdbTerminationPointAugmentation ovsdbTp = tp.getAugmentation(OvsdbTerminationPointAugmentation.class);
+            if (ovsdbTp.getInterfaceExternalIds() != null
+                    && !ovsdbTp.getInterfaceExternalIds().isEmpty()) {
+                for (InterfaceExternalIds entry : ovsdbTp.getInterfaceExternalIds()) {
+                    if (entry.getExternalIdKey().equals(EXTERNAL_ID_INTERFACE_ID)
+                            && entry.getExternalIdValue().equals(interfaceName)) {
+                        found = true;
+                        continue;
+                    }
+                }
+            }
+            if (found) {
+                return tp;
+            }
+        }
+        return null;
     }
 
     private static BigInteger getDpnForInterface(OdlInterfaceRpcService interfaceManagerRpcService, String ifName) {
@@ -253,8 +275,6 @@ public class NeutronQosUtils {
         return bridgeEntryIdBuilder.build();
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
     private static <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
             InstanceIdentifier<T> path, DataBroker broker) {
 

@@ -8,22 +8,20 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
-import com.google.common.base.Strings;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
-import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetDestination;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -31,6 +29,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.Group
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
 
 public class ExternalNetworkGroupInstaller {
     private static final Logger LOG = LoggerFactory.getLogger(ExternalNetworkGroupInstaller.class);
@@ -76,7 +76,7 @@ public class ExternalNetworkGroupInstaller {
 
     public void installExtNetGroupEntries(Uuid subnetId, String macAddress) {
         Subnetmap subnetMap = NatUtil.getSubnetMap(broker, subnetId);
-        if (subnetMap != null && NatUtil.isIPv6Subnet(subnetMap.getSubnetIp())) {
+        if (NatUtil.isIPv6Subnet(subnetMap.getSubnetIp())) {
             LOG.trace("Subnet-id {} is not an IPv4 subnet, hence skipping.", subnetMap.getId());
             return;
         }
@@ -179,8 +179,7 @@ public class ExternalNetworkGroupInstaller {
         }
     }
 
-    private GroupEntity buildExtNetGroupEntity(String macAddress, String subnetName,
-                                               long groupId, String extInterface) {
+    private GroupEntity buildExtNetGroupEntity(String macAddress, String subnetName, long groupId, String extInterface) {
         BigInteger dpId = NatUtil.getDpnForInterface(interfaceManager, extInterface);
         if (BigInteger.ZERO.equals(dpId)) {
             LOG.warn("No DPN for interface {}. NAT ext-net flow will not be installed", extInterface);
@@ -202,11 +201,11 @@ public class ExternalNetworkGroupInstaller {
                         + "no egress actions were found for subnet {} extInterface {}",
                         groupId, subnetName, extInterface);
             }
-            actionList.add(new ActionDrop());
+            actionList.add(new ActionInfo(ActionType.drop_action, new String[] {}));
         } else {
             LOG.trace("Building ext-net group {} entry for subnet {} extInterface {} macAddress {}",
                       groupId, subnetName, extInterface, macAddress);
-            actionList.add(new ActionSetFieldEthernetDestination(setFieldEthDestActionPos, new MacAddress(macAddress)));
+            actionList.add(new ActionInfo(ActionType.set_field_eth_dest, new String[] { macAddress }, setFieldEthDestActionPos));
             actionList.addAll(egressActionList);
         }
 
@@ -222,6 +221,6 @@ public class ExternalNetworkGroupInstaller {
             return null;
         }
 
-        return MDSALUtil.buildGroupEntity(dpId, groupId, subnetName, GroupTypes.GroupAll, new ArrayList<>());
+        return MDSALUtil.buildGroupEntity(dpId, groupId, subnetName, GroupTypes.GroupAll, new ArrayList<BucketInfo>());
     }
 }

@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.elan.l2gw.utils;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -68,20 +70,31 @@ public class L2GatewayConnectionUtils {
         LOG.debug("getNeutronL2gateway for {}", l2GatewayId.getValue());
         InstanceIdentifier<L2gateway> inst = InstanceIdentifier.create(Neutron.class).child(L2gateways.class)
                 .child(L2gateway.class, new L2gatewayKey(l2GatewayId));
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst).orNull();
+        Optional<L2gateway> l2Gateway = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst);
+        if (l2Gateway.isPresent()) {
+            return l2Gateway.get();
+        }
+        return null;
     }
 
     public static List<L2gateway> getL2gatewayList(DataBroker broker) {
         InstanceIdentifier<L2gateways> inst = InstanceIdentifier.create(Neutron.class).child(L2gateways.class);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst).transform(
-                L2gateways::getL2gateway).orNull();
+        Optional<L2gateways> l2gateways = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst);
+
+        if (l2gateways.isPresent()) {
+            return l2gateways.get().getL2gateway();
+        }
+        return null;
     }
 
     public static List<L2gatewayConnection> getAllL2gatewayConnections(DataBroker broker) {
         InstanceIdentifier<L2gatewayConnections> inst = InstanceIdentifier.create(Neutron.class)
                 .child(L2gatewayConnections.class);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst).transform(
-                L2gatewayConnections::getL2gatewayConnection).orNull();
+        Optional<L2gatewayConnections> l2GwConns = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst);
+        if (l2GwConns.isPresent()) {
+            return l2GwConns.get().getL2gatewayConnection();
+        }
+        return null;
     }
 
     /**
@@ -120,7 +133,7 @@ public class L2GatewayConnectionUtils {
      */
     public static List<L2gatewayConnection> getL2GwConnectionsByElanName(DataBroker broker, String elanName) {
         List<L2gatewayConnection> allL2GwConns = getAllL2gatewayConnections(broker);
-        List<L2gatewayConnection> elanL2GateWayConnections = new ArrayList<>();
+        List<L2gatewayConnection> elanL2GateWayConnections = Lists.newArrayList();
         if (allL2GwConns != null) {
             for (L2gatewayConnection l2GwConn : allL2GwConns) {
                 if (l2GwConn.getNetworkId().getValue().equalsIgnoreCase(elanName)) {
@@ -140,7 +153,7 @@ public class L2GatewayConnectionUtils {
 
         Uuid networkUuid = input.getNetworkId();
         ElanInstance elanInstance = elanInstanceManager.getElanInstanceByName(networkUuid.getValue());
-        if (elanInstance == null || (!ElanUtils.isVxlan(elanInstance) && !ElanUtils.isVxlanSegment(elanInstance))) {
+        if (elanInstance == null || !ElanUtils.isVxlan(elanInstance)) {
             LOG.error("Neutron network with id {} is not present", networkUuid.getValue());
         } else {
             Uuid l2GatewayId = input.getL2gatewayId();
@@ -271,8 +284,10 @@ public class L2GatewayConnectionUtils {
                     l2gwDeviceNodeId, l2GwConnId);
         }
         elanL2GwDevice.addL2GatewayId(l2GwConnId);
-        elanL2GwDevice.getL2gwConnectionIdToDevices().computeIfAbsent(l2GwConnId, key -> new ArrayList<>()).add(
-                l2Device);
+        if (elanL2GwDevice.getL2gwConnectionIdToDevices().get(l2GwConnId) == null) {
+            elanL2GwDevice.getL2gwConnectionIdToDevices().put(l2GwConnId, new ArrayList<Devices>());
+        }
+        elanL2GwDevice.getL2gwConnectionIdToDevices().get(l2GwConnId).add(l2Device);
 
         LOG.trace("Elan L2GwConn cache updated with below details: {}", elanL2GwDevice);
         return elanL2GwDevice;

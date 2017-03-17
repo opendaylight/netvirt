@@ -42,7 +42,7 @@ public class RemoteUcastCmd extends MergeCommand<RemoteUcastMacs,
     }
 
     @Override
-    public InstanceIdentifier<RemoteUcastMacs> generateId(InstanceIdentifier<Node> id, RemoteUcastMacs node) {
+    protected InstanceIdentifier<RemoteUcastMacs> generateId(InstanceIdentifier<Node> id, RemoteUcastMacs node) {
         HwvtepLogicalSwitchRef lsRef = HwvtepHAUtil.convertLogicalSwitchRef(node.getKey().getLogicalSwitchRef(), id);
         RemoteUcastMacsKey key = new RemoteUcastMacsKey(lsRef, node.getMacEntryKey());
         return id.augmentation(HwvtepGlobalAugmentation.class).child(RemoteUcastMacs.class, key);
@@ -79,12 +79,10 @@ public class RemoteUcastCmd extends MergeCommand<RemoteUcastMacs,
                 .getHwvtepNodeName();
         InstanceIdentifier<?> origMacRefIdentifier = orig.getLogicalSwitchRef().getValue();
         HwvtepNodeName origMacNodeName = origMacRefIdentifier.firstKeyOf(LogicalSwitches.class).getHwvtepNodeName();
-        return updated.getMacEntryKey().equals(orig.getMacEntryKey())
-                && updatedMacNodeName.equals(origMacNodeName);
-    }
-
-    @Override
-    public RemoteUcastMacs withoutUuid(RemoteUcastMacs data) {
-        return new RemoteUcastMacsBuilder(data).setMacEntryUuid(null).build();
+        if (updated.getMacEntryKey().equals(orig.getMacEntryKey())
+                && updatedMacNodeName.equals(origMacNodeName)) {
+            return true;
+        }
+        return false;
     }
 }

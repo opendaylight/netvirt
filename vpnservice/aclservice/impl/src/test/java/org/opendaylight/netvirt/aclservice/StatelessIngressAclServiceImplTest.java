@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016, 2017 Red Hat, Inc. and others. All rights reserved.
+ * Copyright (c) 2016 Red Hat, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.aclservice;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -17,7 +16,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
 import java.math.BigInteger;
-import java.util.Collections;
+import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,13 +26,14 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
-import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.genius.mdsalutil.matches.MatchTcpFlags;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
+import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
@@ -111,9 +111,9 @@ public class StatelessIngressAclServiceImplTest {
         FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(6).get(0);
         AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
-        assertTrue(firstRangeFlow.getMatchInfoList().contains(new MatchTcpFlags(2)));
-        AclServiceTestUtils.verifyActionInfo(firstRangeFlow.getInstructionInfoList().get(0),
-                new ActionNxResubmit(NwConstants.EGRESS_LPORT_DISPATCHER_TABLE));
+        AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(), MatchFieldType.tcp_flags, "2");
+        AclServiceTestUtils.verifyActionInfo(firstRangeFlow.getInstructionInfoList().get(0).getActionInfos(),
+                ActionType.nx_resubmit, "" + NwConstants.EGRESS_LPORT_DISPATCHER_TABLE);
     }
 
     @Test
@@ -124,8 +124,8 @@ public class StatelessIngressAclServiceImplTest {
         assertEquals(7, installFlowValueSaver.getNumOfInvocations());
 
         FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(6).get(0);
-        AclServiceTestUtils.verifyActionInfo(firstRangeFlow.getInstructionInfoList().get(0),
-                new ActionNxResubmit(NwConstants.EGRESS_LPORT_DISPATCHER_TABLE));
+        AclServiceTestUtils.verifyActionInfo(firstRangeFlow.getInstructionInfoList().get(0).getActionInfos(),
+                ActionType.nx_resubmit, "" + NwConstants.EGRESS_LPORT_DISPATCHER_TABLE);
     }
 
     @Test
@@ -139,12 +139,12 @@ public class StatelessIngressAclServiceImplTest {
         // https://bugs.opendaylight.org/show_bug.cgi?id=6200
         AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65532");
-        assertTrue(firstRangeFlow.getMatchInfoList().contains(new MatchTcpFlags(2)));
+        AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(), MatchFieldType.tcp_flags, "2");
 
         FlowEntity secondRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(7).get(0);
         AclServiceTestUtils.verifyMatchInfo(secondRangeFlow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "84", "65535");
-        assertTrue(secondRangeFlow.getMatchInfoList().contains(new MatchTcpFlags(2)));
+        AclServiceTestUtils.verifyMatchInfo(secondRangeFlow.getMatchInfoList(), MatchFieldType.tcp_flags, "2");
     }
 
     @Test
@@ -164,7 +164,8 @@ public class StatelessIngressAclServiceImplTest {
         FlowEntity firstSynFlow = (FlowEntity) removeFlowValueSaver.getInvocationParams(6).get(0);
         AclServiceTestUtils.verifyMatchInfo(firstSynFlow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
-        assertTrue(firstSynFlow.getMatchInfoList().contains(MatchTcpFlags.SYN));
+        AclServiceTestUtils.verifyMatchInfo(firstSynFlow.getMatchInfoList(), MatchFieldType.tcp_flags,
+                AclConstants.TCP_FLAG_SYN + "");
 
     }
 
@@ -172,9 +173,9 @@ public class StatelessIngressAclServiceImplTest {
             int tcpPortLower, int tcpPortUpper) {
         AclInterface ai = new AclInterface();
         ai.setPortSecurityEnabled(true);
-        ai.setSecurityGroups(Collections.singletonList(sgUuid));
+        ai.setSecurityGroups(Arrays.asList(sgUuid));
         ai.setDpId(BigInteger.ONE);
-        ai.setLPortTag(2);
+        ai.setLPortTag(new Integer(2));
         stubInterfaceAcl(ifName, ai);
 
         stubAccessList(sgUuid, ipv4PrefixStr, tcpPortLower, tcpPortUpper, (short)NwConstants.IP_PROT_UDP);
@@ -186,8 +187,8 @@ public class StatelessIngressAclServiceImplTest {
         AclInterface ai = new AclInterface();
         ai.setPortSecurityEnabled(true);
         ai.setDpId(BigInteger.ONE);
-        ai.setLPortTag(2);
-        ai.setSecurityGroups(Collections.singletonList(sgUuid));
+        ai.setLPortTag(Integer.valueOf(2));
+        ai.setSecurityGroups(Arrays.asList(sgUuid));
         stubInterfaceAcl(ifName, ai);
 
         stubAccessList(sgUuid, ipv4PrefixStr, tcpPortLower, tcpPortUpper, (short)NwConstants.IP_PROT_TCP);
@@ -197,9 +198,9 @@ public class StatelessIngressAclServiceImplTest {
     private AclInterface stubAllowAllInterface(Uuid sgUuid, String ifName) {
         AclInterface ai = new AclInterface();
         ai.setPortSecurityEnabled(true);
-        ai.setSecurityGroups(Collections.singletonList(sgUuid));
+        ai.setSecurityGroups(Arrays.asList(sgUuid));
         ai.setDpId(BigInteger.ONE);
-        ai.setLPortTag(2);
+        ai.setLPortTag(new Integer(2));
         stubInterfaceAcl(ifName, ai);
 
         stubAccessList(sgUuid, "0.0.0.0/0", -1, -1, (short)-1);
@@ -210,7 +211,7 @@ public class StatelessIngressAclServiceImplTest {
         AllowedAddressPairsBuilder aapb = new AllowedAddressPairsBuilder();
         aapb.setIpAddress(new IpPrefixOrAddress("1.1.1.1/32".toCharArray()));
         aapb.setMacAddress(new MacAddress("AA:BB:CC:DD:EE:FF"));
-        ai.setAllowedAddressPairs(Collections.singletonList(aapb.build()));
+        ai.setAllowedAddressPairs(Arrays.asList(aapb.build()));
     }
 
     private void stubAccessList(Uuid sgUuid, String ipv4PrefixStr, int portLower, int portUpper, short protocol) {
@@ -242,7 +243,7 @@ public class StatelessIngressAclServiceImplTest {
         securityRuleAttrBuilder.setDirection(DirectionIngress.class);
         aceBuilder.addAugmentation(SecurityRuleAttr.class, securityRuleAttrBuilder.build());
         AccessListEntriesBuilder aleb = new AccessListEntriesBuilder();
-        aleb.setAce(Collections.singletonList(aceBuilder.build()));
+        aleb.setAce(Arrays.asList(aceBuilder.build()));
         ab.setAccessListEntries(aleb.build());
 
         InstanceIdentifier<Acl> aclKey = AclServiceUtils.getAclInstanceIdentifier(sgUuid.getValue());

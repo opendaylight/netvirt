@@ -10,28 +10,16 @@ package org.opendaylight.netvirt.bgpmanager.thrift.gen;
 import org.apache.thrift.scheme.IScheme;
 import org.apache.thrift.scheme.SchemeFactory;
 import org.apache.thrift.scheme.StandardScheme;
-
 import org.apache.thrift.scheme.TupleScheme;
 import org.apache.thrift.protocol.TTupleProtocol;
-import org.apache.thrift.protocol.TProtocolException;
 import org.apache.thrift.EncodingUtils;
-import org.apache.thrift.TException;
-import org.apache.thrift.async.AsyncMethodCallback;
-import org.apache.thrift.server.AbstractNonblockingServer.*;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.EnumMap;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.EnumSet;
 import java.util.Collections;
 import java.util.BitSet;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, java.io.Serializable, Cloneable, Comparable<Update> {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Update");
@@ -39,17 +27,12 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
   private static final org.apache.thrift.protocol.TField TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("type", org.apache.thrift.protocol.TType.I32, (short)1);
   private static final org.apache.thrift.protocol.TField RESERVED_FIELD_DESC = new org.apache.thrift.protocol.TField("reserved", org.apache.thrift.protocol.TType.I32, (short)2);
   private static final org.apache.thrift.protocol.TField PREFIXLEN_FIELD_DESC = new org.apache.thrift.protocol.TField("prefixlen", org.apache.thrift.protocol.TType.I32, (short)3);
-  private static final org.apache.thrift.protocol.TField L3LABEL_FIELD_DESC = new org.apache.thrift.protocol.TField("l3label", org.apache.thrift.protocol.TType.I32, (short)4);
-  private static final org.apache.thrift.protocol.TField L2LABEL_FIELD_DESC = new org.apache.thrift.protocol.TField("l2label", org.apache.thrift.protocol.TType.I32, (short)5);
-  private static final org.apache.thrift.protocol.TField ETHTAG_FIELD_DESC = new org.apache.thrift.protocol.TField("ethtag", org.apache.thrift.protocol.TType.I32, (short)6);
-  private static final org.apache.thrift.protocol.TField ESI_FIELD_DESC = new org.apache.thrift.protocol.TField("esi", org.apache.thrift.protocol.TType.STRING, (short)7);
-  private static final org.apache.thrift.protocol.TField MACADDRESS_FIELD_DESC = new org.apache.thrift.protocol.TField("macaddress", org.apache.thrift.protocol.TType.STRING, (short)8);
-  private static final org.apache.thrift.protocol.TField RD_FIELD_DESC = new org.apache.thrift.protocol.TField("rd", org.apache.thrift.protocol.TType.STRING, (short)9);
-  private static final org.apache.thrift.protocol.TField PREFIX_FIELD_DESC = new org.apache.thrift.protocol.TField("prefix", org.apache.thrift.protocol.TType.STRING, (short)10);
-  private static final org.apache.thrift.protocol.TField NEXTHOP_FIELD_DESC = new org.apache.thrift.protocol.TField("nexthop", org.apache.thrift.protocol.TType.STRING, (short)11);
-  private static final org.apache.thrift.protocol.TField ROUTERMAC_FIELD_DESC = new org.apache.thrift.protocol.TField("routermac", org.apache.thrift.protocol.TType.STRING, (short)12);
+  private static final org.apache.thrift.protocol.TField LABEL_FIELD_DESC = new org.apache.thrift.protocol.TField("label", org.apache.thrift.protocol.TType.I32, (short)4);
+  private static final org.apache.thrift.protocol.TField RD_FIELD_DESC = new org.apache.thrift.protocol.TField("rd", org.apache.thrift.protocol.TType.STRING, (short)5);
+  private static final org.apache.thrift.protocol.TField PREFIX_FIELD_DESC = new org.apache.thrift.protocol.TField("prefix", org.apache.thrift.protocol.TType.STRING, (short)6);
+  private static final org.apache.thrift.protocol.TField NEXTHOP_FIELD_DESC = new org.apache.thrift.protocol.TField("nexthop", org.apache.thrift.protocol.TType.STRING, (short)7);
 
-  private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
+  private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
     schemes.put(StandardScheme.class, new UpdateStandardSchemeFactory());
     schemes.put(TupleScheme.class, new UpdateTupleSchemeFactory());
@@ -58,32 +41,22 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
   public int type; // required
   public int reserved; // required
   public int prefixlen; // required
-  public int l3label; // required
-  public int l2label; // required
-  public int ethtag; // required
-  public String esi; // required
-  public String macaddress; // required
+  public int label; // required
   public String rd; // required
   public String prefix; // required
   public String nexthop; // required
-  public String routermac; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     TYPE((short)1, "type"),
     RESERVED((short)2, "reserved"),
     PREFIXLEN((short)3, "prefixlen"),
-    L3LABEL((short)4, "l3label"),
-    L2LABEL((short)5, "l2label"),
-    ETHTAG((short)6, "ethtag"),
-    ESI((short)7, "esi"),
-    MACADDRESS((short)8, "macaddress"),
-    RD((short)9, "rd"),
-    PREFIX((short)10, "prefix"),
-    NEXTHOP((short)11, "nexthop"),
-    ROUTERMAC((short)12, "routermac");
+    LABEL((short)4, "label"),
+    RD((short)5, "rd"),
+    PREFIX((short)6, "prefix"),
+    NEXTHOP((short)7, "nexthop");
 
-    private static final Map<String, _Fields> byName = new HashMap<>();
+    private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
     static {
       for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -102,24 +75,14 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
           return RESERVED;
         case 3: // PREFIXLEN
           return PREFIXLEN;
-        case 4: // L3LABEL
-          return L3LABEL;
-        case 5: // L2LABEL
-          return L2LABEL;
-        case 6: // ETHTAG
-          return ETHTAG;
-        case 7: // ESI
-          return ESI;
-        case 8: // MACADDRESS
-          return MACADDRESS;
-        case 9: // RD
+        case 4: // LABEL
+          return LABEL;
+        case 5: // RD
           return RD;
-        case 10: // PREFIX
+        case 6: // PREFIX
           return PREFIX;
-        case 11: // NEXTHOP
+        case 7: // NEXTHOP
           return NEXTHOP;
-        case 12: // ROUTERMAC
-          return ROUTERMAC;
         default:
           return null;
       }
@@ -163,36 +126,24 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
   private static final int __TYPE_ISSET_ID = 0;
   private static final int __RESERVED_ISSET_ID = 1;
   private static final int __PREFIXLEN_ISSET_ID = 2;
-  private static final int __L3LABEL_ISSET_ID = 3;
-  private static final int __L2LABEL_ISSET_ID = 4;
-  private static final int __ETHTAG_ISSET_ID = 5;
+  private static final int __LABEL_ISSET_ID = 3;
   private byte __isset_bitfield = 0;
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
-    Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+    Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.TYPE, new org.apache.thrift.meta_data.FieldMetaData("type", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.RESERVED, new org.apache.thrift.meta_data.FieldMetaData("reserved", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.PREFIXLEN, new org.apache.thrift.meta_data.FieldMetaData("prefixlen", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.L3LABEL, new org.apache.thrift.meta_data.FieldMetaData("l3label", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.LABEL, new org.apache.thrift.meta_data.FieldMetaData("label", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.L2LABEL, new org.apache.thrift.meta_data.FieldMetaData("l2label", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.ETHTAG, new org.apache.thrift.meta_data.FieldMetaData("ethtag", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-    tmpMap.put(_Fields.ESI, new org.apache.thrift.meta_data.FieldMetaData("esi", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.MACADDRESS, new org.apache.thrift.meta_data.FieldMetaData("macaddress", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.RD, new org.apache.thrift.meta_data.FieldMetaData("rd", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.PREFIX, new org.apache.thrift.meta_data.FieldMetaData("prefix", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.NEXTHOP, new org.apache.thrift.meta_data.FieldMetaData("nexthop", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.ROUTERMAC, new org.apache.thrift.meta_data.FieldMetaData("routermac", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Update.class, metaDataMap);
@@ -205,15 +156,10 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
     int type,
     int reserved,
     int prefixlen,
-    int l3label,
-    int l2label,
-    int ethtag,
-    String esi,
-    String macaddress,
+    int label,
     String rd,
     String prefix,
-    String nexthop,
-    String routermac)
+    String nexthop)
   {
     this();
     this.type = type;
@@ -222,18 +168,11 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
     setReservedIsSet(true);
     this.prefixlen = prefixlen;
     setPrefixlenIsSet(true);
-    this.l3label = l3label;
-    setL3labelIsSet(true);
-    this.l2label = l2label;
-    setL2labelIsSet(true);
-    this.ethtag = ethtag;
-    setEthtagIsSet(true);
-    this.esi = esi;
-    this.macaddress = macaddress;
+    this.label = label;
+    setLabelIsSet(true);
     this.rd = rd;
     this.prefix = prefix;
     this.nexthop = nexthop;
-    this.routermac = routermac;
   }
 
   /**
@@ -244,15 +183,7 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
     this.type = other.type;
     this.reserved = other.reserved;
     this.prefixlen = other.prefixlen;
-    this.l3label = other.l3label;
-    this.l2label = other.l2label;
-    this.ethtag = other.ethtag;
-    if (other.isSetEsi()) {
-      this.esi = other.esi;
-    }
-    if (other.isSetMacaddress()) {
-      this.macaddress = other.macaddress;
-    }
+    this.label = other.label;
     if (other.isSetRd()) {
       this.rd = other.rd;
     }
@@ -261,9 +192,6 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
     }
     if (other.isSetNexthop()) {
       this.nexthop = other.nexthop;
-    }
-    if (other.isSetRoutermac()) {
-      this.routermac = other.routermac;
     }
   }
 
@@ -279,18 +207,11 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
     this.reserved = 0;
     setPrefixlenIsSet(false);
     this.prefixlen = 0;
-    setL3labelIsSet(false);
-    this.l3label = 0;
-    setL2labelIsSet(false);
-    this.l2label = 0;
-    setEthtagIsSet(false);
-    this.ethtag = 0;
-    this.esi = null;
-    this.macaddress = null;
+    setLabelIsSet(false);
+    this.label = 0;
     this.rd = null;
     this.prefix = null;
     this.nexthop = null;
-    this.routermac = null;
   }
 
   public int getType() {
@@ -362,121 +283,27 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __PREFIXLEN_ISSET_ID, value);
   }
 
-  public int getL3label() {
-    return this.l3label;
+  public int getLabel() {
+    return this.label;
   }
 
-  public Update setL3label(int l3label) {
-    this.l3label = l3label;
-    setL3labelIsSet(true);
+  public Update setLabel(int label) {
+    this.label = label;
+    setLabelIsSet(true);
     return this;
   }
 
-  public void unsetL3label() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __L3LABEL_ISSET_ID);
+  public void unsetLabel() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __LABEL_ISSET_ID);
   }
 
-  /** Returns true if field l3label is set (has been assigned a value) and false otherwise */
-  public boolean isSetL3label() {
-    return EncodingUtils.testBit(__isset_bitfield, __L3LABEL_ISSET_ID);
+  /** Returns true if field label is set (has been assigned a value) and false otherwise */
+  public boolean isSetLabel() {
+    return EncodingUtils.testBit(__isset_bitfield, __LABEL_ISSET_ID);
   }
 
-  public void setL3labelIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __L3LABEL_ISSET_ID, value);
-  }
-
-  public int getL2label() {
-    return this.l2label;
-  }
-
-  public Update setL2label(int l2label) {
-    this.l2label = l2label;
-    setL2labelIsSet(true);
-    return this;
-  }
-
-  public void unsetL2label() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __L2LABEL_ISSET_ID);
-  }
-
-  /** Returns true if field l2label is set (has been assigned a value) and false otherwise */
-  public boolean isSetL2label() {
-    return EncodingUtils.testBit(__isset_bitfield, __L2LABEL_ISSET_ID);
-  }
-
-  public void setL2labelIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __L2LABEL_ISSET_ID, value);
-  }
-
-  public int getEthtag() {
-    return this.ethtag;
-  }
-
-  public Update setEthtag(int ethtag) {
-    this.ethtag = ethtag;
-    setEthtagIsSet(true);
-    return this;
-  }
-
-  public void unsetEthtag() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __ETHTAG_ISSET_ID);
-  }
-
-  /** Returns true if field ethtag is set (has been assigned a value) and false otherwise */
-  public boolean isSetEthtag() {
-    return EncodingUtils.testBit(__isset_bitfield, __ETHTAG_ISSET_ID);
-  }
-
-  public void setEthtagIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ETHTAG_ISSET_ID, value);
-  }
-
-  public String getEsi() {
-    return this.esi;
-  }
-
-  public Update setEsi(String esi) {
-    this.esi = esi;
-    return this;
-  }
-
-  public void unsetEsi() {
-    this.esi = null;
-  }
-
-  /** Returns true if field esi is set (has been assigned a value) and false otherwise */
-  public boolean isSetEsi() {
-    return this.esi != null;
-  }
-
-  public void setEsiIsSet(boolean value) {
-    if (!value) {
-      this.esi = null;
-    }
-  }
-
-  public String getMacaddress() {
-    return this.macaddress;
-  }
-
-  public Update setMacaddress(String macaddress) {
-    this.macaddress = macaddress;
-    return this;
-  }
-
-  public void unsetMacaddress() {
-    this.macaddress = null;
-  }
-
-  /** Returns true if field macaddress is set (has been assigned a value) and false otherwise */
-  public boolean isSetMacaddress() {
-    return this.macaddress != null;
-  }
-
-  public void setMacaddressIsSet(boolean value) {
-    if (!value) {
-      this.macaddress = null;
-    }
+  public void setLabelIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __LABEL_ISSET_ID, value);
   }
 
   public String getRd() {
@@ -551,30 +378,6 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
     }
   }
 
-  public String getRoutermac() {
-    return this.routermac;
-  }
-
-  public Update setRoutermac(String routermac) {
-    this.routermac = routermac;
-    return this;
-  }
-
-  public void unsetRoutermac() {
-    this.routermac = null;
-  }
-
-  /** Returns true if field routermac is set (has been assigned a value) and false otherwise */
-  public boolean isSetRoutermac() {
-    return this.routermac != null;
-  }
-
-  public void setRoutermacIsSet(boolean value) {
-    if (!value) {
-      this.routermac = null;
-    }
-  }
-
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case TYPE:
@@ -601,43 +404,11 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
       }
       break;
 
-    case L3LABEL:
+    case LABEL:
       if (value == null) {
-        unsetL3label();
+        unsetLabel();
       } else {
-        setL3label((Integer)value);
-      }
-      break;
-
-    case L2LABEL:
-      if (value == null) {
-        unsetL2label();
-      } else {
-        setL2label((Integer)value);
-      }
-      break;
-
-    case ETHTAG:
-      if (value == null) {
-        unsetEthtag();
-      } else {
-        setEthtag((Integer)value);
-      }
-      break;
-
-    case ESI:
-      if (value == null) {
-        unsetEsi();
-      } else {
-        setEsi((String)value);
-      }
-      break;
-
-    case MACADDRESS:
-      if (value == null) {
-        unsetMacaddress();
-      } else {
-        setMacaddress((String)value);
+        setLabel((Integer)value);
       }
       break;
 
@@ -665,42 +436,22 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
       }
       break;
 
-    case ROUTERMAC:
-      if (value == null) {
-        unsetRoutermac();
-      } else {
-        setRoutermac((String)value);
-      }
-      break;
-
     }
   }
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
     case TYPE:
-      return getType();
+      return Integer.valueOf(getType());
 
     case RESERVED:
-      return getReserved();
+      return Integer.valueOf(getReserved());
 
     case PREFIXLEN:
-      return getPrefixlen();
+      return Integer.valueOf(getPrefixlen());
 
-    case L3LABEL:
-      return Integer.valueOf(getL3label());
-
-    case L2LABEL:
-      return Integer.valueOf(getL2label());
-
-    case ETHTAG:
-      return Integer.valueOf(getEthtag());
-
-    case ESI:
-      return getEsi();
-
-    case MACADDRESS:
-      return getMacaddress();
+    case LABEL:
+      return Integer.valueOf(getLabel());
 
     case RD:
       return getRd();
@@ -710,9 +461,6 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
 
     case NEXTHOP:
       return getNexthop();
-
-    case ROUTERMAC:
-      return getRoutermac();
 
     }
     throw new IllegalStateException();
@@ -731,24 +479,14 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
       return isSetReserved();
     case PREFIXLEN:
       return isSetPrefixlen();
-    case L3LABEL:
-      return isSetL3label();
-    case L2LABEL:
-      return isSetL2label();
-    case ETHTAG:
-      return isSetEthtag();
-    case ESI:
-      return isSetEsi();
-    case MACADDRESS:
-      return isSetMacaddress();
+    case LABEL:
+      return isSetLabel();
     case RD:
       return isSetRd();
     case PREFIX:
       return isSetPrefix();
     case NEXTHOP:
       return isSetNexthop();
-    case ROUTERMAC:
-      return isSetRoutermac();
     }
     throw new IllegalStateException();
   }
@@ -793,48 +531,12 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
         return false;
     }
 
-    boolean this_present_l3label = true;
-    boolean that_present_l3label = true;
-    if (this_present_l3label || that_present_l3label) {
-      if (!(this_present_l3label && that_present_l3label))
+    boolean this_present_label = true;
+    boolean that_present_label = true;
+    if (this_present_label || that_present_label) {
+      if (!(this_present_label && that_present_label))
         return false;
-      if (this.l3label != that.l3label)
-        return false;
-    }
-
-    boolean this_present_l2label = true;
-    boolean that_present_l2label = true;
-    if (this_present_l2label || that_present_l2label) {
-      if (!(this_present_l2label && that_present_l2label))
-        return false;
-      if (this.l2label != that.l2label)
-        return false;
-    }
-
-    boolean this_present_ethtag = true;
-    boolean that_present_ethtag = true;
-    if (this_present_ethtag || that_present_ethtag) {
-      if (!(this_present_ethtag && that_present_ethtag))
-        return false;
-      if (this.ethtag != that.ethtag)
-        return false;
-    }
-
-    boolean this_present_esi = true && this.isSetEsi();
-    boolean that_present_esi = true && that.isSetEsi();
-    if (this_present_esi || that_present_esi) {
-      if (!(this_present_esi && that_present_esi))
-        return false;
-      if (!this.esi.equals(that.esi))
-        return false;
-    }
-
-    boolean this_present_macaddress = true && this.isSetMacaddress();
-    boolean that_present_macaddress = true && that.isSetMacaddress();
-    if (this_present_macaddress || that_present_macaddress) {
-      if (!(this_present_macaddress && that_present_macaddress))
-        return false;
-      if (!this.macaddress.equals(that.macaddress))
+      if (this.label != that.label)
         return false;
     }
 
@@ -862,15 +564,6 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
       if (!(this_present_nexthop && that_present_nexthop))
         return false;
       if (!this.nexthop.equals(that.nexthop))
-        return false;
-    }
-
-    boolean this_present_routermac = true && this.isSetRoutermac();
-    boolean that_present_routermac = true && that.isSetRoutermac();
-    if (this_present_routermac || that_present_routermac) {
-      if (!(this_present_routermac && that_present_routermac))
-        return false;
-      if (!this.routermac.equals(that.routermac))
         return false;
     }
 
@@ -920,52 +613,12 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetL3label()).compareTo(other.isSetL3label());
+    lastComparison = Boolean.valueOf(isSetLabel()).compareTo(other.isSetLabel());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetL3label()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.l3label, other.l3label);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetL2label()).compareTo(other.isSetL2label());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetL2label()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.l2label, other.l2label);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetEthtag()).compareTo(other.isSetEthtag());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetEthtag()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ethtag, other.ethtag);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetEsi()).compareTo(other.isSetEsi());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetEsi()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.esi, other.esi);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetMacaddress()).compareTo(other.isSetMacaddress());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetMacaddress()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.macaddress, other.macaddress);
+    if (isSetLabel()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.label, other.label);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -996,16 +649,6 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
     }
     if (isSetNexthop()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.nexthop, other.nexthop);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetRoutermac()).compareTo(other.isSetRoutermac());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetRoutermac()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.routermac, other.routermac);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -1042,32 +685,8 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
     sb.append(this.prefixlen);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("l3label:");
-    sb.append(this.l3label);
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("l2label:");
-    sb.append(this.l2label);
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("ethtag:");
-    sb.append(this.ethtag);
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("esi:");
-    if (this.esi == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.esi);
-    }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("macaddress:");
-    if (this.macaddress == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.macaddress);
-    }
+    sb.append("label:");
+    sb.append(this.label);
     first = false;
     if (!first) sb.append(", ");
     sb.append("rd:");
@@ -1091,14 +710,6 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
       sb.append("null");
     } else {
       sb.append(this.nexthop);
-    }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("routermac:");
-    if (this.routermac == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.routermac);
     }
     first = false;
     sb.append(")");
@@ -1170,47 +781,15 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // L3LABEL
+          case 4: // LABEL
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.l3label = iprot.readI32();
-              struct.setL3labelIsSet(true);
+              struct.label = iprot.readI32();
+              struct.setLabelIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 5: // L2LABEL
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.l2label = iprot.readI32();
-              struct.setL2labelIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 6: // ETHTAG
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.ethtag = iprot.readI32();
-              struct.setEthtagIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 7: // ESI
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.esi = iprot.readString();
-              struct.setEsiIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 8: // MACADDRESS
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.macaddress = iprot.readString();
-              struct.setMacaddressIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 9: // RD
+          case 5: // RD
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.rd = iprot.readString();
               struct.setRdIsSet(true);
@@ -1218,7 +797,7 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 10: // PREFIX
+          case 6: // PREFIX
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.prefix = iprot.readString();
               struct.setPrefixIsSet(true);
@@ -1226,18 +805,10 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 11: // NEXTHOP
+          case 7: // NEXTHOP
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.nexthop = iprot.readString();
               struct.setNexthopIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 12: // ROUTERMAC
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.routermac = iprot.readString();
-              struct.setRoutermacIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -1266,25 +837,9 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
       oprot.writeFieldBegin(PREFIXLEN_FIELD_DESC);
       oprot.writeI32(struct.prefixlen);
       oprot.writeFieldEnd();
-      oprot.writeFieldBegin(L3LABEL_FIELD_DESC);
-      oprot.writeI32(struct.l3label);
+      oprot.writeFieldBegin(LABEL_FIELD_DESC);
+      oprot.writeI32(struct.label);
       oprot.writeFieldEnd();
-      oprot.writeFieldBegin(L2LABEL_FIELD_DESC);
-      oprot.writeI32(struct.l2label);
-      oprot.writeFieldEnd();
-      oprot.writeFieldBegin(ETHTAG_FIELD_DESC);
-      oprot.writeI32(struct.ethtag);
-      oprot.writeFieldEnd();
-      if (struct.esi != null) {
-        oprot.writeFieldBegin(ESI_FIELD_DESC);
-        oprot.writeString(struct.esi);
-        oprot.writeFieldEnd();
-      }
-      if (struct.macaddress != null) {
-        oprot.writeFieldBegin(MACADDRESS_FIELD_DESC);
-        oprot.writeString(struct.macaddress);
-        oprot.writeFieldEnd();
-      }
       if (struct.rd != null) {
         oprot.writeFieldBegin(RD_FIELD_DESC);
         oprot.writeString(struct.rd);
@@ -1298,11 +853,6 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
       if (struct.nexthop != null) {
         oprot.writeFieldBegin(NEXTHOP_FIELD_DESC);
         oprot.writeString(struct.nexthop);
-        oprot.writeFieldEnd();
-      }
-      if (struct.routermac != null) {
-        oprot.writeFieldBegin(ROUTERMAC_FIELD_DESC);
-        oprot.writeString(struct.routermac);
         oprot.writeFieldEnd();
       }
       oprot.writeFieldStop();
@@ -1332,34 +882,19 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
       if (struct.isSetPrefixlen()) {
         optionals.set(2);
       }
-      if (struct.isSetL3label()) {
+      if (struct.isSetLabel()) {
         optionals.set(3);
       }
-      if (struct.isSetL2label()) {
+      if (struct.isSetRd()) {
         optionals.set(4);
       }
-      if (struct.isSetEthtag()) {
+      if (struct.isSetPrefix()) {
         optionals.set(5);
       }
-      if (struct.isSetEsi()) {
+      if (struct.isSetNexthop()) {
         optionals.set(6);
       }
-      if (struct.isSetMacaddress()) {
-        optionals.set(7);
-      }
-      if (struct.isSetRd()) {
-        optionals.set(8);
-      }
-      if (struct.isSetPrefix()) {
-        optionals.set(9);
-      }
-      if (struct.isSetNexthop()) {
-        optionals.set(10);
-      }
-      if (struct.isSetRoutermac()) {
-        optionals.set(11);
-      }
-      oprot.writeBitSet(optionals, 12);
+      oprot.writeBitSet(optionals, 7);
       if (struct.isSetType()) {
         oprot.writeI32(struct.type);
       }
@@ -1369,20 +904,8 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
       if (struct.isSetPrefixlen()) {
         oprot.writeI32(struct.prefixlen);
       }
-      if (struct.isSetL3label()) {
-        oprot.writeI32(struct.l3label);
-      }
-      if (struct.isSetL2label()) {
-        oprot.writeI32(struct.l2label);
-      }
-      if (struct.isSetEthtag()) {
-        oprot.writeI32(struct.ethtag);
-      }
-      if (struct.isSetEsi()) {
-        oprot.writeString(struct.esi);
-      }
-      if (struct.isSetMacaddress()) {
-        oprot.writeString(struct.macaddress);
+      if (struct.isSetLabel()) {
+        oprot.writeI32(struct.label);
       }
       if (struct.isSetRd()) {
         oprot.writeString(struct.rd);
@@ -1393,15 +916,12 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
       if (struct.isSetNexthop()) {
         oprot.writeString(struct.nexthop);
       }
-      if (struct.isSetRoutermac()) {
-        oprot.writeString(struct.routermac);
-      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, Update struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(12);
+      BitSet incoming = iprot.readBitSet(7);
       if (incoming.get(0)) {
         struct.type = iprot.readI32();
         struct.setTypeIsSet(true);
@@ -1415,44 +935,23 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
         struct.setPrefixlenIsSet(true);
       }
       if (incoming.get(3)) {
-        struct.l3label = iprot.readI32();
-        struct.setL3labelIsSet(true);
+        struct.label = iprot.readI32();
+        struct.setLabelIsSet(true);
       }
       if (incoming.get(4)) {
-        struct.l2label = iprot.readI32();
-        struct.setL2labelIsSet(true);
-      }
-      if (incoming.get(5)) {
-        struct.ethtag = iprot.readI32();
-        struct.setEthtagIsSet(true);
-      }
-      if (incoming.get(6)) {
-        struct.esi = iprot.readString();
-        struct.setEsiIsSet(true);
-      }
-      if (incoming.get(7)) {
-        struct.macaddress = iprot.readString();
-        struct.setMacaddressIsSet(true);
-      }
-      if (incoming.get(8)) {
         struct.rd = iprot.readString();
         struct.setRdIsSet(true);
       }
-      if (incoming.get(9)) {
+      if (incoming.get(5)) {
         struct.prefix = iprot.readString();
         struct.setPrefixIsSet(true);
       }
-      if (incoming.get(10)) {
+      if (incoming.get(6)) {
         struct.nexthop = iprot.readString();
         struct.setNexthopIsSet(true);
-      }
-      if (incoming.get(11)) {
-        struct.routermac = iprot.readString();
-        struct.setRoutermacIsSet(true);
       }
     }
   }
 
 }
-
 

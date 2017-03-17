@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015, 2017 Dell Inc. and others.  All rights reserved.
+ * Copyright (c) 2015 Dell Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -8,7 +8,9 @@
 
 package org.opendaylight.netvirt.ipv6service;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -136,7 +138,11 @@ public class VirtualSubnet  {
     }
 
     public void removeSelf() {
-        for (VirtualPort intf : interfaces.values()) {
+        Collection<VirtualPort> intfs = interfaces.values();
+
+        Iterator itr = intfs.iterator();
+        while (itr.hasNext()) {
+            VirtualPort intf = (VirtualPort) itr.next();
             if (intf != null) {
                 intf.removeSubnetInfo(subnetUUID);
             }
@@ -145,5 +151,6 @@ public class VirtualSubnet  {
         if (router != null) {
             router.removeSubnet(this);
         }
+        return;
     }
 }

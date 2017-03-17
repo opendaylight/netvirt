@@ -47,7 +47,7 @@ public class VirtualPort  {
     static final Logger LOG = LoggerFactory.getLogger(VirtualPort.class);
 
     public VirtualPort() {
-        snetInfo = new HashMap<>();
+        snetInfo = new HashMap<Uuid, SubnetInfo>();
         serviceBindingStatus = Boolean.FALSE;
     }
 

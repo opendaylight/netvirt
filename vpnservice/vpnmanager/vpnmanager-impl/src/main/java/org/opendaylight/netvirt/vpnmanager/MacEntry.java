@@ -17,7 +17,7 @@ public class MacEntry {
     private String interfaceName;
 
     public MacEntry(String vpnName, MacAddress macAddress,
-        InetAddress inetAddress, String interfaceName) {
+            InetAddress inetAddress, String interfaceName) {
         this.vpnName = vpnName;
         this.macAddress = macAddress;
         this.ipAddress = inetAddress;
@@ -53,24 +53,26 @@ public class MacEntry {
         final int prime = 31;
         int result = 1;
         result = prime * result
-            + ((macAddress == null) ? 0 : macAddress.hashCode());
+                + ((macAddress == null) ? 0 : macAddress.hashCode());
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (getClass() != obj.getClass()) {
-            return false;
-        } else {
+        boolean result = false;
+        if (getClass() != obj.getClass())
+            return result;
+        else {
             MacEntry other = (MacEntry) obj;
-            return vpnName.equals(other.vpnName) && macAddress.equals(other.macAddress)
-                && ipAddress.equals(other.ipAddress) && interfaceName.equals(other.interfaceName);
+            result = vpnName.equals(other.vpnName) && macAddress.equals(other.macAddress)
+                    && ipAddress.equals(other.ipAddress) && interfaceName.equals(other.interfaceName);
         }
+        return result;
     }
 
     @Override
     public String toString() {
         return "MacEntry [vpnName=" + vpnName + ", macAddress=" + macAddress + ", ipAddress=" + ipAddress
-            + ", interfaceName=" + interfaceName + "]";
+                + ", interfaceName=" + interfaceName + "]";
     }
 }

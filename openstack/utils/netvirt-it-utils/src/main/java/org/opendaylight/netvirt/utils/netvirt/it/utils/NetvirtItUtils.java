@@ -10,9 +10,7 @@ package org.opendaylight.netvirt.utils.netvirt.it.utils;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -53,6 +51,9 @@ import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * This class contains various utility methods used in netvirt integration tests (IT).
@@ -266,7 +267,7 @@ public class NetvirtItUtils {
         if (!Objects.equals(m1.getTcpFlagsMatch(), m2.getTcpFlagsMatch())) { return false; }
 
         MatchAugmentationIterator it = new MatchAugmentationIterator(m1);
-        List<AllMatchesGrouping> side1Matches = new ArrayList<>();
+        List<AllMatchesGrouping> side1Matches = Lists.newArrayList();
         AllMatchesGrouping aug;
         while (null != (aug = it.next())) {
             side1Matches.add(aug);

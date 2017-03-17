@@ -9,12 +9,12 @@
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
+
 import org.opendaylight.netvirt.openstack.netvirt.api.ClassifierProvider;
-import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
+import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
 import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.InstructionUtils;
@@ -39,11 +39,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev14
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg0;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxRegCaseBuilder;
+
+import com.google.common.collect.Lists;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 public class ClassifierService extends AbstractServiceInstance implements ClassifierProvider, ConfigInterface {
-    public final static long REG_VALUE_FROM_LOCAL_0 = 0x0L;
     public final static long REG_VALUE_FROM_LOCAL = 0x1L;
     public final static long REG_VALUE_FROM_REMOTE = 0x2L;
     public static final Class<? extends NxmNxReg> REG_FIELD = NxmNxReg0.class;
@@ -83,7 +84,7 @@ public class ClassifierService extends AbstractServiceInstance implements Classi
             InstructionsBuilder isb = new InstructionsBuilder();
 
             // Instructions List Stores Individual Instructions
-            List<Instruction> instructions = new ArrayList<>();
+            List<Instruction> instructions = Lists.newArrayList();
 
             InstructionUtils.createSetTunnelIdInstructions(ib, new BigInteger(segmentationId));
             ApplyActionsCase aac = (ApplyActionsCase) ib.getInstruction();
@@ -148,7 +149,7 @@ public class ClassifierService extends AbstractServiceInstance implements Classi
             InstructionsBuilder isb = new InstructionsBuilder();
 
             // Instructions List Stores Individual Instructions
-            List<Instruction> instructions = new ArrayList<>();
+            List<Instruction> instructions = Lists.newArrayList();
 
             // Set VLAN ID Instruction
             InstructionUtils.createSetVlanInstructions(ib, new VlanId(Integer.valueOf(segmentationId)));
@@ -198,7 +199,7 @@ public class ClassifierService extends AbstractServiceInstance implements Classi
             InstructionsBuilder isb = new InstructionsBuilder();
 
             // Instructions List Stores Individual Instructions
-            List<Instruction> instructions = new ArrayList<>();
+            List<Instruction> instructions = Lists.newArrayList();
 
             // Call the InstructionBuilder Methods Containing Actions
             InstructionUtils.createDropInstructions(ib);
@@ -242,9 +243,9 @@ public class ClassifierService extends AbstractServiceInstance implements Classi
             InstructionsBuilder isb = new InstructionsBuilder();
 
             // Instructions List Stores Individual Instructions
-            List<Instruction> instructions = new ArrayList<>();
+            List<Instruction> instructions = Lists.newArrayList();
 
-            List<Action> actionList = new ArrayList<>();
+            List<Action> actionList = Lists.newArrayList();
             ActionBuilder ab = new ActionBuilder();
             ab.setAction(ActionUtils.nxLoadRegAction(new DstNxRegCaseBuilder().setNxReg(REG_FIELD).build(),
                     BigInteger.valueOf(REG_VALUE_FROM_REMOTE)));
@@ -303,7 +304,7 @@ public class ClassifierService extends AbstractServiceInstance implements Classi
             InstructionsBuilder isb = new InstructionsBuilder();
 
             // Instructions List Stores Individual Instructions
-            List<Instruction> instructions = new ArrayList<>();
+            List<Instruction> instructions = Lists.newArrayList();
 
             // Append the default pipeline after the first classification
             InstructionBuilder ib = this.getMutablePipelineInstructionBuilder();
@@ -346,7 +347,7 @@ public class ClassifierService extends AbstractServiceInstance implements Classi
         InstructionsBuilder isb = new InstructionsBuilder();
 
         // Instructions List Stores Individual Instructions
-        List<Instruction> instructions = new ArrayList<>();
+        List<Instruction> instructions = Lists.newArrayList();
 
         // Call the InstructionBuilder Methods Containing Actions
         InstructionUtils.createSendToControllerInstructions(FlowUtils.getNodeName(dpidLong), ib);
@@ -376,7 +377,7 @@ public class ClassifierService extends AbstractServiceInstance implements Classi
 
         if (write) {
             InstructionsBuilder isb = new InstructionsBuilder();
-            List<Instruction> instructions = new ArrayList<>();
+            List<Instruction> instructions = Lists.newArrayList();
             InstructionBuilder ib =
                     InstructionUtils.createGotoTableInstructions(new InstructionBuilder(), getTable());
             ib.setOrder(0);

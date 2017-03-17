@@ -57,7 +57,6 @@ public class AclServiceStatefulTest extends AclServiceTestBase {
 
     @Override
     void newInterfaceWithTwoAclsHavingSameRulesCheck() {
-        // TODO Fix up — this is broken since the Genius InstructionInfo clean-up
-        //assertFlowsInAnyOrder(FlowEntryObjectsStateful.icmpFlowsForTwoAclsHavingSameRules());
+        assertFlowsInAnyOrder(FlowEntryObjectsStateful.icmpFlowsForTwoAclsHavingSameRules());
     }
 }

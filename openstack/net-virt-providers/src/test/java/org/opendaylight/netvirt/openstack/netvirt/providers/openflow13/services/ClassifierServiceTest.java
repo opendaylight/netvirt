@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015, 2017 Inocybe and others.  All rights reserved.
+ * Copyright (c) 2015 Inocybe and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -65,13 +65,13 @@ public class ClassifierServiceTest {
     @Test
     public void testProgramLocalInPort() throws Exception {
         // write
-        classifierService.programLocalInPort(1212L, "2", 455L, MAC_ADDRESS, true);
+        classifierService.programLocalInPort(Long.valueOf(1212), "2", Long.valueOf(455), MAC_ADDRESS, true);
         verify(writeTransaction, times(2)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), anyBoolean());
         verify(writeTransaction, times(1)).submit();
         verify(commitFuture, times(1)).get();
 
         // remove
-        classifierService.programLocalInPort(1212L, "2", 455L, MAC_ADDRESS, false);
+        classifierService.programLocalInPort(Long.valueOf(1212), "2", Long.valueOf(455), MAC_ADDRESS, false);
         verify(writeTransaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(commitFuture, times(2)).get(); // 1 + 1 above
     }
@@ -82,13 +82,13 @@ public class ClassifierServiceTest {
     @Test
     public void testProgramLocalInPortSetVlan() throws Exception {
         // write
-        classifierService.programLocalInPortSetVlan(1212L, "2", 455L, MAC_ADDRESS, true);
+        classifierService.programLocalInPortSetVlan(Long.valueOf(1212), "2", Long.valueOf(455), MAC_ADDRESS, true);
         verify(writeTransaction, times(2)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), anyBoolean());
         verify(writeTransaction, times(1)).submit();
         verify(commitFuture, times(1)).get();
 
         // remove
-        classifierService.programLocalInPortSetVlan(1212L, "2", 455L, MAC_ADDRESS, false);
+        classifierService.programLocalInPortSetVlan(Long.valueOf(1212), "2", Long.valueOf(455), MAC_ADDRESS, false);
         verify(writeTransaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(commitFuture, times(2)).get(); // 1 + 1 above
     }
@@ -99,13 +99,13 @@ public class ClassifierServiceTest {
     @Test
     public void testProgramDropSrcIface() throws Exception {
         // write
-        classifierService.programDropSrcIface(1212L, 455L, true);
+        classifierService.programDropSrcIface(Long.valueOf(1212), Long.valueOf(455), true);
         verify(writeTransaction, times(2)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), anyBoolean());
         verify(writeTransaction, times(1)).submit();
         verify(commitFuture, times(1)).get();
 
         // remove
-        classifierService.programDropSrcIface(1212L, 455L, false);
+        classifierService.programDropSrcIface(Long.valueOf(1212), Long.valueOf(455), false);
         verify(writeTransaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(commitFuture, times(2)).get(); // 1 + 1 above
     }
@@ -116,13 +116,13 @@ public class ClassifierServiceTest {
     @Test
     public void testProgramTunnelIn() throws Exception {
         // write
-        classifierService.programTunnelIn(1212L, "2", 455L, true);
+        classifierService.programTunnelIn(Long.valueOf(1212), "2", Long.valueOf(455), true);
         verify(writeTransaction, times(2)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), anyBoolean());
         verify(writeTransaction, times(1)).submit();
         verify(commitFuture, times(1)).get();
 
         // remove
-        classifierService.programTunnelIn(1212L, "2", 455L, false);
+        classifierService.programTunnelIn(Long.valueOf(1212), "2", Long.valueOf(455), false);
         verify(writeTransaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(commitFuture, times(2)).get(); // 1 + 1 above
     }
@@ -133,13 +133,13 @@ public class ClassifierServiceTest {
     @Test
     public void testProgramVlanIn() throws Exception {
         // write
-        classifierService.programVlanIn(1212L, "2", 455L, true);
+        classifierService.programVlanIn(Long.valueOf(1212), "2", Long.valueOf(455), true);
         verify(writeTransaction, times(2)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), anyBoolean());
         verify(writeTransaction, times(1)).submit();
         verify(commitFuture, times(1)).get();
 
         // remove
-        classifierService.programVlanIn(1212L, "2", 455L, false);
+        classifierService.programVlanIn(Long.valueOf(1212), "2", Long.valueOf(455), false);
         verify(writeTransaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(commitFuture, times(2)).get(); // 1 + 1 above
     }
@@ -150,7 +150,7 @@ public class ClassifierServiceTest {
     @Test
     public void testProgramLLDPPuntRule() throws Exception {
         // write
-        classifierService.programLLDPPuntRule(1212L);
+        classifierService.programLLDPPuntRule(Long.valueOf(1212));
         verify(writeTransaction, times(2)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), anyBoolean());
         verify(writeTransaction, times(1)).submit();
         verify(commitFuture, times(1)).get();

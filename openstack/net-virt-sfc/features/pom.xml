@@ -18,12 +18,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>openstack.net-virt-sfc-features</artifactId>
   <version>1.4.0-SNAPSHOT</version>
-  <name>ODL :: netvirt :: ${project.artifactId}</name>
+  <name>${project.artifactId}</name>
   <modelVersion>4.0.0</modelVersion>
   <properties>
     <configfile.directory>etc/opendaylight/karaf</configfile.directory>
     <controller.mdsal.version>1.5.0-SNAPSHOT</controller.mdsal.version>
-    <dluxapps.version>0.5.0-SNAPSHOT</dluxapps.version>
+    <dlux.version>0.5.0-SNAPSHOT</dlux.version>
     <mdsal.model.version>0.10.0-SNAPSHOT</mdsal.model.version>
     <openflowplugin.version>0.4.0-SNAPSHOT</openflowplugin.version>
     <ovsdb.version>1.4.0-SNAPSHOT</ovsdb.version>
@@ -32,10 +32,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.opendaylight.dluxapps</groupId>
-      <artifactId>features-dluxapps</artifactId>
+      <groupId>org.opendaylight.dlux</groupId>
+      <artifactId>features-dlux</artifactId>
       <classifier>features</classifier>
-      <version>${dluxapps.version}</version>
+      <version>${dlux.version}</version>
       <type>xml</type>
     </dependency>
     <dependency>

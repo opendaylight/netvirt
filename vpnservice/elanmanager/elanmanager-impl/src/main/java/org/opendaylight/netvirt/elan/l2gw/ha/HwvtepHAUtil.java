@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -11,8 +11,9 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -81,7 +82,7 @@ public class HwvtepHAUtil {
 
     static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
 
-    public static HwvtepPhysicalLocatorRef buildLocatorRef(InstanceIdentifier<Node> nodeIid, String tepIp) {
+    public static HwvtepPhysicalLocatorRef buildLocatorRef(InstanceIdentifier<Node> nodeIid, String tepIp ) {
         InstanceIdentifier<TerminationPoint> tepId = buildTpId(nodeIid, tepIp);
         return new HwvtepPhysicalLocatorRef(tepId);
     }
@@ -94,7 +95,7 @@ public class HwvtepHAUtil {
         return new Uuid(java.util.UUID.nameUUIDFromBytes(key.getBytes()).toString());
     }
 
-    public static InstanceIdentifier<TerminationPoint> buildTpId(InstanceIdentifier<Node> nodeIid,String tepIp) {
+    public static InstanceIdentifier<TerminationPoint> buildTpId(InstanceIdentifier<Node> nodeIid,String tepIp ) {
         String tpKeyStr = TEP_PREFIX + tepIp;
         TerminationPointKey tpKey = new TerminationPointKey(new TpId(tpKeyStr));
         InstanceIdentifier<TerminationPoint> plIid = nodeIid.child(TerminationPoint.class, tpKey);
@@ -212,11 +213,7 @@ public class HwvtepHAUtil {
     }
 
     public static boolean isEmptyList(List list) {
-        return list == null || list.size() == 0;
-    }
-
-    public static boolean isEmpty(Collection collection) {
-        if (collection == null || collection.isEmpty()) {
+        if (list == null || list.size() == 0) {
             return true;
         }
         return false;
@@ -335,7 +332,7 @@ public class HwvtepHAUtil {
      * @return ha Child ids
      */
     public static  List<NodeId> getChildNodeIdsFromManagerOtherConfig(Optional<Node> haGlobalConfigNodeOptional) {
-        List<NodeId> childNodeIds = new ArrayList<>();
+        List<NodeId> childNodeIds = Lists.newArrayList();
         if (!haGlobalConfigNodeOptional.isPresent()) {
             return childNodeIds;
         }
@@ -370,7 +367,7 @@ public class HwvtepHAUtil {
      * @return child Switches
      */
     public static Set<InstanceIdentifier<Node>> getPSChildrenIdsForHAPSNode(String psNodId) {
-        if (!psNodId.contains(PHYSICALSWITCH)) {
+        if (psNodId.indexOf(PHYSICALSWITCH) < 0) {
             return Collections.emptySet();
         }
         String nodeId = convertToGlobalNodeId(psNodId);
@@ -419,15 +416,14 @@ public class HwvtepHAUtil {
      */
     public static List<Managers> buildManagersForHANode(Node childNode, Optional<Node> haGlobalCfg) {
 
-        Set<NodeId> nodeIds = new HashSet<>();
-        nodeIds.add(childNode.getNodeId());
+        Set<NodeId> nodeIds = Sets.newHashSet(childNode.getNodeId());
         List<NodeId> childNodeIds = getChildNodeIdsFromManagerOtherConfig(haGlobalCfg);
         nodeIds.addAll(childNodeIds);
 
         ManagersBuilder builder1 = new ManagersBuilder();
 
         builder1.setKey(new ManagersKey(new Uri(MANAGER_KEY)));
-        List<ManagerOtherConfigs> otherConfigses = new ArrayList<>();
+        List<ManagerOtherConfigs> otherConfigses = Lists.newArrayList();
         StringBuffer stringBuffer = new StringBuffer();
         for (NodeId nodeId : nodeIds) {
             stringBuffer.append(nodeId.getValue());
@@ -438,7 +434,7 @@ public class HwvtepHAUtil {
 
         otherConfigses.add(getOtherConfigBuilder(HA_CHILDREN, children).build());
         builder1.setManagerOtherConfigs(otherConfigses);
-        List<Managers> managers = new ArrayList<>();
+        List<Managers> managers = Lists.newArrayList();
         managers.add(builder1.build());
         return managers;
     }

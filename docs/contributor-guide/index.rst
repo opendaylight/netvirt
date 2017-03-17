@@ -1,7 +1,5 @@
-NetVirt Contributor Guide
-=========================
+Netvirt Documentation
+=====================
 
 .. toctree::
    :maxdepth: 2
-
-   ../specs/index

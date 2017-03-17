@@ -13,7 +13,6 @@ import org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.EgressAclProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.IngressAclProvider;
-import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.SecurityServicesManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
@@ -28,7 +27,6 @@ import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSubnet
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
@@ -43,7 +41,6 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
     private volatile INeutronPortCRUD neutronPortCache;
     private volatile INeutronSubnetCRUD neutronSubnetCache;
     private volatile Southbound southbound;
-    private volatile NodeCacheManager nodeCacheManager;
     private volatile INeutronNetworkCRUD neutronNetworkCache;
     private volatile ConfigurationService configurationService;
     private volatile IngressAclProvider ingressAclProvider;
@@ -474,7 +471,6 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
         LOG.trace("syncSecurityGroup:" + securityGroupList + " Write:" + write);
         if (null != port && null != port.getSecurityGroups()) {
             Node node = getNode(port);
-            NodeId nodeId = node.getNodeId();
             if (node == null) {
                 return;
             }
@@ -508,61 +504,51 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
             }
             for (NeutronSecurityGroup securityGroupInPort:securityGroupList) {
                 ingressAclProvider.programPortSecurityGroup(dpid, segmentationId, attachedMac, localPort,
-                                                          securityGroupInPort, neutronPortId, nodeId, write);
+                                                          securityGroupInPort, neutronPortId, write);
                 egressAclProvider.programPortSecurityGroup(dpid, segmentationId, attachedMac, localPort,
-                                                         securityGroupInPort, neutronPortId, nodeId, write);
+                                                         securityGroupInPort, neutronPortId, write);
             }
         }
     }
 
     @Override
-    public void syncSecurityRule(NeutronPort port, NeutronSecurityRule securityRule,Neutron_IPs vmIp, NodeId nodeId, boolean write) {
+    public void syncSecurityRule(NeutronPort port, NeutronSecurityRule securityRule,Neutron_IPs vmIp, boolean write) {
         LOG.trace("syncSecurityGroup:" + securityRule + " Write:" + write);
         if (null != port && null != port.getSecurityGroups()) {
-            if (nodeId != null) {
-                syncSecurityRules(port, securityRule, vmIp, write, nodeId, port.getMacAddress());
-            } else {
+            Node node = getNode(port);
+            if (node == null) {
                 return;
             }
-        }
-    }
-
-    private void syncSecurityRules(NeutronPort port, NeutronSecurityRule securityRule,Neutron_IPs vmIp, boolean write, NodeId nodeId,
-            String attachedMac) {
-        NeutronNetwork neutronNetwork = neutronNetworkCache.getNetwork(port.getNetworkUUID());
-        if (null == neutronNetwork) {
-            neutronNetwork = neutronL3Adapter.getNetworkFromCleanupCache(port.getNetworkUUID());
-        }
-        if (neutronNetwork == null) {
-            return;
-        }
-        String segmentationId = neutronNetwork.getProviderSegmentationID();
-        Long localPort = 0L;
-        Node node = nodeCacheManager.getNode(nodeId);
-        if(attachedMac == null) {
+            NeutronNetwork neutronNetwork = neutronNetworkCache.getNetwork(port.getNetworkUUID());
+            if (null == neutronNetwork) {
+                neutronNetwork = neutronL3Adapter.getNetworkFromCleanupCache(port.getNetworkUUID());
+            }
+            if (neutronNetwork == null) {
+                return;
+            }
+            String segmentationId = neutronNetwork.getProviderSegmentationID();
             OvsdbTerminationPointAugmentation intf = getInterface(node, port);
             if (intf == null) {
                 return;
             }
-            localPort = southbound.getOFPort(intf);
-            attachedMac = southbound.getInterfaceExternalIdsValue(intf, Constants.EXTERNAL_ID_VM_MAC);
+            long localPort = southbound.getOFPort(intf);
+            String attachedMac = southbound.getInterfaceExternalIdsValue(intf, Constants.EXTERNAL_ID_VM_MAC);
             if (attachedMac == null) {
                 LOG.debug("programVlanRules: No AttachedMac seen in {}", intf);
                 return;
             }
-        }
-
-        long dpid = getDpidOfIntegrationBridge(node);
-        if (dpid == 0L) {
-            return;
-        }
-        if (NeutronSecurityRule.ETHERTYPE_IPV4.equals(securityRule.getSecurityRuleEthertype())) {
-            if (NeutronSecurityRule.DIRECTION_INGRESS.equals(securityRule.getSecurityRuleDirection())) {
-                ingressAclProvider.programPortSecurityRule(dpid, segmentationId, attachedMac, localPort,
-                        securityRule, vmIp, write);
-            } else if (NeutronSecurityRule.DIRECTION_EGRESS.equals(securityRule.getSecurityRuleDirection())) {
-                egressAclProvider.programPortSecurityRule(dpid, segmentationId, attachedMac, localPort,
-                        securityRule, vmIp, write);
+            long dpid = getDpidOfIntegrationBridge(node);
+            if (dpid == 0L) {
+                return;
+            }
+            if (NeutronSecurityRule.ETHERTYPE_IPV4.equals(securityRule.getSecurityRuleEthertype())) {
+                if (NeutronSecurityRule.DIRECTION_INGRESS.equals(securityRule.getSecurityRuleDirection())) {
+                    ingressAclProvider.programPortSecurityRule(dpid, segmentationId, attachedMac, localPort,
+                            securityRule, vmIp, write);
+                } else if (NeutronSecurityRule.DIRECTION_EGRESS.equals(securityRule.getSecurityRuleDirection())) {
+                    egressAclProvider.programPortSecurityRule(dpid, segmentationId, attachedMac, localPort,
+                            securityRule, vmIp, write);
+                }
             }
         }
     }
@@ -655,8 +641,6 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
                 (Southbound) ServiceHelper.getGlobalInstance(Southbound.class, this);
         neutronNetworkCache =
                 (INeutronNetworkCRUD) ServiceHelper.getGlobalInstance(INeutronNetworkCRUD.class, this);
-        nodeCacheManager =
-                (NodeCacheManager) ServiceHelper.getGlobalInstance(NodeCacheManager.class, this);
         configurationService =
                 (ConfigurationService) ServiceHelper.getGlobalInstance(ConfigurationService.class, this);
     }

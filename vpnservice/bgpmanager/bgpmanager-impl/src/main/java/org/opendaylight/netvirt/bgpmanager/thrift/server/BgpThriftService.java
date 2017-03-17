@@ -19,12 +19,10 @@ import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TNonblockingServerSocket;
 import org.apache.thrift.transport.TNonblockingServerTransport;
 import org.apache.thrift.transport.TTransport;
-import org.apache.thrift.transport.TTransportException;
 import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager;
 import org.opendaylight.netvirt.bgpmanager.FibDSWriter;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.BgpUpdater;
-import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +34,7 @@ public class BgpThriftService {
     TServer server;
 
     // to store copy fo FIB-VRF tables on QBGP restart.
-    public List<VrfTables> staleVrfTables;
+    public List<VrfTables> stale_vrfTables;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BgpThriftService.class);
 
@@ -46,23 +44,20 @@ public class BgpThriftService {
         this.fibDSWriter = fibDSWriter;
     }
 
-    public static class ThriftClientContext implements ServerContext {
+    public static class ThriftClientContext implements  ServerContext {
         TProtocol in;
-
         public ThriftClientContext(TProtocol in) {
             this.in = in;
         }
-
         public TProtocol getIn() {
             return in;
         }
     }
-
     public class BgpUpdateServer implements Runnable, BgpUpdater.Iface {
 
         ThriftClientContext oldThriftClientContext;
 
-        BgpUpdateServer() {
+        public void BgpUpdateServer() {
         }
 
         public void run() {
@@ -87,11 +82,15 @@ public class BgpThriftService {
                     public ServerContext createContext(TProtocol input, TProtocol output) {
                         LOGGER.info("Bgp thrift server create context event");
                         synchronized (this) {
-                            if (oldThriftClientContext != null) {
-                                LOGGER.info("Bgp thrift server closing old context");
-                                oldThriftClientContext.getIn().getTransport().close();
-                            } else {
-                                LOGGER.info("Bgp thrift server old context is null nothing to close");
+                            try {
+                                if (oldThriftClientContext != null) {
+                                    LOGGER.info("Bgp thrift server closing old context");
+                                    oldThriftClientContext.getIn().getTransport().close();
+                                } else {
+                                    LOGGER.info("Bgp thrift server old context is null nothing to close");
+                                }
+                                oldThriftClientContext = null;
+                            } catch (Throwable ignore) {
                             }
                             oldThriftClientContext = new ThriftClientContext(input);
                             return oldThriftClientContext;
@@ -110,75 +109,51 @@ public class BgpThriftService {
                     }
 
                     @Override
-                    public void processContext(ServerContext serverContext, TTransport inputTransport,
-                            TTransport outputTransport) {
+                    public void processContext(ServerContext serverContext, TTransport inputTransport, TTransport outputTransport) {
                         LOGGER.trace("Bgp thrift server process context event");
                     }
                 });
                 server.serve();
-            } catch (TTransportException e) {
+            } catch (Exception e) {
                 LOGGER.error("Exception in BGP Updater server" + e);
             }
         }
 
-        @SuppressWarnings("checkstyle:IllegalCatch")
-        public void onUpdatePushRoute(protocol_type protocolType,
-                                      String rd,
-                                      String prefix,
-                                      int plen,
-                                      String nexthop,
-                                      int ethtag,
-                                      String esi,
-                                      String macaddress,
-                                      int l2label,
-                                      int l3label,
-                                      String routermac) {
+        public void onUpdatePushRoute(String rd, String prefix, int plen, String nexthop, int label) {
             try {
-                LOGGER.debug("Update on push route : rd {} prefix {} plen {}", rd, prefix, plen);
-
-                // l2label is ignored even in case of RT5. only l3label considered
-                BgpConfigurationManager.onUpdatePushRoute(
-                        protocolType,
-                        rd,
-                        prefix,
-                        plen,
-                        nexthop,
-                        ethtag,
-                        esi,
-                        macaddress,
-                        l3label,
-                        routermac);
-
+                LOGGER.debug("Update on push route : rd {} prefix {} plen {}",rd,prefix,plen);
+                BgpConfigurationManager.onUpdatePushRoute(rd, prefix, plen, nexthop, label);
             } catch (Throwable e) {
                 LOGGER.error("failed to handle update route ", e);
             }
         }
 
-        public void onUpdateWithdrawRoute(protocol_type protocolType,
-                                          String rd,
-                                          String prefix,
-                                          int plen,
-                                          String nexthop,
-                                          int ethtag,
-                                          String esi,
-                                          String macaddress,
-                                          int l2label,
-                                          int l3label) {
+        public void onUpdateWithdrawRoute(String rd, String prefix, int plen, String nexthop) {
             LOGGER.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
-            LOGGER.info("REMOVE: Removing Fib entry rd {} prefix {}", rd, prefix);
-            fibDSWriter.removeFibEntryFromDS(rd, prefix + "/" + plen);
-            LOGGER.info("REMOVE: Removed Fib entry rd {} prefix {}", rd, prefix);
+            try {
+                LOGGER.info("REMOVE: Removing Fib entry rd {} prefix {}", rd, prefix);
+                fibDSWriter.removeFibEntryFromDS(rd, prefix + "/" + plen);
+                LOGGER.info("REMOVE: Removed Fib entry rd {} prefix {}", rd, prefix);
+            } catch (Throwable e) {
+                LOGGER.error("failed to handle withdraw route " ,e);
+            }
         }
 
         public void onStartConfigResyncNotification() {
             LOGGER.info("BGP (re)started");
-            bgpManager.setQbgprestartTS(System.currentTimeMillis());
-            bgpManager.bgpRestarted();
+            bgpManager.setqBGPrestartTS(System.currentTimeMillis());
+            try {
+                bgpManager.bgpRestarted();
+            } catch (Throwable e) {
+                LOGGER.error("failed to handle onStartConfigResyncNotification " ,e);
+            }
         }
 
         public void onNotificationSendEvent(String prefix, byte errCode,
-                byte errSubcode) {
-            bgpManager.sendNotificationEvent(prefix, (int) errCode, (int) errSubcode);
+                                                           byte errSubcode) {
+            int code = errCode;
+            int subCode = errSubcode;
+            bgpManager.sendNotificationEvent(prefix, code, subCode);
         }
     }
 
@@ -193,4 +168,5 @@ public class BgpThriftService {
         server.stop();
         thread.stop();
     }
-}
+} 
+ 

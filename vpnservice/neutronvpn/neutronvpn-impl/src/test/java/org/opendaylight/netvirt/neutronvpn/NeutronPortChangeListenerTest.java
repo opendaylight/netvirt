@@ -13,10 +13,9 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.Futures;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +29,6 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -49,6 +47,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.Futures;
+
 @RunWith(MockitoJUnitRunner.class)
 public class NeutronPortChangeListenerTest {
 
@@ -57,9 +58,9 @@ public class NeutronPortChangeListenerTest {
     @Mock
     DataBroker dataBroker;
     @Mock
-    NeutronvpnManager neutronvpnManager;
+    NeutronvpnManager nVpnMgr;
     @Mock
-    NeutronvpnNatManager neutronvpnNatManager;
+    NeutronvpnNatManager nVpnNatMgr;
     @Mock
     NotificationPublishService notiPublishService;
     @Mock
@@ -82,8 +83,6 @@ public class NeutronPortChangeListenerTest {
     NeutronSubnetGwMacResolver gwMacResolver;
     @Mock
     IElanService elanService;
-    @Mock
-    IInterfaceManager interfaceManager;
 
     @Before
     public void setUp() {
@@ -95,15 +94,15 @@ public class NeutronPortChangeListenerTest {
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
-        when(mockReadTx.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
-            .thenReturn(Futures.immediateCheckedFuture(Optional.of(mockNetwork)));
-        neutronPortChangeListener = new NeutronPortChangeListener(dataBroker, neutronvpnManager, neutronvpnNatManager,
+        when(mockReadTx.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).
+            thenReturn(Futures.immediateCheckedFuture(Optional.of(mockNetwork)));
+        neutronPortChangeListener = new NeutronPortChangeListener(dataBroker, nVpnMgr, nVpnNatMgr,
                 notiPublishService, gwMacResolver, odlInterfaceRpcService, elanService);
         InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class,
                         new ElanInstanceKey(new Uuid("12345678-1234-1234-1234-123456789012").getValue())).build();
-        when(mockReadTx.read(any(LogicalDatastoreType.class), eq(elanIdentifierId)))
-            .thenReturn(Futures.immediateCheckedFuture(Optional.of(elanInstance)));
+        when(mockReadTx.read(any(LogicalDatastoreType.class), eq(elanIdentifierId))).
+                thenReturn(Futures.immediateCheckedFuture(Optional.of(elanInstance)));
     }
 
     @Test
@@ -115,7 +114,7 @@ public class NeutronPortChangeListenerTest {
         IpAddress ipv6 = new IpAddress(new Ipv6Address("1::1"));
         FixedIpsBuilder fib = new FixedIpsBuilder();
         fib.setIpAddress(ipv6);
-        List<FixedIps> fixedIps = new ArrayList<>();
+        List<FixedIps> fixedIps = new ArrayList<FixedIps>();
         fixedIps.add(fib.build());
         pb.setFixedIps(fixedIps);
         Port port = pb.build();
@@ -131,7 +130,7 @@ public class NeutronPortChangeListenerTest {
         IpAddress ipv4 = new IpAddress(new Ipv4Address("2.2.2.2"));
         FixedIpsBuilder fib = new FixedIpsBuilder();
         fib.setIpAddress(ipv4);
-        List<FixedIps> fixedIps = new ArrayList<>();
+        List<FixedIps> fixedIps = new ArrayList<FixedIps>();
         fixedIps.add(fib.build());
         pb.setFixedIps(fixedIps);
         Port port = pb.build();
@@ -144,7 +143,7 @@ public class NeutronPortChangeListenerTest {
         pb.setUuid(new Uuid("12345678-1234-1234-1234-123456789012"));
         pb.setNetworkId(new Uuid("12345678-1234-1234-1234-123456789012"));
         pb.setMacAddress(new MacAddress("AA:BB:CC:DD:EE:FF"));
-        List<FixedIps> fixedIps = new ArrayList<>();
+        List<FixedIps> fixedIps = new ArrayList<FixedIps>();
         pb.setFixedIps(fixedIps);
         Port port = pb.build();
         neutronPortChangeListener.add(InstanceIdentifier.create(Port.class), port);

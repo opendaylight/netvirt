@@ -15,7 +15,6 @@ public class IPAddress {
     public String getIpAddress() {
         return ipAddress;
     }
-
     public int getPrefixLength() {
         return prefixLength;
     }
