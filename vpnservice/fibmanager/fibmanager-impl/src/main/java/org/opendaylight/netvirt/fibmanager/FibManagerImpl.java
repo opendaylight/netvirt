@@ -174,10 +174,9 @@ public class FibManagerImpl implements IFibManager {
         FibUtil.removeFibEntry(broker, rd, prefix, writeConfigTxn);
     }
 
-    @Override
-    public void updateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
-                               String gwMacAddress, long label, WriteTransaction writeConfigTxn) {
-        FibUtil.updateFibEntry(broker, rd, prefix, nextHopList, gwMacAddress, label, writeConfigTxn);
+    public void updateFibEntry(DataBroker broker, String rd, String prefix, String nextHop,
+                               long label, boolean nextHopAdd, WriteTransaction writeConfigTxn) {
+        FibUtil.updateFibEntry(broker, rd, prefix, nextHop, label, nextHopAdd, writeConfigTxn);
     }
 
     @Override
