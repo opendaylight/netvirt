@@ -39,7 +39,7 @@ public class LogicalSwitchesCmd extends MergeCommand<LogicalSwitches,
     }
 
     @Override
-    public InstanceIdentifier<LogicalSwitches> generateId(InstanceIdentifier<Node> id, LogicalSwitches node) {
+    protected InstanceIdentifier<LogicalSwitches> generateId(InstanceIdentifier<Node> id, LogicalSwitches node) {
         return id.augmentation(HwvtepGlobalAugmentation.class).child(LogicalSwitches.class, node.getKey());
     }
 
@@ -62,11 +62,10 @@ public class LogicalSwitchesCmd extends MergeCommand<LogicalSwitches,
 
     @Override
     public boolean areEqual(LogicalSwitches updated, LogicalSwitches orig) {
-        return updated.getHwvtepNodeName().getValue().equals(orig.getHwvtepNodeName().getValue());
-    }
-
-    @Override
-    public LogicalSwitches withoutUuid(LogicalSwitches data) {
-        return new LogicalSwitchesBuilder(data).setHwvtepNodeName(null).build();
+        if (updated.getHwvtepNodeName().getValue().equals(
+                orig.getHwvtepNodeName().getValue())) {
+            return true;
+        }
+        return false;
     }
 }

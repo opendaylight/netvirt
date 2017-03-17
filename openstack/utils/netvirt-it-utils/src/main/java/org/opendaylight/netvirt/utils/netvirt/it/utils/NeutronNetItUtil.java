@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import com.google.common.collect.Maps;
 import org.junit.Assert;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
@@ -61,7 +63,7 @@ public class NeutronNetItUtil {
     /**
      * Maps port names (the ones you pass in to createPort() to their PortInfo objects
      */
-    public Map<String, PortInfo> portInfoByName = new HashMap<>();
+    public Map<String, PortInfo> portInfoByName = new HashMap<String, PortInfo>();
 
     /**
      * Construct a new NeutronNetItUtil.
@@ -171,7 +173,7 @@ public class NeutronNetItUtil {
         //TBD: Use NotifyingDataChangeListener
         Thread.sleep(1000);
 
-        Map<String, String> externalIds = new HashMap<>();
+        Map<String, String> externalIds = Maps.newHashMap();
         externalIds.put("attached-mac", portInfo.mac);
         externalIds.put("iface-id", portId);
         southboundUtils.addTerminationPoint(bridge, portInfo.name, portType, null, externalIds, portInfo.ofPort);

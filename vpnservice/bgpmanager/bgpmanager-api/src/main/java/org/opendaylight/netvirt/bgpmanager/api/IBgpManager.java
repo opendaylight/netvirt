@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -8,60 +8,95 @@
 
 package org.opendaylight.netvirt.bgpmanager.api;
 
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import java.util.Collection;
 import java.util.List;
-import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.LayerType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 
 public interface IBgpManager {
 
-    void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts, LayerType layerType)
-            throws Exception;
+    /**
+     *
+     * @param rd
+     * @param importRts
+     * @param exportRts
+     */
+    public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts) throws Exception;
 
-    void deleteVrf(String rd, boolean removeFibTable);
+    /**
+     *
+     * @param rd
+     * @param removeFibTable
+     */
+    public void deleteVrf(String rd, boolean removeFibTable) throws Exception;
 
     /**
      * Adds one or more routes, as many as nexthops provided, in a BGP neighbour. It persists VrfEntry in datastore
-     * and sends the BGP message.
+     * and sends the BGP message
+     *
+     * @param rd
+     * @param prefix
+     * @param nextHopList
+     * @param vpnLabel
      */
-    void addPrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
-                          VrfEntry.EncapType encapType, int vpnLabel, long l3vni, String gatewayMac,
-                          RouteOrigin origin) throws Exception;
+    public void addPrefix(String rd, String prefix, List<String> nextHopList, int vpnLabel, RouteOrigin origin) throws Exception;
 
     /**
-     * Adds a route in a BGP neighbour. It persists the VrfEntry in Datastore and sends the BGP message.
+     * Adds a route in a BGP neighbour. It persists the VrfEntry in Datastore and sends the BGP message
+     *
+     * @param rd
+     * @param prefix
+     * @param nextHop
+     * @param vpnLabel
      */
-    void addPrefix(String rd, String macAddress, String prefix, String nextHop,
-                          VrfEntry.EncapType encapType, int vpnLabel, long l3vni, String gatewayMac,
-                          RouteOrigin origin) throws Exception;
+    public void addPrefix(String rd, String prefix, String nextHop, int vpnLabel, RouteOrigin origin) throws Exception;
 
-    void deletePrefix(String rd, String prefix);
 
-    void setQbgpLog(String fileName, String logLevel);
+    /**
+     *
+     * @param rd
+     * @param prefix
+     */
+    public void deletePrefix(String rd, String prefix) throws Exception;
+
+    /**
+     *
+     * @param fileName
+     * @param logLevel
+     */
+    public void setQbgpLog(String fileName, String logLevel) throws Exception;
 
     /**
      * Advertises a Prefix to a BGP neighbour, using several nexthops. Only sends the BGP messages, no writing to
-     * MD-SAL.
+     * MD-SAL
+     *
+     * @param rd
+     * @param prefix
+     * @param nextHopList
+     * @param vpnLabel
      */
-    void advertisePrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
-                                VrfEntry.EncapType encapType, int vpnLabel, long l3vni,
-                                String gatewayMac) throws Exception;
+    public void advertisePrefix(String rd, String prefix, List<String> nextHopList, int vpnLabel) throws Exception;
 
     /**
-     * Advertises a Prefix to a BGP neighbour. Only sends the BGP messages, no writing to MD-SAL.
+     * Advertises a Prefix to a BGP neighbour. Only sends the BGP messages, no writing to MD-SAL
+     *
+     * @param rd
+     * @param prefix
+     * @param nextHop
+     * @param vpnLabel
      */
-    void advertisePrefix(String rd, String macAddress, String prefix, String nextHop,
-                                VrfEntry.EncapType encapType, int vpnLabel, long l3vni,
-                                String gatewayMac) throws Exception;
+    public void advertisePrefix(String rd, String prefix, String nextHop, int vpnLabel) throws Exception;
 
-    void withdrawPrefix(String rd, String prefix);
+    /**
+     *
+     * @param rd
+     * @param prefix
+     */
+    public void withdrawPrefix(String rd, String prefix) throws Exception;
 
-    String getDCGwIP();
+
+    public String getDCGwIP();
 
     void sendNotificationEvent(String pfx, int code, int subcode);
-
-    void setQbgprestartTS(long qbgprestartTS);
-
+    void setqBGPrestartTS(long qBGPrestartTS);
     void bgpRestarted();
 }

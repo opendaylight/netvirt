@@ -86,7 +86,12 @@ public abstract class DelegatingDataTreeListener<T extends DataObject> implement
     @Override
     public void onDataTreeChanged(@Nonnull final Collection<DataTreeModification<T>> changes) {
         Preconditions.checkNotNull(changes, "Changes may not be null!");
-        executorService.submit(() -> processChanges(changes));
+        executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                processChanges(changes);
+            }
+        });
     }
 
     @Override

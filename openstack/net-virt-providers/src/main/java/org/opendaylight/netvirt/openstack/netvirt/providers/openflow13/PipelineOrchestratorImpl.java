@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014, 2017 Red Hat, Inc. and others. All rights reserved.
+ * Copyright (c) 2014, 2015 Red Hat, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -8,12 +8,10 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13;
 
-import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -32,6 +30,8 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListener, PipelineOrchestrator {
@@ -60,7 +60,6 @@ public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListe
         return staticPipeline;
     }
 
-    // This list is modified, it needs to be a proper ArrayList
     private List<Service> staticPipeline = Lists.newArrayList(
             Service.CLASSIFIER,
             Service.ARP_RESPONDER,
@@ -82,7 +81,7 @@ public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListe
         return serviceRegistry;
     }
 
-    Map<Service, AbstractServiceInstance> serviceRegistry = new ConcurrentHashMap<>();
+    Map<Service, AbstractServiceInstance> serviceRegistry = Maps.newConcurrentMap();
     private volatile BlockingQueue<Node> queue;
     private ExecutorService eventHandler;
     private Southbound southbound;
@@ -103,7 +102,7 @@ public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListe
         // insert the service if not already there. The list is ordered based of table ID.
         if (!staticPipeline.contains(service) && !isTableInPipeline(service.getTable())) {
             staticPipeline.add(service);
-            staticPipeline.sort(Service.insertComparator);
+            Collections.sort(staticPipeline, Service.insertComparator);
         }
         LOG.info("registerService: {}", staticPipeline);
     }
@@ -140,29 +139,32 @@ public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListe
     }
 
     public final void start() {
-        eventHandler.submit(() -> {
-            try {
-                while (true) {
-                    Node node = queue.take();
-                    LOG.debug("dequeue Node : {}", node);
-                    if (southbound.getBridge(node) != null) {
-                        for (Service service : staticPipeline) {
-                            AbstractServiceInstance serviceInstance = getServiceInstance(service);
-                            if (serviceInstance != null) {
-                                serviceInstance.programDefaultPipelineRule(node);
+        eventHandler.submit(new Runnable()  {
+            @Override
+            public void run() {
+                try {
+                    while (true) {
+                        Node node = queue.take();
+                        LOG.debug("dequeue Node : {}", node);
+                        if (southbound.getBridge(node) != null) {
+                            for (Service service : staticPipeline) {
+                                AbstractServiceInstance serviceInstance = getServiceInstance(service);
+                                if (serviceInstance != null) {
+                                    serviceInstance.programDefaultPipelineRule(node);
+                                }
                             }
+                            // TODO: might need a flow to go from table 0 to the pipeline
                         }
-                        // TODO: might need a flow to go from table 0 to the pipeline
                     }
+                } catch (Exception e) {
+                    LOG.warn("Processing interrupted, terminating ", e);
                 }
-            } catch (Exception e) {
-                LOG.warn("Processing interrupted, terminating ", e);
-            }
 
-            while (!queue.isEmpty()) {
-                queue.poll();
+                while (!queue.isEmpty()) {
+                    queue.poll();
+                }
+                queue = null;
             }
-            queue = null;
         });
     }
 

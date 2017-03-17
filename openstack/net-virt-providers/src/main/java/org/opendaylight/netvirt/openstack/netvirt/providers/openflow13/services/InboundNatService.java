@@ -9,18 +9,18 @@
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services;
 
 import java.math.BigInteger;
-import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.Inet6Address;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.List;
+
+import org.opendaylight.netvirt.openstack.netvirt.api.StatusCode;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.InboundNatProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.Status;
-import org.opendaylight.netvirt.openstack.netvirt.api.StatusCode;
 import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
-import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
-import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.InstructionUtils;
@@ -34,6 +34,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
+
+import com.google.common.collect.Lists;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg3;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxRegCaseBuilder;
@@ -71,7 +73,7 @@ public class InboundNatService extends AbstractServiceInstance implements Config
         if (action.equals(Action.ADD)) {
             // Instructions List Stores Individual Instructions
             InstructionsBuilder isb = new InstructionsBuilder();
-            List<Instruction> instructions = new ArrayList<>();
+            List<Instruction> instructions = Lists.newArrayList();
             InstructionBuilder ib = new InstructionBuilder();
 
             // Set register to indicate that rewrite took place
@@ -135,7 +137,7 @@ public class InboundNatService extends AbstractServiceInstance implements Config
         if (action.equals(Action.ADD)) {
             // Instructions List Stores Individual Instructions
             InstructionsBuilder isb = new InstructionsBuilder();
-            List<Instruction> instructions = new ArrayList<>();
+            List<Instruction> instructions = Lists.newArrayList();
             InstructionBuilder ib;
 
             // Goto Next Table

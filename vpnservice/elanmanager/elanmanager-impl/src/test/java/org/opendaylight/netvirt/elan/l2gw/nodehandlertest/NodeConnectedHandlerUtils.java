@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.elan.l2gw.nodehandlertest;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -100,7 +99,12 @@ public class NodeConnectedHandlerUtils {
     }
 
     public List<String> getData(String data) {
-        return Arrays.asList(data.split(","));
+        String[] dataArray = data.split(",");
+        List<String> logicalSwitch = new ArrayList<>();
+        for (int i = 0; i < dataArray.length; i++) {
+            logicalSwitch.add(dataArray[i]);
+        }
+        return logicalSwitch;
     }
 
     public static Uuid getUUid(String key) {

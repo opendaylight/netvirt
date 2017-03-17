@@ -24,7 +24,7 @@ public enum NatServiceCounters {
 
     private OccurenceCounter counter;
 
-    NatServiceCounters() {
+    private NatServiceCounters() {
         counter = new OccurenceCounter(getClass().getSimpleName(), name(), name());
     }
 

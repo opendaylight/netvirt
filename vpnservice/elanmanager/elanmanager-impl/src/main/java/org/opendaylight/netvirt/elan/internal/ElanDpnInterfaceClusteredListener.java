@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-import java.util.Collections;
+import com.google.common.collect.Lists;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
@@ -74,7 +74,7 @@ public class ElanDpnInterfaceClusteredListener
             return;
         }
         ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, elanName, "updating mcast mac upon tunnel event",
-            () -> Collections.singletonList(
+            () -> Lists.newArrayList(
                 elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName)));
     }
 
@@ -96,7 +96,7 @@ public class ElanDpnInterfaceClusteredListener
                 elanL2GatewayUtils.deleteElanL2GwDevicesUcastLocalMacsFromDpn(elanName,
                     dpnInterfaces.getDpId());
                 // updating remote mcast mac on l2gw devices
-                return Collections.singletonList(
+                return Lists.newArrayList(
                     elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName));
             });
     }

@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.jobs;
 
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +79,7 @@ public class LogicalSwitchAddedJob implements Callable<List<ListenableFuture<Voi
         LOG.info("creating mast mac entries for {} {}", logicalSwitchName, elanL2GwDevice.getHwvtepNodeId());
         futures.add(elanL2GatewayMulticastUtils.handleMcastForElanL2GwDeviceAdd(logicalSwitchName, elanL2GwDevice));
 
-        List<IpAddress> expectedPhyLocatorIps = new ArrayList<>();
+        List<IpAddress> expectedPhyLocatorIps = Lists.newArrayList();
         HwvtepRemoteMcastMacListener list = new HwvtepRemoteMcastMacListener(broker,
                 elanUtils, logicalSwitchName, elanL2GwDevice, expectedPhyLocatorIps,
             () -> {

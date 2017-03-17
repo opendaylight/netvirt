@@ -11,11 +11,12 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 import static org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil.isEmptyList;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
+
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
@@ -39,22 +40,24 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
 
     public List<T> transformOpData(List<T> existingData, List<T> src, InstanceIdentifier<Node> nodePath) {
         if (isEmptyList(src)) {
-            return new ArrayList<>();
+            return Lists.newArrayList();
         }
         List<T> added = diffOf(src, existingData);//do not add existing data again
-        return transform(nodePath, added);
+        List<T> transformed = transform(nodePath, added);
+        return transformed;
     }
 
     public List<T> transformConfigData(List<T> updatedSrc, InstanceIdentifier<Node> nodePath) {
         if (isEmptyList(updatedSrc)) {
-            return new ArrayList<>();//what difference returning null makes ?
+            return Lists.newArrayList();//what difference returning null makes ?
         }
-        return transform(nodePath, updatedSrc);
+        List<T> transformed = transform(nodePath, updatedSrc);//set the whole data
+        return transformed;
     }
 
     public List<T> diffByKey(List<T> updated, final List<T> original) {
         if (updated == null) {
-            return new ArrayList<>();
+            return Lists.newArrayList();
         }
         if (original == null) {
             return new ArrayList<>(updated);
@@ -124,7 +127,11 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
     }
 
     public List<T> transform(InstanceIdentifier<Node> nodePath, List<T> list) {
-        return list.stream().map(t -> transform(nodePath, t)).collect(Collectors.toList());
+        List<T> result = Lists.newArrayList();
+        for (T t : list) {
+            result.add(transform(nodePath, t));
+        }
+        return result;
     }
 
     public abstract T transform(InstanceIdentifier<Node> nodePath, T objT);
@@ -214,11 +221,9 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
 
     public abstract void setData(Y builder, List<T> data);
 
-    public abstract InstanceIdentifier<T> generateId(InstanceIdentifier<Node> id, T node);
+    protected abstract InstanceIdentifier<T> generateId(InstanceIdentifier<Node> id, T node);
 
     public abstract String getKey(T data);
 
     public abstract String getDescription();
-
-    public abstract T withoutUuid(T data);
 }

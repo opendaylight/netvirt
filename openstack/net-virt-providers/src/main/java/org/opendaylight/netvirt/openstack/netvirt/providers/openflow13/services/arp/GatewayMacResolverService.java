@@ -150,28 +150,36 @@ public class GatewayMacResolverService extends AbstractServiceInstance
                 LOG.error("Missing service {}", PacketProcessingService.class.getSimpleName());
                 this.arpSender = null;
             }
-            refreshRequester.scheduleWithFixedDelay(() -> {
-                if (!gatewayToArpMetadataMap.isEmpty()){
-                    for(final Entry<Ipv4Address, ArpResolverMetadata> gatewayToArpMetadataEntry : gatewayToArpMetadataMap.entrySet()){
-                        final Ipv4Address gatewayIp = gatewayToArpMetadataEntry.getKey();
-                        final ArpResolverMetadata gatewayMetaData =
-                                checkAndGetExternalBridgeDpid(
-                                        resetFlowToRemove(gatewayIp, gatewayToArpMetadataEntry.getValue()));
-                        gatewayMacRefresherPool.schedule(() -> {
+            refreshRequester.scheduleWithFixedDelay(new Runnable(){
 
-                            final Node externalNetworkBridge = getExternalBridge(gatewayMetaData.getExternalNetworkBridgeDpid());
-                            if(externalNetworkBridge == null){
-                                LOG.error("MAC address for gateway {} can not be resolved, because external bridge {} "
-                                        + "is not connected to controller.",
-                                        gatewayIp.getValue(),
-                                        gatewayMetaData.getExternalNetworkBridgeDpid() );
-                            } else {
-                                LOG.debug("Refresh Gateway Mac for gateway {} using source ip {} and mac {} for ARP request",
-                                        gatewayIp.getValue(),gatewayMetaData.getArpRequestSourceIp().getValue(),gatewayMetaData.getArpRequestSourceMacAddress().getValue());
+                @Override
+                public void run() {
+                    if (!gatewayToArpMetadataMap.isEmpty()){
+                        for(final Entry<Ipv4Address, ArpResolverMetadata> gatewayToArpMetadataEntry : gatewayToArpMetadataMap.entrySet()){
+                            final Ipv4Address gatewayIp = gatewayToArpMetadataEntry.getKey();
+                            final ArpResolverMetadata gatewayMetaData =
+                                    checkAndGetExternalBridgeDpid(
+                                            resetFlowToRemove(gatewayIp, gatewayToArpMetadataEntry.getValue()));
+                            gatewayMacRefresherPool.schedule(new Runnable(){
 
-                                sendGatewayArpRequest(externalNetworkBridge,gatewayIp,gatewayMetaData.getArpRequestSourceIp(), gatewayMetaData.getArpRequestSourceMacAddress());
-                            }
-                        }, 1, TimeUnit.SECONDS);
+                                @Override
+                                public void run() {
+
+                                    final Node externalNetworkBridge = getExternalBridge(gatewayMetaData.getExternalNetworkBridgeDpid());
+                                    if(externalNetworkBridge == null){
+                                        LOG.error("MAC address for gateway {} can not be resolved, because external bridge {} "
+                                                + "is not connected to controller.",
+                                                gatewayIp.getValue(),
+                                                gatewayMetaData.getExternalNetworkBridgeDpid() );
+                                    } else {
+                                        LOG.debug("Refresh Gateway Mac for gateway {} using source ip {} and mac {} for ARP request",
+                                                gatewayIp.getValue(),gatewayMetaData.getArpRequestSourceIp().getValue(),gatewayMetaData.getArpRequestSourceMacAddress().getValue());
+
+                                        sendGatewayArpRequest(externalNetworkBridge,gatewayIp,gatewayMetaData.getArpRequestSourceIp(), gatewayMetaData.getArpRequestSourceMacAddress());
+                                    }
+                                }
+                            }, 1, TimeUnit.SECONDS);
+                        }
                     }
                 }
             }, REFRESH_INTERVAL, REFRESH_INTERVAL, TimeUnit.SECONDS);
@@ -207,7 +215,13 @@ public class GatewayMacResolverService extends AbstractServiceInstance
         init();
         if(gatewayToArpMetadataMap.containsKey(gatewayIp)){
             if(gatewayToArpMetadataMap.get(gatewayIp).getGatewayMacAddress() != null){
-                return arpWatcherWall.submit(() -> gatewayToArpMetadataMap.get(gatewayIp).getGatewayMacAddress());
+                return arpWatcherWall.submit(new Callable<MacAddress>(){
+
+                    @Override
+                    public MacAddress call() throws Exception {
+                        return gatewayToArpMetadataMap.get(gatewayIp).getGatewayMacAddress();
+                    }
+                });
             }
         }else{
             gatewayToArpMetadataMap.put(gatewayIp,new ArpResolverMetadata(gatewayMacResolverListener,
@@ -353,21 +367,25 @@ public class GatewayMacResolverService extends AbstractServiceInstance
 
     private ListenableFuture<MacAddress> waitForMacAddress(final Ipv4Address gatewayIp){
 
-        return arpWatcherWall.submit(() -> {
-            for(int cycle = 0;cycle < WAIT_CYCLES;cycle++){
-                //Sleep before checking mac address, so meanwhile ARP request packets
-                // will be broadcasted on the bridge.
-                Thread.sleep(PER_CYCLE_WAIT_DURATION);
-                ArpResolverMetadata arpResolverMetadata = gatewayToArpMetadataMap.get(gatewayIp);
-                if(arpResolverMetadata != null && arpResolverMetadata.getGatewayMacAddress() != null){
-                    if(!arpResolverMetadata.isPeriodicRefresh()){
-                        resetFlowToRemove(gatewayIp, arpResolverMetadata);
-                        return gatewayToArpMetadataMap.remove(gatewayIp).getGatewayMacAddress();
+        return arpWatcherWall.submit(new Callable<MacAddress>(){
+
+            @Override
+            public MacAddress call() throws Exception {
+                for(int cycle = 0;cycle < WAIT_CYCLES;cycle++){
+                    //Sleep before checking mac address, so meanwhile ARP request packets
+                    // will be broadcasted on the bridge.
+                    Thread.sleep(PER_CYCLE_WAIT_DURATION);
+                    ArpResolverMetadata arpResolverMetadata = gatewayToArpMetadataMap.get(gatewayIp);
+                    if(arpResolverMetadata != null && arpResolverMetadata.getGatewayMacAddress() != null){
+                        if(!arpResolverMetadata.isPeriodicRefresh()){
+                            resetFlowToRemove(gatewayIp, arpResolverMetadata);
+                            return gatewayToArpMetadataMap.remove(gatewayIp).getGatewayMacAddress();
+                        }
+                        return arpResolverMetadata.getGatewayMacAddress();
                     }
-                    return arpResolverMetadata.getGatewayMacAddress();
                 }
+                return null;
             }
-            return null;
         });
     }
 

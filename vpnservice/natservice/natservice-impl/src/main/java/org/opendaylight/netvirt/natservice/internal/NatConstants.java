@@ -41,14 +41,8 @@ public class NatConstants {
         Invalid(0), Internal(1), External(2), Hwvtep(3);
 
         private final int type;
-
-        ITMTunnelLocType(int id) {
-            this.type = id;
-        }
-
-        public int getValue() {
-            return type;
-        }
+        ITMTunnelLocType(int id) { this.type = id; }
+        public int getValue() { return type; }
     }
 
 }

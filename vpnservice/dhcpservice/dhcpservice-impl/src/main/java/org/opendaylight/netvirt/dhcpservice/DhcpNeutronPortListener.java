@@ -46,7 +46,7 @@ public class DhcpNeutronPortListener
     }
 
     @Override
-    public void close() {
+    public void close() throws Exception {
         super.close();
         LOG.debug("DhcpNeutronPortListener Listener Closed");
     }

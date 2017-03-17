@@ -16,7 +16,7 @@ import org.mockito.stubbing.Answer;
 
 public class  MethodInvocationParamSaver<T> implements Answer<T> {
 
-    private List<List<Object>> invocationParams = new ArrayList<>();
+    private List<List<Object>> invocationParams = new ArrayList<List<Object>>();
     private T answer;
 
     public MethodInvocationParamSaver(T answer) {

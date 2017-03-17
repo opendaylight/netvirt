@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.nodehandlertest;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,7 +66,7 @@ public class PhysicalSwitchHelper {
     public static List<TerminationPoint> addPhysicalSwitchTerminationPoints(InstanceIdentifier<Node> switchIid,
                                                                             WriteTransaction transaction,
                                                                             List<String> portNames) {
-        List<TerminationPoint> tps = new ArrayList<>();
+        List<TerminationPoint> tps = Lists.newArrayList();
         for (String portName : portNames) {
             tps.add(buildTerminationPointForPhysicalSwitch(switchIid, portName, transaction, getVlanBindingData(1)));
         }

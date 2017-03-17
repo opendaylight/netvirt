@@ -11,7 +11,7 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 
 import com.google.common.base.Optional;
-import java.util.HashSet;
+import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -91,19 +91,21 @@ public class NodeConnectedHandler {
                  The reason being if it is done in the same transaction,
                  hwvtep plugin is not able to proess this update and send vlanbindings to device
                  as it is expecting the logical switch to be already present in operational ds
-                 (created in the device)
+                 (created in the device )
                  */
-                HAJobScheduler.getInstance().submitJob(() -> {
-                    try {
-                        hwvtepHACache.updateConnectedNodeStatus(childNodePath);
-                        LOG.info("HA child reconnected handleNodeReConnected {}",
-                                childNode.getNodeId().getValue());
-                        ReadWriteTransaction tx1 = db.newReadWriteTransaction();
-                        copyHAPSConfigToChildPS(haPSCfg.get(), childNodePath, tx1);
-                        tx1.submit().checkedGet();
-                    } catch (InterruptedException | ExecutionException | ReadFailedException
-                            | TransactionCommitFailedException e) {
-                        LOG.error("Failed to process ", e);
+                HAJobScheduler.getInstance().submitJob(new Runnable() {
+                    public void run() {
+                        try {
+                            hwvtepHACache.updateConnectedNodeStatus(childNodePath);
+                            LOG.info("HA child reconnected handleNodeReConnected {}",
+                                    childNode.getNodeId().getValue());
+                            ReadWriteTransaction tx = db.newReadWriteTransaction();
+                            copyHAPSConfigToChildPS(haPSCfg.get(), childNodePath, tx);
+                            tx.submit().checkedGet();
+                        } catch (InterruptedException | ExecutionException | ReadFailedException
+                                | TransactionCommitFailedException e) {
+                            LOG.error("Failed to process ", e);
+                        }
                     }
                 });
 
@@ -199,7 +201,7 @@ public class NodeConnectedHandler {
         HwvtepGlobalAugmentationBuilder dstBuilder = new HwvtepGlobalAugmentationBuilder();
 
         NodeId nodeId = srcNode.getNodeId();
-        Set<NodeId> nodeIds = new HashSet<>();
+        Set<NodeId> nodeIds = Sets.newHashSet();
         nodeIds.add(nodeId);
 
         globalAugmentationMerger.mergeConfigData(dstBuilder, src, childPath);

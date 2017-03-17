@@ -8,22 +8,24 @@
 
 package org.opendaylight.netvirt.aclservice.utils;
 
+import static com.google.common.collect.Iterables.filter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+
+import com.google.common.collect.Iterables;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
 import org.junit.Test;
+import org.opendaylight.genius.mdsalutil.MatchFieldType;
+import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
-import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
-import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv4;
-import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
-import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -33,7 +35,9 @@ public class AclServiceOFFlowBuilderTest {
 
     @Test
     public void testProgramIpFlow_NullMatches() {
-        assertNull(AclServiceOFFlowBuilder.programIpFlow(null));
+        Matches matches = null;
+        Map<String, List<MatchInfoBase>> flowMap = AclServiceOFFlowBuilder.programIpFlow(matches);
+        assertNull(flowMap);
     }
 
     @Test
@@ -55,14 +59,10 @@ public class AclServiceOFFlowBuilderTest {
 
         AclServiceTestUtils.verifyGeneralFlows(flowMatches, "1", "10.1.1.1", "20.1.1.1", "24");
 
-        int matches = 0;
-        MatchIcmpv4 check = new MatchIcmpv4((short) 1024, (short) 2048);
-        for (MatchInfoBase flowMatch : flowMatches) {
-            if (check.equals(flowMatch)) {
-                matches++;
-            }
-        }
-        assertEquals(2, matches);
+        Iterable<MatchInfoBase> icmpv4Matches = filter(flowMatches,
+                (item -> ((MatchInfo) item).getMatchField().equals(MatchFieldType.icmp_v4)));
+        AclServiceTestUtils.verifyMatchValues((MatchInfo) Iterables.get(icmpv4Matches, 0), "1024", "2048");
+        AclServiceTestUtils.verifyMatchValues((MatchInfo) Iterables.get(icmpv4Matches, 1), "1024", "2048");
     }
 
     @Test
@@ -85,8 +85,8 @@ public class AclServiceOFFlowBuilderTest {
 
         Map<String, List<MatchInfoBase>> flowMatchesMap = AclServiceOFFlowBuilder.programTcpFlow(builder.build());
 
-        List<MatchInfoBase> srcFlowMatches = new ArrayList<>();
-        List<MatchInfoBase> dstFlowMatches = new ArrayList<>();
+        List<MatchInfoBase> srcFlowMatches = new ArrayList<MatchInfoBase>();
+        List<MatchInfoBase> dstFlowMatches = new ArrayList<MatchInfoBase>();
 
         for (String flowId : flowMatchesMap.keySet()) {
             if (flowId.startsWith("TCP_SOURCE_")) {
@@ -98,18 +98,20 @@ public class AclServiceOFFlowBuilderTest {
         }
 
         AclServiceTestUtils.verifyGeneralFlows(srcFlowMatches, "1", "10.1.1.1", "20.1.1.1", "24");
-        List<MatchInfoBase> tcpSrcMatches = srcFlowMatches.stream().filter(
-            item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(
-                        NxMatchFieldType.nx_tcp_src_with_mask)).collect(Collectors.toList());
+        Iterable<MatchInfoBase> nxSrcMatches = filter(srcFlowMatches,
+            (item -> item instanceof NxMatchInfo) );
+        Iterable<MatchInfoBase> tcpSrcMatches = filter(nxSrcMatches,
+                (item -> ((NxMatchInfo) item).getMatchField().equals(NxMatchFieldType.nx_tcp_src_with_mask)));
 
-        AclServiceTestUtils.verifyMatchValues((NxMatchInfo) tcpSrcMatches.get(0), "1024", "65535");
+        AclServiceTestUtils.verifyMatchValues((NxMatchInfo) Iterables.getFirst(tcpSrcMatches, null), "1024", "65535");
 
         AclServiceTestUtils.verifyGeneralFlows(dstFlowMatches, "1", "10.1.1.1", "20.1.1.1", "24");
-        List<MatchInfoBase> tcpDstMatches = dstFlowMatches.stream().filter(
-            item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(
-                        NxMatchFieldType.nx_tcp_dst_with_mask)).collect(Collectors.toList());
+        Iterable<MatchInfoBase> nxDstMatches = filter(dstFlowMatches,
+            (item -> item instanceof NxMatchInfo) );
+        Iterable<MatchInfoBase> tcpDstMatches = filter(nxDstMatches,
+                (item -> ((NxMatchInfo) item).getMatchField().equals(NxMatchFieldType.nx_tcp_dst_with_mask)));
 
-        AclServiceTestUtils.verifyMatchValues((NxMatchInfo) tcpDstMatches.get(0), "1024", "65535");
+        AclServiceTestUtils.verifyMatchValues((NxMatchInfo) Iterables.getFirst(tcpDstMatches, null), "1024", "65535");
     }
 
     @Test
@@ -139,8 +141,8 @@ public class AclServiceOFFlowBuilderTest {
                 (short) 1);
 
         Map<String, List<MatchInfoBase>> flowMatchesMap = AclServiceOFFlowBuilder.programUdpFlow(builder.build());
-        List<MatchInfoBase> srcFlowMatches = new ArrayList<>();
-        List<MatchInfoBase> dstFlowMatches = new ArrayList<>();
+        List<MatchInfoBase> srcFlowMatches = new ArrayList<MatchInfoBase>();
+        List<MatchInfoBase> dstFlowMatches = new ArrayList<MatchInfoBase>();
 
         for (String flowId : flowMatchesMap.keySet()) {
             if (flowId.startsWith("UDP_SOURCE_")) {
@@ -153,17 +155,19 @@ public class AclServiceOFFlowBuilderTest {
 
         AclServiceTestUtils.verifyGeneralFlows(srcFlowMatches, "1", "10.1.1.1", "20.1.1.1", "24");
 
-        List<MatchInfoBase> udpSrcMatches = srcFlowMatches.stream().filter(
-            item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(
-                        NxMatchFieldType.nx_udp_src_with_mask)).collect(Collectors.toList());
-        AclServiceTestUtils.verifyMatchValues((NxMatchInfo) udpSrcMatches.get(0), "1024", "65535");
+        Iterable<MatchInfoBase> nxSrcMatches = filter(srcFlowMatches,
+            (item -> item instanceof NxMatchInfo) );
+        Iterable<MatchInfoBase> udpSrcMatches = filter(nxSrcMatches,
+                (item -> ((NxMatchInfo) item).getMatchField().equals(NxMatchFieldType.nx_udp_src_with_mask)));
+        AclServiceTestUtils.verifyMatchValues((NxMatchInfo) Iterables.getFirst(udpSrcMatches, null), "1024", "65535");
 
         AclServiceTestUtils.verifyGeneralFlows(dstFlowMatches, "1", "10.1.1.1", "20.1.1.1", "24");
 
-        List<MatchInfoBase> udpDstMatches = dstFlowMatches.stream().filter(
-            item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(
-                        NxMatchFieldType.nx_udp_dst_with_mask)).collect(Collectors.toList());
-        AclServiceTestUtils.verifyMatchValues((NxMatchInfo) udpDstMatches.get(0), "1024", "65535");
+        Iterable<MatchInfoBase> nxDstMatches = filter(dstFlowMatches,
+            (item -> item instanceof NxMatchInfo) );
+        Iterable<MatchInfoBase> udpDstMatches = filter(nxDstMatches,
+                (item -> ((NxMatchInfo) item).getMatchField().equals(NxMatchFieldType.nx_udp_dst_with_mask)));
+        AclServiceTestUtils.verifyMatchValues((NxMatchInfo) Iterables.getFirst(udpDstMatches, null), "1024", "65535");
     }
 
     @Test
@@ -175,8 +179,9 @@ public class AclServiceOFFlowBuilderTest {
 
         List<MatchInfoBase> flowMatches = AclServiceOFFlowBuilder.addDstIpMatches(builder.build());
 
-        assertTrue(flowMatches.contains(MatchEthernetType.IPV4));
-        assertTrue(flowMatches.contains(new MatchIpv4Destination("10.1.1.1", "24")));
+        AclServiceTestUtils.verifyMatchInfo(flowMatches, MatchFieldType.eth_type,
+                Integer.toString(NwConstants.ETHTYPE_IPV4));
+        AclServiceTestUtils.verifyMatchInfo(flowMatches, MatchFieldType.ipv4_destination, "10.1.1.1", "24");
     }
 
     @Test
@@ -188,8 +193,9 @@ public class AclServiceOFFlowBuilderTest {
 
         List<MatchInfoBase> flowMatches = AclServiceOFFlowBuilder.addDstIpMatches(builder.build());
 
-        assertTrue(flowMatches.contains(MatchEthernetType.IPV4));
-        AclServiceTestUtils.verifyMatchFieldTypeDontExist(flowMatches, MatchIpv4Destination.class);
+        AclServiceTestUtils.verifyMatchInfo(flowMatches, MatchFieldType.eth_type,
+                Integer.toString(NwConstants.ETHTYPE_IPV4));
+        AclServiceTestUtils.verifyMatchFieldTypeDontExist(flowMatches, MatchFieldType.ipv4_destination);
     }
 
     @Test
@@ -201,8 +207,9 @@ public class AclServiceOFFlowBuilderTest {
 
         List<MatchInfoBase> flowMatches = AclServiceOFFlowBuilder.addSrcIpMatches(builder.build());
 
-        assertTrue(flowMatches.contains(MatchEthernetType.IPV4));
-        assertTrue(flowMatches.contains(new MatchIpv4Source("10.1.1.1", "24")));
+        AclServiceTestUtils.verifyMatchInfo(flowMatches, MatchFieldType.eth_type,
+                Integer.toString(NwConstants.ETHTYPE_IPV4));
+        AclServiceTestUtils.verifyMatchInfo(flowMatches, MatchFieldType.ipv4_source, "10.1.1.1", "24");
     }
 
     @Test
@@ -213,8 +220,9 @@ public class AclServiceOFFlowBuilderTest {
         builder.setAceIpVersion(v4builder.build());
 
         List<MatchInfoBase> flowMatches = AclServiceOFFlowBuilder.addSrcIpMatches(builder.build());
-        assertTrue(flowMatches.contains(MatchEthernetType.IPV4));
-        AclServiceTestUtils.verifyMatchFieldTypeDontExist(flowMatches, MatchIpv4Source.class);
+        AclServiceTestUtils.verifyMatchInfo(flowMatches, MatchFieldType.eth_type,
+                Integer.toString(NwConstants.ETHTYPE_IPV4));
+        AclServiceTestUtils.verifyMatchFieldTypeDontExist(flowMatches, MatchFieldType.ipv4_source);
     }
 
     @Test

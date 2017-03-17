@@ -38,7 +38,6 @@ public class NodeListener extends AsyncDataTreeChangeListenerBase<Node, NodeList
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
     }
 
-    @Override
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
@@ -72,7 +71,7 @@ public class NodeListener extends AsyncDataTreeChangeListenerBase<Node, NodeList
     }
 
     @Override
-    public void close() {
+    public void close() throws Exception {
         super.close();
         LOG.debug("Node Listener Closed");
     }

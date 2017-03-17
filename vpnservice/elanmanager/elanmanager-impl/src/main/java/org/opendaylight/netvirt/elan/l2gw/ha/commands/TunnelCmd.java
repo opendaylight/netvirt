@@ -41,7 +41,7 @@ public class TunnelCmd  extends MergeCommand<Tunnels, PhysicalSwitchAugmentation
     }
 
     @Override
-    public InstanceIdentifier<Tunnels> generateId(InstanceIdentifier<Node> id, Tunnels src) {
+    protected InstanceIdentifier<Tunnels> generateId(InstanceIdentifier<Node> id, Tunnels src) {
         HwvtepPhysicalLocatorRef hwvtepPhysicalLocatorRef =
                 HwvtepHAUtil.convertLocatorRef(src.getLocalLocatorRef(), id);
         HwvtepPhysicalLocatorRef hwvtepPhysicalLocatorRef1 =
@@ -83,11 +83,9 @@ public class TunnelCmd  extends MergeCommand<Tunnels, PhysicalSwitchAugmentation
                 orig.getRemoteLocatorRef().getValue();
         TpId tpId1 = remoteLocatorRefUpdated.firstKeyOf(TerminationPoint.class).getTpId();
         TpId tpId2 = remoteLocatorRefOriginal.firstKeyOf(TerminationPoint.class).getTpId();
-        return tpId1.equals(tpId2);
-    }
-
-    @Override
-    public Tunnels withoutUuid(Tunnels data) {
-        return new TunnelsBuilder(data).setTunnelUuid(null).build();
+        if (tpId1.equals(tpId2)) {
+            return true;
+        }
+        return false;
     }
 }

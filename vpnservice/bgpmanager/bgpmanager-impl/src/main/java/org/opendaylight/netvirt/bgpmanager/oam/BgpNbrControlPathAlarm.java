@@ -11,24 +11,25 @@ package org.opendaylight.netvirt.bgpmanager.oam;
 /**
  * Created by ECHIAPT on 7/21/2016.
  */
-
-import java.util.ArrayList;
 import javax.management.AttributeChangeNotification;
+import javax.management.Notification;
 import javax.management.NotificationBroadcasterSupport;
+import java.util.ArrayList;
 
 public class BgpNbrControlPathAlarm extends NotificationBroadcasterSupport implements BgpNbrControlPathAlarmMBean {
 
-    ArrayList<String> raiseAlarmObject = new ArrayList<>();
-    ArrayList<String> clearAlarmObject = new ArrayList<>();
+    ArrayList<String> raiseAlarmObject = new ArrayList<String>();
+    ArrayList<String> clearAlarmObject = new ArrayList<String>();
     private long sequenceNumber = 1;
 
     public void setRaiseAlarmObject(ArrayList<String> raiseAlarmObject) {
         this.raiseAlarmObject = raiseAlarmObject;
 
-        sendNotification(new AttributeChangeNotification(this,
+        Notification n = new AttributeChangeNotification(this,
                 sequenceNumber++, System.currentTimeMillis(),
                 "raise alarm object notified ", "raiseAlarmObject", "ArrayList",
-                "", this.raiseAlarmObject));
+                "", this.raiseAlarmObject);
+        sendNotification(n);
     }
 
     public ArrayList<String> getRaiseAlarmObject() {
@@ -38,25 +39,25 @@ public class BgpNbrControlPathAlarm extends NotificationBroadcasterSupport imple
     public void setClearAlarmObject(ArrayList<String> clearAlarmObject) {
         this.clearAlarmObject = clearAlarmObject;
 
-        sendNotification(new AttributeChangeNotification(this,
+        Notification n = new AttributeChangeNotification(this,
                 sequenceNumber++, System.currentTimeMillis(),
                 "clear alarm object notified ", "clearAlarmObject", "ArrayList",
-                "", this.clearAlarmObject));
+                "", this.clearAlarmObject);
+        sendNotification(n);
     }
 
     public ArrayList<String> getClearAlarmObject() {
         return clearAlarmObject;
     }
 
-    public synchronized void raiseAlarm(String alarmName, String additionalText, String source) {
+    public synchronized void raiseAlarm(String alarmName, String additionalText, String source){
         raiseAlarmObject.add(alarmName);
         raiseAlarmObject.add(additionalText);
         raiseAlarmObject.add(source);
         setRaiseAlarmObject(raiseAlarmObject);
         raiseAlarmObject.clear();
     }
-
-    public synchronized void clearAlarm(String alarmName, String additionalText, String source) {
+    public synchronized void clearAlarm(String alarmName, String additionalText, String source){
         clearAlarmObject.add(alarmName);
         clearAlarmObject.add(additionalText);
         clearAlarmObject.add(source);

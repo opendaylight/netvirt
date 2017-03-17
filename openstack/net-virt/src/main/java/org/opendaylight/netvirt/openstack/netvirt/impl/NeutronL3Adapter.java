@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014, 2017 Red Hat, Inc. and others. All rights reserved.
+ * Copyright (c) 2014 - 2016 Red Hat, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -921,11 +921,11 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
             List<NeutronSecurityGroup> deletedGroup = getsecurityGroupChanged(neutronPort.getOriginalPort(),
                                                                               neutronPort);
 
-            if (null != deletedGroup && !deletedGroup.isEmpty()) {
-                securityServicesManager.syncSecurityGroup(neutronPort,deletedGroup,false);
-            }
             if (null != addedGroup && !addedGroup.isEmpty()) {
                 securityServicesManager.syncSecurityGroup(neutronPort,addedGroup,true);
+            }
+            if (null != deletedGroup && !deletedGroup.isEmpty()) {
+                securityServicesManager.syncSecurityGroup(neutronPort,deletedGroup,false);
             }
 
         } catch (Exception e) {
@@ -941,12 +941,15 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
 
     private boolean isPortSecurityEnableUpdated(NeutronPort neutronPort) {
         LOG.trace("isPortSecuirtyEnableUpdated:" + neutronPort);
-        return neutronPort != null
+        if (neutronPort != null
                 && neutronPort.getOriginalPort() != null
                 && neutronPort.getOriginalPort().getPortSecurityEnabled() != null
                 && neutronPort.getPortSecurityEnabled() != null
                 && neutronPort.getOriginalPort().getPortSecurityEnabled() != neutronPort
-                .getPortSecurityEnabled();
+                        .getPortSecurityEnabled()) {
+            return true;
+        }
+        return false;
     }
 
 
@@ -1034,7 +1037,7 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
         LOG.trace("programFlowsForNeutronRouterInterface called for interface {} isDelete {}",
                      destNeutronRouterInterface, isDelete);
 
-        if (subnet != null && subnet.getIpVersion() == 6) {
+        if (subnet != null && subnet.getIpVersion().intValue() == 6) {
             LOG.trace("programFlowsForNeutronRouterInterface doesn't support IPv6 router interface");
             return;
         }

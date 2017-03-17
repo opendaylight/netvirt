@@ -41,7 +41,7 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataChangeListene
 
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void close() {
+    public void close() throws Exception {
         // TODO use https://git.opendaylight.org/gerrit/#/c/44145/ when merged, and remove @SuppressWarnings
         if (listenerRegistration != null) {
             try {

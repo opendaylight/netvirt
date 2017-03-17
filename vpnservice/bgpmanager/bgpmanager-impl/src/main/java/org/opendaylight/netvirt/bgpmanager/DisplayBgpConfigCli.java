@@ -7,18 +7,21 @@
  */
 
 package org.opendaylight.netvirt.bgpmanager;
-
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.concurrent.Future;
+
+import com.google.common.base.Optional;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
 import org.opendaylight.netvirt.bgpmanager.commands.Cache;
 import org.opendaylight.netvirt.bgpmanager.commands.Commands;
+import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
 
-@Command(scope = "odl", name = "display-bgp-config", description = "")
+import java.util.Date;
+
+@Command(scope = "odl", name = "display-bgp-config", description="")
 public class DisplayBgpConfigCli extends OsgiCommandSupport {
 
     @Option(name = "--debug", description = "print debug time stamps",
@@ -26,11 +29,16 @@ public class DisplayBgpConfigCli extends OsgiCommandSupport {
     Boolean debug = false;
 
     protected Object doExecute() throws Exception {
-        PrintStream ps = session.getConsole();
-        BgpManager bm = Commands.getBgpManager();
+        BgpManager bm;
+        PrintStream ps = System.out;
+        try {
+            bm = Commands.getBgpManager();
+        } catch (Exception e){
+            return null;
+        }
 
         if (debug) {
-            ps.printf("\nis ODL Connected to Q-BGP: %s\n", bm.isBgpConnected() ? "TRUE" : "FALSE");
+            ps.printf("\nis ODL Connected to Q-BGP: %s\n", bm.isBgpConnected()?"TRUE":"FALSE");
             //last ODL connection attempted TS
             ps.printf("Last ODL connection attempt TS: %s\n", new Date(bm.getConnectTS()));
             //last successful connected TS
@@ -38,14 +46,13 @@ public class DisplayBgpConfigCli extends OsgiCommandSupport {
             //last ODL started BGP due to configuration trigger TS
             ps.printf("Last ODL started BGP at: %s\n", new Date(bm.getStartTS()));
             //last Quagga attempted to RESTART the connection
-            ps.printf("Last Quagga BGP, sent reSync at: %s\n", new Date(bm.getQbgprestartTS()));
+            ps.printf("Last Quagga BGP, sent reSync at: %s\n", new Date(bm.getqBGPrestartTS()));
 
             //stale cleanup start - end TS
             ps.printf("Time taken to create stale fib : %s ms\n", bm.getStaleEndTime() - bm.getStaleStartTime());
 
             //Config replay start - end TS
-            ps.printf("Time taken to create replay configuration : %s ms\n",
-                    bm.getCfgReplayEndTime() - bm.getCfgReplayStartTime());
+            ps.printf("Time taken to create replay configuration : %s ms\n", bm.getCfgReplayEndTime()-bm.getCfgReplayStartTime());
 
             //Stale cleanup time
             ps.printf("Time taken for Stale FIB cleanup : %s ms\n", bm.getStaleCleanupTime());
@@ -54,9 +61,12 @@ public class DisplayBgpConfigCli extends OsgiCommandSupport {
             ps.printf("Total stale entries cleared %d \n", BgpConfigurationManager.getTotalCleared());
 
             ArrayList<EntityOwnerUtils.EntityEvent> eventsHistory = EntityOwnerUtils.getEventsHistory();
-            for (EntityOwnerUtils.EntityEvent event : eventsHistory) {
-                ps.printf("%s entity : %s amIOwner:%s hasOwner:%s \n", new Date(event.getTime()).toString(),
-                        event.getEntityName(), event.hasOwner(), event.isOwner());
+            try {
+                for (EntityOwnerUtils.EntityEvent event : eventsHistory) {
+                    ps.printf("%s entity : %s amIOwner:%s hasOwner:%s \n", new Date(event.getTime()).toString(),
+                            event.getEntityName(),  event.hasOwner(), event.isOwner());
+                }
+            } catch (Exception e) {
             }
         }
         Cache cache = new Cache();

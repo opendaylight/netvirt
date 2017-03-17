@@ -15,9 +15,10 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
-import java.net.UnknownHostException;
+
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
+import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +34,10 @@ public class ClearBgpCli extends OsgiCommandSupport {
     public static int sockTimeout = 5;
     static char HASH_PROMPT = '#';
     static char GT = '>';
-
+    
     static final Logger LOGGER = LoggerFactory.getLogger(ClearBgpCli.class);
 
-    @Argument(name = "neighbor-ip", description = "neighbor ip to be cleared", required = false, multiValued = false)
+    @Argument(name="neighbor-ip", description = "neighbor ip to be cleared", required = false, multiValued = false)
     String nbr = "";
 
     Socket socket = null;
@@ -49,25 +50,25 @@ public class ClearBgpCli extends OsgiCommandSupport {
 
     protected Object doExecute() throws Exception {
         if (nbr.isEmpty()) {
-            session.getConsole().println("enter neighbor ip to be cleared");
-            session.getConsole().println("Usage:");
-            session.getConsole().println("odl:clear-bgp-neighbor <neighbor|all>");
+            System.out.println("enter neighbor ip to be cleared");
+            System.out.println("Usage:");
+            System.out.println("odl:clear-bgp-neighbor <neighbor|all>");
             return null;
         } else if ("all".equals(nbr)) {
             nbr = "*";
         } else {
             try {
                 InetAddress.getByName(nbr);
-            } catch (UnknownHostException e) {
-                session.getConsole().println("Invalid neighbor ip");
+            } catch (Exception e) {
+                System.out.println("Invalid neighbor ip");
                 return null;
             }
         }
-        clearBgp("clear ip bgp " + nbr);
+        clearBgp("clear ip bgp "+nbr);
         return null;
     }
-
-    public static void main(String[] args) throws IOException {
+    
+    public static void main(String args[]) throws IOException{
         ClearBgpCli test = new ClearBgpCli();
         test.clearBgp("clear ip bgp");
     }
@@ -75,23 +76,23 @@ public class ClearBgpCli extends OsgiCommandSupport {
     public void clearBgp(String clearCommand) throws IOException {
         try {
             socket = new Socket(serverName, serverPort);
-        } catch (IOException ioe) {
-            session.getConsole().println("failed to connect to bgpd " + ioe.getMessage());
+        } catch (Exception ioe) {
+            System.out.println("failed to connect to bgpd " + ioe.getMessage());
             return;
         }
         intializeSocketOptions();
         try {
             readPassword(in);
-
+            
             out.println(vtyPassword);
             out.println("enable");
             LOGGER.trace("reading until HASH sign");
             readUntilPrompt(in, HASH_PROMPT);
-
+            
             out.println(clearCommand);
             readUntilPrompt(in, HASH_PROMPT);
-        } catch (IOException e) {
-            session.getConsole().println(e.getMessage());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         } finally {
             socket.close();
         }
@@ -101,8 +102,8 @@ public class ClearBgpCli extends OsgiCommandSupport {
 
     private void intializeSocketOptions() throws SocketException, IOException {
         socket.setSoTimeout(sockTimeout * 1000);
-        out = new PrintWriter(session.getConsole(), true);
-        in = new BufferedReader(new InputStreamReader(session.getKeyboard()));
+        out = new PrintWriter(socket.getOutputStream(), true);
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
 
     private static boolean readPassword(BufferedReader in)
@@ -114,7 +115,7 @@ public class ClearBgpCli extends OsgiCommandSupport {
             throws IOException {
         return readUntilPrompt(in, promptChar, null);
     }
-
+    
     private static boolean readUntilPrompt(
             BufferedReader in, char promptChar, String passwordCheckStr)
             throws IOException {
@@ -127,8 +128,8 @@ public class ClearBgpCli extends OsgiCommandSupport {
             } else if (ret == promptChar) {
                 return true;
             }
-
-            sb.append((char) ret);
+            
+            sb.append((char)ret);
             if (passwordCheckStr != null) {
                 if (sb.toString().contains(passwordCheckStr)) {
                     break;

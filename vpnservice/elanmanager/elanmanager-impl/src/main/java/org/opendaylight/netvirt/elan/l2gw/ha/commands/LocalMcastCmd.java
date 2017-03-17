@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
-import java.util.ArrayList;
+import com.google.common.collect.Lists;
 import java.util.List;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
@@ -46,7 +46,7 @@ public class LocalMcastCmd
     }
 
     @Override
-    public InstanceIdentifier<LocalMcastMacs> generateId(InstanceIdentifier<Node> id, LocalMcastMacs node) {
+    protected InstanceIdentifier<LocalMcastMacs> generateId(InstanceIdentifier<Node> id, LocalMcastMacs node) {
         HwvtepLogicalSwitchRef lsRef = HwvtepHAUtil.convertLogicalSwitchRef(node.getKey().getLogicalSwitchRef(), id);
         LocalMcastMacsKey key = new LocalMcastMacsKey(lsRef, node.getMacEntryKey());
 
@@ -56,7 +56,7 @@ public class LocalMcastCmd
     @Override
     public LocalMcastMacs transform(InstanceIdentifier<Node> nodePath, LocalMcastMacs src) {
         LocalMcastMacsBuilder ucmlBuilder = new LocalMcastMacsBuilder(src);
-        List<LocatorSet> locatorSet = new ArrayList<>();
+        List<LocatorSet> locatorSet = Lists.newArrayList();
         for (LocatorSet locator : src.getLocatorSet()) {
             locatorSet.add(new LocatorSetBuilder().setLocatorRef(HwvtepHAUtil.buildLocatorRef(nodePath,
                     HwvtepHAUtil.getTepIpVal(locator.getLocatorRef()))).build());
@@ -107,10 +107,4 @@ public class LocalMcastCmd
         }
         return false;
     }
-
-    @Override
-    public LocalMcastMacs withoutUuid(LocalMcastMacs data) {
-        return new LocalMcastMacsBuilder(data).setMacEntryUuid(null).build();
-    }
-
 }

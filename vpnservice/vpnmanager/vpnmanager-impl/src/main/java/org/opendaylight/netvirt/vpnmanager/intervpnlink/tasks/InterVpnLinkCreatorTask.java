@@ -25,35 +25,34 @@ public class InterVpnLinkCreatorTask extends AbstractDataStoreJob {
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkCreatorTask.class);
 
     private final DataBroker dataBroker;
-    private final InterVpnLink interVpnLinkToPersist;
+    private final InterVpnLink iVpnLinkToPersist;
     private final String jobKey;
 
-    public InterVpnLinkCreatorTask(DataBroker dataBroker, InterVpnLink interVpnLink, String specificJobKey) {
+    public InterVpnLinkCreatorTask(DataBroker dataBroker, InterVpnLink iVpnLink, String specificJobKey) {
         this.dataBroker = dataBroker;
-        this.interVpnLinkToPersist = interVpnLink;
+        this.iVpnLinkToPersist = iVpnLink;
         this.jobKey = specificJobKey;
     }
 
-    public InterVpnLinkCreatorTask(DataBroker dataBroker, InterVpnLink interVpnLink) {
-        this(dataBroker, interVpnLink, "IVpnLink.creation." + interVpnLink.getName());
+    public InterVpnLinkCreatorTask(DataBroker dataBroker, InterVpnLink iVpnLink) {
+        this(dataBroker, iVpnLink, "IVpnLink.creation." + iVpnLink.getName());
     }
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
-        LOG.debug(
-            "Persisting InterVpnLink {} with 1stEndpoint=[ vpn={}, ipAddr={} ] and 2ndEndpoint=[ vpn={}, ipAddr={} ]",
-            interVpnLinkToPersist.getName(), interVpnLinkToPersist.getFirstEndpoint().getVpnUuid(),
-            interVpnLinkToPersist.getFirstEndpoint().getIpAddress(),
-            interVpnLinkToPersist.getSecondEndpoint().getVpnUuid(),
-            interVpnLinkToPersist.getSecondEndpoint().getIpAddress());
+        LOG.debug("Persisting InterVpnLink {} with 1stEndpoint=[ vpn={}, ipAddr={} ] and 2ndEndpoint=[ vpn={}, ipAddr={} ]",
+                  iVpnLinkToPersist.getName(), iVpnLinkToPersist.getFirstEndpoint().getVpnUuid(),
+                  iVpnLinkToPersist.getFirstEndpoint().getIpAddress(),
+                  iVpnLinkToPersist.getSecondEndpoint().getVpnUuid(),
+                  iVpnLinkToPersist.getSecondEndpoint().getIpAddress() );
 
         List<ListenableFuture<Void>> result = new ArrayList<>();
 
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
         writeTx.merge(LogicalDatastoreType.CONFIGURATION,
-            InterVpnLinkUtil.getInterVpnLinkPath(interVpnLinkToPersist.getName()),
-            interVpnLinkToPersist,
-            true /* create missing parents */);
+                      InterVpnLinkUtil.getInterVpnLinkPath(iVpnLinkToPersist.getName()),
+                      iVpnLinkToPersist,
+                      true /* create missing parents */);
         result.add(writeTx.submit());
         return result;
     }
