@@ -269,7 +269,7 @@ public class AclServiceOFFlowBuilder {
         } else if (acl.getAceIpVersion() instanceof AceIpv6) {
             flowMatches.add(MatchEthernetType.IPV6);
             Ipv6Prefix srcNetwork = ((AceIpv6)acl.getAceIpVersion()).getSourceIpv6Network();
-            if (null != srcNetwork) {
+            if (null != srcNetwork && !srcNetwork.getValue().equals(AclConstants.IPV6_ALL_NETWORK)) {
                 flowMatches.add(new MatchIpv6Source(srcNetwork));
             }
         }
@@ -291,7 +291,7 @@ public class AclServiceOFFlowBuilder {
         } else if (acl.getAceIpVersion() instanceof AceIpv6) {
             flowMatches.add(MatchEthernetType.IPV6);
             Ipv6Prefix dstNetwork = ((AceIpv6)acl.getAceIpVersion()).getDestinationIpv6Network();
-            if (null != dstNetwork) {
+            if (null != dstNetwork && !dstNetwork.getValue().equals(AclConstants.IPV6_ALL_NETWORK)) {
                 flowMatches.add(new MatchIpv6Destination(dstNetwork));
             }
         }
