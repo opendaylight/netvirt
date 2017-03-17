@@ -22,18 +22,17 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
@@ -42,15 +41,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.DpnEndpoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfoKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.extraroute.rds.DestPrefixesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.extraroute.rds.DestPrefixesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
@@ -493,7 +498,6 @@ public class FibUtil {
             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
                 .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
         Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
-
         if (entry.isPresent()) {
             final List<RoutePaths> routePaths = entry.get().getRoutePaths();
             if (routePaths == null || routePaths.isEmpty()) {
@@ -521,11 +525,7 @@ public class FibUtil {
                 InstanceIdentifier<RoutePaths> routePathsId =
                         FibHelper.buildRoutePathId(rd, prefix, routePath.getNexthopAddress());
                 // Remove route
-                if (writeConfigTxn != null) {
-                    writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, routePathsId);
-                } else {
-                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routePathsId);
-                }
+                MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routePathsId);
                 LOG.info("Removed Route Path rd {} prefix {}, nextHop {}, label {}", rd, prefix,
                         routePath.getNexthopAddress(), routePath.getLabel());
             }
@@ -534,39 +534,36 @@ public class FibUtil {
         }
     }
 
-    public static void updateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
-                                      String gwMacAddress, long label, WriteTransaction writeConfigTxn) {
+    /**
+     * Adds or removes nextHop from routePath based on the flag nextHopAdd.
+     */
+    public static void updateFibEntry(DataBroker broker, String rd, String prefix, String nextHop,
+                                      long label, boolean nextHopAdd, WriteTransaction writeConfigTxn) {
 
-        LOG.debug("Updating fib entry for prefix {} with nextHopList {} for rd {}", prefix, nextHopList, rd);
+        LOG.debug("Updating fib entry for prefix {} with nextHop {} for rd {}.", prefix, nextHop, rd);
 
         // Looking for existing prefix in MDSAL database
-        InstanceIdentifier<VrfEntry> vrfEntryId =
-            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
-                .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
-        Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
-
-        if (entry.isPresent()) {
-            RouteOrigin routeOrigin = RouteOrigin.value(entry.get().getOrigin());
-            // Update the VRF entry with nextHopList
-            VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(entry.get(), label, nextHopList, routeOrigin)
-                    .setGatewayMacAddress(gwMacAddress).build();
-
-            if (nextHopList.isEmpty()) {
-                if (writeConfigTxn != null) {
-                    writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
-                } else {
-                    MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
-                }
+        InstanceIdentifier<RoutePaths> routePathId = FibHelper.buildRoutePathId(rd, prefix, nextHop);
+        if (nextHopAdd) {
+            RoutePaths routePaths = FibHelper.buildRoutePath(nextHop, label);
+            if (writeConfigTxn != null) {
+                writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, routePathId, routePaths, true);
             } else {
-                if (writeConfigTxn != null) {
-                    writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
-                } else {
-                    MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
-                }
+                MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routePathId, routePaths);
             }
-            LOG.debug("Updated fib entry for prefix {} with nextHopList {} for rd {}", prefix, nextHopList, rd);
+            LOG.debug("Added routepath with nextHop {} for prefix {} and label {}.", nextHop, prefix, label);
         } else {
-            LOG.warn("Could not find VrfEntry for Route-Distinguisher={} and prefix={}", rd, prefix);
+            Optional<RoutePaths> routePath = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, routePathId);
+            if (!routePath.isPresent()) {
+                LOG.warn("Couldn't find RoutePath with rd {}, prefix {} and nh {} for deleting", rd, prefix, nextHop);
+                return;
+            }
+            if (writeConfigTxn != null) {
+                writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, routePathId);
+            } else {
+                MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routePathId);
+            }
+            LOG.debug("Removed routepath with nextHop {} for prefix {}.", nextHop, prefix);
         }
     }
 
@@ -597,16 +594,6 @@ public class FibUtil {
         } else {
             delete(broker, LogicalDatastoreType.CONFIGURATION, vrfTableId);
         }
-    }
-
-    public static List<String> getNextHopListFromRoutePaths(final VrfEntry vrfEntry) {
-        List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
-        if (routePaths == null || routePaths.isEmpty()) {
-            return Collections.EMPTY_LIST;
-        }
-        return routePaths.stream()
-                .map(routePath -> routePath.getNexthopAddress())
-                .collect(Collectors.toList());
     }
 
     public static java.util.Optional<Long> getLabelFromRoutePaths(final VrfEntry vrfEntry) {
@@ -649,54 +636,82 @@ public class FibUtil {
         return null;
     }
 
-    public static String getCreateLocalNextHopJobKey(Long vpnId, BigInteger dpnId, String prefix) {
+    public static void updateUsedRdAndVpnToExtraRoute(WriteTransaction writeOperTxn, DataBroker broker,
+                                                      String nextHopToRemove, String rd, String prefix) {
+        Optional<VpnInstanceOpDataEntry> optVpnInstance = getVpnInstanceOpData(broker, rd);
+        if (!optVpnInstance.isPresent()) {
+            return;
+        }
+        VpnInstanceOpDataEntry vpnInstance = optVpnInstance.get();
+        String vpnName = vpnInstance.getVpnInstanceName();
+        long vpnId = vpnInstance.getVpnId();
+        List<String> usedRds = VpnExtraRouteHelper.getUsedRds(broker, vpnId, prefix);
+        java.util.Optional<String> rdToRemove = usedRds.stream()
+                .map(usedRd -> {
+                    Optional<Routes> vpnExtraRoutes = VpnExtraRouteHelper
+                            .getVpnExtraroutes(broker, vpnName, usedRd, prefix);
+                    return vpnExtraRoutes.isPresent() ? new ImmutablePair<String, String>(
+                            vpnExtraRoutes.get().getNexthopIpList().get(0),
+                            usedRd) : new ImmutablePair<String, String>("", "");
+                })
+                .filter(pair -> {
+                    if (pair.getLeft().isEmpty()) {
+                        return false;
+                    }
+                    Prefixes prefixToInterface = getPrefixToInterface(broker, vpnId, getIpPrefix(pair.getLeft()));
+                    return prefixToInterface != null ? nextHopToRemove
+                            .equals(getEndpointIpAddressForDPN(broker, prefixToInterface.getDpnId())) : false;
+                })
+                .map(pair -> pair.getRight()).findFirst();
+        if (!rdToRemove.isPresent()) {
+            return;
+        }
+        Optional<Routes> optRoutes = VpnExtraRouteHelper.getVpnExtraroutes(broker, vpnName, rdToRemove.get(), prefix);
+        if (!optRoutes.isPresent()) {
+            return;
+        }
+        Prefixes prefixToInterface = getPrefixToInterface(broker, vpnId,
+                getIpPrefix(optRoutes.get().getNexthopIpList().get(0)));
+        if (prefixToInterface != null) {
+            writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                    getAdjacencyIdentifier(prefixToInterface.getVpnInterfaceName(), prefix));
+        }
+        writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                VpnExtraRouteHelper.getVpnToExtrarouteIdentifier(vpnName, rdToRemove.get(), prefix));
+        usedRds.remove(rdToRemove.get());
+        writeOperTxn.put(LogicalDatastoreType.CONFIGURATION,
+                VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix),
+                getDestPrefixesBuilder(prefix, usedRds).build());
+    }
+
+    private static String getEndpointIpAddressForDPN(DataBroker broker, BigInteger dpnId) {
+        //TODO: Move it to a common place for vpn and fib
+        String nextHopIp = null;
+        InstanceIdentifier<DPNTEPsInfo> tunnelInfoId =
+            InstanceIdentifier.builder(DpnEndpoints.class).child(DPNTEPsInfo.class, new DPNTEPsInfoKey(dpnId)).build();
+        Optional<DPNTEPsInfo> tunnelInfo = read(broker, LogicalDatastoreType.CONFIGURATION, tunnelInfoId);
+        if (tunnelInfo.isPresent()) {
+            List<TunnelEndPoints> nexthopIpList = tunnelInfo.get().getTunnelEndPoints();
+            if (nexthopIpList != null && !nexthopIpList.isEmpty()) {
+                nextHopIp = nexthopIpList.get(0).getIpAddress().getIpv4Address().getValue();
+            }
+        }
+        return nextHopIp;
+    }
+
+    public static DestPrefixesBuilder getDestPrefixesBuilder(String destPrefix, List<String> rd) {
+        return new DestPrefixesBuilder().setKey(new DestPrefixesKey(destPrefix)).setDestPrefix(destPrefix).setRds(rd);
+    }
+
+    public static String getIpPrefix(String prefix) {
+        String[] prefixValues = prefix.split("/");
+        if (prefixValues.length == 1) {
+            prefix = prefix + FibConstants.HOST_MASK;
+        }
+        return prefix;
+    }
+
+    public static String getJobKey(Long vpnId, BigInteger dpnId, String prefix) {
         return "FIB-" + vpnId.toString() + "-" + dpnId.toString() + "-" + prefix;
-    }
-
-    public static boolean isTunnelInterface(AdjacencyResult adjacencyResult) {
-        return Tunnel.class.equals(adjacencyResult.getInterfaceType());
-    }
-
-    public static Optional<Routes> getLastRoutePathExtraRouteIfPresent(DataBroker dataBroker, Long vpnId,
-            String rd, String prefix) {
-        List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, prefix);
-        String vpnName = getVpnNameFromId(dataBroker, vpnId);
-        if (usedRds == null || usedRds.isEmpty()) {
-            LOG.debug("No used rd found for prefix {} on vpn {}", prefix, vpnName);
-            return Optional.absent();
-        } else if (usedRds.size() > 1) {
-            LOG.debug("The extra route prefix is still present in some DPNs");
-            return Optional.absent();
-        } else {
-            rd = usedRds.get(0);
-        }
-        //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
-        return VpnExtraRouteHelper.getVpnExtraroutes(dataBroker,
-                getVpnNameFromId(dataBroker, vpnId), rd, prefix);
-    }
-
-    public static InstanceIdentifier<VrfEntry> getNextHopIdentifier(String rd, String prefix) {
-        return InstanceIdentifier.builder(FibEntries.class)
-                .child(VrfTables.class,new VrfTablesKey(rd)).child(VrfEntry.class,new VrfEntryKey(prefix)).build();
-    }
-
-    public static List<String> getNextHopAddresses(DataBroker broker, String rd, String prefix) {
-        InstanceIdentifier<VrfEntry> vrfEntryId = getNextHopIdentifier(rd, prefix);
-        Optional<VrfEntry> vrfEntry = read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
-        if (vrfEntry.isPresent()) {
-            return getNextHopListFromRoutePaths(vrfEntry.get());
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    public static Optional<String> getGatewayMac(DataBroker dataBroker, String rd, String localNextHopIP) {
-        InstanceIdentifier<VrfEntry> vrfEntryId = getNextHopIdentifier(rd, localNextHopIP);
-        Optional<VrfEntry> vrfEntry = read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
-        if (vrfEntry.isPresent()) {
-            return Optional.fromNullable(vrfEntry.get().getGatewayMacAddress());
-        } else {
-            return Optional.absent();
-        }
     }
 }

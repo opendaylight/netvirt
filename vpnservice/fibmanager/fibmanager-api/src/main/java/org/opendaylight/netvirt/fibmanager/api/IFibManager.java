@@ -42,7 +42,7 @@ public interface IFibManager {
     // TODO Feels like this method is not used anywhere
     void addStaticRoute(String vpnName, String prefix, String nextHop, String rd, int label);
 
-    void deleteStaticRoute(String prefix, String nextHop, String rd);
+    void deleteStaticRoute(String vpnName, String prefix, String nextHop, String rd);
 
     void setConfTransType(String service, String transportType);
 
@@ -76,8 +76,8 @@ public interface IFibManager {
 
     void removeFibEntry(DataBroker broker, String rd, String prefix, WriteTransaction writeConfigTxn);
 
-    void updateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
-                        String gwMacAddress, long label, WriteTransaction writeConfigTxn);
+    void updateFibEntry(DataBroker broker, String rd, String prefix, String nextHop,
+                        long label, boolean nextHopAdd, WriteTransaction writeConfigTxn);
 
     void addVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn);
 
@@ -86,4 +86,6 @@ public interface IFibManager {
     void removeInterVPNLinkRouteFlows(String interVpnLinkName,
                                       boolean isVpnFirstEndPoint,
                                       VrfEntry vrfEntry);
+
+    void refreshFibTables(String rd, String prefix);
 }

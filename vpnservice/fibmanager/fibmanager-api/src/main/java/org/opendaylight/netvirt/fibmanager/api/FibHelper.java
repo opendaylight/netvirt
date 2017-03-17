@@ -9,19 +9,25 @@
 package org.opendaylight.netvirt.fibmanager.api;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePathsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePathsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePaths;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePathsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePathsKey;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 
@@ -81,5 +87,42 @@ public class FibHelper {
     public static boolean isControllerManagedVpnInterfaceRoute(RouteOrigin routeOrigin) {
         return routeOrigin == RouteOrigin.STATIC
                 || routeOrigin == RouteOrigin.LOCAL;
+    }
+
+    public static InstanceIdentifier<RoutePaths> getRoutePathsIdentifier(String rd, String prefix, String nh) {
+        return InstanceIdentifier.builder(FibEntries.class)
+                .child(VrfTables.class,new VrfTablesKey(rd)).child(VrfEntry.class,new VrfEntryKey(prefix))
+                .child(RoutePaths.class, new RoutePathsKey(nh)).build();
+    }
+
+    public static List<String> getNextHopListFromRoutePaths(final VrfEntry vrfEntry) {
+        List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
+        if (routePaths == null || routePaths.isEmpty()) {
+            return Collections.EMPTY_LIST;
+        }
+        return routePaths.stream()
+                .map(routePath -> routePath.getNexthopAddress())
+                .collect(Collectors.toList());
+    }
+
+    public static VrfEntry getVrfEntry(DataBroker broker, String rd, String ipPrefix) {
+        InstanceIdentifier<VrfEntry> vrfEntryId = InstanceIdentifier.builder(FibEntries.class)
+            .child(VrfTables.class, new VrfTablesKey(rd))
+            .child(VrfEntry.class, new VrfEntryKey(ipPrefix)).build();
+        com.google.common.base.Optional<VrfEntry> vrfEntry = read(broker,
+                LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        if (vrfEntry.isPresent()) {
+            return vrfEntry.get();
+        }
+        return null;
+    }
+
+    private static <T extends DataObject> com.google.common.base.Optional<T> read(DataBroker broker,
+            LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
+        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
+            return tx.read(datastoreType, path).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
