@@ -76,8 +76,8 @@ public interface IFibManager {
 
     void removeFibEntry(DataBroker broker, String rd, String prefix, WriteTransaction writeConfigTxn);
 
-    void updateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
-                        String gwMacAddress, long label, WriteTransaction writeConfigTxn);
+    void updateFibEntry(DataBroker broker, String rd, String prefix, String nextHop,
+                        long label, boolean nextHopAdd, WriteTransaction writeConfigTxn);
 
     void addVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn);
 
