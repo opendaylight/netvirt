@@ -34,6 +34,42 @@
       "revId": "53533d6a8f73c177d08471c0c9782b19601060a6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6c03fe0d",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBase.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-03-17T10:00:11Z",
+      "side": 1,
+      "message": "c/53399 looks good addressing the ordering issue. I will work on top of it to move this logic to genius. It would be a new patch. So, let us not block this one to get merged.",
+      "parentUuid": "fafc7978_8a1c4a79",
+      "revId": "53533d6a8f73c177d08471c0c9782b19601060a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7108f991",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBase.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-03-17T10:00:11Z",
+      "side": 1,
+      "message": "Definitely, this will be contributed to genius (Ofcourse, I will be doing it ;-) ). My idea was to get this patch merged ASAP as it\u0027s getting dragged for quite sometime now. My intentions were not to add a dependency to genius and waiting for it to get merged.",
+      "parentUuid": "fafc7978_0afe9a38",
+      "revId": "53533d6a8f73c177d08471c0c9782b19601060a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
