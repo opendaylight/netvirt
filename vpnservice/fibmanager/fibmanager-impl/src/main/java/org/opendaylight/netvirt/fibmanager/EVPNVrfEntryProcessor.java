@@ -75,9 +75,15 @@ public class EVPNVrfEntryProcessor {
                 + " has null vpnId!");
         Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnInstance.getVpnId(),
                 vrfEntry.getDestPrefix());
-        Interface interfaceState = FibUtil.getInterfaceStateFromOperDS(dataBroker,
-                localNextHopInfo.getVpnInterfaceName());
-        final int lportTag = interfaceState.getIfIndex();
+        int lportTag;
+        if (Boolean.TRUE.equals(localNextHopInfo.isNatPrefix())) {
+            // All Intra-DC NAT Traffic will carry L3VNI of the Internet EVPN
+            lportTag = vrfEntry.getL3vni().intValue();
+        } else {
+            Interface interfaceState = FibUtil.getInterfaceStateFromOperDS(dataBroker,
+                    localNextHopInfo.getVpnInterfaceName());
+            lportTag = interfaceState.getIfIndex();
+        }
         List<BigInteger> localDpnId = createLocalEvpnFlows(vpnInstance.getVpnId(), rd, vrfEntry,
                 localNextHopInfo);
         createRemoteEvpnFlows(rd, localNextHopInfo, vrfEntry, vpnInstance, localDpnId, vrfTableKey, lportTag);
