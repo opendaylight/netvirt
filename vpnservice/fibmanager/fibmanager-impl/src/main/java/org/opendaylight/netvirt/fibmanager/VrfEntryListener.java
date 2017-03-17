@@ -477,7 +477,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         List<String> nextHopsList = FibUtil.getNextHopListFromRoutePaths(vrfEntry);
         // Label is used only for logging in subsequent method calls.
         //TODO : This label is not needed here. Can be removed. Hence using a default value.
-        Long label = FibUtil.getLabelFromRoutePaths(vrfEntry).orElse(0L);
+        Long label;
+        if (vrfEntry.getEncapType().equals(VrfEntry.EncapType.Vxlan)) {
+            label = 0L;
+        } else {
+            label = FibUtil.getLabelFromRoutePaths(vrfEntry).orElse(0L);
+        }
         String rd = vrfTableKey.getRouteDistinguisher();
         LOG.trace("leakRouteIfNeeded: srcVpnRd={}  prefix={}  nhList={}  label={}", rd, prefix, nextHopsList, label);
 
@@ -2184,7 +2189,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         List<AdjacencyResult> adjacencyList = new ArrayList<>();
         List<String> prefixIpList = new ArrayList<>();
         LOG.trace("resolveAdjacency called with remotedDpnId {}, vpnId{}, VrfEntry {}",
-            remoteDpnId, vpnId, vrfEntry);
+                remoteDpnId, vpnId, vrfEntry);
         try {
             if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
                 List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
