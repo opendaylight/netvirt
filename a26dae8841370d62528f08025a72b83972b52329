@@ -211,6 +211,42 @@
       "revId": "a26dae8841370d62528f08025a72b83972b52329",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6ec4935f",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/ConfigurationService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-03-17T12:55:30Z",
+      "side": 1,
+      "message": "\u0027getPatchPortName()\u0027 does not return null but returns default value which was defined in the constructor of ConfigurationServiceImpl.java.",
+      "parentUuid": "fafc7978_412b7c33",
+      "revId": "a26dae8841370d62528f08025a72b83972b52329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8ec73764",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/ConfigurationService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-03-17T12:55:30Z",
+      "side": 1,
+      "message": "\u0027addPatchPorName()\u0027 is not used/referenced anywhere in code and hence removed. \u0027getPatchPortName()\u0027 does not return null but returns default value which was defined in the constructor of ConfigurationServiceImpl.java.",
+      "parentUuid": "fafc7978_7b1f535c",
+      "revId": "a26dae8841370d62528f08025a72b83972b52329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
