@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.elan.internal;
 
 
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -45,6 +46,7 @@ public class ElanInterfaceStateChangeListener
         elanInterfaceManager = ifManager;
     }
 
+    @Override
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
@@ -66,6 +68,10 @@ public class ElanInterfaceStateChangeListener
         interfaceInfo.setInterfaceTag(delIf.getIfIndex());
         String elanInstanceName = elanInterface.getElanInstanceName();
         ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
+        if (elanInstance == null) {
+            LOG.debug("No Elan instance is available for the interface:{} ", interfaceName);
+            return;
+        }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         InterfaceRemoveWorkerOnElan removeWorker = new InterfaceRemoveWorkerOnElan(elanInstanceName, elanInstance,
             interfaceName, interfaceInfo, true, elanInterfaceManager);
@@ -81,20 +87,23 @@ public class ElanInterfaceStateChangeListener
             return;
         }
         if (update.getType().equals(Tunnel.class)) {
-            if (!original.getOperStatus().equals(Interface.OperStatus.Unknown)
-                    && !update.getOperStatus().equals(Interface.OperStatus.Unknown)) {
-                if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
-                    InternalTunnel internalTunnel = getTunnelState(interfaceName);
-                    if (internalTunnel != null) {
-                        try {
-                            elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
-                                    internalTunnel.getDestinationDPN());
-                        } catch (ElanException e) {
-                            LOG.error("Failed to update interface: " + identifier.toString(), e);
+            DataStoreJobCoordinator.getInstance().enqueueJob(interfaceName, () -> {
+                if (!original.getOperStatus().equals(Interface.OperStatus.Unknown)
+                        && !update.getOperStatus().equals(Interface.OperStatus.Unknown)) {
+                    if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
+                        InternalTunnel internalTunnel = getTunnelState(interfaceName);
+                        if (internalTunnel != null) {
+                            try {
+                                elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
+                                        internalTunnel.getDestinationDPN());
+                            } catch (ElanException e) {
+                                LOG.error("Failed to update interface: " + identifier.toString(), e);
+                            }
                         }
                     }
                 }
-            }
+                return Collections.emptyList();
+            }, ElanConstants.JOB_MAX_RETRIES);
         }
     }
 
@@ -105,17 +114,21 @@ public class ElanInterfaceStateChangeListener
         ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
         if (elanInterface == null) {
             if (intrf.getType() != null && intrf.getType().equals(Tunnel.class)) {
-                if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
-                    InternalTunnel internalTunnel = getTunnelState(interfaceName);
-                    if (internalTunnel != null) {
-                        try {
-                            elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
-                                internalTunnel.getDestinationDPN());
-                        } catch (ElanException e) {
-                            LOG.error("Failed to add interface: " + identifier.toString(), e);
+                DataStoreJobCoordinator.getInstance().enqueueJob(interfaceName,
+                    () -> {
+                        if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
+                            InternalTunnel internalTunnel = getTunnelState(interfaceName);
+                            if (internalTunnel != null) {
+                                try {
+                                    elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
+                                            internalTunnel.getDestinationDPN());
+                                } catch (ElanException e) {
+                                    LOG.error("Failed to add interface: " + identifier.toString(), e);
+                                }
+                            }
                         }
-                    }
-                }
+                        return Collections.emptyList();
+                    }, ElanConstants.JOB_MAX_RETRIES);
             }
             return;
         }
@@ -125,7 +138,7 @@ public class ElanInterfaceStateChangeListener
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
 
     }
 
@@ -135,9 +148,12 @@ public class ElanInterfaceStateChangeListener
         if (tunnelList != null && tunnelList.getInternalTunnel() != null) {
             List<InternalTunnel> internalTunnels = tunnelList.getInternalTunnel();
             for (InternalTunnel tunnel : internalTunnels) {
-                if (tunnel.getTunnelInterfaceName().equalsIgnoreCase(interfaceName)) {
-                    internalTunnel = tunnel;
-                    break;
+                List<String> tunnelInterfaceNames = tunnel.getTunnelInterfaceNames();
+                for (String tunnelInterfaceName : tunnelInterfaceNames) {
+                    if (tunnelInterfaceName.equalsIgnoreCase(interfaceName)) {
+                        internalTunnel = tunnel;
+                        break;
+                    }
                 }
             }
         }

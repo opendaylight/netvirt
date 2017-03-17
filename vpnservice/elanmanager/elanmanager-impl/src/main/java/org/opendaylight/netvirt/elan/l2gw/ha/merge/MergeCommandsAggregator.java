@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.merge;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.MergeCommand;
@@ -21,7 +21,7 @@ public abstract class MergeCommandsAggregator<BuilderTypeT extends Builder, AugT
     protected MergeCommandsAggregator() {
     }
 
-    List<MergeCommand> commands = Lists.newArrayList();
+    List<MergeCommand> commands = new ArrayList<>();
 
     public void mergeOperationalData(BuilderTypeT builder,
                                      AugTypeT existingData,

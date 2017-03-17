@@ -9,11 +9,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>odlparent-lite</artifactId>
     <version>1.8.0-SNAPSHOT</version>
+    <relativePath/>
   </parent>
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>vpnservice</artifactId>
   <version>0.4.0-SNAPSHOT</version>
-  <name>${project.artifactId}</name>
+  <name>ODL :: netvirt :: ${project.artifactId}</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
   <modules>
@@ -29,10 +30,14 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <module>natservice</module>
     <module>aclservice</module>
     <module>ipv6service</module>
+    <module>qosservice</module>
+    <module>federation-plugin</module>
+    <module>policyservice</module>
     <module>distribution/karaf</module>
     <module>features</module>
     <module>vpnservice-artifacts</module>
     <module>statemanager</module>
+    <module>statistics</module>
     <module>it</module>
   </modules>
 

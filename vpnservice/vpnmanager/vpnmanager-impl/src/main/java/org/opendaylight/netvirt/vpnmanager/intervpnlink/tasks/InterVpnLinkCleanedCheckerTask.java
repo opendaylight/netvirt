@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
  * This Task is in charge of checking that all stuff related to a given
  * InterVpnLink has been removed, like the stateful information, leaked
  * vrfEntries, etc.
- *
  */
 public class InterVpnLinkCleanedCheckerTask extends AbstractDataStoreJob {
 
@@ -37,24 +36,24 @@ public class InterVpnLinkCleanedCheckerTask extends AbstractDataStoreJob {
     protected static final long MAX_WAIT_FOR_REMOVAL = 10000; // 10 seconds
 
     private final DataBroker dataBroker;
-    private final InterVpnLink iVpnLinkToCheck;
+    private final InterVpnLink interVpnLinkToCheck;
     private final String jobKey;
     private final long maxWaitInMillis;
 
-    public InterVpnLinkCleanedCheckerTask(DataBroker dataBroker, InterVpnLink iVpnLink, String specificJobKey,
-                                          long maxWaitMs) {
+    public InterVpnLinkCleanedCheckerTask(DataBroker dataBroker, InterVpnLink interVpnLink, String specificJobKey,
+        long maxWaitMs) {
         this.dataBroker = dataBroker;
-        this.iVpnLinkToCheck = iVpnLink;
+        this.interVpnLinkToCheck = interVpnLink;
         this.jobKey = specificJobKey;
         this.maxWaitInMillis = maxWaitMs;
     }
 
-    public InterVpnLinkCleanedCheckerTask(DataBroker dataBroker, InterVpnLink iVpnLink, String specificJobKey) {
-        this(dataBroker, iVpnLink, specificJobKey, MAX_WAIT_FOR_REMOVAL);
+    public InterVpnLinkCleanedCheckerTask(DataBroker dataBroker, InterVpnLink interVpnLink, String specificJobKey) {
+        this(dataBroker, interVpnLink, specificJobKey, MAX_WAIT_FOR_REMOVAL);
     }
 
-    public InterVpnLinkCleanedCheckerTask(DataBroker dataBroker, InterVpnLink iVpnLink) {
-        this(dataBroker, iVpnLink, "IVPNLINK.CLEANED.CHECKER" + iVpnLink.getName(), MAX_WAIT_FOR_REMOVAL);
+    public InterVpnLinkCleanedCheckerTask(DataBroker dataBroker, InterVpnLink interVpnLink) {
+        this(dataBroker, interVpnLink, "IVPNLINK.CLEANED.CHECKER" + interVpnLink.getName(), MAX_WAIT_FOR_REMOVAL);
     }
 
     @Override
@@ -70,44 +69,44 @@ public class InterVpnLinkCleanedCheckerTask extends AbstractDataStoreJob {
     public List<ListenableFuture<Void>> call() throws Exception {
 
         LOG.debug("Checking if InterVpnLink {} is fully cleaned. MaxWaitInMillis={}",
-                  iVpnLinkToCheck.getName(), maxWaitInMillis);
+            interVpnLinkToCheck.getName(), maxWaitInMillis);
 
         // Check that the State has also been deleted
         Optional<InterVpnLinkState> optIVpnLinkState =
-            InterVpnLinkUtil.getInterVpnLinkState(dataBroker, iVpnLinkToCheck.getName());
+            InterVpnLinkUtil.getInterVpnLinkState(dataBroker, interVpnLinkToCheck.getName());
         long t0 = System.currentTimeMillis();
         long elapsedTime = t0;
-        while (optIVpnLinkState.isPresent() && (elapsedTime - t0) < maxWaitInMillis ) {
+        while (optIVpnLinkState.isPresent() && (elapsedTime - t0) < maxWaitInMillis) {
             LOG.debug("InterVpnLink {} State has not yet been removed after {}ms.",
-                      iVpnLinkToCheck.getName(), (elapsedTime-t0));
+                interVpnLinkToCheck.getName(), (elapsedTime - t0));
             Thread.sleep(50);
-            optIVpnLinkState = InterVpnLinkUtil.getInterVpnLinkState(dataBroker, iVpnLinkToCheck.getName());
+            optIVpnLinkState = InterVpnLinkUtil.getInterVpnLinkState(dataBroker, interVpnLinkToCheck.getName());
             elapsedTime = System.currentTimeMillis();
         }
 
-        if ( optIVpnLinkState.isPresent() ) {
-            throw new TimeoutException("InterVpnLink " + iVpnLinkToCheck.getName()
-                                       + " has not been completely removed after " + maxWaitInMillis + " ms");
+        if (optIVpnLinkState.isPresent()) {
+            throw new TimeoutException("InterVpnLink " + interVpnLinkToCheck.getName()
+                + " has not been completely removed after " + maxWaitInMillis + " ms");
         }
 
-        LOG.debug("InterVpnLink {} State has been removed. Now checking leaked routes", iVpnLinkToCheck.getName());
-        String vpn1Rd = VpnUtil.getVpnRd(dataBroker, iVpnLinkToCheck.getFirstEndpoint().getVpnUuid().getValue());
+        LOG.debug("InterVpnLink {} State has been removed. Now checking leaked routes", interVpnLinkToCheck.getName());
+        String vpn1Rd = VpnUtil.getVpnRd(dataBroker, interVpnLinkToCheck.getFirstEndpoint().getVpnUuid().getValue());
         List<VrfEntry> leakedVrfEntries =
             VpnUtil.getVrfEntriesByOrigin(dataBroker, vpn1Rd, Collections.singletonList(RouteOrigin.INTERVPN));
 
-        while ( !leakedVrfEntries.isEmpty() && (t0 - elapsedTime) < maxWaitInMillis ) {
+        while (!leakedVrfEntries.isEmpty() && (t0 - elapsedTime) < maxWaitInMillis) {
             leakedVrfEntries = VpnUtil.getVrfEntriesByOrigin(dataBroker, vpn1Rd,
-                                                             Collections.singletonList(RouteOrigin.INTERVPN));
+                Collections.singletonList(RouteOrigin.INTERVPN));
             elapsedTime = System.currentTimeMillis();
         }
-        if ( !leakedVrfEntries.isEmpty() ) {
+        if (!leakedVrfEntries.isEmpty()) {
             LOG.info("InterVpnLink {} leaked routes have not been removed after {} ms",
-                     iVpnLinkToCheck.getName(), maxWaitInMillis);
-            throw new TimeoutException("InterVpnLink " + iVpnLinkToCheck.getName()
-                                       + " has not been completely removed after " + maxWaitInMillis + " ms");
+                interVpnLinkToCheck.getName(), maxWaitInMillis);
+            throw new TimeoutException("InterVpnLink " + interVpnLinkToCheck.getName()
+                + " has not been completely removed after " + maxWaitInMillis + " ms");
         }
 
-        LOG.debug("InterVpnLink {} State and leaked routes are now fully removed", iVpnLinkToCheck.getName());
+        LOG.debug("InterVpnLink {} State and leaked routes are now fully removed", interVpnLinkToCheck.getName());
 
         return new ArrayList<>();
     }

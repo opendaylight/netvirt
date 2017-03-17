@@ -11,10 +11,11 @@ package org.opendaylight.netvirt.elan.internal;
 import org.opendaylight.infrautils.counters.api.OccurenceCounter;
 
 public enum ElanManagerCounters {
-    unknown_smac_pktin_removed_for_retry, //
+    unknown_smac_pktin_forwarding_entries_removed, //
     unknown_smac_pktin_rcv, //
     unknown_smac_pktin_learned, //
     unknown_smac_pktin_ignored_due_protection, //
+    unknown_smac_pktin_flows_removed_for_relearned, //
     unknown_smac_pktin_removed_for_relearned, //
     unknown_smac_pktin_mac_migration_ignored_due_to_protection; //
 

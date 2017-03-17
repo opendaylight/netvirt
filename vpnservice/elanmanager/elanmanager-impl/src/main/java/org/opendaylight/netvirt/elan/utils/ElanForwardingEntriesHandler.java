@@ -11,6 +11,8 @@ package org.opendaylight.netvirt.elan.utils;
 
 
 import com.google.common.base.Optional;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -24,7 +26,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+@Singleton
 public class ElanForwardingEntriesHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanForwardingEntriesHandler.class);
@@ -32,6 +34,7 @@ public class ElanForwardingEntriesHandler {
     private final DataBroker broker;
     private ElanUtils elanUtils;
 
+    @Inject
     public ElanForwardingEntriesHandler(DataBroker dataBroker) {
         this.broker = dataBroker;
     }
@@ -89,8 +92,7 @@ public class ElanForwardingEntriesHandler {
         if (existingInterfaceMacEntry == null) {
             MacEntry macEntry = new MacEntryBuilder().setMacAddress(mac.getMacAddress()).setInterface(interfaceName)
                     .setIsStaticAddress(true).setKey(new MacEntryKey(mac.getMacAddress())).build();
-            tx.put(LogicalDatastoreType.OPERATIONAL, existingMacEntryId, macEntry);
-
+            tx.put(LogicalDatastoreType.OPERATIONAL, existingMacEntryId, macEntry, true);
         }
     }
 
@@ -111,7 +113,7 @@ public class ElanForwardingEntriesHandler {
                 macEntry.getMacAddress());
         Optional<MacEntry> existingMacEntry = elanUtils.read(broker, LogicalDatastoreType.OPERATIONAL, macEntryId);
         if (!existingMacEntry.isPresent() && elanUtils.getElanMacTable(elanName) != null) {
-            tx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, macEntry);
+            tx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, macEntry, true);
         }
     }
 

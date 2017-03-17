@@ -7,21 +7,25 @@
  */
 package org.opendaylight.netvirt.aclservice;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
@@ -83,15 +87,28 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
 
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
+        Long elanTag = AclServiceUtils.getElanIdFromInterface(interfaceName, dataBroker);
+        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getElanTagMetadata(elanTag),
+                MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.EGRESS_ACL_TABLE, ++instructionKey));
         BoundServices serviceInfo = AclServiceUtils.getBoundServices(
-                String.format("%s.%s.%s", "vpn", "ingressacl", interfaceName),
+                String.format("%s.%s.%s", "acl", "ingressacl", interfaceName),
                 ServiceIndex.getIndex(NwConstants.EGRESS_ACL_SERVICE_NAME, NwConstants.EGRESS_ACL_SERVICE_INDEX),
                 flowPriority, AclConstants.COOKIE_ACL_BASE, instructions);
         InstanceIdentifier<BoundServices> path = AclServiceUtils.buildServiceId(interfaceName,
                 ServiceIndex.getIndex(NwConstants.EGRESS_ACL_SERVICE_NAME,
                         NwConstants.EGRESS_ACL_SERVICE_INDEX), ServiceModeEgress.class);
-        MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, path, serviceInfo);
+
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(interfaceName,
+            () -> {
+                WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+                writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, serviceInfo, true);
+
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                futures.add(writeTxn.submit());
+                return futures;
+            });
     }
 
     /**
@@ -104,7 +121,17 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
         InstanceIdentifier<BoundServices> path = AclServiceUtils.buildServiceId(interfaceName,
                 ServiceIndex.getIndex(NwConstants.EGRESS_ACL_SERVICE_NAME, NwConstants.EGRESS_ACL_SERVICE_INDEX),
                 ServiceModeEgress.class);
-        MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
+
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(interfaceName,
+            () -> {
+                WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+                writeTxn.delete(LogicalDatastoreType.CONFIGURATION, path);
+
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                futures.add(writeTxn.submit());
+                return futures;
+            });
     }
 
     /**
@@ -144,7 +171,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
             return false;
         }
 
-        for (Uuid sgUuid :aclUuidList ) {
+        for (Uuid sgUuid :aclUuidList) {
             Acl acl = AclServiceUtils.getAcl(dataBroker, sgUuid.getValue());
             if (null == acl) {
                 LOG.warn("The ACL is empty");
@@ -174,8 +201,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
             if (syncAllowedAddresses != null) {
                 flowMap = AclServiceUtils.getFlowForAllowedAddresses(syncAllowedAddresses, flowMap, true);
             } else if (aceAttr.getRemoteGroupId() != null) {
-                flowMap = aclServiceUtils.getFlowForRemoteAcl(aceAttr.getRemoteGroupId(), portId, flowMap,
-                        true);
+                flowMap = aclServiceUtils.getFlowForRemoteAcl(aceAttr.getRemoteGroupId(), portId, flowMap, true);
             }
         }
         if (null == flowMap) {
@@ -183,12 +209,12 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
             return;
         }
         for (String flowName : flowMap.keySet()) {
-            flowName = syncSpecificAclFlow(dpId, lportTag, addOrRemove, aclName, ace, portId, flowMap, flowName);
+            syncSpecificAclFlow(dpId, lportTag, addOrRemove, ace, portId, flowMap, flowName);
         }
     }
 
-    protected abstract String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, String aclName,
-            Ace ace, String portId, Map<String, List<MatchInfoBase>> flowMap, String flowName);
+    protected abstract String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace,
+            String portId, Map<String, List<MatchInfoBase>> flowMap, String flowName);
 
     /**
      * Add rule to ensure only DHCP server traffic from the specified mac is
@@ -283,7 +309,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
      */
     protected void programArpRule(BigInteger dpId, int lportTag, int addOrRemove) {
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_ARP}));
+        matches.add(MatchEthernetType.ARP);
         matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
 
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(new ArrayList<>());

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat, Inc. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Red Hat, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -25,17 +25,20 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv6NdTarget;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
@@ -92,16 +95,11 @@ public class Ipv6ServiceUtils {
      */
     public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
                                                           InstanceIdentifier<T> path) {
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
-        Optional<T> result = Optional.absent();
-        try {
-            result = tx.read(datastoreType, path).get();
+        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
+            return tx.read(datastoreType, path).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
-        } finally {
-            tx.close();
         }
-        return result;
     }
 
     /**
@@ -202,12 +200,7 @@ public class Ipv6ServiceUtils {
     }
 
     public boolean validateChecksum(byte[] packet, Ipv6Header ip6Hdr, int recvChecksum) {
-        int checksum = calcIcmpv6Checksum(packet, ip6Hdr);
-
-        if (checksum == recvChecksum) {
-            return true;
-        }
-        return false;
+        return calcIcmpv6Checksum(packet, ip6Hdr) == recvChecksum;
     }
 
     private long getSummation(Ipv6Address addr) {
@@ -254,8 +247,8 @@ public class Ipv6ServiceUtils {
         Arrays.fill(data, (byte)0);
 
         ByteBuffer buf = ByteBuffer.wrap(data);
-        long flowLabel = (((long)(ip6Pdu.getVersion().shortValue() & 0x0f) << 28)
-                | (ip6Pdu.getFlowLabel().longValue() & 0x0fffffff));
+        long flowLabel = (((long)(ip6Pdu.getVersion() & 0x0f) << 28)
+                | (ip6Pdu.getFlowLabel() & 0x0fffffff));
         buf.putInt((int)flowLabel);
         buf.putShort((short)ip6Pdu.getIpv6Length().intValue());
         buf.put((byte)ip6Pdu.getNextHeader().shortValue());
@@ -302,29 +295,20 @@ public class Ipv6ServiceUtils {
 
     private static List<MatchInfo> getIcmpv6RSMatch(Long elanTag) {
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_IPV6 }));
-        matches.add(new MatchInfo(MatchFieldType.ip_proto,
-                new long[] { IPProtocols.IPV6ICMP.intValue() }));
-        matches.add(new MatchInfo(MatchFieldType.icmp_v6,
-                new long[] { Ipv6Constants.ICMP_V6_RS_CODE, 0}));
-        matches.add(new MatchInfo(MatchFieldType.metadata,
-                new BigInteger[] { ElanUtils.getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE}));
+        matches.add(MatchEthernetType.IPV6);
+        matches.add(MatchIpProtocol.ICMPV6);
+        matches.add(new MatchIcmpv6(Ipv6Constants.ICMP_V6_RS_CODE, (short) 0));
+        matches.add(new MatchMetadata(ElanUtils.getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
         return matches;
     }
 
     private List<MatchInfo> getIcmpv6NSMatch(Long elanTag, String ndTarget) {
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_IPV6 }));
-        matches.add(new MatchInfo(MatchFieldType.ip_proto,
-                new long[] { IPProtocols.IPV6ICMP.intValue() }));
-        matches.add(new MatchInfo(MatchFieldType.icmp_v6,
-                new long[] { Ipv6Constants.ICMP_V6_NS_CODE, 0}));
-        matches.add(new MatchInfo(MatchFieldType.ipv6_nd_target,
-                new String[] { ndTarget }));
-        matches.add(new MatchInfo(MatchFieldType.metadata,
-                new BigInteger[] { ElanUtils.getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE}));
+        matches.add(MatchEthernetType.IPV6);
+        matches.add(MatchIpProtocol.ICMPV6);
+        matches.add(new MatchIcmpv6(Ipv6Constants.ICMP_V6_NS_CODE, (short) 0));
+        matches.add(new MatchIpv6NdTarget(new Ipv6Address(ndTarget)));
+        matches.add(new MatchMetadata(ElanUtils.getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
         return matches;
     }
 
@@ -340,10 +324,8 @@ public class Ipv6ServiceUtils {
         List<MatchInfo> neighborSolicitationMatch = getIcmpv6NSMatch(elanTag, ipv6Address);
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller,
-                new String[] {}));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions,
-                actionsInfos));
+        actionsInfos.add(new ActionPuntToController());
+        instructions.add(new InstructionApplyActions(actionsInfos));
         FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                 getIPv6FlowRef(dpId, elanTag, ipv6Address),Ipv6Constants.DEFAULT_FLOW_PRIORITY, "IPv6NS",
                 0, 0, NwConstants.COOKIE_IPV6_TABLE, neighborSolicitationMatch, instructions);
@@ -365,10 +347,8 @@ public class Ipv6ServiceUtils {
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         // Punt to controller
-        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller,
-                new String[] {}));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions,
-                actionsInfos));
+        actionsInfos.add(new ActionPuntToController());
+        instructions.add(new InstructionApplyActions(actionsInfos));
         FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                 getIPv6FlowRef(dpId, elanTag, "IPv6RS"),Ipv6Constants.DEFAULT_FLOW_PRIORITY, "IPv6RS", 0, 0,
                 NwConstants.COOKIE_IPV6_TABLE, routerSolicitationMatch, instructions);

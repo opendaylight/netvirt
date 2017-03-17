@@ -40,12 +40,13 @@ public class ElanLearntVpnVipToPortListener extends
         this.elanUtils = elanUtils;
     }
 
+    @Override
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         super.close();
         LOG.debug("ElanLearntVpnPortIpToPort Listener Closed");
     }

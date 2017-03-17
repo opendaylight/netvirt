@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -7,12 +7,10 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -25,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ElanInterfaceStateClusteredListener extends
-    AsyncClusteredDataChangeListenerBase<Interface, ElanInterfaceStateClusteredListener> implements AutoCloseable {
+    AsyncClusteredDataTreeChangeListenerBase<Interface, ElanInterfaceStateClusteredListener> implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceStateClusteredListener.class);
 
@@ -34,9 +32,12 @@ public class ElanInterfaceStateClusteredListener extends
     private final ElanUtils elanUtils;
     private final EntityOwnershipService entityOwnershipService;
 
+    /* FIXME:
+     * Why do we have ElanInterfaceStateChangeListener and ElanInterfaceStateClusteredListener
+     * both within same module? Refactor this code into single listener.
+     */
     public ElanInterfaceStateClusteredListener(DataBroker broker, ElanInterfaceManager elanInterfaceManager,
                                                ElanUtils elanUtils, EntityOwnershipService entityOwnershipService) {
-        super(Interface.class, ElanInterfaceStateClusteredListener.class);
         this.broker = broker;
         this.elanInterfaceManager = elanInterfaceManager;
         this.elanUtils = elanUtils;
@@ -50,16 +51,6 @@ public class ElanInterfaceStateClusteredListener extends
     @Override
     public InstanceIdentifier<Interface> getWildCardPath() {
         return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
-    }
-
-    @Override
-    protected ClusteredDataChangeListener getDataChangeListener() {
-        return ElanInterfaceStateClusteredListener.this;
-    }
-
-    @Override
-    protected AsyncDataBroker.DataChangeScope getDataChangeScope() {
-        return AsyncDataBroker.DataChangeScope.BASE;
     }
 
     @Override
@@ -98,6 +89,14 @@ public class ElanInterfaceStateClusteredListener extends
         } else {
             LOG.trace("External tunnel not found with interfaceName: {}", interfaceName);
         }
+    }
+
+    /* (non-Javadoc)
+     * @see org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase#getDataTreeChangeListener()
+     */
+    @Override
+    protected ElanInterfaceStateClusteredListener getDataTreeChangeListener() {
+        return this;
     }
 
 }

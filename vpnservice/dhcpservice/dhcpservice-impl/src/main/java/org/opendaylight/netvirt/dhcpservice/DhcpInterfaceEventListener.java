@@ -53,9 +53,9 @@ public class DhcpInterfaceEventListener
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         super.close();
-        LOG.info("Interface Manager Closed");
+        LOG.info("DhcpInterfaceEventListener Closed");
     }
 
     @Override

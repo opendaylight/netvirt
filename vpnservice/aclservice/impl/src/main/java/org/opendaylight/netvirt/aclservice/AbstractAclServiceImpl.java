@@ -16,13 +16,13 @@ import java.util.Set;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceListener;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
@@ -87,8 +87,27 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
         programAclWithAllowedAddress(dpId, port.getAllowedAddressPairs(), port.getLPortTag(), port.getSecurityGroups(),
                 Action.ADD, NwConstants.ADD_FLOW, port.getInterfaceId());
+        return true;
+    }
 
+    @Override
+    public boolean bindAcl(AclInterface port) {
+        if (port == null || port.getSecurityGroups() == null) {
+            LOG.error("port and port security groups cannot be null");
+            return false;
+        }
         bindService(port.getInterfaceId());
+        return true;
+    }
+
+    @Override
+    public boolean unbindAcl(AclInterface port) {
+        BigInteger dpId = port.getDpId();
+        if (dpId == null) {
+            LOG.error("Unable to find DP Id from ACL interface with id {}", port.getInterfaceId());
+            return false;
+        }
+        unbindService(port.getInterfaceId());
         return true;
     }
 
@@ -100,9 +119,9 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         // if port security is changed, apply/remove Acls
         if (isPortSecurityEnableBefore != isPortSecurityEnable) {
             if (isPortSecurityEnable) {
-                result = applyAcl(portAfter);
+                result = applyAcl(portAfter) && bindAcl(portAfter);
             } else {
-                result = removeAcl(portAfter);
+                result = removeAcl(portAfter) && unbindAcl(portAfter);
             }
         } else if (isPortSecurityEnable) {
             // Acls has been updated, find added/removed Acls and act accordingly.
@@ -197,8 +216,6 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
         programAclWithAllowedAddress(dpId, port.getAllowedAddressPairs(), port.getLPortTag(), port.getSecurityGroups(),
                 Action.REMOVE, NwConstants.DEL_FLOW, port.getInterfaceId());
-
-        unbindService(port.getInterfaceId());
         return true;
     }
 
@@ -348,8 +365,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
 
         List<InstructionInfo> instructions = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] {Short.toString(dispatcherTableId)}));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        actionsInfos.add(new ActionNxResubmit(dispatcherTableId));
+        instructions.add(new InstructionApplyActions(actionsInfos));
         return instructions;
     }
 

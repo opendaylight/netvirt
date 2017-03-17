@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.BiFunction;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlreadyRegisteredException;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
@@ -32,6 +34,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
+import org.opendaylight.infrautils.inject.AbstractLifecycle;
 import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -67,8 +70,8 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-public class ElanServiceProvider implements IElanService {
+@Singleton
+public class ElanServiceProvider extends AbstractLifecycle implements IElanService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanServiceProvider.class);
 
@@ -78,11 +81,12 @@ public class ElanServiceProvider implements IElanService {
     private final ElanBridgeManager bridgeMgr;
     private final DataBroker broker;
     private final ElanStatusMonitor elanStatusMonitor;
-    private static ElanUtils elanUtils;
+    private final ElanUtils elanUtils;
 
     private boolean generateIntBridgeMac = true;
     private boolean isL2BeforeL3;
 
+    @Inject
     public ElanServiceProvider(IdManagerService idManager, IInterfaceManager interfaceManager,
                                ElanInstanceManager elanInstanceManager, ElanBridgeManager bridgeMgr,
                                DataBroker dataBroker,
@@ -106,8 +110,9 @@ public class ElanServiceProvider implements IElanService {
         }
     }
 
+    @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void init() throws Exception {
+    protected void start() throws Exception {
         LOG.info("Starting ElnaServiceProvider");
         elanStatusMonitor.reportStatus("STARTING");
         setIsL2BeforeL3();
@@ -118,6 +123,10 @@ public class ElanServiceProvider implements IElanService {
             elanStatusMonitor.reportStatus("ERROR");
             throw e;
         }
+    }
+
+    @Override
+    protected void stop() throws Exception {
     }
 
     private void createIdPool() throws Exception {
@@ -257,20 +266,17 @@ public class ElanServiceProvider implements IElanService {
             String description) {
         ElanInstance existingElanInstance = elanInstanceManager.getElanInstanceByName(elanInstanceName);
         if (existingElanInstance != null) {
-            ElanInterface elanInterface;
-            if (staticMacAddresses == null) {
-                elanInterface = new ElanInterfaceBuilder().setElanInstanceName(elanInstanceName)
-                        .setDescription(description).setName(interfaceName).setKey(new ElanInterfaceKey(interfaceName))
-                        .build();
-            } else {
-                elanInterface = new ElanInterfaceBuilder().setElanInstanceName(elanInstanceName)
-                        .setDescription(description).setName(interfaceName)
-                        .setStaticMacEntries(getPhysAddress(staticMacAddresses))
-                        .setKey(new ElanInterfaceKey(interfaceName)).build();
+            ElanInterfaceBuilder elanInterfaceBuilder = new ElanInterfaceBuilder()
+                    .setElanInstanceName(elanInstanceName)
+                    .setDescription(description).setName(interfaceName)
+                    .setKey(new ElanInterfaceKey(interfaceName));
+            if (staticMacAddresses != null) {
+                elanInterfaceBuilder.setStaticMacEntries(getPhysAddress(staticMacAddresses));
             }
+            ElanInterface elanInterface = elanInterfaceBuilder.build();
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                     ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName), elanInterface);
-            LOG.debug("Creating the new ELan Interface {}", elanInterface);
+            LOG.debug("Created the new ELan Interface {}", elanInterface);
         }
     }
 
@@ -425,15 +431,10 @@ public class ElanServiceProvider implements IElanService {
 
     @Override
     public List<ElanInstance> getElanInstances() {
-        List<ElanInstance> elanList = new ArrayList<>();
         InstanceIdentifier<ElanInstances> elanInstancesIdentifier = InstanceIdentifier.builder(ElanInstances.class)
                 .build();
-        Optional<ElanInstances> elansOptional = elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
-                elanInstancesIdentifier);
-        if (elansOptional.isPresent()) {
-            elanList.addAll(elansOptional.get().getElanInstance());
-        }
-        return elanList;
+        return elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION, elanInstancesIdentifier).transform(
+                ElanInstances::getElanInstance).or(Collections.emptyList());
     }
 
     @Override
@@ -573,9 +574,7 @@ public class ElanServiceProvider implements IElanService {
     }
 
     private Map<String, String> getMapFromOtherConfig(Node node, String otherConfigColumn) {
-        Optional<Map<String, String>> providerMapOpt = bridgeMgr.getOpenvswitchOtherConfigMap(node,
-                otherConfigColumn);
-        return providerMapOpt.or(Collections.emptyMap());
+        return bridgeMgr.getOpenvswitchOtherConfigMap(node, otherConfigColumn);
     }
 
     @Override

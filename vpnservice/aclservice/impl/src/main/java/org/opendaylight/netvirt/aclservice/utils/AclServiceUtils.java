@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat, Inc. and others. All rights reserved.
+ * Copyright © 2016, 2017 Red Hat, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -9,35 +9,37 @@
 package org.opendaylight.netvirt.aclservice.utils;
 
 import com.google.common.base.Optional;
-import com.googlecode.ipv6.IPv6Address;
-import com.googlecode.ipv6.IPv6NetworkMask;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
-import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Destination;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Source;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.mdsalutil.matches.MatchUdpDestinationPort;
+import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
@@ -47,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -56,6 +59,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
@@ -100,12 +107,14 @@ public final class AclServiceUtils {
 
     private final AclDataUtil aclDataUtil;
     private final AclserviceConfig config;
+    private final IdManagerService idManager;
 
     @Inject
-    public AclServiceUtils(AclDataUtil aclDataUtil, AclserviceConfig config) {
+    public AclServiceUtils(AclDataUtil aclDataUtil, AclserviceConfig config, IdManagerService idManager) {
         super();
         this.aclDataUtil = aclDataUtil;
         this.config = config;
+        this.idManager = idManager;
     }
 
     /**
@@ -142,17 +151,12 @@ public final class AclServiceUtils {
      */
     public static <T extends DataObject> Optional<T> read(
             DataBroker broker, LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
-
-        Optional<T> result = Optional.absent();
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
-        try {
-            result = tx.read(datastoreType, path).checkedGet();
+        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
+            return tx.read(datastoreType, path).checkedGet();
         } catch (ReadFailedException e) {
             LOG.warn("Failed to read InstanceIdentifier {} from {}", path, datastoreType, e);
-        } finally {
-            tx.close();
+            return Optional.absent();
         }
-        return result;
     }
 
     /**
@@ -163,12 +167,7 @@ public final class AclServiceUtils {
      * @return the acl
      */
     public static Acl getAcl(DataBroker broker, String aclKey) {
-        Optional<Acl> optAcl = read(broker,
-            LogicalDatastoreType.CONFIGURATION, getAclInstanceIdentifier(aclKey));
-        if (optAcl.isPresent()) {
-            return optAcl.get();
-        }
-        return null;
+        return read(broker, LogicalDatastoreType.CONFIGURATION, getAclInstanceIdentifier(aclKey)).orNull();
     }
 
     /** Creates the Acl instance identifier.
@@ -219,14 +218,7 @@ public final class AclServiceUtils {
         .Interface getInterfaceStateFromOperDS(DataBroker dataBroker, String interfaceName) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
             .interfaces.state.Interface> ifStateId = buildStateInterfaceId(interfaceName);
-        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
-            .interfaces.state.Interface> ifStateOptional = MDSALUtil.read(LogicalDatastoreType
-                .OPERATIONAL, ifStateId, dataBroker);
-        if (!ifStateOptional.isPresent()) {
-            return null;
-        }
-
-        return ifStateOptional.get();
+        return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, ifStateId, dataBroker).orNull();
     }
 
     /**
@@ -300,14 +292,10 @@ public final class AclServiceUtils {
      */
     public static List<MatchInfoBase> buildDhcpMatches(int srcPort, int dstPort, int lportTag) {
         List<MatchInfoBase> matches = new ArrayList<>(6);
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_IPV4 }));
-        matches.add(new MatchInfo(MatchFieldType.ip_proto,
-                new long[] { IPProtocols.UDP.intValue() }));
-        matches.add(new MatchInfo(MatchFieldType.udp_dst,
-                new long[] { dstPort }));
-        matches.add(new MatchInfo(MatchFieldType.udp_src,
-                new long[] { srcPort}));
+        matches.add(MatchEthernetType.IPV4);
+        matches.add(MatchIpProtocol.UDP);
+        matches.add(new MatchUdpDestinationPort(dstPort));
+        matches.add(new MatchUdpSourcePort(srcPort));
         matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
         return matches;
     }
@@ -322,14 +310,10 @@ public final class AclServiceUtils {
      */
     public static List<MatchInfoBase> buildDhcpV6Matches(int srcPort, int dstPort, int lportTag) {
         List<MatchInfoBase> matches = new ArrayList<>(6);
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_IPV6 }));
-        matches.add(new MatchInfo(MatchFieldType.ip_proto,
-                new long[] { IPProtocols.UDP.intValue() }));
-        matches.add(new MatchInfo(MatchFieldType.udp_dst,
-                new long[] { dstPort }));
-        matches.add(new MatchInfo(MatchFieldType.udp_src,
-                new long[] { srcPort}));
+        matches.add(MatchEthernetType.IPV6);
+        matches.add(MatchIpProtocol.UDP);
+        matches.add(new MatchUdpDestinationPort(dstPort));
+        matches.add(new MatchUdpSourcePort(srcPort));
         matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
         return matches;
     }
@@ -344,13 +328,10 @@ public final class AclServiceUtils {
      */
     public static List<MatchInfoBase> buildIcmpV6Matches(int icmpType, int icmpCode, int lportTag) {
         List<MatchInfoBase> matches = new ArrayList<>(6);
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_IPV6 }));
-        matches.add(new MatchInfo(MatchFieldType.ip_proto,
-                new long[] { IPProtocols.IPV6ICMP.intValue() }));
+        matches.add(MatchEthernetType.IPV6);
+        matches.add(MatchIpProtocol.ICMPV6);
         if (icmpType != 0) {
-            matches.add(new MatchInfo(MatchFieldType.icmp_v6,
-                    new long[] { icmpType, icmpCode}));
+            matches.add(new MatchIcmpv6((short) icmpType, (short) icmpCode));
         }
         matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
         return matches;
@@ -468,39 +449,31 @@ public final class AclServiceUtils {
                                                      MatchCriteria matchCriteria) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         IpPrefix ipPrefix = ipPrefixOrAddress.getIpPrefix();
-        MatchFieldType matchFieldType;
         if (ipPrefix != null) {
-            if (ipPrefix.getIpv4Prefix() != null) {
-                flowMatches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV4}));
-                String[] ipaddressValues = ipPrefix.getIpv4Prefix().getValue().split("/");
-                matchFieldType = matchCriteria == MatchCriteria.MATCH_SOURCE
-                        ? MatchFieldType.ipv4_source : MatchFieldType.ipv4_destination;
-                flowMatches.add(new MatchInfo(matchFieldType, new String[] {ipaddressValues[0], ipaddressValues[1]}));
+            Ipv4Prefix ipv4Prefix = ipPrefix.getIpv4Prefix();
+            if (ipv4Prefix != null) {
+                flowMatches.add(MatchEthernetType.IPV4);
+                if (!ipv4Prefix.getValue().equals(AclConstants.IPV4_ALL_NETWORK)) {
+                    flowMatches.add(matchCriteria == MatchCriteria.MATCH_SOURCE ? new MatchIpv4Source(ipv4Prefix)
+                            : new MatchIpv4Destination(ipv4Prefix));
+                }
             } else {
-                matchFieldType = matchCriteria == MatchCriteria.MATCH_SOURCE
-                        ? MatchFieldType.ipv6_source : MatchFieldType.ipv6_destination;
-                String[] ipv6addressValues = ipPrefix.getIpv6Prefix().getValue().split("/");
-                IPv6Address ipv6Address = IPv6Address.fromString(ipv6addressValues[0]);
-                IPv6Address maskedV6Address = ipv6Address.maskWithNetworkMask(
-                        IPv6NetworkMask.fromPrefixLength(Integer.parseInt(ipv6addressValues[1])));
-                flowMatches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV6}));
-                flowMatches.add(new MatchInfo(matchFieldType,
-                        new String[] {maskedV6Address.toString() + "/" + ipv6addressValues[1]}));
+                flowMatches.add(MatchEthernetType.IPV6);
+                flowMatches.add(matchCriteria == MatchCriteria.MATCH_SOURCE ? new MatchIpv6Source(
+                        ipPrefix.getIpv6Prefix()) : new MatchIpv6Destination(ipPrefix.getIpv6Prefix()));
             }
         } else {
             IpAddress ipAddress = ipPrefixOrAddress.getIpAddress();
             if (ipAddress.getIpv4Address() != null) {
-                matchFieldType = matchCriteria == MatchCriteria.MATCH_SOURCE
-                        ? MatchFieldType.ipv4_source : MatchFieldType.ipv4_destination;
-                flowMatches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV4}));
-                flowMatches.add(new MatchInfo(matchFieldType,
-                        new String[] {ipAddress.getIpv4Address().getValue(), "32"}));
+                flowMatches.add(MatchEthernetType.IPV4);
+                flowMatches.add(matchCriteria == MatchCriteria.MATCH_SOURCE ? new MatchIpv4Source(
+                        ipAddress.getIpv4Address().getValue(), "32") : new MatchIpv4Destination(
+                        ipAddress.getIpv4Address().getValue(), "32"));
             } else {
-                matchFieldType = matchCriteria == MatchCriteria.MATCH_SOURCE
-                        ? MatchFieldType.ipv6_source : MatchFieldType.ipv6_destination;
-                flowMatches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV6}));
-                flowMatches.add(new MatchInfo(matchFieldType,
-                        new String[] {ipAddress.getIpv6Address().getValue() + "/128" }));
+                flowMatches.add(MatchEthernetType.IPV6);
+                flowMatches.add(matchCriteria == MatchCriteria.MATCH_SOURCE ? new MatchIpv6Source(
+                        ipAddress.getIpv6Address().getValue() + "/128") : new MatchIpv6Destination(
+                        ipAddress.getIpv6Address().getValue() + "/128"));
             }
         }
         return flowMatches;
@@ -513,8 +486,7 @@ public final class AclServiceUtils {
      * @return the lport tag match
      */
     public static MatchInfo buildLPortTagMatch(int lportTag) {
-        return new MatchInfo(MatchFieldType.metadata,
-                new BigInteger[] {MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG});
+        return new MatchMetadata(MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG);
     }
 
     public static List<Ace> getAceWithRemoteAclId(DataBroker dataBroker, AclInterface port, Uuid remoteAcl) {
@@ -534,16 +506,14 @@ public final class AclServiceUtils {
     }
 
     public Map<String, List<MatchInfoBase>> getFlowForRemoteAcl(Uuid remoteAclId, String ignoreInterfaceId,
-                                                                       Map<String, List<MatchInfoBase>>
-                                                                               flowMatchesMap, boolean
-                                                                               isSourceIpMacMatch) {
+            Map<String, List<MatchInfoBase>> flowMatchesMap, boolean isSourceIpMacMatch) {
         List<AclInterface> interfaceList = aclDataUtil.getInterfaceList(remoteAclId);
         if (flowMatchesMap == null || interfaceList == null || interfaceList.isEmpty()) {
             return null;
         }
         Map<String, List<MatchInfoBase>> updatedFlowMatchesMap = new HashMap<>();
-        MatchInfoBase ipv4Match = new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV4});
-        MatchInfoBase ipv6Match = new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV6});
+        MatchInfoBase ipv4Match = MatchEthernetType.IPV4;
+        MatchInfoBase ipv6Match = MatchEthernetType.IPV6;
         for (String flowName : flowMatchesMap.keySet()) {
             List<MatchInfoBase> flows = flowMatchesMap.get(flowName);
             for (AclInterface port : interfaceList) {
@@ -558,17 +528,15 @@ public final class AclServiceUtils {
                     String flowId;
                     if (flows.contains(ipv4Match) && isIPv4Address(aap)) {
                         matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
-                        flowId = flowName + "_ipv4_remoteACL_interface_aap_" + aap.getKey();
+                        flowId = flowName + "_ipv4_remoteACL_interface_aap_" + getAapFlowId(aap);
                         updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
                     } else if (flows.contains(ipv6Match) && !isIPv4Address(aap)) {
                         matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
-                        flowId = flowName + "_ipv6_remoteACL_interface_aap_" +  aap.getKey();
+                        flowId = flowName + "_ipv6_remoteACL_interface_aap_" + getAapFlowId(aap);
                         updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
                     }
                 }
-
             }
-
         }
         return updatedFlowMatchesMap;
     }
@@ -602,8 +570,8 @@ public final class AclServiceUtils {
             return null;
         }
         Map<String, List<MatchInfoBase>> updatedFlowMatchesMap = new HashMap<>();
-        MatchInfoBase ipv4Match = new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV4});
-        MatchInfoBase ipv6Match = new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV6});
+        MatchInfoBase ipv4Match = MatchEthernetType.IPV4;
+        MatchInfoBase ipv6Match = MatchEthernetType.IPV6;
         for (String flowName : flowMatchesMap.keySet()) {
             List<MatchInfoBase> flows = flowMatchesMap.get(flowName);
             // iterate over allow address pair and update match type
@@ -612,17 +580,21 @@ public final class AclServiceUtils {
                 String flowId;
                 if (flows.contains(ipv4Match) && isIPv4Address(aap)) {
                     matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
-                    flowId = flowName + "_ipv4_remoteACL_interface_aap_" + aap.getKey();
+                    flowId = flowName + "_ipv4_remoteACL_interface_aap_" + getAapFlowId(aap);
                     updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
                 } else if (flows.contains(ipv6Match) && !isIPv4Address(aap)) {
                     matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
-                    flowId = flowName + "_ipv6_remoteACL_interface_aap_" + aap.getKey();
+                    flowId = flowName + "_ipv6_remoteACL_interface_aap_" + getAapFlowId(aap);
                     updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
                 }
             }
 
         }
         return updatedFlowMatchesMap;
+    }
+
+    private static String getAapFlowId(AllowedAddressPairs aap) {
+        return aap.getMacAddress().getValue() + "_" + String.valueOf(aap.getIpAddress().getValue());
     }
 
     public static Long getElanIdFromInterface(String elanInterfaceName,DataBroker broker) {
@@ -636,12 +608,7 @@ public final class AclServiceUtils {
 
     public static ElanInterface getElanInterfaceByElanInterfaceName(String elanInterfaceName,DataBroker broker) {
         InstanceIdentifier<ElanInterface> elanInterfaceId = getElanInterfaceConfigurationDataPathId(elanInterfaceName);
-        Optional<ElanInterface> existingElanInterface = read(broker,
-                LogicalDatastoreType.CONFIGURATION, elanInterfaceId);
-        if (existingElanInterface.isPresent()) {
-            return existingElanInterface.get();
-        }
-        return null;
+        return read(broker, LogicalDatastoreType.CONFIGURATION, elanInterfaceId).orNull();
     }
 
     public static InstanceIdentifier<ElanInterface> getElanInterfaceConfigurationDataPathId(String interfaceName) {
@@ -652,12 +619,7 @@ public final class AclServiceUtils {
     // elan-instances config container
     public static ElanInstance getElanInstanceByName(String elanInstanceName, DataBroker broker) {
         InstanceIdentifier<ElanInstance> elanIdentifierId = getElanInstanceConfigurationDataPath(elanInstanceName);
-        Optional<ElanInstance> elanInstance = read(broker, LogicalDatastoreType.CONFIGURATION,
-                elanIdentifierId);
-        if (elanInstance.isPresent()) {
-            return elanInstance.get();
-        }
-        return null;
+        return read(broker, LogicalDatastoreType.CONFIGURATION, elanIdentifierId).orNull();
     }
 
     public static InstanceIdentifier<ElanInstance> getElanInstanceConfigurationDataPath(String elanInstanceName) {
@@ -677,25 +639,6 @@ public final class AclServiceUtils {
         return matchInfoBaseList;
     }
 
-    public static MatchInfoBase popMatchInfoByType(List<MatchInfoBase> flows, MatchFieldType type) {
-        MatchInfoBase mib = getMatchInfoByType(flows, type);
-        if (mib != null) {
-            flows.remove(mib);
-        }
-        return mib;
-    }
-
-    public static MatchInfo getMatchInfoByType(List<MatchInfoBase> flows, MatchFieldType type) {
-        for (MatchInfoBase mib : flows) {
-            if (mib instanceof MatchInfo) {
-                if (((MatchInfo)mib).getMatchField() == type) {
-                    return (MatchInfo) mib;
-                }
-            }
-        }
-        return null;
-    }
-
     public static MatchInfoBase getMatchInfoByType(List<MatchInfoBase> flows, NxMatchFieldType type) {
         for (MatchInfoBase mib : flows) {
             if (mib instanceof NxMatchInfo) {
@@ -707,38 +650,16 @@ public final class AclServiceUtils {
         return null;
     }
 
-    public static boolean containsMatchFieldType(List<MatchInfoBase> flows, MatchFieldType type) {
-        MatchInfoBase mib = getMatchInfoByType(flows, type);
-        if (mib != null) {
-            return true;
-        }
-        return false;
-    }
-
     public static boolean containsMatchFieldType(List<MatchInfoBase> flows, NxMatchFieldType type) {
-        MatchInfoBase mib = getMatchInfoByType(flows, type);
-        if (mib != null) {
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean containsMatchFieldTypeAndValue(List<MatchInfoBase> flows, MatchFieldType type,
-            long[] values) {
-        MatchInfo mib = getMatchInfoByType(flows, type);
-        if (mib != null && Arrays.equals(mib.getMatchValues(), values)) {
-            return true;
-        }
-
-        return false;
+        return getMatchInfoByType(flows, type) != null;
     }
 
     public static boolean containsTcpMatchField(List<MatchInfoBase> flows) {
-        return containsMatchFieldTypeAndValue(flows, MatchFieldType.ip_proto, new long[] {IPProtocols.TCP.intValue()});
+        return flows.contains(MatchIpProtocol.TCP);
     }
 
     public static boolean containsUdpMatchField(List<MatchInfoBase> flows) {
-        return containsMatchFieldTypeAndValue(flows, MatchFieldType.ip_proto, new long[] {IPProtocols.UDP.intValue()});
+        return flows.contains(MatchIpProtocol.UDP);
     }
 
     public static Integer allocateId(IdManagerService idManager, String poolName, String idKey) {
@@ -771,6 +692,35 @@ public final class AclServiceUtils {
     }
 
     /**
+     * Allocate and save flow priority in cache.
+     *
+     * @param key the key
+     * @return the integer
+     */
+    public Integer allocateAndSaveFlowPriorityInCache(BigInteger dpId, short tableId, String key) {
+        String poolName = getAclPoolName(dpId, tableId);
+        Integer flowPriority = AclServiceUtils.allocateId(this.idManager, poolName, key);
+        this.aclDataUtil.addAclFlowPriority(key, flowPriority);
+        return flowPriority;
+    }
+
+    /**
+     * Release and remove flow priority from cache.
+     *
+     * @param key the key
+     * @return the integer
+     */
+    public Integer releaseAndRemoveFlowPriorityFromCache(BigInteger dpId, short tableId, String key) {
+        String poolName = getAclPoolName(dpId, tableId);
+        AclServiceUtils.releaseId(this.idManager, poolName, key);
+        Integer flowPriority = this.aclDataUtil.removeAclFlowPriority(key);
+        if (flowPriority == null) {
+            flowPriority = AclConstants.PROTO_MATCH_PRIORITY;
+        }
+        return flowPriority;
+    }
+
+    /**
      * Indicates whether the interface has port security enabled.
      * @param aclInterface the interface.
      * @return true if port is security enabled.
@@ -778,5 +728,74 @@ public final class AclServiceUtils {
     public static boolean isOfInterest(AclInterface aclInterface) {
         return aclInterface != null && aclInterface.getPortSecurityEnabled() != null
                 && aclInterface.isPortSecurityEnabled();
+    }
+
+    /**
+     * Creates the id pool.
+     *
+     * @param poolName the pool name
+     */
+    public void createIdPool(String poolName) {
+        CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
+                .setPoolName(poolName).setLow(AclConstants.ACL_FLOW_PRIORITY_POOL_START)
+                .setHigh(AclConstants.ACL_FLOW_PRIORITY_POOL_END).build();
+        try {
+            Future<RpcResult<Void>> result = this.idManager.createIdPool(createPool);
+            if ((result != null) && (result.get().isSuccessful())) {
+                LOG.debug("Created IdPool for {}", poolName);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Failed to create ID pool [{}] for ACL flow priority", poolName, e);
+            throw new RuntimeException("Failed to create ID pool for ACL flow priority", e);
+        }
+    }
+
+    /**
+     * Delete id pool.
+     *
+     * @param poolName the pool name
+     */
+    public void deleteIdPool(String poolName) {
+        DeleteIdPoolInput deletePool = new DeleteIdPoolInputBuilder().setPoolName(poolName).build();
+        try {
+            Future<RpcResult<Void>> result = this.idManager.deleteIdPool(deletePool);
+            if ((result != null) && (result.get().isSuccessful())) {
+                LOG.debug("Deleted IdPool for {}", poolName);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Failed to delete ID pool [{}] for ACL flow priority", poolName, e);
+            throw new RuntimeException("Failed to create ID pool for ACL flow priority", e);
+        }
+    }
+
+    /**
+     * Gets the acl pool name.
+     *
+     * @param dpId the dp id
+     * @param tableId the table id
+     * @return the acl pool name
+     */
+    public static String getAclPoolName(BigInteger dpId, short tableId) {
+        return AclConstants.ACL_FLOW_PRIORITY_POOL_NAME + "." + dpId + "." + tableId;
+    }
+
+    /**
+     * Creates the acl id pools.
+     *
+     * @param dpId the dp id
+     */
+    public void createAclIdPools(BigInteger dpId) {
+        createIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE));
+        createIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE));
+    }
+
+    /**
+     * Delete acl id pools.
+     *
+     * @param dpId the dp id
+     */
+    public void deleteAclIdPools(BigInteger dpId) {
+        deleteIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE));
+        deleteIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE));
     }
 }

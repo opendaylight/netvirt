@@ -9,7 +9,7 @@ package org.opendaylight.netvirt.elan.l2gw.nodehandlertest;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -123,7 +123,7 @@ public class TestBuilders {
         localMcastMacsBuilder.setMacEntryUuid(getUUid(mac));
         //mMacLocalBuilder.setIpaddr(new IpAddress(ip.toCharArray()));
         localMcastMacsBuilder.setLogicalSwitchRef(buildLogicalSwitchesRef(iid, logicalSwitchName));
-        List<LocatorSet> locatorSets = Lists.newArrayList();
+        List<LocatorSet> locatorSets = new ArrayList<>();
         locatorSets.add(new LocatorSetBuilder().setLocatorRef(
                 buildLocatorRef(iid, tepIp)).build());
         localMcastMacsBuilder.setLocatorSet(locatorSets);
@@ -143,7 +143,7 @@ public class TestBuilders {
         remoteMcastMacsBuilder.setMacEntryUuid(getUUid(mac));
         //mMacLocalBuilder.setIpaddr(new IpAddress(ip.toCharArray()));
         remoteMcastMacsBuilder.setLogicalSwitchRef(buildLogicalSwitchesRef(iid, logicalSwitchName));
-        List<LocatorSet> locatorSets = Lists.newArrayList();
+        List<LocatorSet> locatorSets = new ArrayList<>();
         for (String tepIp : tepIps) {
             locatorSets.add(new LocatorSetBuilder().setLocatorRef(
                     buildLocatorRef(iid, tepIp)).build());
@@ -156,12 +156,12 @@ public class TestBuilders {
         ManagersBuilder builder1 = new ManagersBuilder();
 
         builder1.setKey(new ManagersKey(new Uri("test")));
-        List<ManagerOtherConfigs> otherConfigses = Lists.newArrayList();
+        List<ManagerOtherConfigs> otherConfigses = new ArrayList<>();
 
         otherConfigses.add(buildOtherConfig("ha_enabled", "true"));
         otherConfigses.add(buildOtherConfig("ha_id", "switchxyz"));
         builder1.setManagerOtherConfigs(otherConfigses);
-        List<Managers> managers = Lists.newArrayList();
+        List<Managers> managers = new ArrayList<>();
         managers.add(builder1.build());
         return managers;
     }

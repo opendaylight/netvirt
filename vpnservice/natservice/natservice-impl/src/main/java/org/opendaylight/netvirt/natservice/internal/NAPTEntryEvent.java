@@ -7,11 +7,8 @@
  */
 
 package org.opendaylight.netvirt.natservice.internal;
-import java.math.BigInteger;
 
-import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
-
 
 public class NAPTEntryEvent {
     private String ipAddress;
@@ -50,7 +47,8 @@ public class NAPTEntryEvent {
         return protocol;
     }
 
-    NAPTEntryEvent(String ipAddress, int portNumber, Long routerId, Operation op, Protocol protocol, PacketReceived packetReceived, boolean pktProcessed){
+    NAPTEntryEvent(String ipAddress, int portNumber, Long routerId, Operation op, Protocol protocol,
+                   PacketReceived packetReceived, boolean pktProcessed) {
         this.ipAddress = ipAddress;
         this.portNumber = portNumber;
         this.routerId = routerId;
@@ -60,11 +58,11 @@ public class NAPTEntryEvent {
         this.pktProcessed = pktProcessed;
     }
 
-    public enum Operation{
+    public enum Operation {
         ADD, DELETE
     }
 
-    public enum Protocol{
+    public enum Protocol {
         TCP, UDP
     }
 }

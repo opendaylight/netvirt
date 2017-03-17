@@ -37,6 +37,7 @@
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService" />
   <odl:rpc-service id="odlArputilService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService" />
+  <odl:rpc-implementation ref="natRpcServiceImpl"/>
 
   <bean id="subnetmapListener"
         class="org.opendaylight.netvirt.natservice.internal.SubnetmapListener"
@@ -60,6 +61,13 @@
         init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />
+  </bean>
+
+  <bean id="externalSubneVpnInstanceListener"
+        class="org.opendaylight.netvirt.natservice.internal.ExternalSubnetVpnInstanceListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="sNATDefaultRouteProgrammer" />
   </bean>
 
   <bean id="naptManager"
@@ -168,6 +176,8 @@
   <bean id="sNATDefaultRouteProgrammer"
         class="org.opendaylight.netvirt.natservice.internal.SNATDefaultRouteProgrammer">
     <argument ref="mdsalUtils" />
+    <argument ref="dataBroker" />
+    <argument ref="idManagerService" />
   </bean>
 
   <bean id="naptSwitchHA"
@@ -264,4 +274,10 @@
     <argument ref="fibRpcService" />
   </bean>
 
+  <bean id="natRpcServiceImpl" class="org.opendaylight.netvirt.natservice.rpcservice.NatRpcServiceImpl">
+    <argument ref="dataBroker"/>
+    <argument ref="neutronvpnManager" />
+  </bean>
+  <service ref="natRpcServiceImpl"
+           interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rpc.rev170209.OdlNatRpcService"/>
 </blueprint>

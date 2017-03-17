@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Inocybe and others.  All rights reserved.
+ * Copyright © 2015, 2017 Inocybe and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -105,7 +105,7 @@ public class L2FowardingServiceTest {
      */
     @Test
     public void testProgramLocalVlanUcastOut() throws Exception {
-        l2ForwardingService.programLocalVlanUcastOut(DPID, SEGMENTATION_ID, Long.valueOf(124), MAC_ADDRESS, true);
+        l2ForwardingService.programLocalVlanUcastOut(DPID, SEGMENTATION_ID, 124L, MAC_ADDRESS, true);
         verify(writeTransaction, times(2)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), anyBoolean());
         verify(writeTransaction, times(1)).submit();
         verify(commitFuture, times(1)).get();
@@ -143,22 +143,6 @@ public class L2FowardingServiceTest {
         verify(commitFuture, times(1)).get();
 
         l2ForwardingService.programLocalVlanBcastOut(DPID, SEGMENTATION_ID, LOCAL_PORT, ETH_PORT, false);
-        verify(writeTransaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
-        verify(writeTransaction, times(2)).submit();
-        verify(commitFuture, times(2)).get(); // 1 + 1 above
-    }
-
-    /**
-     * Test method {@link L2ForwardingService#programLocalTableMiss(Long, String, boolean)}
-     */
-    @Test
-    public void testProgramLocalTableMiss() throws Exception {
-        l2ForwardingService.programLocalTableMiss(DPID, SEGMENTATION_ID, true);
-        verify(writeTransaction, times(2)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), anyBoolean());
-        verify(writeTransaction, times(1)).submit();
-        verify(commitFuture, times(1)).get();
-
-        l2ForwardingService.programLocalTableMiss(DPID, SEGMENTATION_ID, false);
         verify(writeTransaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(2)).submit();
         verify(commitFuture, times(2)).get(); // 1 + 1 above
@@ -228,49 +212,17 @@ public class L2FowardingServiceTest {
         verify(commitFuture, times(2)).get(); // 1 + 1 above
     }
 
-    /**
-     * Test method {@link L2ForwardingService#programVlanFloodOut(Long, String, Long, boolean)}
-     */
-    @Test
-    public void testProgramVlanFloodOut() throws Exception {
-        l2ForwardingService.programVlanFloodOut(DPID, SEGMENTATION_ID, ETH_PORT, true);
-        verify(writeTransaction, times(2)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), anyBoolean());
-        verify(writeTransaction, times(1)).submit();
-        verify(commitFuture, times(1)).get();
-
-        l2ForwardingService.programVlanFloodOut(DPID, SEGMENTATION_ID, ETH_PORT, false);
-        verify(writeTransaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
-        verify(writeTransaction, times(2)).submit();
-        verify(commitFuture, times(2)).get(); // 1 + 1 above
-    }
-
-    /**
-    * Test method {@link L2ForwardingService#programTunnelMiss(Long, String, boolean)}
-    */
-   @Test
-   public void testProgramTunnelMiss() throws Exception {
-       l2ForwardingService.programTunnelMiss(DPID, SEGMENTATION_ID, true);
-       verify(writeTransaction, times(2)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), anyBoolean());
-       verify(writeTransaction, times(1)).submit();
-       verify(commitFuture, times(1)).get();
-
-       l2ForwardingService.programTunnelMiss(DPID, SEGMENTATION_ID, false);
-       verify(writeTransaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
-       verify(writeTransaction, times(2)).submit();
-       verify(commitFuture, times(2)).get(); // 1 + 1 above
-   }
-
    /**
     * Test method {@link L2ForwardingService#programVlanMiss(Long, String, Long, boolean)}
     */
    @Test
    public void testProgramVlanMiss() throws Exception {
-       l2ForwardingService.programTunnelMiss(DPID, SEGMENTATION_ID, true);
+       l2ForwardingService.programVlanMiss(DPID, SEGMENTATION_ID, ETH_PORT, true);
        verify(writeTransaction, times(2)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), anyBoolean());
        verify(writeTransaction, times(1)).submit();
        verify(commitFuture, times(1)).get();
 
-       l2ForwardingService.programTunnelMiss(DPID, SEGMENTATION_ID, false);
+       l2ForwardingService.programVlanMiss(DPID, SEGMENTATION_ID, ETH_PORT, false);
        verify(writeTransaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
        verify(writeTransaction, times(2)).submit();
        verify(commitFuture, times(2)).get(); // 1 + 1 above

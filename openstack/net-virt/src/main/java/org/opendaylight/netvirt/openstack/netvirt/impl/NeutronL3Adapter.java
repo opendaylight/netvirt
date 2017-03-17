@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 - 2016 Red Hat, Inc. and others. All rights reserved.
+ * Copyright © 2014, 2017 Red Hat, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -921,11 +921,11 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
             List<NeutronSecurityGroup> deletedGroup = getsecurityGroupChanged(neutronPort.getOriginalPort(),
                                                                               neutronPort);
 
-            if (null != addedGroup && !addedGroup.isEmpty()) {
-                securityServicesManager.syncSecurityGroup(neutronPort,addedGroup,true);
-            }
             if (null != deletedGroup && !deletedGroup.isEmpty()) {
                 securityServicesManager.syncSecurityGroup(neutronPort,deletedGroup,false);
+            }
+            if (null != addedGroup && !addedGroup.isEmpty()) {
+                securityServicesManager.syncSecurityGroup(neutronPort,addedGroup,true);
             }
 
         } catch (Exception e) {
@@ -940,18 +940,23 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
     }
 
     private boolean isPortSecurityEnableUpdated(NeutronPort neutronPort) {
-        LOG.trace("isPortSecuirtyEnableUpdated:" + neutronPort);
-        if (neutronPort != null
-                && neutronPort.getOriginalPort() != null
-                && neutronPort.getOriginalPort().getPortSecurityEnabled() != null
-                && neutronPort.getPortSecurityEnabled() != null
-                && neutronPort.getOriginalPort().getPortSecurityEnabled() != neutronPort
-                        .getPortSecurityEnabled()) {
-            return true;
+        LOG.trace("isPortSecurityEnableUpdated: {}", neutronPort);
+        if (neutronPort == null) {
+            return false;
         }
-        return false;
-    }
 
+        NeutronPort originalPort = neutronPort.getOriginalPort();
+        if (originalPort == null) {
+            return false;
+        }
+
+        Boolean originalPortSecurityEnabled = originalPort.getPortSecurityEnabled();
+        if (originalPortSecurityEnabled == null) {
+            return false;
+        }
+
+        return !originalPortSecurityEnabled.equals(neutronPort.getPortSecurityEnabled());
+    }
 
     private List<NeutronSecurityGroup> getsecurityGroupChanged(NeutronPort port1, NeutronPort port2) {
         LOG.trace("getsecurityGroupChanged:" + "Port1:" + port1 + "Port2" + port2);
@@ -1037,7 +1042,7 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
         LOG.trace("programFlowsForNeutronRouterInterface called for interface {} isDelete {}",
                      destNeutronRouterInterface, isDelete);
 
-        if (subnet != null && subnet.getIpVersion().intValue() == 6) {
+        if (subnet != null && subnet.getIpVersion() == 6) {
             LOG.trace("programFlowsForNeutronRouterInterface doesn't support IPv6 router interface");
             return;
         }
@@ -1628,6 +1633,17 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
         }
     }
 
+    public NeutronPort getPortPreferablyFromCleanupCache(String portUuid) {
+        NeutronPort port = getPortFromCleanupCache(portUuid);
+        if (port == null) {
+            port = neutronPortCache.getPort(portUuid);
+            if (port == null) {
+                LOG.warn("In getPortPreferablyFromCleanupCache no neutron port found:  portUuid: {}", portUuid);
+            }
+        }
+        return port;
+    }
+
     public Map<String, NeutronNetwork> getNetworkCleanupCache() {
         return this.networkCleanupCache;
     }
@@ -1635,7 +1651,7 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
     public NeutronNetwork getNetworkFromCleanupCache(String networkid) {
         NeutronNetwork ret = networkCleanupCache.get(networkid);
         if (ret != null) {
-            LOG.info("getPortFromCleanupCache: Matching NeutronPort found {}", networkid);
+            LOG.info("getNetworkFromCleanupCache: Matching NeutronNetwork found {}", networkid);
         }
         return ret;
     }

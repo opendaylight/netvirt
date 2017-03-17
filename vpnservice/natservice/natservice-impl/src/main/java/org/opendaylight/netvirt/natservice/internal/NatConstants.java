@@ -28,10 +28,14 @@ public class NatConstants {
     public static final String SNAT_FLOW_NAME = "SNAT";
     public static final String SNAT_FLOWID_PREFIX = "SNAT.";
     public static final String SNAT_IDPOOL_NAME = "snatGroupIdPool";
-    public static final long SNAT_ID_LOW_VALUE = 200000L;
-    public static final long SNAT_ID_HIGH_VALUE = 225000L;
+    public static final long SNAT_ID_LOW_VALUE = 225000L;
+    public static final long SNAT_ID_HIGH_VALUE = 250000L;
+    public static final String ODL_VNI_POOL_NAME = "opendaylight-vni-ranges";
+    public static final long VNI_DEFAULT_LOW_VALUE = 70000L;
+    public static final long VNI_DEFAULT_HIGH_VALUE = 99999L;
     public static final int DEFAULT_TS_FLOW_PRIORITY = 10;
     public static final short DEFAULT_PREFIX = 32;
+    public static final long DEFAULT_L3VNI_VALUE = 0;
 
     // Flow Actions
     public static final int ADD_FLOW = 0;
@@ -41,8 +45,14 @@ public class NatConstants {
         Invalid(0), Internal(1), External(2), Hwvtep(3);
 
         private final int type;
-        ITMTunnelLocType(int id) { this.type = id; }
-        public int getValue() { return type; }
+
+        ITMTunnelLocType(int id) {
+            this.type = id;
+        }
+
+        public int getValue() {
+            return type;
+        }
     }
 
 }

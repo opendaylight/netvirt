@@ -40,11 +40,7 @@ public class NeutronSecurityGroupInterface extends AbstractNeutronInterface<Secu
 
     @Override
     public boolean neutronSecurityGroupExists(String uuid) {
-        SecurityGroup group = readMd(createInstanceIdentifier(toMd(uuid)));
-        if (group == null) {
-            return false;
-        }
-        return true;
+        return readMd(createInstanceIdentifier(toMd(uuid))) != null;
     }
 
     @Override

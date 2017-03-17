@@ -9,31 +9,26 @@
   * Set depth in ToC as per your doc requirements. Should be at least 2.
 
 .. contents:: Table of Contents
-      :depth: 3
+   :depth: 3
 
 =====================
 Title of the feature
 =====================
 
-[link to gerrit patch]
+[gerrit filter: https://git.opendaylight.org/gerrit/#/q/topic:cool-topic]
 
 Brief introduction of the feature.
 
-
-
 Problem description
 ===================
-
 Detailed description of the problem being solved by this feature
 
 Use Cases
 ---------
-
 Use cases addressed by this feature.
 
 Proposed change
 ===============
-
 Details of the proposed change.
 
 Pipeline changes
@@ -44,8 +39,22 @@ Yang changes
 ------------
 This should detail any changes to yang models.
 
+.. code-block:: none
+   :caption: example.yang
+
+    module example {
+        namespace "urn:opendaylight:netvirt:example";
+        prefix "example";
+
+        import ietf-yang-types {prefix yang; revision-date "2013-07-15";}
+
+        description "An example YANG model.";
+
+        revision 2017-02-14 { description "Initial revision"; }
+    }
+
 Configuration impact
----------------------
+--------------------
 Any configuration parameters being added/deprecated for this feature?
 What will be defaults for these? How will it impact existing deployments?
 
@@ -73,7 +82,7 @@ What are the potential scale and performance impacts of this change?
 Does it help improve scale and performance or make it worse?
 
 Targeted Release
------------------
+----------------
 What release is this feature targeted for?
 
 Alternatives
@@ -107,37 +116,34 @@ CLI
 ---
 Any CLI if being added.
 
-
 Implementation
 ==============
 
 Assignee(s)
 -----------
 Who is implementing this feature? In case of multiple authors, designate a
-primary assigne and other contributors.
+primary assignee and other contributors.
 
 Primary assignee:
-  <developer-a>
+  <developer-a>, <irc nick>, <email>
 
 Other contributors:
-  <developer-b>
-  <developer-c>
-
+  <developer-b>, <irc nick>, <email>
+  <developer-c>, <irc nick>, <email>
 
 Work Items
 ----------
-Break up work into individual items. This should be a checklist on
-Trello card for this feature. Give link to trello card or duplicate it.
-
+Break up work into individual items. This should be a checklist on a
+Trello card for this feature. Provide the link to the trello card or duplicate it.
 
 Dependencies
 ============
 Any dependencies being added/removed? Dependencies here refers to internal
-[other ODL projects] as well as external [OVS, karaf, JDK etc.] This should
+[other ODL projects] as well as external [OVS, karaf, JDK etc]. This should
 also capture specific versions if any of these dependencies.
 e.g. OVS version, Linux kernel version, JDK etc.
 
-This should also capture impacts on existing project that depend on Netvirt.
+This should also capture impacts on existing projects that depend on Netvirt.
 
 Following projects currently depend on Netvirt:
  Unimgr
@@ -157,9 +163,9 @@ CSIT
 
 Documentation Impact
 ====================
-What is impact on documentation for this change? If documentation
-change is needed call out one of the <contributors> who will work with
-Project Documentation Lead to get the changes done.
+What is the impact on documentation for this change? If documentation
+changes are needed call out one of the <contributors> who will work with
+the Project Documentation Lead to get the changes done.
 
 Don't repeat details already discussed but do reference and call them out.
 
@@ -182,4 +188,3 @@ Add any useful references. Some examples:
 
   This work is licensed under a Creative Commons Attribution 3.0 Unported License.
   http://creativecommons.org/licenses/by/3.0/legalcode
-

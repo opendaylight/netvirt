@@ -165,8 +165,8 @@ define(['app/ovsdb/ovsdb.module', 'app/ovsdb/OvsCore', 'underscore', 'app/ovsdb/
     }
 
     function fetchTopology(cb) {
-      var invNodeDefer = this.base('operational').one('opendaylight-inventory:nodes').getList();
-      var netTopoDefer = this.base('operational').one('network-topology:network-topology').getList();
+      var invNodeDefer = this.base('operational').one('opendaylight-inventory:nodes').get();
+      var netTopoDefer = this.base('operational').one('network-topology:network-topology').get();
 
       // be sure all data are loaded
       $q.all([invNodeDefer, netTopoDefer]).then(function (values) {
@@ -334,7 +334,7 @@ define(['app/ovsdb/ovsdb.module', 'app/ovsdb/OvsCore', 'underscore', 'app/ovsdb/
       tenant_hash = {};
 
     function fetchSubNetworks(cb) {
-      var subnetskDefer = svc.base('subnets').getList();
+      var subnetskDefer = svc.base('subnets').get();
       subnetskDefer.then(function (data) {
         var subnets = data,
           subnetHash = {};
@@ -363,7 +363,7 @@ define(['app/ovsdb/ovsdb.module', 'app/ovsdb/OvsCore', 'underscore', 'app/ovsdb/
     }
 
     function fetchNetworks(cb) {
-      var networkDefer = svc.base('networks').getList();
+      var networkDefer = svc.base('networks').get();
       var subnetskDefer = svc.getSubNets();
 
       $q.all([subnetskDefer, networkDefer]).then(function (datas) {
@@ -393,7 +393,7 @@ define(['app/ovsdb/ovsdb.module', 'app/ovsdb/OvsCore', 'underscore', 'app/ovsdb/
     }
 
     function fetchRouters(cb) {
-      var routerDefer = svc.base('routers').getList();
+      var routerDefer = svc.base('routers').get();
       routerDefer.then(function (data) {
         var routers = data.routers,
           routerArray = [];
@@ -417,7 +417,7 @@ define(['app/ovsdb/ovsdb.module', 'app/ovsdb/OvsCore', 'underscore', 'app/ovsdb/
     }
 
     function fetchPorts(cb) {
-      var portDefer = svc.base('ports').getList();
+      var portDefer = svc.base('ports').get();
       portDefer.then(function (data) {
         var ports = data.ports,
           portArray = [];
@@ -443,7 +443,7 @@ define(['app/ovsdb/ovsdb.module', 'app/ovsdb/OvsCore', 'underscore', 'app/ovsdb/
     }
 
     function fetchFloatingIps(cb) {
-      var floatingIpDefer = svc.base('floatingips').getList();
+      var floatingIpDefer = svc.base('floatingips').get();
       floatingIpDefer.then(function (data) {
         var floatingIps = data.floatingips,
           floatingIpArray = [];

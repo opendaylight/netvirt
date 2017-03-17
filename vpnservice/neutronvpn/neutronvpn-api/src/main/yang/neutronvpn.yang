@@ -14,8 +14,8 @@ module neutronvpn {
         list subnetmap {
             key id;
             leaf id {
-              type    yang:uuid;
-              description "UUID representing the subnet ";
+                type    yang:uuid;
+                description "UUID representing the subnet ";
             }
 
             leaf subnet-ip {
@@ -23,47 +23,44 @@ module neutronvpn {
                 description "Specifies the subnet IP in CIDR format";
             }
 
+            uses network-attributes;
+
             leaf tenant-id {
                 type    yang:uuid;
                 description "The UUID of the tenant that will own the subnet.";
             }
 
-            leaf network-id {
-              type    yang:uuid;
-              description "UUID representing the network ";
-            }
-
             leaf router-id {
-              type    yang:uuid;
-              description "router to which this subnet belongs";
+                type    yang:uuid;
+                description "router to which this subnet belongs";
             }
 
-            leaf router-interface-name {
-              type    yang:uuid;
-              description "router interface on this subnet";
+            leaf router-interface-port-id {
+                type    yang:uuid;
+                description "port corresponding to router interface on this subnet";
             }
 
             leaf router-intf-mac-address {
-              type    string;
-              description "router interface mac address on this subnet";
+                type    string;
+                description "router interface mac address on this subnet";
             }
 
-            leaf-list router-interface-fixed-ips {
-              type    string;
-              description "fixed ip of the router interface on this subnet";
+            leaf router-interface-fixed-ip {
+                type    string;
+                description "fixed ip of the router interface port on this subnet";
             }
 
             leaf vpn-id {
-              type    yang:uuid;
-              description "VPN to which this subnet belongs";
+                type    yang:uuid;
+                description "VPN to which this subnet belongs";
             }
 
             leaf-list port-list {
-              type yang:uuid;
+                type yang:uuid;
             }
 
             leaf-list direct-port-list{
-              type yang:uuid;
+                type yang:uuid;
             }
         }
     }
@@ -84,7 +81,7 @@ module neutronvpn {
         }
     }
 
-    grouping l3vpn-instance{
+    grouping vpn-instance{
 
         leaf id {
             mandatory "true";
@@ -131,6 +128,32 @@ module neutronvpn {
         leaf-list network-ids {
           type    yang:uuid;
           description "UUID representing the network ";
+        }
+
+        leaf l3vni {
+           type uint32;
+        }
+    }
+
+    grouping network-attributes {
+        leaf network-id {
+            type    yang:uuid;
+            description "UUID representing the network";
+        }
+        leaf network-type {
+            type enumeration {
+                enum "FLAT";
+                enum "VLAN";
+                enum "VXLAN";
+                enum "GRE";
+            }
+        }
+        leaf segmentation-id {
+            type uint32;
+            description "Optional. Isolated segment on the physical network.
+                If segment-type is vlan, this ID is a vlan identifier.
+                If segment-type is vxlan, this ID is a vni.
+                If segment-type is flat/gre, this ID is set to 0";
         }
     }
 
@@ -201,10 +224,10 @@ module neutronvpn {
     }
 
     rpc createL3VPN{
-        description "Create one or more L3 VPN";
+        description "Create one or more L3VPN(s)";
         input {
             list l3vpn {
-                uses l3vpn-instance;
+                uses vpn-instance;
             }
         }
         output {
@@ -212,6 +235,61 @@ module neutronvpn {
                 type    string;
                 description "Status response for createVPN RPC";
             }
+        }
+    }
+
+    rpc createEVPN {
+        description "Create one or more EVPN(s)";
+        input {
+            list evpn {
+                uses evpn-instance;
+            }
+        }
+        output {
+            leaf-list response {
+                type    string;
+                description "Status response for createEVPN RPC";
+            }
+        }
+    }
+
+    grouping evpn-instance {
+
+        leaf id {
+            mandatory "true";
+            type    yang:uuid;
+            description "evpn-id";
+        }
+
+        leaf name {
+          type    string;
+          description "EVPN name";
+        }
+
+        leaf tenant-id {
+            type    yang:uuid;
+            description "The UUID of the tenant that will own the subnet.";
+        }
+
+        leaf-list route-distinguisher {
+            type string;
+            description
+            "configures a route distinguisher (RD) for the EVPN instance.
+             Format is ASN:nn or IP-address:nn.";
+        }
+
+        leaf-list import-RT {
+            type string;
+            description
+            "configures a list of import route target.
+             Format is ASN:nn or IP-address:nn.";
+        }
+
+        leaf-list export-RT{
+            type string;
+            description
+            "configures a list of export route targets.
+             Format is ASN:nn or IP-address:nn.";
         }
     }
 
@@ -289,6 +367,37 @@ module neutronvpn {
         }
     }
 
+    rpc getEVPN{
+        description "returns EVPN configuration";
+        input {
+            leaf id {
+                type    yang:uuid;
+                description "evpn-id";
+            }
+        }
+        output {
+            list evpn-instances {
+                uses evpn-instance;
+            }
+        }
+    }
+
+    rpc deleteEVPN{
+        description "delete EVPNs for specified Id list";
+        input {
+            leaf-list id {
+                type    yang:uuid;
+                description "evpn-id";
+            }
+        }
+        output {
+            leaf-list response {
+                type    string;
+                description "Status response for deleteEVPN RPC";
+            }
+        }
+    }
+
     rpc deleteL3VPN{
         description "delete VPNs for specified Id list";
         input {
@@ -315,7 +424,7 @@ module neutronvpn {
         }
         output {
             list l3vpn-instances {
-                uses l3vpn-instance;
+                uses vpn-instance;
             }
         }
     }
@@ -346,12 +455,13 @@ module neutronvpn {
             leaf vpn-name {
                 type string;
             }
-            leaf external-vpn {
+            leaf bgp-vpn {
                 type boolean;
             }
             leaf elan-tag {
                 type uint32;
             }
+            uses network-attributes;
     }
 
     notification subnet-deleted-from-vpn{
@@ -365,7 +475,7 @@ module neutronvpn {
             leaf vpn-name {
                 type string;
             }
-            leaf external-vpn {
+            leaf bgp-vpn {
                 type boolean;
             }
             leaf elan-tag {
@@ -384,7 +494,7 @@ module neutronvpn {
             leaf vpn-name {
                  type string;
             }
-            leaf external-vpn {
+            leaf bgp-vpn {
                  type boolean;
             }
             leaf elan-tag {

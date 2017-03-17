@@ -35,7 +35,7 @@ public class RemoveVpnPseudoPortDataJob extends VpnPseudoPortDataBaseJob {
         InstanceIdentifier<VpnToPseudoPortData> path = VpnServiceChainUtils.getVpnToPseudoPortTagIid(vpnRd);
 
         WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-        if ( writeTxn == null ) {
+        if (writeTxn == null) {
             throw new Exception("Could not create a proper WriteTransaction");
         }
 

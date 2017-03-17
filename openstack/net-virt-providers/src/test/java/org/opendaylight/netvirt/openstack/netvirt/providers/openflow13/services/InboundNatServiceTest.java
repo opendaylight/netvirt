@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Inocybe and others.  All rights reserved.
+ * Copyright © 2015, 2017 Inocybe and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -84,7 +84,7 @@ public class InboundNatServiceTest {
 
         assertEquals("Error, did not return the expected StatusCode",
                 new Status(StatusCode.SUCCESS),
-                inboundNatService.programIpRewriteRule(Long.valueOf(123), Long.valueOf(2), "2",  // FIXME: describe params
+                inboundNatService.programIpRewriteRule(123L, 2L, "2",  // FIXME: describe params
                         matchAddress, rewriteAddress, Action.ADD));
         verify(writeTransaction, times(2)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), anyBoolean());
         verify(writeTransaction, times(1)).submit();
@@ -92,7 +92,7 @@ public class InboundNatServiceTest {
 
         assertEquals("Error, did not return the expected StatusCode",
                 new Status(StatusCode.SUCCESS),
-                inboundNatService.programIpRewriteRule(Long.valueOf(123), Long.valueOf(2), "2",  // FIXME: describe params
+                inboundNatService.programIpRewriteRule(123L, 2L, "2",  // FIXME: describe params
                         matchAddress, rewriteAddress, Action.DELETE));
         verify(writeTransaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(2)).submit();
@@ -106,7 +106,7 @@ public class InboundNatServiceTest {
     public void testProgramIpRewriteExclusion() throws Exception {
         assertEquals("Error, did not return the expected StatusCode",
                 new Status(StatusCode.SUCCESS),
-                inboundNatService.programIpRewriteExclusion(Long.valueOf(123), "2", HOST_ADDRESS_PREFIX, Action.ADD));
+                inboundNatService.programIpRewriteExclusion(123L, "2", HOST_ADDRESS_PREFIX, Action.ADD));
         verify(writeTransaction, times(2)).put(any(LogicalDatastoreType.class),
                 any(InstanceIdentifier.class), any(Node.class), anyBoolean());
         verify(writeTransaction, times(1)).submit();
@@ -114,7 +114,7 @@ public class InboundNatServiceTest {
 
         assertEquals("Error, did not return the expected StatusCode",
                 new Status(StatusCode.SUCCESS),
-                inboundNatService.programIpRewriteExclusion(Long.valueOf(123), "2",
+                inboundNatService.programIpRewriteExclusion(123L, "2",
                         HOST_ADDRESS_PREFIX, Action.DELETE));
         verify(writeTransaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(2)).submit();

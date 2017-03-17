@@ -7,8 +7,13 @@
 
 package org.opendaylight.netvirt.bgpmanager.thrift.gen;
 
+import java.util.Map;
+import java.util.HashMap;
+import org.apache.thrift.TEnum;
+
 public enum af_afi implements org.apache.thrift.TEnum {
-  AFI_IP(1);
+  AFI_IP(1),
+  AFI_L2VPN(3);
 
   private final int value;
 
@@ -31,8 +36,11 @@ public enum af_afi implements org.apache.thrift.TEnum {
     switch (value) {
       case 1:
         return AFI_IP;
+      case 3:
+        return AFI_L2VPN;
       default:
         return null;
     }
   }
 }
+

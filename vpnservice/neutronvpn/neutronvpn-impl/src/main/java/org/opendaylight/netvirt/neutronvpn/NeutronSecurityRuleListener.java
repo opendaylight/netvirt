@@ -52,8 +52,9 @@ public class NeutronSecurityRuleListener
         extends AsyncDataTreeChangeListenerBase<SecurityRule, NeutronSecurityRuleListener> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronSecurityRuleListener.class);
     private final DataBroker dataBroker;
-    private static final ImmutableBiMap<Class<? extends DirectionBase>, Class<? extends org.opendaylight.yang.gen.
-            v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase>> DIRECTION_MAP = ImmutableBiMap.of(
+    private static final ImmutableBiMap<Class<? extends DirectionBase>,
+        Class<?extends org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase>>
+        DIRECTION_MAP = ImmutableBiMap.of(
             DirectionEgress.class, NeutronSecurityRuleConstants.DIRECTION_EGRESS,
             DirectionIngress.class, NeutronSecurityRuleConstants.DIRECTION_INGRESS);
     private static final ImmutableBiMap<Class<? extends ProtocolBase>, Short> PROTOCOL_MAP = ImmutableBiMap.of(
@@ -78,6 +79,8 @@ public class NeutronSecurityRuleListener
     }
 
     @Override
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<SecurityRule> instanceIdentifier, SecurityRule securityRule) {
         LOG.trace("added securityRule: {}", securityRule);
         try {
@@ -195,7 +198,7 @@ public class NeutronSecurityRuleListener
             }
         } else {
             if (securityRule.getEthertype() != null) {
-                handleEtherType( securityRule, aceIpBuilder);
+                handleEtherType(securityRule, aceIpBuilder);
             }
         }
 
@@ -203,6 +206,8 @@ public class NeutronSecurityRuleListener
     }
 
     @Override
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     protected void remove(InstanceIdentifier<SecurityRule> instanceIdentifier, SecurityRule securityRule) {
         LOG.trace("removed securityRule: {}", securityRule);
         try {
@@ -214,7 +219,8 @@ public class NeutronSecurityRuleListener
     }
 
     @Override
-    protected void update(InstanceIdentifier<SecurityRule> instanceIdentifier, SecurityRule oldSecurityRule, SecurityRule updatedSecurityRule) {
+    protected void update(InstanceIdentifier<SecurityRule> instanceIdentifier,
+                          SecurityRule oldSecurityRule, SecurityRule updatedSecurityRule) {
         // security rule updation is not supported from openstack, so no need to handle update.
         LOG.trace("updates on security rules not supported.");
     }

@@ -11,7 +11,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
   <repository>mvn:org.opendaylight.controller/features-mdsal/{{VERSION}}/xml/features</repository>
-  <repository>mvn:org.opendaylight.dlux/features-dlux/{{VERSION}}/xml/features</repository>
+  <repository>mvn:org.opendaylight.dluxapps/features-dluxapps/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.mdsal.model/features-mdsal-model/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.netconf/features-restconf/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.netvirt/features-netvirt/{{VERSION}}/xml/features</repository>
@@ -44,8 +44,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <feature name='odl-ovsdb-sfc-ui' version='${project.version}' description='OpenDaylight :: ovsdb-sfc :: UI'>
     <feature version="${project.version}">odl-ovsdb-sfc-rest</feature>
     <feature version="${restconf.version}">odl-mdsal-apidocs</feature>
-    <feature version="${controller.mdsal.version}">odl-mdsal-xsql</feature>
-    <feature version="${dlux.version}">odl-dlux-yangui</feature>
+    <feature version="${dluxapps.version}">odl-dluxapps-yangman</feature>
   </feature>
   <feature name='odl-ovsdb-sfc-test' version='${project.version}' description='OpenDaylight :: ovsdb-sfc-test'>
     <bundle>mvn:org.opendaylight.netvirt/utils.netvirt-it-utils/{{VERSION}}</bundle>

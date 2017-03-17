@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Brocade Communications Systems, Inc. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Brocade Communications Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -67,7 +67,7 @@ public class PortChainTranslator {
             for (ChainParameters cp : cpList) {
                 if(cp.getChainParameter().equals(SYMMETRIC_PARAM)) {
                     //Override the symmetric default value.
-                    sfcBuilder.setSymmetric(new Boolean(cp.getChainParameterValue()));
+                    sfcBuilder.setSymmetric(Boolean.valueOf(cp.getChainParameterValue()));
                     break;
                 }
             }

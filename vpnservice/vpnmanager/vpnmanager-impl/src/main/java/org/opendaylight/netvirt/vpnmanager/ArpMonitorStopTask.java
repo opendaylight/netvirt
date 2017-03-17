@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -7,11 +7,13 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -25,10 +27,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.ListenableFuture;
-
 public class ArpMonitorStopTask implements Callable<List<ListenableFuture<Void>>> {
     private MacEntry macEntry;
     private AlivenessMonitorService alivenessManager;
@@ -36,7 +34,7 @@ public class ArpMonitorStopTask implements Callable<List<ListenableFuture<Void>>
     private static final Logger LOG = LoggerFactory.getLogger(ArpMonitorStopTask.class);
 
     public ArpMonitorStopTask(MacEntry macEntry, DataBroker dataBroker,
-            AlivenessMonitorService alivenessManager) {
+        AlivenessMonitorService alivenessManager) {
         super();
         this.macEntry = macEntry;
         this.dataBroker = dataBroker;
@@ -45,12 +43,10 @@ public class ArpMonitorStopTask implements Callable<List<ListenableFuture<Void>>
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        final List<ListenableFuture<Void>> futures = new ArrayList<>();
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         java.util.Optional<Long> monitorIdOptional = AlivenessMonitorUtils.getMonitorIdFromInterface(macEntry);
-        if(monitorIdOptional.isPresent()) {
-            AlivenessMonitorUtils.stopArpMonitoring(alivenessManager, monitorIdOptional.get());
-        }
+        monitorIdOptional.ifPresent(aLong -> AlivenessMonitorUtils.stopArpMonitoring(alivenessManager, aLong));
         removeMipAdjacency(macEntry.getIpAddress().getHostAddress(),
                 macEntry.getVpnName(), macEntry.getInterfaceName(), tx);
         VpnUtil.removeLearntVpnVipToPort(dataBroker, macEntry.getVpnName(),
@@ -65,15 +61,14 @@ public class ArpMonitorStopTask implements Callable<List<ListenableFuture<Void>>
         return futures;
     }
 
-    private void removeMipAdjacency(String fixedip, String vpnName,
-            String interfaceName, WriteTransaction tx) {
+    private void removeMipAdjacency(String fixedip, String vpnName, String interfaceName, WriteTransaction tx) {
         synchronized (interfaceName.intern()) {
             InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
             InstanceIdentifier<Adjacencies> path = vpnIfId.augmentation(Adjacencies.class);
             Optional<Adjacencies> adjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
             if (adjacencies.isPresent()) {
                 InstanceIdentifier<Adjacency> adid = vpnIfId.augmentation(Adjacencies.class).child(Adjacency.class,
-                        new AdjacencyKey(ipToPrefix(fixedip)));
+                    new AdjacencyKey(ipToPrefix(fixedip)));
                 tx.delete(LogicalDatastoreType.CONFIGURATION, adid);
                 LOG.info("deleting the adjacencies for vpn {} interface {}", vpnName, interfaceName);
             }

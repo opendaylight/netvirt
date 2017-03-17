@@ -55,11 +55,9 @@ public class VpnFootprintService {
     private final OdlInterfaceRpcService ifaceMgrRpcService;
     private final NotificationPublishService notificationPublishService;
 
-    public VpnFootprintService(final DataBroker dataBroker,
-                               final IFibManager fibManager,
-                               final OdlInterfaceRpcService ifaceRpcService,
-                               final NotificationPublishService notificationPublishService,
-                               final VpnOpDataSyncer vpnOpDataSyncer) {
+    public VpnFootprintService(final DataBroker dataBroker, final IFibManager fibManager,
+        final OdlInterfaceRpcService ifaceRpcService, final NotificationPublishService notificationPublishService,
+        final VpnOpDataSyncer vpnOpDataSyncer) {
         this.dataBroker = dataBroker;
         this.fibManager = fibManager;
         this.vpnOpDataSyncer = vpnOpDataSyncer;
@@ -72,13 +70,13 @@ public class VpnFootprintService {
         if (dpId == null) {
             dpId = InterfaceUtils.getDpnForInterface(ifaceMgrRpcService, interfaceName);
         }
-        if(!dpId.equals(BigInteger.ZERO)) {
-            if(add) {
+        if (!dpId.equals(BigInteger.ZERO)) {
+            if (add) {
                 // Considering the possibility of VpnInstanceOpData not being ready yet cause the VPN is
                 // still in its creation process
-                if ( vpnId == VpnConstants.INVALID_ID ) {
+                if (vpnId == VpnConstants.INVALID_ID) {
                     vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataSyncer.VpnOpDataType.vpnInstanceToId, vpnName,
-                                                   VpnConstants.PER_VPN_INSTANCE_OPDATA_MAX_WAIT_TIME_IN_MILLISECONDS);
+                        VpnConstants.PER_VPN_INSTANCE_OPDATA_MAX_WAIT_TIME_IN_MILLISECONDS);
                     vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
                 }
                 createOrUpdateVpnToDpnList(vpnId, dpId, interfaceName, vpnName);
@@ -89,13 +87,12 @@ public class VpnFootprintService {
     }
 
     private void createOrUpdateVpnToDpnList(long vpnId, BigInteger dpnId, String intfName, String vpnName) {
-        String routeDistinguisher = VpnUtil.getVpnRdFromVpnInstanceConfig(dataBroker, vpnName);
-        String rd = (routeDistinguisher == null) ? vpnName : routeDistinguisher;
+        String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
         Boolean newDpnOnVpn = Boolean.FALSE;
 
         synchronized (vpnName.intern()) {
             WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-            InstanceIdentifier<VpnToDpnList> id = VpnUtil.getVpnToDpnListIdentifier(rd, dpnId);
+            InstanceIdentifier<VpnToDpnList> id = VpnUtil.getVpnToDpnListIdentifier(primaryRd, dpnId);
             Optional<VpnToDpnList> dpnInVpn = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
             VpnInterfaces vpnInterface = new VpnInterfacesBuilder().setInterfaceName(intfName).build();
 
@@ -138,8 +135,8 @@ public class VpnFootprintService {
          */
         if (newDpnOnVpn) {
             LOG.debug("Sending populateFib event for new dpn {} in VPN {}", dpnId, vpnName);
-            fibManager.populateFibOnNewDpn(dpnId, vpnId, rd, new DpnEnterExitVpnWorker(dpnId, vpnName, rd,
-                                                                                       true /* entered */));
+            fibManager.populateFibOnNewDpn(dpnId, vpnId, primaryRd, new DpnEnterExitVpnWorker(dpnId, vpnName, primaryRd,
+                true /* entered */));
         }
     }
 
@@ -160,16 +157,16 @@ public class VpnFootprintService {
                         if (ipAddresses == null || ipAddresses.isEmpty()) {
                             VpnToDpnListBuilder dpnInVpnBuilder =
                                 new VpnToDpnListBuilder(dpnInVpn.get()).setDpnState(VpnToDpnList.DpnState.Inactive)
-                                                                       .setVpnInterfaces(null);
+                                    .setVpnInterfaces(null);
                             writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, dpnInVpnBuilder.build(), true);
                             lastDpnOnVpn = Boolean.TRUE;
                         } else {
                             LOG.warn("vpn interfaces are empty but ip addresses are present for the vpn {} in dpn {}",
-                                     vpnName, dpnId);
+                                vpnName, dpnId);
                         }
                     } else {
                         writeTxn.delete(LogicalDatastoreType.OPERATIONAL, id.child(VpnInterfaces.class,
-                                                                                   new VpnInterfacesKey(intfName)));
+                            new VpnInterfacesKey(intfName)));
                     }
                 }
             }
@@ -185,7 +182,7 @@ public class VpnFootprintService {
         if (lastDpnOnVpn) {
             LOG.debug("Sending cleanup event for dpn {} in VPN {}", dpnId, vpnName);
             fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd, new DpnEnterExitVpnWorker(dpnId, vpnName, rd,
-                                                                                    false /* exited */));
+                false /* exited */));
         }
     }
 
@@ -236,7 +233,7 @@ public class VpnFootprintService {
         String rd;
         boolean entered;
 
-        public DpnEnterExitVpnWorker(BigInteger dpnId, String vpnName, String rd, boolean entered) {
+        DpnEnterExitVpnWorker(BigInteger dpnId, String vpnName, String rd, boolean entered) {
             this.entered = entered;
             this.dpnId = dpnId;
             this.vpnName = vpnName;
@@ -244,7 +241,6 @@ public class VpnFootprintService {
         }
 
         /**
-         * @param voids
          * This implies that all the future instances have returned success. -- TODO: Confirm this
          */
         @Override
@@ -257,8 +253,6 @@ public class VpnFootprintService {
         }
 
         /**
-         *
-         * @param throwable
          * This method is used to handle failure callbacks.
          * If more retry needed, the retrycount is decremented and mainworker is executed again.
          * After retries completed, rollbackworker is executed.

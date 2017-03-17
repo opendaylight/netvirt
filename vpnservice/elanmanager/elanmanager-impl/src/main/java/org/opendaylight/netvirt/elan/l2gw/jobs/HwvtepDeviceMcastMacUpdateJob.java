@@ -7,8 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.jobs;
 
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
@@ -38,7 +38,7 @@ public class HwvtepDeviceMcastMacUpdateJob implements Callable<List<ListenableFu
     public List<ListenableFuture<Void>> call() throws Exception {
         LOG.info("running update mcast mac entry job for {} {}",
                 elanName, l2GatewayDevice.getHwvtepNodeId());
-        return Lists.newArrayList(
+        return Collections.singletonList(
                 elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevice(elanName, l2GatewayDevice));
     }
 
