@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f41054aa",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/utils/AclServiceTestUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2017-03-17T17:57:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_75c925ab",
+      "revId": "058b43a4c7424baec56b5d92c86b9d562329de66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_75f2c506",
         "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/utils/MethodInvocationParamSaver.java",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-13T09:35:22Z",
       "side": 1,
       "message": "This doens\u0027t seem right, very wrong.. why is this needed? You seem to hard-coding for this to answer with only the 2nd argument instead of the list.  For a generic Mockito util like this one here, that doesn\u0027t make sense, to me.  Don\u0027t you need to adapt the test using this util instead of hard-coding this generic util to something your test needs following this change?",
+      "revId": "058b43a4c7424baec56b5d92c86b9d562329de66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_741c64c2",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/utils/MethodInvocationParamSaver.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2017-03-17T17:57:23Z",
+      "side": 1,
+      "message": "Reverted changes in util class and updated tests to use required argument",
+      "parentUuid": "fafc7978_75f2c506",
       "revId": "058b43a4c7424baec56b5d92c86b9d562329de66",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
