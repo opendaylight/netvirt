@@ -247,7 +247,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             evpnVrfEntryProcessor.removeFlows();
         } else {
             if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
-                deleteFibEntries(identifier, vrfEntry);
+                if (vrfEntry != null) {
+                    deleteFibEntries(identifier, vrfEntry);
+                } else {
+                    LOG.info("vrfEntry not available", vrfEntry);
+                }
             } else {
                 ActionableResource actResource = new ActionableResourceImpl(rd + vrfEntry.getDestPrefix());
                 actResource.setAction(ActionableResource.DELETE);
