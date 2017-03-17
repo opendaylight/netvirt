@@ -1,0 +1,290 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_74d744ee",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2017-03-17T20:47:36Z",
+      "side": 1,
+      "message": "Wouldn\u0027t it be more accurate to say: \"This blueprint only addresses the use of SFC with NetVirt and OVS\"?  I.e., what\u0027s done in OVS doesn\u0027t preclude having some SFFs hosted on VPP switches in the chain.",
+      "revId": "89cb4527ebde44b923808e5560d4fee9d05027a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d430b009",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2017-03-17T20:47:36Z",
+      "side": 1,
+      "message": "e.g., output or drop",
+      "range": {
+        "startLine": 133,
+        "startChar": 56,
+        "endLine": 133,
+        "endChar": 73
+      },
+      "revId": "89cb4527ebde44b923808e5560d4fee9d05027a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5424c0c5",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2017-03-17T20:47:36Z",
+      "side": 1,
+      "message": "can",
+      "range": {
+        "startLine": 135,
+        "startChar": 0,
+        "endLine": 135,
+        "endChar": 12
+      },
+      "revId": "89cb4527ebde44b923808e5560d4fee9d05027a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_17099a2c",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2017-03-17T20:47:36Z",
+      "side": 1,
+      "message": "Is the ingress or egress classifier responsible for forwarding packets to the local SFF?",
+      "range": {
+        "startLine": 160,
+        "startChar": 0,
+        "endLine": 165,
+        "endChar": 10
+      },
+      "revId": "89cb4527ebde44b923808e5560d4fee9d05027a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_57120259",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2017-03-17T20:47:36Z",
+      "side": 1,
+      "message": "I thought we agreed that ingress SFC classifier wouldn\u0027t need to resubmit packets to SFC.",
+      "revId": "89cb4527ebde44b923808e5560d4fee9d05027a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f724d6b0",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2017-03-17T20:47:36Z",
+      "side": 1,
+      "message": "Does it also bind on VXGPE ports?",
+      "range": {
+        "startLine": 218,
+        "startChar": 0,
+        "endLine": 219,
+        "endChar": 9
+      },
+      "revId": "89cb4527ebde44b923808e5560d4fee9d05027a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_971c6a6c",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2017-03-17T20:47:36Z",
+      "side": 1,
+      "message": "Same comment as above.",
+      "range": {
+        "startLine": 220,
+        "startChar": 15,
+        "endLine": 221,
+        "endChar": 14
+      },
+      "revId": "89cb4527ebde44b923808e5560d4fee9d05027a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_573962d7",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2017-03-17T20:47:36Z",
+      "side": 1,
+      "message": "I think you already discussed this above.",
+      "range": {
+        "startLine": 239,
+        "startChar": 0,
+        "endLine": 242,
+        "endChar": 63
+      },
+      "revId": "89cb4527ebde44b923808e5560d4fee9d05027a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9733caf5",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2017-03-17T20:47:36Z",
+      "side": 1,
+      "message": "I think you\u0027ll need to change the port to one that the rest of the NetVirt pipleline is bound to.  The service index is probably fine in this case.",
+      "range": {
+        "startLine": 255,
+        "startChar": 51,
+        "endLine": 258,
+        "endChar": 36
+      },
+      "revId": "89cb4527ebde44b923808e5560d4fee9d05027a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_57404235",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2017-03-17T20:47:36Z",
+      "side": 1,
+      "message": "Do you need one of these for every possible nsp on the switch?  Is this required for locally originating packets that were resubmitted from the ingress classifier to the sfc?  Is there any way to generically match on \"IS NSH\"?",
+      "revId": "89cb4527ebde44b923808e5560d4fee9d05027a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_373dbebc",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2017-03-17T20:47:36Z",
+      "side": 1,
+      "message": "Is it possible for different Neutron networks/tentants to have different classification rules and/or different RSP\u0027s?  If so, it seems you\u0027d also need to match on the network here.",
+      "revId": "89cb4527ebde44b923808e5560d4fee9d05027a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_57716276",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2017-03-17T20:47:36Z",
+      "side": 1,
+      "message": "Where would you make the local/remote SFF check?",
+      "revId": "89cb4527ebde44b923808e5560d4fee9d05027a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_170fdae2",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2017-03-17T20:47:36Z",
+      "side": 1,
+      "message": "Is this the case for packets being transmitted by the SFF?",
+      "revId": "89cb4527ebde44b923808e5560d4fee9d05027a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_57e68217",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2017-03-17T20:47:36Z",
+      "side": 1,
+      "message": "Isn\u0027t it odl-ovsdb-sfc?",
+      "range": {
+        "startLine": 510,
+        "startChar": 0,
+        "endLine": 510,
+        "endChar": 19
+      },
+      "revId": "89cb4527ebde44b923808e5560d4fee9d05027a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
