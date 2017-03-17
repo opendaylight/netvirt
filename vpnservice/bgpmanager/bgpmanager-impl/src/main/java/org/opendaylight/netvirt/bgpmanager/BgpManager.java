@@ -25,6 +25,7 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.LayerType;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.TcpMd5SignaturePasswordType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.slf4j.Logger;
@@ -72,6 +73,10 @@ public class BgpManager implements AutoCloseable, IBgpManager {
 
     public void addNeighbor(String ipAddress, long asNum) throws TException {
         bcm.addNeighbor(ipAddress, asNum);
+    }
+
+    public void addNeighbor(String ipAddress, long asNum, TcpMd5SignaturePasswordType md5Password) throws TException {
+        bcm.addNeighbor(ipAddress, asNum, md5Password);
     }
 
     public void addEbgpMultihop(String ipAddress, int nhops) throws TException {
