@@ -18,7 +18,7 @@ public class Commands {
     private static final long AS_MAX = 4294967295L;//2^32-1
 
     enum Validators {
-        IPADDR, INT, ASNUM
+        IPADDR, INT, ASNUM, AFI
     }
 
     public Commands(BgpManager bgpm) {
@@ -49,6 +49,19 @@ public class Commands {
                 break;
             case ASNUM:
                 if (!validateAsNumber(ps, val)) {
+                    return false;
+                }
+                break;
+            case AFI:
+                try {
+                    int afiValue = Integer.parseInt(val);
+                    if ( afiValue < 1 || afiValue > 2 ) {
+                        ps.println("error: value of " + name
+                                + " is not an integer between 1(ipv4) and 2(ipv6), its value is " + val);
+                        return false;
+                    }
+                } catch (NumberFormatException nme) {
+                    ps.println("error: value of " + name + " is not an integer");
                     return false;
                 }
                 break;

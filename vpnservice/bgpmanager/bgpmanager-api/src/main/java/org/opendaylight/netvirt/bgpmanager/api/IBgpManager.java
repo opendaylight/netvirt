@@ -24,38 +24,79 @@ public interface IBgpManager {
     /**
      * Adds one or more routes, as many as nexthops provided, in a BGP neighbour. It persists VrfEntry in datastore
      * and sends the BGP message.
+     *
+     * @param rd
+     * @param prefix
+     * @param nextHopList
+     * @param encapType
+     * @param vpnLabel
+     * @param l3vni
+     * @param afi
+     * @param origin
      */
     void addPrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
                           VrfEntry.EncapType encapType, int vpnLabel, long l3vni, String gatewayMac,
-                          RouteOrigin origin) throws Exception;
+                          long afi, RouteOrigin origin) throws Exception;
 
     /**
      * Adds a route in a BGP neighbour. It persists the VrfEntry in Datastore and sends the BGP message.
+     *
+     * @param rd
+     * @param macAddress
+     * @param prefix
+     * @param nextHop
+     * @param encapType
+     * @param vpnLabel
+     * @param l3vni
+     * @param gatewayMac
+     * @param afi
+     * @param origin
      */
     void addPrefix(String rd, String macAddress, String prefix, String nextHop,
                           VrfEntry.EncapType encapType, int vpnLabel, long l3vni, String gatewayMac,
-                          RouteOrigin origin) throws Exception;
+                          long afi, RouteOrigin origin) throws Exception;
 
-    void deletePrefix(String rd, String prefix);
+    void deletePrefix(String rd, String prefix, long afi);
 
     void setQbgpLog(String fileName, String logLevel);
 
     /**
      * Advertises a Prefix to a BGP neighbour, using several nexthops. Only sends the BGP messages, no writing to
      * MD-SAL.
+     *
+     * @param rd
+     * @param macAddress
+     * @param prefix
+     * @param nextHopList
+     * @param encapType
+     * @param vpnLabel
+     * @param gatewayMac
+     * @param afi
      */
     void advertisePrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
                                 VrfEntry.EncapType encapType, int vpnLabel, long l3vni,
-                                String gatewayMac) throws Exception;
+                                String gatewayMac, long afi) throws Exception;
 
     /**
      * Advertises a Prefix to a BGP neighbour. Only sends the BGP messages, no writing to MD-SAL.
+     *
+     * @param rd
+     * @param prefix
+     * @param nextHop
+     * @param vpnLabel
+     * @param afi
      */
     void advertisePrefix(String rd, String macAddress, String prefix, String nextHop,
                                 VrfEntry.EncapType encapType, int vpnLabel, long l3vni,
-                                String gatewayMac) throws Exception;
+                                String gatewayMac, long afi) throws Exception;
 
-    void withdrawPrefix(String rd, String prefix);
+    /**
+     *
+     * @param rd
+     * @param prefix
+     * @param afi
+     */
+    void withdrawPrefix(String rd, String prefix, long afi);
 
     String getDCGwIP();
 

@@ -149,7 +149,8 @@ public class BgpThriftService {
                         esi,
                         macaddress,
                         l3label,
-                        routermac);
+                        routermac,
+                        afi);
 
             } catch (Throwable e) {
                 LOGGER.error("failed to handle update route ", e);
