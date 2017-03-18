@@ -13,6 +13,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.liblldp.NetUtils;
@@ -55,6 +56,7 @@ import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.mdsalutil.packet.TCP;
 import org.opendaylight.genius.mdsalutil.packet.UDP;
+import org.opendaylight.netvirt.natservice.internal.NaptPacketInHandler.NatPacketProcessingState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -189,6 +191,12 @@ public class NaptEventHandler {
                             internalAddress, externalAddress, protocol, extGwMacAddress);
                 }
 
+                NatPacketProcessingState packetState = NaptPacketInHandler.INCOMING_PACKET_MAP
+                        .get(naptEntryEvent.getIpAddress() + NatConstants.NAT_COLON + naptEntryEvent.getPortNumber());
+                if (packetState != null) {
+                    LOG.debug("NAT Service : Marking Packet Processing completed after successfull flow installation");
+                    packetState.setStatus(NatConstants.PACKET_COMPLETED);
+                }
                 //Send Packetout - tcp or udp packets which got punted to controller.
                 BigInteger metadata = naptEntryEvent.getPacketReceived().getMatch().getMetadata().getMetadata();
                 byte[] inPayload = naptEntryEvent.getPacketReceived().getPayload();
