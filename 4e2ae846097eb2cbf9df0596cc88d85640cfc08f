@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_42851eac",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-18T17:36:47Z",
+      "side": 1,
+      "message": "Let us provide proper comment here that all Intra-DC NAT Traffic will carry L3VNI of the Internet EVPN.",
+      "revId": "4e2ae846097eb2cbf9df0596cc88d85640cfc08f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e2bb7273",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2226,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-18T17:36:47Z",
+      "side": 1,
+      "message": "what is the difference between this and the original resolveAdjacency method..",
+      "revId": "4e2ae846097eb2cbf9df0596cc88d85640cfc08f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_828f06cc",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2231,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-18T17:36:47Z",
+      "side": 1,
+      "message": "for NAT Prefix",
+      "revId": "4e2ae846097eb2cbf9df0596cc88d85640cfc08f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
