@@ -117,7 +117,7 @@ public class SouthboundHandler extends AbstractHandler
         if (action.equals(Action.UPDATE)) {
             distributedArpService.processInterfaceEvent(node, tp, network, false, action);
         }
-        neutronL3Adapter.handleInterfaceEvent(node, tp, network, Action.UPDATE);
+        neutronL3Adapter.handleInterfaceEvent(node, tp, network, action);
     }
     /**
      * Get dpid from node.
@@ -148,6 +148,8 @@ public class SouthboundHandler extends AbstractHandler
         if(dpIdNeutronPort != null && !dpIdNeutronPort.equals(dpId)) {
             isMigratedPort = true;
         }
+        LOG.trace("isMigratedPort {}, node {}, neutronPort {}, dpIdNeutronPort {} ", isMigratedPort, node.getNodeId(),
+                  neutronPort.getMacAddress(), dpIdNeutronPort);
         return isMigratedPort;
     }
 
@@ -381,14 +383,16 @@ public class SouthboundHandler extends AbstractHandler
     }
 
     private void processPortUpdate(Node node, OvsdbTerminationPointAugmentation port, Action action) {
-        LOG.debug("processPortUpdate : {} for the Node: {}", port, node);
+        LOG.debug("processPortUpdate : action {}, {} for the Node: {}", action, port, node);
         NeutronNetwork network = tenantNetworkManager.getTenantNetwork(port);
         if (network != null) {
             final NeutronPort neutronPort = tenantNetworkManager.getTenantPort(port);
-            if (!network.getRouterExternal()) {
-                handleInterfaceUpdate(node, port, action);
-            } else if (action != null && action.equals(Action.UPDATE)) {
-                programVLANNetworkFlowProvider(node, port, network, neutronPort, true);
+            if (!(Action.UPDATE.equals(action) && isMigratedPort(node, neutronPort))) {
+                if (!network.getRouterExternal()) {
+                    handleInterfaceUpdate(node, port, action);
+                } else if (Action.UPDATE.equals(action)) {
+                    programVLANNetworkFlowProvider(node, port, network, neutronPort, true);
+                }
             }
         } else if (null != port.getInterfaceType() && null != port.getOfport()) {
             // Filter Vxlan interface request and install table#110 unicast flow (Bug 7392).
