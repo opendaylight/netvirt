@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_22129a62",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-18T19:09:50Z",
+      "side": 1,
+      "message": "return?",
+      "revId": "5f10c36c585ff910d89269e0f5a25fc2bb334ab1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_620b022c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 915,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-18T19:09:50Z",
+      "side": 1,
+      "message": "based on the content of this log it should be located outside the for loop",
+      "revId": "5f10c36c585ff910d89269e0f5a25fc2bb334ab1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_82026609",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-18T19:09:50Z",
+      "side": 1,
+      "message": "why is this re-validation needed for every external ip?",
+      "range": {
+        "startLine": 617,
+        "startChar": 0,
+        "endLine": 625,
+        "endChar": 21
+      },
+      "revId": "5f10c36c585ff910d89269e0f5a25fc2bb334ab1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ddfe1305",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 675,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-18T19:09:50Z",
+      "side": 1,
+      "message": "used only in vxlan UC\nno need to create and submit an empty tx in other cases",
+      "revId": "5f10c36c585ff910d89269e0f5a25fc2bb334ab1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1d09bb2c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-18T19:09:50Z",
+      "side": 1,
+      "message": "same comments as in hndlTepAddOnNaptSwitch\nvalidation could be extracted to a common method",
+      "revId": "5f10c36c585ff910d89269e0f5a25fc2bb334ab1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
