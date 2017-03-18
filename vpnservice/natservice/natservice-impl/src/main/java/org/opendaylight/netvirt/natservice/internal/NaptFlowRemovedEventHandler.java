@@ -8,6 +8,10 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import java.math.BigInteger;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
@@ -39,20 +43,30 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener {
     private static final Logger LOG = LoggerFactory.getLogger(NaptFlowRemovedEventHandler.class);
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
-    private final EventDispatcher naptEventdispatcher;
     private final NaptPacketInHandler naptPacketInHandler;
     private final NaptManager naptManager;
+    private final NaptEventHandler naptEventHandler;
+    private ExecutorService executorService;
 
     public NaptFlowRemovedEventHandler(final DataBroker dataBroker,
                                        final IMdsalApiManager mdsalManager,
-                                       final EventDispatcher eventDispatcher,
+                                       //final EventDispatcher eventDispatcher,
                                        final NaptPacketInHandler handler,
-                                       final NaptManager naptManager) {
+                                       final NaptManager naptManager,
+                                       NaptEventHandler naptEventHandler) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
-        this.naptEventdispatcher = eventDispatcher;
         this.naptPacketInHandler = handler;
         this.naptManager = naptManager;
+        this.naptEventHandler = naptEventHandler;
+    }
+
+    public void init() {
+        executorService = Executors.newFixedThreadPool(NatConstants.FLOW_REMOVE_THEAD_POOL_SIZE);
+    }
+
+    public void close() {
+        executorService.shutdown();
     }
 
     @Override
@@ -173,8 +187,13 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener {
             //Create an NAPT event and place it in the queue.
             NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(externalIpAddress, externalPortNumber,
                 routerId, NAPTEntryEvent.Operation.DELETE, protocol, null, false);
-            naptEventdispatcher.addNaptEvent(naptEntryEvent);
-
+            LOG.trace("NAT Service : NAT Flow Removed Queue Size : {}",
+                    ((ThreadPoolExecutor)executorService).getQueue().size());
+            executorService.execute(new Runnable() {
+                public void run() {
+                    naptEventHandler.handleEvent(naptEntryEvent);
+                }
+            });
             //Get the DPN ID from the Node
             InstanceIdentifier<Node> nodeRef = flowRemoved.getNode().getValue().firstIdentifierOf(Node.class);
             String dpn = nodeRef.firstKeyOf(Node.class).getId().getValue();

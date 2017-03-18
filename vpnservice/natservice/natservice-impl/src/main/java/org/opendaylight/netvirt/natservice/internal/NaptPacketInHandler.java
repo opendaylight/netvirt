@@ -9,7 +9,13 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.primitives.Ints;
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
@@ -26,11 +32,20 @@ import org.slf4j.LoggerFactory;
 public class NaptPacketInHandler implements PacketProcessingListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(NaptPacketInHandler.class);
-    private static final HashSet<String> INCOMING_PACKET_MAP = new HashSet<>();
-    private final EventDispatcher naptEventdispatcher;
+    public static final HashMap<String,NatPacketProcessingState> INCOMING_PACKET_MAP = new HashMap<>();
+    private final NaptEventHandler naptEventHandler;
+    private ExecutorService executorService;
 
-    public NaptPacketInHandler(EventDispatcher eventDispatcher) {
-        this.naptEventdispatcher = eventDispatcher;
+    public NaptPacketInHandler(NaptEventHandler naptEventHandler) {
+        this.naptEventHandler = naptEventHandler;
+    }
+
+    public void init() {
+        executorService = Executors.newFixedThreadPool(NatConstants.PACKET_IN_THEAD_POOL_SIZE);
+    }
+
+    public void close() {
+        executorService.shutdown();
     }
 
     @Override
@@ -92,28 +107,74 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                 }
 
                 if (internalIPAddress != null) {
-                    String sourceIPPortKey = internalIPAddress + ":" + portNumber;
+                    String sourceIPPortKey = internalIPAddress + NatConstants.NAT_COLON + portNumber;
                     LOG.debug("NAT Service : sourceIPPortKey {} mapping maintained in the map", sourceIPPortKey);
-                    if (!INCOMING_PACKET_MAP.contains(sourceIPPortKey)) {
-                        INCOMING_PACKET_MAP.add(internalIPAddress + portNumber);
+                    BigInteger metadata = packetReceived.getMatch().getMetadata().getMetadata();
+                    routerId = MetaDataUtil.getNatRouterIdFromMetadata(metadata);
+                    if (routerId <= 0) {
+                        LOG.error("NAT Service : Router ID is invalid");
+                        return;
+                    }
+                    if (!INCOMING_PACKET_MAP.containsKey(sourceIPPortKey)) {
+                        INCOMING_PACKET_MAP.put(sourceIPPortKey,
+                                new NatPacketProcessingState(NatConstants.PACKET_INPROGRESS, 1));
                         LOG.trace("NAT Service : Processing new Packet");
-                        BigInteger metadata = packetReceived.getMatch().getMetadata().getMetadata();
-                        routerId = MetaDataUtil.getNatRouterIdFromMetadata(metadata);
-                        if (routerId <= 0) {
-                            LOG.error("NAT Service : Router ID is invalid");
-                            return;
-                        }
+
                         //send to Event Queue
                         LOG.trace("NAT Service : Creating NaptEvent for routerId {} and sourceIp {} and Port {}",
                             routerId, internalIPAddress, portNumber);
                         NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress, portNumber, routerId,
                             operation, protocol, packetReceived, false);
-                        naptEventdispatcher.addNaptEvent(naptEntryEvent);
+                        LOG.trace("NAT Service : Packet IN Queue Size : {}",
+                                ((ThreadPoolExecutor)executorService).getQueue().size());
+                        executorService.execute(new Runnable() {
+                            public void run() {
+                                naptEventHandler.handleEvent(naptEntryEvent);
+                            }
+                        });
                         LOG.trace("NAT Service : PacketInHandler sent event to NaptEventHandler");
                     } else {
                         LOG.trace("NAT Service : Packet already processed");
                         NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress, portNumber, routerId,
                             operation, protocol, packetReceived, true);
+                        LOG.trace("NAT Service : Packet IN Queue Size : {}",
+                                ((ThreadPoolExecutor)executorService).getQueue().size());
+                        executorService.execute(new Runnable() {
+                            public void run() {
+
+                                NatPacketProcessingState packetState = INCOMING_PACKET_MAP.get(sourceIPPortKey);
+                                if (packetState != null && packetState.getFlowRetryCount() >= 3) {
+                                    LOG.warn("NAT Service : Flow Installtion has been tried 3 times and "
+                                            + "Been failed for NAT Session {}. Dropping packet", sourceIPPortKey);
+                                    return;
+                                }
+                                int count =0;
+                                while(count < 3) {
+                                    if (packetState != null
+                                            && NatConstants.PACKET_INPROGRESS.equals(packetState.getStatus())) {
+                                        LOG.debug("NAT Service : First Packet processing in Progress."
+                                                + "Wait 50ms for flows to get installed by first packet");
+                                        try {
+                                            Thread.sleep(50);
+                                        } catch (InterruptedException ex) {
+                                            LOG.error("NAT Service : Exception occured during sleep");
+                                        }
+                                    } else {
+                                        break;
+                                    }
+                                    count++;
+                                    packetState = INCOMING_PACKET_MAP.get(sourceIPPortKey);
+                                }
+                                if (count == 3 && packetState != null
+                                        && NatConstants.PACKET_INPROGRESS.equals(packetState.getStatus())) {
+                                    LOG.debug("NAT Service : Maximum wait(150ms) done by 2nd packet."
+                                            + "Will try to reinstall the flow");
+                                    naptEntryEvent.setPktProcessed(false);
+                                    packetState.setFlowRetryCount(packetState.getFlowRetryCount() + 1);
+                                }
+                                naptEventHandler.handleEvent(naptEntryEvent);
+                            }
+                        });
                         LOG.trace("NAT Service : PacketInHandler sent event to NaptEventHandler");
                     }
                 } else {
@@ -128,5 +189,32 @@ public class NaptPacketInHandler implements PacketProcessingListener {
     public void removeIncomingPacketMap(String sourceIPPortKey) {
         INCOMING_PACKET_MAP.remove(sourceIPPortKey);
         LOG.debug("NAT Service : sourceIPPortKey {} mapping is removed from map", sourceIPPortKey);
+    }
+
+    protected class NatPacketProcessingState {
+
+        private String status;
+        private int flowRetryCount;
+
+        NatPacketProcessingState(String status, int flowRetryCount) {
+            this.status = status;
+            this.flowRetryCount = flowRetryCount;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
+
+        public int getFlowRetryCount() {
+            return flowRetryCount;
+        }
+
+        public void setFlowRetryCount(int flowRetryCount) {
+            this.flowRetryCount = flowRetryCount;
+        }
     }
 }

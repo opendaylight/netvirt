@@ -38,6 +38,11 @@ public class NatConstants {
     public static final long DEFAULT_L3VNI_VALUE = 0;
     public static final int DEFAULT_LABEL_VALUE = 0;
     public static final String DNAT_FLOW_NAME = "DNAT";
+    public static final int PACKET_IN_THEAD_POOL_SIZE = 100;
+    public static final int FLOW_REMOVE_THEAD_POOL_SIZE = 10;
+    public static final String NAT_COLON = ":";
+    public static final String PACKET_INPROGRESS = "inprogress";
+    public static final String PACKET_COMPLETED = "completed";
 
     // Flow Actions
     public static final int ADD_FLOW = 0;

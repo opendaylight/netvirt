@@ -23,6 +23,10 @@ public class NAPTEntryEvent {
         return packetReceived;
     }
 
+    public void setPktProcessed(boolean pktProcessed) {
+        this.pktProcessed = pktProcessed;
+    }
+
     public boolean isPktProcessed() {
         return pktProcessed;
     }

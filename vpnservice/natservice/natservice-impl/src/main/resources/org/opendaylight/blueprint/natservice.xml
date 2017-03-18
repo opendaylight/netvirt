@@ -86,15 +86,10 @@
     <argument ref="interfaceManager" />
   </bean>
 
-  <bean id="eventDispatcher"
-        class="org.opendaylight.netvirt.natservice.internal.EventDispatcher"
-        init-method="init">
-    <argument ref="naptEventHandler" />
-  </bean>
-
   <bean id="naptPacketInHandler"
-        class="org.opendaylight.netvirt.natservice.internal.NaptPacketInHandler">
-    <argument ref="eventDispatcher" />
+        class="org.opendaylight.netvirt.natservice.internal.NaptPacketInHandler"
+        init-method="init" destroy-method="close">
+    <argument ref="naptEventHandler" />
   </bean>
   <odl:notification-listener ref="naptPacketInHandler" />
 
@@ -156,12 +151,13 @@
   </bean>
 
   <bean id="naptFlowRemovedEventHandler"
-        class="org.opendaylight.netvirt.natservice.internal.NaptFlowRemovedEventHandler">
+        class="org.opendaylight.netvirt.natservice.internal.NaptFlowRemovedEventHandler"
+        init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />
-    <argument ref="eventDispatcher" />
     <argument ref="naptPacketInHandler" />
     <argument ref="naptManager" />
+    <argument ref="naptEventHandler" />
   </bean>
   <odl:notification-listener ref="naptFlowRemovedEventHandler" />
 
