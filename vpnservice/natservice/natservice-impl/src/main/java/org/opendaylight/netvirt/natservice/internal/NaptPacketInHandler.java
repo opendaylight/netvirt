@@ -10,6 +10,10 @@ package org.opendaylight.netvirt.natservice.internal;
 import com.google.common.primitives.Ints;
 import java.math.BigInteger;
 import java.util.HashSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
@@ -27,10 +31,19 @@ public class NaptPacketInHandler implements PacketProcessingListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(NaptPacketInHandler.class);
     private static final HashSet<String> INCOMING_PACKET_MAP = new HashSet<>();
-    private final EventDispatcher naptEventdispatcher;
+    private final NaptEventHandler naptEventHandler;
+    private ExecutorService executorService;
 
-    public NaptPacketInHandler(EventDispatcher eventDispatcher) {
-        this.naptEventdispatcher = eventDispatcher;
+    public NaptPacketInHandler(NaptEventHandler naptEventHandler) {
+        this.naptEventHandler = naptEventHandler;
+    }
+
+    public void init() {
+        executorService = Executors.newFixedThreadPool(NatConstants.PACKET_IN_THEAD_POOL_SIZE);
+    }
+
+    public void close() {
+        executorService.shutdown();
     }
 
     @Override
@@ -95,7 +108,7 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                     String sourceIPPortKey = internalIPAddress + ":" + portNumber;
                     LOG.debug("NAT Service : sourceIPPortKey {} mapping maintained in the map", sourceIPPortKey);
                     if (!INCOMING_PACKET_MAP.contains(sourceIPPortKey)) {
-                        INCOMING_PACKET_MAP.add(internalIPAddress + portNumber);
+                        INCOMING_PACKET_MAP.add(internalIPAddress + ":" + portNumber);
                         LOG.trace("NAT Service : Processing new Packet");
                         BigInteger metadata = packetReceived.getMatch().getMetadata().getMetadata();
                         routerId = MetaDataUtil.getNatRouterIdFromMetadata(metadata);
@@ -108,12 +121,25 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                             routerId, internalIPAddress, portNumber);
                         NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress, portNumber, routerId,
                             operation, protocol, packetReceived, false);
-                        naptEventdispatcher.addNaptEvent(naptEntryEvent);
+                        LOG.trace("NAT Service : Packet IN Queue Size : {}",
+                                ((ThreadPoolExecutor)executorService).getQueue().size());
+                        executorService.execute(new Runnable() {
+                            public void run() {
+                                naptEventHandler.handleEvent(naptEntryEvent);
+                            }
+                        });
                         LOG.trace("NAT Service : PacketInHandler sent event to NaptEventHandler");
                     } else {
                         LOG.trace("NAT Service : Packet already processed");
                         NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress, portNumber, routerId,
                             operation, protocol, packetReceived, true);
+                        LOG.trace("NAT Service : Packet IN Queue Size : {}",
+                                ((ThreadPoolExecutor)executorService).getQueue().size());
+                        executorService.execute(new Runnable() {
+                            public void run() {
+                                naptEventHandler.handleEvent(naptEntryEvent);
+                            }
+                        });
                         LOG.trace("NAT Service : PacketInHandler sent event to NaptEventHandler");
                     }
                 } else {
