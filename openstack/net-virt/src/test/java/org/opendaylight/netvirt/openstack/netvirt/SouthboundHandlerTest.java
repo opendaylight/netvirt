@@ -35,6 +35,7 @@ import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbInventoryListener;
 import org.opendaylight.netvirt.openstack.netvirt.api.TenantNetworkManager;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.netvirt.openstack.netvirt.api.EventDispatcher;
 import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbInventoryService;
@@ -194,6 +195,8 @@ public class SouthboundHandlerTest {
         Mockito.reset(networkingProvider);
 
         when(ev.getAction()).thenReturn(Action.UPDATE);
+        NeutronPort neutronPort = mock(NeutronPort.class);
+        when(tenantNetworkManager.getTenantPort(any(OvsdbTerminationPointAugmentation.class))).thenReturn(neutronPort);
         southboundHandler.processEvent(ev);
         verify(distributedArpService, times(1)).processInterfaceEvent(any(Node.class), any(OvsdbTerminationPointAugmentation.class), any(NeutronNetwork.class), any(Boolean.class), any(Action.class));
         verify(neutronL3Adapter, times(1)).handleInterfaceEvent(any(Node.class), any(OvsdbTerminationPointAugmentation.class), any(NeutronNetwork.class), any(Action.class));
