@@ -816,12 +816,12 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
         if (neutronPort != null) {
             final String neutronPortUuid = neutronPort.getPortUUID();
 
-            if (action != DELETE && dpId != null && interfaceUuid != null) {
+            if (action == ADD && dpId != null && interfaceUuid != null) {
                 handleInterfaceEventAdd(neutronPortUuid, dpId, interfaceUuid);
             }
 
             if (this.enabled) {
-                handleNeutronPortEvent(neutronPort, action);
+                handleNeutronPortEvent(neutronPort, action == DELETE ? Action.DELETE : Action.UPDATE);
             }
         }
 
