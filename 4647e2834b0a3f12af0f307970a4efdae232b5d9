@@ -1,0 +1,129 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_a2804a8c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnSnatFlowProgrammer.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-18T18:47:49Z",
+      "side": 1,
+      "message": "why is this flow installed in EVPN-specific context? this is a common flow for all DNAT pipeline types",
+      "revId": "4647e2834b0a3f12af0f307970a4efdae232b5d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a257aa25",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 908,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-18T18:47:49Z",
+      "side": 1,
+      "message": "could you explain the change of logic here\nnexthopIp was not mandatory before for the creation of FIB entry\nIf it is mandatory only for VxLAN ext. provider please move this restriction to line #924",
+      "revId": "4647e2834b0a3f12af0f307970a4efdae232b5d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_425a3e51",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 929,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-18T18:47:49Z",
+      "side": 1,
+      "message": "description is external network but first arg is external ip",
+      "range": {
+        "startLine": 929,
+        "startChar": 70,
+        "endLine": 929,
+        "endChar": 86
+      },
+      "revId": "4647e2834b0a3f12af0f307970a4efdae232b5d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_82542622",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 1030,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-18T18:47:49Z",
+      "side": 1,
+      "message": "empty submit in case of non-vxlan provider\nmove both tx creation and submission code under vxlan scope if it is used only there",
+      "revId": "4647e2834b0a3f12af0f307970a4efdae232b5d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e2309209",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 1947,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-18T18:47:49Z",
+      "side": 1,
+      "message": "why is the arg duplication needed?",
+      "revId": "4647e2834b0a3f12af0f307970a4efdae232b5d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c2358ef8",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 1948,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-18T18:47:49Z",
+      "side": 1,
+      "message": "could this info be missing during router delete scenario?",
+      "revId": "4647e2834b0a3f12af0f307970a4efdae232b5d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_822b8693",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-18T18:47:49Z",
+      "side": 1,
+      "message": "please extend NatUtil.addPrefixToInterface and don\u0027t rewrite the entire method",
+      "revId": "4647e2834b0a3f12af0f307970a4efdae232b5d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
