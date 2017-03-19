@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9d8f6b75",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnSnatFlowProgrammer.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T07:36:07Z",
+      "side": 1,
+      "message": "As we already mentioned in the EVPN spec for UC DNAT to DNAT on different hypervisor, we have the below problem in Internal_Tunnel_Table (table\u003d36),\n\n\ncookie\u003d0x90007d0, duration\u003d590.606s, table\u003d36, n_packets\u003d0, n_bytes\u003d0, priority\u003d5,tun_id\u003d0x7d0 actions\u003dgoto_table:44\n cookie\u003d0x90007d0, duration\u003d554.635s, table\u003d36, n_packets\u003d0, n_bytes\u003d0, priority\u003d6,tun_id\u003d0x7d0 actions\u003dresubmit(,25)\n\nThe above flows has same \"tunnel_id\" for both SNAT and DNAT. Hence we increased DNAT flow priority (Priority\u003d6) to redirect the traffic to PDNAT_TABLE (table\u003d25), If there is no match in PDNAT_TABLE then traffic will redirect to \"INBOUND_NAPT_TABLE\" (table\u003d44)\n\nThe above flow redirection is applicable for EVPN_RT5 specific only.",
+      "parentUuid": "fafc7978_a2804a8c",
+      "revId": "4647e2834b0a3f12af0f307970a4efdae232b5d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a257aa25",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 34
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-18T18:47:49Z",
       "side": 1,
       "message": "could you explain the change of logic here\nnexthopIp was not mandatory before for the creation of FIB entry\nIf it is mandatory only for VxLAN ext. provider please move this restriction to line #924",
+      "revId": "4647e2834b0a3f12af0f307970a4efdae232b5d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9de64b43",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 908,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T07:36:07Z",
+      "side": 1,
+      "message": "Thanks for pointing out this comment.\nRemoved null check here. Since this null check is already taken care by NatUtil for other than Vxlan Network type.",
+      "parentUuid": "fafc7978_a257aa25",
       "revId": "4647e2834b0a3f12af0f307970a4efdae232b5d9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7de3a733",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 929,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T07:36:07Z",
+      "side": 1,
+      "message": "Please refer the latest PS41: Since we removed if-else logic here.",
+      "parentUuid": "fafc7978_425a3e51",
+      "range": {
+        "startLine": 929,
+        "startChar": 70,
+        "endLine": 929,
+        "endChar": 86
+      },
+      "revId": "4647e2834b0a3f12af0f307970a4efdae232b5d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_82542622",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 34
@@ -70,6 +130,24 @@
       "writtenOn": "2017-03-18T18:47:49Z",
       "side": 1,
       "message": "empty submit in case of non-vxlan provider\nmove both tx creation and submission code under vxlan scope if it is used only there",
+      "revId": "4647e2834b0a3f12af0f307970a4efdae232b5d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ddcf33b2",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 1030,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T07:36:07Z",
+      "side": 1,
+      "message": "Please refer the latest PS41. Since we removed this logic from here and placed in appropriate place.",
+      "parentUuid": "fafc7978_82542622",
       "revId": "4647e2834b0a3f12af0f307970a4efdae232b5d9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -93,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bdd4ef47",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 1947,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T07:36:07Z",
+      "side": 1,
+      "message": "Please refer the latest PS41.",
+      "parentUuid": "fafc7978_e2309209",
+      "revId": "4647e2834b0a3f12af0f307970a4efdae232b5d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c2358ef8",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 34
@@ -110,6 +206,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1dca5ba1",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 1948,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T07:36:07Z",
+      "side": 1,
+      "message": "At this stage router is not removed from the topology.\n\"odl-nat/router-id-name\" -\u003e This model has the proper value for delFibTsAndReverseTraffic() method invocation.",
+      "parentUuid": "fafc7978_c2358ef8",
+      "revId": "4647e2834b0a3f12af0f307970a4efdae232b5d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_822b8693",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
         "patchSetId": 34
@@ -121,6 +235,24 @@
       "writtenOn": "2017-03-18T18:47:49Z",
       "side": 1,
       "message": "please extend NatUtil.addPrefixToInterface and don\u0027t rewrite the entire method",
+      "revId": "4647e2834b0a3f12af0f307970a4efdae232b5d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5d4a2328",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T07:36:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_822b8693",
       "revId": "4647e2834b0a3f12af0f307970a4efdae232b5d9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
