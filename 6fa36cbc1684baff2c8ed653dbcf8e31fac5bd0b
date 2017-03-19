@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bd16afa5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-19T10:39:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f3970346",
+      "revId": "6fa36cbc1684baff2c8ed653dbcf8e31fac5bd0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b381fbfc",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 12
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9d1f6bb7",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1821,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-19T10:39:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_b381fbfc",
+      "revId": "6fa36cbc1684baff2c8ed653dbcf8e31fac5bd0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_53952f31",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 12
@@ -47,6 +83,24 @@
       "writtenOn": "2017-03-08T16:00:06Z",
       "side": 1,
       "message": "when this method called from within ExternalNetworkListener pass Routers and save the extra read",
+      "revId": "6fa36cbc1684baff2c8ed653dbcf8e31fac5bd0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bdc06fe1",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 923,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-19T10:39:30Z",
+      "side": 1,
+      "message": "You meant when it\u0027s called from ExternalRouterListener?\n\nIf yes, then Done",
+      "parentUuid": "fafc7978_53952f31",
       "revId": "6fa36cbc1684baff2c8ed653dbcf8e31fac5bd0b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
