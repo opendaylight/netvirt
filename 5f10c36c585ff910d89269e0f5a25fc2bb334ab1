@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bd098fdf",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T08:26:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_22129a62",
+      "revId": "5f10c36c585ff910d89269e0f5a25fc2bb334ab1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_620b022c",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-18T19:09:50Z",
       "side": 1,
       "message": "based on the content of this log it should be located outside the for loop",
+      "revId": "5f10c36c585ff910d89269e0f5a25fc2bb334ab1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1d0ffbe2",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 915,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T08:26:06Z",
+      "side": 1,
+      "message": "Changed log content appropriately. Since each externalIP removed case should print the log message.",
+      "parentUuid": "fafc7978_620b022c",
       "revId": "5f10c36c585ff910d89269e0f5a25fc2bb334ab1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5df863c4",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T08:26:06Z",
+      "side": 1,
+      "message": "Thanks for pointing this comment. Removed the validation here.",
+      "parentUuid": "fafc7978_82026609",
+      "range": {
+        "startLine": 617,
+        "startChar": 0,
+        "endLine": 625,
+        "endChar": 21
+      },
+      "revId": "5f10c36c585ff910d89269e0f5a25fc2bb334ab1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ddfe1305",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
         "patchSetId": 3
@@ -76,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bd306f9f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 675,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T08:26:06Z",
+      "side": 1,
+      "message": "Have changed the code for creation of writeTx object only for VXLAN provider type.",
+      "parentUuid": "fafc7978_ddfe1305",
+      "revId": "5f10c36c585ff910d89269e0f5a25fc2bb334ab1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1d09bb2c",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
         "patchSetId": 3
@@ -87,6 +165,24 @@
       "writtenOn": "2017-03-18T19:09:50Z",
       "side": 1,
       "message": "same comments as in hndlTepAddOnNaptSwitch\nvalidation could be extracted to a common method",
+      "revId": "5f10c36c585ff910d89269e0f5a25fc2bb334ab1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1d26db68",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T08:26:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_1d09bb2c",
       "revId": "5f10c36c585ff910d89269e0f5a25fc2bb334ab1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
