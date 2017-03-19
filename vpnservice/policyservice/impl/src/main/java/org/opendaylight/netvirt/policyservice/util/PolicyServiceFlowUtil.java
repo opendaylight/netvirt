@@ -27,6 +27,7 @@ import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
@@ -53,6 +54,12 @@ public class PolicyServiceFlowUtil {
         this.interfaceManager = interfaceManager;
     }
 
+    public List<InstructionInfo> getTableMissInstructions() {
+        List<ActionInfo> actions = Collections
+                .singletonList(new ActionNxResubmit(NwConstants.EGRESS_LPORT_DISPATCHER_TABLE));
+        return Collections.singletonList(new InstructionApplyActions(actions));
+    }
+
     public List<InstructionInfo> getPolicyClassifierInstructions(long policyClassifierId) {
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionWriteMetadata(MetaDataUtil.getPolicyClassifierMetaData(policyClassifierId),
@@ -63,7 +70,8 @@ public class PolicyServiceFlowUtil {
 
     public List<MatchInfoBase> getPolicyRouteMatches(long policyClassifierId, int lportTag) {
         List<MatchInfoBase> matches = new ArrayList<>();
-        // FIXME reg6 masking support will allow matching only based on the lport-tag bits
+        // FIXME reg6 masking support will allow matching only based on the
+        // lport-tag bits
         matches.add(new NxMatchRegister(NxmNxReg6.class,
                 MetaDataUtil.getReg6ValueForLPortDispatcher(lportTag, NwConstants.DEFAULT_EGRESS_SERVICE_INDEX)));
         matches.add(new MatchMetadata(MetaDataUtil.getPolicyClassifierMetaData(policyClassifierId),
