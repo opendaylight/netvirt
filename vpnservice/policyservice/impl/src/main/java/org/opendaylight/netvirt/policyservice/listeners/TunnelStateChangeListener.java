@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.policyservice.listeners;
 
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -18,12 +19,20 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.policyservice.PolicyRouteFlowProgrammer;
+import org.opendaylight.netvirt.policyservice.PolicyServiceConstants;
 import org.opendaylight.netvirt.policyservice.util.PolicyServiceUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeLogicalGroup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeEgress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepInfoAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelsState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
@@ -37,7 +46,8 @@ import org.slf4j.LoggerFactory;
  * Listen on operational {@link StateTunnelList} changes and update
  * {@link DpnToInterface} accordingly for tunnel interfaces of type VxLAN.<br>
  * When logical tunnel interface state is added or removed, the corresponding
- * POLICY_ROUTING_TABLE entries will be updated.
+ * POLICY_ROUTING_TABLE entries will be updated and the policy service will be
+ * bounded/unbounded.
  *
  */
 @Singleton
@@ -48,13 +58,17 @@ public class TunnelStateChangeListener
     private final DataBroker dataBroker;
     private final PolicyServiceUtil policyServiceUtil;
     private final PolicyRouteFlowProgrammer routeFlowProgrammer;
+    private final IInterfaceManager interfaceManager;
+    private final DataStoreJobCoordinator coordinator;
 
     @Inject
     public TunnelStateChangeListener(DataBroker dataBroker, final PolicyServiceUtil policyServiceUtil,
-            final PolicyRouteFlowProgrammer routeFlowProgrammer) {
+            final PolicyRouteFlowProgrammer routeFlowProgrammer, final IInterfaceManager interfaceManager) {
         this.dataBroker = dataBroker;
         this.policyServiceUtil = policyServiceUtil;
         this.routeFlowProgrammer = routeFlowProgrammer;
+        this.interfaceManager = interfaceManager;
+        this.coordinator = DataStoreJobCoordinator.getInstance();
     }
 
     @Override
@@ -76,8 +90,9 @@ public class TunnelStateChangeListener
 
     @Override
     protected void remove(InstanceIdentifier<StateTunnelList> key, StateTunnelList tunnelState) {
-        LOG.trace("Tunnel state {} removed", tunnelState);
+        LOG.debug("Tunnel state {} removed", tunnelState);
         if (isLogicalGroupTunnel(tunnelState)) {
+            unbindService(tunnelState.getTunnelInterfaceName());
             populatePolicyRoutesToDpn(tunnelState, NwConstants.DEL_FLOW);
         } else if (isVxlanTunnel(tunnelState)) {
             updateTunnelToUnderlayNetworkOperDs(tunnelState, false);
@@ -93,6 +108,7 @@ public class TunnelStateChangeListener
     protected void add(InstanceIdentifier<StateTunnelList> key, StateTunnelList tunnelState) {
         LOG.trace("Tunnel state {} added", tunnelState);
         if (isVxlanTunnel(tunnelState)) {
+            bindService(tunnelState.getTunnelInterfaceName());
             updateTunnelToUnderlayNetworkOperDs(tunnelState, true);
         } else if (isLogicalGroupTunnel(tunnelState)) {
             populatePolicyRoutesToDpn(tunnelState, NwConstants.ADD_FLOW);
@@ -156,6 +172,33 @@ public class TunnelStateChangeListener
                 srcDpId, underlayNetwork);
         policyServiceUtil.updateTunnelInterfaceForUnderlayNetwork(underlayNetwork, srcDpId, dstDpId,
                 tunnelInterfaceName, isAdded);
+    }
+
+    private void bindService(String tunnelInterfaceName) {
+        coordinator.enqueueJob(tunnelInterfaceName, () -> {
+            LOG.info("Bind egress policy service on tunnel {}", tunnelInterfaceName);
+            List<Instruction> instructions = Collections.singletonList(
+                    MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.EGRESS_POLICY_CLASSIFIER_TABLE, 0));
+            BoundServices boundServices = getBoundServices(tunnelInterfaceName, instructions);
+            interfaceManager.bindService(tunnelInterfaceName, ServiceModeEgress.class, boundServices);
+            return null;
+        });
+    }
+
+    private void unbindService(String tunnelInterfaceName) {
+        coordinator.enqueueJob(tunnelInterfaceName, () -> {
+            LOG.info("Unbind egress policy service on tunnel {}", tunnelInterfaceName);
+            BoundServices boundServices = getBoundServices(tunnelInterfaceName, Collections.emptyList());
+            interfaceManager.unbindService(tunnelInterfaceName, ServiceModeEgress.class, boundServices);
+            return null;
+        });
+    }
+
+    private static BoundServices getBoundServices(String tunnelInterfaceName, List<Instruction> instructions) {
+        BoundServices boundServices = InterfaceServiceUtil.getBoundServices(tunnelInterfaceName,
+                NwConstants.EGRESS_POLICY_SERVICE_INDEX, PolicyServiceConstants.POLICY_DEFAULT_FLOW_PRIORITY,
+                NwConstants.EGRESS_POLICY_CLASSIFIER_COOKIE, instructions);
+        return boundServices;
     }
 
     private static boolean isVxlanTunnel(StateTunnelList tunnelState) {
