@@ -17,5 +17,6 @@ public class PolicyServiceConstants {
     public static final Long POLICY_GROUP_LOW_ID = 310000L;
     public static final Long POLICY_GROUP_HIGH_ID = 320000L;
     public static final long INVALID_ID = 0;
+    public static final int POLICY_DEFAULT_FLOW_PRIORITY = 10;
     public static final int POLICY_FLOW_PRIOPITY = 42;
 }
