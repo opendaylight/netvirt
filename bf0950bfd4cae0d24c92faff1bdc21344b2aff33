@@ -1,0 +1,46 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_5dc98359",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 32
+      },
+      "lineNbr": 1669,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-19T09:17:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_7d5e0714",
+      "range": {
+        "startLine": 1661,
+        "startChar": 0,
+        "endLine": 1669,
+        "endChar": 5
+      },
+      "revId": "bf0950bfd4cae0d24c92faff1bdc21344b2aff33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3dcd9f5e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 32
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-19T09:17:46Z",
+      "side": 1,
+      "message": "There will be a subnetId in every floating IP port - there\u0027s always a subnetId, the only difference is if there an \"external-subnet\" entity for it (only vlan and flat will have it).\n\nAnyway, I\u0027ve added a null check in the NatUtil.getOptionalExternalSubnets just in case.",
+      "parentUuid": "fafc7978_dd9a93c4",
+      "revId": "bf0950bfd4cae0d24c92faff1bdc21344b2aff33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
