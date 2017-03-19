@@ -561,6 +561,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7d1c47c2",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-19T09:59:56Z",
+      "side": 1,
+      "message": "* We have tried using the ACL YANG for this purpose, but it seems that its original purpose doesn\u0027t serves us, since we don\u0027t want the user to define a separate object in the data store, but to send all of the data in the counter request. In addition, the ACL container contains much more data than what we actually need in our case, so another option was to try updating ietf-access-control-list, and to take out the matches list out of the ACE, putting it as a group so it could be referenced by other models, but since it is an IETF YANG, it won\u0027t be an easy task.\n* Regarding the second comment, the common library in a good idea, it would make it easier to use and understand the APIs, but since we are already in the API freeze stage, I think it would be possible to achieve this only in the future release, since it requires changes in other modules.",
+      "parentUuid": "fafc7978_4c30d307",
+      "range": {
+        "startLine": 113,
+        "startChar": 21,
+        "endLine": 113,
+        "endChar": 22
+      },
+      "revId": "8802b2c1d01796a17229fac4c075af6515d8bab5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_35d2fa34",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 16
