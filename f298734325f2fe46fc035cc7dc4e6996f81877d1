@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ddbbb373",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T13:28:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_eea3634d",
+      "revId": "f298734325f2fe46fc035cc7dc4e6996f81877d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ce301f0a",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-17T14:15:43Z",
       "side": 1,
       "message": "please first write to table 36, then write to table 21 and then write to table 19.\n\nIn that series just before creating fibEntry, make the above two vpnManager calls.  \n\nPlease follow this order consistently everywhere including in the SNAT review.\n\nMore important donot install any other rule if one of th other fails.  I would advise to have the entire set of flows to succeed or entire set fail, rather thank playing ping-pong. \n\nThis comment applies to SNAT review also.",
+      "revId": "f298734325f2fe46fc035cc7dc4e6996f81877d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1d441b73",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T13:28:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_ce301f0a",
       "revId": "f298734325f2fe46fc035cc7dc4e6996f81877d1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fd483789",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T13:28:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0e44e772",
+      "revId": "f298734325f2fe46fc035cc7dc4e6996f81877d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ee3fe3d4",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
         "patchSetId": 7
@@ -64,6 +118,24 @@
       "writtenOn": "2017-03-17T14:15:43Z",
       "side": 1,
       "message": "where is this method used?  Is the \u0027Id\u0027 parameter provided here is Internet vpnId?",
+      "revId": "f298734325f2fe46fc035cc7dc4e6996f81877d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_286efbc9",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T13:28:08Z",
+      "side": 1,
+      "message": "Moved this getFlowRef() method in NatEvpnUtil. Since both SNAT and DNAT uses this common method for creating unique flow for Internal_Tunnel Table (36).",
+      "parentUuid": "fafc7978_ee3fe3d4",
       "revId": "f298734325f2fe46fc035cc7dc4e6996f81877d1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_48f53fca",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T13:28:08Z",
+      "side": 1,
+      "message": "To implement IsFlatOrVlan check, shall i replicate the code which is already existing in the NeutronVpnUtil ?",
+      "parentUuid": "fafc7978_8e4d77c7",
+      "revId": "f298734325f2fe46fc035cc7dc4e6996f81877d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6e4ad3ad",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
         "patchSetId": 7
@@ -98,6 +188,24 @@
       "writtenOn": "2017-03-17T14:15:43Z",
       "side": 1,
       "message": "can we install the flowEntity without being able to install the preFlowEntity ?  Does that make sense?",
+      "revId": "f298734325f2fe46fc035cc7dc4e6996f81877d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_28f39b0b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T13:28:08Z",
+      "side": 1,
+      "message": "Yes make sense. Moved the flowEntity install flow once preFlowEntity get installed successfully.",
+      "parentUuid": "fafc7978_6e4ad3ad",
       "revId": "f298734325f2fe46fc035cc7dc4e6996f81877d1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_08469723",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 563,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T13:28:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_cec65f16",
+      "revId": "f298734325f2fe46fc035cc7dc4e6996f81877d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_aecb1b1d",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
         "patchSetId": 7
@@ -132,6 +258,24 @@
       "writtenOn": "2017-03-17T14:15:43Z",
       "side": 1,
       "message": "can we replace both the above calls with getExternalNwTypeFromRouterName()",
+      "revId": "f298734325f2fe46fc035cc7dc4e6996f81877d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_48d9bf82",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 602,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T13:28:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_aecb1b1d",
       "revId": "f298734325f2fe46fc035cc7dc4e6996f81877d1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c83bef9a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T13:28:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0ed187cd",
+      "revId": "f298734325f2fe46fc035cc7dc4e6996f81877d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ceedbf90",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
         "patchSetId": 7
@@ -166,6 +328,24 @@
       "writtenOn": "2017-03-17T14:15:43Z",
       "side": 1,
       "message": "there must be already a method for this in NatUtil, why introduce again in NatEVPNUtil?",
+      "revId": "f298734325f2fe46fc035cc7dc4e6996f81877d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_28a55b04",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T13:28:08Z",
+      "side": 1,
+      "message": "We need Floating-IP Port UUID from the model \"odl-nat/floating-ip-port-info/floating-ip-id-to-port-mapping\" which is not existing in NatUtil.\n\nAs part of this read call, we are using existing NatUtil method only to read the data from nat model.",
+      "parentUuid": "fafc7978_ceedbf90",
       "revId": "f298734325f2fe46fc035cc7dc4e6996f81877d1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_48ab7fd6",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T13:28:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2efe0b39",
+      "revId": "f298734325f2fe46fc035cc7dc4e6996f81877d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6ef8134a",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
         "patchSetId": 7
@@ -200,6 +398,24 @@
       "writtenOn": "2017-03-17T14:15:43Z",
       "side": 1,
       "message": "just name the method as onRemoveFloatingIp.. will become later useful for NAT refactoring.\n\nput a return here and avoid else ..",
+      "revId": "f298734325f2fe46fc035cc7dc4e6996f81877d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a8b82b2b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-19T13:28:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_6ef8134a",
       "revId": "f298734325f2fe46fc035cc7dc4e6996f81877d1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
