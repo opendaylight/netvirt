@@ -169,12 +169,12 @@ public class UnderlayNetworkDpnListener
             int addOrRemove) {
         profiles.forEach(profile -> {
             String policyClassifier = profile.getPolicyClassifier();
-            List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.policy.profiles.policy.profile.PolicyAclRule> aclRules = policyServiceUtil
-                    .getPolicyClassifierAclRules(policyClassifier);
+            List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.policy.profiles.policy.profile
+                .PolicyAclRule> aclRules = policyServiceUtil.getPolicyClassifierAclRules(policyClassifier);
             if (aclRules != null) {
                 aclRules.forEach(aclRule -> {
-                    List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.policy.profiles.policy.profile.policy.acl.rule.AceRule> aceRules = aclRule
-                            .getAceRule();
+                    List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.policy.profiles.policy
+                        .profile.policy.acl.rule.AceRule> aceRules = aclRule.getAceRule();
                     if (aceRules != null) {
                         aceRules.forEach(aceRule -> {
                             Ace policyAce = policyServiceUtil.getPolicyAce(aclRule.getAclName(), aceRule.getRuleName());
