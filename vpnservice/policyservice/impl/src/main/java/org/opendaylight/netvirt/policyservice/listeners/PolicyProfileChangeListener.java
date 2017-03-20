@@ -23,6 +23,7 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.policyservice.PolicyAceFlowProgrammer;
 import org.opendaylight.netvirt.policyservice.PolicyIdManager;
+import org.opendaylight.netvirt.policyservice.PolicyRouteFlowProgrammer;
 import org.opendaylight.netvirt.policyservice.PolicyRouteGroupProgrammer;
 import org.opendaylight.netvirt.policyservice.util.PolicyServiceUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
@@ -54,16 +55,18 @@ public class PolicyProfileChangeListener
     private final PolicyIdManager policyIdManager;
     private final PolicyServiceUtil policyServiceUtil;
     private final PolicyAceFlowProgrammer aceFlowProgrammer;
+    private final PolicyRouteFlowProgrammer routeFlowProgrammer;
     private final PolicyRouteGroupProgrammer routeGroupProgramer;
 
     @Inject
     public PolicyProfileChangeListener(final DataBroker dataBroker, final PolicyIdManager policyIdManager,
             final PolicyServiceUtil policyServiceUtil, final PolicyAceFlowProgrammer aceFlowProgrammer,
-            final PolicyRouteGroupProgrammer routeGroupProgramer) {
+            final PolicyRouteFlowProgrammer routeFlowProgrammer, final PolicyRouteGroupProgrammer routeGroupProgramer) {
         this.dataBroker = dataBroker;
         this.policyIdManager = policyIdManager;
         this.policyServiceUtil = policyServiceUtil;
         this.aceFlowProgrammer = aceFlowProgrammer;
+        this.routeFlowProgrammer = routeFlowProgrammer;
         this.routeGroupProgramer = routeGroupProgramer;
     }
 
@@ -95,6 +98,7 @@ public class PolicyProfileChangeListener
         List<BigInteger> remoteDpIds = policyServiceUtil.getUnderlayNetworksRemoteDpns(underlayNetworks);
         routeGroupProgramer.programPolicyClassifierGroups(policyClassifier, dpnIds, remoteDpIds, NwConstants.DEL_FLOW);
         updatePolicyAclRules(policyClassifier, underlayNetworks, NwConstants.DEL_FLOW);
+        routeFlowProgrammer.programPolicyClassifierFlows(policyClassifier, dpnIds, remoteDpIds, NwConstants.DEL_FLOW);
         policyIdManager.releasePolicyClassifierId(policyClassifier);
         releasePolicyClassifierGroupIds(policyClassifier, dpnIds);
     }
@@ -141,6 +145,7 @@ public class PolicyProfileChangeListener
         routeGroupProgramer.programPolicyClassifierGroupBuckets(policyClassifier, underlayNetworks,
                 NwConstants.ADD_FLOW);
         updatePolicyAclRules(policyClassifier, underlayNetworks, NwConstants.ADD_FLOW);
+        routeFlowProgrammer.programPolicyClassifierFlows(policyClassifier, dpnIds, remoteDpIds, NwConstants.ADD_FLOW);
     }
 
     private void updatePolicyAclRules(String policyClassifier, List<String> underlayNetworks, int addOrRemove) {
