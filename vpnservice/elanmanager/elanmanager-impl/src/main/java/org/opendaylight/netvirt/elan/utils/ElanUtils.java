@@ -682,10 +682,14 @@ public class ElanUtils {
 
     public void setupDMacFlowonRemoteDpn(ElanInstance elanInfo, InterfaceInfo interfaceInfo, BigInteger dstDpId,
             String macAddress, WriteTransaction writeFlowTx) throws ElanException {
-        synchronized (getElanMacDPNKey(elanInfo.getElanTag(), macAddress, dstDpId)) {
-            LOG.debug("Acquired lock for mac : " + macAddress + ". Proceeding with install operation.");
-            setupOrigDmacFlowsonRemoteDpn(elanInfo, interfaceInfo, dstDpId, macAddress, writeFlowTx);
-        }
+        BigInteger dpId = interfaceInfo.getDpId();
+        String elanInstanceName = elanInfo.getElanInstanceName();
+        long elanTag = elanInfo.getElanTag();
+        setupRemoteDmacFlow(dstDpId, dpId, interfaceInfo.getInterfaceTag(), elanTag, macAddress,
+                elanInstanceName, writeFlowTx, interfaceInfo.getInterfaceName(), elanInfo);
+        LOG.debug("Remote Dmac flow entry created for elan Name:{}, logical port Name:{} and"
+                + " mac address {} on dpn:{}", elanInstanceName, interfaceInfo.getPortName(),
+                macAddress, dstDpId);
     }
 
     /**
@@ -895,30 +899,12 @@ public class ElanUtils {
                     interfaceInfo.getInterfaceTag(), // lportTag of the local interface
                     elanTag, // identifier of the Elan
                     macAddress, // MAC to be programmed in remote DPN
-                    elanInstanceName, writeFlowGroupTx, ifName, elanInfo);
+                    elanInstanceName, null, ifName, elanInfo);
             LOG.debug("Dmac flow entry created for elan Name:{}, logical port Name:{} and mac address:{} on"
                         + " dpn:{}", elanInstanceName, interfaceInfo.getPortName(), macAddress, elanDpn.getDpId());
         }
 
         // TODO: Make sure that the same is performed against the ElanDevices.
-    }
-
-    private void setupOrigDmacFlowsonRemoteDpn(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
-            BigInteger dstDpId, String macAddress, WriteTransaction writeFlowTx) throws ElanException {
-        BigInteger dpId = interfaceInfo.getDpId();
-        String elanInstanceName = elanInfo.getElanInstanceName();
-        List<DpnInterfaces> remoteFEs = getInvolvedDpnsInElan(elanInstanceName);
-        for (DpnInterfaces remoteFE : remoteFEs) {
-            Long elanTag = elanInfo.getElanTag();
-            if (remoteFE.getDpId().equals(dstDpId)) {
-                // Check for the Remote DPN present in Inventory Manager
-                setupRemoteDmacFlow(dstDpId, dpId, interfaceInfo.getInterfaceTag(), elanTag, macAddress,
-                        elanInstanceName, writeFlowTx, interfaceInfo.getInterfaceName(), elanInfo);
-                LOG.debug("Dmac flow entry created for elan Name:{}, logical port Name:{} and mac address {} on dpn:{}",
-                        elanInstanceName, interfaceInfo.getPortName(), macAddress, remoteFE.getDpId());
-                break;
-            }
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -1029,7 +1015,11 @@ public class ElanUtils {
 
         Flow flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTag, elanTag, macAddress, displayName,
                 elanInstance);
-        mdsalManager.addFlowToTx(srcDpId, flowEntity, writeFlowGroupTx);
+        if (writeFlowGroupTx != null) {
+            mdsalManager.addFlowToTx(srcDpId, flowEntity, writeFlowGroupTx);
+        } else {
+            mdsalManager.installFlow(srcDpId, flowEntity);
+        }
         setupEtreeRemoteDmacFlow(srcDpId, destDpId, lportTag, elanTag, macAddress, displayName, interfaceName,
                 writeFlowGroupTx, elanInstance);
     }
@@ -2163,11 +2153,13 @@ public class ElanUtils {
     }
 
     public static String getElanMacDPNKey(long elanTag, String macAddress, BigInteger dpnId) {
-        return ("MAC-" + macAddress + " ELAN_TAG-" + elanTag + "DPN_ID-" + dpnId).intern();
+        String elanMacDmacDpnKey = "MAC-" + macAddress + " ELAN_TAG-" + elanTag + "DPN_ID-" + dpnId;
+        return elanMacDmacDpnKey.intern();
     }
 
     public static String getElanMacKey(long elanTag, String macAddress) {
-        return ("MAC-" + macAddress + " ELAN_TAG-" + elanTag).intern();
+        String elanMacKey = "MAC-" + macAddress + " ELAN_TAG-" + elanTag;
+        return elanMacKey.intern();
     }
 
     public static void addToListenableFutureIfTxException(RuntimeException exception,

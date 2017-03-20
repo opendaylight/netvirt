@@ -1019,14 +1019,18 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         String interfaceName = interfaceInfo.getInterfaceName();
         ElanInterfaceMac elanInterfaceMac = elanUtils.getElanInterfaceMacByInterfaceName(interfaceName);
         if (elanInterfaceMac != null && elanInterfaceMac.getMacEntry() != null) {
-            WriteTransaction writeFlowTx = broker.newWriteOnlyTransaction();
             List<MacEntry> macEntries = elanInterfaceMac.getMacEntry();
             for (MacEntry macEntry : macEntries) {
-                PhysAddress physAddress = macEntry.getMacAddress();
-                elanUtils.setupDMacFlowonRemoteDpn(elanInfo, interfaceInfo, dstDpId, physAddress.getValue(),
-                        writeFlowTx);
+                String macAddress = macEntry.getMacAddress().getValue();
+                synchronized (ElanUtils.getElanMacDPNKey(elanInfo.getElanTag(), macAddress,
+                        interfaceInfo.getDpId())) {
+                    WriteTransaction writeFlowTx = broker.newWriteOnlyTransaction();
+                    LOG.debug("Acquired lock for mac : " + macAddress + ". Proceeding with remote dmac install operation.");
+                    elanUtils.setupDMacFlowonRemoteDpn(elanInfo, interfaceInfo, dstDpId, macAddress,
+                            writeFlowTx);
+                    writeFlowTx.submit();
+                }
             }
-            writeFlowTx.submit();
         }
     }
 
