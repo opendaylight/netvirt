@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -12,10 +12,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -40,12 +38,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ElanNodeListener extends AbstractDataChangeListener<Node> implements AutoCloseable {
+public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, ElanNodeListener> implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanNodeListener.class);
     private static final int LEARN_MATCH_REG4_VALUE = 1;
@@ -55,26 +52,21 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
     private final int tempSmacLearnTimeout;
     private final boolean puntLldpToController;
 
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
 
     public ElanNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanConfig elanConfig) {
-        super(Node.class);
         this.broker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.tempSmacLearnTimeout = elanConfig.getTempSmacLearnTimeout();
         this.puntLldpToController = elanConfig.isPuntLldpToController();
     }
 
+    @Override
     public void init() {
-        registerListener(broker);
+        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
 
-    private void registerListener(final DataBroker db) {
-        listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, getWildCardPath(),
-                ElanNodeListener.this, AsyncDataBroker.DataChangeScope.SUBTREE);
-    }
-
-    private InstanceIdentifier<Node> getWildCardPath() {
+    @Override
+    protected InstanceIdentifier<Node> getWildCardPath() {
         return InstanceIdentifier.create(Nodes.class).child(Node.class);
     }
 
@@ -237,9 +229,9 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
     }
 
     @Override
-    public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-        }
+    protected ElanNodeListener getDataTreeChangeListener() {
+        // TODO Auto-generated method stub
+        return ElanNodeListener.this;
     }
+
 }
