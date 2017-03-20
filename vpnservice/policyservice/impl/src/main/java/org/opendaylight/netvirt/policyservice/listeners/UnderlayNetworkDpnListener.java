@@ -24,6 +24,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.policyservice.PolicyAceFlowProgrammer;
+import org.opendaylight.netvirt.policyservice.PolicyRouteFlowProgrammer;
 import org.opendaylight.netvirt.policyservice.PolicyRouteGroupProgrammer;
 import org.opendaylight.netvirt.policyservice.util.PolicyServiceUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
@@ -44,14 +45,17 @@ public class UnderlayNetworkDpnListener
     private final DataBroker dataBroker;
     private final PolicyServiceUtil policyServiceUtil;
     private final PolicyAceFlowProgrammer aceFlowProgrammer;
+    private final PolicyRouteFlowProgrammer routeFlowProgrammer;
     private final PolicyRouteGroupProgrammer routeGroupProgramer;
 
     @Inject
     public UnderlayNetworkDpnListener(final DataBroker dataBroker, final PolicyServiceUtil policyServiceUtil,
-            final PolicyAceFlowProgrammer aceFlowProgrammer, final PolicyRouteGroupProgrammer routeGroupProgramer) {
+            final PolicyAceFlowProgrammer aceFlowProgrammer, final PolicyRouteFlowProgrammer routeFlowProgrammer,
+            final PolicyRouteGroupProgrammer routeGroupProgramer) {
         this.dataBroker = dataBroker;
         this.policyServiceUtil = policyServiceUtil;
         this.aceFlowProgrammer = aceFlowProgrammer;
+        this.routeFlowProgrammer = routeFlowProgrammer;
         this.routeGroupProgramer = routeGroupProgramer;
     }
 
@@ -85,8 +89,7 @@ public class UnderlayNetworkDpnListener
             return;
         }
 
-        populatePolicyGroupsToDpn(underlayNetwork, profiles, tunnelInterfaces, dpId, NwConstants.DEL_FLOW);
-        populatePolicyAclRulesToDpn(underlayNetwork, dpId, profiles, NwConstants.DEL_FLOW);
+        populatePolicyGroupBucketsToDpn(underlayNetwork, profiles, tunnelInterfaces, dpId, NwConstants.DEL_FLOW);
     }
 
     @Override
@@ -111,8 +114,9 @@ public class UnderlayNetworkDpnListener
         List<TunnelInterface> addedTunnelInterfaces = new ArrayList<>(upfdatedTunnelInterfaces);
         addedTunnelInterfaces.removeAll(origTunnelInterfaces);
 
-        populatePolicyRoutesToDpn(underlayNetwork, profiles, removedTunnelInterfaces, dpId, NwConstants.DEL_FLOW);
-        populatePolicyRoutesToDpn(underlayNetwork, profiles, addedTunnelInterfaces, dpId, NwConstants.ADD_FLOW);
+        populatePolicyGroupBucketsToDpn(underlayNetwork, profiles, removedTunnelInterfaces, dpId, NwConstants.DEL_FLOW);
+        populatePolicyGroupsToDpn(underlayNetwork, profiles, addedTunnelInterfaces, dpId, NwConstants.ADD_FLOW);
+        populatePolicyGroupBucketsToDpn(underlayNetwork, profiles, addedTunnelInterfaces, dpId, NwConstants.ADD_FLOW);
     }
 
     @Override
@@ -128,8 +132,9 @@ public class UnderlayNetworkDpnListener
         }
 
         populatePolicyGroupsToDpn(underlayNetwork, profiles, tunnelInterfaces, dpId, NwConstants.ADD_FLOW);
-        populatePolicyRoutesToDpn(underlayNetwork, profiles, tunnelInterfaces, dpId, NwConstants.ADD_FLOW);
+        populatePolicyGroupBucketsToDpn(underlayNetwork, profiles, tunnelInterfaces, dpId, NwConstants.ADD_FLOW);
         populatePolicyAclRulesToDpn(underlayNetwork, dpId, profiles, NwConstants.ADD_FLOW);
+        populatePolicyRoutesToDpn(profiles, tunnelInterfaces, dpId, NwConstants.ADD_FLOW);
     }
 
     private void populatePolicyGroupsToDpn(String underlayNetwork, List<PolicyProfile> profiles,
@@ -140,7 +145,7 @@ public class UnderlayNetworkDpnListener
         });
     }
 
-    private void populatePolicyRoutesToDpn(String underlayNetwork, List<PolicyProfile> profiles,
+    private void populatePolicyGroupBucketsToDpn(String underlayNetwork, List<PolicyProfile> profiles,
             List<TunnelInterface> tunnelInterfaces, BigInteger dpId, int addOrRemove) {
         profiles.forEach(profile -> {
             String policyClassifier = profile.getPolicyClassifier();
@@ -164,18 +169,17 @@ public class UnderlayNetworkDpnListener
             int addOrRemove) {
         profiles.forEach(profile -> {
             String policyClassifier = profile.getPolicyClassifier();
-            List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.policy.profiles.policy.profile
-                .PolicyAclRule> aclRules = policyServiceUtil.getPolicyClassifierAclRules(policyClassifier);
+            List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.policy.profiles.policy.profile.PolicyAclRule> aclRules = policyServiceUtil
+                    .getPolicyClassifierAclRules(policyClassifier);
             if (aclRules != null) {
                 aclRules.forEach(aclRule -> {
-                    List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.policy.profiles.policy
-                        .profile.policy.acl.rule.AceRule> aceRules = aclRule.getAceRule();
+                    List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.policy.profiles.policy.profile.policy.acl.rule.AceRule> aceRules = aclRule
+                            .getAceRule();
                     if (aceRules != null) {
                         aceRules.forEach(aceRule -> {
                             Ace policyAce = policyServiceUtil.getPolicyAce(aclRule.getAclName(), aceRule.getRuleName());
                             if (policyAce != null) {
-                                aceFlowProgrammer.programAceFlows(policyAce, underlayNetwork, dpId,
-                                        addOrRemove);
+                                aceFlowProgrammer.programAceFlows(policyAce, underlayNetwork, dpId, addOrRemove);
                             } else {
                                 LOG.warn("Failed to get ACL {} rule {}", aclRule.getAclName(), aceRule.getRuleName());
                             }
@@ -185,6 +189,22 @@ public class UnderlayNetworkDpnListener
                     }
                 });
             }
+        });
+    }
+
+    private void populatePolicyRoutesToDpn(List<PolicyProfile> profiles, List<TunnelInterface> tunnelInterfaces,
+            BigInteger dpId, int addOrRemove) {
+        if (tunnelInterfaces == null) {
+            LOG.debug("No tunnel interfaces found for DPN {}", dpId);
+            return;
+        }
+
+        profiles.forEach(policyProfile -> {
+            String policyClassifier = policyProfile.getPolicyClassifier();
+            tunnelInterfaces.forEach(tunnelInterface -> {
+                BigInteger remoteDpId = tunnelInterface.getRemoteDpId();
+                routeFlowProgrammer.programPolicyClassifierFlow(policyClassifier, dpId, remoteDpId, addOrRemove);
+            });
         });
     }
 }
