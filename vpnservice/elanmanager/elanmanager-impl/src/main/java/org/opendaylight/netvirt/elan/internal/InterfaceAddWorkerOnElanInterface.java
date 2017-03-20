@@ -47,6 +47,8 @@ public class InterfaceAddWorkerOnElanInterface implements Callable<List<Listenab
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
+        LOG.info("Handling elan interface {} add for elan {} ", elanInterface.getName(),
+                elanInstance.getElanInstanceName());
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         dataChangeListener.setupEntriesForElanInterface(futures, elanInstance, elanInterface, interfaceInfo,
                 isFirstInterfaceInDpn);
