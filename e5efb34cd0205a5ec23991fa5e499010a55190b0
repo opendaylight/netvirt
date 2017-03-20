@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_e9ceb2b3",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-20T16:53:59Z",
+      "side": 1,
+      "message": "this will throw if natPrefix was not set due to yangtools not being able to generate default values.\nuse Boolean.TRUE.equals(localNextHopInfo.isNatPrefix()) to avoid NPE due to unboxing",
+      "revId": "e5efb34cd0205a5ec23991fa5e499010a55190b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
