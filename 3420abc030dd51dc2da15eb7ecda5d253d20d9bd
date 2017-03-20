@@ -1,0 +1,293 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_2e39e0d8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-20T14:14:03Z",
+      "side": 1,
+      "message": "This line is not clear to me, did you made a change in the vrfEntry creation?",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2b6c3236",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-20T14:14:03Z",
+      "side": 1,
+      "message": "You have twice the change-id and signed-off-by.\nCan remove this one",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cb8766d6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-20T14:14:03Z",
+      "side": 1,
+      "message": "Remove the WIP part from the commit message.\nMake sure it will end with the \"change-id and signed-off-by\"",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6ba91a24",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-20T14:14:03Z",
+      "side": 1,
+      "message": "Instead of \"/* networkName */\" use \"/* parentVpnRd */\"",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4ba6d654",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 552,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-20T14:14:03Z",
+      "side": 1,
+      "message": "Same as above",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ae25d0af",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-20T14:14:03Z",
+      "side": 1,
+      "message": "Maybe add a log debug line that there are no router paths for vrfEntry and that it will not install local fib table entry for it.\n\nIf so might be good to add a not empty check in the first if.",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2e128058",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2004,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-20T14:14:03Z",
+      "side": 1,
+      "message": "/* parentVpnRd */",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0ef5fcca",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-20T14:14:03Z",
+      "side": 1,
+      "message": "I have in my review of hairpinning:\nhttps://git.opendaylight.org/gerrit/#/c/51776/36\n\nA method called - getOptionalExternalSubnets(DataBroker dataBroker, Uuid subnetId)\n\nIf there\u0027s a way you can use it (copy it to your review - and will handle the conflict later).\nIt will be best.",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6ee64846",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-20T14:14:03Z",
+      "side": 1,
+      "message": "Name can be \"publishSubnetAddToVpn\"\nIf it fails it\u0027s an error - so we expect it to succeed",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4eb54430",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-20T14:14:03Z",
+      "side": 1,
+      "message": "Need to check that subnetMap is not null - if null subnetMap.getSubnetIp()/getNetworkId() will throw an exception",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_aee83017",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-20T14:14:03Z",
+      "side": 1,
+      "message": "The same here null check",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ee407809",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-20T14:14:03Z",
+      "side": 1,
+      "message": "See comments in publishSubnetAdded.\nRemove one \"d\" from \"deletedd\" method name.",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ee57d8c8",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-20T14:14:03Z",
+      "side": 1,
+      "message": "No need for this method - see comments above, in add",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4eff04ab",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1547,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-20T14:14:03Z",
+      "side": 1,
+      "message": "Why don\u0027t we use here the network name and pass null?\nThis vrfEntry is also for subnet no?",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8e30cc9f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-20T14:14:03Z",
+      "side": 1,
+      "message": "Change to + \" so ignoring this for SubnetRoute\" - remove the middle +",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6e192822",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1005,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-20T14:14:03Z",
+      "side": 1,
+      "message": "For future use it might be better to remove this method and change the methods calling it so they will pass \"true\" (for isBgpVpn).\n\nAnd is it externalVpn or isBgpVpn?",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2ee60017",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-20T14:14:03Z",
+      "side": 1,
+      "message": "/* parentVpnRd */",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
