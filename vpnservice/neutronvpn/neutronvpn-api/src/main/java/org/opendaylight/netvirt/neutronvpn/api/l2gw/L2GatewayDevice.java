@@ -33,7 +33,7 @@ public class L2GatewayDevice {
     Set<Uuid> l2GatewayIds = new HashSet<>();
     List<LocalUcastMacs> ucastLocalMacs = Collections.synchronizedList(new ArrayList<>());
     AtomicBoolean connected = new AtomicBoolean(false);
-    Map<Uuid,List<Devices>> l2gwConnectionIdToDevices = new HashMap<>();
+    Map<Uuid,Set<Devices>> l2gwConnectionIdToDevices = new HashMap<>();
 
     /**
      * VTEP device name mentioned with L2 Gateway.
@@ -82,11 +82,11 @@ public class L2GatewayDevice {
         return tunnelIps;
     }
 
-    public Map<Uuid, List<Devices>> getL2gwConnectionIdToDevices() {
+    public Map<Uuid, Set<Devices>> getL2gwConnectionIdToDevices() {
         return l2gwConnectionIdToDevices;
     }
 
-    public void setL2gwConnectionIdToDevices(Map<Uuid, List<Devices>> l2gwConnectionIdToDevices) {
+    public void setL2gwConnectionIdToDevices(Map<Uuid, Set<Devices>> l2gwConnectionIdToDevices) {
         this.l2gwConnectionIdToDevices = l2gwConnectionIdToDevices;
     }
 
@@ -266,6 +266,10 @@ public class L2GatewayDevice {
             return false;
         }
         return true;
+    }
+
+    public boolean containsUcastMac(LocalUcastMacs mac) {
+        return ucastLocalMacs.contains(mac);
     }
 
     /*
