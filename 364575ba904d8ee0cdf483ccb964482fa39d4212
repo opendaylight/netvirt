@@ -1,0 +1,208 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_55ff97aa",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginEgress.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-20T08:04:42Z",
+      "side": 1,
+      "message": "refactor and use retries",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_551677f2",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginIngress.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-20T08:04:42Z",
+      "side": 1,
+      "message": "if abort do nothing otherwise you may start a new subscription",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f5dccb48",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginIngress.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-20T08:04:42Z",
+      "side": 1,
+      "message": "you can call resubscribe() instead of to the subscriptionMgr",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_35dc9374",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginIngress.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-20T08:04:42Z",
+      "side": 1,
+      "message": "add DEBUG for starting processing listenerKey this way will be able to understand in case of error/exception which is the one that cause the problem.\nin case of an exception you can catch it just for the sake of logging and re-throw to maintain the current behavior",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b5cfe3b2",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginIngress.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-20T08:04:42Z",
+      "side": 1,
+      "message": "consider changing the generic (if needed) according to the naming convention of T/P/R",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d5cee7b3",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginIngress.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-20T08:04:42Z",
+      "side": 1,
+      "message": "add DEBUG in case of listener exception",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_75bd7b02",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginIngress.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-20T08:04:42Z",
+      "side": 1,
+      "message": "why this method is not using retries like the other.\nin general i think all this methods should be part of MDSALUtil. they have nothing to do with federation and probably can be reused in other places",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d52a672b",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/SubnetVpnAssociationManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-20T08:04:42Z",
+      "side": 1,
+      "message": "LOG.info(\"{} start\", getClass().getSimpleName());",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f57b2b79",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/creators/FederationPluginModificationCreator.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-20T08:04:42Z",
+      "side": 1,
+      "message": "T - Type\nP - Parent",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_95861f64",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/filters/FederationPluginFilter.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-20T08:04:42Z",
+      "side": 1,
+      "message": "add comment that explain the generic \nT - federatedType \nreplace S to R (Root)",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d580a748",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/identifiers/FederationPluginIdentifier.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-20T08:04:42Z",
+      "side": 1,
+      "message": "T - federatedType\nP - Parent\nR - Root",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_15922f9f",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/transformers/FederationPluginTransformer.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-20T08:04:42Z",
+      "side": 1,
+      "message": "T - federatedType\nR - Root",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
