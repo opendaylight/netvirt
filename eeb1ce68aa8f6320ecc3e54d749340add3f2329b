@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_98993622",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-20T11:11:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9d92cbf4",
+      "range": {
+        "startLine": 18,
+        "startChar": 28,
+        "endLine": 18,
+        "endChar": 32
+      },
+      "revId": "eeb1ce68aa8f6320ecc3e54d749340add3f2329b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1db6db8a",
         "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-19T10:45:03Z",
       "side": 1,
       "message": "What is this external g/w entity?\nI think you mean the DHCP server and its MAC address?",
+      "range": {
+        "startLine": 44,
+        "startChar": 72,
+        "endLine": 46,
+        "endChar": 15
+      },
+      "revId": "eeb1ce68aa8f6320ecc3e54d749340add3f2329b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b894fae8",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-20T11:11:17Z",
+      "side": 1,
+      "message": "It is external gateway VM (example: 3PP LB VM)",
+      "parentUuid": "fafc7978_1db6db8a",
       "range": {
         "startLine": 44,
         "startChar": 72,
@@ -95,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b8ed1a91",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-20T11:11:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3d859fad",
+      "range": {
+        "startLine": 70,
+        "startChar": 42,
+        "endLine": 70,
+        "endChar": 44
+      },
+      "revId": "eeb1ce68aa8f6320ecc3e54d749340add3f2329b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7da60755",
         "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
         "patchSetId": 5
@@ -106,6 +178,30 @@
       "writtenOn": "2017-03-19T10:45:03Z",
       "side": 1,
       "message": "I think I\u0027m still missing how the gateway IP is relevant here - isn\u0027t the DHCP IP the one used for any DHCP related traffic?\nYou could have a subnet without a gateway IP that isn\u0027t even connected to a router.",
+      "range": {
+        "startLine": 92,
+        "startChar": 36,
+        "endLine": 92,
+        "endChar": 62
+      },
+      "revId": "eeb1ce68aa8f6320ecc3e54d749340add3f2329b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f8e7a2aa",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-20T11:11:17Z",
+      "side": 1,
+      "message": "Since ARP Responder table is moved from L3 to L2 pipeline, I am putting an example for Gateway/Route Interface.",
+      "parentUuid": "fafc7978_7da60755",
       "range": {
         "startLine": 92,
         "startChar": 36,
@@ -141,6 +237,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d8ec5e92",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-20T11:11:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_1a6448b7",
+      "range": {
+        "startLine": 95,
+        "startChar": 16,
+        "endLine": 95,
+        "endChar": 20
+      },
+      "revId": "eeb1ce68aa8f6320ecc3e54d749340add3f2329b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9da92b27",
         "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
         "patchSetId": 5
@@ -152,6 +272,30 @@
       "writtenOn": "2017-03-19T10:45:03Z",
       "side": 1,
       "message": "nit:whitespace",
+      "range": {
+        "startLine": 100,
+        "startChar": 136,
+        "endLine": 100,
+        "endChar": 139
+      },
+      "revId": "eeb1ce68aa8f6320ecc3e54d749340add3f2329b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_38012a3a",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-20T11:11:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9da92b27",
       "range": {
         "startLine": 100,
         "startChar": 136,
@@ -187,6 +331,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_18fee638",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-20T11:11:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_bafb7cbf",
+      "range": {
+        "startLine": 216,
+        "startChar": 28,
+        "endLine": 216,
+        "endChar": 29
+      },
+      "revId": "eeb1ce68aa8f6320ecc3e54d749340add3f2329b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9a6f9891",
         "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
         "patchSetId": 5
@@ -198,6 +366,30 @@
       "writtenOn": "2017-03-13T06:26:07Z",
       "side": 1,
       "message": "please add table names and reference numbers in ()",
+      "range": {
+        "startLine": 241,
+        "startChar": 32,
+        "endLine": 241,
+        "endChar": 33
+      },
+      "revId": "eeb1ce68aa8f6320ecc3e54d749340add3f2329b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_78fbb247",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-20T11:11:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9a6f9891",
       "range": {
         "startLine": 241,
         "startChar": 32,
