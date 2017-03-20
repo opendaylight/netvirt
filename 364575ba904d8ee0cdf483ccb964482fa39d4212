@@ -203,6 +203,23 @@
       "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_eee6b8e7",
+        "filename": "vpnservice/federation-plugin/impl/src/test/java/org/opendaylight/netvirt/federation/plugin/end2end/AbstractEnd2EndTest.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-03-20T15:00:11Z",
+      "side": 1,
+      "message": "IMHO you should not mock the DataBroker, ReadOnlyTransaction or write FakeDataObjectModification .. we have better test utilities for all of this, now.  I\u0027d write this entire test without any use of Mockito.  You can use the ConstantSchemaAbstractDataBrokerTest (DataBrokerTestModule) to easily obtain a fully working implementation of DataBroker related infra.  You can, but don\u0027t have to, also write a full new style \"component test\", using Guice for wiring things together; for examples of this style of tests, see e.g. the org.opendaylight.genius.interfacemanager.test.InterfaceManagerConfigurationTest or the org.opendaylight.netvirt.aclservice.tests.AclServiceTestBase or the org.opendaylight.netvirt.elanmanager.tests.ElanServiceTest",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
