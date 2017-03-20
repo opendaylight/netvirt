@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
@@ -346,16 +347,23 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
 
         @Override
         public List<ListenableFuture<Void>> call() throws Exception {
+            WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+            WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+            List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
 
             if (tunnelAction == TunnelAction.TUNNEL_EP_ADD) {
-                vpnInterfaceManager.updateVpnInterfaceOnTepAdd(vpnInterface, stateTunnelList);
+                vpnInterfaceManager.updateVpnInterfaceOnTepAdd(vpnInterface, stateTunnelList,
+                        writeConfigTxn, writeOperTxn);
             }
 
             if ((tunnelAction == TunnelAction.TUNNEL_EP_DELETE) && isTepDeletedOnDpn) {
-                vpnInterfaceManager.updateVpnInterfaceOnTepDelete(vpnInterface, stateTunnelList);
+                vpnInterfaceManager.updateVpnInterfaceOnTepDelete(vpnInterface, stateTunnelList,
+                        writeConfigTxn, writeOperTxn);
             }
 
-            return null;
+            futures.add(writeOperTxn.submit());
+            futures.add(writeConfigTxn.submit());
+            return futures;
         }
     }
 
