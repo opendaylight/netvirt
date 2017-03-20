@@ -26,12 +26,17 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.netvirt.policyservice.PolicyServiceConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.buckets.Bucket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +58,22 @@ public class PolicyServiceFlowUtil {
         instructions.add(new InstructionWriteMetadata(MetaDataUtil.getPolicyClassifierMetaData(policyClassifierId),
                 MetaDataUtil.METADATA_MASK_POLICY_CLASSIFER_ID));
         instructions.add(new InstructionGotoTable(NwConstants.EGRESS_POLICY_ROUTING_TABLE));
+        return instructions;
+    }
+
+    public List<MatchInfoBase> getPolicyRouteMatches(long policyClassifierId, int lportTag) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        // FIXME reg6 masking support will allow matching only based on the lport-tag bits
+        matches.add(new NxMatchRegister(NxmNxReg6.class,
+                MetaDataUtil.getReg6ValueForLPortDispatcher(lportTag, NwConstants.DEFAULT_EGRESS_SERVICE_INDEX)));
+        matches.add(new MatchMetadata(MetaDataUtil.getPolicyClassifierMetaData(policyClassifierId),
+                MetaDataUtil.METADATA_MASK_POLICY_CLASSIFER_ID));
+        return matches;
+    }
+
+    public List<InstructionInfo> getPolicyRouteInstructions(long groupId) {
+        List<InstructionInfo> instructions = new ArrayList<>();
+        instructions.add(new InstructionApplyActions(Collections.singletonList(new ActionGroup(groupId))));
         return instructions;
     }
 
@@ -113,7 +134,7 @@ public class PolicyServiceFlowUtil {
 
         Bucket bucket = MDSALUtil.buildBucket(MDSALUtil.buildActions(egressActions), MDSALUtil.GROUP_WEIGHT, bucketId,
                 port, MDSALUtil.WATCH_GROUP);
-        LOG.debug("Add bucket for interface {} to group {} DPN {}", interfaceName, groupId, dpId);
+        LOG.debug("Add bucket id {} for interface {} to group {} DPN {}", bucketId, interfaceName, groupId, dpId);
         mdsalManager.addBucketToTx(dpId, groupId, bucket, tx);
     }
 }
