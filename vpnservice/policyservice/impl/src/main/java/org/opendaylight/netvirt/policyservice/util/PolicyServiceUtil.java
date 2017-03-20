@@ -36,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.AceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Actions;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.PolicyAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.PolicyProfiles;
@@ -89,14 +90,20 @@ public class PolicyServiceUtil {
             return null;
         }
 
-        if (setPolicyClassifier.getDirection() == null
-                || !setPolicyClassifier.getDirection().isAssignableFrom(DirectionEgress.class)) {
+        Class<? extends DirectionBase> direction;
+        try {
+            direction = setPolicyClassifier.getDirection();
+        } catch (IllegalArgumentException e) {
+            LOG.warn("Failed to parse policy classifier direction");
+            return null;
+        }
+
+        if (direction == null || !direction.isAssignableFrom(DirectionEgress.class)) {
             LOG.trace("Ignoring non egress policy ACE rule {}", ace.getRuleName());
             return null;
         }
 
         return setPolicyClassifier.getPolicyClassifier();
-
     }
 
     public Ace getPolicyAce(String aclName, String ruleName) {
@@ -110,6 +117,18 @@ public class PolicyServiceUtil {
         } catch (ReadFailedException e) {
             LOG.warn("Failed to get policy ACE rule {} for ACL {}", ruleName, aclName);
             return null;
+        }
+    }
+
+    public List<PolicyProfile> getAllPolicyProfiles() {
+        InstanceIdentifier<PolicyProfiles> identifier = InstanceIdentifier.create(PolicyProfiles.class);
+        try {
+            Optional<PolicyProfiles> optProfiles = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, identifier);
+            return optProfiles.isPresent() ? optProfiles.get().getPolicyProfile() : Collections.emptyList();
+        } catch (ReadFailedException e) {
+            LOG.warn("Failed to get policy profiles");
+            return Collections.emptyList();
         }
     }
 
@@ -127,8 +146,9 @@ public class PolicyServiceUtil {
         }
     }
 
-    public List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay
-        .network.PolicyProfile> getUnderlayNetworkPolicyProfiles(String underlayNetwork) {
+    public List<
+            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay.network
+                .PolicyProfile> getUnderlayNetworkPolicyProfiles(String underlayNetwork) {
         InstanceIdentifier<UnderlayNetwork> identifier = InstanceIdentifier.create(UnderlayNetworks.class)
                 .child(UnderlayNetwork.class, new UnderlayNetworkKey(underlayNetwork));
         try {
@@ -141,8 +161,9 @@ public class PolicyServiceUtil {
         }
     }
 
-    public List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.policy.profiles.policy.profile
-        .PolicyAclRule> getPolicyClassifierAclRules(String policyClassifier) {
+    public List<
+            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.policy.profiles.policy.profile
+            .PolicyAclRule> getPolicyClassifierAclRules(String policyClassifier) {
         InstanceIdentifier<PolicyProfile> identifier = InstanceIdentifier.create(PolicyProfiles.class)
                 .child(PolicyProfile.class, new PolicyProfileKey(policyClassifier));
         try {
@@ -187,22 +208,22 @@ public class PolicyServiceUtil {
         underlayNetworks.forEach(underlayNetwork -> {
             coordinator.enqueueJob(underlayNetwork, () -> {
                 WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-                InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay
-                    .networks.underlay.network.PolicyProfile> identifier = InstanceIdentifier
-                    .create(UnderlayNetworks.class)
-                    .child(UnderlayNetwork.class, new UnderlayNetworkKey(underlayNetwork))
-                    .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks
-                            .underlay.network.PolicyProfile.class,
-                            new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks
-                                .underlay.network.PolicyProfileKey(policyClassifier));
+                InstanceIdentifier<
+                        org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks
+                            .underlay.network.PolicyProfile> identifier = InstanceIdentifier
+                                .create(UnderlayNetworks.class)
+                                .child(UnderlayNetwork.class, new UnderlayNetworkKey(underlayNetwork))
+                                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay
+                                            .networks.underlay.network.PolicyProfile.class,
+                                        new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207
+                                            .underlay.networks.underlay.network.PolicyProfileKey(policyClassifier));
                 if (isAdded) {
                     tx.merge(LogicalDatastoreType.OPERATIONAL, identifier,
                             new PolicyProfileBuilder().setPolicyClassifier(policyClassifier).build(), true);
                     LOG.info("Add policy classifier {} to underlay network {}", policyClassifier, underlayNetwork);
                 } else {
                     tx.delete(LogicalDatastoreType.OPERATIONAL, identifier);
-                    LOG.info("Remove policy classifier {} from underlay network {}", policyClassifier,
-                            underlayNetwork);
+                    LOG.info("Remove policy classifier {} from underlay network {}", policyClassifier, underlayNetwork);
                 }
                 return Collections.singletonList(tx.submit());
             });
@@ -246,6 +267,42 @@ public class PolicyServiceUtil {
 
         return underlayNetworks.stream().map(t -> getUnderlayNetworkRemoteDpns(t)).flatMap(t -> t.stream()).distinct()
                 .collect(Collectors.toList());
+    }
+
+    public boolean underlayNetworkContainsDpn(String underlayNetwork, BigInteger dpId) {
+        return dpnToInterfacesContainsDpn(getUnderlayNetworkDpnToInterfaces(underlayNetwork), dpId);
+    }
+
+    public boolean underlayNetworkContainsRemoteDpn(String underlayNetwork, BigInteger dpId) {
+        return dpnToInterfacesContainsRemoteDpn(getUnderlayNetworkDpnToInterfaces(underlayNetwork), dpId);
+    }
+
+    public static boolean dpnToInterfacesContainsDpn(List<DpnToInterface> dpnToInterfaces, BigInteger dpId) {
+        if (dpnToInterfaces == null) {
+            return false;
+        }
+
+        return dpnToInterfaces.stream().filter(dpnToInterface -> dpnToInterface.getDpId().equals(dpId)).findFirst()
+                .isPresent();
+    }
+
+    public static boolean dpnToInterfacesContainsRemoteDpn(List<DpnToInterface> dpnToInterfaces, BigInteger dpId) {
+        if (dpnToInterfaces == null) {
+            return false;
+        }
+
+        return dpnToInterfaces.stream().filter(dpnToInterface -> dpnToInterfaceContainsRemoteDpn(dpnToInterface, dpId))
+                .findFirst().isPresent();
+    }
+
+    public static boolean dpnToInterfaceContainsRemoteDpn(DpnToInterface dpnToInterface, BigInteger dpId) {
+        List<TunnelInterface> tunnelInterfaces = dpnToInterface.getTunnelInterface();
+        if (tunnelInterfaces == null) {
+            return false;
+        }
+
+        return tunnelInterfaces.stream().filter(tunnelInterface -> tunnelInterface.getRemoteDpId().equals(dpId))
+                .findFirst().isPresent();
     }
 
     public String getTunnelUnderlayNetwork(BigInteger dpId, IpAddress tunnelIp) {
