@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -171,6 +172,7 @@ public class ElanUtils {
 
     private static Map<String, ElanInstance> elanInstanceLocalCache = new ConcurrentHashMap<>();
     private static Map<String, ElanInterface> elanInterfaceLocalCache = new ConcurrentHashMap<>();
+    private static Map<String, Set<DpnInterfaces>> elanInstancToDpnsCache = new ConcurrentHashMap<>();
 
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
@@ -2168,5 +2170,21 @@ public class ElanUtils {
 
     public static String getElanMacKey(long elanTag, String macAddress) {
         return ("MAC-" + macAddress + " ELAN_TAG-" + elanTag).intern();
+    }
+
+    public static void setElanInstancToDpnsCache(Map<String, Set<DpnInterfaces>> elanInstancToDpnsCache) {
+        ElanUtils.elanInstancToDpnsCache = elanInstancToDpnsCache;
+    }
+
+    public static Set<DpnInterfaces> getElanInvolvedDPNsFromCache(String elanName) {
+        return elanInstancToDpnsCache.get(elanName);
+    }
+
+    public static void addDPNInterfaceToElanInCache(String elanName, DpnInterfaces dpnInterfaces) {
+        elanInstancToDpnsCache.computeIfAbsent(elanName, key -> new HashSet<>()).add(dpnInterfaces);
+    }
+
+    public static void removeDPNInterfaceFromElanInCache(String elanName, DpnInterfaces dpnInterfaces) {
+        elanInstancToDpnsCache.computeIfAbsent(elanName, key -> new HashSet<DpnInterfaces>()).remove(dpnInterfaces);
     }
 }

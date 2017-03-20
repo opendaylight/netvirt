@@ -13,6 +13,7 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -307,7 +308,7 @@ public class L2GatewayConnectionUtils {
                     l2gwDeviceNodeId, l2GwConnId);
         }
         elanL2GwDevice.addL2GatewayId(l2GwConnId);
-        elanL2GwDevice.getL2gwConnectionIdToDevices().computeIfAbsent(l2GwConnId, key -> new ArrayList<>()).add(
+        elanL2GwDevice.getL2gwConnectionIdToDevices().computeIfAbsent(l2GwConnId, key -> new HashSet<>()).add(
                 l2Device);
         readAndCopyLocalUcastMacsToCache(broker, elanName, l2GatewayDevice);
 
