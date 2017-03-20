@@ -15,6 +15,8 @@
   <reference id="iElanBridgeManager"
     interface="org.opendaylight.netvirt.elanmanager.api.IElanBridgeManager" />
 
+  <odl:rpc-service id="itmRpcService"
+    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService" />
   <odl:rpc-service id="idManagerService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
 
