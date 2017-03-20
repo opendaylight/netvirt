@@ -8,7 +8,11 @@
 
 package org.opendaylight.netvirt.policyservice;
 
+import com.google.common.collect.ImmutableMap;
+
 import java.math.BigInteger;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -33,6 +37,10 @@ public class PolicyIdManager {
     private static final Logger LOG = LoggerFactory.getLogger(PolicyIdManager.class);
 
     private final IdManagerService idManager;
+    private final Map<String,
+            Map<String, Long>> idCache = ImmutableMap.of(//
+                    PolicyServiceConstants.POLICY_CLASSIFIER_POOL_NAME, new ConcurrentHashMap<String, Long>(),
+                    PolicyServiceConstants.POLICY_GROUP_POOL_NAME, new ConcurrentHashMap<String, Long>());
 
     @Inject
     public PolicyIdManager(final IdManagerService idManager) {
@@ -89,6 +97,11 @@ public class PolicyIdManager {
     }
 
     private long allocateId(String key, String poolName) {
+        Long id = idCache.get(poolName).get(key);
+        if (id != null) {
+            return id;
+        }
+
         AllocateIdInput getIdInput = new AllocateIdInputBuilder().setPoolName(poolName).setIdKey(key).build();
         try {
             Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
@@ -102,6 +115,7 @@ public class PolicyIdManager {
     }
 
     private void releaseId(String key, String poolName) {
+        idCache.get(poolName).remove(key);
         ReleaseIdInput idInput = new ReleaseIdInputBuilder().setPoolName(poolName).setIdKey(key).build();
         try {
             Future<RpcResult<Void>> result = idManager.releaseId(idInput);
