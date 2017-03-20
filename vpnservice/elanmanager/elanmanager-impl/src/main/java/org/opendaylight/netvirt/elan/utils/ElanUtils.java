@@ -741,10 +741,13 @@ public class ElanUtils {
 
     public void setupDMacFlowonRemoteDpn(ElanInstance elanInfo, InterfaceInfo interfaceInfo, BigInteger dstDpId,
             String macAddress, WriteTransaction writeFlowTx) throws ElanException {
-        synchronized (getElanMacDPNKey(elanInfo.getElanTag(), macAddress, dstDpId)) {
-            LOG.debug("Acquired lock for mac : " + macAddress + ". Proceeding with install operation.");
-            setupOrigDmacFlowsonRemoteDpn(elanInfo, interfaceInfo, dstDpId, macAddress, writeFlowTx);
-        }
+        String elanInstanceName = elanInfo.getElanInstanceName();
+        setupRemoteDmacFlow(dstDpId, interfaceInfo.getDpId(), interfaceInfo.getInterfaceTag(),
+                elanInfo.getElanTag(), macAddress, elanInstanceName, writeFlowTx,
+                interfaceInfo.getInterfaceName(), elanInfo);
+        LOG.info("Remote Dmac flow entry created for elan Name:{}, logical port Name:{} and"
+                + " mac address {} on dpn:{}", elanInstanceName, interfaceInfo.getPortName(),
+                macAddress, dstDpId);
     }
 
     /**
@@ -956,29 +959,11 @@ public class ElanUtils {
                     elanTag, // identifier of the Elan
                     macAddress, // MAC to be programmed in remote DPN
                     elanInstanceName, writeFlowGroupTx, ifName, elanInfo);
-            LOG.debug("Dmac flow entry created for elan Name:{}, logical port Name:{} and mac address:{} on"
+            LOG.debug("Remote Dmac flow entry created for elan Name:{}, logical port Name:{} and mac address:{} on"
                         + " dpn:{}", elanInstanceName, interfaceInfo.getPortName(), macAddress, elanDpn.getDpId());
         }
 
         // TODO: Make sure that the same is performed against the ElanDevices.
-    }
-
-    private void setupOrigDmacFlowsonRemoteDpn(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
-            BigInteger dstDpId, String macAddress, WriteTransaction writeFlowTx) throws ElanException {
-        BigInteger dpId = interfaceInfo.getDpId();
-        String elanInstanceName = elanInfo.getElanInstanceName();
-        List<DpnInterfaces> remoteFEs = getInvolvedDpnsInElan(elanInstanceName);
-        for (DpnInterfaces remoteFE : remoteFEs) {
-            Long elanTag = elanInfo.getElanTag();
-            if (remoteFE.getDpId().equals(dstDpId)) {
-                // Check for the Remote DPN present in Inventory Manager
-                setupRemoteDmacFlow(dstDpId, dpId, interfaceInfo.getInterfaceTag(), elanTag, macAddress,
-                        elanInstanceName, writeFlowTx, interfaceInfo.getInterfaceName(), elanInfo);
-                LOG.debug("Dmac flow entry created for elan Name:{}, logical port Name:{} and mac address {} on dpn:{}",
-                        elanInstanceName, interfaceInfo.getPortName(), macAddress, remoteFE.getDpId());
-                break;
-            }
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -1087,7 +1072,6 @@ public class ElanUtils {
                     macAddress, interfaceName, elanInstance.getElanInstanceName());
             return;
         }
-
         Flow flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTag, elanTag, macAddress, displayName,
                 elanInstance);
         mdsalManager.addFlowToTx(srcDpId, flowEntity, writeFlowGroupTx);
@@ -1501,7 +1485,7 @@ public class ElanUtils {
             long serviceTag) {
         List<Action> result = Collections.emptyList();
 
-        LOG.debug("In getInternalItmEgressAction Action source {}, destination {}, elanTag {}", sourceDpnId,
+        LOG.info("In getInternalItmEgressAction Action source {}, destination {}, serviceTag {}", sourceDpnId,
                 destinationDpnId, serviceTag);
         Class<? extends TunnelTypeBase> tunType = TunnelTypeVxlan.class;
         GetTunnelInterfaceNameInput input = new GetTunnelInterfaceNameInputBuilder()
@@ -1512,9 +1496,12 @@ public class ElanUtils {
             if (output.get().isSuccessful()) {
                 GetTunnelInterfaceNameOutput tunnelInterfaceNameOutput = output.get().getResult();
                 String tunnelIfaceName = tunnelInterfaceNameOutput.getInterfaceName();
-                LOG.debug("Received tunnelInterfaceName from getTunnelInterfaceName RPC {}", tunnelIfaceName);
+                LOG.info("Received tunnelInterfaceName from getTunnelInterfaceName RPC {}", tunnelIfaceName);
 
                 result = buildTunnelItmEgressActions(tunnelIfaceName, serviceTag);
+            } else {
+                LOG.info("Tunnel interface doesn't exist between srcDpId {} dstDpId {}", sourceDpnId,
+                        destinationDpnId);
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error in RPC call getTunnelInterfaceName {}", e);
@@ -2239,11 +2226,13 @@ public class ElanUtils {
     }
 
     public static String getElanMacDPNKey(long elanTag, String macAddress, BigInteger dpnId) {
-        return ("MAC-" + macAddress + " ELAN_TAG-" + elanTag + "DPN_ID-" + dpnId).intern();
+        String elanMacDmacDpnKey = "MAC-" + macAddress + " ELAN_TAG-" + elanTag + "DPN_ID-" + dpnId;
+        return elanMacDmacDpnKey.intern();
     }
 
     public static String getElanMacKey(long elanTag, String macAddress) {
-        return ("MAC-" + macAddress + " ELAN_TAG-" + elanTag).intern();
+        String elanMacKey = "MAC-" + macAddress + " ELAN_TAG-" + elanTag;
+        return elanMacKey.intern();
     }
 
     public static void addToListenableFutureIfTxException(RuntimeException exception,
