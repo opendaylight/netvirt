@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8bba7ebe",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 4020
+      },
+      "writtenOn": "2017-03-20T12:36:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_771c66c2",
+      "revId": "7f2257970008a1203bf26cee66b43b607c270d2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b799ae21",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/NeutronL3Adapter.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-17T23:18:07Z",
       "side": 1,
       "message": "Here you skip the update of dpid in the neutronPortToDpIdCache. Does it apply for all updates or only the update for live migration scenario?",
+      "revId": "7f2257970008a1203bf26cee66b43b607c270d2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cb9da65b",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/NeutronL3Adapter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 819,
+      "author": {
+        "id": 4020
+      },
+      "writtenOn": "2017-03-20T12:36:28Z",
+      "side": 1,
+      "message": "Yes, it applies for all the updates. \nSince all the info is updated in cache during the ADD event, we can skip all the update event.",
+      "parentUuid": "fafc7978_b799ae21",
       "revId": "7f2257970008a1203bf26cee66b43b607c270d2a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
