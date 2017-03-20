@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_839b8871",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 919,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-20T04:26:22Z",
+      "side": 1,
+      "message": "Thanks for pointing out this comment.Not required here. Since FibUtil.writeFibEntryToDs() method will be taking care of writing this Object into DS. Hence removing this writeTx.submit()",
+      "parentUuid": "fafc7978_6312e459",
+      "range": {
+        "startLine": 919,
+        "startChar": 12,
+        "endLine": 919,
+        "endChar": 32
+      },
+      "revId": "9e2730f9408179924c7a2765bba65110074ce10b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_430fe02e",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 43
@@ -36,6 +60,24 @@
       "writtenOn": "2017-03-19T17:36:30Z",
       "side": 1,
       "message": "I don\u0027t think you need to add all this logic to this code \njust pass interfaceName as null in non-EVPN case",
+      "revId": "9e2730f9408179924c7a2765bba65110074ce10b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a39e8c61",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 693,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-20T04:26:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_430fe02e",
       "revId": "9e2730f9408179924c7a2765bba65110074ce10b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
