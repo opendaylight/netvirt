@@ -14,6 +14,8 @@ import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -25,6 +27,8 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanBridgeManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AclBase;
@@ -35,6 +39,12 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.AceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Actions;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeLogicalGroup;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.PolicyAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.PolicyProfiles;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.SetPolicyClassifier;
@@ -56,10 +66,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.un
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay.network.dpn.to._interface.TunnelInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay.network.dpn.to._interface.TunnelInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay.network.dpn.to._interface.TunnelInterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.DirectionEgress;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,12 +81,17 @@ public class PolicyServiceUtil {
 
     private final DataBroker dataBroker;
     private final IElanBridgeManager bridgeManager;
+    private final ItmRpcService itmRpcService;
+    private final IInterfaceManager interfaceManager;
     private final DataStoreJobCoordinator coordinator;
 
     @Inject
-    public PolicyServiceUtil(final DataBroker dataBroker, final IElanBridgeManager bridgeManager) {
+    public PolicyServiceUtil(final DataBroker dataBroker, final IElanBridgeManager bridgeManager,
+            final ItmRpcService itmRpcService, final IInterfaceManager interfaceManager) {
         this.dataBroker = dataBroker;
         this.bridgeManager = bridgeManager;
+        this.itmRpcService = itmRpcService;
+        this.interfaceManager = interfaceManager;
         this.coordinator = DataStoreJobCoordinator.getInstance();
     }
 
@@ -88,14 +103,20 @@ public class PolicyServiceUtil {
             return Optional.absent();
         }
 
-        if (setPolicyClassifier.getDirection() == null
-                || !setPolicyClassifier.getDirection().isAssignableFrom(DirectionEgress.class)) {
+        Class<? extends DirectionBase> direction;
+        try {
+            direction = setPolicyClassifier.getDirection();
+        } catch (IllegalArgumentException e) {
+            LOG.warn("Failed to parse policy classifier direction");
+            return null;
+        }
+
+        if (direction == null || !direction.isAssignableFrom(DirectionEgress.class)) {
             LOG.trace("Ignoring non egress policy ACE rule {}", ace.getRuleName());
             return Optional.absent();
         }
 
         return Optional.of(setPolicyClassifier.getPolicyClassifier());
-
     }
 
     public Optional<Ace> getPolicyAce(String aclName, String ruleName) {
@@ -106,6 +127,18 @@ public class PolicyServiceUtil {
         } catch (ReadFailedException e) {
             LOG.warn("Failed to get policy ACE rule {} for ACL {}", ruleName, aclName);
             return Optional.absent();
+        }
+    }
+
+    public List<PolicyProfile> getAllPolicyProfiles() {
+        InstanceIdentifier<PolicyProfiles> identifier = InstanceIdentifier.create(PolicyProfiles.class);
+        try {
+            Optional<PolicyProfiles> optProfiles = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, identifier);
+            return optProfiles.isPresent() ? optProfiles.get().getPolicyProfile() : Collections.emptyList();
+        } catch (ReadFailedException e) {
+            LOG.warn("Failed to get policy profiles");
+            return Collections.emptyList();
         }
     }
 
@@ -182,14 +215,14 @@ public class PolicyServiceUtil {
                         org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks
                         .underlay.network.PolicyProfile> identifier = getUnderlayNetworkPolicyClassifierIdentifier(
                                 policyClassifier, underlayNetwork);
+
                 if (isAdded) {
                     tx.merge(LogicalDatastoreType.OPERATIONAL, identifier,
                             new PolicyProfileBuilder().setPolicyClassifier(policyClassifier).build(), true);
                     LOG.info("Add policy classifier {} to underlay network {}", policyClassifier, underlayNetwork);
                 } else {
                     tx.delete(LogicalDatastoreType.OPERATIONAL, identifier);
-                    LOG.info("Remove policy classifier {} from underlay network {}", policyClassifier,
-                            underlayNetwork);
+                    LOG.info("Remove policy classifier {} from underlay network {}", policyClassifier, underlayNetwork);
                 }
                 return Collections.singletonList(tx.submit());
             });
@@ -230,6 +263,42 @@ public class PolicyServiceUtil {
 
         return underlayNetworks.stream().map(t -> getUnderlayNetworkRemoteDpns(t)).flatMap(t -> t.stream()).distinct()
                 .collect(Collectors.toList());
+    }
+
+    public boolean underlayNetworkContainsDpn(String underlayNetwork, BigInteger dpId) {
+        return dpnToInterfacesContainsDpn(getUnderlayNetworkDpnToInterfaces(underlayNetwork), dpId);
+    }
+
+    public boolean underlayNetworkContainsRemoteDpn(String underlayNetwork, BigInteger dpId) {
+        return dpnToInterfacesContainsRemoteDpn(getUnderlayNetworkDpnToInterfaces(underlayNetwork), dpId);
+    }
+
+    public static boolean dpnToInterfacesContainsDpn(List<DpnToInterface> dpnToInterfaces, BigInteger dpId) {
+        if (dpnToInterfaces == null) {
+            return false;
+        }
+
+        return dpnToInterfaces.stream().filter(dpnToInterface -> dpnToInterface.getDpId().equals(dpId)).findFirst()
+                .isPresent();
+    }
+
+    public static boolean dpnToInterfacesContainsRemoteDpn(List<DpnToInterface> dpnToInterfaces, BigInteger dpId) {
+        if (dpnToInterfaces == null) {
+            return false;
+        }
+
+        return dpnToInterfaces.stream().filter(dpnToInterface -> dpnToInterfaceContainsRemoteDpn(dpnToInterface, dpId))
+                .findFirst().isPresent();
+    }
+
+    public static boolean dpnToInterfaceContainsRemoteDpn(DpnToInterface dpnToInterface, BigInteger dpId) {
+        List<TunnelInterface> tunnelInterfaces = dpnToInterface.getTunnelInterface();
+        if (tunnelInterfaces == null) {
+            return false;
+        }
+
+        return tunnelInterfaces.stream().filter(tunnelInterface -> tunnelInterface.getRemoteDpId().equals(dpId))
+                .findFirst().isPresent();
     }
 
     public String getTunnelUnderlayNetwork(BigInteger dpId, IpAddress tunnelIp) {
@@ -347,5 +416,38 @@ public class PolicyServiceUtil {
 
     public List<BigInteger> getUnderlayNetworkRemoteDpns(String underlayNetwork) {
         return getRemoteDpnsFromDpnToInterfaces(getUnderlayNetworkDpnToInterfaces(underlayNetwork));
+    }
+
+
+    public Optional<Integer> getLogicalTunnelLportTag(BigInteger srcDpId, BigInteger dstDpId) {
+        Optional<String> logicalTunnelNameOpt = getLogicalTunnelName(srcDpId, dstDpId);
+        if (!logicalTunnelNameOpt.isPresent()) {
+            LOG.debug("Failed to get logical tunnel for source DPN {} dst DPN {}", srcDpId, dstDpId);
+            return Optional.absent();
+        }
+
+        String logicalTunnelName = logicalTunnelNameOpt.get();
+        InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(logicalTunnelName);
+        if (interfaceInfo == null) {
+            LOG.debug("Failed to get interface info for logical tunnel {}", logicalTunnelName);
+            return Optional.absent();
+        }
+
+        return Optional.of(interfaceInfo.getInterfaceTag());
+    }
+
+    public Optional<String> getLogicalTunnelName(BigInteger srcDpId, BigInteger dstDpId) {
+        Future<RpcResult<GetTunnelInterfaceNameOutput>> tunnelInterfaceOutput = itmRpcService
+                .getTunnelInterfaceName(new GetTunnelInterfaceNameInputBuilder().setSourceDpid(srcDpId)
+                        .setDestinationDpid(dstDpId).setTunnelType(TunnelTypeLogicalGroup.class).build());
+        try {
+            if (tunnelInterfaceOutput.get().isSuccessful()) {
+                return Optional.of(tunnelInterfaceOutput.get().getResult().getInterfaceName());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error in RPC call getTunnelInterfaceName {} for source DPN {} dst DPN {}", srcDpId, dstDpId);
+        }
+
+        return Optional.absent();
     }
 }
