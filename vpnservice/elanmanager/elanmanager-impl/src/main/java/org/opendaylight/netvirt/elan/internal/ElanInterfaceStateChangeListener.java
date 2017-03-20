@@ -79,7 +79,7 @@ public class ElanInterfaceStateChangeListener
 
     @Override
     protected void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
-        LOG.trace("Operation Interface update event - Old: {}, New: {}", original, update);
+        LOG.info("Operation Interface update event - Old: {}, New: {}", original, update);
         String interfaceName = update.getName();
         if (update.getType() == null) {
             LOG.trace("Interface type for interface {} is null", interfaceName);
@@ -93,8 +93,7 @@ public class ElanInterfaceStateChangeListener
                         InternalTunnel internalTunnel = getTunnelState(interfaceName);
                         if (internalTunnel != null) {
                             try {
-                                LOG.debug("ITM Tunnel Update event between source DPN {} and destination DPN {} ",
-                                    internalTunnel.getSourceDPN(), internalTunnel.getDestinationDPN());
+                                LOG.info("Handling tunnel update for interface {} in ELAN", interfaceName);
                                 elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
                                         internalTunnel.getDestinationDPN());
                             } catch (ElanException e) {
@@ -110,7 +109,7 @@ public class ElanInterfaceStateChangeListener
 
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
-        LOG.trace("Received interface {} up event", intrf);
+        LOG.info("Received interface {} up event", intrf);
         String interfaceName =  intrf.getName();
         ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
         if (elanInterface == null) {
@@ -121,8 +120,7 @@ public class ElanInterfaceStateChangeListener
                             InternalTunnel internalTunnel = getTunnelState(interfaceName);
                             if (internalTunnel != null) {
                                 try {
-                                    LOG.debug("ITM Tunnel Add event between source DPN {} and destination DPN {} ",
-                                        internalTunnel.getSourceDPN(), internalTunnel.getDestinationDPN());
+                                    LOG.info("Handling tunnel add for interface {} in ELAN", interfaceName);
                                     elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
                                             internalTunnel.getDestinationDPN());
                                 } catch (ElanException e) {
