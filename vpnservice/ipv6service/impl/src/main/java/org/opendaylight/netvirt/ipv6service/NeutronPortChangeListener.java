@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat, Inc. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Red Hat, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -9,40 +9,36 @@ package org.opendaylight.netvirt.ipv6service;
 
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> implements AutoCloseable {
+public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<Port, NeutronPortChangeListener>
+        implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronPortChangeListener.class);
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final IfMgr ifMgr;
 
     public NeutronPortChangeListener(final DataBroker dataBroker) {
-        super(Port.class);
         this.dataBroker = dataBroker;
         ifMgr = IfMgr.getIfMgrInstance();
     }
 
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                getWildCardPath(), this, DataChangeScope.SUBTREE);
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
-    private InstanceIdentifier<Port> getWildCardPath() {
+    @Override
+    protected InstanceIdentifier<Port> getWildCardPath() {
         return InstanceIdentifier.create(Neutron.class).child(Ports.class).child(Port.class);
     }
 
@@ -94,11 +90,7 @@ public class NeutronPortChangeListener extends AbstractDataChangeListener<Port> 
     }
 
     @Override
-    public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-            listenerRegistration = null;
-        }
-        LOG.info("{} close", getClass().getSimpleName());
+    protected NeutronPortChangeListener getDataTreeChangeListener() {
+        return NeutronPortChangeListener.this;
     }
 }

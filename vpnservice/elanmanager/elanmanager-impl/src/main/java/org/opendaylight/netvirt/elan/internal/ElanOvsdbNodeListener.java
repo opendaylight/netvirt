@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat, Inc. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Red Hat, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -8,10 +8,8 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
@@ -19,7 +17,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,9 +24,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Listen for new OVSDB nodes and then make sure they have the necessary bridges configured.
  */
-public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> implements AutoCloseable {
+public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node, ElanOvsdbNodeListener>
+        implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ElanOvsdbNodeListener.class);
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final ElanBridgeManager bridgeMgr;
     private final IElanService elanProvider;
@@ -46,7 +43,6 @@ public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> impl
     public ElanOvsdbNodeListener(final DataBroker dataBroker, ElanConfig elanConfig,
                                  final ElanBridgeManager bridgeMgr,
                                  final IElanService elanProvider) {
-        super(Node.class);
         this.dataBroker = dataBroker;
         autoCreateBridge = elanConfig.isAutoCreateBridge();
         this.generateIntBridgeMac = elanConfig.isIntBridgeGenMac();
@@ -54,26 +50,18 @@ public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> impl
         this.elanProvider = elanProvider;
     }
 
+    @Override
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
+        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
-    private InstanceIdentifier<Node> getWildCardPath() {
+    @Override
+    protected InstanceIdentifier<Node> getWildCardPath() {
         return InstanceIdentifier
                 .create(NetworkTopology.class)
                 .child(Topology.class, new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
                 .child(Node.class);
-    }
-
-    @Override
-    public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-            listenerRegistration = null;
-        }
-        LOG.info("{} close", getClass().getSimpleName());
     }
 
     @Override
@@ -103,5 +91,13 @@ public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> impl
         if (autoCreateBridge) {
             bridgeMgr.processNodePrep(node, generateIntBridgeMac);
         }
+    }
+
+    /* (non-Javadoc)
+     * @see org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase#getDataTreeChangeListener()
+     */
+    @Override
+    protected ElanOvsdbNodeListener getDataTreeChangeListener() {
+        return ElanOvsdbNodeListener.this;
     }
 }
