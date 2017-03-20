@@ -86,6 +86,7 @@ public class ElanInterfaceStateChangeListener
             return;
         }
         if (update.getType().equals(Tunnel.class)) {
+        	LOG.info("Received tunnel interface {} update event - Old: {}, New: {}", original, update);
             DataStoreJobCoordinator.getInstance().enqueueJob(interfaceName, () -> {
                 if (!original.getOperStatus().equals(Interface.OperStatus.Unknown)
                         && !update.getOperStatus().equals(Interface.OperStatus.Unknown)) {
@@ -93,13 +94,14 @@ public class ElanInterfaceStateChangeListener
                         InternalTunnel internalTunnel = getTunnelState(interfaceName);
                         if (internalTunnel != null) {
                             try {
-                                LOG.debug("ITM Tunnel Update event between source DPN {} and destination DPN {} ",
-                                    internalTunnel.getSourceDPN(), internalTunnel.getDestinationDPN());
+                                LOG.info("Handling tunnel update for interface {} in ELAN", interfaceName);
                                 elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
                                         internalTunnel.getDestinationDPN());
                             } catch (ElanException e) {
                                 LOG.error("Failed to update interface: " + identifier.toString(), e);
                             }
+                        } else {
+                        	LOG.warn("Internal tunnel is not present for tunnel interface {}", interfaceName);
                         }
                     }
                 }
@@ -115,19 +117,21 @@ public class ElanInterfaceStateChangeListener
         ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
         if (elanInterface == null) {
             if (intrf.getType() != null && intrf.getType().equals(Tunnel.class)) {
+            	LOG.info("Received tunnel interface {} add event", intrf);
                 DataStoreJobCoordinator.getInstance().enqueueJob(interfaceName,
                     () -> {
                         if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
                             InternalTunnel internalTunnel = getTunnelState(interfaceName);
                             if (internalTunnel != null) {
                                 try {
-                                    LOG.debug("ITM Tunnel Add event between source DPN {} and destination DPN {} ",
-                                        internalTunnel.getSourceDPN(), internalTunnel.getDestinationDPN());
+                                    LOG.info("Handling tunnel add for interface {} in ELAN", interfaceName);
                                     elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
                                             internalTunnel.getDestinationDPN());
                                 } catch (ElanException e) {
                                     LOG.error("Failed to add interface: " + identifier.toString(), e);
                                 }
+                            } else {
+                            	LOG.warn("Internal tunnel is not present for tunnel interface {}", interfaceName);
                             }
                         }
                         return Collections.emptyList();
@@ -151,7 +155,9 @@ public class ElanInterfaceStateChangeListener
         if (tunnelList != null && tunnelList.getInternalTunnel() != null) {
             List<InternalTunnel> internalTunnels = tunnelList.getInternalTunnel();
             for (InternalTunnel tunnel : internalTunnels) {
-                if (tunnel.getTunnelInterfaceName().equalsIgnoreCase(interfaceName)) {
+            	String tunnelInterfaceName = tunnel.getTunnelInterfaceName();
+				LOG.warn("available tunnel name is  {}", tunnelInterfaceName);
+                if (tunnelInterfaceName.equalsIgnoreCase(interfaceName)) {
                     internalTunnel = tunnel;
                     break;
                 }
