@@ -556,7 +556,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             dpnInterfaceLists = new ArrayList<>();
         }
         for (DpnInterfaces dpnInterfaces : dpnInterfaceLists) {
-            if (dpnInterfaces.getDpId().equals(interfaceInfo.getDpId())) {
+            BigInteger dstDpId = interfaceInfo.getDpId();
+            if (dpnInterfaces.getDpId().equals(dstDpId)) {
                 continue;
             }
             List<String> remoteElanInterfaces = dpnInterfaces.getInterfaces();
@@ -569,9 +570,11 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 List<MacEntry> remoteMacEntries = elanIfMac.getMacEntry();
                 if (remoteMacEntries != null) {
                     for (MacEntry macEntry : remoteMacEntries) {
-                        PhysAddress physAddress = macEntry.getMacAddress();
-                        elanUtils.setupRemoteDmacFlow(interfaceInfo.getDpId(), remoteInterface.getDpId(),
-                                remoteInterface.getInterfaceTag(), elanInstance.getElanTag(), physAddress.getValue(),
+                        String macAddress = macEntry.getMacAddress().getValue();
+                        LOG.info("Programming remote dmac {} on the newly added DPN {} for elan {}", macAddress,
+                                dstDpId, elanInstance.getElanInstanceName());
+                        elanUtils.setupRemoteDmacFlow(dstDpId, remoteInterface.getDpId(),
+                                remoteInterface.getInterfaceTag(), elanInstance.getElanTag(), macAddress,
                                 elanInstance.getElanInstanceName(), writeFlowGroupTx, remoteIf, elanInstance);
                     }
                 }
@@ -680,8 +683,11 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 if (isInterfaceOperational) {
                     // Setting SMAC, DMAC, UDMAC in this DPN and also in other
                     // DPNs
+                    String macAddress = physAddress.getValue();
+                    LOG.info("programming smac and dmacs for {} on source and other DPNs for elan {} and interface {}",
+                            macAddress, elanInstanceName, interfaceName);
                     elanUtils.setupMacFlows(elanInstance, interfaceInfo, ElanConstants.STATIC_MAC_TIMEOUT,
-                            physAddress.getValue(), true, writeFlowGroupTx);
+                            macAddress, true, writeFlowGroupTx);
                 }
             }
 
@@ -740,6 +746,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
              * dpn.
              */
             if (!interfaceManager.isExternalInterface(interfaceInfo.getInterfaceName())) {
+                LOG.info("Programming remote dmac flows on the newly connected dpn {} for elan {} ", dpId,
+                        elanInstance.getElanInstanceName());
                 programRemoteDmacFlow(elanInstance, interfaceInfo, writeFlowGroupTx);
             }
         }
@@ -1019,12 +1027,18 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         String interfaceName = interfaceInfo.getInterfaceName();
         ElanInterfaceMac elanInterfaceMac = elanUtils.getElanInterfaceMacByInterfaceName(interfaceName);
         if (elanInterfaceMac != null && elanInterfaceMac.getMacEntry() != null) {
-            WriteTransaction writeFlowTx = broker.newWriteOnlyTransaction();
             List<MacEntry> macEntries = elanInterfaceMac.getMacEntry();
+            WriteTransaction writeFlowTx = broker.newWriteOnlyTransaction();
             for (MacEntry macEntry : macEntries) {
-                PhysAddress physAddress = macEntry.getMacAddress();
-                elanUtils.setupDMacFlowonRemoteDpn(elanInfo, interfaceInfo, dstDpId, physAddress.getValue(),
-                        writeFlowTx);
+                String macAddress = macEntry.getMacAddress().getValue();
+                LOG.info("Installing remote dmac for mac address {} and interface {}", macAddress, interfaceName);
+                synchronized (ElanUtils.getElanMacDPNKey(elanInfo.getElanTag(), macAddress,
+                        interfaceInfo.getDpId())) {
+                    LOG.info("Acquired lock for mac : " + macAddress + ". Proceeding with remote dmac"
+                            + " install operation.");
+                    elanUtils.setupDMacFlowonRemoteDpn(elanInfo, interfaceInfo, dstDpId, macAddress,
+                            writeFlowTx);
+                }
             }
             writeFlowTx.submit();
         }
@@ -1548,7 +1562,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 }
             }
             if (cnt == 2) {
-                LOG.debug("Elan instance:{} is present b/w srcDpn:{} and dstDpn:{}", elanName, srcDpId, dstDpId);
+                LOG.info("Elan instance:{} is present b/w srcDpn:{} and dstDpn:{}", elanName, srcDpId, dstDpId);
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 final DpnInterfaces finalDstDpnIf = dstDpnIf; // var needs to be final so it can be accessed in lambda
                 dataStoreCoordinator.enqueueJob(elanName, () -> {
@@ -1559,6 +1573,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     interfaceLists.addAll(finalDstDpnIf.getInterfaces());
                     for (String ifName : interfaceLists) {
                         dataStoreCoordinator.enqueueJob(ifName, () -> {
+                            LOG.info("Processing tunnel up event for elan {} and interface {}", elanName, ifName);
                             InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(ifName);
                             if (isOperational(interfaceInfo)) {
                                 installDMacAddressTables(elanInfo, interfaceInfo, srcDpId);
