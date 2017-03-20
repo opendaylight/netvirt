@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_4967feea",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-20T16:36:52Z",
+      "side": 1,
+      "message": "Please also update the commit message with description of the problem and solution",
+      "revId": "7f2257970008a1203bf26cee66b43b607c270d2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_771c66c2",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
         "patchSetId": 2
@@ -66,6 +83,24 @@
       "side": 1,
       "message": "Yes, it applies for all the updates. \nSince all the info is updated in cache during the ADD event, we can skip all the update event.",
       "parentUuid": "fafc7978_b799ae21",
+      "revId": "7f2257970008a1203bf26cee66b43b607c270d2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_096e96c9",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/NeutronL3Adapter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 819,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-20T16:36:52Z",
+      "side": 1,
+      "message": "But ADD and UPDATE events are different.\nThe ADD event puts the content in the cache, whereas the UPDATE event update the previous content to a new value. With the change you are only enable to ADD and DELETE the content in the cache, UPDATE is ignored.\n\nAm I missing something?",
+      "parentUuid": "fafc7978_cb9da65b",
       "revId": "7f2257970008a1203bf26cee66b43b607c270d2a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
