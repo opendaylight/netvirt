@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_884567b5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRoutePacketInHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-20T09:04:34Z",
+      "side": 1,
+      "message": "Please use LOG without class prefix, all NetVirt is written that way",
+      "range": {
+        "startLine": 136,
+        "startChar": 24,
+        "endLine": 136,
+        "endChar": 50
+      },
+      "revId": "8575358f429270a5ad893c26e8938a39482c1a66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e81193b0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRoutePacketInHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-20T09:04:34Z",
+      "side": 1,
+      "message": "Why array? the logger receive varargs",
+      "range": {
+        "startLine": 138,
+        "startChar": 68,
+        "endLine": 138,
+        "endChar": 80
+      },
+      "revId": "8575358f429270a5ad893c26e8938a39482c1a66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c8164fa7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRoutePacketInHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-20T09:04:34Z",
+      "side": 1,
+      "message": "Remove cast, it is unnecessary. \nI see you have a lot of casts all around the code, please clean those up.",
+      "range": {
+        "startLine": 142,
+        "startChar": 51,
+        "endLine": 142,
+        "endChar": 59
+      },
+      "revId": "8575358f429270a5ad893c26e8938a39482c1a66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_280c3b94",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRoutePacketInHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-20T09:04:34Z",
+      "side": 1,
+      "message": "remove this classifier (you have it in more then one place)",
+      "range": {
+        "startLine": 143,
+        "startChar": 65,
+        "endLine": 143,
+        "endChar": 70
+      },
+      "revId": "8575358f429270a5ad893c26e8938a39482c1a66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_081177ac",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRoutePacketInHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-20T09:04:34Z",
+      "side": 1,
+      "message": "What do you think about renaming this to \"vmVpnInterface\"? which will (maybe) help the reader understand why the VPN-Instance is a router although we are dealing with ExternalNetwork.",
+      "range": {
+        "startLine": 258,
+        "startChar": 26,
+        "endLine": 258,
+        "endChar": 38
+      },
+      "revId": "8575358f429270a5ad893c26e8938a39482c1a66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6825a309",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRoutePacketInHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-20T09:04:34Z",
+      "side": 1,
+      "message": "Why? is there a problem with BigInteger.ZERO.equals(dpnId)?",
+      "range": {
+        "startLine": 281,
+        "startChar": 11,
+        "endLine": 281,
+        "endChar": 50
+      },
+      "revId": "8575358f429270a5ad893c26e8938a39482c1a66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_75fbbb47",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRoutePacketInHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-20T09:04:34Z",
+      "side": 1,
+      "message": "Move this to a utility class",
+      "range": {
+        "startLine": 291,
+        "startChar": 19,
+        "endLine": 291,
+        "endChar": 38
+      },
+      "revId": "8575358f429270a5ad893c26e8938a39482c1a66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
