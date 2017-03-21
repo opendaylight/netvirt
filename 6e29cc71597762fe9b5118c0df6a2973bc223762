@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_d0026ab3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T18:34:54Z",
+      "side": 1,
+      "message": "plesae check indentation.",
+      "revId": "6e29cc71597762fe9b5118c0df6a2973bc223762",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d06b8a83",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 723,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T18:34:54Z",
+      "side": 1,
+      "message": "if gwIp.isPresent() only then use it in below line.",
+      "revId": "6e29cc71597762fe9b5118c0df6a2973bc223762",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_500f9ae1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 807,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T18:34:54Z",
+      "side": 1,
+      "message": "ditto comment here.",
+      "revId": "6e29cc71597762fe9b5118c0df6a2973bc223762",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
