@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a435eff8",
+        "filename": "vpnservice/features/pom.xml",
+        "patchSetId": 14
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2017-03-21T00:11:38Z",
+      "side": 1,
+      "message": "will do",
+      "parentUuid": "fafc7978_223dc82b",
+      "revId": "60b3b8f6f4bfbd454ed3d10586ca96d72803caa3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_37706c0a",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 14
@@ -48,6 +66,24 @@
       "writtenOn": "2017-03-06T11:10:14Z",
       "side": 1,
       "message": "this getMessage(), and in many more place below, is wrong .. you loose the exception root cause.  Just put e and remove the \"due to the exception {}\", and slf4j will do the right thing.  Here and everywhere after.",
+      "revId": "60b3b8f6f4bfbd454ed3d10586ca96d72803caa3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2421ffb4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2017-03-21T00:11:38Z",
+      "side": 1,
+      "message": "will fix this",
+      "parentUuid": "fafc7978_37706c0a",
       "revId": "60b3b8f6f4bfbd454ed3d10586ca96d72803caa3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
