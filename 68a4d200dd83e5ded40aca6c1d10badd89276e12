@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_b0eec6b2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-21T19:54:39Z",
+      "side": 1,
+      "message": "Please make the text fits into the commit window",
+      "revId": "68a4d200dd83e5ded40aca6c1d10badd89276e12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_70f45e87",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-21T19:54:39Z",
+      "side": 1,
+      "message": "Please put full description in the bug report if you don\u0027t want to explain the problem in details in the commit messages",
+      "revId": "68a4d200dd83e5ded40aca6c1d10badd89276e12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_703bbe38",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-21T19:54:39Z",
+      "side": 1,
+      "message": "\u003e \"Removed local cache code during stacking\"\n\nAs you explained that we are not removing the local cache logic for getting patch port. The above statement is not true",
+      "revId": "68a4d200dd83e5ded40aca6c1d10badd89276e12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_90d0e2f8",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/VLANProvider.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-21T19:54:39Z",
+      "side": 1,
+      "message": "See my latest comment in ConfigurationService",
+      "revId": "68a4d200dd83e5ded40aca6c1d10badd89276e12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_70cd7e5d",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/ConfigurationService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-21T19:54:39Z",
+      "side": 1,
+      "message": "See my latest comment in ConfigurationService",
+      "revId": "68a4d200dd83e5ded40aca6c1d10badd89276e12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d0da6a16",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/BridgeConfigurationManagerImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-21T19:54:39Z",
+      "side": 1,
+      "message": "See my latest comment in ConfigurationService",
+      "revId": "68a4d200dd83e5ded40aca6c1d10badd89276e12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
