@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ff35c1f7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-21T12:57:48Z",
+      "side": 1,
+      "message": "Peri could you add a meaningful subject?",
+      "revId": "f7895027a36a66aedfdfce507e5beeb0d4b3a655",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
