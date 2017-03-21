@@ -45,6 +45,7 @@
     <configfile.directory>etc/opendaylight/karaf</configfile.directory>
     <dlux.version>0.5.0-SNAPSHOT</dlux.version>
     <federation.version>0.2.0-SNAPSHOT</federation.version>
+    <sfc.version>0.5.0-SNAPSHOT</sfc.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -376,6 +377,28 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>ovsdb-ui-bundle</artifactId>
       <version>${ovsdb.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>sfc.classifier-api</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>sfc.translator</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.sfc</groupId>
+      <artifactId>features-sfc</artifactId>
+      <version>${sfc.version}</version>
+      <classifier>features</classifier>
+      <type>xml</type>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.sfc</groupId>
+      <artifactId>sfc-provider</artifactId>
+      <version>${sfc.version}</version>
     </dependency>
     <dependency>
       <!-- TODO Remove when https://git.opendaylight.org/gerrit/#/c/44502/
