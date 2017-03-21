@@ -283,6 +283,24 @@
       "revId": "a26dae8841370d62528f08025a72b83972b52329",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d0c70a63",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/ConfigurationService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-03-21T19:54:39Z",
+      "side": 1,
+      "message": "Hi Hari,\n\nThank you for explaining. I am no longer confused. My preference is still using the cache. The advantage is there is only place where getPatchPortName logic is implemented for both scenarios. This way the code is clean and easy to maintain.\n\nNow you add another method readPatchPortName. One will always question what the differences between the read and getPatchPortName? and why there are two methods? Of course we can always explain why we did that. But code should be clear and doesn\u0027t need explanations. \n\nIt seems that you don\u0027t like the cache solution, might I suggest a simple modification from your solution:\n\n1) Don\u0027t add the method readPatchPortName to the ConfigurationService. This method has nothing with Configuration, adding there will cause confusion with the existing getPatchPortName\n\n2) Instead add this method as a static method of VlanProvider with the name getPatchPortName. The name starts with \u0027read\u0027 suggests that it is read from somewhere which is not correct.\nNow both BridgeConfigurationManagerImpl and VlanProvider can use it",
+      "parentUuid": "fafc7978_9f2475c7",
+      "revId": "a26dae8841370d62528f08025a72b83972b52329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
