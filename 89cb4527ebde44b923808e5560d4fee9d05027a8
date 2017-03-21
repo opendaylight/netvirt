@@ -213,6 +213,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a2767cd6",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2017-03-21T21:03:26Z",
+      "side": 1,
+      "message": "It\u0027s kind of an implementation detail, but I think that resubmitting from the classifier into the middle of SFC will result in a more complex design than is necessary.",
+      "parentUuid": "fafc7978_9fcbd81d",
+      "revId": "89cb4527ebde44b923808e5560d4fee9d05027a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f724d6b0",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 13
@@ -401,6 +419,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_22bc4c6c",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2017-03-21T21:03:26Z",
+      "side": 1,
+      "message": "I think it\u0027s the same issue whether we are resubmitting from SFC SFF to NetVirt or from NetVirt to SFC SFF - the port will need to be updated to a port that we know the other service is bound to.  This is kind of a implementation detail, but I wanted to mention it.",
+      "parentUuid": "fafc7978_3ac3da8b",
+      "range": {
+        "startLine": 255,
+        "startChar": 51,
+        "endLine": 258,
+        "endChar": 36
+      },
+      "revId": "89cb4527ebde44b923808e5560d4fee9d05027a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_57404235",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 13
@@ -499,6 +541,24 @@
       "writtenOn": "2017-03-21T10:30:28Z",
       "side": 1,
       "message": "Good point, I\u0027ll add that.",
+      "parentUuid": "fafc7978_57716276",
+      "revId": "89cb4527ebde44b923808e5560d4fee9d05027a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5035da44",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2017-03-21T21:03:26Z",
+      "side": 1,
+      "message": "Looks good.",
       "parentUuid": "fafc7978_57716276",
       "revId": "89cb4527ebde44b923808e5560d4fee9d05027a8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
