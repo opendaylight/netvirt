@@ -15,6 +15,7 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.TcpMd5SignaturePasswordType;
 
 @Command(scope = "odl", name = "bgp-nbr",
         description = "Add or delete BGP neighbor")
@@ -24,6 +25,16 @@ public class Neighbor extends OsgiCommandSupport {
     private static final String MH = "--ebgp-multihop";
     private static final String US = "--update-source";
     private static final String AF = "--address-family";
+    private static final String MP = "--tcp-md5-password";
+
+    private static final String USAGE = new StringBuilder("usage: bgp-nbr")
+            .append(" [").append(IP).append(" nbr-ip-address]")
+            .append(" [").append(AS).append(" asnum]")
+            .append(" [").append(MP).append(" md5-shared-secret]")
+            .append(" [").append(MH).append(" hops]")
+            .append(" [").append(US).append(" source]")
+            .append(" [").append(AF).append(" lu]")
+            .append(" <add|del>").toString();
 
     @Argument(index = 0, name = "add|del", description = "The desired operation",
             required = true, multiValued = false)
@@ -38,6 +49,10 @@ public class Neighbor extends OsgiCommandSupport {
             description = "AS number",
             required = false, multiValued = false)
     String asNum = null;
+
+    @Option(name = MP, aliases = {"-p"}, description = "TCP MD5 Signature Option shared secret",
+            required = false, multiValued = false)
+    String md5PasswordOption = null;
 
     @Option(name = MH, aliases = {"-e"},
             description = "EBGP-multihop hops",
@@ -55,9 +70,7 @@ public class Neighbor extends OsgiCommandSupport {
     String addrFamily = null;
 
     private Object usage() {
-        session.getConsole().println(
-                "usage: bgp-nbr [" + IP + " nbr-ip-address] [" + AS + " asnum] ["
-                        + MH + " hops] [" + US + " source] [" + AF + " lu] <add|del>");
+        session.getConsole().println(USAGE);
         return null;
     }
 
@@ -89,7 +102,17 @@ public class Neighbor extends OsgiCommandSupport {
                         asn = Long.valueOf(asNum);
                     }
                 }
-                bm.addNeighbor(nbrIp, asn);
+                TcpMd5SignaturePasswordType md5Secret = null;
+                if (md5PasswordOption != null) {
+                    try {
+                        md5Secret = new TcpMd5SignaturePasswordType(md5PasswordOption);
+                    } catch (IllegalArgumentException e) {
+                        session.getConsole().println(new StringBuilder("invalid MD5 password: ").append(e).toString());
+                        return null;
+                    }
+                }
+                bm.addNeighbor(nbrIp, asn, md5Secret);
+
                 if (multiHops != null) {
                     if (!Commands.isValid(session.getConsole(), multiHops, Commands.Validators.INT, MH)) {
                         return null;

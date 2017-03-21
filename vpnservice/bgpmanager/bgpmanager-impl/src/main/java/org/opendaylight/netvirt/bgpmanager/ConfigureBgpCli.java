@@ -20,6 +20,7 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.TcpMd5SignaturePasswordType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,10 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
 
     @Option(name = "--ip", description = "ip of the bgp neighbor", required = false, multiValued = false)
     String ip = null;
+
+    @Option(name = "--tcp-md5-password", description = "RFC2385 TCP MD5 Signature Option shared secret",
+            required = false, multiValued = false)
+    String md5passwordOption = null;
 
     @Option(name = "--address-family", description = "address family of the bgp neighbor "
             + "SAFI_IPV4_LABELED_UNICAST|SAFI_MPLS_VPN",
@@ -213,6 +218,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
         usage();
         session.getConsole().println(
                 "exec configure-bgp -op add-neighbor --ip <neighbor-ip> --as-num <as-num> [--address-family <af>] "
+                        + "[--tcp-md5-password <password>] "
                         + "[--use-source-ip <sip>] [--ebgp-multihops <em> ]");
     }
 
@@ -274,6 +280,17 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
             return;
         }
 
+        TcpMd5SignaturePasswordType md5secret = null;
+        if (md5passwordOption != null) {
+            try {
+                md5secret = new TcpMd5SignaturePasswordType(md5passwordOption);
+            } catch (IllegalArgumentException e) {
+                session.getConsole().println(new StringBuilder("invalid MD5 password: ").append(e).toString());
+                printAddNeighborHelp();
+                return;
+            }
+        }
+
         if (sourceIp != null) {
             validIp = validateIp(sourceIp);
             if (!validIp) {
@@ -311,7 +328,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
             session.getConsole().println("neighbor with ip " + ip + " already exists");
             return;
         }
-        bgpManager.addNeighbor(ip, Long.valueOf(asNumber));
+        bgpManager.addNeighbor(ip, Long.valueOf(asNumber), md5secret);
         if (addressFamily != null) {
             bgpManager.addAddressFamily(ip, af_afi.AFI_IP,
                     af_safi.valueOf(addressFamily));
