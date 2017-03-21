@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5c35fb44",
+        "filename": "sfc/api/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-21T11:43:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d78ef226",
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b7936e4e",
         "filename": "sfc/api/pom.xml",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-17T22:05:29Z",
       "side": 1,
       "message": "use the netvirt binding-parent. fyi, when you do this you will also pick up checkstyle error checking by default and you verify jobs will fail if checkstyle is not happy. If doing mvn clean install -Pq then cehckstyle is skipped. So do a mvn checkstyle:check before pushing to get checkstyle to run.",
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3c3ab736",
+        "filename": "sfc/api/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-21T11:43:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_b7936e4e",
       "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9c3e4328",
+        "filename": "sfc/api/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-21T11:43:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_17999a6e",
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f79df65a",
         "filename": "sfc/api/pom.xml",
         "patchSetId": 5
@@ -64,6 +118,24 @@
       "writtenOn": "2017-03-17T22:05:29Z",
       "side": 1,
       "message": "name is just sfc-api",
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7c3b9f38",
+        "filename": "sfc/api/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-21T11:43:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f79df65a",
       "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1c1253b4",
+        "filename": "sfc/api/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-21T11:43:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_57a2029b",
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_37cdbe5e",
         "filename": "sfc/api/pom.xml",
         "patchSetId": 5
@@ -98,6 +188,24 @@
       "writtenOn": "2017-03-17T22:05:29Z",
       "side": 1,
       "message": "delete this as I don\u0027t think it is used",
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fc166fa6",
+        "filename": "sfc/api/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-21T11:43:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_37cdbe5e",
       "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9caf632b",
+        "filename": "sfc/api/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-21T11:43:58Z",
+      "side": 1,
+      "message": "It was just copied from the old netvirt api, I\u0027ll remove it.",
+      "parentUuid": "fafc7978_77a9067b",
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_37c65e4a",
         "filename": "sfc/api/src/main/yang/netvirt-acl.yang",
         "patchSetId": 5
@@ -132,6 +258,24 @@
       "writtenOn": "2017-03-17T22:05:29Z",
       "side": 1,
       "message": "shorten the namespace to just urn:opendaylight:netvirt:sfc:acl",
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1c63731b",
+        "filename": "sfc/api/src/main/yang/netvirt-acl.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-21T11:43:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_37c65e4a",
       "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fc4e6f95",
+        "filename": "sfc/api/src/main/yang/netvirt-classifier.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-21T11:43:58Z",
+      "side": 1,
+      "message": "I\u0027ll change the namespace.\nI\u0027ll keep this yang just in case.",
+      "parentUuid": "fafc7978_97c3ca37",
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_77c0e62a",
         "filename": "sfc/impl/pom.xml",
         "patchSetId": 5
@@ -166,6 +328,24 @@
       "writtenOn": "2017-03-17T22:05:29Z",
       "side": 1,
       "message": "netvirt binding-parent",
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fc35cff7",
+        "filename": "sfc/impl/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-21T11:43:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_77c0e62a",
       "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3c40f755",
+        "filename": "sfc/impl/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-21T11:43:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d7dc321b",
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_17e7dae5",
         "filename": "sfc/impl/pom.xml",
         "patchSetId": 5
@@ -200,6 +398,24 @@
       "writtenOn": "2017-03-17T22:05:29Z",
       "side": 1,
       "message": "just sfc-impl",
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9c2483c7",
+        "filename": "sfc/impl/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-21T11:43:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_17e7dae5",
       "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -223,6 +439,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_dc2e0ba5",
+        "filename": "sfc/impl/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-21T11:43:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_b7e1aed2",
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f7eb36ae",
         "filename": "sfc/impl/pom.xml",
         "patchSetId": 5
@@ -240,6 +474,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5f204d9b",
+        "filename": "sfc/impl/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-21T11:43:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f7eb36ae",
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_97daaa15",
         "filename": "sfc/impl/pom.xml",
         "patchSetId": 5
@@ -251,6 +503,24 @@
       "writtenOn": "2017-03-17T22:05:29Z",
       "side": 1,
       "message": "most of this should go away if genius is used.",
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7f36f1e8",
+        "filename": "sfc/impl/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-21T11:43:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_97daaa15",
       "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -291,6 +561,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ff51410f",
+        "filename": "sfc/impl/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-21T11:43:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d7039274",
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_57f7a28c",
         "filename": "sfc/impl/src/main/java/org/opendaylight/netvirt/sfc/NetvirtClassifierProvider.java",
         "patchSetId": 5
@@ -302,6 +590,24 @@
       "writtenOn": "2017-03-17T22:05:29Z",
       "side": 1,
       "message": "we likely need to rework this file to use the inject annotations. I know most of this is following what is in the old netvirt, but we need to use the new netvirt way.\n\nin this case the listeners would all be separate and not need a single provider to keep handles to them. You would inject the services into each if needed, but that should not be needed. Each listener should be independent and then call into some core utils.",
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dfb8bd2c",
+        "filename": "sfc/impl/src/main/java/org/opendaylight/netvirt/sfc/NetvirtClassifierProvider.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-21T11:43:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_57f7a28c",
       "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -325,6 +631,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5f57ad02",
+        "filename": "sfc/impl/src/main/java/org/opendaylight/netvirt/sfc/NetvirtClassifierProvider.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-21T11:43:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f702166e",
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_77ee26b6",
         "filename": "sfc/impl/src/main/java/org/opendaylight/netvirt/sfc/listeners/DelegatingDataTreeListener.java",
         "patchSetId": 5
@@ -336,6 +660,24 @@
       "writtenOn": "2017-03-17T22:05:29Z",
       "side": 1,
       "message": "same here... this code was an attempt in the old netvirt to architect things cleanly, but that model is not followed in the new netvirt. netvirt pulls in the DTCL interfaces from genius.",
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3ff8e9e4",
+        "filename": "sfc/impl/src/main/java/org/opendaylight/netvirt/sfc/listeners/DelegatingDataTreeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-21T11:43:58Z",
+      "side": 1,
+      "message": "Looking at how its done in the AclService, I see they use org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase.\nBut Eclipse tells me that class is deprecated. Is this the correct one to use?",
+      "parentUuid": "fafc7978_77ee26b6",
       "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
