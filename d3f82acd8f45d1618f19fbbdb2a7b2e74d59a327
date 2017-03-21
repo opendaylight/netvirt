@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_1f78882a",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-03-21T06:45:09Z",
+      "side": 1,
+      "message": "Problem 1, 2 etc. are subheadings of Probelem Description, so use \u0027-----\u0027 instead of \u0027\u003d\u003d\u003d\u003d\u0027",
+      "revId": "d3f82acd8f45d1618f19fbbdb2a7b2e74d59a327",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3f7bcc2a",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-03-21T06:45:09Z",
+      "side": 1,
+      "message": "RST: Needs a blank line at end of bulleted list.",
+      "revId": "d3f82acd8f45d1618f19fbbdb2a7b2e74d59a327",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bf8e9c25",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-03-21T06:45:09Z",
+      "side": 1,
+      "message": "not needed.",
+      "range": {
+        "startLine": 74,
+        "startChar": 18,
+        "endLine": 74,
+        "endChar": 19
+      },
+      "revId": "d3f82acd8f45d1618f19fbbdb2a7b2e74d59a327",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9f93d84e",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-03-21T06:45:09Z",
+      "side": 1,
+      "message": "should be \u0027-------\u0027",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 19
+      },
+      "revId": "d3f82acd8f45d1618f19fbbdb2a7b2e74d59a327",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
