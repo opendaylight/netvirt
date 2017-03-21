@@ -265,6 +265,24 @@
       "revId": "a26dae8841370d62528f08025a72b83972b52329",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9f2475c7",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/ConfigurationService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-03-21T12:58:24Z",
+      "side": 1,
+      "message": "In custom.properties, will enable either of the below flags to create bridges\nFlag-1: ovsdb.l3.fwd.enabled\u003dyes\nFlag-2: ovsdb.l3.multiple.network.enabled\u003dyes\n\nif we use \u0027Flag-1\u0027 , by default br-int and br-ex bridges will be created and while executing the code getPatchPortName() will return default patch port value and use the same value.\ngetPatchPortName() will be used/called only when \u0027flag-1\u0027 is enabled. And when \u0027flag-1\u0027 is enabled, expected value from getPatchPortName() is default value.\n\nIf we use \u0027Flag-2\u0027 , by default br-int bridge will only be created and user need to add external bridge(ex: br-ex, br-ext, br-external etc..) and In my opinion, cache is not needed as patch port name can be constructed based on external bridge name which is read from ConfigurationServiceImpl.java",
+      "parentUuid": "fafc7978_b72feef5",
+      "revId": "a26dae8841370d62528f08025a72b83972b52329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
