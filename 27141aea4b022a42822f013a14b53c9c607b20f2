@@ -90,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_859f0250",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 747,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T16:32:25Z",
+      "side": 1,
+      "message": "Any conclusion on this comment?",
+      "parentUuid": "fafc7978_5fdded41",
+      "revId": "27141aea4b022a42822f013a14b53c9c607b20f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7a5442ca",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 14
