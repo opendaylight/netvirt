@@ -12,6 +12,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -98,7 +100,15 @@ public class InterfaceStateChangeListener
                                 final int ifIndex = intrf.getIfIndex();
                                 vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex, false,
                                         writeConfigTxn, writeOperTxn, writeInvTxn, intrf);
-                                futures.add(writeOperTxn.submit());
+                                ListenableFuture<Void> operFuture = writeOperTxn.submit();
+                                try {
+                                    operFuture.get();
+                                } catch (ExecutionException e) {
+                                    LOG.error("InterfaceStateChange - Exception encountered while submitting"
+                                            + " operational future for addVpnInterface {} : {}",
+                                            vpnInterface.getName(), e);
+                                    return null;
+                                }
                                 futures.add(writeConfigTxn.submit());
                                 futures.add(writeInvTxn.submit());
                             }
@@ -148,7 +158,14 @@ public class InterfaceStateChangeListener
                             final int ifIndex = intrf.getIfIndex();
                             vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, false, false,
                                     writeConfigTxn, writeOperTxn, writeInvTxn, intrf);
-                            futures.add(writeOperTxn.submit());
+                            ListenableFuture<Void> operFuture = writeOperTxn.submit();
+                            try {
+                                operFuture.get();
+                            } catch (ExecutionException e) {
+                                LOG.error("InterfaceStateChange - Exception encountered while submitting operational"
+                                        + " future for removeVpnInterface {} : {}", vpnInterface.getName(), e);
+                                return null;
+                            }
                             futures.add(writeConfigTxn.submit());
                             futures.add(writeInvTxn.submit());
                         } else {
@@ -206,7 +223,14 @@ public class InterfaceStateChangeListener
                                 vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, true,
                                         false, writeConfigTxn, writeOperTxn, writeInvTxn, update);
                             }
-                            futures.add(writeOperTxn.submit());
+                            ListenableFuture<Void> operFuture = writeOperTxn.submit();
+                            try {
+                                operFuture.get();
+                            } catch (ExecutionException e) {
+                                LOG.error("InterfaceStateChange - Exception encountered while submitting operational"
+                                        + " future for updateVpnInterface {} : {}", vpnInterface.getName(), e);
+                                return null;
+                            }
                             futures.add(writeConfigTxn.submit());
                             futures.add(writeInvTxn.submit());
                         } else {
