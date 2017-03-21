@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_5affbeaa",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T09:19:06Z",
+      "side": 1,
+      "message": "is the trace necessary, can\u0027t you just overload the debug 2 lines below.",
+      "revId": "27141aea4b022a42822f013a14b53c9c607b20f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ba2b4a32",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 747,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T09:19:06Z",
+      "side": 1,
+      "message": "we said subnetOpData and not subnetMap.\n\nsubnetOpData will start to carry networkId.\n\nI suggest you can can retain the left side as is, and we will make the change here when we land VNI forwarding changes.\n\nsee the review here for more details:\nhttps://git.opendaylight.org/gerrit/#/c/52301/",
+      "revId": "27141aea4b022a42822f013a14b53c9c607b20f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7a5442ca",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T09:19:06Z",
+      "side": 1,
+      "message": "this should be done only for vrfEntries that are not of RouteOrigin self-imported.\n\nplease add method in the right file (i think FibHelper)\nisControllerManagedNonSelfImportedRoute(RouteOrigin.valueOf(vrfEntry.getRouteOrigin()) and use that method to make your setting of vpnToDpnList.",
+      "revId": "27141aea4b022a42822f013a14b53c9c607b20f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_89760605",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 14
@@ -31,6 +82,92 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_89760605",
+      "revId": "27141aea4b022a42822f013a14b53c9c607b20f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ba5d0aef",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 1183,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T09:19:06Z",
+      "side": 1,
+      "message": "Who fills this mac value in vrfentry?\n\nI see that rewritedstmac uses the macaddress from the adjacency which is the right approach.",
+      "parentUuid": "fafc7978_89760605",
+      "revId": "27141aea4b022a42822f013a14b53c9c607b20f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1af536cb",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 2525,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T09:19:06Z",
+      "side": 1,
+      "message": "this will go through all VRFEntries in the datastore .  This is expensive as in a BGP-Driven environment, you will have a lot of BGP entries being programmed on a DPN and none of them will have a prefixToInteface available.\n\nI suggest we remove this method and retain the direct call to createRemoteFibEntry.",
+      "revId": "27141aea4b022a42822f013a14b53c9c607b20f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1a1c1613",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworksChangeListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T09:19:06Z",
+      "side": 1,
+      "message": "can you plesae put that /* parameter */ after null like \n/* external-router */",
+      "revId": "27141aea4b022a42822f013a14b53c9c607b20f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9ad76623",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 875,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T09:19:06Z",
+      "side": 1,
+      "message": "ditto /* external-router */",
+      "revId": "27141aea4b022a42822f013a14b53c9c607b20f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7a756231",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 662,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T09:19:06Z",
+      "side": 1,
+      "message": "where is this macAddress used?",
       "revId": "27141aea4b022a42822f013a14b53c9c607b20f2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
