@@ -159,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3c81174b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 2525,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-21T10:17:10Z",
+      "side": 1,
+      "message": "this is not only nice to have method\nWe had a similar issue about a month ago that was fixed in [1] and this patch contains more of the same for the same problem - trying to install RNH entries on the local DPN and thus overriding the LNH since the match is equal.\nTunnel-based underlays are \"saved\" from this bug since the ITM fails to find tunnel between same src,dst DPNs so the actual RNH installation for the local DPN fails with error.\nFor flat/vlan there is no such luck and the LNH is overridden by the RNH from this code.\nIs there any why to add a condition on this method (maybe on RouteOrigin) to avoid the performance hit in case of BGP?\n\n\n[1] https://git.opendaylight.org/gerrit/#/c/51846/",
+      "parentUuid": "fafc7978_1af536cb",
+      "revId": "27141aea4b022a42822f013a14b53c9c607b20f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1a1c1613",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworksChangeListener.java",
         "patchSetId": 14
