@@ -25,6 +25,7 @@ Contents:
    Listener Dependency Helper, avoids waiting for dependent IID <listener-dependency-helper>
    Netvirt counters <netvirt-statistics-spec>
    Policy based path selection for multiple VxLAN tunnels <policy-based-path-selection>
+   Support for TCP MD5 Signature Option configuration of Quagga BGP <qbgp-tcp-md5-signature-option>
    QoS Alert <qos-alert>
    Quality of Service <qos>
    Setup Source-MAC-Address for routed packets to virtual endpoints <setup-smac-for-routed-packets-to-virt-endpoints>
