@@ -121,6 +121,7 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.UpdateSource;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.UpdateSourceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.tcp.security.option.grouping.TcpSecurityOption;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.tcp.security.option.grouping.tcp.security.option.TcpMd5SignatureOption;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.tcp.security.option.grouping.tcp.security.option.TcpMd5SignatureOptionBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -735,6 +736,7 @@ public class BgpConfigurationManager {
             synchronized (BgpConfigurationManager.this) {
                 String peerIp = val.getAddress().getValue();
                 long as = val.getRemoteAs();
+                final String md5Secret = extractMd5Secret(val);
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
                     LOG.error("{} Unable to process add for peer {} as {}; {}", YANG_OBJ, peerIp, as,
@@ -743,7 +745,7 @@ public class BgpConfigurationManager {
                 }
                 try {
                     //itmProvider.buildTunnelsToDCGW(new IpAddress(peerIp.toCharArray()));
-                    br.addNeighbor(peerIp, as);
+                    br.addNeighbor(peerIp, as, md5Secret);
 
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
@@ -792,6 +794,17 @@ public class BgpConfigurationManager {
             }
             //purposefully nothing to do.
         }
+
+        private String extractMd5Secret(final Neighbors val) {
+            String md5Secret = null;
+            TcpSecurityOption tcpSecOpt = val.getTcpSecurityOption();
+            if (tcpSecOpt instanceof TcpMd5SignatureOption) {
+                md5Secret = ((TcpMd5SignatureOption) tcpSecOpt).getTcpMd5SignaturePassword().getValue();
+            } else { // unknown TcpSecurityOption
+                LOG.debug("{} Ignored unknown tcp-security-option of peer {}", YANG_OBJ, val.getAddress().getValue());
+            }
+            return md5Secret;
+        } // private method extractMd5Secret
     }
 
     public class EbgpMultihopReactor
