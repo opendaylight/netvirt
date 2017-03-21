@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_bc1ce7c2",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-21T11:02:02Z",
+      "side": 1,
+      "message": "Long label \u003d (vrfEntry.getEncapType().equals(VrfEntry.EncapType.Vxlan)) \n   ? 0L\n   : FibUtil.getLabelFromRoutePaths(vrfEntry).orElse(0L);\n\nAnyway, shouldn\u0027t it be compared the other way? I mean getting the label only in encap is MPLS...",
+      "range": {
+        "startLine": 480,
+        "startChar": 8,
+        "endLine": 485,
+        "endChar": 9
+      },
+      "revId": "0c5c70a5a86848b376cf710b1166ceda3266175d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
