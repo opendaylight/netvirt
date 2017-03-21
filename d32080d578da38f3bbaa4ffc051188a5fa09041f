@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_9025820c",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2017-03-21T21:03:26Z",
+      "side": 1,
+      "message": "FYI, based on discussions on a recent Genius call with Vivek and Faseela, I think we need a mechanism to reset the service index when we do this type of resubmit from egress to ingress so that the packet starts at the top again.",
+      "revId": "d32080d578da38f3bbaa4ffc051188a5fa09041f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
