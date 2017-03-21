@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_1c189383",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1424,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-21T11:24:18Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be like if the service is present then delete. If it is not present you need not perform a delete.",
+      "range": {
+        "startLine": 1424,
+        "startChar": 12,
+        "endLine": 1424,
+        "endChar": 13
+      },
+      "revId": "80c0471ef21bc4f6c3e24b2e6e33dee338084da3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_df1c3d6d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1426,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-21T11:24:18Z",
+      "side": 1,
+      "message": "Here you can make use of bindServiceId. Anyways you have built the serviceId instance identifier in order to read from DS.",
+      "range": {
+        "startLine": 1425,
+        "startChar": 58,
+        "endLine": 1426,
+        "endChar": 104
+      },
+      "revId": "80c0471ef21bc4f6c3e24b2e6e33dee338084da3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
