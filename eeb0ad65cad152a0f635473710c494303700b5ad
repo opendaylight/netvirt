@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_1feec58b",
+        "filename": "vpnservice/statistics/api/pom.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-21T12:41:25Z",
+      "side": 1,
+      "message": "Guy can we revert this file? any reason for changes?",
+      "revId": "eeb0ad65cad152a0f635473710c494303700b5ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
