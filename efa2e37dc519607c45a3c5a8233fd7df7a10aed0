@@ -1,0 +1,182 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_bc8ce780",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-21T10:47:45Z",
+      "side": 1,
+      "message": "why not also changing this method to accept a String instead of a List?",
+      "range": {
+        "startLine": 367,
+        "startChar": 43,
+        "endLine": 367,
+        "endChar": 67
+      },
+      "revId": "efa2e37dc519607c45a3c5a8233fd7df7a10aed0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3c9e3757",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-21T10:47:45Z",
+      "side": 1,
+      "message": "not sure if this can be null, but it can be an empty list too. If it\u0027s an empty list looks like the whole if-block can be avoided too.",
+      "range": {
+        "startLine": 694,
+        "startChar": 12,
+        "endLine": 694,
+        "endChar": 19
+      },
+      "revId": "efa2e37dc519607c45a3c5a8233fd7df7a10aed0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5cb05bdd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 710,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-21T10:47:45Z",
+      "side": 1,
+      "message": "Not sure but it looks like you have avoided the null value in the nexthop field of the adjacencies by setting an empty string instead. Shouldn\u0027t that also be considered here.",
+      "range": {
+        "startLine": 710,
+        "startChar": 25,
+        "endLine": 710,
+        "endChar": 34
+      },
+      "revId": "efa2e37dc519607c45a3c5a8233fd7df7a10aed0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dcda8b16",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 776,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-21T10:47:45Z",
+      "side": 1,
+      "message": "this is different than an empty list as it was before. Did you intend that?",
+      "range": {
+        "startLine": 776,
+        "startChar": 30,
+        "endLine": 776,
+        "endChar": 60
+      },
+      "revId": "efa2e37dc519607c45a3c5a8233fd7df7a10aed0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fc082f93",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 795,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-21T10:47:45Z",
+      "side": 1,
+      "message": "again, it looks like nextHopIp could be an empty string.",
+      "range": {
+        "startLine": 795,
+        "startChar": 25,
+        "endLine": 795,
+        "endChar": 34
+      },
+      "revId": "efa2e37dc519607c45a3c5a8233fd7df7a10aed0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1c0533c2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-21T10:47:45Z",
+      "side": 1,
+      "message": "when there\u0027s only one element, it is preferred Collections.singletonList over Arrays.asList",
+      "range": {
+        "startLine": 340,
+        "startChar": 72,
+        "endLine": 340,
+        "endChar": 85
+      },
+      "revId": "efa2e37dc519607c45a3c5a8233fd7df7a10aed0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3c2bd731",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverVxlanPopulator.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-21T10:47:45Z",
+      "side": 1,
+      "message": "doesn\u0027t checkstyle complain about this?",
+      "revId": "efa2e37dc519607c45a3c5a8233fd7df7a10aed0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5c821b01",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnPopulator.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-21T10:47:45Z",
+      "side": 1,
+      "message": "nextHopList cannot be null, so this check can be removed. Also, nextHopList.get(0) is \u0027nextHopIp\u0027 parameter. You can add a Objects.nonNull(nextHopIp) at the beginning.",
+      "range": {
+        "startLine": 64,
+        "startChar": 16,
+        "endLine": 64,
+        "endChar": 35
+      },
+      "revId": "efa2e37dc519607c45a3c5a8233fd7df7a10aed0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
