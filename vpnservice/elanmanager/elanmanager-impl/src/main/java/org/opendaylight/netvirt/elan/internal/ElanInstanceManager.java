@@ -20,6 +20,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -51,6 +52,8 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
     private final IdManagerService idManager;
     private final IInterfaceManager interfaceManager;
     private final ElanInterfaceManager elanInterfaceManager;
+
+    private String elanName;
 
     @Inject
     public ElanInstanceManager(final DataBroker dataBroker, final IdManagerService managerService,
@@ -133,11 +136,16 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
             ElanUtils.waitForTransactionToComplete(tx);
             return;
         }
-        try {
-            elanInterfaceManager.handleunprocessedElanInterfaces(update);
-        } catch (ElanException e) {
-            LOG.error("update() failed for ElanInstance: " + identifier.toString(), e);
-        }
+            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+            dataStoreCoordinator.enqueueJob(elanName, () -> {
+                try {
+                    elanInterfaceManager.handleunprocessedElanInterfaces(update);
+                } catch (ElanException e) {
+                    LOG.error("update() failed for ElanInstance: " + identifier.toString(), e);
+                }
+                return null;
+            });
+
     }
 
     @Override
