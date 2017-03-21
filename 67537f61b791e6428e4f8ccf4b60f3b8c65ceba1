@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_8250985f",
+        "filename": "vpnservice/sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/OpenStackSFCTranslatorProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-21T14:50:37Z",
+      "side": 1,
+      "message": "why 2?\nin case both this and the old netvirt is running? is that even a possibility?",
+      "range": {
+        "startLine": 32,
+        "startChar": 18,
+        "endLine": 32,
+        "endChar": 49
+      },
+      "revId": "67537f61b791e6428e4f8ccf4b60f3b8c65ceba1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
