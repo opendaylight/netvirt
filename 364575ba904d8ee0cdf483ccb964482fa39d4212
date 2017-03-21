@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ffaae483",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginEgress.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-21T07:48:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_55ff97aa",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_551677f2",
         "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginIngress.java",
         "patchSetId": 20
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-20T08:04:42Z",
       "side": 1,
       "message": "if abort do nothing otherwise you may start a new subscription",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dfaf2093",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginIngress.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-21T07:48:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_551677f2",
       "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3f946c43",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginIngress.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-21T07:48:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f5dccb48",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_35dc9374",
         "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginIngress.java",
         "patchSetId": 20
@@ -64,6 +118,24 @@
       "writtenOn": "2017-03-20T08:04:42Z",
       "side": 1,
       "message": "add DEBUG for starting processing listenerKey this way will be able to understand in case of error/exception which is the one that cause the problem.\nin case of an exception you can catch it just for the sake of logging and re-throw to maintain the current behavior",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5f72104a",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginIngress.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-21T07:48:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_35dc9374",
       "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9ff2b86d",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginIngress.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-21T07:48:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_b5cfe3b2",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d5cee7b3",
         "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginIngress.java",
         "patchSetId": 20
@@ -98,6 +188,24 @@
       "writtenOn": "2017-03-20T08:04:42Z",
       "side": 1,
       "message": "add DEBUG in case of listener exception",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dfb440d3",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginIngress.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-21T07:48:59Z",
+      "side": 1,
+      "message": "I added catch and an error log in consumeMsg that would catch exceptions from here too",
+      "parentUuid": "fafc7978_d5cee7b3",
       "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fffdc46f",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginIngress.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-21T07:48:59Z",
+      "side": 1,
+      "message": "I will refactor the retries but disagree this should be added to infrastructure like MDSALUtil since this is a bug workaround that should be removed once the bug is fixed.\nThe DjC provides an infra solution for reties but it is not suitable for this UC since we need keep the transaction on the calling thread to avoid concurrently issues while DjC releases the thread",
+      "parentUuid": "fafc7978_75bd7b02",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d52a672b",
         "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/SubnetVpnAssociationManager.java",
         "patchSetId": 20
@@ -132,6 +258,24 @@
       "writtenOn": "2017-03-20T08:04:42Z",
       "side": 1,
       "message": "LOG.info(\"{} start\", getClass().getSimpleName());",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1f50885d",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/SubnetVpnAssociationManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-21T07:48:59Z",
+      "side": 1,
+      "message": "class name is already printed as part of the logger line",
+      "parentUuid": "fafc7978_d52a672b",
       "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_df5e0076",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/creators/FederationPluginModificationCreator.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-21T07:48:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f57b2b79",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_95861f64",
         "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/filters/FederationPluginFilter.java",
         "patchSetId": 20
@@ -166,6 +328,24 @@
       "writtenOn": "2017-03-20T08:04:42Z",
       "side": 1,
       "message": "add comment that explain the generic \nT - federatedType \nreplace S to R (Root)",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_df10c0aa",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/filters/FederationPluginFilter.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-21T07:48:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_95861f64",
       "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_dfd560ba",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/identifiers/FederationPluginIdentifier.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-21T07:48:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d580a748",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_15922f9f",
         "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/transformers/FederationPluginTransformer.java",
         "patchSetId": 20
@@ -206,6 +404,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5fe17099",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/transformers/FederationPluginTransformer.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-21T07:48:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_15922f9f",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_eee6b8e7",
         "filename": "vpnservice/federation-plugin/impl/src/test/java/org/opendaylight/netvirt/federation/plugin/end2end/AbstractEnd2EndTest.java",
         "patchSetId": 20
@@ -217,6 +433,24 @@
       "writtenOn": "2017-03-20T15:00:11Z",
       "side": 1,
       "message": "IMHO you should not mock the DataBroker, ReadOnlyTransaction or write FakeDataObjectModification .. we have better test utilities for all of this, now.  I\u0027d write this entire test without any use of Mockito.  You can use the ConstantSchemaAbstractDataBrokerTest (DataBrokerTestModule) to easily obtain a fully working implementation of DataBroker related infra.  You can, but don\u0027t have to, also write a full new style \"component test\", using Guice for wiring things together; for examples of this style of tests, see e.g. the org.opendaylight.genius.interfacemanager.test.InterfaceManagerConfigurationTest or the org.opendaylight.netvirt.aclservice.tests.AclServiceTestBase or the org.opendaylight.netvirt.elanmanager.tests.ElanServiceTest",
+      "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ffb5c47e",
+        "filename": "vpnservice/federation-plugin/impl/src/test/java/org/opendaylight/netvirt/federation/plugin/end2end/AbstractEnd2EndTest.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-21T07:48:59Z",
+      "side": 1,
+      "message": "Michael,\nUnfortunately, prior to M5 deadline we don\u0027t have the capacity to rewrite the whole tests. After the code freeze we may be able to commit to it but since we don\u0027t have much understanding on how to write a component test, would you be able to help me evaluate approximately how much time would it take to migrate the current tests to use your suggestions for someone not familiar with this infra so we can understand if we are able to commit to it.\nThanks",
+      "parentUuid": "fafc7978_eee6b8e7",
       "revId": "364575ba904d8ee0cdf483ccb964482fa39d4212",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
