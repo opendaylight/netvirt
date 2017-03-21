@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9a64864a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 747,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-21T09:41:22Z",
+      "side": 1,
+      "message": "Vivek,\nsubnetOpData is filled only when using subnetRoute\nwe don\u0027t have this info today and don\u0027t want to rely on this feature for separation of concerns",
+      "parentUuid": "fafc7978_ba2b4a32",
+      "revId": "27141aea4b022a42822f013a14b53c9c607b20f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7a5442ca",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 14
@@ -100,6 +118,24 @@
       "side": 1,
       "message": "Who fills this mac value in vrfentry?\n\nI see that rewritedstmac uses the macaddress from the adjacency which is the right approach.",
       "parentUuid": "fafc7978_89760605",
+      "revId": "27141aea4b022a42822f013a14b53c9c607b20f2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fa59528f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 1183,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-21T09:41:22Z",
+      "side": 1,
+      "message": "the adjacency is not there for FIP/router-gw\nas none of them is associated to VpnInterface",
+      "parentUuid": "fafc7978_ba5d0aef",
       "revId": "27141aea4b022a42822f013a14b53c9c607b20f2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
