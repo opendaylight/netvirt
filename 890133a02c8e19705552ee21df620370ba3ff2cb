@@ -16,6 +16,24 @@
       "revId": "890133a02c8e19705552ee21df620370ba3ff2cb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7c3d5fbb",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-03-21T10:07:39Z",
+      "side": 0,
+      "message": "If close() is doing nothing but closing listenerRegistration, base class is already doing it and no need to override.",
+      "parentUuid": "fafc7978_ff59448f",
+      "revId": "890133a02c8e19705552ee21df620370ba3ff2cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
