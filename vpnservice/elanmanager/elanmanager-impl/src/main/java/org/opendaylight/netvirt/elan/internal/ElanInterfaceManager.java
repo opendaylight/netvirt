@@ -1446,8 +1446,13 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     }
 
     private void unbindService(ElanInstance elanInfo, String interfaceName, WriteTransaction tx) {
-        tx.delete(LogicalDatastoreType.CONFIGURATION, ElanUtils.buildServiceId(interfaceName,
-                ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX)));
+        short elanServiceIndex = ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX);
+        InstanceIdentifier<BoundServices> bindServiceId = ElanUtils.buildServiceId(interfaceName, elanServiceIndex);
+        Optional<BoundServices> existingElanService = elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
+                bindServiceId);
+        if (existingElanService.isPresent()) {
+            tx.delete(LogicalDatastoreType.CONFIGURATION, bindServiceId);
+        }
     }
 
     private String getFlowRef(long tableId, long elanTag) {
