@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_a56cc637",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/CounterRetriever.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-21T20:42:11Z",
+      "side": 1,
+      "message": "you probably won\u0027t need this class once you start using the direct rpc of openflow plugin",
+      "revId": "03e0a78685a56b871f42a97e8cf863658d98f553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_655ade84",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/CountersUtils.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-21T20:42:11Z",
+      "side": 1,
+      "message": "wrong category",
+      "revId": "03e0a78685a56b871f42a97e8cf863658d98f553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e5e40eae",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/EgressCountersServiceImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-21T20:42:11Z",
+      "side": 1,
+      "message": "you will have duplicate name in case of two requests of different interface on the same dpn. you should probably add the interface name",
+      "revId": "03e0a78685a56b871f42a97e8cf863658d98f553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_25ee168c",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/FlowOperations.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-21T20:42:11Z",
+      "side": 1,
+      "message": "you can use NwConstants.DEL_FLOW/ADD_FLOW",
+      "revId": "03e0a78685a56b871f42a97e8cf863658d98f553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
