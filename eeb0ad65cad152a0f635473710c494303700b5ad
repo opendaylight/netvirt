@@ -16,6 +16,24 @@
       "revId": "eeb0ad65cad152a0f635473710c494303700b5ad",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8236d8e5",
+        "filename": "vpnservice/statistics/api/pom.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-21T13:06:41Z",
+      "side": 1,
+      "message": "This was done in order to be with the same format like other poms in netvirt",
+      "parentUuid": "fafc7978_1feec58b",
+      "revId": "eeb0ad65cad152a0f635473710c494303700b5ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
