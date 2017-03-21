@@ -2168,7 +2168,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     protected Boolean installRouterFibEntries(final VrfEntry vrfEntry, final Collection<VpnToDpnList> vpnToDpnList,
             long vpnId, int addOrRemove) {
         RouterInterface routerInt = vrfEntry.getAugmentation(RouterInterface.class);
-        if (routerInt != null && vpnToDpnList != null) {
+        if (routerInt == null) {
+            return false;
+        }
+        if (vpnToDpnList != null) {
             String routerId = routerInt.getUuid();
             String macAddress = routerInt.getMacAddress();
             String ipValue = routerInt.getIpAddress();
@@ -2180,9 +2183,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             new MacAddress(macAddress), addOrRemove);
                 }
             }
-            return true;
         }
-        return false;
+        return true;
     }
 
     public void installRouterFibEntry(final VrfEntry vrfEntry, BigInteger dpnId, long vpnId, String routerUuid,
