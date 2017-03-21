@@ -22,6 +22,30 @@
       "revId": "67537f61b791e6428e4f8ccf4b60f3b8c65ceba1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_10823252",
+        "filename": "vpnservice/sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/OpenStackSFCTranslatorProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-21T17:55:27Z",
+      "side": 1,
+      "message": "oops, this was just some debugging I added to quickly find the string. I will remove this. old netvirt is a different feature and it\u0027s own code - even though the code is the same and ported here. So you could load both but who knows what chaos would ensue.",
+      "parentUuid": "fafc7978_8250985f",
+      "range": {
+        "startLine": 32,
+        "startChar": 18,
+        "endLine": 32,
+        "endChar": 49
+      },
+      "revId": "67537f61b791e6428e4f8ccf4b60f3b8c65ceba1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
