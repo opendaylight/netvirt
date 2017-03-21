@@ -22,6 +22,30 @@
       "revId": "0c5c70a5a86848b376cf710b1166ceda3266175d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3f1109ad",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-21T12:25:47Z",
+      "side": 1,
+      "message": "Handled in FibUtil class to check if the label attribute is available in routePath or not. If not available will return the Optional.empty(). Since this invocation is triggered by many places.",
+      "parentUuid": "fafc7978_bc1ce7c2",
+      "range": {
+        "startLine": 480,
+        "startChar": 8,
+        "endLine": 485,
+        "endChar": 9
+      },
+      "revId": "0c5c70a5a86848b376cf710b1166ceda3266175d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
