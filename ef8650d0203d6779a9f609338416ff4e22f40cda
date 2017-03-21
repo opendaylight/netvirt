@@ -176,6 +176,24 @@
       "revId": "ef8650d0203d6779a9f609338416ff4e22f40cda",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3a259a0a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-03-21T09:34:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_cf9e6754",
+      "revId": "ef8650d0203d6779a9f609338416ff4e22f40cda",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
