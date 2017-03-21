@@ -339,6 +339,305 @@
       "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bac6aa14",
+        "filename": "sfc/impl/src/main/java/org/opendaylight/netvirt/sfc/processors/NetvirtSfcAclDataProcessor.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 6419
+      },
+      "writtenOn": "2017-03-21T11:16:51Z",
+      "side": 1,
+      "message": "Why have an optional list? \n\nYou can return a list without elements whenever you return an empty optional.",
+      "range": {
+        "startLine": 61,
+        "startChar": 12,
+        "endLine": 61,
+        "endChar": 34
+      },
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fad032cb",
+        "filename": "sfc/impl/src/main/java/org/opendaylight/netvirt/sfc/processors/NetvirtSfcAclDataProcessor.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 6419
+      },
+      "writtenOn": "2017-03-21T11:16:51Z",
+      "side": 1,
+      "message": "(if I\u0027m right on the above suggestion) this would become isEmpty()",
+      "range": {
+        "startLine": 62,
+        "startChar": 34,
+        "endLine": 62,
+        "endChar": 46
+      },
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9af2c66d",
+        "filename": "sfc/impl/src/main/java/org/opendaylight/netvirt/sfc/processors/NetvirtSfcAclDataProcessor.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 6419
+      },
+      "writtenOn": "2017-03-21T11:16:51Z",
+      "side": 1,
+      "message": "already initialized to this, I think",
+      "range": {
+        "startLine": 128,
+        "startChar": 12,
+        "endLine": 128,
+        "endChar": 35
+      },
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3aaf5a2d",
+        "filename": "sfc/impl/src/main/java/org/opendaylight/netvirt/sfc/providers/GeniusProvider.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 6419
+      },
+      "writtenOn": "2017-03-21T11:16:51Z",
+      "side": 1,
+      "message": "I guess we\u0027re using service priority \u0026 service ID interchangeably. \n\nDon\u0027t think this is wrong, but could lead to confusion (we both stumbled on it, so far)",
+      "range": {
+        "startLine": 73,
+        "startChar": 61,
+        "endLine": 73,
+        "endChar": 97
+      },
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7aa9e223",
+        "filename": "sfc/impl/src/main/java/org/opendaylight/netvirt/sfc/providers/GeniusProvider.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 6419
+      },
+      "writtenOn": "2017-03-21T11:16:51Z",
+      "side": 1,
+      "message": "agree.",
+      "range": {
+        "startLine": 89,
+        "startChar": 4,
+        "endLine": 89,
+        "endChar": 93
+      },
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_da71eee1",
+        "filename": "sfc/impl/src/main/java/org/opendaylight/netvirt/sfc/providers/NetvirtProvider.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 6419
+      },
+      "writtenOn": "2017-03-21T11:16:51Z",
+      "side": 1,
+      "message": "couldn\u0027t it be a simple List\u003cString\u003e ?\n\nThis would remove the optional encapsulation, and would mean handling empty lists, instead of empty optionals from the caller.",
+      "range": {
+        "startLine": 50,
+        "startChar": 18,
+        "endLine": 50,
+        "endChar": 40
+      },
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3c73d7b2",
+        "filename": "sfc/impl/src/main/java/org/opendaylight/netvirt/sfc/utils/AclUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 6419
+      },
+      "writtenOn": "2017-03-21T11:16:51Z",
+      "side": 1,
+      "message": "these are work in progress, right?",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 53
+      },
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5ca5fb02",
+        "filename": "sfc/impl/src/main/java/org/opendaylight/netvirt/sfc/utils/AclUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 6419
+      },
+      "writtenOn": "2017-03-21T11:16:51Z",
+      "side": 1,
+      "message": "work in progress, right?",
+      "range": {
+        "startLine": 101,
+        "startChar": 7,
+        "endLine": 101,
+        "endChar": 35
+      },
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bcd7c7ec",
+        "filename": "sfc/impl/src/main/java/org/opendaylight/netvirt/sfc/utils/SfcUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 6419
+      },
+      "writtenOn": "2017-03-21T11:16:51Z",
+      "side": 1,
+      "message": "Could it be that an SFC will end up having multiple SFPs? \n\nThe model supports it, and I\u0027m not sure it won\u0027t end being a common use case.\n\nSame reasoning might apply to SFPs/RSPs",
+      "range": {
+        "startLine": 89,
+        "startChar": 31,
+        "endLine": 89,
+        "endChar": 37
+      },
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3c03d774",
+        "filename": "sfc/impl/src/main/java/org/opendaylight/netvirt/sfc/utils/SfcUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 6419
+      },
+      "writtenOn": "2017-03-21T11:16:51Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this return a list of ACEs which will forward the traffic towards this RSP?",
+      "range": {
+        "startLine": 113,
+        "startChar": 15,
+        "endLine": 113,
+        "endChar": 21
+      },
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bc4507b5",
+        "filename": "sfc/impl/src/main/java/org/opendaylight/netvirt/sfc/utils/SfcUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 6419
+      },
+      "writtenOn": "2017-03-21T11:16:51Z",
+      "side": 1,
+      "message": "what if the SF is attached to multiple RSPs, using different interfaces, one per RSP? Which IP will it return?\n\nIs this an actual concern or am I overthinking this?",
+      "range": {
+        "startLine": 146,
+        "startChar": 21,
+        "endLine": 146,
+        "endChar": 35
+      },
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9c8803c8",
+        "filename": "sfc/impl/src/main/java/org/opendaylight/netvirt/sfc/utils/SfcUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 6419
+      },
+      "writtenOn": "2017-03-21T11:16:51Z",
+      "side": 1,
+      "message": "same as above.",
+      "range": {
+        "startLine": 158,
+        "startChar": 21,
+        "endLine": 158,
+        "endChar": 35
+      },
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7c855fac",
+        "filename": "sfc/impl/src/main/java/org/opendaylight/netvirt/sfc/utils/SfcUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 6419
+      },
+      "writtenOn": "2017-03-21T11:16:51Z",
+      "side": 1,
+      "message": "same as above.",
+      "range": {
+        "startLine": 168,
+        "startChar": 22,
+        "endLine": 168,
+        "endChar": 31
+      },
+      "revId": "3cc44936832c321cc053768dd1d76c8452440a14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
