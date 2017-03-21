@@ -34,6 +34,24 @@
       "revId": "eeb0ad65cad152a0f635473710c494303700b5ad",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_425cf025",
+        "filename": "vpnservice/statistics/api/pom.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-21T13:08:27Z",
+      "side": 1,
+      "message": "I think its already like other poms, see aclservice impl for example.. this makes it different (or am I missing something?)",
+      "parentUuid": "fafc7978_8236d8e5",
+      "revId": "eeb0ad65cad152a0f635473710c494303700b5ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
