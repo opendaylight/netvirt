@@ -104,6 +104,24 @@
       "revId": "7f2257970008a1203bf26cee66b43b607c270d2a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7cd71fc0",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/NeutronL3Adapter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 819,
+      "author": {
+        "id": 4020
+      },
+      "writtenOn": "2017-03-21T11:06:56Z",
+      "side": 1,
+      "message": "Here ADD and UPDATE event will write the same content in cache. So, we can skip the update event.",
+      "parentUuid": "fafc7978_096e96c9",
+      "revId": "7f2257970008a1203bf26cee66b43b607c270d2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
