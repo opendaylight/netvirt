@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_1c9533e4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T11:14:32Z",
+      "side": 1,
+      "message": "will be good to print dpnId along with the instanceIdentifier.",
+      "revId": "cebb960e277758586687f12d0329a3c74f56988b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fc994f20",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T11:14:32Z",
+      "side": 1,
+      "message": "ditto here",
+      "revId": "cebb960e277758586687f12d0329a3c74f56988b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bca6a751",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T11:14:32Z",
+      "side": 1,
+      "message": "please retain lastDpnOnVpn \u003d Boolean.TRUE here.",
+      "revId": "cebb960e277758586687f12d0329a3c74f56988b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
