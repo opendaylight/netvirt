@@ -539,17 +539,18 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         coordinator.enqueueJob(elanInstanceName, addWorker, ElanConstants.JOB_MAX_RETRIES);
     }
 
-    void handleunprocessedElanInterfaces(ElanInstance elanInstance) throws ElanException {
+    List<ListenableFuture<Void>> handleunprocessedElanInterfaces(ElanInstance elanInstance) throws ElanException {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         Queue<ElanInterface> elanInterfaces = unProcessedElanInterfaces.get(elanInstance.getElanInstanceName());
         if (elanInterfaces == null || elanInterfaces.isEmpty()) {
-            return;
+            return futures;
         }
         for (ElanInterface elanInterface : elanInterfaces) {
             String interfaceName = elanInterface.getName();
             InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
             addElanInterface(futures, elanInterface, interfaceInfo, elanInstance);
         }
+        return futures;
     }
 
     void programRemoteDmacFlow(ElanInstance elanInstance, InterfaceInfo interfaceInfo,
@@ -1446,8 +1447,13 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     }
 
     private void unbindService(ElanInstance elanInfo, String interfaceName, WriteTransaction tx) {
-        tx.delete(LogicalDatastoreType.CONFIGURATION, ElanUtils.buildServiceId(interfaceName,
-                ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX)));
+        short elanServiceIndex = ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX);
+        InstanceIdentifier<BoundServices> bindServiceId = ElanUtils.buildServiceId(interfaceName, elanServiceIndex);
+        Optional<BoundServices> existingElanService = elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
+                bindServiceId);
+        if (existingElanService.isPresent()) {
+            tx.delete(LogicalDatastoreType.CONFIGURATION, bindServiceId);
+        }
     }
 
     private String getFlowRef(long tableId, long elanTag) {
