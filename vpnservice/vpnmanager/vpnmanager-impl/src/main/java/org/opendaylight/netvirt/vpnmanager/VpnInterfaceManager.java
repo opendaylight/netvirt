@@ -656,7 +656,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     }
 
     public void updateVpnInterfaceOnTepAdd(VpnInterface vpnInterface,
-                                           StateTunnelList stateTunnelList) {
+                                           StateTunnelList stateTunnelList,
+                                           WriteTransaction writeConfigTxn,
+                                           WriteTransaction writeOperTxn) {
 
         String srcTepIp = String.valueOf(stateTunnelList.getSrcInfo().getTepIp().getValue());
         BigInteger srcDpnId = new BigInteger(stateTunnelList.getSrcInfo().getTepDeviceId());
@@ -667,48 +669,46 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         String prefix = null;
         long label = 0;
         List<String> nhList = new ArrayList<String>();
-        boolean nextHopAdded = false;
+        boolean isNextHopAddReqd = false;
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnInterface.getVpnInstanceName());
 
         if (adjList != null) {
             List<Adjacency> value = new ArrayList<>();
+            Optional<String> gwMacAddr = Optional.absent();
             LOG.trace("AdjacencyList for interface {} is {}", vpnInterface, adjList);
             for (Adjacency adj : adjList) {
                 prefix = adj.getIpAddress();
                 label = adj.getLabel();
                 nhList = Arrays.asList(srcTepIp);
-                //Only for primary adjacency update the nexthop ip
-                if (adj.getMacAddress() != null && !adj.getMacAddress().isEmpty()) {
-                    List<String> nextHopList = adj.getNextHopIpList();
-                    // Incase nextHopList contains some other TEP IP ,
-                    // it needs to be updated with new one.
-                    // Incase nextHopIp was null at the time of VpnInterface creation,
-                    // it needs to be updated with new one.
-                    if (nextHopList != null && (!nextHopList.isEmpty()) &&
-                            (nextHopList.get(0).equalsIgnoreCase(srcTepIp))){
-                            /* everything right already */
-                    } else {
-                        /* update the adjacency here itself */
-                        nextHopAdded = true;
-                        LOG.trace("NextHopList to be updated {}",nhList);
-                        // Update the VpnInterface Op DS with new nextHopList
-                        value.add(new AdjacencyBuilder(adj).setNextHopIpList(nhList).build());
-                        Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(value);
-                        VpnInterface opInterface = new VpnInterfaceBuilder(vpnInterface).setKey(new VpnInterfaceKey(vpnInterface.getName()))
-                                .addAugmentation(Adjacencies.class, aug).build();
-                        InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(vpnInterface.getName());
-                        MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, interfaceId, opInterface);
-                    }
+                List<String> nextHopList = adj.getNextHopIpList();
+                if (nextHopList != null && (!nextHopList.isEmpty())
+                        && (nextHopList.get(0).equalsIgnoreCase(srcTepIp))) {
+                    /* everything right already */
+                } else {
+                    isNextHopAddReqd = true;
                 }
 
-                if (nextHopAdded) {
+                // If TEP is added , update the nexthop of primary adjacency.
+                // Secondary adj nexthop is already pointing to primary adj IP address.
+                if (adj.isPrimaryAdjacency()) {
+                    value.add(new AdjacencyBuilder(adj).setNextHopIpList(nhList).build());
+                    Optional<String> gwIp = VpnUtil.getVpnSubnetGatewayIp(dataBroker, adj.getSubnetId());
+                    if (gwIp.isPresent()) {
+                        gwMacAddr = getGatewayMacAddressForInterface(vpnInterface.getVpnInstanceName(),
+                                vpnInterface.getName(), gwIp.get());
+                    } else {
+                        LOG.warn("Gateway IP for subnet ID {} could not be obtained", adj.getSubnetId());
+                    }
+                } else {
+                    value.add(adj);
+                }
+
+                if (isNextHopAddReqd) {
                     LOG.info("Updating label mapper : label {} dpn {} prefix {} nexthoplist {} vpnid {} rd {}", label, srcDpnId ,
                         prefix, nhList, vpnId, rd);
                     updateLabelMapper(label, nhList);
-                    Optional<String> gwMacAddr = getGatewayMacAddressForInterface(vpnInterface.getVpnInstanceName(),
-                            vpnInterface.getName(),prefix);
                     // Update the VRF entry with nextHop
-                    fibManager.updateFibEntry(dataBroker, rd, prefix, nhList, gwMacAddr.isPresent() ? gwMacAddr.get() : null, null);
+                    fibManager.updateFibEntry(dataBroker, rd, prefix, nhList, gwMacAddr.isPresent() ? gwMacAddr.get() : null, writeConfigTxn);
 
                     //Get the list of VPN's importing this route(prefix) .
                     // Then update the VRF entry with nhList
@@ -718,7 +718,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         if (vpnRd != null) {
                             LOG.debug("Exporting route with rd {} prefix {} nhList {} label {} to VPN {}", vpnRd, prefix, nhList, label, vpn);
                             fibManager.updateFibEntry(dataBroker, vpnRd, prefix, nhList,
-                                gwMacAddr.isPresent() ? gwMacAddr.get() : null, null);
+                                gwMacAddr.isPresent() ? gwMacAddr.get() : null, writeConfigTxn);
                         }
                     }
                     // Advertise the prefix to BGP only for external vpn
@@ -732,11 +732,19 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     }
                 }
             }
+            Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(value);
+            VpnInterface opInterface =
+                    new VpnInterfaceBuilder(vpnInterface).setKey(new VpnInterfaceKey(vpnInterface.getName()))
+                            .addAugmentation(Adjacencies.class, aug).build();
+            InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(vpnInterface.getName());
+            writeOperTxn.put(LogicalDatastoreType.OPERATIONAL, interfaceId, opInterface);
         }
     }
 
     public void updateVpnInterfaceOnTepDelete(VpnInterface vpnInterface,
-                                              StateTunnelList stateTunnelList) {
+                                              StateTunnelList stateTunnelList,
+                                              WriteTransaction writeConfigTxn,
+                                              WriteTransaction writeOperTxn) {
 
         String rd = getRouteDistinguisher(vpnInterface.getVpnInstanceName());
         rd = (rd != null) ? rd : vpnInterface.getVpnInstanceName();
@@ -751,34 +759,35 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
         if (adjList != null) {
             List<Adjacency> value = new ArrayList<>();
+            Optional<String> gwMacAddr = Optional.absent();
             LOG.trace("AdjacencyList for interface {} is {}", vpnInterface, adjList);
             for (Adjacency adj : adjList) {
                 prefix = adj.getIpAddress();
-                // If TEP is deleted , then only remove the nexthop from
-                // primary adjacency.
-                if (adj.getMacAddress() != null && !adj.getMacAddress().isEmpty()) {
-                    List<String> nextHopList = adj.getNextHopIpList();
-                    // If nextHopList is already cleaned , no need to modify again
-                    if((nextHopList != null) & (!nextHopList.isEmpty())) {
-                        isNextHopRemoveReqd = true;
-                        value.add(new AdjacencyBuilder(adj).setNextHopIpList(nhList).build());
-                        Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(value);
-
-                        VpnInterface opInterface = new VpnInterfaceBuilder(vpnInterface).setKey(new VpnInterfaceKey(vpnInterface.getName()))
-                                .addAugmentation(Adjacencies.class, aug).build();
-                        InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(vpnInterface.getName());
-                        MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, interfaceId, opInterface);
+                List<String> nextHopList = adj.getNextHopIpList();
+                if ((nextHopList != null) & (!nextHopList.isEmpty())) {
+                    isNextHopRemoveReqd = true;
+                }
+                // If TEP is deleted , remove the nexthop from primary adjacency.
+                // Secondary adj nexthop will continue to point to primary adj IP address.
+                if (adj.isPrimaryAdjacency()) {
+                    value.add(new AdjacencyBuilder(adj).setNextHopIpList(nhList).build());
+                    Optional<String> gwIp = VpnUtil.getVpnSubnetGatewayIp(dataBroker, adj.getSubnetId());
+                    if (gwIp.isPresent()) {
+                        gwMacAddr = getGatewayMacAddressForInterface(vpnInterface.getVpnInstanceName(),
+                                vpnInterface.getName(), gwIp.get());
+                    } else {
+                        LOG.warn("Gateway IP for subnet ID {} could not be obtained", adj.getSubnetId());
                     }
+                } else {
+                    value.add(adj);
                 }
 
                 if(isNextHopRemoveReqd) {
                     LOG.info("Updating label mapper : label {} dpn {} prefix {} nexthoplist {} vpnid {} rd {}", label, srcDpnId , prefix, nhList, vpnId, rd);
                     updateLabelMapper(label, nhList);
-                    Optional<String> gwMacAddr = getGatewayMacAddressForInterface(vpnInterface.getVpnInstanceName(),
-                            vpnInterface.getName(),prefix);
                     // Update the VRF entry with emtpy nextHop
                     fibManager.updateFibEntry(dataBroker, rd, prefix, new ArrayList<String>() /* empty */,
-                        gwMacAddr.isPresent() ? gwMacAddr.get() : null, null);
+                        gwMacAddr.isPresent() ? gwMacAddr.get() : null, writeConfigTxn);
 
                     //Get the list of VPN's importing this route(prefix) .
                     // Then update the VRF entry with nhList
@@ -788,7 +797,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         if (vpnRd != null) {
                             LOG.debug("Exporting route with rd {} prefix {} nhList {} label {} to VPN {}", vpnRd, prefix, nhList, label, vpn);
                             fibManager.updateFibEntry(dataBroker, vpnRd, prefix, nhList,
-                                gwMacAddr.isPresent() ? gwMacAddr.get() : null, null);
+                                gwMacAddr.isPresent() ? gwMacAddr.get() : null, writeConfigTxn);
                         }
                     }
 
@@ -802,6 +811,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     }
                 }
             }
+            Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(value);
+            VpnInterface opInterface =
+                    new VpnInterfaceBuilder(vpnInterface).setKey(new VpnInterfaceKey(vpnInterface.getName()))
+                            .addAugmentation(Adjacencies.class, aug).build();
+            InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(vpnInterface.getName());
+            writeOperTxn.put(LogicalDatastoreType.OPERATIONAL, interfaceId, opInterface);
         }
     }
 
