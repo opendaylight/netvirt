@@ -36,6 +36,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionRegLoad;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -64,6 +65,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
@@ -156,6 +158,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg3;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -347,7 +350,7 @@ public class VpnUtil {
     static  List<String> getUsedRds(DataBroker broker, long vpnId, String destPrefix) {
         InstanceIdentifier<DestPrefixes> usedRdsId = getUsedRdsIdentifier(vpnId, destPrefix);
         Optional<DestPrefixes> usedRds = read(broker, LogicalDatastoreType.CONFIGURATION, usedRdsId);
-        return usedRds.isPresent() ? usedRds.get().getRds() : new ArrayList<String>();
+        return usedRds.isPresent() ? usedRds.get().getRds() : new ArrayList<>();
     }
 
     static  InstanceIdentifier<DestPrefixes> getUsedRdsIdentifier(long vpnId, String destPrefix) {
@@ -501,7 +504,7 @@ public class VpnUtil {
         InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class)
             .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
         Optional<VpnInstance> vpnInstance = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
-        return vpnInstance.isPresent() ? getListOfRdsFromVpnInstance(vpnInstance.get()) : new ArrayList<String>();
+        return vpnInstance.isPresent() ? getListOfRdsFromVpnInstance(vpnInstance.get()) : new ArrayList<>();
     }
 
     /**
@@ -1489,7 +1492,7 @@ public class VpnUtil {
                             vpnName, usedRd, prefix);
                     return vpnExtraRoutes.isPresent() ? new ImmutablePair<String, String>(
                             vpnExtraRoutes.get().getNexthopIpList().get(0),
-                            usedRd) : new ImmutablePair<String, String>("", "");
+                            usedRd) : new ImmutablePair<>("", "");
                 })
                 .filter(pair -> {
                     if (pair.getLeft().isEmpty()) {
@@ -1566,6 +1569,9 @@ public class VpnUtil {
         List<Instruction> instructions = new ArrayList<>();
         int instructionKey = 0;
         final long vpnId = VpnUtil.getVpnId(broker, vpnName);
+        List<Action> actions = Collections.singletonList(
+                new ActionRegLoad(0, NxmNxReg3.class, 0, VpnConstants.VPN_ID_LENGTH, vpnId).buildAction());
+        instructions.add(MDSALUtil.buildApplyActionsInstruction(actions, ++instructionKey));
         instructions.add(
                 MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
                         MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
@@ -1580,7 +1586,7 @@ public class VpnUtil {
 
     static BoundServices getBoundServicesForTunnelInterface(String vpnName, String interfaceName) {
         int instructionKey = 0;
-        List<Instruction> instructions = new ArrayList<Instruction>();
+        List<Instruction> instructions = new ArrayList<>();
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(
                 NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE, ++instructionKey));
         BoundServices serviceInfo = InterfaceUtils.getBoundServices(String.format("%s.%s.%s", "vpn",

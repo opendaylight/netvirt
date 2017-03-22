@@ -14,6 +14,7 @@ import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -39,10 +40,14 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.AceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Actions;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan.L2vlanMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeLogicalGroup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.VlanId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.PolicyAcl;
@@ -449,5 +454,28 @@ public class PolicyServiceUtil {
         }
 
         return Optional.absent();
+    }
+
+
+    public Optional<String> getVlanMemberInterface(String trunkInterface, VlanId vlanId) {
+        List<Interface> vlanMemberInterfaces = interfaceManager.getChildInterfaces(trunkInterface);
+        if (vlanMemberInterfaces == null || vlanMemberInterfaces.isEmpty()) {
+            LOG.debug("No child interfaces found for trunk {}", trunkInterface);
+            return Optional.absent();
+        }
+
+        java.util.Optional<String> vlanMemberNameOpt = vlanMemberInterfaces.stream()
+                .filter(iface -> isVlanMemberInterface(iface, vlanId)).findFirst().map(iface -> iface.getName());
+        return vlanMemberNameOpt.isPresent() ? Optional.of(vlanMemberNameOpt.get()) : Optional.absent();
+    }
+
+    private boolean isVlanMemberInterface(Interface iface, VlanId vlanId) {
+        IfL2vlan l2vlan = iface.getAugmentation(IfL2vlan.class);
+        if (l2vlan == null || !L2vlanMode.TrunkMember.equals(l2vlan.getL2vlanMode())) {
+            LOG.warn("Interface {} is not VLAN member", iface.getName());
+            return false;
+        }
+
+        return Objects.equals(vlanId, l2vlan.getVlanId());
     }
 }
