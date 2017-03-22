@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -67,5 +68,7 @@ public interface IVpnManager {
     void setupArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String routerGwMac,
             BigInteger dpnId, long vpnId, String extInterfaceName, int lportTag, WriteTransaction writeTx,
             int addOrRemove);
+
+    List<MatchInfoBase> getEgressMatchesForVpn(String vpnName);
 
 }

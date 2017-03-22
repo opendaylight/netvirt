@@ -30,7 +30,10 @@ import org.opendaylight.genius.interfacemanager.exceptions.InterfaceAlreadyExist
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.MatchInfoBase;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
@@ -598,6 +601,24 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
         elanUtils.handleDmacRedirectToDispatcherFlows(elanInstance.getElanTag(), elanInstanceName, macAddress,
                 addOrRemove, dpnsIdsForElanInstance);
+    }
+
+    @Override
+    public List<MatchInfoBase> getEgressMatchesForElanInstance(String elanInstanceName) {
+        ElanInstance elanInstance = getElanInstance(elanInstanceName);
+        if (elanInstance == null) {
+            LOG.debug("No ELAN instance found for {}", elanInstanceName);
+            return Collections.emptyList();
+        }
+
+        Long elanTag = elanInstance.getElanTag();
+        if (elanTag == null) {
+            LOG.debug("No ELAN tag found for {}", elanInstanceName);
+            return Collections.emptyList();
+        }
+
+        return Collections.singletonList(
+                new NxMatchRegister(ElanConstants.ELAN_REG_ID, elanTag, MetaDataUtil.getElanMaskForReg()));
     }
 
     /**
