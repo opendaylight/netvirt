@@ -64,7 +64,7 @@ public class QosPolicyChangeListener extends AsyncDataTreeChangeListenerBase<Qos
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-	supportedQoSRuleTypes();
+        supportedQoSRuleTypes();
     }
 
     @Override
@@ -338,8 +338,7 @@ public class QosPolicyChangeListener extends AsyncDataTreeChangeListenerBase<Qos
     }
 
     private void supportedQoSRuleTypes() {
-        
-	QosRuleTypesBuilder qrtBuilder = new QosRuleTypesBuilder();
+        QosRuleTypesBuilder qrtBuilder = new QosRuleTypesBuilder();
         List<RuleTypes> value = new ArrayList<RuleTypes>();
 
         value.add(getRuleTypes("bandwidth_limit_rules"));
