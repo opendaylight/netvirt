@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_666e6198",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/CounterRetriever.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-22T15:15:51Z",
+      "side": 1,
+      "message": "Class is still needed as it serves as access point to openflowplugin counters methods, but it is a much smallest class now since we don\u0027t need to deal with future transactions.",
+      "parentUuid": "fafc7978_a56cc637",
+      "revId": "03e0a78685a56b871f42a97e8cf863658d98f553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_655ade84",
         "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/CountersUtils.java",
         "patchSetId": 12
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-21T20:42:11Z",
       "side": 1,
       "message": "wrong category",
+      "revId": "03e0a78685a56b871f42a97e8cf863658d98f553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c66bcd83",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/CountersUtils.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-22T15:15:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_655ade84",
       "revId": "03e0a78685a56b871f42a97e8cf863658d98f553",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_261459f4",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/EgressCountersServiceImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-22T15:15:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e5e40eae",
+      "revId": "03e0a78685a56b871f42a97e8cf863658d98f553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_25ee168c",
         "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/FlowOperations.java",
         "patchSetId": 12
@@ -64,6 +118,24 @@
       "writtenOn": "2017-03-21T20:42:11Z",
       "side": 1,
       "message": "you can use NwConstants.DEL_FLOW/ADD_FLOW",
+      "revId": "03e0a78685a56b871f42a97e8cf863658d98f553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_06883521",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/FlowOperations.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-22T15:15:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_25ee168c",
       "revId": "03e0a78685a56b871f42a97e8cf863658d98f553",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
