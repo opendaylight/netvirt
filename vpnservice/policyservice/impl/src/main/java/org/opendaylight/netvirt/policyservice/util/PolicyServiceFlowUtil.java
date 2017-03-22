@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -34,10 +35,15 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.policyservice.PolicyServiceConstants;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.buckets.Bucket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg3;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg7;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,11 +53,16 @@ public class PolicyServiceFlowUtil {
 
     private final IMdsalApiManager mdsalManager;
     private final IInterfaceManager interfaceManager;
+    private final IElanService elanService;
+    private final IVpnManager vpnManager;
 
     @Inject
-    public PolicyServiceFlowUtil(final IMdsalApiManager mdsalManager, final IInterfaceManager interfaceManager) {
+    public PolicyServiceFlowUtil(final IMdsalApiManager mdsalManager, final IInterfaceManager interfaceManager,
+            final IElanService elanService, final IVpnManager vpnManager) {
         this.mdsalManager = mdsalManager;
         this.interfaceManager = interfaceManager;
+        this.elanService = elanService;
+        this.vpnManager = vpnManager;
     }
 
     public List<InstructionInfo> getTableMissInstructions() {
@@ -83,6 +94,47 @@ public class PolicyServiceFlowUtil {
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(Collections.singletonList(new ActionGroup(groupId))));
         return instructions;
+    }
+
+    public List<MatchInfoBase> getIngressInterfaceMatches(String ingressInterface) {
+        InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(ingressInterface);
+        if (interfaceInfo == null) {
+            LOG.warn("No interface info found for {}", ingressInterface);
+            return null;
+        }
+
+        int lportTag = interfaceInfo.getInterfaceTag();
+        List<MatchInfoBase> matches = new ArrayList<>();
+        matches.add(new MatchMetadata(MetaDataUtil.getMetadataLPort(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG));
+        return matches;
+    }
+
+    public List<MatchInfoBase> getElanInstanceMatches(String elanInstanceName) {
+        ElanInstance elanInstance = elanService.getElanInstance(elanInstanceName);
+        if (elanInstance == null) {
+            LOG.warn("No ELAN instance found for {}", elanInstanceName);
+            return Collections.emptyList();
+        }
+
+        Long elanTag = elanInstance.getElanTag();
+        if (elanTag == null) {
+            LOG.warn("No ELAN tag found for {}", elanInstanceName);
+            return Collections.emptyList();
+        }
+
+        return Collections
+                .singletonList(new NxMatchRegister(NxmNxReg7.class, elanTag, MetaDataUtil.getElanMaskForReg()));
+    }
+
+    public List<MatchInfoBase> getVpnInstanceMatches(String vpnInstanceName) {
+        Long vpnId = vpnManager.getVpnId(vpnInstanceName);
+        if (vpnId == null) {
+            LOG.warn("No VPN id found for {}", vpnInstanceName);
+            return Collections.emptyList();
+        }
+
+        return Collections
+                .singletonList(new NxMatchRegister(NxmNxReg3.class, vpnId, MetaDataUtil.getVpnIdMaskForReg()));
     }
 
     public void updateFlowToTx(BigInteger dpId, short tableId, String flowName, int priority, BigInteger cookie,
