@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
  * When new tunnel interfaces are added/removed from underlay network, the
  * corresponding policy classifier group buckets would be updated accordingly.
  */
+@SuppressWarnings("deprecation")
 @Singleton
 public class UnderlayNetworkDpnListener
         extends AsyncDataTreeChangeListenerBase<DpnToInterface, UnderlayNetworkDpnListener> {

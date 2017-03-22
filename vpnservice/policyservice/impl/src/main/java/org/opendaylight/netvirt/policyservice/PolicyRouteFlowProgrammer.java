@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
  * associated with the logical tunnel.
  *
  */
+@SuppressWarnings("deprecation")
 @Singleton
 public class PolicyRouteFlowProgrammer {
     private static final Logger LOG = LoggerFactory.getLogger(PolicyRouteFlowProgrammer.class);

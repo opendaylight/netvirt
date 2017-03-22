@@ -9,14 +9,18 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.mdsalutil.MatchInfoBase;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -266,6 +270,18 @@ public class VpnManagerImpl implements IVpnManager {
         if (submit) {
             writeTx.submit();
         }
+    }
+
+    @Override
+    public List<MatchInfoBase> getEgressMatchesForVpn(String vpnName) {
+        long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+        if (vpnId == VpnConstants.INVALID_ID) {
+            LOG.warn("No VPN id found for {}", vpnName);
+            return Collections.emptyList();
+        }
+
+        return Collections
+                .singletonList(new NxMatchRegister(VpnConstants.VPN_REG_ID, vpnId, MetaDataUtil.getVpnIdMaskForReg()));
     }
 
     private void installArpResponderFlowsToExternalNetworkIp(String macAddress, BigInteger dpnId,
