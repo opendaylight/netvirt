@@ -61,6 +61,16 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <version>${vpnservices.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.opendaylight.netvirt</groupId>
+      <artifactId>elanmanager-api</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.netvirt</groupId>
+      <artifactId>vpnmanager-api</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-module-junit4</artifactId>
       <scope>test</scope>

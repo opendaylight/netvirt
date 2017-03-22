@@ -8,12 +8,16 @@
 
 package org.opendaylight.netvirt.policyservice;
 
+
 import com.google.common.base.Optional;
 
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -21,6 +25,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -28,6 +33,13 @@ import org.opendaylight.netvirt.aclservice.api.utils.IAclServiceUtil;
 import org.opendaylight.netvirt.policyservice.util.PolicyServiceFlowUtil;
 import org.opendaylight.netvirt.policyservice.util.PolicyServiceUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.VlanId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.IngressInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.L2vpnServiceType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.L3vpnServiceType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.Service;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.ServiceTypeBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +56,7 @@ public class PolicyAceFlowProgrammer {
 
     private final DataBroker dataBroker;
     private final IAclServiceUtil aclServiceUtil;
+    private final IInterfaceManager interfaceManager;
     private final PolicyIdManager policyIdManager;
     private final PolicyServiceUtil policyServiceUtil;
     private final PolicyServiceFlowUtil policyFlowUtil;
@@ -51,10 +64,11 @@ public class PolicyAceFlowProgrammer {
 
     @Inject
     public PolicyAceFlowProgrammer(final DataBroker dataBroker, final IAclServiceUtil aclServiceUtil,
-            final PolicyIdManager policyIdManager, final PolicyServiceUtil policyServiceUtil,
-            final PolicyServiceFlowUtil policyFlowUtil) {
+            final IInterfaceManager interfaceManager, final PolicyIdManager policyIdManager,
+            final PolicyServiceUtil policyServiceUtil, final PolicyServiceFlowUtil policyFlowUtil) {
         this.dataBroker = dataBroker;
         this.aclServiceUtil = aclServiceUtil;
+        this.interfaceManager = interfaceManager;
         this.policyIdManager = policyIdManager;
         this.policyServiceUtil = policyServiceUtil;
         this.policyFlowUtil = policyFlowUtil;
@@ -81,23 +95,32 @@ public class PolicyAceFlowProgrammer {
         });
     }
 
-    private void programAceFlows(Ace ace, List<InstructionInfo> instructions, BigInteger dpId, int addOrRemove) {
-        Map<String, List<MatchInfoBase>> flowMap = aclServiceUtil.programIpFlow(ace.getMatches());
-        if (flowMap == null) {
-            LOG.error("Failed to create flows for ACE rule {}", ace.getRuleName());
-            return;
-        }
+    public void programAceFlows(Ace ace, List<InstructionInfo> instructions, BigInteger dpId, int addOrRemove) {
+        Map<String, List<MatchInfoBase>> aclFlowMap = aclServiceUtil.programIpFlow(ace.getMatches());
+        Optional<PolicyAceFlowWrapper> policyFlowWrapperOpt = getPolicyAceFlowWrapper(ace.getMatches(), dpId);
+
         coordinator.enqueueJob(ace.getRuleName(), () -> {
             WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
 
-            flowMap.forEach((flowName, matches) -> {
+            aclFlowMap.forEach((flowName, matches) -> {
                 String policyFlowName = "Policy_" + flowName;
+                List<MatchInfoBase> policyMatches = matches;
+                int policyPriority = PolicyServiceConstants.POLICY_FLOW_PRIOPITY;
+
+                if (policyFlowWrapperOpt.isPresent()) {
+                    PolicyAceFlowWrapper policyFlowWrapper = policyFlowWrapperOpt.get();
+                    policyFlowName += '_' + policyFlowWrapper.getFlowName();
+                    policyPriority = policyFlowWrapper.getPriority();
+                    policyMatches = Stream.concat(matches.stream(), policyFlowWrapper.getMatches().stream())
+                            .collect(Collectors.toList());
+                }
+
                 LOG.debug("{} ACE rule {} on DPN {} flow {}",
                         addOrRemove == NwConstants.ADD_FLOW ? "Installing" : "Removing", ace.getRuleName(), dpId,
                         policyFlowName);
                 policyFlowUtil.updateFlowToTx(dpId, NwConstants.EGRESS_POLICY_CLASSIFIER_TABLE, policyFlowName,
-                        PolicyServiceConstants.POLICY_FLOW_PRIOPITY, NwConstants.EGRESS_POLICY_CLASSIFIER_COOKIE,
-                        matches, instructions, addOrRemove, tx);
+                        policyPriority, NwConstants.EGRESS_POLICY_CLASSIFIER_COOKIE, matches, instructions, addOrRemove,
+                        tx);
             });
             return Collections.singletonList(tx.submit());
         });
@@ -113,5 +136,87 @@ public class PolicyAceFlowProgrammer {
         return policyFlowUtil.getPolicyClassifierInstructions(policyClassifierId);
     }
 
-    // TODO table miss flow
+    private Optional<PolicyAceFlowWrapper> getPolicyAceFlowWrapper(Matches matches, BigInteger dpId) {
+        IngressInterface ingressInterface = matches.getAugmentation(IngressInterface.class);
+        if (ingressInterface != null) {
+            Optional<PolicyAceFlowWrapper> interfaceFlowOpt = getIngressInterfaceFlow(ingressInterface, dpId);
+            if (interfaceFlowOpt.isPresent()) {
+                return interfaceFlowOpt;
+            }
+        }
+
+        Service service = matches.getAugmentation(Service.class);
+        if (service != null) {
+            Optional<PolicyAceFlowWrapper> serviceFlowOpt = getPolicyServiceFlow(service);
+            if (serviceFlowOpt.isPresent()) {
+                return serviceFlowOpt;
+            }
+        }
+
+        return Optional.absent();
+    }
+
+    private Optional<PolicyAceFlowWrapper> getIngressInterfaceFlow(IngressInterface ingressInterface,
+            BigInteger dpId) {
+        String interfaceName = ingressInterface.getName();
+        if (interfaceName == null) {
+            LOG.error("Invalid ingress interface augmentation. missing interface name");
+            return Optional.absent();
+        }
+
+        int flowPriority = PolicyServiceConstants.POLICY_ACL_TRUNK_INTERFACE_FLOW_PRIOPITY;
+        VlanId vlanId = ingressInterface.getVlanId();
+        if (vlanId != null) {
+            Optional<String> vlanMemberInterfaceOpt = policyServiceUtil.getVlanMemberInterface(interfaceName, vlanId);
+            if (!vlanMemberInterfaceOpt.isPresent()) {
+                LOG.debug("Failed to get vlan member {} for trunk {}", vlanId.getValue(), interfaceName);
+                return Optional.absent();
+            }
+
+            interfaceName = vlanMemberInterfaceOpt.get();
+            flowPriority = PolicyServiceConstants.POLICY_ACL_VLAN_INTERFACE_FLOW_PRIOPITY;
+        }
+
+        BigInteger interfaceDpId = interfaceManager.getDpnForInterface(interfaceName);
+        if (!Objects.equals(dpId, interfaceDpId)) {
+            LOG.trace("Ingress interface match will be installed only on DPN {}. Ignoring DPN {}", ingressInterface,
+                    dpId);
+            return Optional.absent();
+        }
+
+        List<MatchInfoBase> matches = policyFlowUtil.getIngressInterfaceMatches(interfaceName);
+        if (matches == null) {
+            LOG.error("Failed to get ingress interface {} matches", interfaceName);
+            return Optional.absent();
+        }
+
+        String flowName = "INGRESS_INTERFACE_" + interfaceName;
+        return Optional.of(new PolicyAceFlowWrapper(flowName, matches, flowPriority));
+    }
+
+    private Optional<PolicyAceFlowWrapper> getPolicyServiceFlow(Service service) {
+        String serviceName = service.getServiceName();
+        Class<? extends ServiceTypeBase> serviceType = service.getServiceType();
+        if (serviceName == null || serviceType == null) {
+            LOG.error("Invalid policy service augmentation {}", service);
+            return Optional.absent();
+        }
+
+        java.util.Optional<PolicyAceFlowWrapper> flowWrapperOpt = java.util.Optional.empty();
+        if (serviceType.isAssignableFrom(L2vpnServiceType.class)) {
+            flowWrapperOpt = java.util.Optional.ofNullable(policyFlowUtil.getElanInstanceMatches(serviceName))
+                    .map(matches -> {
+                        return new PolicyAceFlowWrapper("L2VPN_" + serviceName, matches,
+                                PolicyServiceConstants.POLICY_ACL_L2VPN_FLOW_PRIOPITY);
+                    });
+        } else if (serviceType.isAssignableFrom(L3vpnServiceType.class)) {
+            flowWrapperOpt = java.util.Optional.ofNullable(policyFlowUtil.getVpnInstanceMatches(serviceName))
+                    .map(matches -> {
+                        return new PolicyAceFlowWrapper("L3VPN_" + serviceName, matches,
+                                PolicyServiceConstants.POLICY_ACL_L3VPN_FLOW_PRIOPITY);
+                    });
+        }
+
+        return flowWrapperOpt.isPresent() ? Optional.of(flowWrapperOpt.get()) : Optional.absent();
+    }
 }
