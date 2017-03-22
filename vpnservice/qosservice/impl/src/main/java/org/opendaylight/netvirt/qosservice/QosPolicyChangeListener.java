@@ -29,10 +29,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.QosPolicies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.QosRuleTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.QosRuleTypesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.QosPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.qos.policy.BandwidthLimitRules;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.qos.policy.BandwidthLimitRulesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.qos.policy.DscpmarkingRules;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.rule.types.RuleTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.rule.types.RuleTypesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -60,6 +64,7 @@ public class QosPolicyChangeListener extends AsyncDataTreeChangeListenerBase<Qos
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+	supportedQoSRuleTypes();
     }
 
     @Override
@@ -331,4 +336,28 @@ public class QosPolicyChangeListener extends AsyncDataTreeChangeListenerBase<Qos
             }
         }
     }
+
+    private void supportedQoSRuleTypes() {
+        
+	QosRuleTypesBuilder qrtBuilder = new QosRuleTypesBuilder();
+        List<RuleTypes> value = new ArrayList<RuleTypes>();
+
+        value.add(getRuleTypes("bandwidth_limit_rules"));
+        value.add(getRuleTypes("dscp_marking_rules"));
+
+        qrtBuilder.setRuleTypes(value);
+        final WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
+
+        InstanceIdentifier instanceIdentifier = InstanceIdentifier.create(Neutron.class).child(QosRuleTypes.class);
+
+        writeTx.merge(LogicalDatastoreType.OPERATIONAL, instanceIdentifier, qrtBuilder.build());
+        writeTx.submit();
+    }
+
+    private RuleTypes getRuleTypes(String ruleType) {
+        RuleTypesBuilder rtBuilder = new RuleTypesBuilder();
+        rtBuilder.setRuleType(ruleType);
+        return rtBuilder.build();
+    }
+
 }
