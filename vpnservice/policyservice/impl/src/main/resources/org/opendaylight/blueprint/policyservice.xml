@@ -12,6 +12,10 @@
     interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
   <reference id="iAclServiceUtil"
     interface="org.opendaylight.netvirt.aclservice.api.utils.IAclServiceUtil" />
+  <reference id="iElanService"
+    interface="org.opendaylight.netvirt.elanmanager.api.IElanService" />
+  <reference id="iVpnManager"
+    interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
 
   <odl:rpc-service id="idManagerService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
