@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -34,7 +35,9 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.policyservice.PolicyServiceConstants;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.buckets.Bucket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6;
@@ -47,11 +50,16 @@ public class PolicyServiceFlowUtil {
 
     private final IMdsalApiManager mdsalManager;
     private final IInterfaceManager interfaceManager;
+    private final IElanService elanService;
+    private final IVpnManager vpnManager;
 
     @Inject
-    public PolicyServiceFlowUtil(final IMdsalApiManager mdsalManager, final IInterfaceManager interfaceManager) {
+    public PolicyServiceFlowUtil(final IMdsalApiManager mdsalManager, final IInterfaceManager interfaceManager,
+            final IElanService elanService, final IVpnManager vpnManager) {
         this.mdsalManager = mdsalManager;
         this.interfaceManager = interfaceManager;
+        this.elanService = elanService;
+        this.vpnManager = vpnManager;
     }
 
     public List<InstructionInfo> getTableMissInstructions() {
@@ -70,10 +78,7 @@ public class PolicyServiceFlowUtil {
 
     public List<MatchInfoBase> getPolicyRouteMatches(long policyClassifierId, int lportTag) {
         List<MatchInfoBase> matches = new ArrayList<>();
-        // FIXME reg6 masking support will allow matching only based on the
-        // lport-tag bits
-        matches.add(new NxMatchRegister(NxmNxReg6.class,
-                MetaDataUtil.getReg6ValueForLPortDispatcher(lportTag, NwConstants.DEFAULT_EGRESS_SERVICE_INDEX)));
+        matches.add(new NxMatchRegister(NxmNxReg6.class, lportTag, MetaDataUtil.getLportTagMaskForReg6()));
         matches.add(new MatchMetadata(MetaDataUtil.getPolicyClassifierMetaData(policyClassifierId),
                 MetaDataUtil.METADATA_MASK_POLICY_CLASSIFER_ID));
         return matches;
@@ -83,6 +88,27 @@ public class PolicyServiceFlowUtil {
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(Collections.singletonList(new ActionGroup(groupId))));
         return instructions;
+    }
+
+    public List<MatchInfoBase> getIngressInterfaceMatches(String ingressInterface) {
+        InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(ingressInterface);
+        if (interfaceInfo == null) {
+            LOG.warn("No interface info found for {}", ingressInterface);
+            return null;
+        }
+
+        int lportTag = interfaceInfo.getInterfaceTag();
+        List<MatchInfoBase> matches = new ArrayList<>();
+        matches.add(new MatchMetadata(MetaDataUtil.getMetadataLPort(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG));
+        return matches;
+    }
+
+    public List<MatchInfoBase> getElanInstanceMatches(String elanInstanceName) {
+        return elanService.getEgressMatchesForElanInstance(elanInstanceName);
+    }
+
+    public List<MatchInfoBase> getVpnInstanceMatches(String vpnInstanceName) {
+        return vpnManager.getEgressMatchesForVpn(vpnInstanceName);
     }
 
     public void updateFlowToTx(BigInteger dpId, short tableId, String flowName, int priority, BigInteger cookie,
