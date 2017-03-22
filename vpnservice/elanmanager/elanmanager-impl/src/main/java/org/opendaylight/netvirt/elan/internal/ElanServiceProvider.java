@@ -655,7 +655,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             if (ElanUtils.isFlat(elanInstance)) {
                 interfaceName = parentRef + IfmConstants.OF_URI_SEPARATOR + "flat";
                 interfaceManager.createVLANInterface(interfaceName, parentRef, null, null, null,
-                        IfL2vlan.L2vlanMode.Transparent, true);
+                        IfL2vlan.L2vlanMode.Trunk, true);
             } else if (ElanUtils.isVlan(elanInstance)) {
                 Long segmentationId = elanInstance.getSegmentationId();
                 interfaceName = parentRef + IfmConstants.OF_URI_SEPARATOR + segmentationId;
