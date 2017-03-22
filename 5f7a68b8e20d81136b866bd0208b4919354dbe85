@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_cbfbdb45",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-22T04:54:31Z",
+      "side": 1,
+      "message": "Yes. It is required in EVPNVrfEntryProcessor to extract adjacencyData with MAC details from the Operationsl DS (l3vpn/vpn-interfaces) for all the External VXLAN netowrk FIPs.",
+      "parentUuid": "fafc7978_ebcb3f1c",
+      "revId": "5f7a68b8e20d81136b866bd0208b4919354dbe85",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_22d3ac39",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
         "patchSetId": 12
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-22T04:35:52Z",
       "side": 1,
       "message": "allocate a new transaction only for vxlan provider type",
+      "revId": "5f7a68b8e20d81136b866bd0208b4919354dbe85",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cb92bbf5",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-22T04:54:31Z",
+      "side": 1,
+      "message": "The same WriteTransaction Object is already used for other than VXLAN provider type also later in the code.\n\nAfter the below line of the code writeTx object is used. (This is existing code) As part of EVPN changes creation of the WriteTransaction Object part only moved to beginning of VXLAN provider check.\n\nfloatingIpPortMacAddress, dpnId, networkId, writeTx, NwConstants.ADD_FLOW); (line : 190)\nwriteTx.submit();",
+      "parentUuid": "fafc7978_22d3ac39",
       "revId": "5f7a68b8e20d81136b866bd0208b4919354dbe85",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
