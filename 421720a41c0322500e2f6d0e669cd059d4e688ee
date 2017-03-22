@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_e6c091e2",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpAllocationPoolListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 656
+      },
+      "writtenOn": "2017-03-22T14:58:20Z",
+      "side": 1,
+      "message": "add a info log for the creation of the pool, and a debug log for every interface",
+      "revId": "421720a41c0322500e2f6d0e669cd059d4e688ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c692adf5",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpAllocationPoolListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 656
+      },
+      "writtenOn": "2017-03-22T14:58:20Z",
+      "side": 1,
+      "message": "you should create the pool before dealing with the specific interfaces, because you don\u0027t want to deal with a dhcp request before the pool is ready.",
+      "revId": "421720a41c0322500e2f6d0e669cd059d4e688ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a68fa9cb",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpAllocationPoolListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 656
+      },
+      "writtenOn": "2017-03-22T14:58:20Z",
+      "side": 1,
+      "message": "you should also undo everything you dii in the add",
+      "revId": "421720a41c0322500e2f6d0e669cd059d4e688ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_86af052b",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpAllocationPoolManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 656
+      },
+      "writtenOn": "2017-03-22T14:58:20Z",
+      "side": 1,
+      "message": "you can probably find these methods in an existing util class, and if not, they should go into a util class and not be in this class.",
+      "revId": "421720a41c0322500e2f6d0e669cd059d4e688ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c6a90d26",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpAllocationPoolManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 656
+      },
+      "writtenOn": "2017-03-22T14:58:20Z",
+      "side": 1,
+      "message": "change to real name",
+      "revId": "421720a41c0322500e2f6d0e669cd059d4e688ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c680ed8d",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpAllocationPoolManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 656
+      },
+      "writtenOn": "2017-03-22T14:58:20Z",
+      "side": 1,
+      "message": "This will throw an exception if the list is empty, so you need to check for this.",
+      "revId": "421720a41c0322500e2f6d0e669cd059d4e688ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_064af582",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpAllocationPoolManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 656
+      },
+      "writtenOn": "2017-03-22T14:58:20Z",
+      "side": 1,
+      "message": "DpnInterfaces",
+      "revId": "421720a41c0322500e2f6d0e669cd059d4e688ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0631550b",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 656
+      },
+      "writtenOn": "2017-03-22T14:58:20Z",
+      "side": 1,
+      "message": "add log",
+      "revId": "421720a41c0322500e2f6d0e669cd059d4e688ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
