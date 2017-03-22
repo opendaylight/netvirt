@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ebcb3f1c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-22T04:35:52Z",
+      "side": 1,
+      "message": "why do you need to recreate the VpnInterface? how is it different from the one in the config DS? seems like you can take the config instance as is and write it to the oper DS\n\nIs it needed in order to extract the FIP MAC from the vrf-entry later from the VrfEntryListener?",
+      "revId": "5f7a68b8e20d81136b866bd0208b4919354dbe85",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_22d3ac39",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-22T04:35:52Z",
+      "side": 1,
+      "message": "allocate a new transaction only for vxlan provider type",
+      "revId": "5f7a68b8e20d81136b866bd0208b4919354dbe85",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
