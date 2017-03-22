@@ -231,6 +231,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3672cee5",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-22T08:45:56Z",
+      "side": 1,
+      "message": "Read the latest version I submit on Tuesday. This has been updated so that the ingress classifier doesnt send the packets directly to the SFF on the ingress pipeline.",
+      "parentUuid": "fafc7978_a2767cd6",
+      "revId": "89cb4527ebde44b923808e5560d4fee9d05027a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f724d6b0",
         "filename": "docs/specs/new-sfc-classifier.rst",
         "patchSetId": 13
@@ -431,6 +449,30 @@
       "side": 1,
       "message": "I think it\u0027s the same issue whether we are resubmitting from SFC SFF to NetVirt or from NetVirt to SFC SFF - the port will need to be updated to a port that we know the other service is bound to.  This is kind of a implementation detail, but I wanted to mention it.",
       "parentUuid": "fafc7978_3ac3da8b",
+      "range": {
+        "startLine": 255,
+        "startChar": 51,
+        "endLine": 258,
+        "endChar": 36
+      },
+      "revId": "89cb4527ebde44b923808e5560d4fee9d05027a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_164a2a83",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-22T08:45:56Z",
+      "side": 1,
+      "message": "I commented on having to set the inport in the latest version submit on Tuesday.",
+      "parentUuid": "fafc7978_22bc4c6c",
       "range": {
         "startLine": 255,
         "startChar": 51,
