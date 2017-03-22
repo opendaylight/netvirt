@@ -483,10 +483,28 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         String elanInstanceName = elanInstance.getElanInstanceName();
         for (String elanInterface : getExternalElanInterfaces(elanInstanceName)) {
             if (elanInterface.startsWith(interfaceName)) {
-                deleteIetfInterface(elanInterface);
+                if (ElanUtils.isVlan(elanInstance)) {
+                    deleteIetfInterface(elanInterface);
+                }
+                String trunkInterfaceName = getTrunkInterfaceName(interfaceName);
+                if (shouldDeleteTrunk(trunkInterfaceName, elanInterface)) {
+                    deleteIetfInterface(trunkInterfaceName);
+                }
                 deleteElanInterface(elanInstanceName, elanInterface);
             }
         }
+    }
+
+    private boolean shouldDeleteTrunk(String trunkInterfaceName, String elanInterfaceName) {
+        List<Interface> childInterfaces = interfaceManager.getChildInterfaces(trunkInterfaceName);
+        if (childInterfaces == null || childInterfaces.isEmpty()
+                || (childInterfaces.size() == 1 && elanInterfaceName.equals(childInterfaces.get(0).getName()))) {
+            LOG.debug("No more VLAN member interfaces left for trunk {}", trunkInterfaceName);
+            return true;
+        }
+
+        LOG.debug("Trunk interface {} has {} VLAN member interfaces left", trunkInterfaceName, childInterfaces.size());
+        return false;
     }
 
     @Override
@@ -620,20 +638,18 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         String interfaceName = null;
 
         try {
+            String trunkName = getTrunkInterfaceName(parentRef);
+            // trunk interface may have been created by other vlan network
+            Interface trunkInterface = interfaceManager.getInterfaceInfoFromConfigDataStore(trunkName);
+            if (trunkInterface == null) {
+                interfaceManager.createVLANInterface(trunkName, parentRef, null, null, null,
+                        IfL2vlan.L2vlanMode.Trunk, true);
+            }
             if (ElanUtils.isFlat(elanInstance)) {
-                interfaceName = parentRef + IfmConstants.OF_URI_SEPARATOR + "flat";
-                interfaceManager.createVLANInterface(interfaceName, parentRef, null, null, null,
-                        IfL2vlan.L2vlanMode.Transparent, true);
+                interfaceName = trunkName;
             } else if (ElanUtils.isVlan(elanInstance)) {
                 Long segmentationId = elanInstance.getSegmentationId();
                 interfaceName = parentRef + IfmConstants.OF_URI_SEPARATOR + segmentationId;
-                String trunkName = parentRef + IfmConstants.OF_URI_SEPARATOR + "trunk";
-                // trunk interface may have been created by other vlan network
-                Interface trunkInterface = interfaceManager.getInterfaceInfoFromConfigDataStore(trunkName);
-                if (trunkInterface == null) {
-                    interfaceManager.createVLANInterface(trunkName, parentRef, null, null, null,
-                            IfL2vlan.L2vlanMode.Trunk, true);
-                }
                 interfaceManager.createVLANInterface(interfaceName, trunkName, null, segmentationId.intValue(), null,
                         IfL2vlan.L2vlanMode.TrunkMember, true);
             }
@@ -691,6 +707,10 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                 function.apply(elanInstance, interfaceName);
             }
         }
+    }
+
+    private String getTrunkInterfaceName(String parentRef) {
+        return parentRef + IfmConstants.OF_URI_SEPARATOR + "trunk";
     }
 
     private void setIsL2BeforeL3() {
