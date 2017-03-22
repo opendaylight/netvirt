@@ -112,7 +112,7 @@ public class PolicyIdManager {
             RpcResult<AllocateIdOutput> rpcResult = result.get();
             Long idValue = rpcResult.getResult().getIdValue();
             if (idValue != null) {
-                idCache.get(poolName).put(key, idValue);
+                idCache.get(poolName).putIfAbsent(key, idValue);
                 return idValue;
             }
         } catch (InterruptedException | ExecutionException e) {
