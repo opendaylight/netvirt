@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_590fc22e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-22T18:36:57Z",
+      "side": 1,
+      "message": "This commit creates vrf entries with subnet augmentation in external-networks and in private-networks.",
+      "parentUuid": "fafc7978_2e39e0d8",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2b6c3236",
         "filename": "/COMMIT_MSG",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-20T14:14:03Z",
       "side": 1,
       "message": "You have twice the change-id and signed-off-by.\nCan remove this one",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b91cee6b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-22T18:36:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2b6c3236",
       "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_99192a7c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-22T18:36:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_cb8766d6",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6ba91a24",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 6
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f925d6ae",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-22T18:36:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_6ba91a24",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4ba6d654",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 6
@@ -81,6 +153,24 @@
       "writtenOn": "2017-03-20T14:14:03Z",
       "side": 1,
       "message": "Same as above",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d92a927d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 552,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-22T18:36:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_4ba6d654",
       "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +211,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b94a2e53",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2004,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-22T18:36:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2e128058",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_0ef5fcca",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
         "patchSetId": 6
@@ -132,6 +240,24 @@
       "writtenOn": "2017-03-20T14:14:03Z",
       "side": 1,
       "message": "I have in my review of hairpinning:\nhttps://git.opendaylight.org/gerrit/#/c/51776/36\n\nA method called - getOptionalExternalSubnets(DataBroker dataBroker, Uuid subnetId)\n\nIf there\u0027s a way you can use it (copy it to your review - and will handle the conflict later).\nIt will be best.",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_39cabea1",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-22T18:36:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0ef5fcca",
       "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +281,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_79c3a68a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-22T18:36:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_6ee64846",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4eb54430",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
         "patchSetId": 6
@@ -166,6 +310,24 @@
       "writtenOn": "2017-03-20T14:14:03Z",
       "side": 1,
       "message": "Need to check that subnetMap is not null - if null subnetMap.getSubnetIp()/getNetworkId() will throw an exception",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3958fef9",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-22T18:36:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_4eb54430",
       "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +351,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_192b7a31",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-22T18:36:57Z",
+      "side": 1,
+      "message": "We cannot create a subnet without a creating a network first, so we expect the network field to always be present.",
+      "parentUuid": "fafc7978_aee83017",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ee407809",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
         "patchSetId": 6
@@ -200,6 +380,24 @@
       "writtenOn": "2017-03-20T14:14:03Z",
       "side": 1,
       "message": "See comments in publishSubnetAdded.\nRemove one \"d\" from \"deletedd\" method name.",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_59c0627c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-22T18:36:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_ee407809",
       "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -223,6 +421,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_99baca08",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-22T18:36:57Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "fafc7978_ee57d8c8",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4eff04ab",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 6
@@ -234,6 +450,24 @@
       "writtenOn": "2017-03-20T14:14:03Z",
       "side": 1,
       "message": "Why don\u0027t we use here the network name and pass null?\nThis vrfEntry is also for subnet no?",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b9618ed5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1547,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-22T18:36:57Z",
+      "side": 1,
+      "message": "It\u0027s indeed a subnet VrfEntry, but in BGPVPN usecase. I\u0027m not sure what should we pass here in this usecase",
+      "parentUuid": "fafc7978_4eff04ab",
       "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -257,6 +491,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_599222a0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-22T18:36:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_8e30cc9f",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6e192822",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 6
@@ -274,6 +526,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b9e6ae42",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1005,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-22T18:36:57Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "fafc7978_6e192822",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2ee60017",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkUtil.java",
         "patchSetId": 6
@@ -285,6 +555,24 @@
       "writtenOn": "2017-03-20T14:14:03Z",
       "side": 1,
       "message": "/* parentVpnRd */",
+      "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f9cf96b1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-22T18:36:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2ee60017",
       "revId": "3420abc030dd51dc2da15eb7ecda5d253d20d9bd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
