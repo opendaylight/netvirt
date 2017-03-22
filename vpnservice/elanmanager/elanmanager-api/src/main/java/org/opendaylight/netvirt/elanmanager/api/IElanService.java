@@ -11,6 +11,8 @@ package org.opendaylight.netvirt.elanmanager.api;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
+
+import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.netvirt.elanmanager.exceptions.MacNotFoundException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
@@ -67,4 +69,7 @@ public interface IElanService extends IEtreeService {
     ElanInterface getElanInterfaceByElanInterfaceName(String interfaceName);
 
     void handleKnownL3DmacAddress(String macAddress, String elanInstanceName, int addOrRemove);
+
+    List<MatchInfoBase> getEgressMatchesForElanInstance(String elanInstanceName);
+
 }
