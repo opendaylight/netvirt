@@ -9,6 +9,8 @@ package org.opendaylight.netvirt.elan.utils;
 
 import java.math.BigInteger;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg7;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 
 public class ElanConstants {
@@ -20,6 +22,7 @@ public class ElanConstants {
     public static final int ELAN_GID_MIN = 200000;
     public static final int ELAN_SERVICE_PRIORITY = 5;
     public static final int STATIC_MAC_TIMEOUT = 0;
+    public static final int ELAN_TAG_LENGTH = 16;
     public static final int INTERFACE_TAG_LENGTH = 20;
     public static final long DELAY_TIME_IN_MILLISECOND = 5000;
     public static final BigInteger INVALID_DPN = BigInteger.valueOf(-1);
@@ -41,4 +44,5 @@ public class ElanConstants {
     public static final int JOB_MAX_RETRIES = 6;
     public static final TopologyId OVSDB_TOPOLOGY_ID = new TopologyId(new Uri("ovsdb:1"));
     public static final String OVSDB_BRIDGE_URI_PREFIX = "bridge";
+    public static final Class<? extends NxmNxReg> ELAN_REG_ID = NxmNxReg7.class;
 }

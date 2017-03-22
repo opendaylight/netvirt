@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
  * bounded/unbounded.
  *
  */
+@SuppressWarnings("deprecation")
 @Singleton
 public class TunnelStateChangeListener
         extends AsyncDataTreeChangeListenerBase<StateTunnelList, TunnelStateChangeListener> {
@@ -196,7 +197,7 @@ public class TunnelStateChangeListener
 
     private static BoundServices getBoundServices(String tunnelInterfaceName, List<Instruction> instructions) {
         BoundServices boundServices = InterfaceServiceUtil.getBoundServices(tunnelInterfaceName,
-                NwConstants.EGRESS_POLICY_SERVICE_INDEX, PolicyServiceConstants.POLICY_DEFAULT_FLOW_PRIORITY,
+                NwConstants.EGRESS_POLICY_SERVICE_INDEX, PolicyServiceConstants.POLICY_DEFAULT_DISPATCHER_FLOW_PRIORITY,
                 NwConstants.EGRESS_POLICY_CLASSIFIER_COOKIE, instructions);
         return boundServices;
     }

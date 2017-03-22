@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
  * classifier added/removed or when the list of associated underlay networks is
  * updated
  */
+@SuppressWarnings("deprecation")
 @Singleton
 public class PolicyProfileChangeListener
         extends AsyncDataTreeChangeListenerBase<PolicyProfile, PolicyProfileChangeListener> {

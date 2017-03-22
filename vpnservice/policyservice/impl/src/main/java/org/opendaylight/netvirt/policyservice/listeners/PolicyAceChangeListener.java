@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
  * instruction with METADATA_MASK_POLICY_CLASSIFER_ID mask
  *
  */
+@SuppressWarnings("deprecation")
 @Singleton
 public class PolicyAceChangeListener extends AsyncDataTreeChangeListenerBase<Ace, PolicyAceChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(PolicyAceChangeListener.class);
