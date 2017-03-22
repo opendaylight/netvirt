@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_86c9c55c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-03-22T14:09:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_b0eec6b2",
+      "revId": "68a4d200dd83e5ded40aca6c1d10badd89276e12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_70f45e87",
         "filename": "/COMMIT_MSG",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-21T19:54:39Z",
       "side": 1,
       "message": "Please put full description in the bug report if you don\u0027t want to explain the problem in details in the commit messages",
+      "revId": "68a4d200dd83e5ded40aca6c1d10badd89276e12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_66c6614b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-03-22T14:09:37Z",
+      "side": 1,
+      "message": "Vinh,\nThank you for comment.\nI will update the problem in detail in bug report.",
+      "parentUuid": "fafc7978_70f45e87",
       "revId": "68a4d200dd83e5ded40aca6c1d10badd89276e12",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c6c3cd36",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-03-22T14:09:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_703bbe38",
+      "revId": "68a4d200dd83e5ded40aca6c1d10badd89276e12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_90d0e2f8",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/VLANProvider.java",
         "patchSetId": 4
@@ -64,6 +118,24 @@
       "writtenOn": "2017-03-21T19:54:39Z",
       "side": 1,
       "message": "See my latest comment in ConfigurationService",
+      "revId": "68a4d200dd83e5ded40aca6c1d10badd89276e12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_06ddd514",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/VLANProvider.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-03-22T14:09:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_90d0e2f8",
       "revId": "68a4d200dd83e5ded40aca6c1d10badd89276e12",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a6c0492b",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/ConfigurationService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-03-22T14:09:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_70cd7e5d",
+      "revId": "68a4d200dd83e5ded40aca6c1d10badd89276e12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d0da6a16",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/BridgeConfigurationManagerImpl.java",
         "patchSetId": 4
@@ -98,6 +188,24 @@
       "writtenOn": "2017-03-21T19:54:39Z",
       "side": 1,
       "message": "See my latest comment in ConfigurationService",
+      "revId": "68a4d200dd83e5ded40aca6c1d10badd89276e12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e6e1b1d1",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/BridgeConfigurationManagerImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-03-22T14:09:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d0da6a16",
       "revId": "68a4d200dd83e5ded40aca6c1d10badd89276e12",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
