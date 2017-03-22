@@ -340,16 +340,21 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
 
         @Override
         public List<ListenableFuture<Void>> call() throws Exception {
+            WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+            WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+            List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
 
             if(tunnelAction == TunnelAction.TUNNEL_EP_ADD) {
-                vpnInterfaceManager.updateVpnInterfaceOnTepAdd(vpnInterface, stateTunnelList);
+                vpnInterfaceManager.updateVpnInterfaceOnTepAdd(vpnInterface, stateTunnelList, writeConfigTxn, writeOperTxn);
             }
 
             if((tunnelAction == TunnelAction.TUNNEL_EP_DELETE) && isTepDeletedOnDpn) {
-                vpnInterfaceManager.updateVpnInterfaceOnTepDelete(vpnInterface, stateTunnelList);
+                vpnInterfaceManager.updateVpnInterfaceOnTepDelete(vpnInterface, stateTunnelList, writeConfigTxn, writeOperTxn);
             }
 
-            return null;
+            futures.add(writeOperTxn.submit());
+            futures.add(writeConfigTxn.submit());
+            return futures;
         }
     }
 
