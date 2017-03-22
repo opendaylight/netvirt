@@ -134,6 +134,12 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
+    public Long getVpnId(String vpnName) {
+        long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+        return vpnId != VpnConstants.INVALID_ID ? vpnId : null;
+    }
+
+    @Override
     public List<BigInteger> getDpnsOnVpn(String vpnInstanceName) {
         return VpnUtil.getDpnsOnVpn(dataBroker, vpnInstanceName);
     }
