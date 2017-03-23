@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_0da84d76",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/NetvirtProvider.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-03-23T16:13:45Z",
+      "side": 1,
+      "message": "So we end up adding empty strings if the port isn\u0027t there? Is that what the \"TODO fix\" above is about?\n\nAlso, new String() should just be \"\". But really this should return an Optional, and treat it as a collection in the interfaces.add() call above (which would become interfaces.addAll()).",
+      "revId": "0a034bc358223d5e6735fb9c0280bae578132e73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
