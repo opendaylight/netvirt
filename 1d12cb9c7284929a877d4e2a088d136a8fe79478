@@ -1,0 +1,197 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_08ecbec6",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-03-23T12:56:09Z",
+      "side": 1,
+      "message": "nit: Please replace this with the url to the SPEC",
+      "revId": "1d12cb9c7284929a877d4e2a088d136a8fe79478",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c808f693",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-03-23T12:56:09Z",
+      "side": 1,
+      "message": "Is this relevant? I dont see any reference to VPNs in [7]",
+      "range": {
+        "startLine": 87,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 32
+      },
+      "revId": "1d12cb9c7284929a877d4e2a088d136a8fe79478",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_280c2294",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-03-23T12:56:09Z",
+      "side": 1,
+      "message": "nit: s/mecanism/mechanism",
+      "revId": "1d12cb9c7284929a877d4e2a088d136a8fe79478",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c81636a7",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-03-23T12:56:09Z",
+      "side": 1,
+      "message": "nit: s/not/no",
+      "revId": "1d12cb9c7284929a877d4e2a088d136a8fe79478",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_08115eac",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-03-23T12:56:09Z",
+      "side": 1,
+      "message": "what about pipeline changes for the traffic from DCGW to Local DPN?",
+      "revId": "1d12cb9c7284929a877d4e2a088d136a8fe79478",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e85fba73",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-03-23T12:56:09Z",
+      "side": 1,
+      "message": "public-net?",
+      "revId": "1d12cb9c7284929a877d4e2a088d136a8fe79478",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_285a6283",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-03-23T12:56:09Z",
+      "side": 1,
+      "message": "nit: space",
+      "revId": "1d12cb9c7284929a877d4e2a088d136a8fe79478",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_085f9e73",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-03-23T12:56:09Z",
+      "side": 1,
+      "message": "nit: same",
+      "revId": "1d12cb9c7284929a877d4e2a088d136a8fe79478",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4850865e",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-03-23T12:56:09Z",
+      "side": 1,
+      "message": "nit: same",
+      "revId": "1d12cb9c7284929a877d4e2a088d136a8fe79478",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a84db2c6",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-03-23T12:56:09Z",
+      "side": 1,
+      "message": "nit: s/mecanism/mechanism",
+      "revId": "1d12cb9c7284929a877d4e2a088d136a8fe79478",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e8c69a15",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-03-23T12:56:09Z",
+      "side": 1,
+      "message": "you can remove all the text from Line 490 to the end of file.",
+      "revId": "1d12cb9c7284929a877d4e2a088d136a8fe79478",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
