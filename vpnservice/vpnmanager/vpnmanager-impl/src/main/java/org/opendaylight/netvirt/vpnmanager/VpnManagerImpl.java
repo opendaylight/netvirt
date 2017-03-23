@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -46,6 +47,7 @@ public class VpnManagerImpl implements IVpnManager {
     private final VpnFootprintService vpnFootprintService;
     private final OdlInterfaceRpcService ifaceMgrRpcService;
     private final IElanService elanService;
+    private final VpnSubnetRouteHandler vpnSubnetRouteHandler;
 
     public VpnManagerImpl(final DataBroker dataBroker,
                           final IdManagerService idManagerService,
@@ -54,7 +56,8 @@ public class VpnManagerImpl implements IVpnManager {
                           final IMdsalApiManager mdsalManager,
                           final VpnFootprintService vpnFootprintService,
                           final OdlInterfaceRpcService ifaceMgrRpcService,
-                          final IElanService elanService) {
+                          final IElanService elanService,
+                          final VpnSubnetRouteHandler vpnSubnetRouteHandler) {
         this.dataBroker = dataBroker;
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.vpnInstanceListener = vpnInstanceListener;
@@ -63,6 +66,7 @@ public class VpnManagerImpl implements IVpnManager {
         this.vpnFootprintService = vpnFootprintService;
         this.ifaceMgrRpcService = ifaceMgrRpcService;
         this.elanService = elanService;
+        this.vpnSubnetRouteHandler = vpnSubnetRouteHandler;
     }
 
     public void start() {
@@ -291,6 +295,16 @@ public class VpnManagerImpl implements IVpnManager {
         }
 
         return VpnUtil.getVpnId(dataBroker, vpnInstanceId.getValue());
+    }
+
+    @Override
+    public void onSubnetAddedToVpn(Subnetmap subnetmap, boolean isBgpVpn, Long elanTag) {
+        vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, isBgpVpn, elanTag);
+    }
+
+    @Override
+    public void onSubnetDeletedFromVpn(Subnetmap subnetmap, boolean isBgpVpn) {
+        vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmap, isBgpVpn);
     }
 
 }

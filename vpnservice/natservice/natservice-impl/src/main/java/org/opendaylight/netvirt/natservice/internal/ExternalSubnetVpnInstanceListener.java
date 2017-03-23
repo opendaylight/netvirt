@@ -10,18 +10,16 @@ package org.opendaylight.netvirt.natservice.internal;
 import com.google.common.base.Optional;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetAddedToVpnBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetDeletedFromVpnBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -33,16 +31,15 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
     private final DataBroker dataBroker;
     private final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer;
     private final IElanService elanService;
-    private final NotificationPublishService notificationPublishService;
+    private final IVpnManager vpnManager;
 
     public ExternalSubnetVpnInstanceListener(final DataBroker dataBroker,
             final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer,
-            final IElanService elanService,
-            final NotificationPublishService notificationPublishService) {
+            final IElanService elanService, final IVpnManager vpnManager) {
         this.dataBroker = dataBroker;
         this.snatDefaultRouteProgrammer = snatDefaultRouteProgrammer;
         this.elanService = elanService;
-        this.notificationPublishService = notificationPublishService;
+        this.vpnManager = vpnManager;
     }
 
     @Override
@@ -65,7 +62,7 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
                 new Uuid(possibleExtSubnetUuid));
         if (optionalSubnets.isPresent()) {
             addOrDelDefaultFibRouteToSNATFlow(vpnInstance, optionalSubnets.get(), NwConstants.DEL_FLOW);
-            publishSubnetDeletedFromVpn(possibleExtSubnetUuid);
+            invokeSubnetDeletedFromVpn(possibleExtSubnetUuid);
         }
     }
 
@@ -87,55 +84,27 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
             LOG.debug("NAT Service : VpnInstance {} for external subnet {}.", possibleExtSubnetUuid,
                     optionalSubnets.get());
             addOrDelDefaultFibRouteToSNATFlow(vpnInstance, optionalSubnets.get(), NwConstants.ADD_FLOW);
-            publishSubnetAddedToVpn(possibleExtSubnetUuid);
+            invokeSubnetAddedToVpn(possibleExtSubnetUuid);
         }
     }
 
-    private void publishSubnetAddedToVpn(String externalSubnetId) {
+    private void invokeSubnetAddedToVpn(String externalSubnetId) {
         Uuid externalSubnetUuid = new Uuid(externalSubnetId);
         Subnetmap subnetMap = NatUtil.getSubnetMap(dataBroker, externalSubnetUuid);
         if (subnetMap == null) {
-            LOG.error("Cannot publish SubnetAddedToVpn notification for subnet-id {} in vpn-id {}"
+            LOG.error("Cannot invoke onSubnetAddedToVpn for subnet-id {} in vpn-id {}"
                     + " due to this subnet missing in Subnetmap model", externalSubnetUuid, externalSubnetId);
             return;
         }
         ElanInstance elanInstance = elanService.getElanInstance(subnetMap.getNetworkId().getValue());
+        vpnManager.onSubnetAddedToVpn(subnetMap, false, elanInstance.getElanTag());
 
-        SubnetAddedToVpnBuilder builder = new SubnetAddedToVpnBuilder();
-        builder.setSubnetId(externalSubnetUuid);
-        builder.setSubnetIp(subnetMap.getSubnetIp());
-        builder.setVpnName(externalSubnetId);
-        builder.setBgpVpn(false);
-        builder.setElanTag(elanInstance.getElanTag());
-        LOG.trace("publish SubnetAddedToVpn for subnet {}", subnetMap);
-
-        try {
-            notificationPublishService.putNotification(builder.build());
-        } catch (InterruptedException e) {
-            LOG.error("Cannot publish SubnetAddedToVpn notification for subnet-id {} in vpn-id {}",
-                    externalSubnetUuid, externalSubnetId);
-        }
     }
 
-    private void publishSubnetDeletedFromVpn(String externalSubnetId) {
+    private void invokeSubnetDeletedFromVpn(String externalSubnetId) {
         Uuid externalSubnetUuid = new Uuid(externalSubnetId);
         Subnetmap subnetMap = NatUtil.getSubnetMap(dataBroker, externalSubnetUuid);
-        ElanInstance elanInstance = elanService.getElanInstance(subnetMap.getNetworkId().getValue());
-
-        SubnetDeletedFromVpnBuilder builder = new SubnetDeletedFromVpnBuilder();
-        builder.setSubnetId(externalSubnetUuid);
-        builder.setSubnetIp(subnetMap.getSubnetIp());
-        builder.setVpnName(externalSubnetId);
-        builder.setBgpVpn(false);
-        builder.setElanTag(elanInstance.getElanTag());
-        LOG.trace("publish SubnetDeletedFromVpn for subnet {}", subnetMap);
-
-        try {
-            notificationPublishService.putNotification(builder.build());
-        } catch (InterruptedException e) {
-            LOG.error("Cannot publish SubnetDeletedFromVpn notification for subnet-id {} in vpn-id {}",
-                    externalSubnetUuid, externalSubnetId);
-        }
+        vpnManager.onSubnetDeletedFromVpn(subnetMap, false);
     }
 
     private void addOrDelDefaultFibRouteToSNATFlow(VpnInstance vpnInstance, Subnets subnet, int flowAction) {
