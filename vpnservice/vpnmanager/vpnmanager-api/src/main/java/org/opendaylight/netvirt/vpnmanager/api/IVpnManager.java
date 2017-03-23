@@ -17,6 +17,7 @@ import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 
 public interface IVpnManager {
     void setFibManager(IFibManager fibManager);
@@ -68,6 +69,10 @@ public interface IVpnManager {
     void setupArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String routerGwMac,
             BigInteger dpnId, long vpnId, String extInterfaceName, int lportTag, WriteTransaction writeTx,
             int addOrRemove);
+
+    void onSubnetAddedToVpn(Subnetmap subnetmap, boolean isBgpVpn, Long elanTag);
+
+    void onSubnetDeletedFromVpn(Subnetmap subnetmap, boolean isBgpVpn);
 
     List<MatchInfoBase> getEgressMatchesForVpn(String vpnName);
 

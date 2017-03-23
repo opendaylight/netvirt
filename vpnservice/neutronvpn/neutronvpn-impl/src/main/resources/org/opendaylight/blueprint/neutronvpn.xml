@@ -113,16 +113,8 @@
     <argument ref="dataBroker" />
     <argument ref="neutronvpnManager" />
     <argument ref="neutronvpnNatManager" />
-    <argument ref="notificationPublishService" />
     <argument ref="neutronSubnetGwMacResolver" />
     <argument ref="elanService" />
-  </bean>
-
-  <bean id="neutronvpnSubnetmapListener"
-        class="org.opendaylight.netvirt.neutronvpn.SubnetmapChangeListener"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="notificationPublishService" />
   </bean>
 
   <bean id="neutronSubnetGwMacResolver"
