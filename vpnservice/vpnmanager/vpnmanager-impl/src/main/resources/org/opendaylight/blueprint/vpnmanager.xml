@@ -159,9 +159,6 @@
     <argument ref="lockManagerService" />
     <argument ref="vpnOpDataSyncer"/>
   </bean>
-  <service ref="vpnSubnetRouteHandler" odl:type="default"
-           interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnListener" />
-  <odl:notification-listener ref="vpnSubnetRouteHandler" />
 
   <bean id="tunnelInterfaceStateListener"
         class="org.opendaylight.netvirt.vpnmanager.TunnelInterfaceStateListener"
@@ -333,5 +330,12 @@
     <argument ref="vpnInterfaceManager" />
     <argument ref="bgpmanager" />
     <argument ref="fibManager" />
+  </bean>
+
+  <bean id="subnetmapChangeListener"
+        class="org.opendaylight.netvirt.vpnmanager.SubnetmapChangeListener"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="vpnSubnetRouteHandler" />
   </bean>
 </blueprint>
