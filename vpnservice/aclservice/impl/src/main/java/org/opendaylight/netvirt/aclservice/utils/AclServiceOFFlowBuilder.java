@@ -18,6 +18,7 @@ import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv4;
@@ -324,6 +325,17 @@ public class AclServiceOFFlowBuilder {
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionDrop());
+        instructions.add(new InstructionApplyActions(actionsInfos));
+        return instructions;
+    }
+
+    /** Returns resubmit instruction info to the given tableId
+     * @return resubmit list of InstructionInfo objects
+     */
+    public static List<InstructionInfo> getResubmitInstructionInfo(short tableId) {
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionNxResubmit(tableId));
         instructions.add(new InstructionApplyActions(actionsInfos));
         return instructions;
     }
