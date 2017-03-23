@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -60,21 +59,18 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     private final DataBroker dataBroker;
     private final NeutronvpnManager nvpnManager;
     private final NeutronvpnNatManager nvpnNatManager;
-    private final NotificationPublishService notificationPublishService;
     private final NeutronSubnetGwMacResolver gwMacResolver;
     private final IElanService elanService;
 
     public NeutronPortChangeListener(final DataBroker dataBroker,
                                      final NeutronvpnManager neutronvpnManager,
                                      final NeutronvpnNatManager neutronvpnNatManager,
-                                     final NotificationPublishService notiPublishService,
                                      final NeutronSubnetGwMacResolver gwMacResolver,
                                      final IElanService elanService) {
         super(Port.class, NeutronPortChangeListener.class);
         this.dataBroker = dataBroker;
         nvpnManager = neutronvpnManager;
         nvpnNatManager = neutronvpnNatManager;
-        notificationPublishService = notiPublishService;
         this.gwMacResolver = gwMacResolver;
         this.elanService = elanService;
     }
