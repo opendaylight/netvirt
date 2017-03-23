@@ -250,6 +250,7 @@
     <argument ref="interfaceManager" />
     <argument ref="elanService" />
     <argument ref="elanConfig" />
+    <argument ref="elanBridgeManager" />
   </bean>
 
   <bean id="ElanDpnToTransportZoneListener"
