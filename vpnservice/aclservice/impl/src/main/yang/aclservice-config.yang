@@ -23,6 +23,12 @@ module aclservice-config {
             default "stateful";
         }
 
+        leaf deny-by-default {
+            description "If true, the acl default rule will deny (drop) all packets";
+            type boolean;
+            default true;
+        }
+
         leaf security-group-tcp-idle-timeout {
             type uint16;
             default 18000;

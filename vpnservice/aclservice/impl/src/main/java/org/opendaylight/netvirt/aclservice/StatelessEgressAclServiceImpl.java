@@ -26,7 +26,10 @@ import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Actions;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.packet.handling.Deny;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.AceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
@@ -92,28 +95,32 @@ public class StatelessEgressAclServiceImpl extends AbstractEgressAclServiceImpl 
             if (hasTcpMatch || protocol == null) {
                 flowName += "Egress" + lportTag + ace.getKey().getRuleName();
                 flowMatches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
-
-                programAllowSynRules(dpId, flowName, flowMatches, addOrRemove, protocol);
+                programSynRules(dpId, flowName, flowMatches, addOrRemove, protocol, ace.getActions());
             }
         }
     }
 
-    private void programAllowSynRules(BigInteger dpId, String origFlowName,
-            List<MatchInfoBase> origFlowMatches, int addFlow, Short protocol) {
+    private void programSynRules(BigInteger dpId, String origFlowName,
+            List<MatchInfoBase> origFlowMatches, int addFlow, Short protocol, Actions actions) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         flowMatches.addAll(origFlowMatches);
         if (new Short((short) NwConstants.IP_PROT_TCP).equals(protocol)) {
             flowMatches.add(MatchTcpFlags.SYN);
         }
 
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
+        List<InstructionInfo> instructions = null;
+        if (actions.getPacketHandling() instanceof Permit) {
+            List<ActionInfo> actionsInfos = new ArrayList<>();
+            instructions = getDispatcherTableResubmitInstructions(actionsInfos);
+        } else if (actions.getPacketHandling() instanceof Deny) {
+            instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+        }
 
         String flowName = "SYN_" + origFlowName;
         syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_SYN_ALLOW_PRIORITY,
                 "ACL_SYN_", 0, 0, AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addFlow);
         String oper = getOperAsString(addFlow);
-        LOG.debug("{} allow syn packet flow {}", oper, flowName);
+        String packetHandlingStr = getPacketHandlingAsString(actions.getPacketHandling());
+        LOG.debug("{} {} syn packet flow {}", oper, packetHandlingStr, flowName);
     }
-
 }

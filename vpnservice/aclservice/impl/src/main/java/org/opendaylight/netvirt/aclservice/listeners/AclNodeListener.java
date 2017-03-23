@@ -121,16 +121,17 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
     private void createTableDefaultEntries(BigInteger dpnId) {
         LOG.info("Adding default ACL entries for mode: "
                 + (securityGroupMode == null ? SecurityGroupMode.Stateful : securityGroupMode));
-        if (securityGroupMode == null || securityGroupMode == SecurityGroupMode.Stateful) {
+
+        if (!config.isDenyByDefault() || securityGroupMode == SecurityGroupMode.Transparent) {
+            addTransparentIngressAclTableMissFlow(dpnId);
+            addTransparentEgressAclTableMissFlow(dpnId);
+        } else if (securityGroupMode == null || securityGroupMode == SecurityGroupMode.Stateful) {
             addIngressAclTableMissFlow(dpnId);
             addEgressAclTableMissFlow(dpnId);
             addConntrackRules(dpnId, NwConstants.LPORT_DISPATCHER_TABLE, NwConstants.INGRESS_ACL_FILTER_TABLE,
                     NwConstants.ADD_FLOW);
             addConntrackRules(dpnId, NwConstants.EGRESS_LPORT_DISPATCHER_TABLE, NwConstants.EGRESS_ACL_FILTER_TABLE,
                     NwConstants.ADD_FLOW);
-        } else if (securityGroupMode == SecurityGroupMode.Transparent) {
-            addTransparentIngressAclTableMissFlow(dpnId);
-            addTransparentEgressAclTableMissFlow(dpnId);
         } else if (securityGroupMode == SecurityGroupMode.Stateless) {
             addStatelessIngressAclTableMissFlow(dpnId);
             addStatelessEgressAclTableMissFlow(dpnId);

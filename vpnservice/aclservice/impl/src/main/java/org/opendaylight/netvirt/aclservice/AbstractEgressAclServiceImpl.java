@@ -13,6 +13,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -199,6 +200,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
             LOG.error("Failed to apply ACL {} lportTag {}", ace.getKey(), lportTag);
             return;
         }
+
         for (String flowName : flowMap.keySet()) {
             syncSpecificAclFlow(dpId, lportTag, addOrRemove, ace, portId, flowMap, flowName);
         }
