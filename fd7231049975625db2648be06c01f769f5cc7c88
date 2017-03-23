@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_921c5fc3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-23T09:48:04Z",
+      "side": 0,
+      "message": "Don\u0027t delete it, check also if bgpVpn use-case. \nYou can copy from my review",
+      "range": {
+        "startLine": 165,
+        "startChar": 16,
+        "endLine": 169,
+        "endChar": 17
+      },
+      "revId": "fd7231049975625db2648be06c01f769f5cc7c88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f2784bfa",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-23T09:48:04Z",
+      "side": 0,
+      "message": "Don\u0027t delete this",
+      "range": {
+        "startLine": 364,
+        "startChar": 11,
+        "endLine": 364,
+        "endChar": 43
+      },
+      "revId": "fd7231049975625db2648be06c01f769f5cc7c88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d27d47e9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-23T09:48:04Z",
+      "side": 0,
+      "message": "Same comment and above",
+      "range": {
+        "startLine": 371,
+        "startChar": 12,
+        "endLine": 371,
+        "endChar": 38
+      },
+      "revId": "fd7231049975625db2648be06c01f769f5cc7c88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

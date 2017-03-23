@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_12886fe6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRoutePacketInHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-23T09:48:04Z",
+      "side": 1,
+      "message": "Don\u0027t assume it\u0027s an ARP packet. \nWhat do you think about subnet_route_packet_decode_failed ?",
+      "range": {
+        "startLine": 86,
+        "startChar": 55,
+        "endLine": 86,
+        "endChar": 58
+      },
+      "revId": "c79e1fe52610c9586e6555d94bd833af74e06ecf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_92e1ff9c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRoutePacketInHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-23T09:48:04Z",
+      "side": 1,
+      "message": "Lets put here a different counter.\nI\u0027m thinking about a case that we already learnt the MAC of the PNF but for some reason the rules weren\u0027t installed correctly, this case is not a regular \"ignore\" packet..",
+      "range": {
+        "startLine": 134,
+        "startChar": 24,
+        "endLine": 134,
+        "endChar": 76
+      },
+      "revId": "c79e1fe52610c9586e6555d94bd833af74e06ecf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_12bb4f73",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRoutePacketInHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-23T09:48:04Z",
+      "side": 1,
+      "message": "I\u0027m kinda worry about a burst of packets (let\u0027s say, UDP packets) this will flood the log.\nWhat do you think about a counter?",
+      "range": {
+        "startLine": 155,
+        "startChar": 19,
+        "endLine": 155,
+        "endChar": 28
+      },
+      "revId": "c79e1fe52610c9586e6555d94bd833af74e06ecf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_72af3b2c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRoutePacketInHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-23T09:48:04Z",
+      "side": 1,
+      "message": "Refactor to a method, handleBgpVpnSubnetRoute maybe?",
+      "range": {
+        "startLine": 154,
+        "startChar": 0,
+        "endLine": 167,
+        "endChar": 20
+      },
+      "revId": "c79e1fe52610c9586e6555d94bd833af74e06ecf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_927d7fb4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRoutePacketInHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-23T09:48:04Z",
+      "side": 1,
+      "message": "Log is case of empty?",
+      "range": {
+        "startLine": 279,
+        "startChar": 11,
+        "endLine": 279,
+        "endChar": 40
+      },
+      "revId": "c79e1fe52610c9586e6555d94bd833af74e06ecf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
