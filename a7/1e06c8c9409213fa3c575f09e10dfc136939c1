@@ -1,0 +1,8 @@
+Code-Review+2: Sam Hague <shague@redhat.com>
+Verified+1: Sam Hague <shague@redhat.com>
+Code-Review+2: Vivekanandan Narasimhan <n.vivekanandan@ericsson.com>
+Submitted-by: Thanh Ha <thanh.ha@linuxfoundation.org>
+Submitted-at: Thu, 23 Mar 2017 17:40:43 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/53592
+Project: netvirt
+Branch: refs/heads/stable/boron
