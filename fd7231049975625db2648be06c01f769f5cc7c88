@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_2d571404",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-03-23T11:15:38Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "fafc7978_921c5fc3",
+      "range": {
+        "startLine": 165,
+        "startChar": 16,
+        "endLine": 169,
+        "endChar": 17
+      },
+      "revId": "fd7231049975625db2648be06c01f769f5cc7c88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f2784bfa",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 12
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6d40fc35",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-03-23T11:15:38Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "fafc7978_f2784bfa",
+      "range": {
+        "startLine": 364,
+        "startChar": 11,
+        "endLine": 364,
+        "endChar": 43
+      },
+      "revId": "fd7231049975625db2648be06c01f769f5cc7c88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d27d47e9",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 12
@@ -59,6 +107,30 @@
       "writtenOn": "2017-03-23T09:48:04Z",
       "side": 0,
       "message": "Same comment and above",
+      "range": {
+        "startLine": 371,
+        "startChar": 12,
+        "endLine": 371,
+        "endChar": 38
+      },
+      "revId": "fd7231049975625db2648be06c01f769f5cc7c88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4d3d38bb",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-03-23T11:15:38Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "fafc7978_d27d47e9",
       "range": {
         "startLine": 371,
         "startChar": 12,
