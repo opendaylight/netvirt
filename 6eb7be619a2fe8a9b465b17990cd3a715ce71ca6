@@ -16,6 +16,24 @@
       "revId": "6eb7be619a2fe8a9b465b17990cd3a715ce71ca6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b29ec361",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1519,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-03-23T09:02:06Z",
+      "side": 1,
+      "message": "In case of \"extra route prefix still present in some DPNs\", it has to be returned so having these statements here itself.",
+      "parentUuid": "fafc7978_12cfcfb1",
+      "revId": "6eb7be619a2fe8a9b465b17990cd3a715ce71ca6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
