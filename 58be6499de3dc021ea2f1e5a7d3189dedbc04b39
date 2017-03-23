@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_8d9c3d5f",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-23T17:43:59Z",
+      "side": 1,
+      "message": "nit: this method can reuse code from the one above",
+      "revId": "58be6499de3dc021ea2f1e5a7d3189dedbc04b39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
