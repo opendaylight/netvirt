@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_0ab95315",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/OpenFlow13Utils.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-03-23T13:59:08Z",
+      "side": 1,
+      "message": "Having state here means this should be a service managed by BP (at least for anything using flowIdInc).\n\nMost of the methods here are fine for a static utility class, my objection is just to the static field here (and its users).",
+      "revId": "9b18e9841c30829e1f31c0cb47730d2f0faf7c7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0a5dd315",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/OpenFlow13Utils.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-03-23T13:59:08Z",
+      "side": 1,
+      "message": "Please don\u0027t use String.valueOf() on strings...",
+      "revId": "9b18e9841c30829e1f31c0cb47730d2f0faf7c7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_aaa5a705",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/OpenFlow13Utils.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-03-23T13:59:08Z",
+      "side": 1,
+      "message": "new ArrayList\u003c\u003e();",
+      "revId": "9b18e9841c30829e1f31c0cb47730d2f0faf7c7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
