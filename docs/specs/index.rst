@@ -21,6 +21,7 @@ Contents:
    Enhancement to VLAN provider network support <vlan-provider-enhancement>
    Hairpinning of floating IPs in flat/VLAN provider networks <hairpinning-flat-vlan>
    IPv6 Inter Data Center connectivity using L3VPN <ipv6-interdc-l3vpn>
+   IPv6 Inter Data Center connectivity using L3VPN EVPN RT5 provider network type <ipv6-interdc-evpn_rt5>
    IPv6 L3 North-South support for Flat/VLAN based Provider Networks <ipv6-cvr-north-south>
    Listener Dependency Helper, avoids waiting for dependent IID <listener-dependency-helper>
    Netvirt counters <netvirt-statistics-spec>
