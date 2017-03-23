@@ -1,3 +1,4 @@
 <aclservice-config xmlns="urn:opendaylight:netvirt:aclservice-config">
   <security-group-mode>stateful</security-group-mode>
+  <deny-by-default>true</deny-by-default>
 </aclservice-config>
