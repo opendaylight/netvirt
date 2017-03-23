@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_cb13e60b",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2017-03-23T08:19:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_07917352",
+      "revId": "b33db9216c6d974ac5ee7b0233c58448aa6583a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_679e7f65",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-16T13:29:23Z",
       "side": 1,
       "message": "same",
+      "revId": "b33db9216c6d974ac5ee7b0233c58448aa6583a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2bf8b2c3",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2017-03-23T08:19:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_679e7f65",
       "revId": "b33db9216c6d974ac5ee7b0233c58448aa6583a2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +123,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ab04a2c6",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2017-03-23T08:19:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e73a6fe6",
+      "revId": "b33db9216c6d974ac5ee7b0233c58448aa6583a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c73f6bd5",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
         "patchSetId": 6
@@ -104,6 +158,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8b09dedf",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2017-03-23T08:19:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c73f6bd5",
+      "revId": "b33db9216c6d974ac5ee7b0233c58448aa6583a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_95161fa6",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractIngressAclServiceImpl.java",
         "patchSetId": 6
@@ -115,6 +187,30 @@
       "writtenOn": "2017-03-20T08:49:05Z",
       "side": 1,
       "message": "Please enforce this logic using a constant, and a utility instead of putting size() \u003e 1 everywhere",
+      "range": {
+        "startLine": 229,
+        "startChar": 51,
+        "endLine": 229,
+        "endChar": 86
+      },
+      "revId": "b33db9216c6d974ac5ee7b0233c58448aa6583a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_77244dc6",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractIngressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2017-03-23T08:19:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_95161fa6",
       "range": {
         "startLine": 229,
         "startChar": 51,
@@ -150,6 +246,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_770bad2b",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclDataUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2017-03-23T08:19:45Z",
+      "side": 1,
+      "message": "I didn\u0027t want to change structures. because it will cause many changes in the code in functions that uses this list strucure",
+      "parentUuid": "fafc7978_353e532a",
+      "range": {
+        "startLine": 43,
+        "startChar": 29,
+        "endLine": 43,
+        "endChar": 55
+      },
+      "revId": "b33db9216c6d974ac5ee7b0233c58448aa6583a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_75da9b18",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
         "patchSetId": 6
@@ -161,6 +281,30 @@
       "writtenOn": "2017-03-20T08:49:05Z",
       "side": 1,
       "message": "buildRemoteAclMetadataMatch",
+      "range": {
+        "startLine": 531,
+        "startChar": 39,
+        "endLine": 531,
+        "endChar": 57
+      },
+      "revId": "b33db9216c6d974ac5ee7b0233c58448aa6583a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_120eaf34",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2017-03-23T08:19:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_75da9b18",
       "range": {
         "startLine": 531,
         "startChar": 39,
@@ -230,6 +374,30 @@
       "writtenOn": "2017-03-20T08:49:05Z",
       "side": 1,
       "message": "What is this required for, where do you need to add lport to an existing metadata match?\n\nIn any case we shouldn\u0027t implement such a utility here, and there are better ways to directly modify the metadata, we can create it in advance with both (see MetaDataUtil.java)\n\nAlso I believe Faseela is planning to remove the lport from the metadata match, FYI",
+      "range": {
+        "startLine": 563,
+        "startChar": 23,
+        "endLine": 563,
+        "endChar": 39
+      },
+      "revId": "b33db9216c6d974ac5ee7b0233c58448aa6583a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_12250fab",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 563,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2017-03-23T08:19:45Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "fafc7978_d502676e",
       "range": {
         "startLine": 563,
         "startChar": 23,
