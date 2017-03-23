@@ -70,6 +70,24 @@
       "revId": "53533d6a8f73c177d08471c0c9782b19601060a6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2a4b775a",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBase.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-03-23T13:39:18Z",
+      "side": 1,
+      "message": "@Michael,\nAs there is a separate mail thread going on about changing TestIMdsalApiManager implementation to assert flows correctly, there is no point in moving assertFlowsIgnoreDuplicates to TestIMdsalApiManager till then. I can update AclServiceTestBase in a new patch once all the concerns are addressed in TestIMdsalApiManager.",
+      "parentUuid": "fafc7978_7108f991",
+      "revId": "53533d6a8f73c177d08471c0c9782b19601060a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
