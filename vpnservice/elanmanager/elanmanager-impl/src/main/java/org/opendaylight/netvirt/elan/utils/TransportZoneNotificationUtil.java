@@ -11,7 +11,9 @@ import com.google.common.base.Optional;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -49,6 +51,10 @@ public class TransportZoneNotificationUtil {
     private static final Logger LOG = LoggerFactory.getLogger(TransportZoneNotificationUtil.class);
     private static final String TUNNEL_PORT = "tunnel_port";
     private static final String LOCAL_IP = "local_ip";
+    private static final String LOCAL_IPS = "local_ips";
+    private static final String LOCAL_IPS_DELIMITER = ",";
+    private static final String LOCAL_IPS_IP_TO_NET_DELIMITER = ":";
+    private static final String IP_NETWORK_ZONE_NAME_DELIMITER = "-";
     private static final String ALL_SUBNETS_GW = "0.0.0.0";
     private static final String ALL_SUBNETS = "0.0.0.0/0";
     private final DataBroker dataBroker;
@@ -105,8 +111,23 @@ public class TransportZoneNotificationUtil {
         LOG.info("Transport zone {} updated due to dpn {} handling.", zone.getZoneName(), dpnId);
     }
 
+    public void updateTransportZone(String zoneNamePrefix, BigInteger dpnId) {
+        Map<String, String> localIps = getLocalIps(dpnId);
+        if (localIps != null) {
+            LOG.debug("Will use local_ips for transport zone update for dpn {} and zone name prefix {}",
+                    dpnId, zoneNamePrefix);
+            for (String localIp : localIps.keySet()) {
+                String underlayNetworkName = localIps.get(localIp);
+                String zoneName = zoneNamePrefix + IP_NETWORK_ZONE_NAME_DELIMITER + underlayNetworkName;
+                updateTransportZone(zoneName, dpnId, localIp);
+            }
+        } else {
+            updateTransportZone(zoneNamePrefix, dpnId, null);
+        }
+    }
+
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void updateTransportZone(String zoneName, BigInteger dpnId) {
+    private void updateTransportZone(String zoneName, BigInteger dpnId, String localIp) {
         InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zoneName));
 
@@ -118,7 +139,7 @@ public class TransportZoneNotificationUtil {
         }
 
         try {
-            if (addVtep(zone, ALL_SUBNETS, dpnId)) {
+            if (addVtep(zone, ALL_SUBNETS, dpnId, localIp)) {
                 updateTransportZone(zone, dpnId);
             }
         } catch (Exception e) {
@@ -126,12 +147,13 @@ public class TransportZoneNotificationUtil {
         }
     }
 
+
     /**
      * Tries to add a vtep for a transport zone.
      *
      * @return Whether a vtep was added or not.
      */
-    private boolean addVtep(TransportZone zone, String subnetIp, BigInteger dpnId) throws Exception {
+    private boolean addVtep(TransportZone zone, String subnetIp, BigInteger dpnId, String localIp) {
         Subnets subnets = getOrAddSubnet(zone.getSubnets(), subnetIp);
         for (Vteps existingVtep : subnets.getVteps()) {
             if (existingVtep.getDpnId().equals(dpnId)) {
@@ -139,14 +161,13 @@ public class TransportZoneNotificationUtil {
             }
         }
 
-        Optional<IpAddress> nodeIp = getNodeIP(dpnId);
-
+        Optional<IpAddress> nodeIp = localIp != null ? Optional.of(new IpAddress(localIp.toCharArray())) :
+            getNodeIP(dpnId);
         if (nodeIp.isPresent()) {
             VtepsBuilder vtepsBuilder =
                     new VtepsBuilder().setDpnId(dpnId).setIpAddress(nodeIp.get()).setPortname(TUNNEL_PORT)
                     .setOptionOfTunnel(elanConfig.isUseOfTunnels());
             subnets.getVteps().add(vtepsBuilder.build());
-
             return true;
         }
 
@@ -180,7 +201,7 @@ public class TransportZoneNotificationUtil {
         return subnetsBuilder.build();
     }
 
-    private Optional<IpAddress> getNodeIP(BigInteger dpId) throws Exception {
+    private Optional<IpAddress> getNodeIP(BigInteger dpId) {
         Optional<Node> node = getPortsNode(dpId);
 
         if (node.isPresent()) {
@@ -196,8 +217,31 @@ public class TransportZoneNotificationUtil {
         return Optional.absent();
     }
 
+    public Map<String, String> getLocalIps(BigInteger dpId) {
+        Optional<Node> node;
+        node = getPortsNode(dpId);
+        if (node.isPresent()) {
+            String localIpsString = southBoundUtils.getOpenvswitchOtherConfig(node.get(), LOCAL_IPS);
+            LOG.trace("Got local_ips {} for dpn {}", localIpsString, dpId);
+            if (localIpsString != null) {
+                HashMap<String, String> localIpsInfo = new HashMap<>();
+                String[] localIpsArray = localIpsString.split(LOCAL_IPS_DELIMITER);
+                for (String localIp : localIpsArray) {
+                    String[] ipToNet = localIp.split(LOCAL_IPS_IP_TO_NET_DELIMITER);
+                    if (ipToNet.length == 2) {
+                        localIpsInfo.put(ipToNet[0], ipToNet[1]);
+                    }
+                }
+
+                return localIpsInfo;
+            }
+        }
+
+        return null;
+    }
+
     @SuppressWarnings("unchecked")
-    private Optional<Node> getPortsNode(BigInteger dpnId) throws Exception {
+    private Optional<Node> getPortsNode(BigInteger dpnId) {
         InstanceIdentifier<BridgeRefEntry> bridgeRefInfoPath = InstanceIdentifier.create(BridgeRefInfo.class)
                 .child(BridgeRefEntry.class, new BridgeRefEntryKey(dpnId));
 
