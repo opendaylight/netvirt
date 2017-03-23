@@ -12,12 +12,14 @@ import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.netvirt.elan.internal.ElanBridgeManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
@@ -49,6 +51,8 @@ public class TransportZoneNotificationUtil {
     private static final Logger LOG = LoggerFactory.getLogger(TransportZoneNotificationUtil.class);
     private static final String TUNNEL_PORT = "tunnel_port";
     private static final String LOCAL_IP = "local_ip";
+    private static final String LOCAL_IPS = "local_ips";
+    private static final String IP_NETWORK_ZONE_NAME_DELIMITER = "-";
     private static final String ALL_SUBNETS_GW = "0.0.0.0";
     private static final String ALL_SUBNETS = "0.0.0.0/0";
     private final DataBroker dataBroker;
@@ -56,13 +60,15 @@ public class TransportZoneNotificationUtil {
     private final SouthboundUtils southBoundUtils;
     private final IElanService elanService;
     private final ElanConfig elanConfig;
+    private final ElanBridgeManager elanBridgeManager;
 
     public TransportZoneNotificationUtil(final DataBroker dbx, final IInterfaceManager interfaceManager,
-            final IElanService elanService, final ElanConfig elanConfig) {
+            final IElanService elanService, final ElanConfig elanConfig, final ElanBridgeManager elanBridgeManager) {
         this.dataBroker = dbx;
         this.mdsalUtils = new MdsalUtils(dbx);
         this.elanService = elanService;
         this.elanConfig = elanConfig;
+        this.elanBridgeManager = elanBridgeManager;
         southBoundUtils = new SouthboundUtils(mdsalUtils);
     }
 
@@ -105,8 +111,23 @@ public class TransportZoneNotificationUtil {
         LOG.info("Transport zone {} updated due to dpn {} handling.", zone.getZoneName(), dpnId);
     }
 
+    public void updateTransportZone(String zoneNamePrefix, BigInteger dpnId) {
+        Map<String, String> localIps = getDpnLocalIps(dpnId);
+        if (localIps != null && !localIps.isEmpty()) {
+            LOG.debug("Will use local_ips for transport zone update for dpn {} and zone name prefix {}",
+                    dpnId, zoneNamePrefix);
+            for (String localIp : localIps.keySet()) {
+                String underlayNetworkName = localIps.get(localIp);
+                String zoneName = zoneNamePrefix + IP_NETWORK_ZONE_NAME_DELIMITER + underlayNetworkName;
+                updateTransportZone(zoneName, dpnId, localIp);
+            }
+        } else {
+            updateTransportZone(zoneNamePrefix, dpnId, getDpnLocalIp(dpnId));
+        }
+    }
+
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void updateTransportZone(String zoneName, BigInteger dpnId) {
+    private void updateTransportZone(String zoneName, BigInteger dpnId, String localIp) {
         InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zoneName));
 
@@ -118,7 +139,7 @@ public class TransportZoneNotificationUtil {
         }
 
         try {
-            if (addVtep(zone, ALL_SUBNETS, dpnId)) {
+            if (addVtep(zone, ALL_SUBNETS, dpnId, localIp)) {
                 updateTransportZone(zone, dpnId);
             }
         } catch (Exception e) {
@@ -126,12 +147,13 @@ public class TransportZoneNotificationUtil {
         }
     }
 
+
     /**
      * Tries to add a vtep for a transport zone.
      *
      * @return Whether a vtep was added or not.
      */
-    private boolean addVtep(TransportZone zone, String subnetIp, BigInteger dpnId) throws Exception {
+    private boolean addVtep(TransportZone zone, String subnetIp, BigInteger dpnId, String localIp) {
         Subnets subnets = getOrAddSubnet(zone.getSubnets(), subnetIp);
         for (Vteps existingVtep : subnets.getVteps()) {
             if (existingVtep.getDpnId().equals(dpnId)) {
@@ -139,15 +161,15 @@ public class TransportZoneNotificationUtil {
             }
         }
 
-        Optional<IpAddress> nodeIp = getNodeIP(dpnId);
-
-        if (nodeIp.isPresent()) {
-            VtepsBuilder vtepsBuilder =
-                    new VtepsBuilder().setDpnId(dpnId).setIpAddress(nodeIp.get()).setPortname(TUNNEL_PORT)
-                    .setOptionOfTunnel(elanConfig.isUseOfTunnels());
-            subnets.getVteps().add(vtepsBuilder.build());
-
-            return true;
+        if (localIp != null) {
+            Optional<IpAddress> nodeIp = Optional.of(new IpAddress(localIp.toCharArray()));
+            if (nodeIp.isPresent()) {
+                VtepsBuilder vtepsBuilder =
+                        new VtepsBuilder().setDpnId(dpnId).setIpAddress(nodeIp.get()).setPortname(TUNNEL_PORT)
+                        .setOptionOfTunnel(elanConfig.isUseOfTunnels());
+                subnets.getVteps().add(vtepsBuilder.build());
+                return true;
+            }
         }
 
         return false;
@@ -180,7 +202,7 @@ public class TransportZoneNotificationUtil {
         return subnetsBuilder.build();
     }
 
-    private Optional<IpAddress> getNodeIP(BigInteger dpId) throws Exception {
+    private String getDpnLocalIp(BigInteger dpId) {
         Optional<Node> node = getPortsNode(dpId);
 
         if (node.isPresent()) {
@@ -189,15 +211,27 @@ public class TransportZoneNotificationUtil {
                 LOG.error("missing local_ip key in ovsdb:openvswitch-other-configs in operational"
                         + " network-topology for node: " + node.get().getNodeId().getValue());
             } else {
-                return Optional.of(new IpAddress(localIp.toCharArray()));
+                return localIp;
             }
         }
 
-        return Optional.absent();
+        return null;
+    }
+
+    private Map<String, String> getDpnLocalIps(BigInteger dpId) {
+        // Example of local IPs from other_config:
+        // local_ips="10.0.43.159:MPLS,11.11.11.11:DSL,ip:underlay-network"
+        Optional<Node> node;
+        node = getPortsNode(dpId);
+        if (node.isPresent()) {
+            return elanBridgeManager.getOpenvswitchOtherConfigMap(node.get(), LOCAL_IPS);
+        }
+
+        return null;
     }
 
     @SuppressWarnings("unchecked")
-    private Optional<Node> getPortsNode(BigInteger dpnId) throws Exception {
+    private Optional<Node> getPortsNode(BigInteger dpnId) {
         InstanceIdentifier<BridgeRefEntry> bridgeRefInfoPath = InstanceIdentifier.create(BridgeRefInfo.class)
                 .child(BridgeRefEntry.class, new BridgeRefEntryKey(dpnId));
 
