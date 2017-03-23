@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_12cfcfb1",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1519,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-23T08:23:01Z",
+      "side": 1,
+      "message": "The code 1518-1532 is being duplicated in multiple places, so move it to a common method.",
+      "revId": "6eb7be619a2fe8a9b465b17990cd3a715ce71ca6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
