@@ -29,6 +29,7 @@ import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
@@ -77,8 +78,13 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
 
         Long elanId = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionNxConntrack(2, 1, 0, elanId.intValue(), (short) 255));
-        List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
+        List<InstructionInfo> instructions;
+        if (ace.getActions() != null && ace.getActions().getPacketHandling() instanceof Permit) {
+            actionsInfos.add(new ActionNxConntrack(2, 1, 0, elanId.intValue(), (short) 255));
+            instructions = getDispatcherTableResubmitInstructions(actionsInfos);
+        } else {
+            instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+        }
 
         // For flows related remote ACL, unique flow priority is used for
         // each flow to avoid overlapping flows

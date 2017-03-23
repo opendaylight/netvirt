@@ -16,6 +16,7 @@ import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
 import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
@@ -25,6 +26,7 @@ import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +52,12 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
         List<MatchInfoBase> flowMatches = flowMap.get(flowName);
         flowMatches.add(buildLPortTagMatch(lportTag));
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        addLearnActions(flowMatches, actionsInfos);
-
-        actionsInfos.add(new ActionNxResubmit(NwConstants.EGRESS_LPORT_DISPATCHER_TABLE));
+        if (ace.getActions() != null && ace.getActions().getPacketHandling() instanceof Permit) {
+            addLearnActions(flowMatches, actionsInfos);
+            actionsInfos.add(new ActionNxResubmit(NwConstants.EGRESS_LPORT_DISPATCHER_TABLE));
+        } else {
+            actionsInfos.add(new ActionDrop());
+        }
 
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfos));
