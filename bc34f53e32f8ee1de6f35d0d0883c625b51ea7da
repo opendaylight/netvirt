@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f0f840c6",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1719,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-23T18:19:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_cdbe48d4",
+      "range": {
+        "startLine": 1719,
+        "startChar": 11,
+        "endLine": 1719,
+        "endChar": 12
+      },
+      "revId": "bc34f53e32f8ee1de6f35d0d0883c625b51ea7da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_cd8c8838",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-23T10:46:48Z",
       "side": 1,
       "message": "please print routePaths here in the log",
+      "range": {
+        "startLine": 2226,
+        "startChar": 67,
+        "endLine": 2226,
+        "endChar": 73
+      },
+      "revId": "bc34f53e32f8ee1de6f35d0d0883c625b51ea7da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d0f37ce5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2226,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-03-23T18:19:19Z",
+      "side": 1,
+      "message": "routePaths is part of vrfEntry",
+      "parentUuid": "fafc7978_cd8c8838",
       "range": {
         "startLine": 2226,
         "startChar": 67,
