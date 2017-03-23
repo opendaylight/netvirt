@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ad4dc4c6",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 666,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-23T11:07:20Z",
+      "side": 1,
+      "message": "maybe use can move this entire block outside to avoid the exception for flat",
+      "range": {
+        "startLine": 662,
+        "startChar": 0,
+        "endLine": 666,
+        "endChar": 61
+      },
+      "revId": "f6f9b18ddb372694355b3a40c36f982fe733c929",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
