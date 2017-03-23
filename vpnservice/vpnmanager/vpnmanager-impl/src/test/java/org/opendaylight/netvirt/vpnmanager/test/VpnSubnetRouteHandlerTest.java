@@ -88,16 +88,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.PortAddedToSubnet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.PortAddedToSubnetBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.PortRemovedFromSubnet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.PortRemovedFromSubnetBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetAddedToVpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetAddedToVpnBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetDeletedFromVpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetDeletedFromVpnBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetUpdatedInVpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetUpdatedInVpnBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapBuilder;
@@ -111,11 +101,6 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 public class VpnSubnetRouteHandlerTest {
 
     BigInteger dpId = BigInteger.valueOf(1);
-    PortAddedToSubnet portAddedToSubnet = null;
-    PortRemovedFromSubnet portRemovedFromSubnet = null;
-    SubnetAddedToVpn subnetAddedToVpn = null;
-    SubnetUpdatedInVpn subnetUpdatedInVpn = null;
-    SubnetDeletedFromVpn subnetDeletedFromVpn = null;
     SubnetToDpn subnetToDpn = null;
     String subnetIp = "10.1.1.24";
     List<String> routeDistinguishers = Arrays.asList("100:1","100:2");
@@ -305,18 +290,6 @@ public class VpnSubnetRouteHandlerTest {
             .setPhysAddress(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715
                 .PhysAddress.getDefaultInstance("AA:AA:AA:AA:AA:AA"));
         stateInterface = ifaceBuilder.build();
-        portAddedToSubnet =
-            new PortAddedToSubnetBuilder().setSubnetIp(subnetIp).setPortId(portId).setSubnetId(subnetId).setElanTag(
-                elanTag).build();
-        portRemovedFromSubnet = new PortRemovedFromSubnetBuilder().setPortId(portId).setSubnetId(subnetId)
-            .setSubnetIp(subnetIp).setElanTag(elanTag).build();
-        subnetAddedToVpn = new SubnetAddedToVpnBuilder().setElanTag(elanTag).setSubnetId(subnetId).setVpnName(
-            interfaceName).setBgpVpn(true).setSubnetIp(subnetIp).build();
-        subnetUpdatedInVpn =
-            new SubnetUpdatedInVpnBuilder().setElanTag(elanTag).setSubnetIp(subnetIp).setSubnetId(subnetId).setVpnName(
-                interfaceName).setBgpVpn(false).build();
-        subnetDeletedFromVpn = new SubnetDeletedFromVpnBuilder().setBgpVpn(true).setSubnetId(subnetId)
-            .setSubnetIp(subnetIp).setVpnName(interfaceName).setElanTag(elanTag).build();
         subnetOp = new SubnetOpDataEntryBuilder().setElanTag(elanTag).setNhDpnId(dpId).setSubnetCidr(subnetIp)
             .setSubnetId(subnetId).setKey(new SubnetOpDataEntryKey(subnetId)).setVpnName(interfaceName)
             .setVrfId(primaryRd).setSubnetToDpn(subToDpn).setRouteAdvState(TaskState.Done).build();
@@ -346,7 +319,7 @@ public class VpnSubnetRouteHandlerTest {
     @Test
     public void testOnPortAddedToSubnet() {
 
-        vpnSubnetRouteHandler.onPortAddedToSubnet(portAddedToSubnet);
+        vpnSubnetRouteHandler.onPortAddedToSubnet(subnetmap, portId);
 
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, portOpIdentifier, portOp, true);
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn, true);
@@ -357,7 +330,7 @@ public class VpnSubnetRouteHandlerTest {
     @Test
     public void testOnPortRemovedFromSubnet() {
 
-        vpnSubnetRouteHandler.onPortRemovedFromSubnet(portRemovedFromSubnet);
+        vpnSubnetRouteHandler.onPortRemovedFromSubnet(subnetmap, portId);
 
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn, true);
@@ -395,7 +368,7 @@ public class VpnSubnetRouteHandlerTest {
         doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, subOpIdentifier);
 
-        vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetAddedToVpn);
+        vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, true, elanTag);
 
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn, true);
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, portOpIdentifier, portOp, true);
@@ -407,7 +380,7 @@ public class VpnSubnetRouteHandlerTest {
     @Test
     public void testOnSubnetUpdatedInVpn() {
 
-        vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetUpdatedInVpn);
+        vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetmap, false, elanTag);
 
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
@@ -418,7 +391,7 @@ public class VpnSubnetRouteHandlerTest {
     @Test
     public void testOnSubnetDeletedFromVpn() {
 
-        vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetDeletedFromVpn);
+        vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmap, true);
 
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
@@ -440,8 +413,7 @@ public class VpnSubnetRouteHandlerTest {
         return InstanceIdentifier.builder(VpnInstanceToVpnId.class).child(org.opendaylight.yang.gen.v1.urn
                 .opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance.class,
             new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-                .VpnInstanceKey(
-                vpnName)).build();
+                .VpnInstanceKey(vpnName)).build();
     }
 
 }

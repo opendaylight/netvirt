@@ -334,4 +334,11 @@
     <argument ref="bgpmanager" />
     <argument ref="fibManager" />
   </bean>
+
+  <bean id="subnetmapChangeListener"
+        class="org.opendaylight.netvirt.vpnmanager.SubnetmapChangeListener"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="vpnSubnetRouteHandler" />
+  </bean>
 </blueprint>
