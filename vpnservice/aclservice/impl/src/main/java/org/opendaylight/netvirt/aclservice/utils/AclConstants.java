@@ -30,9 +30,9 @@ public final class AclConstants {
     public static final Integer PROTO_PREFIX_MATCH_PRIORITY = 61008;
     public static final Integer PROTO_PORT_MATCH_PRIORITY = 61007;
     public static final Integer PROTO_PORT_PREFIX_MATCH_PRIORITY = 61007;
-    public static final Integer PROTO_MATCH_SYN_ALLOW_PRIORITY = 61005;
+    public static final Integer PROTO_MATCH_SYN_SPECIFIC_PRIORITY = 61005;
     public static final Integer PROTO_MATCH_SYN_ACK_ALLOW_PRIORITY = 61004;
-    public static final Integer PROTO_MATCH_SYN_DROP_PRIORITY = 61003;
+    public static final Integer PROTO_MATCH_SYN_DEFAULT_PRIORITY = 61003;
     public static final Integer PROTO_VM_IP_MAC_MATCH_PRIORITY = 36001;
     public static final Integer CT_STATE_UNTRACKED_PRIORITY = 62030;
     public static final Integer CT_STATE_TRACKED_EXIST_PRIORITY = 62020;

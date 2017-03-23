@@ -23,6 +23,14 @@ module aclservice-config {
             default "stateful";
         }
 
+        leaf default-behavior {
+            type enumeration {
+                enum "allow";
+                enum "deny";
+            }
+            default "deny";
+        }
+
         leaf security-group-tcp-idle-timeout {
             type uint16;
             default 18000;
