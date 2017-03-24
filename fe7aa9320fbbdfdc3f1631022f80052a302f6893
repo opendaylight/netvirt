@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_d306e620",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-24T01:28:36Z",
+      "side": 1,
+      "message": "is there anything better here to catch rather than Exception? I know the SuppressWarning is used all over but that was for existing code so new code should be more selective if possible.",
+      "revId": "fe7aa9320fbbdfdc3f1631022f80052a302f6893",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
