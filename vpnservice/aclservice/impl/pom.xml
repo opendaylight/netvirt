@@ -105,14 +105,17 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <dependency>
       <groupId>org.opendaylight.mdsal</groupId>
       <artifactId>mdsal-binding-test-utils</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.immutables</groupId>
       <artifactId>value</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
-        <groupId>com.google.truth</groupId>
-        <artifactId>truth</artifactId>
+      <groupId>com.google.truth</groupId>
+      <artifactId>truth</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
