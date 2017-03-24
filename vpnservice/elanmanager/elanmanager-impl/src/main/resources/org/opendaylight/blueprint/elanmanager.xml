@@ -123,6 +123,8 @@
     init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="elanInterfaceManager" />
+    <argument ref="interfaceManager" />
+    <argument ref="elanService" />
   </bean>
 
   <bean id="elanTunnelInterfaceStateListener"
