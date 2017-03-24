@@ -526,11 +526,11 @@ public final class AclServiceUtils {
                 for (AllowedAddressPairs aap : allowedAddressPair) {
                     List<MatchInfoBase> matchInfoBaseList;
                     String flowId;
-                    if (flows.contains(ipv4Match) && isIPv4Address(aap) && isNotIpv4AllNetwork(aap)) {
+                    if (flows.contains(ipv4Match) && isIPv4Address(aap)) {
                         matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
                         flowId = flowName + "_ipv4_remoteACL_interface_aap_" + getAapFlowId(aap);
                         updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
-                    } else if (flows.contains(ipv6Match) && !isIPv4Address(aap) && isNotIpv6AllNetwork(aap)) {
+                    } else if (flows.contains(ipv6Match) && !isIPv4Address(aap)) {
                         matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
                         flowId = flowName + "_ipv6_remoteACL_interface_aap_" + getAapFlowId(aap);
                         updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
@@ -561,9 +561,11 @@ public final class AclServiceUtils {
         return false;
     }
 
-    public static Map<String, List<MatchInfoBase>> getFlowForAllowedAddresses(
-            List<AllowedAddressPairs> syncAllowedAddresses, Map<String, List<MatchInfoBase>> flowMatchesMap,
-            boolean isSourceIpMacMatch) {
+    public static Map<String, List<MatchInfoBase>> getFlowForAllowedAddresses(List<AllowedAddressPairs>
+                                                                                      syncAllowedAddresses,
+                                                                              Map<String, List<MatchInfoBase>>
+                                                                                      flowMatchesMap, boolean
+                                                                                      isSourceIpMacMatch) {
         if (flowMatchesMap == null) {
             return null;
         }
@@ -576,36 +578,19 @@ public final class AclServiceUtils {
             for (AllowedAddressPairs aap : syncAllowedAddresses) {
                 List<MatchInfoBase> matchInfoBaseList;
                 String flowId;
-                if (flows.contains(ipv4Match) && isIPv4Address(aap) && isNotIpv4AllNetwork(aap)) {
+                if (flows.contains(ipv4Match) && isIPv4Address(aap)) {
                     matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
                     flowId = flowName + "_ipv4_remoteACL_interface_aap_" + getAapFlowId(aap);
                     updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
-                } else if (flows.contains(ipv6Match) && !isIPv4Address(aap) && isNotIpv6AllNetwork(aap)) {
+                } else if (flows.contains(ipv6Match) && !isIPv4Address(aap)) {
                     matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
                     flowId = flowName + "_ipv6_remoteACL_interface_aap_" + getAapFlowId(aap);
                     updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
                 }
             }
+
         }
         return updatedFlowMatchesMap;
-    }
-
-    protected static boolean isNotIpv4AllNetwork(AllowedAddressPairs aap) {
-        IpPrefix ipPrefix = aap.getIpAddress().getIpPrefix();
-        if (ipPrefix != null && ipPrefix.getIpv4Prefix() != null
-                && ipPrefix.getIpv4Prefix().getValue().equals(AclConstants.IPV4_ALL_NETWORK)) {
-            return false;
-        }
-        return true;
-    }
-
-    protected static boolean isNotIpv6AllNetwork(AllowedAddressPairs aap) {
-        IpPrefix ipPrefix = aap.getIpAddress().getIpPrefix();
-        if (ipPrefix != null && ipPrefix.getIpv6Prefix() != null
-                && ipPrefix.getIpv6Prefix().getValue().equals(AclConstants.IPV6_ALL_NETWORK)) {
-            return false;
-        }
-        return true;
     }
 
     private static String getAapFlowId(AllowedAddressPairs aap) {

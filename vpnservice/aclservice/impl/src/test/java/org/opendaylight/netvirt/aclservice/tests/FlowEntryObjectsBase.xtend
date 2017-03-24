@@ -1108,7 +1108,7 @@ class FlowEntryObjectsBase {
             ],
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F6"
+                flowId = "Egress_ARP_123_0D:AA:D8:42:30:F6"
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -1125,7 +1125,7 @@ class FlowEntryObjectsBase {
             ],
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F6"
+                flowId = "Egress_ARP_123_0D:AA:D8:42:30:F6"
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
