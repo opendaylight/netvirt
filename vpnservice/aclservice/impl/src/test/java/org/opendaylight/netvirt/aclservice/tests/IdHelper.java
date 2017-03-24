@@ -51,6 +51,10 @@ public class IdHelper {
     }
 
     public static Integer getFlowPriority(String key) {
-        return flowPriorityCacheMap.get(key);
+        Integer priority = flowPriorityCacheMap.get(key);
+        if (priority == null) {
+            throw new IllegalArgumentException(key);
+        }
+        return priority;
     }
 }
