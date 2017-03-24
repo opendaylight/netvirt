@@ -665,6 +665,15 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         createElanInterfaceTablesList(interfaceName, tx);
         if (interfaceInfo != null) {
             installEntriesForFirstInterfaceonDpn(elanInstance, interfaceInfo, dpnInterfaces, isFirstInterfaceInDpn, tx);
+
+            // add the vlan provider interface to remote BC group for the elan
+            // for internal vlan networks
+            if (ElanUtils.isVlan(elanInstance) && !elanInstance.isExternal()) {
+                if (interfaceManager.isExternalInterface(interfaceName)) {
+                    LOG.debug("adding vlan prv intf {} to elan {} BC group", interfaceName, elanInstanceName);
+                    handleExternalInterfaceEvent(elanInstance, dpnInterfaces, dpId);
+                }
+            }
         }
         futures.add(ElanUtils.waitForTransactionToComplete(tx));
         if (isFirstInterfaceInDpn && isVxlanNetworkOrVxlanSegment(elanInstance)) {
@@ -732,7 +741,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }
         futures.add(ElanUtils.waitForTransactionToComplete(tx));
         futures.add(ElanUtils.waitForTransactionToComplete(writeFlowGroupTx));
-        if (isInterfaceOperational) {
+        if (isInterfaceOperational && !interfaceManager.isExternalInterface(interfaceName)) {
             //At this point, the interface is operational and D/SMAC flows have been configured, mark the port active
             NeutronUtils.updatePortStatus(elanInterface.getName(), NeutronUtils.PORT_STATUS_ACTIVE, broker);
         }
@@ -1812,5 +1821,16 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     @Override
     protected ElanInterfaceManager getDataTreeChangeListener() {
         return this;
+    }
+
+    public void handleExternalInterfaceEvent(ElanInstance elanInstance, DpnInterfaces dpnInterfaces,
+                                             BigInteger dpId) {
+        LOG.debug("setting up remote BC group for elan {}", elanInstance.getPhysicalNetworkName());
+        setupStandardElanBroadcastGroups(elanInstance, dpnInterfaces, dpId);
+        try {
+            Thread.sleep(WAIT_TIME_FOR_SYNC_INSTALL);
+        } catch (InterruptedException e) {
+            LOG.warn("Error while waiting for local BC group for ELAN {} to install", elanInstance);
+        }
     }
 }
