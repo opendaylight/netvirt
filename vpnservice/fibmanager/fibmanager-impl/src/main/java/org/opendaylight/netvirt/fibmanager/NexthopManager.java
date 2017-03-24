@@ -172,7 +172,7 @@ public class NexthopManager implements AutoCloseable {
         this.interfaceManager = interfaceManager;
         this.itmManager = itmManager;
         this.elanService = elanService;
-        waitTimeForSyncInstall = Long.getLong("wait.time.sync.install", 1000L);
+        waitTimeForSyncInstall = Long.getLong("wait.time.sync.install", 1500L);
         createIdPool();
     }
 
@@ -387,7 +387,8 @@ public class NexthopManager implements AutoCloseable {
                     // install Group
                     mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
                     try {
-                        LOG.info("Sleeping for {} to wait for the groups to get programmed.", waitTimeForSyncInstall);
+                        LOG.info("Sleeping for {} to wait for the group {} on dpn {} for key {} to get programmed.",
+                                waitTimeForSyncInstall, groupId, dpnId.toString(), getNextHopKey(vpnId, ipAddress));
                         Thread.sleep(waitTimeForSyncInstall);
                     } catch (InterruptedException error) {
                         LOG.warn("Error while waiting for group {} to install.", groupId);
@@ -816,6 +817,9 @@ public class NexthopManager implements AutoCloseable {
         if (addOrRemove == true) {
             mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
             try {
+                LOG.info("Sleeping for {} to wait for the group {} on dpn {} for key {} to get programmed.",
+                        waitTimeForSyncInstall, groupId, dpnId.toString(),
+                        getNextHopKey(parentVpnId, destPrefix));
                 Thread.sleep(waitTimeForSyncInstall);
             } catch (InterruptedException e) {
                 LOG.warn("Error while waiting for group {} to install.", groupId);
