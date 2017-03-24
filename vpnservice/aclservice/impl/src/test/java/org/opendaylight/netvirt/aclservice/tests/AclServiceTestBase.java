@@ -15,9 +15,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -27,6 +27,7 @@ import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorEventsWait
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
+import org.opendaylight.infrautils.testutils.LogRule;
 import org.opendaylight.netvirt.aclservice.tests.infra.DataBrokerPairsUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
@@ -53,10 +54,13 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
 public abstract class AclServiceTestBase {
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceTestBase.class);
+
+    public @Rule LogRule logRule = new LogRule();
+
+    // public static @ClassRule RunUntilFailureClassRule classRepeater = new RunUntilFailureClassRule();
+    // public @Rule RunUntilFailureRule repeater = new RunUntilFailureRule(classRepeater);
 
     static final String PORT_MAC_1 = "0D:AA:D8:42:30:F3";
     static final String PORT_MAC_2 = "0D:AA:D8:42:30:F4";
