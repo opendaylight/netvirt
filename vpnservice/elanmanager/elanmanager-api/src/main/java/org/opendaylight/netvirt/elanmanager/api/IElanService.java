@@ -52,6 +52,8 @@ public interface IElanService extends IEtreeService {
 
     void createExternalElanNetwork(ElanInstance elanInstance);
 
+    void updateExternalElanNetwork(ElanInstance elanInstance);
+
     void createExternalElanNetworks(Node node);
 
     void updateExternalElanNetworks(Node origNode, Node updatedNode);
