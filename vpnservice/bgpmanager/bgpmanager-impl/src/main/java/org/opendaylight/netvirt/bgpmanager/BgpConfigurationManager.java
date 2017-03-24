@@ -2070,7 +2070,7 @@ public class BgpConfigurationManager {
     }
 
     public synchronized void addPrefix(String rd, String macAddress, String pfx, List<String> nhList,
-              VrfEntry.EncapType encapType, int lbl, long l3vni, String gatewayMac, int addressFamily) {
+              VrfEntry.EncapType encapType, int lbl, long l3vni, long l2vni, String gatewayMac, int addressFamily) {
         for (String nh : nhList) {
             Ipv4Address nexthop = nh != null ? new Ipv4Address(nh) : null;
             Long label = (long) lbl;
@@ -2080,18 +2080,18 @@ public class BgpConfigurationManager {
             NetworksBuilder networksBuilder = new NetworksBuilder().setRd(rd).setPrefixLen(pfx).setNexthop(nexthop)
                                                 .setLabel(label).setEthtag(BgpConstants.DEFAULT_ETH_TAG)
                                                 .setAfi(afi);
-            buildVpnEncapSpecificInfo(networksBuilder, encapType, label, l3vni, macAddress, gatewayMac);
+            buildVpnEncapSpecificInfo(networksBuilder, encapType, label, l3vni, l2vni, macAddress, gatewayMac);
             update(iid, networksBuilder.build());
         }
     }
 
     private static void buildVpnEncapSpecificInfo(NetworksBuilder builder, VrfEntry.EncapType encapType, long label,
-                                                  long l3vni, String macAddress, String gatewayMac) {
+                                                  long l3vni, long l2vni, String macAddress, String gatewayMac) {
         if (encapType.equals(VrfEntry.EncapType.Mplsgre)) {
             builder.setLabel(label).setBgpControlPlaneType(BgpControlPlaneType.PROTOCOLL3VPN)
                     .setEncapType(EncapType.GRE);
         } else {
-            builder.setL3vni(l3vni).setMacaddress(macAddress).setRoutermac(gatewayMac)
+            builder.setL3vni(l3vni).setL2vni(l2vni).setMacaddress(macAddress).setRoutermac(gatewayMac)
                     .setBgpControlPlaneType(BgpControlPlaneType.PROTOCOLEVPN).setEncapType(EncapType.VXLAN);
         }
     }

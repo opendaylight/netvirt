@@ -466,7 +466,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         LOG.info("VPN ADVERTISE: Adding Fib Entry rd {} prefix {} nexthop {} label {}", rd,
                                 nextHop.getIpAddress(), nextHopIp, label);
                         bgpManager.advertisePrefix(rd, nextHop.getMacAddress(), nextHop.getIpAddress(), nextHopIp,
-                                encapType, (int)label, l3vni, gatewayMac);
+                                encapType, (int)label, l3vni, 0 /*l2vni*/, gatewayMac);
                         LOG.info("VPN ADVERTISE: Added Fib Entry rd {} prefix {} nexthop {} label {}", rd,
                                 nextHop.getIpAddress(), nextHopIp, label);
                     } catch (Exception e) {
@@ -723,7 +723,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     try {
                         if (!rd.equalsIgnoreCase(vpnInterface.getVpnInstanceName())) {
                             bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, nhList,
-                                    VrfEntry.EncapType.Mplsgre, (int)label, 0 /*evi*/, null /*gatewayMacAddress*/);
+                                    VrfEntry.EncapType.Mplsgre, (int)label, 0 /*evi*/, 0 /*l2vni*/,
+                                    null /*gatewayMacAddress*/);
                         }
                     } catch (Exception ex) {
                         LOG.error("Exception when advertising prefix {} on rd {} as {}", prefix, rd, ex);
@@ -984,7 +985,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             // Advertize the prefix to BGP only if nexthop ip is available
             if (nextHopList != null && !nextHopList.isEmpty()) {
                 bgpManager.advertisePrefix(rd, macAddress, prefix, nextHopList, encapType, (int)label,
-                        l3vni, gwMacAddress);
+                        l3vni, 0 /*l2vni*/, gwMacAddress);
             } else {
                 LOG.warn("NextHopList is null/empty. Hence rd {} prefix {} is not advertised to BGP", rd, prefix);
             }

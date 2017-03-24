@@ -170,7 +170,8 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
                             .collect(Collectors.toList());
             try {
                 bgpManager.advertisePrefix(dstVpnRd, null /*macAddress*/, prefix, ivlNexthops,
-                        VrfEntry.EncapType.Mplsgre, (int)leakedLabel, 0 /*l3vni*/, null /*gwMacAddress*/);
+                        VrfEntry.EncapType.Mplsgre, (int)leakedLabel, 0 /*l3vni*/, 0 /*l2vni*/,
+                        null /*gwMacAddress*/);
             } catch (Exception e) {
                 LOG.error("Exception while advertising prefix {} on vpnRd {} for intervpn link", prefix, dstVpnRd, e);
             }

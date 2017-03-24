@@ -120,7 +120,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
         fibDSWriter.addFibEntryToDS(rd, macAddress, prefix, nextHopList,
                 encapType, vpnLabel, l3vni, gatewayMac, origin);
         bcm.addPrefix(rd, macAddress, prefix, nextHopList,
-                encapType, vpnLabel, l3vni, gatewayMac, 1 /* TODO FIX afi */);
+                encapType, vpnLabel, l3vni, 0 /*l2vni*/, gatewayMac, 1 /* TODO FIX afi */);
     }
 
     @Override
@@ -138,19 +138,19 @@ public class BgpManager implements AutoCloseable, IBgpManager {
 
     @Override
     public void advertisePrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
-                                VrfEntry.EncapType encapType, int vpnLabel, long l3vni,
+                                VrfEntry.EncapType encapType, int vpnLabel, long l3vni, long l2vni,
                                 String gatewayMac) throws Exception {
         bcm.addPrefix(rd, macAddress, prefix, nextHopList,
-                encapType, vpnLabel, l3vni, gatewayMac, 1 /* TODO FIX afi */);
+                encapType, vpnLabel, l3vni, l2vni, gatewayMac, 1 /* TODO FIX afi */);
     }
 
     @Override
     public void advertisePrefix(String rd, String macAddress, String prefix, String nextHop,
-                                VrfEntry.EncapType encapType, int vpnLabel, long l3vni,
+                                VrfEntry.EncapType encapType, int vpnLabel, long l3vni, long l2vni,
                                 String gatewayMac) throws Exception {
         LOG.info("ADVERTISE: Adding Prefix rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, vpnLabel);
         bcm.addPrefix(rd, macAddress, prefix, Collections.singletonList(nextHop), encapType,
-                vpnLabel, l3vni, gatewayMac, 1 /* TODO FIX afi */);
+                vpnLabel, l3vni, l2vni, gatewayMac, 1 /* TODO FIX afi */);
         LOG.info("ADVERTISE: Added Prefix rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, vpnLabel);
     }
 

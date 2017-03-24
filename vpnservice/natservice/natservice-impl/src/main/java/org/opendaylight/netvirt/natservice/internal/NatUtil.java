@@ -681,7 +681,7 @@ public class NatUtil {
             if ((rd != null) && (!rd.equalsIgnoreCase(vpnName))) {
             /* Publish to Bgp only if its an INTERNET VPN */
                 bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),
-                        VrfEntry.EncapType.Mplsgre, (int) label, 0 /*l3vni*/, null /*gatewayMac*/);
+                        VrfEntry.EncapType.Mplsgre, (int) label, 0 /*l3vni*/, 0 /*l2vni*/, null /*gatewayMac*/);
             }
             LOG.info("NAT Service : ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd,
                     prefix, nextHopIp, label);
