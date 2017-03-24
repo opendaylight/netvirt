@@ -129,6 +129,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9460c136",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 3316
+      },
+      "writtenOn": "2017-03-24T21:12:59Z",
+      "side": 1,
+      "message": "how to handle neutron server crash.\nWith the way describe above, such callback isn\u0027t guaranteed to be called.",
+      "parentUuid": "fafc7978_f912eb56",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 84,
+        "endChar": 29
+      },
+      "revId": "d3f82acd8f45d1618f19fbbdb2a7b2e74d59a327",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f30b2a29",
         "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
         "patchSetId": 6
