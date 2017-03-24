@@ -17,6 +17,8 @@ import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestModule;
+import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorEventsWaiter;
+import org.opendaylight.genius.datastoreutils.testutils.TestableJobCoordinatorEventsWaiter;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.stats.TestOdlDirectStatisticsService;
@@ -68,6 +70,8 @@ public class AclServiceTestModule extends AbstractModule {
         bind(IdManagerService.class).toInstance(Mockito.mock(TestIdManagerService.class, realOrException()));
         bind(OpendaylightDirectStatisticsService.class)
                 .toInstance(Mockito.mock(TestOdlDirectStatisticsService.class, realOrException()));
+
+        bind(JobCoordinatorEventsWaiter.class).to(TestableJobCoordinatorEventsWaiter.class);
     }
 
     private AclserviceConfig aclServiceConfig() {
