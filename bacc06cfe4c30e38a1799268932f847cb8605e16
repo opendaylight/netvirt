@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_bfe8437d",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/service/ClassifierService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-24T20:56:28Z",
+      "side": 1,
+      "message": "make all these final",
+      "revId": "bacc06cfe4c30e38a1799268932f847cb8605e16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7f953be3",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/service/domain/ClassifierEntry.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-24T20:56:28Z",
+      "side": 1,
+      "message": "do these need to be Long or can they be the primitive long? Seems like we are not using any of the properties of the Object so the primitives are preferred.",
+      "revId": "bacc06cfe4c30e38a1799268932f847cb8605e16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_14d171fb",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/service/domain/impl/ClassifierUpdate.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-24T20:56:28Z",
+      "side": 1,
+      "message": "maybe something more accurate than diff?",
+      "revId": "bacc06cfe4c30e38a1799268932f847cb8605e16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
