@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_14ca114f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-24T20:49:20Z",
+      "side": 1,
+      "message": "Is this really what we want to use?",
+      "revId": "52a070ce329eee0686e1cdec4ec8f6aa7a38eb43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
