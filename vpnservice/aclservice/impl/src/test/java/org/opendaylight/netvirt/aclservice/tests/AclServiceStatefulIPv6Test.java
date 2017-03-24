@@ -7,15 +7,15 @@
  */
 package org.opendaylight.netvirt.aclservice.tests;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.rules.MethodRule;
 import org.opendaylight.genius.datastoreutils.testutils.TestableDataTreeChangeListenerModule;
 import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
 
-
-public class AclServiceStatefulTestIPv6 extends AclServiceTestBaseIPv6 {
-
+@Ignore
+public class AclServiceStatefulIPv6Test extends AclServiceTestBaseIPv6 {
 
     public @Rule MethodRule guice = new GuiceRule(new AclServiceModule(),
             new AclServiceTestModule(SecurityGroupMode.Stateful),
