@@ -490,7 +490,8 @@ public class InterVpnLinkUtil {
                 LOG.debug("Advertising route in VPN={} [prefix={} label={}  nexthops={}] to DC-GW",
                     dstVpnRd, newVrfEntry.getDestPrefix(), label.intValue(), nexthops);
                 bgpManager.advertisePrefix(dstVpnRd, null /*macAddress*/, newVrfEntry.getDestPrefix(), nexthops,
-                        VrfEntry.EncapType.Mplsgre, label.intValue(), 0 /*l3vni*/, null /*gatewayMacAddress*/);
+                        VrfEntry.EncapType.Mplsgre, label.intValue(), 0 /*l3vni*/, 0 /*l2vni*/,
+                        null /*gatewayMacAddress*/);
             } catch (Exception exc) {
                 LOG.error("Could not advertise prefix {} with label {} to VPN rd={}",
                     newVrfEntry.getDestPrefix(), label.intValue(), dstVpnRd);
@@ -529,6 +530,6 @@ public class InterVpnLinkUtil {
         LOG.debug("advertising IVpnLink route to BGP:  vpnRd={}, prefix={}, label={}, nexthops={}",
             vpnRd, destination, label, nexthopList);
         bgpManager.advertisePrefix(vpnRd, null /*macAddress*/, destination, nexthopList,
-                VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/);
+                VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, 0 /*l2vni*/, null /*gatewayMacAddress*/);
     }
 }

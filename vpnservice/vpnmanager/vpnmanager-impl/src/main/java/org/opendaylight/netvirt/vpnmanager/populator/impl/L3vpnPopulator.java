@@ -63,7 +63,7 @@ public class L3vpnPopulator implements VpnPopulator {
             // Advertise the prefix to BGP only if nexthop ip is available
             if (nextHopList != null && !nextHopList.isEmpty()) {
                 bgpManager.advertisePrefix(rd, macAddress, prefix, nextHopList, encapType, (int)label,
-                        l3vni, gatewayMac);
+                        l3vni, 0 /*l2vni*/, gatewayMac);
             } else {
                 LOG.warn("NextHopList is null/empty. Hence rd {} prefix {} is not advertised to BGP", rd, prefix);
             }
