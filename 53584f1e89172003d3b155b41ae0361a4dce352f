@@ -16,6 +16,24 @@
       "revId": "53584f1e89172003d3b155b41ae0361a4dce352f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3ef2999a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 2107,
+      "author": {
+        "id": 6464
+      },
+      "writtenOn": "2017-03-24T04:55:26Z",
+      "side": 1,
+      "message": "Yes. This can be removed. Had added it for my understanding and debugging.",
+      "parentUuid": "fafc7978_7318da84",
+      "revId": "53584f1e89172003d3b155b41ae0361a4dce352f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
