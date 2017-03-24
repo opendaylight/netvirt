@@ -105,6 +105,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f912eb56",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-03-24T07:21:14Z",
+      "side": 1,
+      "message": "@Isaku: we\u0027ll discuss it in the n-odl spec, but curious what would issues be with postcommit?",
+      "parentUuid": "fafc7978_be09692e",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 84,
+        "endChar": 29
+      },
+      "revId": "d3f82acd8f45d1618f19fbbdb2a7b2e74d59a327",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f30b2a29",
         "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
         "patchSetId": 6
