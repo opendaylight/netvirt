@@ -52,7 +52,6 @@
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />
     <argument ref="odlInterfaceRpcService" />
-    <argument ref="idManagerService" />
     <argument ref="blueprintBundleContext" />
   </bean>
 
@@ -110,6 +109,7 @@
     <argument ref="odlArputilService" />
     <argument ref="vpnManager" />
     <argument ref="elanService" />
+    <argument ref="evpnDnatFlowProgrammer" />
   </bean>
   <service ref="vpnFloatingIpHandler"
            interface="org.opendaylight.netvirt.natservice.internal.FloatingIPHandler" />
@@ -137,6 +137,7 @@
     <argument ref="naptPacketInHandler" />
     <argument ref="fibManager" />
     <argument ref="vpnManager"/>
+    <argument ref="evpnSnatFlowProgrammer"/>
   </bean>
 
   <bean id="externalNetworksChangeListener"
@@ -193,6 +194,7 @@
     <argument ref="vpnRpcService" />
     <argument ref="fibRpcService" />
     <argument ref="fibManager" />
+    <argument ref="evpnNaptSwitchHA" />
   </bean>
 
   <bean id="natNodeEventListener"
@@ -278,6 +280,31 @@
     <argument ref="dataBroker"/>
     <argument ref="neutronvpnManager" />
   </bean>
+
   <service ref="natRpcServiceImpl"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rpc.rev170209.OdlNatRpcService"/>
+
+  <bean id="evpnSnatFlowProgrammer" class="org.opendaylight.netvirt.natservice.internal.EvpnSnatFlowProgrammer">
+    <argument ref="dataBroker" />
+    <argument ref="mdsalUtils" />
+    <argument ref="bgpManager" />
+    <argument ref="fibManager" />
+  </bean>
+
+  <bean id="evpnNaptSwitchHA" class="org.opendaylight.netvirt.natservice.internal.EvpnNaptSwitchHA">
+    <argument ref="dataBroker" />
+    <argument ref="mdsalUtils" />
+    <argument ref="evpnSnatFlowProgrammer" />
+    <argument ref="idManagerService" />
+  </bean>
+
+  <bean id="evpnDnatFlowProgrammer" class="org.opendaylight.netvirt.natservice.internal.EvpnDnatFlowProgrammer">
+    <argument ref="dataBroker" />
+    <argument ref="mdsalUtils" />
+    <argument ref="bgpManager" />
+    <argument ref="fibManager" />
+    <argument ref="fibRpcService" />
+    <argument ref="vpnManager" />
+    <argument ref="floatingIPListener" />
+  </bean>
 </blueprint>

@@ -230,8 +230,8 @@ public class ExternalNetworksChangeListener
                     LOG.debug("NAT Service : About to call advToBgpAndInstallFibAndTsFlows for dpnId {}, "
                         + "vpnName {} and externalIp {}", dpnId, vpnName, externalIp);
                     externalRouterListener.advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE,
-                        vpnName, NatUtil.getVpnId(dataBroker, routerId.getValue()), externalIp, vpnService,
-                        fibService, bgpManager, dataBroker, LOG);
+                        vpnName, NatUtil.getVpnId(dataBroker, routerId.getValue()), routerId.getValue(), externalIp,
+                        null /* external-router */, vpnService, fibService, bgpManager, dataBroker, LOG);
                 }
             } else {
                 LOG.warn("NAT Service : No ipMapping present fot the routerId {}", routerId);
@@ -239,12 +239,12 @@ public class ExternalNetworksChangeListener
 
             long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
             // Install 47 entry to point to 21
+            externalRouterListener.installNaptPfibEntriesForExternalSubnets(routerId.getValue(), dpnId);
             if (vpnId != -1) {
-                LOG.debug("NAT Service : Calling externalRouterListener installNaptPfibEntry for donId {} "
+                LOG.debug("NAT Service : Calling externalRouterListener installNaptPfibEntry for dpnId {} "
                     + "and vpnId {}", dpnId, vpnId);
                 externalRouterListener.installNaptPfibEntry(dpnId, vpnId);
             }
-
         }
 
     }

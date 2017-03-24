@@ -937,7 +937,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
         if (nexthopIp != null) {
             VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
                 VpnUtil.getPrefixToInterfaceIdentifier(VpnUtil.getVpnId(dataBroker, vpnName), subnetIp),
-                VpnUtil.getPrefixToInterface(nhDpnId, subnetId.getValue(), subnetIp));
+                VpnUtil.getPrefixToInterface(nhDpnId, subnetId.getValue(), subnetIp, subnetId));
             vpnInterfaceManager.addSubnetRouteFibEntryToDS(rd, vpnName, subnetIp, nexthopIp, label, elanTag, nhDpnId,
                 null);
             try {

@@ -33,17 +33,17 @@ public class NeutronExternalSubnetHandler implements AutoCloseable {
     public void handleExternalSubnetAdded(Network network, Uuid subnetId, List<Uuid> routerIds) {
         Uuid networkId = network.getUuid();
         if (NeutronvpnUtils.getIsExternal(network) && NeutronvpnUtils.isFlatOrVlanNetwork(network)) {
-            LOG.trace("Added external subnet {} part of external network {} will create NAT external subnet",
+            LOG.info("Added external subnet {} part of external network {} will create NAT external subnet",
                     subnetId.getValue(), networkId.getValue());
-            nvpnManager.createVpnInstanceForSubnet(subnetId);
             nvpnNatManager.updateOrAddExternalSubnet(networkId, subnetId, routerIds);
+            nvpnManager.createVpnInstanceForSubnet(subnetId);
         }
     }
 
     public void handleExternalSubnetRemoved(Network network, Uuid subnetId) {
         Uuid networkId = network.getUuid();
         if (NeutronvpnUtils.getIsExternal(network) && NeutronvpnUtils.isFlatOrVlanNetwork(network)) {
-            LOG.trace("Removed subnet {} part of external network {} will remove NAT external subnet",
+            LOG.info("Removed subnet {} part of external network {} will remove NAT external subnet",
                     subnetId.getValue(), networkId.getValue());
             nvpnManager.removeVpnInstanceForSubnet(subnetId);
             nvpnNatManager.removeExternalSubnet(subnetId);

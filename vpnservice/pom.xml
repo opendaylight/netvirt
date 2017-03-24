@@ -38,6 +38,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <module>vpnservice-artifacts</module>
     <module>statemanager</module>
     <module>statistics</module>
+    <module>sfc</module>
     <module>it</module>
   </modules>
 

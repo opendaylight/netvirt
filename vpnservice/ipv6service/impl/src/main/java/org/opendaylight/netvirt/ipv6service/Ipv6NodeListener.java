@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat, Inc. and others. All rights reserved.
+ * Copyright (c) 2016, 2017 Red Hat, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -12,9 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -33,25 +32,25 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Ipv6NodeListener extends AbstractDataChangeListener<FlowCapableNode> implements AutoCloseable {
+public class Ipv6NodeListener extends AsyncDataTreeChangeListenerBase<FlowCapableNode, Ipv6NodeListener>
+        implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6NodeListener.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalUtil;
 
     public Ipv6NodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalUtil) {
-        super(FlowCapableNode.class);
         this.dataBroker = dataBroker;
         this.mdsalUtil = mdsalUtil;
     }
 
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.ONE);
+        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
-    private InstanceIdentifier<FlowCapableNode> getWildCardPath() {
+    @Override
+    protected InstanceIdentifier<FlowCapableNode> getWildCardPath() {
         return InstanceIdentifier.create(Nodes.class).child(Node.class).augmentation(FlowCapableNode.class);
     }
 
@@ -87,12 +86,12 @@ public class Ipv6NodeListener extends AbstractDataChangeListener<FlowCapableNode
         // do nothing
     }
 
+    /* (non-Javadoc)
+     * @see org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase#getDataTreeChangeListener()
+     */
     @Override
-    public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-            listenerRegistration = null;
-        }
-        LOG.info("{} close", getClass().getSimpleName());
+    protected Ipv6NodeListener getDataTreeChangeListener() {
+        return Ipv6NodeListener.this;
     }
+
 }

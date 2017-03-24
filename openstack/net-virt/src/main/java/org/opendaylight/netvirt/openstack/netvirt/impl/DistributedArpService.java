@@ -84,11 +84,13 @@ public class DistributedArpService implements ConfigInterface {
      * Process the port event to write Arp rules for neutron ports.
      *
      * @param action the {@link Action} action to be handled.
+     * @param isMigratedPort true, if the port is migrated else false.
+     * @param bridgeNode the node for the port.
      * @param neutronPort An instance of NeutronPort object.
      */
-    public void handlePortEvent(NeutronPort neutronPort, Action action) {
+    public void handlePortEvent(NeutronPort neutronPort, Node bridgeNode, boolean isMigratedPort, Action action) {
         LOG.debug("neutronPort Event {} action event {} ", neutronPort, action);
-        this.handleNeutronPortForArp(neutronPort, action);
+        this.handleNeutronPortForArp(neutronPort, bridgeNode, isMigratedPort, action);
     }
 
      /**
@@ -146,9 +148,11 @@ public class DistributedArpService implements ConfigInterface {
      * Write Arp rules based on event for neutron port.
      *
      * @param action the {@link Action} action to be handled.
+     * @param isMigratedPort true, if the port is migrated else false.
+     * @param bridgeNode the node for the port.
      * @param neutronPort An instance of NeutronPort object.
      */
-    private void handleNeutronPortForArp(NeutronPort neutronPort, Action action) {
+    private void handleNeutronPortForArp(NeutronPort neutronPort, Node bridgeNode, boolean isMigratedPort, Action action) {
         if (!flgDistributedARPEnabled) {
             return;
         }
@@ -163,13 +167,19 @@ public class DistributedArpService implements ConfigInterface {
         if (nodes.isEmpty()) {
             LOG.trace("updateL3ForNeutronPort has no nodes to work with");
         }
+        String owner = neutronPort.getDeviceOwner();
+        boolean isDhcpPort = owner != null && owner.equals(DHCP_DEVICE_OWNER);
         for (Node node : nodes) {
-            handleArpRule(node, neutronPort, providerSegmentationId, actionToPerform);
+            if(actionToPerform == Action.DELETE && !isDhcpPort &&
+                    (isMigratedPort && !bridgeNode.getNodeId().equals(node.getNodeId()))) {
+                continue;
+            }
+            handleArpRule(node, neutronPort, providerSegmentationId, isMigratedPort, actionToPerform);
         }
     }
 
     private void handleArpRule(Node node, NeutronPort neutronPort,
-                String providerSegmentationId, Action actionToPerform) {
+                String providerSegmentationId, boolean isMigratedPort, Action actionToPerform) {
         String owner = neutronPort.getDeviceOwner();
         boolean isRouterInterface = owner != null && owner.equals(ROUTER_INTERFACE_DEVICE_OWNER);
         boolean isDhcpPort = owner != null && owner.equals(DHCP_DEVICE_OWNER);
@@ -223,16 +233,18 @@ public class DistributedArpService implements ConfigInterface {
                     }
                 }
             } else {
-                for (Neutron_IPs neutronIPAddr : neutronPort.getFixedIPs()) {
-                    final String ipAddress = neutronIPAddr.getIpAddress();
-                    try {
-                        executor.submit(() ->
-                                programStaticRuleStage1(dpid, providerSegmentationId, macAddress,
-                                        ipAddress, actionForNode));
-                    } catch (RejectedExecutionException ex) {
-                        LOG.error("handleArpRule : unable to accept execution.", ex);
-                        programStaticRuleStage1(dpid, providerSegmentationId, macAddress,
-                                ipAddress, actionForNode);
+                if(!isMigratedPort) {
+                    for (Neutron_IPs neutronIPAddr : neutronPort.getFixedIPs()) {
+                        final String ipAddress = neutronIPAddr.getIpAddress();
+                        try {
+                            executor.submit(() ->
+                            programStaticRuleStage1(dpid, providerSegmentationId, macAddress,
+                                    ipAddress, actionForNode));
+                        } catch (RejectedExecutionException ex) {
+                            LOG.error("handleArpRule : unable to accept execution.", ex);
+                            programStaticRuleStage1(dpid, providerSegmentationId, macAddress,
+                                    ipAddress, actionForNode);
+                        }
                     }
                 }
             }
@@ -308,15 +320,16 @@ public class DistributedArpService implements ConfigInterface {
      * .OvsdbTerminationPointAugmentation} instance of OvsdbTerminationPointAugmentation object.
      * @param neutronNetwork An {@link NeutronNetwork} instance of NeutronNetwork
      * object.
+     * @param isMigratedPort true, if the port is migrated else false.
      * @param action the {@link Action} action to be handled.
      */
     public void processInterfaceEvent(final Node bridgeNode, final OvsdbTerminationPointAugmentation intf,
-                                     final NeutronNetwork neutronNetwork, Action action) {
+                                     final NeutronNetwork neutronNetwork, boolean isMigratedPort, Action action) {
         LOG.debug("southbound interface {} node:{} interface:{}, neutronNetwork:{}",
                      action, bridgeNode.getNodeId().getValue(), intf.getName(), neutronNetwork);
         final NeutronPort neutronPort = tenantNetworkManager.getTenantPort(intf);
         if (neutronPort != null) {
-            this.handlePortEvent(neutronPort, action);
+            this.handlePortEvent(neutronPort, bridgeNode, isMigratedPort, action);
         }
     }
 

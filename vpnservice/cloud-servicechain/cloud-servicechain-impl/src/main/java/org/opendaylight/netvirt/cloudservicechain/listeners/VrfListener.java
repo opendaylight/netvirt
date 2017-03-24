@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -8,18 +8,14 @@
 package org.opendaylight.netvirt.cloudservicechain.listeners;
 
 import com.google.common.base.Optional;
-
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnPseudoPortCache;
@@ -29,7 +25,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,44 +35,28 @@ import org.slf4j.LoggerFactory;
  * new label in the LFIB (or removing it) pointing to the VpnPseudoPort.
  *
  */
-public class VrfListener extends AbstractDataChangeListener<VrfEntry> implements AutoCloseable {
+public class VrfListener extends AsyncDataTreeChangeListenerBase<VrfEntry, VrfListener> implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(VrfListener.class);
 
     private final DataBroker broker;
     private final IMdsalApiManager mdsalMgr;
 
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
-
-
     public VrfListener(DataBroker broker, IMdsalApiManager mdsalMgr) {
-        super(VrfEntry.class);
         this.broker = broker;
         this.mdsalMgr = mdsalMgr;
     }
 
+    @Override
     public void init() {
-        registerListener();
-    }
-
-    private InstanceIdentifier<VrfEntry> getWildCardPath() {
-        return InstanceIdentifier.create(FibEntries.class).child(VrfTables.class).child(VrfEntry.class);
-    }
-
-    private void registerListener() {
-        listenerRegistration = broker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                                                                 getWildCardPath(),
-                                                                 VrfListener.this,
-                                                                 DataChangeScope.SUBTREE);
-        LOG.info("VrfListener in Vpn-ServiceChain succesfully registered");
+        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
     }
 
     @Override
-    public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-        }
+    protected InstanceIdentifier<VrfEntry> getWildCardPath() {
+        return InstanceIdentifier.create(FibEntries.class).child(VrfTables.class).child(VrfEntry.class);
     }
+
 
     @Override
     protected void remove(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntryDeleted) {
@@ -138,5 +117,10 @@ public class VrfListener extends AbstractDataChangeListener<VrfEntry> implements
     private List<Long> getUniqueLabelList(VrfEntry original) {
         return original.getRoutePaths().stream().map(routePath -> routePath.getLabel()).distinct()
                 .sorted().collect(Collectors.toList());
+    }
+
+    @Override
+    protected VrfListener getDataTreeChangeListener() {
+        return VrfListener.this;
     }
 }

@@ -22,6 +22,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <repository>mvn:org.opendaylight.genius/genius-features/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.infrautils/infrautils-features/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.dlux/features-dlux/{{VERSION}}/xml/features</repository>
+  <repository>mvn:org.opendaylight.federation/federation-features/{{VERSION}}/xml/features</repository>
+  <repository>mvn:org.opendaylight.sfc/features-sfc/{{VERSION}}/xml/features</repository>
 
   <feature name='odl-netvirt-api' version='${project.version}' description='OpenDaylight :: NetVirt :: api'>
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
@@ -90,8 +92,25 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version="${restconf.version}">odl-restconf</feature>
   </feature>
 
+  <!--<feature name='odl-netvirt-federation' version='${project.version}' description='OpenDaylight :: NetVirt :: Federation'>
+    <feature version="${project.version}">odl-netvirt-openstack</feature>
+    <feature version="${federation.version}">federation-with-rabbit</feature>
+    <bundle>mvn:org.opendaylight.netvirt/federation-plugin-api/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/federation-plugin-impl/{{VERSION}}</bundle>
+  </feature>
+
   <feature name="odl-netvirt-ui" description="OpenDaylight :: NetVirt :: DLUX Integration Plugin" version='${project.version}'>
     <feature version="${dlux.version}">odl-dlux-core</feature>
     <bundle>mvn:org.opendaylight.netvirt/ovsdb-ui-bundle/{{VERSION}}</bundle>
+  </feature>-->
+
+  <feature name='odl-netvirt-sfc' version='${project.version}' description='OpenDaylight :: NetVirt :: SFC'>
+    <feature version='${sfc.version}'>odl-sfc-provider</feature>
+    <feature version="${project.version}">odl-netvirt-openstack</feature>
+    <bundle>mvn:org.opendaylight.netvirt/utils.mdsal-utils/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/sfc.classifier-api/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/sfc.classifier-impl/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/sfc.translator/{{VERSION}}</bundle>
   </feature>
+
 </features>

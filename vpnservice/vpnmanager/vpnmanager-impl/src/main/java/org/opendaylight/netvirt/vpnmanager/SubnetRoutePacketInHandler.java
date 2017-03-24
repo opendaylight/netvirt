@@ -188,7 +188,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     }
 
     public static long getElanTagFromSubnetRouteMetadata(BigInteger metadata) {
-        return ((metadata.and(MetaDataUtil.METADATA_MASK_ELAN_SUBNET_ROUTE)).shiftRight(32)).longValue();
+        return ((metadata.and(MetaDataUtil.METADATA_MASK_ELAN_SUBNET_ROUTE)).shiftRight(24)).longValue();
     }
 
     static InstanceIdentifier<VpnIds> getVpnIdToVpnInstanceIdentifier(long vpnId) {
