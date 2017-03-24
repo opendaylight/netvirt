@@ -79,6 +79,52 @@
       "revId": "d3f82acd8f45d1618f19fbbdb2a7b2e74d59a327",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_be09692e",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 3316
+      },
+      "writtenOn": "2017-03-24T01:30:57Z",
+      "side": 1,
+      "message": "simple post commit won\u0027t work.\nProbably we need to add hook after sending request from networking-odl to ODL before marking journal entry completed.",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 84,
+        "endChar": 29
+      },
+      "revId": "d3f82acd8f45d1618f19fbbdb2a7b2e74d59a327",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f30b2a29",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 3316
+      },
+      "writtenOn": "2017-03-24T01:30:57Z",
+      "side": 1,
+      "message": "Can you please discuss this at networking-odl in details.\nPlease file blueprint at launchpad and spec for networking-odl?\n\nIn long term, we can support openstack rpc call from ODL(client) to neutron(server), this modification will be unnecessary.\n\ncf.\nhttps://git.opendaylight.org/gerrit/#/c/53242/",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 22
+      },
+      "revId": "d3f82acd8f45d1618f19fbbdb2a7b2e74d59a327",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
