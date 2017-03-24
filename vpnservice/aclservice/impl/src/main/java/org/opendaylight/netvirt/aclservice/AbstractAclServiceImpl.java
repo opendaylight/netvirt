@@ -9,14 +9,12 @@ package org.opendaylight.netvirt.aclservice;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -340,23 +338,16 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     protected void syncFlow(BigInteger dpId, short tableId, String flowId, int priority, String flowName,
             int idleTimeOut, int hardTimeOut, BigInteger cookie, List<? extends MatchInfoBase> matches,
             List<InstructionInfo> instructions, int addOrRemove) {
-        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         if (addOrRemove == NwConstants.DEL_FLOW) {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName, idleTimeOut,
                     hardTimeOut, cookie, matches, null);
             LOG.trace("Removing Acl Flow DpnId {}, flowId {}", dpId, flowId);
-            dataStoreCoordinator.enqueueJob(dpId.toString(),
-                () -> {
-                    return Arrays.asList(mdsalManager.removeFlow(dpId, flowEntity));
-                });
+            mdsalManager.removeFlow(flowEntity);
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName, idleTimeOut,
                     hardTimeOut, cookie, matches, instructions);
             LOG.trace("Installing DpnId {}, flowId {}", dpId, flowId);
-            dataStoreCoordinator.enqueueJob(dpId.toString(),
-                () -> {
-                    return Arrays.asList(mdsalManager.installFlow(dpId, flowEntity));
-                });
+            mdsalManager.installFlow(flowEntity);
         }
     }
 
