@@ -572,4 +572,8 @@ public class ElanBridgeManager implements IElanBridgeManager {
     public String getIntegrationBridgeName() {
         return INTEGRATION_BRIDGE;
     }
+
+    public BigInteger getDatapathID(Node node) {
+        return BigInteger.valueOf(southboundUtils.getDataPathId(node));
+    }
 }
