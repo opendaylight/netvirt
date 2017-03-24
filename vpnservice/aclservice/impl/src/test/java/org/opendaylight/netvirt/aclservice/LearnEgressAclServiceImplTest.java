@@ -15,7 +15,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 
 import java.math.BigInteger;
@@ -31,7 +30,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
@@ -79,8 +77,8 @@ public class LearnEgressAclServiceImplTest {
     @Mock AclserviceConfig config;
     @Mock IdManagerService idManager;
 
-    MethodInvocationParamSaver<CheckedFuture<Void, TransactionCommitFailedException>> installFlowValueSaver = null;
-    MethodInvocationParamSaver<CheckedFuture<Void, TransactionCommitFailedException>> removeFlowValueSaver = null;
+    MethodInvocationParamSaver<Void> installFlowValueSaver = null;
+    MethodInvocationParamSaver<Void> removeFlowValueSaver = null;
 
     final Integer tcpFinIdleTimeoutValue = 60;
 
@@ -92,10 +90,10 @@ public class LearnEgressAclServiceImplTest {
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
-        installFlowValueSaver = new MethodInvocationParamSaver<>(Futures.immediateCheckedFuture(null));
-        doAnswer(installFlowValueSaver).when(mdsalManager).installFlow(any(BigInteger.class), any(FlowEntity.class));
-        removeFlowValueSaver = new MethodInvocationParamSaver<>(Futures.immediateCheckedFuture(null));
-        doAnswer(installFlowValueSaver).when(mdsalManager).removeFlow(any(BigInteger.class), any(FlowEntity.class));
+        installFlowValueSaver = new MethodInvocationParamSaver<>(null);
+        doAnswer(installFlowValueSaver).when(mdsalManager).installFlow(any(FlowEntity.class));
+        removeFlowValueSaver = new MethodInvocationParamSaver<>(null);
+        doAnswer(installFlowValueSaver).when(mdsalManager).removeFlow(any(FlowEntity.class));
         doReturn(tcpFinIdleTimeoutValue).when(config).getSecurityGroupTcpFinIdleTimeout();
     }
 
@@ -117,10 +115,9 @@ public class LearnEgressAclServiceImplTest {
         Uuid sgUuid = new Uuid("12345678-1234-1234-1234-123456789012");
         AclInterface ai = stubTcpAclInterface(sgUuid, "if_name", "1.1.1.1/32", 80, 80);
         assertEquals(true, testedService.applyAcl(ai));
-        Thread.sleep(1000);
         assertEquals(10, installFlowValueSaver.getNumOfInvocations());
 
-        FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(1);
+        FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(0);
         AclServiceTestUtils.verifyMatchInfo(flow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
         AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0), ActionLearn.class);
@@ -144,10 +141,9 @@ public class LearnEgressAclServiceImplTest {
         Uuid sgUuid = new Uuid("12345678-1234-1234-1234-123456789012");
         AclInterface ai = stubAllowAllInterface(sgUuid, "if_name");
         assertEquals(true, testedService.applyAcl(ai));
-        Thread.sleep(1000);
         assertEquals(10, installFlowValueSaver.getNumOfInvocations());
 
-        FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(1);
+        FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(0);
         AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0), ActionLearn.class);
     }
 
@@ -156,13 +152,12 @@ public class LearnEgressAclServiceImplTest {
         Uuid sgUuid = new Uuid("12345678-1234-1234-1234-123456789012");
         AclInterface ai = stubTcpAclInterface(sgUuid, "if_name", "1.1.1.1/32", 80, 84);
         assertEquals(true, testedService.applyAcl(ai));
-        Thread.sleep(1000);
         assertEquals(11, installFlowValueSaver.getNumOfInvocations());
-        FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(1);
+        FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(0);
         AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65532");
 
-        FlowEntity secondRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(10).get(1);
+        FlowEntity secondRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(10).get(0);
         AclServiceTestUtils.verifyMatchInfo(secondRangeFlow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "84", "65535");
     }
@@ -172,9 +167,8 @@ public class LearnEgressAclServiceImplTest {
         Uuid sgUuid = new Uuid("12345678-1234-1234-1234-123456789012");
         AclInterface ai = stubUdpAclInterface(sgUuid, "if_name", "1.1.1.1/32", 80, 80);
         assertEquals(true, testedService.applyAcl(ai));
-        Thread.sleep(1000);
         assertEquals(10, installFlowValueSaver.getNumOfInvocations());
-        FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(1);
+        FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(0);
         AclServiceTestUtils.verifyMatchInfo(flow.getMatchInfoList(),
                 NxMatchFieldType.nx_udp_dst_with_mask, "80", "65535");
         AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0), ActionLearn.class);
@@ -199,7 +193,6 @@ public class LearnEgressAclServiceImplTest {
         Uuid sgUuid = new Uuid("12345678-1234-1234-1234-123456789012");
         AclInterface ai = stubTcpAclInterface(sgUuid, "if_name", "1.1.1.1/32", 80, 80);
         assertEquals(true, testedService.removeAcl(ai));
-        Thread.sleep(1000);
         assertEquals(5, removeFlowValueSaver.getNumOfInvocations());
         FlowEntity firstRangeFlow = (FlowEntity) removeFlowValueSaver.getInvocationParams(4).get(0);
         assertTrue(firstRangeFlow.getMatchInfoList().contains(new MatchTcpFlags(2)));

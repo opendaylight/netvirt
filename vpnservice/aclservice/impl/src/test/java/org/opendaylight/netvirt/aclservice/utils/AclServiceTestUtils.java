@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.junit.Assert;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -204,5 +203,7 @@ public class AclServiceTestUtils {
         if (entityOwnerCache != null) {
             entityOwnerCache.put(entityName, true);
         }
+
     }
+
 }
