@@ -60,6 +60,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev16061
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan._interface.forwarding.entries.ElanInterfaceMac;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
@@ -443,7 +444,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
     @Override
     public void createExternalElanNetworks(Node node) {
-        handleExternalElanNetworks(node, (elanInstance, interfaceName) -> {
+        handleExternalElanNetworks(node, true, (elanInstance, interfaceName) -> {
             createExternalElanNetwork(elanInstance, interfaceName);
             return null;
         });
@@ -451,10 +452,22 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
     @Override
     public void createExternalElanNetwork(ElanInstance elanInstance) {
-        handleExternalElanNetwork(elanInstance, (elanInstance1, interfaceName) -> {
+        handleExternalElanNetwork(elanInstance, false, (elanInstance1, interfaceName) -> {
             createExternalElanNetwork(elanInstance1, interfaceName);
             return null;
         });
+    }
+
+    @Override
+    public void createExternalElanNetwork(ElanInstance elanInstance, BigInteger dpId) {
+        String providerIntfName = bridgeMgr.getProviderInterfaceName(dpId, elanInstance.getPhysicalNetworkName());
+        String intfName = providerIntfName + IfmConstants.OF_URI_SEPARATOR + elanInstance.getSegmentationId();
+        Interface memberIntf = interfaceManager.getInterfaceInfoFromConfigDataStore(intfName);
+        if (memberIntf == null) {
+            LOG.debug("creating vlan prv intf in elan {}, dpn {}", elanInstance.getElanInstanceName(),
+                    dpId);
+            createExternalElanNetwork(elanInstance, providerIntfName);
+        }
     }
 
     private void createExternalElanNetwork(ElanInstance elanInstance, String interfaceName) {
@@ -468,19 +481,43 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     }
 
     @Override
-    public void deleteExternalElanNetworks(Node node) {
-        handleExternalElanNetworks(node, (elanInstance, interfaceName) -> {
-            deleteExternalElanNetwork(elanInstance, interfaceName);
+    public void updateExternalElanNetwork(ElanInstance elanInstance) {
+        handleExternalElanNetwork(elanInstance, true, (elanInstance1, interfaceName) -> {
+            createExternalElanNetwork(elanInstance1, interfaceName);
             return null;
         });
     }
 
     @Override
+    public void deleteExternalElanNetworks(Node node) {
+        handleExternalElanNetworks(node, false, (elanInstance, interfaceName) -> {
+            deleteExternalElanNetwork(elanInstance, interfaceName);
+            return null;
+        });
+    }
+
+
+    @Override
     public void deleteExternalElanNetwork(ElanInstance elanInstance) {
-        handleExternalElanNetwork(elanInstance, (elanInstance1, interfaceName) -> {
+        handleExternalElanNetwork(elanInstance, false, (elanInstance1, interfaceName) -> {
             deleteExternalElanNetwork(elanInstance1, interfaceName);
             return null;
         });
+    }
+
+    @Override
+    public void deleteExternalElanNetwork(ElanInstance elanInstance, BigInteger dpnId) {
+        String providerIntfName = bridgeMgr.getProviderInterfaceName(dpnId, elanInstance.getPhysicalNetworkName());
+        String intfName = providerIntfName + IfmConstants.OF_URI_SEPARATOR + elanInstance.getSegmentationId();
+        Interface memberIntf = interfaceManager.getInterfaceInfoFromConfigDataStore(intfName);
+        if (memberIntf != null) {
+            deleteElanInterface(elanInstance.getElanInstanceName(), intfName);
+            deleteIetfInterface(intfName);
+            LOG.debug("delete vlan prv intf {} in elan {}, dpID {}", intfName,
+                    elanInstance.getElanInstanceName(), dpnId);
+        } else {
+            LOG.debug("vlan prv intf {} not found in interfacemgr config DS", intfName);
+        }
     }
 
     private void deleteExternalElanNetwork(ElanInstance elanInstance, String interfaceName) {
@@ -537,18 +574,34 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
         boolean hasDatapathIdOnOrigNode = bridgeMgr.hasDatapathID(origNode);
         boolean hasDatapathIdOnUpdatedNode = bridgeMgr.hasDatapathID(updatedNode);
+        BigInteger origDpnID = bridgeMgr.getDatapathID(origNode);
 
         for (ElanInstance elanInstance : elanInstances) {
             String physicalNetworkName = elanInstance.getPhysicalNetworkName();
+            boolean createExternalElanNw = true;
             if (physicalNetworkName != null) {
                 String origPortName = origProviderMappping.get(physicalNetworkName);
                 String updatedPortName = updatedProviderMappping.get(physicalNetworkName);
+                /**
+                 * for internal vlan network, vlan provider interface creation should be
+                 * triggered only if there is existing vlan provider intf indicating presence
+                 * of VM ports on the DPN
+                 */
+                if (hasDatapathIdOnOrigNode && !elanInstance.isExternal()
+                        && ElanUtils.isVlan(elanInstance)) {
+                    String externalIntf = getExternalElanInterface(elanInstance.getElanInstanceName(),
+                            origDpnID);
+                    if (externalIntf == null) {
+                        createExternalElanNw = false;
+                    }
+                }
                 if (hasPortNameRemoved(origPortName, updatedPortName)) {
                     deleteExternalElanNetwork(elanInstance,
                             bridgeMgr.getProviderInterfaceName(origNode, physicalNetworkName));
                 }
-                if (hasPortNameUpdated(origPortName, updatedPortName)
-                        || hasDatapathIdAdded(hasDatapathIdOnOrigNode, hasDatapathIdOnUpdatedNode)) {
+
+                if (createExternalElanNw && (hasPortNameUpdated(origPortName, updatedPortName)
+                        || hasDatapathIdAdded(hasDatapathIdOnOrigNode, hasDatapathIdOnUpdatedNode))) {
                     createExternalElanNetwork(elanInstance,
                             bridgeMgr.getProviderInterfaceName(updatedNode, physicalNetworkName));
                 }
@@ -593,6 +646,11 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     @Override
     public String getExternalElanInterface(String elanInstanceName, BigInteger dpnId) {
         return elanUtils.getExternalElanInterface(elanInstanceName, dpnId);
+    }
+
+    @Override
+    public DpnInterfaces getElanDpnInterfaces(String elanInstanceName, BigInteger dpnId) {
+        return elanUtils.getElanInterfaceInfoByElanDpn(elanInstanceName, dpnId);
     }
 
     @Override
@@ -694,7 +752,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         LOG.debug("Deleting IETF interface {}", interfaceName);
     }
 
-    private void handleExternalElanNetworks(Node node, BiFunction<ElanInstance, String, Void> function) {
+    private void handleExternalElanNetworks(Node node, boolean skipIntVlanNw,
+                                            BiFunction<ElanInstance, String, Void> function) {
         if (!bridgeMgr.isIntegrationBridge(node)) {
             return;
         }
@@ -706,6 +765,9 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         }
 
         for (ElanInstance elanInstance : elanInstances) {
+            if (skipIntVlanNw && !elanInstance.isExternal() && ElanUtils.isVlan(elanInstance)) {
+                continue;
+            }
             String interfaceName = bridgeMgr.getProviderInterfaceName(node, elanInstance.getPhysicalNetworkName());
             if (interfaceName != null) {
                 function.apply(elanInstance, interfaceName);
@@ -713,7 +775,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         }
     }
 
-    private void handleExternalElanNetwork(ElanInstance elanInstance, BiFunction<ElanInstance, String, Void> function) {
+    private void handleExternalElanNetwork(ElanInstance elanInstance, boolean update,
+                                           BiFunction<ElanInstance, String, Void> function) {
         String elanInstanceName = elanInstance.getElanInstanceName();
         if (elanInstance.getPhysicalNetworkName() == null) {
             LOG.trace("No physical network attached to {}", elanInstanceName);
@@ -729,6 +792,12 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
         for (Node node : nodes) {
             if (bridgeMgr.isIntegrationBridge(node)) {
+                if (update && !elanInstance.isExternal()) {
+                    DpnInterfaces dpnInterfaces = getElanDpnInterfaces(elanInstanceName, bridgeMgr.getDatapathID(node));
+                    if (dpnInterfaces == null || dpnInterfaces.getInterfaces().size() == 0) {
+                        continue;
+                    }
+                }
                 String interfaceName = bridgeMgr.getProviderInterfaceName(node, elanInstance.getPhysicalNetworkName());
                 function.apply(elanInstance, interfaceName);
             }

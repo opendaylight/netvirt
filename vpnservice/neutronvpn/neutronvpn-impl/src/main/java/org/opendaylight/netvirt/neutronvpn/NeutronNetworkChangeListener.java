@@ -99,9 +99,10 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         NeutronvpnUtils.addToNetworkCache(input);
         // Create ELAN instance for this network
         ElanInstance elanInstance = createElanInstance(input);
-        // Create ELAN interface and IETF interfaces for the physical network
-        elanService.createExternalElanNetwork(elanInstance);
+
         if (NeutronvpnUtils.getIsExternal(input)) {
+            // Create ELAN interface and IETF interfaces for the physical network
+            elanService.createExternalElanNetwork(elanInstance);
             ProviderTypes providerNwType = NeutronvpnUtils.getProviderNetworkType(input);
             if (providerNwType == null) {
                 LOG.error("NeutronVPN: Unable to get Network Provider Type for network {}", input.getUuid().getValue());
@@ -147,6 +148,7 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         Class<? extends SegmentTypeBase> updateSegmentType = NeutronvpnUtils.getSegmentTypeFromNeutronNetwork(update);
         String updateSegmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(update);
         String updatePhysicalNetwork = NeutronvpnUtils.getPhysicalNetworkName(update);
+        Boolean updateExternal = NeutronvpnUtils.getIsExternal(update);
 
         if (!Objects.equals(origSegmentType, updateSegmentType)
                 || !Objects.equals(origSegmentationId, updateSegmentationId)
@@ -158,8 +160,8 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
             if (elanInstance != null) {
                 elanService.deleteExternalElanNetwork(elanInstance);
                 elanInstance = updateElanInstance(elanInstanceName, updateSegmentType, updateSegmentationId,
-                        updatePhysicalNetwork, buildSegments(update));
-                elanService.createExternalElanNetwork(elanInstance);
+                        updatePhysicalNetwork, buildSegments(update), updateExternal);
+                elanService.updateExternalElanNetwork(elanInstance);
             }
 
             if (NeutronvpnUtils.getIsExternal(update) && NeutronvpnUtils.isFlatOrVlanNetwork(update)) {
@@ -194,8 +196,9 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         Class<? extends SegmentTypeBase> segmentType = NeutronvpnUtils.getSegmentTypeFromNeutronNetwork(input);
         String segmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(input);
         String physicalNetworkName = NeutronvpnUtils.getPhysicalNetworkName(input);
+        Boolean isExternal = NeutronvpnUtils.getIsExternal(input);
         ElanInstance elanInstance = createElanInstance(elanInstanceName, segmentType, segmentationId,
-                                                       physicalNetworkName, buildSegments(input));
+                                                       physicalNetworkName, buildSegments(input), isExternal);
         InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
         Optional<ElanInstance> existingElanInstance =
             MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
@@ -209,7 +212,7 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
 
     private ElanInstance createElanInstance(String elanInstanceName, Class<? extends SegmentTypeBase> segmentType,
                                             String segmentationId, String physicalNetworkName,
-                                            List<ElanSegments> segments) {
+                                            List<ElanSegments> segments, Boolean isExternal) {
         ElanInstanceBuilder elanInstanceBuilder = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName);
         if (segmentType != null) {
             elanInstanceBuilder.setSegmentType(segmentType);
@@ -223,6 +226,7 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         if (segments != null) {
             elanInstanceBuilder.setElanSegments(segments);
         }
+        elanInstanceBuilder.setExternal(isExternal);
         elanInstanceBuilder.setKey(new ElanInstanceKey(elanInstanceName));
         return elanInstanceBuilder.build();
     }
@@ -234,10 +238,10 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
     }
 
     private ElanInstance updateElanInstance(String elanInstanceName, Class<? extends SegmentTypeBase> segmentType,
-            String segmentationId, String physicalNetworkName, List<ElanSegments> segments) {
+            String segmentationId, String physicalNetworkName, List<ElanSegments> segments, Boolean isExternal) {
 
         ElanInstance elanInstance = createElanInstance(elanInstanceName, segmentType, segmentationId,
-                physicalNetworkName, segments);
+                physicalNetworkName, segments, isExternal);
         InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
         MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, id, elanInstance);
         return elanInstance;
