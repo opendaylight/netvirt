@@ -69,7 +69,7 @@ public class ElanInterfaceStateChangeListener
         }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         InterfaceRemoveWorkerOnElan removeWorker = new InterfaceRemoveWorkerOnElan(elanInstanceName, elanInstance,
-            interfaceName, interfaceInfo, true, elanInterfaceManager);
+                interfaceName, interfaceInfo, true, elanInterfaceManager);
         coordinator.enqueueJob(elanInstanceName, removeWorker, ElanConstants.JOB_MAX_RETRIES);
     }
 
