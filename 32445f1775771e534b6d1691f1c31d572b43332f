@@ -39,6 +39,23 @@
       "revId": "32445f1775771e534b6d1691f1c31d572b43332f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2f195ad7",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-28T17:38:43Z",
+      "side": 1,
+      "message": "this should be a reference",
+      "revId": "32445f1775771e534b6d1691f1c31d572b43332f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
