@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_0f4736bd",
+        "filename": "docs/specs/index.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-28T17:38:43Z",
+      "side": 1,
+      "message": "Change the title, it is exact same as one for RT5.",
+      "range": {
+        "startLine": 23,
+        "startChar": 3,
+        "endLine": 23,
+        "endChar": 57
+      },
+      "revId": "32445f1775771e534b6d1691f1c31d572b43332f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ef43d2ac",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-28T17:38:43Z",
+      "side": 1,
+      "message": "file should be .rst, not .txt",
+      "revId": "32445f1775771e534b6d1691f1c31d572b43332f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
