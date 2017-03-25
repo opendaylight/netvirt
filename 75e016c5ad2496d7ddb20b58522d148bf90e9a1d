@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_39e593a8",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-24T10:49:34Z",
+      "side": 1,
+      "message": "0 -\u003e 17 -\u003e 19 -\u003e 21 -\u003e",
+      "revId": "75e016c5ad2496d7ddb20b58522d148bf90e9a1d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_59f17769",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-24T10:49:34Z",
+      "side": 1,
+      "message": "again 0 -\u003e 17 -\u003e 19 -\u003e 21 -\u003e",
+      "revId": "75e016c5ad2496d7ddb20b58522d148bf90e9a1d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
