@@ -1,0 +1,97 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_35173653",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-13T10:56:49Z",
+      "side": 1,
+      "message": "Could you detail how this flow will be installed? \n\nAFAIK, ELAN service today is able to install DMAC flows from the following sources:\n1. static macs of ELAN interfaces \n2. learnt macs behind ELAN interfaces\n3. mac addresses learnt by l2gw\n\nIs the external-vm-mac going to be associated to one of the elan-interfaces? if not, how will it be represented in the ELAN model?",
+      "range": {
+        "startLine": 150,
+        "startChar": 4,
+        "endLine": 150,
+        "endChar": 19
+      },
+      "revId": "b26cdb5cb258a353ebd1dc6dd5ef886f3423cb15",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7deeb9b5",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-15T13:37:41Z",
+      "side": 1,
+      "message": "Why couldn\u0027t this be modeled as part of the elan? sounds odd to create model in L3 in order to install L2 flows",
+      "parentUuid": "fafc7978_a66db79a",
+      "range": {
+        "startLine": 150,
+        "startChar": 4,
+        "endLine": 150,
+        "endChar": 19
+      },
+      "revId": "b26cdb5cb258a353ebd1dc6dd5ef886f3423cb15",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_405cb625",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-13T10:56:49Z",
+      "side": 1,
+      "message": "today, LNH is OF group and RNH is not \nbased on this flow and the one below, this is the other way around.\nIs this change introduced as part of this spec?",
+      "range": {
+        "startLine": 162,
+        "startChar": 3,
+        "endLine": 162,
+        "endChar": 16
+      },
+      "revId": "b26cdb5cb258a353ebd1dc6dd5ef886f3423cb15",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a042c23b",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-13T10:56:49Z",
+      "side": 1,
+      "message": "mac",
+      "range": {
+        "startLine": 162,
+        "startChar": 42,
+        "endLine": 162,
+        "endChar": 44
+      },
+      "revId": "b26cdb5cb258a353ebd1dc6dd5ef886f3423cb15",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
