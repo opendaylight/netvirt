@@ -53,6 +53,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3f81094b",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T11:47:53Z",
+      "side": 1,
+      "message": "to enable",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_37abe58a",
         "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
         "patchSetId": 6
@@ -206,6 +223,108 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9f3915db",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T11:47:53Z",
+      "side": 1,
+      "message": "tunnel2-lport-tag",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5c121b63",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T11:47:53Z",
+      "side": 1,
+      "message": "this is incorrect.  It goes from 0 -\u003e 17 -\u003e 19 -\u003e 21 -\u003e external IP.",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5f096d2b",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T11:47:53Z",
+      "side": 1,
+      "message": "the table number is 23.  Table 0 -\u003e 17 -\u003e 23 -\u003e 19 -\u003e 21 --\u003e NextHopGroup -\u003e Table 220 -\u003e VM.",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bf19797b",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T11:47:53Z",
+      "side": 1,
+      "message": "nextHopGroup here and then to table 220.",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bf3059e9",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T11:47:53Z",
+      "side": 1,
+      "message": "traffic goes to tunnel port directly from 21.  \n\nam not sure why we have put nextHopGroups here for tunnel ports.. Is that to work in tandem with multiple vxlan tunnel spec from Tali?",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7fab91d6",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T11:47:53Z",
+      "side": 1,
+      "message": "table 25 is the DNAT table today.. Please choose a different table number.\n\nYou can choose something around 80 since ARP tables are historically around 80, like 78, 79 etc.\n\nspell check \u0027elan-id\u0027",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_57fe6939",
         "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
         "patchSetId": 6
@@ -234,6 +353,40 @@
       "writtenOn": "2017-03-23T07:17:26Z",
       "side": 1,
       "message": "why this is a list? can we have multiple networks attached to one L2VPN/EVI?",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f6cf2354",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-01T17:50:24Z",
+      "side": 1,
+      "message": "what about deleteEvpn RPC?\n\nSimilarly we need to support association of network to an EVPN.  Does that have a new RPC (or) it uses the existing associateNetworksToVpn RPC?",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7f9271a0",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-03-21T11:47:53Z",
+      "side": 1,
+      "message": "this has been addressed and so you can quote the same.",
       "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
