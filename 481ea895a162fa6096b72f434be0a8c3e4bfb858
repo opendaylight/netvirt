@@ -1,0 +1,259 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_771f2d0a",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-03-23T07:17:26Z",
+      "side": 1,
+      "message": "L3 BGPVPNs? i think it should be L2 BGPVPNs or just BGPVPNs",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_17e22103",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-03-23T07:17:26Z",
+      "side": 1,
+      "message": "I believe this spec refers to L2DCI, which is not available today. L2DCI will always use VxLAN tunnels. Existing L3VPN service over VxLAN (in place of MPLSoGRE) is described in another spec which uses EVPN RT5 routes.",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f7b95ded",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-03-23T07:17:26Z",
+      "side": 1,
+      "message": "It should be a BGPVPN with type L2",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_37abe58a",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-03-23T07:17:26Z",
+      "side": 1,
+      "message": "these are already available, will this spec have any impact on existing services?",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b79eb561",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-03-23T07:17:26Z",
+      "side": 1,
+      "message": "is this also in scope of this spec?",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_979bb171",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-03-23T07:17:26Z",
+      "side": 1,
+      "message": "L2VPN or EVI",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f7879d10",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-03-23T07:17:26Z",
+      "side": 1,
+      "message": "mpls based EVPN",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3782c500",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-03-23T07:17:26Z",
+      "side": 1,
+      "message": "EVPN",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5778292b",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-03-23T07:17:26Z",
+      "side": 1,
+      "message": "EVPN",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_97729147",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-03-23T07:17:26Z",
+      "side": 1,
+      "message": "EVPN (realized using EVPN RT2)",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3799256f",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-03-23T07:17:26Z",
+      "side": 1,
+      "message": "RT2",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_77a28d9b",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-03-23T07:17:26Z",
+      "side": 1,
+      "message": "MAC/IP advertisement",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_57fe6939",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-03-23T07:17:26Z",
+      "side": 1,
+      "message": "Is RD same as vrf-id? container name is using -rd-to- whereas list key is vrf-id.",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7701ed38",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-03-23T07:17:26Z",
+      "side": 1,
+      "message": "why this is a list? can we have multiple networks attached to one L2VPN/EVI?",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_379f6505",
+        "filename": "docs/specs/l2vpn-over-vxlan-with-evpn-rt2.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-03-23T07:17:26Z",
+      "side": 1,
+      "message": "why l3vpn?",
+      "revId": "481ea895a162fa6096b72f434be0a8c3e4bfb858",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
