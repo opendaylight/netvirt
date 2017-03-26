@@ -16,6 +16,24 @@
       "revId": "753b860c536a115c4deea05e62930465e768213f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bb121007",
+        "filename": "vpnservice/policyservice/impl/src/main/resources/org/opendaylight/blueprint/policyservice.xml",
+        "patchSetId": 18
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-26T17:00:39Z",
+      "side": 1,
+      "message": "Annotations are used instead\nSee https://wiki.opendaylight.org/view/BestPractices/DI_Guidelines for more details",
+      "parentUuid": "fafc7978_7b08a8d9",
+      "revId": "753b860c536a115c4deea05e62930465e768213f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
