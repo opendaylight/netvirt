@@ -20,7 +20,6 @@ import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -41,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeEgress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
@@ -229,7 +229,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
     protected void ingressAclDhcpAllowServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
             int addOrRemove, int protoPortMatchPriority) {
         final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV4,
-                AclConstants.DHCP_CLIENT_PORT_IPV4, lportTag);
+                AclConstants.DHCP_CLIENT_PORT_IPV4, lportTag, ServiceModeIngress.class);
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
@@ -252,7 +252,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
     protected void ingressAclDhcpv6AllowServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
             int addOrRemove, Integer protoPortMatchPriority) {
         final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpV6Matches(AclConstants.DHCP_SERVER_PORT_IPV6,
-                AclConstants.DHCP_CLIENT_PORT_IPV6, lportTag);
+                AclConstants.DHCP_CLIENT_PORT_IPV6, lportTag, ServiceModeIngress.class);
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
@@ -276,7 +276,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
 
         // Allow ICMPv6 Multicast Listener Query packets.
         List<MatchInfoBase> matches = AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_MLD_QUERY,
-                0, lportTag);
+                0, lportTag, ServiceModeIngress.class);
 
         String flowName =
                 "Ingress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_MLD_QUERY + "_Permit_";
@@ -284,7 +284,8 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
                 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
 
         // Allow ICMPv6 Neighbor Solicitation packets.
-        matches = AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_NS, 0, lportTag);
+        matches = AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_NS, 0, lportTag,
+                ServiceModeIngress.class);
 
         flowName =
                 "Ingress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_NS + "_Permit_";
@@ -292,7 +293,8 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
                 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
 
         // Allow ICMPv6 Neighbor Advertisement packets.
-        matches = AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_NA, 0, lportTag);
+        matches = AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_NA, 0, lportTag,
+                ServiceModeIngress.class);
 
         flowName =
                 "Ingress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_NA + "_Permit_";
@@ -308,14 +310,18 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
      * @param addOrRemove whether to add or remove the flow
      */
     protected void programArpRule(BigInteger dpId, int lportTag, int addOrRemove) {
-        List<MatchInfo> matches = new ArrayList<>();
+        List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.ARP);
-        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        matches.add(buildLPortTagMatch(lportTag));
 
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(new ArrayList<>());
         String flowName = "Ingress_ARP_" + dpId + "_" + lportTag;
         syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName,
                 AclConstants.PROTO_ARP_TRAFFIC_MATCH_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+    }
+
+    protected MatchInfoBase buildLPortTagMatch(int lportTag) {
+        return AclServiceUtils.buildLPortTagMatch(lportTag, ServiceModeIngress.class);
     }
 }

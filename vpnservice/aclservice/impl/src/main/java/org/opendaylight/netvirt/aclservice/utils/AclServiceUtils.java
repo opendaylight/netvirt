@@ -24,7 +24,6 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -39,6 +38,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Source;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpDestinationPort;
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
@@ -71,6 +71,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceTypeFlowBased;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflowBuilder;
@@ -91,6 +92,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
@@ -287,15 +289,17 @@ public final class AclServiceUtils {
      * @param srcPort the source port.
      * @param dstPort the destination port.
      * @param lportTag the lport tag
+     * @param serviceMode ingress or egress service
      * @return list of matches.
      */
-    public static List<MatchInfoBase> buildDhcpMatches(int srcPort, int dstPort, int lportTag) {
+    public static List<MatchInfoBase> buildDhcpMatches(int srcPort, int dstPort, int lportTag,
+            Class<? extends ServiceModeBase> serviceMode) {
         List<MatchInfoBase> matches = new ArrayList<>(6);
         matches.add(MatchEthernetType.IPV4);
         matches.add(MatchIpProtocol.UDP);
         matches.add(new MatchUdpDestinationPort(dstPort));
         matches.add(new MatchUdpSourcePort(srcPort));
-        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
         return matches;
     }
 
@@ -305,15 +309,17 @@ public final class AclServiceUtils {
      * @param srcPort the source port.
      * @param dstPort the destination port.
      * @param lportTag the lport tag
+     * @param serviceMode ingress or egress
      * @return list of matches.
      */
-    public static List<MatchInfoBase> buildDhcpV6Matches(int srcPort, int dstPort, int lportTag) {
+    public static List<MatchInfoBase> buildDhcpV6Matches(int srcPort, int dstPort, int lportTag,
+            Class<? extends ServiceModeBase> serviceMode) {
         List<MatchInfoBase> matches = new ArrayList<>(6);
         matches.add(MatchEthernetType.IPV6);
         matches.add(MatchIpProtocol.UDP);
         matches.add(new MatchUdpDestinationPort(dstPort));
         matches.add(new MatchUdpSourcePort(srcPort));
-        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
         return matches;
     }
 
@@ -323,16 +329,18 @@ public final class AclServiceUtils {
      * @param icmpType the icmpv6-type.
      * @param icmpCode the icmpv6-code.
      * @param lportTag the lport tag
+     * @param serviceMode ingress or egress
      * @return list of matches.
      */
-    public static List<MatchInfoBase> buildIcmpV6Matches(int icmpType, int icmpCode, int lportTag) {
+    public static List<MatchInfoBase> buildIcmpV6Matches(int icmpType, int icmpCode, int lportTag,
+            Class<? extends ServiceModeBase> serviceMode) {
         List<MatchInfoBase> matches = new ArrayList<>(6);
         matches.add(MatchEthernetType.IPV6);
         matches.add(MatchIpProtocol.ICMPV6);
         if (icmpType != 0) {
             matches.add(new MatchIcmpv6((short) icmpType, (short) icmpCode));
         }
-        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
         return matches;
     }
 
@@ -480,12 +488,19 @@ public final class AclServiceUtils {
 
     /**
      * Gets the lport tag match.
+     * Ingress match is based on metadata and egress match is based on masked reg6
      *
      * @param lportTag the lport tag
+     * @param serviceMode ingress or egress service mode
      * @return the lport tag match
      */
-    public static MatchInfo buildLPortTagMatch(int lportTag) {
-        return new MatchMetadata(MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG);
+    public static MatchInfoBase buildLPortTagMatch(int lportTag, Class<? extends ServiceModeBase> serviceMode) {
+        if (serviceMode != null && serviceMode.isAssignableFrom(ServiceModeIngress.class)) {
+            return new NxMatchRegister(NxmNxReg6.class, MetaDataUtil.getLportTagForReg6(lportTag).longValue(),
+                    MetaDataUtil.getLportTagMaskForReg6());
+        } else {
+            return new MatchMetadata(MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG);
+        }
     }
 
     public static List<Ace> getAceWithRemoteAclId(DataBroker dataBroker, AclInterface port, Uuid remoteAcl) {

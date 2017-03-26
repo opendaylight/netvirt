@@ -20,7 +20,6 @@ import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -43,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
@@ -218,7 +218,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     protected void egressAclDhcpDropServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
             int addOrRemove) {
         List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV4,
-                AclConstants.DHCP_CLIENT_PORT_IPV4, lportTag);
+                AclConstants.DHCP_CLIENT_PORT_IPV4, lportTag, ServiceModeEgress.class);
 
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -240,7 +240,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     protected void egressAclDhcpv6DropServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
             int addOrRemove) {
         List<MatchInfoBase> matches = AclServiceUtils.buildDhcpV6Matches(AclConstants.DHCP_SERVER_PORT_IPV6,
-                AclConstants.DHCP_CLIENT_PORT_IPV6, lportTag);
+                AclConstants.DHCP_CLIENT_PORT_IPV6, lportTag, ServiceModeEgress.class);
 
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -259,7 +259,8 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
      * @param addOrRemove add/remove the flow.
      */
     private void egressAclIcmpv6DropRouterAdvts(BigInteger dpId, int lportTag, int addOrRemove) {
-        List<MatchInfoBase> matches = AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_RA, 0, lportTag);
+        List<MatchInfoBase> matches = AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_RA, 0, lportTag,
+                ServiceModeEgress.class);
 
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -281,7 +282,8 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
 
         for (Integer icmpv6Type: AclConstants.allowedIcmpv6NdList()) {
-            List<MatchInfoBase> matches = AclServiceUtils.buildIcmpV6Matches(icmpv6Type, 0, lportTag);
+            List<MatchInfoBase> matches = AclServiceUtils.buildIcmpV6Matches(icmpv6Type, 0, lportTag,
+                    ServiceModeEgress.class);
             String flowName = "Egress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + icmpv6Type + "_Permit_";
             syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY,
                     "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
@@ -300,7 +302,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     private void egressAclDhcpAllowClientTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
             int addOrRemove) {
         final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_CLIENT_PORT_IPV4,
-                AclConstants.DHCP_SERVER_PORT_IPV4, lportTag);
+                AclConstants.DHCP_SERVER_PORT_IPV4, lportTag, ServiceModeEgress.class);
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
@@ -322,7 +324,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     private void egressAclDhcpv6AllowClientTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
             int addOrRemove) {
         final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpV6Matches(AclConstants.DHCP_CLIENT_PORT_IPV6,
-                AclConstants.DHCP_SERVER_PORT_IPV6, lportTag);
+                AclConstants.DHCP_SERVER_PORT_IPV6, lportTag, ServiceModeEgress.class);
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
@@ -344,10 +346,10 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
             int addOrRemove) {
         for (AllowedAddressPairs allowedAddress : allowedAddresses) {
             MacAddress attachMac = allowedAddress.getMacAddress();
-            List<MatchInfo> matches = new ArrayList<>();
+            List<MatchInfoBase> matches = new ArrayList<>();
             matches.add(MatchEthernetType.ARP);
             matches.add(new MatchArpSha(attachMac));
-            matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+            matches.add(buildLPortTagMatch(lportTag));
 
             List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(new ArrayList<>());
 
@@ -356,5 +358,9 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
                     AclConstants.PROTO_ARP_TRAFFIC_MATCH_PRIORITY, "ACL", 0, 0,
                     AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
         }
+    }
+
+    protected MatchInfoBase buildLPortTagMatch(int lportTag) {
+        return AclServiceUtils.buildLPortTagMatch(lportTag, ServiceModeEgress.class);
     }
 }

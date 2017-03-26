@@ -30,6 +30,7 @@ import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.slf4j.Logger;
@@ -82,7 +83,7 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
             Map<String, List<MatchInfoBase>> flowMap, String flowName) {
         List<MatchInfoBase> matches = flowMap.get(flowName);
         flowName += "Ingress" + lportTag + ace.getKey().getRuleName();
-        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        matches.add(buildLPortTagMatch(lportTag));
         matches.add(new NxMatchCtState(AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK));
 
         Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
@@ -183,11 +184,11 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
     private void programConntrackDropRule(BigInteger dpId, int lportTag, Integer priority, String flowId,
             int conntrackState, int conntrackMask, int addOrRemove) {
         List<MatchInfoBase> matches = AclServiceOFFlowBuilder.addLPortTagMatches(lportTag, conntrackState,
-                conntrackMask);
+                conntrackMask, ServiceModeIngress.class);
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
 
-        flowId = "Ingress_Fixed_Conntrk_Drop" + dpId + "_" + lportTag + "_" + flowId;
-        syncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, flowId, priority, "ACL", 0, 0,
+        flowId = "Egress_Fixed_Conntrk_Drop" + dpId + "_" + lportTag + "_" + flowId;
+        syncFlow(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, flowId, priority, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_DROP_FLOW, matches, instructions, addOrRemove);
     }
 
