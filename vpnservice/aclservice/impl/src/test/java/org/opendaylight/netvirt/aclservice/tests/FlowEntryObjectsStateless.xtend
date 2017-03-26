@@ -17,7 +17,6 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6
 import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source
-import org.opendaylight.genius.mdsalutil.matches.MatchMetadata
 import org.opendaylight.genius.mdsalutil.matches.MatchTcpFlags
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpDestinationPort
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort
@@ -26,7 +25,9 @@ import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpDestinationPort
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchUdpDestinationPort
 import org.opendaylight.genius.mdsalutil.MetaDataUtil
 
-import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata
 
 class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
 
@@ -96,7 +97,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
             matchInfoList = #[
                 new MatchEthernetType(2048L),
                 new MatchEthernetType(2048L),
-                new MatchMetadata(1085217976614912bi, 1152920405095219200bi)
+                new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
             ]
             priority = 61005
             tableId = 241 as short
@@ -117,7 +118,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi)
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 61005
                 tableId = 211 as short
@@ -138,7 +139,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi)
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 61005
                 tableId = 241 as short
@@ -155,7 +156,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi)
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 61005
                 tableId = 241 as short
@@ -177,7 +178,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         matchInfoList = #[
             new MatchEthernetType(2048L),
             new MatchEthernetType(2048L),
-            new MatchMetadata(1085217976614912bi, 1152920405095219200bi)
+            new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
         ]
         priority = 61005
         tableId = 241 as short
@@ -199,7 +200,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi)
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 61005
                 tableId = 211 as short
@@ -223,7 +224,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                         new MatchEthernetType(2048L),
                         new NxMatchTcpDestinationPort(80, 65535),
                         new MatchIpProtocol(6 as short),
-                        new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                        new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                         new MatchTcpFlags(2)
                     ]
                     priority = 61005
@@ -248,7 +249,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new NxMatchTcpDestinationPort(80, 65535),
                     new MatchIpProtocol(6 as short),
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new MatchTcpFlags(2)
                 ]
                 priority = 61005
@@ -273,7 +274,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new NxMatchTcpDestinationPort(80, 65535),
                     new MatchIpProtocol(6 as short),
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchTcpFlags(2)
                 ]
                 priority = 61005
@@ -298,7 +299,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new NxMatchTcpDestinationPort(80, 65535),
                     new MatchIpProtocol(6 as short),
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchTcpFlags(2)
                 ]
                 priority = 61005
@@ -318,7 +319,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new NxMatchTcpDestinationPort(80, 65535),
                     new MatchIpProtocol(6 as short),
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchTcpFlags(2)
                 ]
                 priority = 61005
@@ -375,7 +376,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new NxMatchUdpDestinationPort(80, 65535),
                     new MatchIpProtocol(17 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33L, 33L)
                 ]
                 priority = 61010
@@ -398,7 +399,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new NxMatchUdpDestinationPort(80, 65535),
                     new MatchIpProtocol(17 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33L, 33L)
                 ]
                 priority = 61010
@@ -450,7 +451,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new MatchIcmpv4(2 as short, 3 as short),
                     new MatchIpProtocol(1 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33L, 33L)
                 ]
                 priority = 61010
@@ -476,7 +477,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new MatchIcmpv4(2 as short, 3 as short),
                     new MatchIpProtocol(1 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33L, 33L)
                 ]
                 priority = 61010
@@ -559,7 +560,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new NxMatchUdpDestinationPort(2000, 65532),
                     new MatchIpProtocol(17 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33L, 33L)
                 ]
                 priority = 61010
@@ -584,7 +585,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new NxMatchTcpDestinationPort(776, 65534),
                     new MatchIpProtocol(6 as short),
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchTcpFlags(2)
                 ]
                 priority = 61005
@@ -604,7 +605,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new NxMatchTcpDestinationPort(512, 65280),
                     new MatchIpProtocol(6 as short),
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchTcpFlags(2)
                 ]
                 priority = 61005
@@ -624,7 +625,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new NxMatchTcpDestinationPort(334, 65534),
                     new MatchIpProtocol(6 as short),
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchTcpFlags(2)
                 ]
                 priority = 61005
@@ -644,7 +645,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new NxMatchTcpDestinationPort(333, 65535),
                     new MatchIpProtocol(6 as short),
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchTcpFlags(2)
                 ]
                 priority = 61005
@@ -664,7 +665,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new NxMatchTcpDestinationPort(336, 65520),
                     new MatchIpProtocol(6 as short),
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchTcpFlags(2)
                 ]
                 priority = 61005
@@ -684,7 +685,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new NxMatchTcpDestinationPort(352, 65504),
                     new MatchIpProtocol(6 as short),
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchTcpFlags(2)
                 ]
                 priority = 61005
@@ -704,7 +705,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new NxMatchTcpDestinationPort(384, 65408),
                     new MatchIpProtocol(6 as short),
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchTcpFlags(2)
                 ]
                 priority = 61005
@@ -724,7 +725,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new NxMatchTcpDestinationPort(768, 65528),
                     new MatchIpProtocol(6 as short),
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchTcpFlags(2)
                 ]
                 priority = 61005
@@ -750,7 +751,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new MatchIcmpv4(2 as short, 3 as short),
                     new MatchIpProtocol(1 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33L, 33L)
                 ]
                 priority = IdHelper.getFlowPriority(flowId)
@@ -771,7 +772,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new MatchIcmpv4(2 as short, 3 as short),
                     new MatchIpProtocol(1 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33L, 33L)
                 ]
                 priority = IdHelper.getFlowPriority(flowId)
@@ -844,7 +845,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchIpProtocol(17 as short),
                     new MatchUdpDestinationPort(68 as short),
                     new MatchUdpSourcePort(67 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
                 tableId = 241 as short
@@ -863,7 +864,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchIpProtocol(17 as short),
                     new MatchUdpDestinationPort(546 as short),
                     new MatchUdpSourcePort(547 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
                 tableId = 241 as short
@@ -881,7 +882,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(58 as short),
                     new MatchIcmpv6(130 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
                 tableId = 241 as short
@@ -899,7 +900,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(58 as short),
                     new MatchIcmpv6(135 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
                 tableId = 241 as short
@@ -917,7 +918,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(58 as short),
                     new MatchIcmpv6(136 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
                 tableId = 241 as short
@@ -933,7 +934,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(2054L),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
                 tableId = 241 as short

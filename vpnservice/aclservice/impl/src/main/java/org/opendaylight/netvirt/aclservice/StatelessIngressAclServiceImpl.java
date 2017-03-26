@@ -91,7 +91,7 @@ public class StatelessIngressAclServiceImpl extends AbstractIngressAclServiceImp
                     NxMatchTcpSourcePort.class);
             if (hasTcpMatch || protocol == null) {
                 String flowName = flow.getKey() + "Ingress" + lportTag + ace.getKey().getRuleName();
-                flowMatches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+                flowMatches.add(buildLPortTagMatch(lportTag));
                 programAllowSynRules(dpId, flowName, flowMatches, addOrRemove, protocol);
             }
         }
