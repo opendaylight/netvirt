@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fbc49842",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/service/ClassifierService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2017-03-26T20:20:25Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "fafc7978_bfe8437d",
+      "revId": "bacc06cfe4c30e38a1799268932f847cb8605e16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7f953be3",
         "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/service/domain/ClassifierEntry.java",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7be0a8cc",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/service/domain/ClassifierEntry.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2017-03-26T20:20:25Z",
+      "side": 1,
+      "message": "This properties are obtained from the source boxed, and their expected usage will require them boxed also. Also benefiting from Objects::hash in the hashCode method.",
+      "parentUuid": "fafc7978_7f953be3",
+      "revId": "bacc06cfe4c30e38a1799268932f847cb8605e16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_14d171fb",
         "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/service/domain/impl/ClassifierUpdate.java",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2017-03-24T20:56:28Z",
       "side": 1,
       "message": "maybe something more accurate than diff?",
+      "revId": "bacc06cfe4c30e38a1799268932f847cb8605e16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5bc4c43f",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/service/domain/impl/ClassifierUpdate.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2017-03-26T20:20:25Z",
+      "side": 1,
+      "message": "I have attempted to clear this out. But I do see it as a difference, not just of the elements of the Sets, but of their source* properties. Please let me know if I am misunderstanding you.",
+      "parentUuid": "fafc7978_14d171fb",
       "revId": "bacc06cfe4c30e38a1799268932f847cb8605e16",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
