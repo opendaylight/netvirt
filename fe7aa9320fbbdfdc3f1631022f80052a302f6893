@@ -16,6 +16,24 @@
       "revId": "fe7aa9320fbbdfdc3f1631022f80052a302f6893",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6593e5fa",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-26T07:56:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d306e620",
+      "revId": "fe7aa9320fbbdfdc3f1631022f80052a302f6893",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
