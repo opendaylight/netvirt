@@ -1,0 +1,279 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_25255dc2",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-26T09:59:00Z",
+      "side": 1,
+      "message": "typo inner - I would rename to something like aclInterfaces",
+      "range": {
+        "startLine": 422,
+        "startChar": 31,
+        "endLine": 422,
+        "endChar": 38
+      },
+      "revId": "9c9fe6d2919d2d256c44ec445a2fa43496a64788",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0091279a",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-26T09:59:00Z",
+      "side": 1,
+      "message": "Not sure I understand what\u0027s the difference between these functions - both populate the remote ACL table? The function names also add to the confusion :)",
+      "range": {
+        "startLine": 238,
+        "startChar": 12,
+        "endLine": 239,
+        "endChar": 75
+      },
+      "revId": "9c9fe6d2919d2d256c44ec445a2fa43496a64788",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_40b4cf34",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractIngressAclServiceImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-26T09:59:00Z",
+      "side": 1,
+      "message": "A lot of the code here is duplicated between ingress/egress - could you refactor into AbstractAclServiceImpl?",
+      "range": {
+        "startLine": 285,
+        "startChar": 17,
+        "endLine": 285,
+        "endChar": 45
+      },
+      "revId": "9c9fe6d2919d2d256c44ec445a2fa43496a64788",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_20af0be5",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractIngressAclServiceImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-26T09:59:00Z",
+      "side": 1,
+      "message": "Should this ever happen? If not should it be WARN/ERR?",
+      "revId": "9c9fe6d2919d2d256c44ec445a2fa43496a64788",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_00aac7d1",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractIngressAclServiceImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-26T09:59:00Z",
+      "side": 1,
+      "message": "Is this an error or will we recover if the dpId is null?",
+      "revId": "9c9fe6d2919d2d256c44ec445a2fa43496a64788",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8050770b",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/LearnEgressAclServiceImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-26T09:59:00Z",
+      "side": 1,
+      "message": "can you remove this file from patch?",
+      "revId": "9c9fe6d2919d2d256c44ec445a2fa43496a64788",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e009832d",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-26T09:59:00Z",
+      "side": 1,
+      "message": "typo aclServiceUtils",
+      "range": {
+        "startLine": 44,
+        "startChar": 34,
+        "endLine": 44,
+        "endChar": 48
+      },
+      "revId": "9c9fe6d2919d2d256c44ec445a2fa43496a64788",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a082db4f",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-26T09:59:00Z",
+      "side": 1,
+      "message": "cachedAclInterface (the current name implies this is a cache and not a cached element)",
+      "range": {
+        "startLine": 90,
+        "startChar": 29,
+        "endLine": 90,
+        "endChar": 46
+      },
+      "revId": "9c9fe6d2919d2d256c44ec445a2fa43496a64788",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c00c3f3e",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclConstants.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-26T09:59:00Z",
+      "side": 1,
+      "message": "typo METADATA",
+      "range": {
+        "startLine": 93,
+        "startChar": 29,
+        "endLine": 93,
+        "endChar": 55
+      },
+      "revId": "9c9fe6d2919d2d256c44ec445a2fa43496a64788",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_601d9366",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclDataUtil.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-26T09:59:00Z",
+      "side": 1,
+      "message": "I still don\u0027t like this logic - there are Set implementations for a reason - if you really don\u0027t want to refactor, you can create a HashSet out of the list, add the port, and return a List from that",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 5
+      },
+      "revId": "9c9fe6d2919d2d256c44ec445a2fa43496a64788",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_40184f75",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-26T09:59:00Z",
+      "side": 1,
+      "message": "Can you put this in a common utility function and use it everywhere instead of size() \u003d\u003d 1? Something like port.hasSingleSecurityGroup()",
+      "range": {
+        "startLine": 547,
+        "startChar": 56,
+        "endLine": 547,
+        "endChar": 92
+      },
+      "revId": "9c9fe6d2919d2d256c44ec445a2fa43496a64788",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a0265bb8",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 550,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-26T09:59:00Z",
+      "side": 1,
+      "message": "nit: language unclear",
+      "range": {
+        "startLine": 549,
+        "startChar": 29,
+        "endLine": 550,
+        "endChar": 102
+      },
+      "revId": "9c9fe6d2919d2d256c44ec445a2fa43496a64788",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_603473de",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/FlowEntryObjectsStateful.xtend",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-26T09:59:00Z",
+      "side": 1,
+      "message": "Not sure if I missed it, but will we still have a test with 2 SGs on the port, meaning the behavior is like the current tests (no remote ACL metadata?)",
+      "revId": "9c9fe6d2919d2d256c44ec445a2fa43496a64788",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
