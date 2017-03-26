@@ -19,13 +19,15 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6
 import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Destination
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Source
-import org.opendaylight.genius.mdsalutil.matches.MatchMetadata
-import org.opendaylight.genius.mdsalutil.MetaDataUtil
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType
 import org.opendaylight.genius.mdsalutil.NxMatchInfoBuilder
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress
 
 import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata
+import org.opendaylight.genius.mdsalutil.MetaDataUtil
 
 class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
 
@@ -59,7 +61,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                    ])
                ]
                matchInfoList = #[
-                   new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                   new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                    new NxMatchInfoBuilder >> [
                        matchField = NxMatchFieldType.ct_state
                        matchValues = #[
@@ -81,7 +83,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                    ])
                ]
                matchInfoList = #[
-                   new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                   new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                    new NxMatchInfoBuilder >> [
                        matchField = NxMatchFieldType.ct_state
                        matchValues = #[
@@ -115,7 +117,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchEthernetType(34525L),
                     new MatchIpv6Source("::/0"),
                     new MatchEthernetType(34525L),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -144,7 +146,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchEthernetType(34525L),
                     new MatchIpv6Source("::/0"),
                     new MatchEthernetType(34525L),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -188,7 +190,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -210,7 +212,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -255,7 +257,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                      ])
                  ]
                  matchInfoList = #[
-                     new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                      new NxMatchInfoBuilder >> [
                          matchField = NxMatchFieldType.ct_state
                          matchValues = #[
@@ -277,7 +279,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                      ])
                  ]
                  matchInfoList = #[
-                     new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                      new NxMatchInfoBuilder >> [
                          matchField = NxMatchFieldType.ct_state
                          matchValues = #[
@@ -322,7 +324,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -344,7 +346,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -389,7 +391,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -411,7 +413,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -455,7 +457,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -477,7 +479,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -578,7 +580,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ],
                     new MatchIpProtocol(6 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -617,7 +619,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ],
                     new MatchIpProtocol(6 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -776,7 +778,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ],
                     new MatchIpProtocol(17 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -812,7 +814,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ],
                     new MatchIpProtocol(17 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -884,7 +886,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchEthernetType(34525L),
                     new MatchIcmpv6(2 as short, 3 as short),
                     new MatchIpProtocol(1 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -917,7 +919,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchEthernetType(34525L),
                     new MatchIcmpv6(2 as short, 3 as short),
                     new MatchIpProtocol(1 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -1023,7 +1025,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ],
                     new MatchIpProtocol(17 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -1332,7 +1334,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchIpv6Source("::/0"),
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(17 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -1398,7 +1400,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchEthernetType(34525L),
                     new MatchIcmpv6(2 as short, 3 as short),
                     new MatchIpProtocol(1 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -1426,7 +1428,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchEthernetType(34525L),
                     new MatchIcmpv6(2 as short, 3 as short),
                     new MatchIpProtocol(1 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
