@@ -39,6 +39,23 @@
       "revId": "fa483518bc2c0ea81a248522795e8086a1a3f83a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3b710045",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-26T20:05:46Z",
+      "side": 1,
+      "message": "You can use ElanBridgeManager.getOpenvswitchOtherConfigMap that is already doing this parsing",
+      "revId": "fa483518bc2c0ea81a248522795e8086a1a3f83a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
