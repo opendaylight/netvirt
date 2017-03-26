@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_00c5a73c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-26T12:20:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_00e2c700",
+      "revId": "4f610d3b0b6aefc4ad95b26bfb454d0e38558003",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c029df38",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
         "patchSetId": 2
@@ -30,6 +48,30 @@
       "writtenOn": "2017-03-26T11:11:56Z",
       "side": 1,
       "message": "I think you should change localIp to be mandatory here, and do the getNodeIP logic outside of addVtep",
+      "range": {
+        "startLine": 156,
+        "startChar": 20,
+        "endLine": 156,
+        "endChar": 27
+      },
+      "revId": "4f610d3b0b6aefc4ad95b26bfb454d0e38558003",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_60c47340",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-26T12:20:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c029df38",
       "range": {
         "startLine": 156,
         "startChar": 20,
