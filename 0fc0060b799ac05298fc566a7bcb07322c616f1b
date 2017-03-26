@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c570d1de",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpAllocationPoolListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 6947
+      },
+      "writtenOn": "2017-03-26T08:52:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e557d500",
+      "revId": "0fc0060b799ac05298fc566a7bcb07322c616f1b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c55a9129",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpAllocationPoolManager.java",
         "patchSetId": 9
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_854d299c",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpAllocationPoolManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 6947
+      },
+      "writtenOn": "2017-03-26T08:52:37Z",
+      "side": 1,
+      "message": "Done - fixed in all files",
+      "parentUuid": "fafc7978_c55a9129",
+      "revId": "0fc0060b799ac05298fc566a7bcb07322c616f1b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a595cde5",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
         "patchSetId": 9
@@ -47,6 +83,30 @@
       "writtenOn": "2017-03-26T07:46:11Z",
       "side": 1,
       "message": "What does this mean?",
+      "range": {
+        "startLine": 193,
+        "startChar": 15,
+        "endLine": 193,
+        "endChar": 75
+      },
+      "revId": "0fc0060b799ac05298fc566a7bcb07322c616f1b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_853409fc",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 6947
+      },
+      "writtenOn": "2017-03-26T08:52:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a595cde5",
       "range": {
         "startLine": 193,
         "startChar": 15,
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a5314d0d",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 6947
+      },
+      "writtenOn": "2017-03-26T08:52:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e59fd501",
+      "range": {
+        "startLine": 503,
+        "startChar": 12,
+        "endLine": 503,
+        "endChar": 46
+      },
+      "revId": "0fc0060b799ac05298fc566a7bcb07322c616f1b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8598891c",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
         "patchSetId": 9
@@ -93,6 +177,30 @@
       "writtenOn": "2017-03-26T07:46:11Z",
       "side": 1,
       "message": "These utils can probably be in some general utils class - surprised we don\u0027t have them yet.",
+      "range": {
+        "startLine": 292,
+        "startChar": 4,
+        "endLine": 298,
+        "endChar": 5
+      },
+      "revId": "0fc0060b799ac05298fc566a7bcb07322c616f1b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_452a2191",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 6947
+      },
+      "writtenOn": "2017-03-26T08:52:37Z",
+      "side": 1,
+      "message": "they exist in specific features utils classes, but not in a general class",
+      "parentUuid": "fafc7978_8598891c",
       "range": {
         "startLine": 292,
         "startChar": 4,
