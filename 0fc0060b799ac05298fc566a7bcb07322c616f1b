@@ -33,6 +33,75 @@
       "revId": "0fc0060b799ac05298fc566a7bcb07322c616f1b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a595cde5",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-26T07:46:11Z",
+      "side": 1,
+      "message": "What does this mean?",
+      "range": {
+        "startLine": 193,
+        "startChar": 15,
+        "endLine": 193,
+        "endChar": 75
+      },
+      "revId": "0fc0060b799ac05298fc566a7bcb07322c616f1b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e59fd501",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-26T07:46:11Z",
+      "side": 1,
+      "message": "nit: remove TODO",
+      "range": {
+        "startLine": 503,
+        "startChar": 12,
+        "endLine": 503,
+        "endChar": 46
+      },
+      "revId": "0fc0060b799ac05298fc566a7bcb07322c616f1b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8598891c",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-26T07:46:11Z",
+      "side": 1,
+      "message": "These utils can probably be in some general utils class - surprised we don\u0027t have them yet.",
+      "range": {
+        "startLine": 292,
+        "startChar": 4,
+        "endLine": 298,
+        "endChar": 5
+      },
+      "revId": "0fc0060b799ac05298fc566a7bcb07322c616f1b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
