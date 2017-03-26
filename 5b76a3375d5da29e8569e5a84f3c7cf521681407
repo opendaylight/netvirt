@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_8566c927",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1220,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-03-26T08:30:48Z",
+      "side": 1,
+      "message": "fix tabs and other formatting problems",
+      "range": {
+        "startLine": 1220,
+        "startChar": 0,
+        "endLine": 1220,
+        "endChar": 9
+      },
+      "revId": "5b76a3375d5da29e8569e5a84f3c7cf521681407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e56d1506",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2232,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-03-26T08:30:48Z",
+      "side": 1,
+      "message": "you\u0027re doing lots of .contains, use a hashset and you can build a list from it in the end",
+      "range": {
+        "startLine": 2232,
+        "startChar": 43,
+        "endLine": 2232,
+        "endChar": 56
+      },
+      "revId": "5b76a3375d5da29e8569e5a84f3c7cf521681407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0572d9e2",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2245,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-03-26T08:30:48Z",
+      "side": 1,
+      "message": "put some trace/debug logs inside this code, there are many conditions and interesting debugging points",
+      "range": {
+        "startLine": 2208,
+        "startChar": 8,
+        "endLine": 2245,
+        "endChar": 13
+      },
+      "revId": "5b76a3375d5da29e8569e5a84f3c7cf521681407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6581258f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-03-26T08:30:48Z",
+      "side": 1,
+      "message": "tabs/formatting",
+      "range": {
+        "startLine": 192,
+        "startChar": 2,
+        "endLine": 208,
+        "endChar": 41
+      },
+      "revId": "5b76a3375d5da29e8569e5a84f3c7cf521681407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a54aed80",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1625,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-03-26T08:30:48Z",
+      "side": 1,
+      "message": "should be debug instead of trace in my opinion\n\nedit: wow, just saw this whole thing is inside a for loop :) this method is crazy and should be broken into other methods :) so maybe trace is fine here",
+      "revId": "5b76a3375d5da29e8569e5a84f3c7cf521681407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_457ce1b5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1664,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-03-26T08:30:48Z",
+      "side": 1,
+      "message": "maybe move to a utility class? I think if someone else needs this code they wouldn\u0027t know to look for it in your class",
+      "range": {
+        "startLine": 1654,
+        "startChar": 0,
+        "endLine": 1664,
+        "endChar": 5
+      },
+      "revId": "5b76a3375d5da29e8569e5a84f3c7cf521681407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
