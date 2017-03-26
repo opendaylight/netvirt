@@ -183,7 +183,7 @@ public class NatEvpnUtil {
             /* Publish to Bgp only if its an INTERNET VPN */
             if ((rd != null) && (!rd.equalsIgnoreCase(vpnName))) {
                 bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),
-                        VrfEntry.EncapType.Vxlan, NatConstants.DEFAULT_LABEL_VALUE, l3Vni, gwMacAddress);
+                        VrfEntry.EncapType.Vxlan, NatConstants.DEFAULT_LABEL_VALUE, l3Vni, 0 /*l2vni*/, gwMacAddress);
             }
             LOG.info("NAT Service : ADD: Added Fib entry rd {} prefix {} nextHop {} l3Vni {}", rd, prefix,
                         nextHopIp, l3Vni);

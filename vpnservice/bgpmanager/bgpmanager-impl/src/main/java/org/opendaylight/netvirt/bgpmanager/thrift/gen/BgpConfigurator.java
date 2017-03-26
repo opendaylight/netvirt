@@ -43,6 +43,8 @@ public class BgpConfigurator {
 
     public int createPeer(String ipAddress, long asNumber) throws org.apache.thrift.TException;
 
+    public int setPeerSecret(String ipAddress, String rfc2385_sharedSecret) throws org.apache.thrift.TException;
+
     public int deletePeer(String ipAddress) throws org.apache.thrift.TException;
 
     public int addVrf(layer_type l_type, String rd, List<String> irts, List<String> erts) throws org.apache.thrift.TException;
@@ -88,6 +90,8 @@ public class BgpConfigurator {
     public void stopBgp(long asNumber, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void createPeer(String ipAddress, long asNumber, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+
+    public void setPeerSecret(String ipAddress, String rfc2385_sharedSecret, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void deletePeer(String ipAddress, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
@@ -221,6 +225,30 @@ public class BgpConfigurator {
         return result.success;
       }
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "createPeer failed: unknown result");
+    }
+
+    public int setPeerSecret(String ipAddress, String rfc2385_sharedSecret) throws org.apache.thrift.TException
+    {
+      send_setPeerSecret(ipAddress, rfc2385_sharedSecret);
+      return recv_setPeerSecret();
+    }
+
+    public void send_setPeerSecret(String ipAddress, String rfc2385_sharedSecret) throws org.apache.thrift.TException
+    {
+      setPeerSecret_args args = new setPeerSecret_args();
+      args.setIpAddress(ipAddress);
+      args.setRfc2385_sharedSecret(rfc2385_sharedSecret);
+      sendBase("setPeerSecret", args);
+    }
+
+    public int recv_setPeerSecret() throws org.apache.thrift.TException
+    {
+      setPeerSecret_result result = new setPeerSecret_result();
+      receiveBase(result, "setPeerSecret");
+      if (result.isSetSuccess()) {
+        return result.success;
+      }
+      throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "setPeerSecret failed: unknown result");
     }
 
     public int deletePeer(String ipAddress) throws org.apache.thrift.TException
@@ -798,6 +826,41 @@ public class BgpConfigurator {
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
         return (new Client(prot)).recv_createPeer();
+      }
+    }
+
+    public void setPeerSecret(String ipAddress, String rfc2385_sharedSecret, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+      checkReady();
+      setPeerSecret_call method_call = new setPeerSecret_call(ipAddress, rfc2385_sharedSecret, resultHandler, this, ___protocolFactory, ___transport);
+      this.___currentMethod = method_call;
+      ___manager.call(method_call);
+    }
+
+    public static class setPeerSecret_call extends org.apache.thrift.async.TAsyncMethodCall {
+      private String ipAddress;
+      private String rfc2385_sharedSecret;
+      public setPeerSecret_call(String ipAddress, String rfc2385_sharedSecret, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+        super(client, protocolFactory, transport, resultHandler, false);
+        this.ipAddress = ipAddress;
+        this.rfc2385_sharedSecret = rfc2385_sharedSecret;
+      }
+
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("setPeerSecret", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        setPeerSecret_args args = new setPeerSecret_args();
+        args.setIpAddress(ipAddress);
+        args.setRfc2385_sharedSecret(rfc2385_sharedSecret);
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public int getResult() throws org.apache.thrift.TException {
+        if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
+        org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+        return (new Client(prot)).recv_setPeerSecret();
       }
     }
 
@@ -1480,6 +1543,7 @@ public class BgpConfigurator {
       processMap.put("startBgp", new startBgp());
       processMap.put("stopBgp", new stopBgp());
       processMap.put("createPeer", new createPeer());
+      processMap.put("setPeerSecret", new setPeerSecret());
       processMap.put("deletePeer", new deletePeer());
       processMap.put("addVrf", new addVrf());
       processMap.put("delVrf", new delVrf());
@@ -1559,6 +1623,27 @@ public class BgpConfigurator {
       public createPeer_result getResult(I iface, createPeer_args args) throws org.apache.thrift.TException {
         createPeer_result result = new createPeer_result();
         result.success = iface.createPeer(args.ipAddress, args.asNumber);
+        result.setSuccessIsSet(true);
+        return result;
+      }
+    }
+
+    public static class setPeerSecret<I extends Iface> extends org.apache.thrift.ProcessFunction<I, setPeerSecret_args> {
+      public setPeerSecret() {
+        super("setPeerSecret");
+      }
+
+      public setPeerSecret_args getEmptyArgsInstance() {
+        return new setPeerSecret_args();
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public setPeerSecret_result getResult(I iface, setPeerSecret_args args) throws org.apache.thrift.TException {
+        setPeerSecret_result result = new setPeerSecret_result();
+        result.success = iface.setPeerSecret(args.ipAddress, args.rfc2385_sharedSecret);
         result.setSuccessIsSet(true);
         return result;
       }
@@ -1957,6 +2042,7 @@ public class BgpConfigurator {
       processMap.put("startBgp", new startBgp());
       processMap.put("stopBgp", new stopBgp());
       processMap.put("createPeer", new createPeer());
+      processMap.put("setPeerSecret", new setPeerSecret());
       processMap.put("deletePeer", new deletePeer());
       processMap.put("addVrf", new addVrf());
       processMap.put("delVrf", new delVrf());
@@ -2131,6 +2217,58 @@ public class BgpConfigurator {
 
       public void start(I iface, createPeer_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.createPeer(args.ipAddress, args.asNumber,resultHandler);
+      }
+    }
+
+    public static class setPeerSecret<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, setPeerSecret_args, Integer> {
+      public setPeerSecret() {
+        super("setPeerSecret");
+      }
+
+      public setPeerSecret_args getEmptyArgsInstance() {
+        return new setPeerSecret_args();
+      }
+
+      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+        final org.apache.thrift.AsyncProcessFunction fcall = this;
+        return new AsyncMethodCallback<Integer>() {
+          public void onComplete(Integer o) {
+            setPeerSecret_result result = new setPeerSecret_result();
+            result.success = o;
+            result.setSuccessIsSet(true);
+            try {
+              fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
+              return;
+            } catch (Exception e) {
+              LOGGER.error("Exception writing to internal frame buffer", e);
+            }
+            fb.close();
+          }
+          public void onError(Exception e) {
+            byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
+            org.apache.thrift.TBase msg;
+            setPeerSecret_result result = new setPeerSecret_result();
+            {
+              msgType = org.apache.thrift.protocol.TMessageType.EXCEPTION;
+              msg = (org.apache.thrift.TBase)new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, e.getMessage());
+            }
+            try {
+              fcall.sendResponse(fb,msg,msgType,seqid);
+              return;
+            } catch (Exception ex) {
+              LOGGER.error("Exception writing to internal frame buffer", ex);
+            }
+            fb.close();
+          }
+        };
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public void start(I iface, setPeerSecret_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+        iface.setPeerSecret(args.ipAddress, args.rfc2385_sharedSecret,resultHandler);
       }
     }
 
@@ -5848,6 +5986,814 @@ public class BgpConfigurator {
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, createPeer_result struct) throws org.apache.thrift.TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+        BitSet incoming = iprot.readBitSet(1);
+        if (incoming.get(0)) {
+          struct.success = iprot.readI32();
+          struct.setSuccessIsSet(true);
+        }
+      }
+    }
+
+  }
+
+  public static class setPeerSecret_args implements org.apache.thrift.TBase<setPeerSecret_args, setPeerSecret_args._Fields>, java.io.Serializable, Cloneable, Comparable<setPeerSecret_args>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("setPeerSecret_args");
+
+    private static final org.apache.thrift.protocol.TField IP_ADDRESS_FIELD_DESC = new org.apache.thrift.protocol.TField("ipAddress", org.apache.thrift.protocol.TType.STRING, (short)1);
+    private static final org.apache.thrift.protocol.TField RFC2385_SHARED_SECRET_FIELD_DESC = new org.apache.thrift.protocol.TField("rfc2385_sharedSecret", org.apache.thrift.protocol.TType.STRING, (short)2);
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new setPeerSecret_argsStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new setPeerSecret_argsTupleSchemeFactory());
+    }
+
+    public String ipAddress; // required
+    public String rfc2385_sharedSecret; // required
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      IP_ADDRESS((short)1, "ipAddress"),
+      RFC2385_SHARED_SECRET((short)2, "rfc2385_sharedSecret");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 1: // IP_ADDRESS
+            return IP_ADDRESS;
+          case 2: // RFC2385_SHARED_SECRET
+            return RFC2385_SHARED_SECRET;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.IP_ADDRESS, new org.apache.thrift.meta_data.FieldMetaData("ipAddress", org.apache.thrift.TFieldRequirementType.DEFAULT,
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.RFC2385_SHARED_SECRET, new org.apache.thrift.meta_data.FieldMetaData("rfc2385_sharedSecret", org.apache.thrift.TFieldRequirementType.DEFAULT,
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(setPeerSecret_args.class, metaDataMap);
+    }
+
+    public setPeerSecret_args() {
+    }
+
+    public setPeerSecret_args(
+      String ipAddress,
+      String rfc2385_sharedSecret)
+    {
+      this();
+      this.ipAddress = ipAddress;
+      this.rfc2385_sharedSecret = rfc2385_sharedSecret;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public setPeerSecret_args(setPeerSecret_args other) {
+      if (other.isSetIpAddress()) {
+        this.ipAddress = other.ipAddress;
+      }
+      if (other.isSetRfc2385_sharedSecret()) {
+        this.rfc2385_sharedSecret = other.rfc2385_sharedSecret;
+      }
+    }
+
+    public setPeerSecret_args deepCopy() {
+      return new setPeerSecret_args(this);
+    }
+
+    @Override
+    public void clear() {
+      this.ipAddress = null;
+      this.rfc2385_sharedSecret = null;
+    }
+
+    public String getIpAddress() {
+      return this.ipAddress;
+    }
+
+    public setPeerSecret_args setIpAddress(String ipAddress) {
+      this.ipAddress = ipAddress;
+      return this;
+    }
+
+    public void unsetIpAddress() {
+      this.ipAddress = null;
+    }
+
+    /** Returns true if field ipAddress is set (has been assigned a value) and false otherwise */
+    public boolean isSetIpAddress() {
+      return this.ipAddress != null;
+    }
+
+    public void setIpAddressIsSet(boolean value) {
+      if (!value) {
+        this.ipAddress = null;
+      }
+    }
+
+    public String getRfc2385_sharedSecret() {
+      return this.rfc2385_sharedSecret;
+    }
+
+    public setPeerSecret_args setRfc2385_sharedSecret(String rfc2385_sharedSecret) {
+      this.rfc2385_sharedSecret = rfc2385_sharedSecret;
+      return this;
+    }
+
+    public void unsetRfc2385_sharedSecret() {
+      this.rfc2385_sharedSecret = null;
+    }
+
+    /** Returns true if field rfc2385_sharedSecret is set (has been assigned a value) and false otherwise */
+    public boolean isSetRfc2385_sharedSecret() {
+      return this.rfc2385_sharedSecret != null;
+    }
+
+    public void setRfc2385_sharedSecretIsSet(boolean value) {
+      if (!value) {
+        this.rfc2385_sharedSecret = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case IP_ADDRESS:
+        if (value == null) {
+          unsetIpAddress();
+        } else {
+          setIpAddress((String)value);
+        }
+        break;
+
+      case RFC2385_SHARED_SECRET:
+        if (value == null) {
+          unsetRfc2385_sharedSecret();
+        } else {
+          setRfc2385_sharedSecret((String)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case IP_ADDRESS:
+        return getIpAddress();
+
+      case RFC2385_SHARED_SECRET:
+        return getRfc2385_sharedSecret();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case IP_ADDRESS:
+        return isSetIpAddress();
+      case RFC2385_SHARED_SECRET:
+        return isSetRfc2385_sharedSecret();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof setPeerSecret_args)
+        return this.equals((setPeerSecret_args)that);
+      return false;
+    }
+
+    public boolean equals(setPeerSecret_args that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_ipAddress = true && this.isSetIpAddress();
+      boolean that_present_ipAddress = true && that.isSetIpAddress();
+      if (this_present_ipAddress || that_present_ipAddress) {
+        if (!(this_present_ipAddress && that_present_ipAddress))
+          return false;
+        if (!this.ipAddress.equals(that.ipAddress))
+          return false;
+      }
+
+      boolean this_present_rfc2385_sharedSecret = true && this.isSetRfc2385_sharedSecret();
+      boolean that_present_rfc2385_sharedSecret = true && that.isSetRfc2385_sharedSecret();
+      if (this_present_rfc2385_sharedSecret || that_present_rfc2385_sharedSecret) {
+        if (!(this_present_rfc2385_sharedSecret && that_present_rfc2385_sharedSecret))
+          return false;
+        if (!this.rfc2385_sharedSecret.equals(that.rfc2385_sharedSecret))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    @Override
+    public int compareTo(setPeerSecret_args other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+
+      lastComparison = Boolean.valueOf(isSetIpAddress()).compareTo(other.isSetIpAddress());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetIpAddress()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ipAddress, other.ipAddress);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetRfc2385_sharedSecret()).compareTo(other.isSetRfc2385_sharedSecret());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetRfc2385_sharedSecret()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.rfc2385_sharedSecret, other.rfc2385_sharedSecret);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("setPeerSecret_args(");
+      boolean first = true;
+
+      sb.append("ipAddress:");
+      if (this.ipAddress == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.ipAddress);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("rfc2385_sharedSecret:");
+      if (this.rfc2385_sharedSecret == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.rfc2385_sharedSecret);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+      // check for sub-struct validity
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class setPeerSecret_argsStandardSchemeFactory implements SchemeFactory {
+      public setPeerSecret_argsStandardScheme getScheme() {
+        return new setPeerSecret_argsStandardScheme();
+      }
+    }
+
+    private static class setPeerSecret_argsStandardScheme extends StandardScheme<setPeerSecret_args> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, setPeerSecret_args struct) throws org.apache.thrift.TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
+            break;
+          }
+          switch (schemeField.id) {
+            case 1: // IP_ADDRESS
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.ipAddress = iprot.readString();
+                struct.setIpAddressIsSet(true);
+              } else {
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 2: // RFC2385_SHARED_SECRET
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.rfc2385_sharedSecret = iprot.readString();
+                struct.setRfc2385_sharedSecretIsSet(true);
+              } else {
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, setPeerSecret_args struct) throws org.apache.thrift.TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.ipAddress != null) {
+          oprot.writeFieldBegin(IP_ADDRESS_FIELD_DESC);
+          oprot.writeString(struct.ipAddress);
+          oprot.writeFieldEnd();
+        }
+        if (struct.rfc2385_sharedSecret != null) {
+          oprot.writeFieldBegin(RFC2385_SHARED_SECRET_FIELD_DESC);
+          oprot.writeString(struct.rfc2385_sharedSecret);
+          oprot.writeFieldEnd();
+        }
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class setPeerSecret_argsTupleSchemeFactory implements SchemeFactory {
+      public setPeerSecret_argsTupleScheme getScheme() {
+        return new setPeerSecret_argsTupleScheme();
+      }
+    }
+
+    private static class setPeerSecret_argsTupleScheme extends TupleScheme<setPeerSecret_args> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, setPeerSecret_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+        BitSet optionals = new BitSet();
+        if (struct.isSetIpAddress()) {
+          optionals.set(0);
+        }
+        if (struct.isSetRfc2385_sharedSecret()) {
+          optionals.set(1);
+        }
+        oprot.writeBitSet(optionals, 2);
+        if (struct.isSetIpAddress()) {
+          oprot.writeString(struct.ipAddress);
+        }
+        if (struct.isSetRfc2385_sharedSecret()) {
+          oprot.writeString(struct.rfc2385_sharedSecret);
+        }
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, setPeerSecret_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+        BitSet incoming = iprot.readBitSet(2);
+        if (incoming.get(0)) {
+          struct.ipAddress = iprot.readString();
+          struct.setIpAddressIsSet(true);
+        }
+        if (incoming.get(1)) {
+          struct.rfc2385_sharedSecret = iprot.readString();
+          struct.setRfc2385_sharedSecretIsSet(true);
+        }
+      }
+    }
+
+  }
+
+  public static class setPeerSecret_result implements org.apache.thrift.TBase<setPeerSecret_result, setPeerSecret_result._Fields>, java.io.Serializable, Cloneable, Comparable<setPeerSecret_result>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("setPeerSecret_result");
+
+    private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new setPeerSecret_resultStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new setPeerSecret_resultTupleSchemeFactory());
+    }
+
+    public int success; // required
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      SUCCESS((short)0, "success");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 0: // SUCCESS
+            return SUCCESS;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+    private static final int __SUCCESS_ISSET_ID = 0;
+    private byte __isset_bitfield = 0;
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(setPeerSecret_result.class, metaDataMap);
+    }
+
+    public setPeerSecret_result() {
+    }
+
+    public setPeerSecret_result(
+      int success)
+    {
+      this();
+      this.success = success;
+      setSuccessIsSet(true);
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public setPeerSecret_result(setPeerSecret_result other) {
+      __isset_bitfield = other.__isset_bitfield;
+      this.success = other.success;
+    }
+
+    public setPeerSecret_result deepCopy() {
+      return new setPeerSecret_result(this);
+    }
+
+    @Override
+    public void clear() {
+      setSuccessIsSet(false);
+      this.success = 0;
+    }
+
+    public int getSuccess() {
+      return this.success;
+    }
+
+    public setPeerSecret_result setSuccess(int success) {
+      this.success = success;
+      setSuccessIsSet(true);
+      return this;
+    }
+
+    public void unsetSuccess() {
+      __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __SUCCESS_ISSET_ID);
+    }
+
+    /** Returns true if field success is set (has been assigned a value) and false otherwise */
+    public boolean isSetSuccess() {
+      return EncodingUtils.testBit(__isset_bitfield, __SUCCESS_ISSET_ID);
+    }
+
+    public void setSuccessIsSet(boolean value) {
+      __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case SUCCESS:
+        if (value == null) {
+          unsetSuccess();
+        } else {
+          setSuccess((Integer)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case SUCCESS:
+        return Integer.valueOf(getSuccess());
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case SUCCESS:
+        return isSetSuccess();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof setPeerSecret_result)
+        return this.equals((setPeerSecret_result)that);
+      return false;
+    }
+
+    public boolean equals(setPeerSecret_result that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_success = true;
+      boolean that_present_success = true;
+      if (this_present_success || that_present_success) {
+        if (!(this_present_success && that_present_success))
+          return false;
+        if (this.success != that.success)
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    @Override
+    public int compareTo(setPeerSecret_result other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+
+      lastComparison = Boolean.valueOf(isSetSuccess()).compareTo(other.isSetSuccess());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetSuccess()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.success, other.success);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+      }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("setPeerSecret_result(");
+      boolean first = true;
+
+      sb.append("success:");
+      sb.append(this.success);
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+      // check for sub-struct validity
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
+        __isset_bitfield = 0;
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class setPeerSecret_resultStandardSchemeFactory implements SchemeFactory {
+      public setPeerSecret_resultStandardScheme getScheme() {
+        return new setPeerSecret_resultStandardScheme();
+      }
+    }
+
+    private static class setPeerSecret_resultStandardScheme extends StandardScheme<setPeerSecret_result> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, setPeerSecret_result struct) throws org.apache.thrift.TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
+            break;
+          }
+          switch (schemeField.id) {
+            case 0: // SUCCESS
+              if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+                struct.success = iprot.readI32();
+                struct.setSuccessIsSet(true);
+              } else {
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, setPeerSecret_result struct) throws org.apache.thrift.TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.isSetSuccess()) {
+          oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
+          oprot.writeI32(struct.success);
+          oprot.writeFieldEnd();
+        }
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class setPeerSecret_resultTupleSchemeFactory implements SchemeFactory {
+      public setPeerSecret_resultTupleScheme getScheme() {
+        return new setPeerSecret_resultTupleScheme();
+      }
+    }
+
+    private static class setPeerSecret_resultTupleScheme extends TupleScheme<setPeerSecret_result> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, setPeerSecret_result struct) throws org.apache.thrift.TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+        BitSet optionals = new BitSet();
+        if (struct.isSetSuccess()) {
+          optionals.set(0);
+        }
+        oprot.writeBitSet(optionals, 1);
+        if (struct.isSetSuccess()) {
+          oprot.writeI32(struct.success);
+        }
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, setPeerSecret_result struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
         BitSet incoming = iprot.readBitSet(1);
         if (incoming.get(0)) {

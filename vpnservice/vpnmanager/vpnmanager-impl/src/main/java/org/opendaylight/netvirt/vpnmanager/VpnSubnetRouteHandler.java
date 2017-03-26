@@ -944,7 +944,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 //BGP manager will handle withdraw and advertise internally if prefix
                 //already exist
                 bgpManager.advertisePrefix(rd, null /*macAddress*/, subnetIp, Collections.singletonList(nexthopIp),
-                        VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/);
+                        VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, 0 /*l2vni*/, null /*gatewayMacAddress*/);
             } catch (Exception e) {
                 LOG.error("Fail: Subnet route not advertised for rd {} subnetIp {}", rd, subnetIp, e);
                 throw e;

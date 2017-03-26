@@ -18,6 +18,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.opendaylight.netvirt.openstack.netvirt.NetworkHandler;
+import org.opendaylight.netvirt.openstack.netvirt.VLANProvider;
+import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbTables;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
 import org.opendaylight.netvirt.openstack.netvirt.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.MdsalHelper;
 import org.opendaylight.netvirt.openstack.netvirt.NetworkHandler;
@@ -191,27 +195,19 @@ public class BridgeConfigurationManagerImpl implements BridgeConfigurationManage
                     return;
                 }
                 //Processing an external bridge
-                String portNameExt = null;
-                if (brExt.contains("-")) {
-                    String[] brExt_Ex = brExt.split("-");
-                    portNameExt = Constants.MULTIPLE_NETWORK_L3_PATCH.concat("-").concat(brExt_Ex[1]);
-                } else {
-                    portNameExt = Constants.MULTIPLE_NETWORK_L3_PATCH.concat("-").concat(brExt);
-                }
+                String portNameExt = VLANProvider.getPatchPortName(brExt);
                 LOG.trace("prepareNode: portNameExt:{}", portNameExt);
-                final String portNameInt = "patch-int";
+                final String portNameInt = Constants.PATCH_PORT_TO_INTEGRATION_BRIDGE_NAME;
                 Preconditions.checkNotNull(portNameInt);
                 Preconditions.checkNotNull(portNameExt);
                 if (!addPatchPort(internalOvsdbNode, brInt, portNameExt, portNameInt)) {
                     LOG.error("Add Port {} to Bridge {} failed", portNameInt, brInt);
                     return;
                 }
-                configurationService.addPatchPortName(new ImmutablePair<>(brInt, brExt), portNameExt);
                 if (!addPatchPort(extBridgeNode, brExt, portNameInt, portNameExt)) {
                     LOG.error("Add Port {} to Bridge {} failed", portNameExt, brExt);
                     return;
                 }
-                configurationService.addPatchPortName(new ImmutablePair<>(brExt, brInt), portNameInt);
                 LOG.info("Multiple external bridge is successfully created:{}", brExt);
             }
         } catch (Exception e) {

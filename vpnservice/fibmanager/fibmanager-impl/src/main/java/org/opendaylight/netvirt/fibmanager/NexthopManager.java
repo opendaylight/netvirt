@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.fibmanager;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -38,8 +39,10 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionOutput;
+import org.opendaylight.genius.mdsalutil.actions.ActionPushMpls;
 import org.opendaylight.genius.mdsalutil.actions.ActionPushVlan;
 import org.opendaylight.genius.mdsalutil.actions.ActionRegLoad;
+import org.opendaylight.genius.mdsalutil.actions.ActionRegMove;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetDestination;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetSource;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
@@ -52,6 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -74,12 +78,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelOperStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelsState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetInternalOrExternalInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetInternalOrExternalInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.buckets.Bucket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeFlat;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVlan;
@@ -96,6 +106,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Con
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.ConfTransportTypeL3vpnBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpid.l3vpn.lb.nexthops.DpnLbNexthops;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.l3vpn.lb.nexthops.Nexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
@@ -160,7 +172,7 @@ public class NexthopManager implements AutoCloseable {
         this.interfaceManager = interfaceManager;
         this.itmManager = itmManager;
         this.elanService = elanService;
-        waitTimeForSyncInstall = Long.getLong("wait.time.sync.install", 1000L);
+        waitTimeForSyncInstall = Long.getLong("wait.time.sync.install", 1500L);
         createIdPool();
     }
 
@@ -375,7 +387,8 @@ public class NexthopManager implements AutoCloseable {
                     // install Group
                     mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
                     try {
-                        LOG.info("Sleeping for {} to wait for the groups to get programmed.", waitTimeForSyncInstall);
+                        LOG.info("Sleeping for {} to wait for the group {} on dpn {} for key {} to get programmed.",
+                                waitTimeForSyncInstall, groupId, dpnId.toString(), getNextHopKey(vpnId, ipAddress));
                         Thread.sleep(waitTimeForSyncInstall);
                     } catch (InterruptedException error) {
                         LOG.warn("Error while waiting for group {} to install.", groupId);
@@ -804,6 +817,9 @@ public class NexthopManager implements AutoCloseable {
         if (addOrRemove == true) {
             mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
             try {
+                LOG.info("Sleeping for {} to wait for the group {} on dpn {} for key {} to get programmed.",
+                        waitTimeForSyncInstall, groupId, dpnId.toString(),
+                        getNextHopKey(parentVpnId, destPrefix));
                 Thread.sleep(waitTimeForSyncInstall);
             } catch (InterruptedException e) {
                 LOG.warn("Error while waiting for group {} to install.", groupId);
@@ -904,5 +920,179 @@ public class NexthopManager implements AutoCloseable {
                     listBucketInfo.add(bucket);
                 }));
         return listBucketInfo;
+    }
+
+    public void createDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId, String destinationIp) {
+        Preconditions.checkNotNull(availableDcGws, "There are no dc-gws present");
+        int noOfDcGws = availableDcGws.size();
+        // TODO : Place the logic to construct all possible DC-GW combination here.
+        String groupIdKey = FibUtil.getGreLbGroupKey(availableDcGws);
+        Long groupId = createNextHopPointer(groupIdKey);
+        List<Bucket> listBucket = new ArrayList<>();
+        for (int index = 0; index < noOfDcGws; index++) {
+            if (isTunnelUp(availableDcGws.get(index), dpnId)) {
+                listBucket.add(buildBucketForDcGwLbGroup(availableDcGws.get(index), dpnId, index));
+            }
+        }
+        Group group = MDSALUtil.buildGroup(groupId, groupIdKey, GroupTypes.GroupSelect,
+                        MDSALUtil.buildBucketLists(listBucket));
+        WriteTransaction configTx = dataBroker.newWriteOnlyTransaction();
+        WriteTransaction operationalTx = dataBroker.newWriteOnlyTransaction();
+        mdsalApiManager.addGroupToTx(dpnId, group, configTx);
+        FibUtil.updateLbGroupInfo(dpnId, destinationIp, groupIdKey, groupId.toString(), operationalTx);
+        configTx.submit();
+        operationalTx.submit();
+        LOG.trace("LB group {} towards DC-GW installed on dpn {}. Group - {}", groupIdKey, dpnId, group);
+    }
+
+    private boolean isTunnelUp(String dcGwIp, BigInteger dpnId) {
+        java.util.Optional<Object> tunnelStatus =
+                java.util.Optional.ofNullable(getTunnelRemoteNextHopPointer(dpnId, dcGwIp)).map(
+                    tunnelName -> {
+                        InstanceIdentifier<StateTunnelList> tunnelStateId =
+                                InstanceIdentifier.builder(TunnelsState.class).child(
+                                       StateTunnelList.class, new StateTunnelListKey(tunnelName)).build();
+                        return FibUtil
+                               .read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                                       tunnelStateId).transform(StateTunnelList::getOperState)
+                                       .or(TunnelOperStatus.Down);
+                    });
+        return tunnelStatus.isPresent() ? ((tunnelStatus.get() == TunnelOperStatus.Up) ? true : false) : false;
+    }
+
+    private List<Action> getEgressActions(String interfaceName, int actionKey) {
+        List<Action> actions = Collections.EMPTY_LIST;
+        try {
+            GetEgressActionsForInterfaceInputBuilder egressAction =
+                    new GetEgressActionsForInterfaceInputBuilder().setIntfName(interfaceName).setActionKey(actionKey);
+            Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
+                    interfaceManager.getEgressActionsForInterface(egressAction.build());
+            RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
+            if (!rpcResult.isSuccessful()) {
+                LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
+                        interfaceName, rpcResult.getErrors());
+            } else {
+                actions = rpcResult.getResult().getAction();
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Exception when egress actions for interface {}", interfaceName, e);
+        }
+        return actions;
+    }
+
+    /**
+     * This method is invoked when the tunnel state is removed from DS.
+     * If the there is just one DC-GW left in configuration then the LB groups can be deleted.
+     * Otherwise, the groups are just updated.
+     */
+    public void removeOrUpdateDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId,
+            String destinationIp) {
+        Preconditions.checkNotNull(availableDcGws, "There are no dc-gws present");
+        WriteTransaction configTx = dataBroker.newWriteOnlyTransaction();
+        WriteTransaction operationalTx = dataBroker.newWriteOnlyTransaction();
+        int noOfDcGws = availableDcGws.size();
+        // If availableDcGws does not contain the destination Ip it means this is a configuration delete.
+        if (!availableDcGws.contains(destinationIp)) {
+            availableDcGws.add(destinationIp);
+            Collections.sort(availableDcGws);
+        }
+        // TODO : Place the logic to construct all possible DC-GW combination here.
+        int bucketId = availableDcGws.indexOf(destinationIp);
+        Optional<DpnLbNexthops> dpnLbNextHops = FibUtil.getDpnLbNexthops(dataBroker, dpnId, destinationIp);
+        if (!dpnLbNextHops.isPresent()) {
+            return;
+        }
+        List<String> nextHopKeys = dpnLbNextHops.get().getNexthopKey();
+        nextHopKeys.stream().forEach(nextHopKey -> {
+            Optional<Nexthops> optionalNextHops = FibUtil.getNexthops(dataBroker, nextHopKey);
+            if (!optionalNextHops.isPresent()) {
+                return;
+            }
+            Nexthops nexthops = optionalNextHops.get();
+            final String groupId = nexthops.getGroupId();
+            if (noOfDcGws > 1) {
+                mdsalApiManager.removeBucketToTx(dpnId, Long.valueOf(groupId), bucketId, configTx);
+            } else {
+                Group group = MDSALUtil.buildGroup(Long.valueOf(groupId), nextHopKey, GroupTypes.GroupSelect,
+                        MDSALUtil.buildBucketLists(Collections.EMPTY_LIST));
+                LOG.trace("Removed LB group {} on dpn {}", group, dpnId);
+                mdsalApiManager.removeGroupToTx(dpnId, group, configTx);
+                removeNextHopPointer(nextHopKey);
+            }
+            // When the DC-GW is removed from configuration.
+            if (noOfDcGws != availableDcGws.size()) {
+                FibUtil.removeOrUpdateNextHopInfo(dpnId, nextHopKey, groupId, nexthops, operationalTx);
+            }
+        });
+        FibUtil.removeDpnIdToNextHopInfo(destinationIp, dpnId, operationalTx);
+        configTx.submit();
+        operationalTx.submit();
+        return;
+    }
+
+    /**
+     * This method is invoked when the tunnel status is updated.
+     * The bucket is directly removed/added based on the operational status of the tunnel.
+     */
+    public void updateDcGwLoadBalancingGroup(List<String> availableDcGws,
+            BigInteger dpnId, String destinationIp, boolean isTunnelUp) {
+        Preconditions.checkNotNull(availableDcGws, "There are no dc-gws present");
+        WriteTransaction configTx = dataBroker.newWriteOnlyTransaction();
+        // TODO : Place the logic to construct all possible DC-GW combination here.
+        int bucketId = availableDcGws.indexOf(destinationIp);
+        Optional<DpnLbNexthops> dpnLbNextHops = FibUtil.getDpnLbNexthops(dataBroker, dpnId, destinationIp);
+        if (!dpnLbNextHops.isPresent()) {
+            return;
+        }
+        List<String> nextHopKeys = dpnLbNextHops.get().getNexthopKey();
+        nextHopKeys.stream().forEach(nextHopKey -> {
+            Optional<Nexthops> optionalNextHops = FibUtil.getNexthops(dataBroker, nextHopKey);
+            if (!optionalNextHops.isPresent()) {
+                return;
+            }
+            Nexthops nexthops = optionalNextHops.get();
+            final String groupId = nexthops.getGroupId();
+            if (isTunnelUp) {
+                Bucket bucket = buildBucketForDcGwLbGroup(destinationIp, dpnId, bucketId);
+                LOG.trace("Added bucket {} to group {} on dpn {}.", bucket, groupId, dpnId);
+                mdsalApiManager.addBucketToTx(dpnId, Long.valueOf(groupId), bucket , configTx);
+            } else {
+                LOG.trace("Removed bucketId {} from group {} on dpn {}.", bucketId, groupId, dpnId);
+                mdsalApiManager.removeBucketToTx(dpnId, Long.valueOf(groupId), bucketId, configTx);
+            }
+        });
+        configTx.submit();
+        return;
+    }
+
+    private Bucket buildBucketForDcGwLbGroup(String ipAddress, BigInteger dpnId,
+            int index) {
+        List<Action> listAction = new ArrayList<>();
+        // ActionKey 0 goes to mpls label.
+        int actionKey = 1;
+        listAction.add(new ActionPushMpls().buildAction());
+        listAction.add(new ActionRegMove(actionKey++, FibConstants.NXM_REG_MAPPING
+                .get(index), 0, 19).buildAction());
+        String tunnelInterfaceName = getTunnelInterfaceName(dpnId, new IpAddress(ipAddress.toCharArray()));
+        List<Action> egressActions = getEgressActions(tunnelInterfaceName, actionKey++);
+        if (!egressActions.isEmpty()) {
+            listAction.addAll(getEgressActions(tunnelInterfaceName, actionKey++));
+        } else {
+            // clear off actions if there is no egress actions.
+            listAction = Collections.EMPTY_LIST;
+        }
+        return MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, index,
+                MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP);
+    }
+
+    public void programDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId,
+            String destinationIp, int addRemoveOrUpdate, boolean isTunnelUp) {
+        if (NwConstants.ADD_FLOW == addRemoveOrUpdate) {
+            createDcGwLoadBalancingGroup(availableDcGws, dpnId, destinationIp);
+        } else if (NwConstants.DEL_FLOW == addRemoveOrUpdate) {
+            removeOrUpdateDcGwLoadBalancingGroup(availableDcGws, dpnId, destinationIp);
+        } else if (NwConstants.MOD_FLOW == addRemoveOrUpdate) {
+            updateDcGwLoadBalancingGroup(availableDcGws, dpnId, destinationIp, isTunnelUp);
+        }
     }
 }

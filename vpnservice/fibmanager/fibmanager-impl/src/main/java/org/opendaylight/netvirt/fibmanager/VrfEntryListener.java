@@ -1052,11 +1052,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 Routes extraRoute = extraRouteOptional.get();
                 localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId,
                         extraRoute.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX);
-                BigInteger dpnId = localNextHopInfo.getDpnId();
-                if (!dpnId.equals(BigInteger.ZERO)) {
-                    nextHopManager.setupLoadBalancingNextHop(vpnId, dpnId,
-                            vrfEntry.getDestPrefix(), /*listBucketInfo*/ null, /*remove*/ false);
-                    returnLocalDpnId.add(dpnId);
+                if (localNextHopInfo != null) {
+                    BigInteger dpnId = localNextHopInfo.getDpnId();
+                    if (!dpnId.equals(BigInteger.ZERO)) {
+                        nextHopManager.setupLoadBalancingNextHop(vpnId, dpnId,
+                                vrfEntry.getDestPrefix(), /*listBucketInfo*/ null, /*remove*/ false);
+                        returnLocalDpnId.add(dpnId);
+                    }
                 }
             }
 
@@ -1528,6 +1530,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     vpnInstance.getVpnId(), vrfEntry.getDestPrefix());
             String usedRd = null;
             Optional<Routes> extraRouteOptional;
+            //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
             if (usedRds != null && !usedRds.isEmpty()) {
                 if (usedRds.size() > 1) {
                     LOG.error("The extra route prefix is still present in some DPNs");
@@ -1535,12 +1538,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 } else {
                     // The first rd is retrieved from usedrds as Only 1 rd would be present as extra route prefix
                     //is not present in any other DPN
-                    usedRd = usedRds.get(0);
+                    extraRouteOptional = VpnExtraRouteHelper
+                            .getVpnExtraroutes(dataBroker, vpnName, usedRds.get(0), vrfEntry.getDestPrefix());
                 }
+            } else {
+                extraRouteOptional = Optional.absent();
             }
-            //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
-            extraRouteOptional = (usedRds != null && !usedRds.isEmpty()) ? VpnExtraRouteHelper
-                    .getVpnExtraroutes(dataBroker, vpnName, usedRd, vrfEntry.getDestPrefix()) : Optional.absent();
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             dataStoreCoordinator.enqueueJob("FIB-" + usedRd + "-" + vrfEntry.getDestPrefix(),
                 () -> {
@@ -1628,17 +1631,19 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (vpnToDpnList != null) {
             List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker,
                     vpnInstance.getVpnId(), vrfEntry.getDestPrefix());
+            Optional<Routes> extraRouteOptional;
+            //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
             if (usedRds != null && !usedRds.isEmpty()) {
                 if (usedRds.size() > 1) {
                     LOG.error("The extra route prefix is still present in some DPNs");
                     return ;
                 } else {
-                    rd = usedRds.get(0);
+                    extraRouteOptional = VpnExtraRouteHelper.getVpnExtraroutes(dataBroker, vpnName,
+                            usedRds.get(0), vrfEntry.getDestPrefix());
                 }
+            } else {
+                extraRouteOptional = Optional.absent();
             }
-            //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
-            Optional<Routes> extraRouteOptional = VpnExtraRouteHelper.getVpnExtraroutes(dataBroker,
-                    vpnName, rd, vrfEntry.getDestPrefix());
             for (VpnToDpnList curDpn : vpnToDpnList) {
                 if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
                     deleteRemoteRoute(BigInteger.ZERO, curDpn.getDpnId(), vpnInstance.getVpnId(), vrfTableKey,
@@ -2088,21 +2093,22 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             // to which prefix is attached at this point
                             List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnInstance.getVpnId(),
                                     vrfEntry.getDestPrefix());
-                            String usedRd;
+                            String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnInstance.getVpnId());
+                            Optional<Routes> extraRouteOptional;
+                            //Is this fib route an extra route? If yes, get the nexthop which would be
+                            //an adjacency in the vpn
                             if (usedRds != null && !usedRds.isEmpty()) {
                                 if (usedRds.size() > 1) {
                                     LOG.error("The extra route prefix is still present in some DPNs");
                                     return futures;
                                 } else {
-                                    usedRd = usedRds.get(0);
-                                }
-                            }
-                            //Is this fib route an extra route? If yes, get the nexthop which would be
-                            //an adjacency in the vpn
-                            Optional<Routes> extraRouteOptional = VpnExtraRouteHelper.getVpnExtraroutes(dataBroker,
-                                    FibUtil.getVpnNameFromId(dataBroker, vpnInstance.getVpnId()), usedRds.get(0),
-                                    vrfEntry.getDestPrefix());
+                                    extraRouteOptional = VpnExtraRouteHelper.getVpnExtraroutes(dataBroker, vpnName,
+                                            usedRds.get(0), vrfEntry.getDestPrefix());
 
+                                }
+                            } else {
+                                extraRouteOptional = Optional.absent();
+                            }
                             deleteRemoteRoute(null, dpnId, vpnId, vrfTable.get().getKey(), vrfEntry,
                                     extraRouteOptional, tx);
                         }

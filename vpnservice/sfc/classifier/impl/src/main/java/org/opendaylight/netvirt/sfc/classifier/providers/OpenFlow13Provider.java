@@ -216,10 +216,8 @@ public class OpenFlow13Provider {
     private Flow createEgressClassifierFilterNshFlow(long nsp) {
         MatchBuilder match = OpenFlow13Utils.getNspMatch(nsp);
 
-        // TODO change this once 53710 is merged
         InstructionsBuilder isb = OpenFlow13Utils.appendGotoTableInstruction(new InstructionsBuilder(),
-            //NwConstants.EGRESS_SFC_CLASSIFIER_NEXTHOP_TABLE);
-            NwConstants.EGRESS_SFC_CLASSIFIER_ACL_TABLE);
+            NwConstants.EGRESS_SFC_CLASSIFIER_NEXTHOP_TABLE);
 
         return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_FILTER_TABLE,
             EGRESS_CLASSIFIER_FILTER_NSH_PRIORITY, EGRESS_CLASSIFIER_FILTER_COOKIE,
@@ -264,13 +262,9 @@ public class OpenFlow13Provider {
         actionList.add(OpenFlow13Utils.createActionNxMoveReg0ToTunIpv4Dst(actionList.size()));
 
         InstructionsBuilder isb = OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(actionList);
-        // TODO change this once 53710 is merged
-        //OpenFlow13Utils.appendGotoTableInstruction(isb, NwConstants.EGRESS_SFC_CLASSIFIER_EGRESS_TABLE);
-        OpenFlow13Utils.appendGotoTableInstruction(isb, NwConstants.EGRESS_SFC_CLASSIFIER_ACL_TABLE);
+        OpenFlow13Utils.appendGotoTableInstruction(isb, NwConstants.EGRESS_SFC_CLASSIFIER_EGRESS_TABLE);
 
-        // TODO change this once 53710 is merged
-        //return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_NEXTHOP_TABLE,
-        return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_ACL_TABLE,
+        return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_NEXTHOP_TABLE,
             EGRESS_CLASSIFIER_NEXTHOP_NOC1C2_PRIORITY, EGRESS_CLASSIFIER_NEXTHOP_COOKIE,
             EGRESS_CLASSIFIER_NEXTHOP_FLOW_NAME, String.valueOf(flowIdInc.getAndIncrement()), match, isb).build();
     }
@@ -284,14 +278,10 @@ public class OpenFlow13Provider {
     private Flow createEgressClassifierNextHopC1C2Flow() {
         MatchBuilder match = new MatchBuilder();
 
-        // TODO change this once 53710 is merged
         InstructionsBuilder isb = OpenFlow13Utils.appendGotoTableInstruction(new InstructionsBuilder(),
-            //NwConstants.EGRESS_SFC_CLASSIFIER_EGRESS_TABLE);
-            NwConstants.EGRESS_SFC_CLASSIFIER_ACL_TABLE);
+            NwConstants.EGRESS_SFC_CLASSIFIER_EGRESS_TABLE);
 
-        // TODO change this once 53710 is merged
-        //return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_NEXTHOP_TABLE,
-        return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_ACL_TABLE,
+        return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_NEXTHOP_TABLE,
             EGRESS_CLASSIFIER_NEXTHOP_C1C2_PRIORITY, EGRESS_CLASSIFIER_NEXTHOP_COOKIE,
             EGRESS_CLASSIFIER_NEXTHOP_FLOW_NAME, String.valueOf(flowIdInc.getAndIncrement()), match, isb).build();
     }
@@ -314,9 +304,7 @@ public class OpenFlow13Provider {
 
         InstructionsBuilder isb = OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(actionList);
 
-        // TODO change this once 53710 is merged
-        //return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_EGRESS_TABLE,
-        return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_ACL_TABLE,
+        return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_EGRESS_TABLE,
             EGRESS_CLASSIFIER_EGRESS_LOCAL_PRIORITY, EGRESS_CLASSIFIER_TPORTEGRESS_COOKIE,
             EGRESS_CLASSIFIER_TPORTEGRESS_FLOW_NAME, String.valueOf(flowIdInc.getAndIncrement()), match, isb).build();
     }
@@ -336,9 +324,7 @@ public class OpenFlow13Provider {
 
         InstructionsBuilder isb = OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(actionList);
 
-        // TODO change this once 53710 is merged
-        //return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_EGRESS_TABLE,
-        return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_ACL_TABLE,
+        return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_EGRESS_TABLE,
             EGRESS_CLASSIFIER_EGRESS_REMOTE_PRIORITY, EGRESS_CLASSIFIER_TPORTEGRESS_COOKIE,
             EGRESS_CLASSIFIER_TPORTEGRESS_FLOW_NAME, String.valueOf(flowIdInc.getAndIncrement()), match, isb).build();
     }
