@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 import java.math.BigInteger;
 import java.util.Collections;
@@ -16,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
 import javax.inject.Inject;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -24,9 +26,13 @@ import org.opendaylight.ovsdb.utils.config.ConfigProperties;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeNetdev;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.bridge.attributes.BridgeOtherConfigs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.bridge.attributes.BridgeOtherConfigsBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +50,9 @@ public class ElanBridgeManager implements IElanBridgeManager {
     private static final String OTHER_CONFIG_PARAMETERS_DELIMITER = ",";
     private static final String OTHER_CONFIG_KEY_VALUE_DELIMITER = ":";
     private static final int MAX_LINUX_INTERFACE_NAME_LENGTH = 15;
+    private static final String OTHER_CONFIG_DATAPATH_ID = "datapath-id";
+    private static final String OTHER_CONFIG_HWADDR = "hwaddr";
+    private static final String OTHER_CONFIG_DISABLE_IN_BAND = "disable-in-band";
 
     private final MdsalUtils mdsalUtils;
     private final IInterfaceManager interfaceManager;
@@ -224,8 +233,7 @@ public class ElanBridgeManager implements IElanBridgeManager {
     /**
      * Add a bridge to the OVSDB node but check that it does not exist in the
      * CONFIGURATION. If it already exists in OPERATIONAL, update it with all
-     * configurable parameters except mac as changing bridge mac will change
-     * datapath-id.
+     * configurable parameters but make sure to maintain the same datapath-id.
      *
      * @param ovsdbNode Which OVSDB node
      * @param bridgeName Name of the bridge
@@ -239,13 +247,62 @@ public class ElanBridgeManager implements IElanBridgeManager {
             if (isUserSpaceEnabled()) {
                 dpType = DatapathTypeNetdev.class;
             }
-            // If bridge already exists, don't generate mac, it will change datapath-id
-            mac = southboundUtils.isBridgeOnOvsdbNode(ovsdbNode, bridgeName) ? null : mac;
+
+            List<BridgeOtherConfigs> otherConfigs = buildBridgeOtherConfigs(ovsdbNode, bridgeName, mac);
+
             rv = southboundUtils.addBridge(ovsdbNode, bridgeName,
-                    southboundUtils.getControllersFromOvsdbNode(ovsdbNode), dpType, mac,
+                    southboundUtils.getControllersFromOvsdbNode(ovsdbNode), dpType, otherConfigs,
                     maxBackoff, inactivityProbe);
         }
         return rv;
+    }
+
+    private List<BridgeOtherConfigs> buildBridgeOtherConfigs(Node ovsdbNode, String bridgeName, String mac) {
+        List<BridgeOtherConfigs> otherConfigs = null;
+
+        // First attempt to extract the bridge augmentation from operational...
+        Node bridgeNode = southboundUtils.getBridgeNode(ovsdbNode, bridgeName);
+        OvsdbBridgeAugmentation bridgeAug = null;
+        if (bridgeNode != null) {
+            bridgeAug = southboundUtils.extractBridgeAugmentation(bridgeNode);
+        }
+
+        // ...if present, it means this bridge already exists and we need to take
+        // care not to change the datapath id. We do this by explicitly setting
+        // other_config:datapath-id to the value reported in the augmentation.
+        if (bridgeAug != null) {
+            DatapathId dpId = bridgeAug.getDatapathId();
+            if (dpId != null) {
+                otherConfigs = bridgeAug.getBridgeOtherConfigs();
+                if (otherConfigs == null) {
+                    otherConfigs = Lists.newArrayList();
+                }
+
+                if (!otherConfigs.stream().anyMatch(otherConfig ->
+                            otherConfig.getBridgeOtherConfigKey().equals(OTHER_CONFIG_DATAPATH_ID))) {
+                    String dpIdVal = dpId.getValue().replace(":", "");
+                    otherConfigs.add(new BridgeOtherConfigsBuilder()
+                                    .setBridgeOtherConfigKey(OTHER_CONFIG_DATAPATH_ID)
+                                    .setBridgeOtherConfigValue(dpIdVal).build());
+                }
+            }
+        } else  {
+            otherConfigs = Lists.newArrayList();
+            if (mac != null) {
+                otherConfigs.add(new BridgeOtherConfigsBuilder()
+                                .setBridgeOtherConfigKey(OTHER_CONFIG_HWADDR)
+                                .setBridgeOtherConfigValue(mac).build());
+            }
+        }
+
+        if (!otherConfigs.stream().anyMatch(otherConfig ->
+                otherConfig.getBridgeOtherConfigKey().equals(OTHER_CONFIG_DISABLE_IN_BAND))) {
+            otherConfigs.add(new BridgeOtherConfigsBuilder()
+                            .setBridgeOtherConfigKey(OTHER_CONFIG_DISABLE_IN_BAND)
+                            .setBridgeOtherConfigValue("true").build());
+        }
+
+        return otherConfigs;
     }
 
     private boolean addControllerToBridge(Node ovsdbNode,String bridgeName) {
