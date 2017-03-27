@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_5e0f8f88",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 16
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-27T14:18:52Z",
+      "side": 1,
+      "message": "Can remove this TODO.. in general just need to put \u0027WIP:\u0027 in beginning of subject so we know not to merge\n\nCould you change the commit message a bit? I updated it earlier but I think you overrid it accidently:\n\nImplement remote ACL indirection table\n\nImplementation of remote ACL indirection as described in spec:\nhttps://git.opendaylight.org/gerrit/#/c/51462",
+      "revId": "454556f9c867582bb6489f7cf7e5aade74ba2de0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3ea1eba9",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
         "patchSetId": 16
