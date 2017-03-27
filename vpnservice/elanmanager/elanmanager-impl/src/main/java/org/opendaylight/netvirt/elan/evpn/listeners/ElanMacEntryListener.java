@@ -1,0 +1,85 @@
+/*
+ * Copyright © 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
+package org.opendaylight.netvirt.elan.evpn.listeners;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanForwardingTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.forwarding.tables.MacTable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+@Singleton
+public class ElanMacEntryListener extends AsyncDataTreeChangeListenerBase<MacEntry,
+        ElanMacEntryListener> implements AutoCloseable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ElanMacEntryListener.class);
+    private final DataBroker broker;
+    private final ElanUtils elanUtils;
+    private final EvpnUtils evpnUtils;
+
+    @Inject
+    public ElanMacEntryListener(DataBroker broker, ElanUtils elanUtils,
+                                EvpnUtils evpnUtils) {
+        this.broker = broker;
+        this.elanUtils = elanUtils;
+        this.evpnUtils = evpnUtils;
+    }
+
+    @Override
+    @PostConstruct
+    public void init() {
+        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+    }
+
+    public void close() {
+    }
+
+    @Override
+    protected InstanceIdentifier<MacEntry> getWildCardPath() {
+        return InstanceIdentifier.builder(ElanForwardingTables.class)
+                .child(MacTable.class).child(MacEntry.class).build();
+    }
+
+    @Override
+    protected ElanMacEntryListener getDataTreeChangeListener() {
+        return ElanMacEntryListener.this;
+    }
+
+    @Override
+    protected void add(InstanceIdentifier<MacEntry> instanceIdentifier, MacEntry macEntry) {
+        LOG.info("ElanMacEntryListener : ADD macEntry {} ", instanceIdentifier);
+        String elanName = instanceIdentifier.firstKeyOf(MacTable.class).getElanInstanceName();
+        ElanInstance elanInfo = elanUtils.getElanInstanceByName(broker, elanName);
+        evpnUtils.advertisePrefix(elanInfo, macEntry);
+    }
+
+    @Override
+    protected void remove(InstanceIdentifier<MacEntry> instanceIdentifier, MacEntry macEntry) {
+        LOG.info("ElanMacEntryListener : remove macEntry {} ", instanceIdentifier);
+        String elanName = instanceIdentifier.firstKeyOf(MacTable.class).getElanInstanceName();
+        ElanInstance elanInfo = elanUtils.getElanInstanceByName(broker, elanName);
+        evpnUtils.withdrawPrefix(elanInfo, macEntry);
+    }
+
+    @Override
+    protected void update(InstanceIdentifier<MacEntry> instanceIdentifier, MacEntry macEntry, MacEntry t1) {
+    }
+}
