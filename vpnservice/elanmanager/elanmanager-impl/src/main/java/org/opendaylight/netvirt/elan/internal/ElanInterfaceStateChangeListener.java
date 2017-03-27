@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-
+import com.google.common.base.Strings;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +23,9 @@ import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnel.list.InternalTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
@@ -86,7 +89,7 @@ public class ElanInterfaceStateChangeListener
             LOG.trace("Interface type for interface {} is null", interfaceName);
             return;
         }
-        if (update.getType().equals(Tunnel.class)) {
+        if (update.getType().equals(Tunnel.class) && !isTunnelInLogicalGroup(update)) {
             DataStoreJobCoordinator.getInstance().enqueueJob(interfaceName, () -> {
                 if (!original.getOperStatus().equals(Interface.OperStatus.Unknown)
                         && !update.getOperStatus().equals(Interface.OperStatus.Unknown)) {
@@ -113,7 +116,7 @@ public class ElanInterfaceStateChangeListener
         String interfaceName =  intrf.getName();
         ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
         if (elanInterface == null) {
-            if (intrf.getType() != null && intrf.getType().equals(Tunnel.class)) {
+            if (intrf.getType() != null && intrf.getType().equals(Tunnel.class) && !isTunnelInLogicalGroup(intrf)) {
                 DataStoreJobCoordinator.getInstance().enqueueJob(interfaceName,
                     () -> {
                         if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
@@ -169,6 +172,20 @@ public class ElanInterfaceStateChangeListener
     @Override
     protected ElanInterfaceStateChangeListener getDataTreeChangeListener() {
         return this;
+    }
+
+    protected boolean isTunnelInLogicalGroup(Interface iface) {
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+            .ietf.interfaces.rev140508.interfaces.Interface configIface =
+                                                        ElanUtils.getInterfaceFromConfigDS(iface.getName(), broker);
+        IfTunnel ifTunnel = configIface.getAugmentation(IfTunnel.class);
+        if (ifTunnel != null && ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)) {
+            ParentRefs refs = configIface.getAugmentation(ParentRefs.class);
+            if (refs != null && !Strings.isNullOrEmpty(refs.getParentInterface())) {
+                return true; //multiple VxLAN tunnels enabled, i.e. only logical tunnel should be treated
+            }
+        }
+        return false;
     }
 
 }
