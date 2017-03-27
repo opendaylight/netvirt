@@ -653,6 +653,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         futures.add(ElanUtils.waitForTransactionToComplete(tx));
         if (isFirstInterfaceInDpn && (ElanUtils.isVxlan(elanInstance) || ElanUtils.isVxlanSegment(elanInstance))) {
             //update the remote-DPNs remoteBC group entry with Tunnels
+            LOG.info("update remote bc group for elan {} on other DPNs for newly added dpn {}", elanInstance, dpId);
             setElanAndEtreeBCGrouponOtherDpns(elanInstance, dpId);
         }
 
@@ -974,6 +975,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     }
                     Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                             MDSALUtil.buildBucketLists(remoteListBucketInfo));
+                    LOG.info("Installing remote bc group {} on dpnId {}", group, dpnInterface.getDpId());
                     mdsalManager.syncInstallGroup(dpnInterface.getDpId(), group,
                             ElanConstants.DELAY_TIME_IN_MILLISECOND);
                 }
@@ -1084,7 +1086,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         long groupId = ElanUtils.getElanRemoteBCGId(elanTag);
         Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                 MDSALUtil.buildBucketLists(listBucket));
-        LOG.trace("Installing the remote BroadCast Group:{}", group);
+        LOG.info("Installing the remote BroadCast Group:{}", group);
         mdsalManager.syncInstallGroup(dpnId, group, ElanConstants.DELAY_TIME_IN_MILLISECOND);
     }
 
@@ -1545,6 +1547,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     public void handleInternalTunnelStateEvent(BigInteger srcDpId, BigInteger dstDpId) throws ElanException {
         ElanDpnInterfaces dpnInterfaceLists = elanUtils.getElanDpnInterfacesList();
+        LOG.info("processing tunnel state event for srcDpId {} dstDpId {}"
+                + " and dpnInterfaceList {}", srcDpId, dstDpId, dpnInterfaceLists);
         if (dpnInterfaceLists == null) {
             return;
         }
@@ -1582,6 +1586,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 final DpnInterfaces finalDstDpnIf = dstDpnIf; // var needs to be final so it can be accessed in lambda
                 dataStoreCoordinator.enqueueJob(elanName, () -> {
                     // update Remote BC Group
+                    LOG.info("procesing elan remote bc group for tunnel event {}", elanInfo);
                     setupElanBroadcastGroups(elanInfo, srcDpId);
 
                     Set<String> interfaceLists = new HashSet<>();

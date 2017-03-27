@@ -913,7 +913,7 @@ public class ElanUtils {
                     elanTag, // identifier of the Elan
                     macAddress, // MAC to be programmed in remote DPN
                     elanInstanceName, writeFlowGroupTx, ifName, elanInfo);
-            LOG.debug("Dmac flow entry created for elan Name:{}, logical port Name:{} and mac address:{} on"
+            LOG.debug("Remote Dmac flow entry created for elan Name:{}, logical port Name:{} and mac address:{} on"
                         + " dpn:{}", elanInstanceName, interfaceInfo.getPortName(), macAddress, elanDpn.getDpId());
         }
 
@@ -1436,7 +1436,7 @@ public class ElanUtils {
             long serviceTag) {
         List<Action> result = Collections.emptyList();
 
-        LOG.info("In getInternalItmEgressAction Action source {}, destination {}, elanTag {}", sourceDpnId,
+        LOG.info("In getInternalItmEgressAction Action source {}, destination {}, serviceTag {}", sourceDpnId,
                 destinationDpnId, serviceTag);
         Class<? extends TunnelTypeBase> tunType = TunnelTypeVxlan.class;
         GetTunnelInterfaceNameInput input = new GetTunnelInterfaceNameInputBuilder()
@@ -1450,6 +1450,9 @@ public class ElanUtils {
                 LOG.info("Received tunnelInterfaceName from getTunnelInterfaceName RPC {}", tunnelIfaceName);
 
                 result = buildTunnelItmEgressActions(tunnelIfaceName, serviceTag);
+            } else {
+                LOG.info("Tunnel interface doesn't exist between srcDpId {} dstDpId {}", sourceDpnId,
+                        destinationDpnId);
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error in RPC call getTunnelInterfaceName {}", e);
