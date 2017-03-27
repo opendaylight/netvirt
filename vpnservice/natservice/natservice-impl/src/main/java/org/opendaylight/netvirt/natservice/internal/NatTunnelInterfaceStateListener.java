@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
@@ -25,6 +26,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
@@ -39,9 +41,13 @@ import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepTypeExternal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepTypeHwvtep;
@@ -87,6 +93,7 @@ public class NatTunnelInterfaceStateListener
     private final FloatingIPListener floatingIPListener;
     private final FibRpcService fibRpcService;
     private final INeutronVpnManager nvpnManager;
+    private final IInterfaceManager interfaceManager;
     private NatMode natMode = NatMode.Controller;
 
     protected enum TunnelAction {
@@ -124,8 +131,8 @@ public class NatTunnelInterfaceStateListener
                                            final FloatingIPListener floatingIPListener,
                                            final FibRpcService fibRpcService,
                                            final INeutronVpnManager nvpnManager,
-                                           final NatserviceConfig config) {
-        super(StateTunnelList.class, NatTunnelInterfaceStateListener.class);
+                                           final NatserviceConfig config,
+                                           final IInterfaceManager interfaceManager) {
         this.dataBroker = dataBroker;
         this.bgpManager = bgpManager;
         this.fibManager = fibManager;
@@ -139,6 +146,7 @@ public class NatTunnelInterfaceStateListener
         this.floatingIPListener = floatingIPListener;
         this.fibRpcService = fibRpcService;
         this.nvpnManager = nvpnManager;
+        this.interfaceManager = interfaceManager;
         if (config != null) {
             this.natMode = config.getNatMode();
         }
@@ -311,9 +319,7 @@ public class NatTunnelInterfaceStateListener
         LOG.trace("NAT Service : Handle tunnel event for srcDpn {} SrcTepIp {} DestTepIp {} ", srcDpnId, srcTepIp,
             destTepIp);
         int tunTypeVal = getTunnelType(stateTunnelList);
-
         LOG.trace("NAT Service : tunTypeVal is {}", tunTypeVal);
-
         try {
             String srcTepId = stateTunnelList.getSrcInfo().getTepDeviceId();
             String tunnelType = stateTunnelList.getTransportType().toString();
@@ -328,7 +334,8 @@ public class NatTunnelInterfaceStateListener
 
             switch (tunnelAction) {
                 case TUNNEL_EP_ADD:
-                    if (!hndlTepAddForAllRtrs(srcDpnId, tunnelType, tunnelName, srcTepIp, destTepIp)) {
+                    if (isTunnelInLogicalGroup(stateTunnelList)
+                            || !hndlTepAddForAllRtrs(srcDpnId, tunnelType, tunnelName, srcTepIp, destTepIp)) {
                         LOG.debug("NAT Service : Unable to process TEP ADD");
                     }
                     break;
@@ -1048,5 +1055,21 @@ public class NatTunnelInterfaceStateListener
                 });
             }
         }
+    }
+
+    protected boolean isTunnelInLogicalGroup(StateTunnelList stateTunnelList) {
+        String ifaceName = stateTunnelList.getTunnelInterfaceName();
+        if (getTunnelType(stateTunnelList) == NatConstants.ITMTunnelLocType.Internal.getValue()) {
+            Interface configIface = interfaceManager.getInterfaceInfoFromConfigDataStore(ifaceName);
+            IfTunnel ifTunnel = (configIface != null) ? configIface.getAugmentation(IfTunnel.class) : null;
+            if (ifTunnel != null && ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)) {
+                ParentRefs refs = configIface.getAugmentation(ParentRefs.class);
+                if (refs != null && !Strings.isNullOrEmpty(refs.getParentInterface())) {
+                    return true; //multiple VxLAN tunnels enabled, i.e. only logical tunnel should be treated
+                }
+            }
+        }
+        LOG.trace("MULTIPLE_VxLAN_TUNNELS: ignoring the tunnel event for {}", ifaceName);
+        return false;
     }
 }
