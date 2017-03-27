@@ -1754,6 +1754,7 @@ public class NatUtil {
     public static InstanceIdentifier<ElanInstance> getElanInstanceConfigurationDataPath(String elanInstanceName) {
         return InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
+
     }
 
     public static long getTunnelIdForNonNaptToNaptFlow(DataBroker dataBroker, IElanService elanManager,
