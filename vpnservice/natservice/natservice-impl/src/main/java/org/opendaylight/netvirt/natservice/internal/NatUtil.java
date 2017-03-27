@@ -1668,7 +1668,7 @@ public class NatUtil {
 
         Set<Uuid> subnetsSet = externalIps.stream().map(externalIp -> externalIp.getSubnetId())
                 .collect(Collectors.toSet());
-        return new ArrayList<Uuid>(subnetsSet);
+        return new ArrayList<>(subnetsSet);
     }
 
     public static List<Uuid> getExternalSubnetIdsForRouter(DataBroker dataBroker, String routerName) {
@@ -1764,6 +1764,7 @@ public class NatUtil {
     public static InstanceIdentifier<ElanInstance> getElanInstanceConfigurationDataPath(String elanInstanceName) {
         return InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
+
     }
 
     public static long getTunnelIdForNonNaptToNaptFlow(DataBroker dataBroker, INeutronVpnManager nvpnManager,

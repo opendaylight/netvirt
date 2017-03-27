@@ -116,6 +116,7 @@
     init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="elanInterfaceManager" />
+    <argument ref="elanUtils" />
   </bean>
 
   <bean id="elanInterfaceStateClusterListener"
