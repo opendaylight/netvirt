@@ -22,6 +22,30 @@
       "revId": "09c68233a487fed16b08b69ef347bf40e1d7a76b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bbf84dc5",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-27T10:47:34Z",
+      "side": 1,
+      "message": "Alon, we need to check tunnel interface op state while handling add/update DCNs. That\u0027s why i have added this log message. \nLet us try running csit few more times to reproduce DHCP issue without merging this. \nAfter that, we will try to optimize this log and then we merge it if required.",
+      "parentUuid": "fafc7978_7b20a59b",
+      "range": {
+        "startLine": 83,
+        "startChar": 0,
+        "endLine": 83,
+        "endChar": 90
+      },
+      "revId": "09c68233a487fed16b08b69ef347bf40e1d7a76b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
