@@ -45,6 +45,23 @@
       "revId": "1515a930a3c75ac1e5a26c52d36442897f628bc1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_aca2d197",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-27T19:14:33Z",
+      "side": 1,
+      "message": "why not use uuid.getValue()?",
+      "revId": "1515a930a3c75ac1e5a26c52d36442897f628bc1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
