@@ -38,6 +38,13 @@ module federation-plugin-manager {
         }
     }
 
+    container federated-acls {
+        list federated-acl {
+            key self-acl-id;
+            uses federated-acls-mapping;
+        }
+    }
+
     container federation-generations {
         description
                 "Federation generation information for a remote site.";
@@ -53,6 +60,24 @@ module federation-plugin-manager {
             leaf generation-number {
                 type int32;
                 description "The current generation number used for the remote site.";
+            }
+        }
+    }
+
+    grouping federated-acls-mapping {
+        leaf self-acl-id {
+            type yang:uuid;
+            description "UUID representing the self acl";
+        }
+        list site-acl {
+            key id;
+            leaf id {
+                type string;
+                description "UUID representing the site ID";
+            }
+            leaf site-acl-id {
+                type yang:uuid;
+                description "UUID of the acl in the site";
             }
         }
     }
@@ -79,7 +104,7 @@ module federation-plugin-manager {
             key id;
             leaf id {
                 type string;
-                description "UUID representing the site ID (from xsite manager)";
+                description "UUID representing the site ID";
             }
             leaf site-ip {
                 type string;
