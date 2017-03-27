@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.federation.plugin.transformers;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,6 +25,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.rev170219.IfShadowProperties;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.rev170219.IfShadowPropertiesBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -45,7 +49,25 @@ public class FederationIetfInterfaceTransformer implements FederationPluginTrans
         InterfaceBuilder interfaceBuilder = new InterfaceBuilder(iface);
         interfaceBuilder.addAugmentation(IfShadowProperties.class,
                 new IfShadowPropertiesBuilder().setShadow(true).build());
+        InterfaceAcl interfaceAcl = interfaceBuilder.getAugmentation(InterfaceAcl.class);
+        if (interfaceAcl != null) {
+            InterfaceAclBuilder interfaceAclBuilder = new InterfaceAclBuilder(interfaceAcl);
+            setOnlyMappedAcls(federatedMappings, interfaceAclBuilder);
+            interfaceBuilder.addAugmentation(InterfaceAcl.class, interfaceAclBuilder.build());
+        }
         return new InterfacesBuilder().setInterface(Collections.singletonList(interfaceBuilder.build())).build();
+    }
+
+    private void setOnlyMappedAcls(FederatedMappings federatedMappings, InterfaceAclBuilder interfaceAclBuilder) {
+        List<Uuid> originalSecGroups = interfaceAclBuilder.getSecurityGroups();
+        List<Uuid> finalSecGroups = new ArrayList<>();
+        for (Uuid curSecGroup : originalSecGroups) {
+            Uuid consumerAclId = federatedMappings.getConsumerAclId(curSecGroup);
+            if (consumerAclId != null) {
+                finalSecGroups.add(consumerAclId);
+            }
+        }
+        interfaceAclBuilder.setSecurityGroups(finalSecGroups);
     }
 
     @Override

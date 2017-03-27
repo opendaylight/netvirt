@@ -12,17 +12,28 @@ import com.google.common.collect.Maps;
 
 import java.util.List;
 import java.util.Map;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 
 public class FederatedMappings {
 
     private final Map<String, String> producerToConsumerNetworkMap = Maps.newConcurrentMap();
     private final Map<String, String> producerToConsumerSubnetMap = Maps.newConcurrentMap();
+    private final Map<Uuid, Uuid> producerToConsumerAclsMap = Maps.newConcurrentMap();
 
-    public FederatedMappings(List<FederatedNetworkPair> federatedNetworkPairs) {
+    public FederatedMappings(List<FederatedNetworkPair> federatedNetworkPairs,
+        List<FederatedAclPair> aclsPairs) {
         federatedNetworkPairs.stream()
-                .forEach((pair) -> producerToConsumerNetworkMap.put(pair.producerNetworkId, pair.consumerNetworkId));
+            .forEach((pair) -> producerToConsumerNetworkMap.put(pair.producerNetworkId, pair.consumerNetworkId));
         federatedNetworkPairs.stream()
-                .forEach((pair) -> producerToConsumerSubnetMap.put(pair.producerSubnetId, pair.consumerSubnetId));
+            .forEach((pair) -> producerToConsumerSubnetMap.put(pair.producerSubnetId, pair.consumerSubnetId));
+        if (aclsPairs != null) {
+            aclsPairs.stream().forEach(
+                (pair) -> producerToConsumerAclsMap.put(pair.producerAclId, pair.consumerAclId));
+        }
+    }
+
+    public Uuid getConsumerAclId(Uuid producerAclId) {
+        return producerToConsumerAclsMap.get(producerAclId);
     }
 
     public String getConsumerNetworkId(String producerNetworkId) {
@@ -51,8 +62,8 @@ public class FederatedMappings {
 
     @Override
     public String toString() {
-        return "FederatedMappings [federatedNetworkMap=" + producerToConsumerNetworkMap + ", federatedSubnetMap="
-                + producerToConsumerSubnetMap + "]";
+        return "FederatedMappings [producerToConsumerNetworkMap=" + producerToConsumerNetworkMap
+            + ", producerToConsumerSubnetMap=" + producerToConsumerSubnetMap + ", producerToConsumerSecurityGroupsMap="
+            + producerToConsumerAclsMap + "]";
     }
-
 }

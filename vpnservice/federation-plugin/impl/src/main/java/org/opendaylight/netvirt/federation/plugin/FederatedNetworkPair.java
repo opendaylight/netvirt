@@ -32,29 +32,20 @@ public class FederatedNetworkPair {
             Uuid localTenantId, Uuid remoteTenantId) {
         this.consumerNetworkId = localNetworkId;
         this.producerNetworkId = remoteNetworkId;
-        this.consumerSubnetId = uuidToCleanStr(localSubnetId);
-        this.producerSubnetId = uuidToCleanStr(remoteSubnetId);
-        this.consumerTenantId = uuidToCleanStr(localTenantId);
-        this.producerTenantId = uuidToCleanStr(remoteTenantId);
+        this.consumerSubnetId = FederationPluginUtils.uuidToCleanStr(localSubnetId);
+        this.producerSubnetId = FederationPluginUtils.uuidToCleanStr(remoteSubnetId);
+        this.consumerTenantId = FederationPluginUtils.uuidToCleanStr(localTenantId);
+        this.producerTenantId = FederationPluginUtils.uuidToCleanStr(remoteTenantId);
     }
 
     public FederatedNetworkPair(Uuid localNetworkId, Uuid remoteNetworkId, Uuid localSubnetId, Uuid remoteSubnetId,
             Uuid localTenantId, Uuid remoteTenantId) {
-        this.consumerNetworkId = uuidToCleanStr(localNetworkId);
-        this.producerNetworkId = uuidToCleanStr(remoteNetworkId);
-        this.consumerSubnetId = uuidToCleanStr(localSubnetId);
-        this.producerSubnetId = uuidToCleanStr(remoteSubnetId);
-        this.consumerTenantId = uuidToCleanStr(localTenantId);
-        this.producerTenantId = uuidToCleanStr(remoteTenantId);
-    }
-
-    private String uuidToCleanStr(Uuid uuid) {
-        String uuidStr = uuid.toString();
-        String str = "";
-        if (uuidStr.indexOf('=') != -1 && uuidStr.indexOf(']') != -1) {
-            str = uuidStr.substring(uuidStr.indexOf('=') + 1, uuidStr.indexOf(']'));
-        }
-        return str;
+        this.consumerNetworkId = FederationPluginUtils.uuidToCleanStr(localNetworkId);
+        this.producerNetworkId = FederationPluginUtils.uuidToCleanStr(remoteNetworkId);
+        this.consumerSubnetId = FederationPluginUtils.uuidToCleanStr(localSubnetId);
+        this.producerSubnetId = FederationPluginUtils.uuidToCleanStr(remoteSubnetId);
+        this.consumerTenantId = FederationPluginUtils.uuidToCleanStr(localTenantId);
+        this.producerTenantId = FederationPluginUtils.uuidToCleanStr(remoteTenantId);
     }
 
     @Override
