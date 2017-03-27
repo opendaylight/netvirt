@@ -100,8 +100,8 @@ public class ArpNotificationHandler implements OdlArputilListener {
     @Override
     public void onArpResponseReceived(ArpResponseReceived notification) {
         String srcInterface = notification.getInterface();
-        IpAddress srcIP = notification.getIpaddress();
-        PhysAddress srcMac = notification.getMacaddress();
+        IpAddress srcIP = notification.getSrcIpaddress();
+        PhysAddress srcMac = notification.getSrcMac();
         BigInteger metadata = notification.getMetadata();
         LOG.trace("ArpNotification Response Received from interface {} and IP {} having MAC {}, learning MAC",
                 srcInterface, srcIP.getIpv4Address().getValue(), srcMac.getValue());
@@ -188,7 +188,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                     String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
                     long label =
                         VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                            VpnUtil.getNextHopLabelKey((rd != null) ? rd : vpnName, ip));
+                            VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnName, ip));
                     if (label == 0) {
                         LOG.error("Unable to fetch label from Id Manager. Bailing out of adding MIP adjacency {} "
                             + "to vpn interface {} for vpn {}", ip, vpnInterface, vpnName);
