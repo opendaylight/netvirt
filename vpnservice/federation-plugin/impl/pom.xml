@@ -47,8 +47,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <version>${vpnservices.version}</version>
     </dependency>
     <dependency>
-        <groupId>javax.inject</groupId>
-        <artifactId>javax.inject</artifactId>
+        <groupId>org.opendaylight.infrautils</groupId>
+        <artifactId>inject</artifactId>
+        <version>${infrautils.version}</version>
     </dependency>
     <dependency>
         <groupId>org.opendaylight.netvirt</groupId>
