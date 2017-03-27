@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.elan.utils;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -92,6 +93,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.IfIndexesInterfaceMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
@@ -2218,4 +2221,17 @@ public class ElanUtils {
         return macTable.getMacEntry();
     }
 
+    public boolean isTunnelInLogicalGroup(String interfaceName, DataBroker broker) {
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+            .ietf.interfaces.rev140508.interfaces.Interface configIface =
+                        interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
+        IfTunnel ifTunnel = configIface.getAugmentation(IfTunnel.class);
+        if (ifTunnel != null && ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)) {
+            ParentRefs refs = configIface.getAugmentation(ParentRefs.class);
+            if (refs != null && !Strings.isNullOrEmpty(refs.getParentInterface())) {
+                return true; //multiple VxLAN tunnels enabled, i.e. only logical tunnel should be treated
+            }
+        }
+        return false;
+    }
 }
