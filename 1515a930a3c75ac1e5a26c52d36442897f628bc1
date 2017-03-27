@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_a1fc9a40",
+        "filename": "vpnservice/federation-plugin/api/src/main/yang/federation-plugin-manager.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-27T16:50:34Z",
+      "side": 1,
+      "message": "remove federation manager references",
+      "range": {
+        "startLine": 76,
+        "startChar": 59,
+        "endLine": 76,
+        "endChar": 79
+      },
+      "revId": "1515a930a3c75ac1e5a26c52d36442897f628bc1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_81e8767d",
+        "filename": "vpnservice/federation-plugin/api/src/main/yang/federation-plugin-rpc.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-27T16:50:34Z",
+      "side": 1,
+      "message": "need to replace ,security-groups,acls, in all these files\nsecurity groups is openstack only, we should be federating ACL objects\n\nI noticed InterfaceAcl has a securityGroups leaf for ACL IDs - that\u0027s probably a bug, need to refer to it as ACLs/ACL ID across code",
+      "range": {
+        "startLine": 32,
+        "startChar": 17,
+        "endLine": 32,
+        "endChar": 45
+      },
+      "revId": "1515a930a3c75ac1e5a26c52d36442897f628bc1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
