@@ -16,6 +16,24 @@
       "revId": "0cdb3ed32f9278ecc3d882e991c57f1907cf951e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b65b45f5",
+        "filename": "vpnservice/statistics/impl/src/main/resources/org/opendaylight/blueprint/impl-blueprint.xml",
+        "patchSetId": 19
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-27T06:20:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_bbb7b0f4",
+      "revId": "0cdb3ed32f9278ecc3d882e991c57f1907cf951e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
