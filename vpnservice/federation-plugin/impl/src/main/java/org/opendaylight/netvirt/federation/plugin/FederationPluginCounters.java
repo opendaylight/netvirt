@@ -40,14 +40,17 @@ public enum FederationPluginCounters {
     ingress_consume_msg_aborted, //
     ingress_full_sync_aborted, //
     egress_node_filtered_after_transform, //
+    egress_hwvtep_node_filtered_after_transform, //
     egress_no_existing_data, //
     removed_shadow_elan_interface, //
+    removed_shadow_l2_gateway, //
     removed_shadow_ietf_interface, //
     removed_shadow_inventory_node, //
     removed_shadow_topology_node, //
     removed_shadow_vpn_interface, //
     removed_shadow_vpn_port_ip_to_port, //
-    ;
+    hwvtep_egress_apply_transformation, //
+    hwvtep_ingress_apply_transformation;
 
     private OccurenceCounter counter;
 

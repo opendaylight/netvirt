@@ -271,7 +271,7 @@ public class FederationPluginEgress implements IFederationPluginEgress {
                 .getSubtreeInstanceIdentifier(listenerKey);
         LogicalDatastoreType datastoreType = FederationPluginUtils.getListenerDatastoreType(listenerKey);
         EntityFederationMessage<T> msg = createMsgWithRetriesMechanism(dataObject, modificationType, instanceIdentifier,
-                datastoreType, 2);
+                datastoreType, listenerKey, 2);
         return msg;
     }
 
@@ -282,10 +282,10 @@ public class FederationPluginEgress implements IFederationPluginEgress {
     @SuppressWarnings({ "rawtypes", "unchecked", "checkstyle:emptyblock" })
     private <T extends DataObject, S extends DataObject> EntityFederationMessage<T> createMsgWithRetriesMechanism(
             T dataObject, ModificationType modificationType, InstanceIdentifier<T> instanceIdentifier,
-            LogicalDatastoreType datastoreType, int remainingRetries) {
+            LogicalDatastoreType datastoreType, String metadata, int remainingRetries) {
         try {
             EntityFederationMessage msg = new EntityFederationMessage(datastoreType.toString(),
-                    modificationType.toString(), null, queueName, instanceIdentifier, dataObject);
+                    modificationType.toString(), metadata, queueName, instanceIdentifier, dataObject);
             return msg;
         } catch (UncheckedExecutionException t) {
             if (remainingRetries > 0) {
@@ -296,7 +296,7 @@ public class FederationPluginEgress implements IFederationPluginEgress {
                 } catch (InterruptedException e) {
                 }
                 createMsgWithRetriesMechanism(dataObject, modificationType, instanceIdentifier, datastoreType,
-                        --remainingRetries);
+                        metadata, --remainingRetries);
             }
         }
 
