@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_9631e10d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-27T08:38:56Z",
+      "side": 1,
+      "message": "For my knowledge, what is a \"mip\" adjacency?",
+      "revId": "3b94e1f88d49398c8f7bee1696f9fb4f52cf5a22",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b615054b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-27T08:38:56Z",
+      "side": 1,
+      "message": "Where do you use this method?",
+      "revId": "3b94e1f88d49398c8f7bee1696f9fb4f52cf5a22",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_980d8f38",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-27T08:38:56Z",
+      "side": 1,
+      "message": "Is it a valid case to have null encapType?\nIf so do we only want to set the GateawayMac, what about \"setMac\" and the routes?\n\nMaybe it will be better to first set all the other parameters and only after it check if encapType is null and return.",
+      "revId": "3b94e1f88d49398c8f7bee1696f9fb4f52cf5a22",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9862afd7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-27T08:38:56Z",
+      "side": 1,
+      "message": "Add log",
+      "revId": "3b94e1f88d49398c8f7bee1696f9fb4f52cf5a22",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_78a54b03",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-27T08:38:56Z",
+      "side": 1,
+      "message": "Cosmetics:\nList\u003cAdjacency\u003e adjacencyList \u003d adjacencies.isPresent() ?adjacencies.get().getAdjacency() : new ArrayList\u003c\u003e();",
+      "revId": "3b94e1f88d49398c8f7bee1696f9fb4f52cf5a22",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d85c371c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-27T08:38:56Z",
+      "side": 1,
+      "message": "It will be best to have a static method in VpnUtil similar to: NatUtil.getExternalSubnetForRouterExternalIp();\nThey might be future classes that will need this as well.",
+      "revId": "3b94e1f88d49398c8f7bee1696f9fb4f52cf5a22",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d8b3974b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1635,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-27T08:38:56Z",
+      "side": 1,
+      "message": "add protected",
+      "revId": "3b94e1f88d49398c8f7bee1696f9fb4f52cf5a22",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
