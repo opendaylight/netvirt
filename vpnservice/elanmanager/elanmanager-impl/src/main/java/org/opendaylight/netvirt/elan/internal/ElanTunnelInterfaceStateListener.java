@@ -16,6 +16,7 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepTypeInternal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelOperStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelsState;
@@ -29,12 +30,14 @@ public class ElanTunnelInterfaceStateListener extends AsyncDataTreeChangeListene
     private static final Logger LOG = LoggerFactory.getLogger(ElanTunnelInterfaceStateListener.class);
     private final DataBroker dataBroker;
     private final ElanInterfaceManager elanInterfaceManager;
+    private final ElanUtils elanUtils;
 
     public ElanTunnelInterfaceStateListener(final DataBroker dataBroker,
-            final ElanInterfaceManager elanInterfaceManager) {
+            final ElanInterfaceManager elanInterfaceManager, final ElanUtils elanUtils) {
         super(StateTunnelList.class, ElanTunnelInterfaceStateListener.class);
         this.dataBroker = dataBroker;
         this.elanInterfaceManager = elanInterfaceManager;
+        this.elanUtils = elanUtils;
     }
 
     @Override
@@ -61,6 +64,10 @@ public class ElanTunnelInterfaceStateListener extends AsyncDataTreeChangeListene
         LOG.info("processing add state for StateTunnelList {}", add);
         if (!isInternalTunnel(add)) {
             LOG.trace("tunnel {} is not a internal vxlan tunnel", add);
+        }
+        if (elanUtils.isTunnelInLogicalGroup(add.getTunnelInterfaceName(), dataBroker)) {
+            LOG.trace("MULTIPLE_VxLAN_TUNNELS: ignoring the tunnel event for {}", add.getTunnelInterfaceName());
+            return;
         }
         TunnelOperStatus tunOpStatus = add.getOperState();
         if (tunOpStatus != TunnelOperStatus.Down && tunOpStatus != TunnelOperStatus.Up) {
