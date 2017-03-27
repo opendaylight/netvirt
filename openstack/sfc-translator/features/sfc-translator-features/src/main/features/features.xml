@@ -18,7 +18,7 @@
   <repository>mvn:org.opendaylight.netvirt/features-netvirt/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.netvirt/openstack.net-virt-sfc-features/{{VERSION}}/xml/features</repository>
   <feature name='odl-netvirt-openstack-sfc-translator' version='${project.version}'
-           description='OpenStack SFC to OpenDaylight SFC API data translator'>
+           description=''>
     <feature version='${controller.mdsal.version}'>odl-mdsal-broker</feature>
     <feature version="${neutron.version}">odl-neutron-service</feature>
     <feature version='${sfc.version}'>odl-sfc-provider</feature>
