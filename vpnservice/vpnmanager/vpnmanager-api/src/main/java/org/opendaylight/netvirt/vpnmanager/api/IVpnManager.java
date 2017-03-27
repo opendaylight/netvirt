@@ -12,12 +12,16 @@ import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+
 
 public interface IVpnManager {
     void setFibManager(IFibManager fibManager);
@@ -75,5 +79,13 @@ public interface IVpnManager {
     void onSubnetDeletedFromVpn(Subnetmap subnetmap, boolean isBgpVpn);
 
     List<MatchInfoBase> getEgressMatchesForVpn(String vpnName);
+
+    VpnInstance getVpnInstance(DataBroker broker, String vpnInstanceName);
+
+    String getVpnRd(DataBroker broker, String vpnName);
+
+    VpnPortipToPort getNeutronPortFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp);
+
+    String getMacAddressForInterface(DataBroker dataBroker, String interfaceName);
 
 }
