@@ -70,6 +70,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7e6ed3ca",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/listeners/PolicyAceChangeListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-27T12:47:53Z",
+      "side": 1,
+      "message": "Should we also have a close() method to this class to unregister the listener, as follows?\n\n       @PreDestroy\n       public void destroy() {\n       }",
+      "range": {
+        "startLine": 59,
+        "startChar": 16,
+        "endLine": 59,
+        "endChar": 20
+      },
+      "revId": "753b860c536a115c4deea05e62930465e768213f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_bb1fad08",
         "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/listeners/PolicyAceChangeListener.java",
         "patchSetId": 18
@@ -87,6 +110,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_be679be9",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/listeners/PolicyProfileChangeListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-27T12:47:53Z",
+      "side": 1,
+      "message": "Should we also have a close() method to this class to unregister the listener, as follows?\n\n       @PreDestroy\n       public void destroy() {\n       }",
+      "range": {
+        "startLine": 67,
+        "startChar": 16,
+        "endLine": 67,
+        "endChar": 20
+      },
+      "revId": "753b860c536a115c4deea05e62930465e768213f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fbc77562",
         "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/listeners/PolicyProfileChangeListener.java",
         "patchSetId": 18
@@ -98,6 +144,52 @@
       "writtenOn": "2017-03-27T11:46:52Z",
       "side": 1,
       "message": "can you use Optional.ofNullable(aclRule.getAceRule()) instead of null check.",
+      "revId": "753b860c536a115c4deea05e62930465e768213f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_de5c1f1c",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/listeners/TunnelStateChangeListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-27T12:47:53Z",
+      "side": 1,
+      "message": "Should we also have a close() method to this class to unregister the listener, as follows?\n\n       @PreDestroy\n       public void destroy() {\n       }",
+      "range": {
+        "startLine": 51,
+        "startChar": 16,
+        "endLine": 51,
+        "endChar": 20
+      },
+      "revId": "753b860c536a115c4deea05e62930465e768213f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3e9babca",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/listeners/UnderlayNetworkDpnListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-27T12:47:53Z",
+      "side": 1,
+      "message": "Should we also have a close() method to this class to unregister the listener, as follows?\n\n       @PreDestroy\n       public void destroy() {\n       }",
+      "range": {
+        "startLine": 59,
+        "startChar": 16,
+        "endLine": 59,
+        "endChar": 20
+      },
       "revId": "753b860c536a115c4deea05e62930465e768213f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
