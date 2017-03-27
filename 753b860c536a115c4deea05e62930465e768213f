@@ -2,6 +2,227 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_3b373db2",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyAceFlowProgrammer.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-27T11:46:52Z",
+      "side": 1,
+      "message": "what is the use of dpId here ?",
+      "revId": "753b860c536a115c4deea05e62930465e768213f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fbe65543",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyAceFlowProgrammer.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-27T11:46:52Z",
+      "side": 1,
+      "message": "do we need dpIds here ? It can be retrieved in below programAceFlows method itself if it is not used by other classes.",
+      "revId": "753b860c536a115c4deea05e62930465e768213f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9b458917",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyIdManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-27T11:46:52Z",
+      "side": 1,
+      "message": "change the log message",
+      "revId": "753b860c536a115c4deea05e62930465e768213f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3b2c5d4a",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyServiceConstants.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-27T11:46:52Z",
+      "side": 1,
+      "message": "hope this id range doesn\u0027t clash with other service ids in egress pipeline.",
+      "revId": "753b860c536a115c4deea05e62930465e768213f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bb1fad08",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/listeners/PolicyAceChangeListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-27T11:46:52Z",
+      "side": 1,
+      "message": "is this trace log okay ?",
+      "revId": "753b860c536a115c4deea05e62930465e768213f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fbc77562",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/listeners/PolicyProfileChangeListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-27T11:46:52Z",
+      "side": 1,
+      "message": "can you use Optional.ofNullable(aclRule.getAceRule()) instead of null check.",
+      "revId": "753b860c536a115c4deea05e62930465e768213f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9b76293e",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/listeners/UnderlayNetworkDpnListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-27T11:46:52Z",
+      "side": 1,
+      "message": "use Optional.ofNullable at line no 104, 108",
+      "revId": "753b860c536a115c4deea05e62930465e768213f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5b016169",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/util/PolicyServiceUtil.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-27T11:46:52Z",
+      "side": 1,
+      "message": "change the return type to Optional\u003cString\u003e",
+      "revId": "753b860c536a115c4deea05e62930465e768213f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bbf7ad8b",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/util/PolicyServiceUtil.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-27T11:46:52Z",
+      "side": 1,
+      "message": "same comment as above",
+      "revId": "753b860c536a115c4deea05e62930465e768213f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3b79fdfc",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/util/PolicyServiceUtil.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-27T11:46:52Z",
+      "side": 1,
+      "message": "don\u0027t we need to provide isPresent check before deleting it.",
+      "revId": "753b860c536a115c4deea05e62930465e768213f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7bd1c5cc",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/util/PolicyServiceUtil.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-27T11:46:52Z",
+      "side": 1,
+      "message": "you don\u0027t need extra flatMap. Let us do it with underlayNetworks.stream().flatMap(t -\u003e getUnderlayNetworkDpns(t).stream()).distinct()",
+      "revId": "753b860c536a115c4deea05e62930465e768213f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3b60dd34",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/util/PolicyServiceUtil.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-27T11:46:52Z",
+      "side": 1,
+      "message": "you could use stream here too.\npolicyRoutes.stream().map(policyRoute -\u003e policyRoute.getRoute()).filter(route -\u003e route instanceof BasicRoute).map(route -\u003e ((BasicRoute) route).getNetworkName()).collect(Collectors.toList());",
+      "revId": "753b860c536a115c4deea05e62930465e768213f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9b20e9f9",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/util/PolicyServiceUtil.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-27T11:46:52Z",
+      "side": 1,
+      "message": "you can move it to getUnderlayNetworkIdentifier() method. This can be reused later.\nsame comment for other ids",
+      "revId": "753b860c536a115c4deea05e62930465e768213f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7b08a8d9",
         "filename": "vpnservice/policyservice/impl/src/main/resources/org/opendaylight/blueprint/policyservice.xml",
         "patchSetId": 18
