@@ -1272,6 +1272,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                            List<ActionInfo> actionInfos) {
         Class<? extends TunnelTypeBase> tunnelType = VpnExtraRouteHelper.getTunnelType(interfaceManager,
                 adjacencyResult.getInterfaceName());
+        if (tunnelType == null) {
+            LOG.debug("Tunnel type not found for vrfEntry {}", vrfEntry);
+            return;
+        }
         // TODO - For now have added routePath into adjacencyResult so that we know for which
         // routePath this result is built for. If this is not possible construct a map which does
         // the same.
