@@ -23,6 +23,7 @@ import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
@@ -30,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -293,4 +295,19 @@ public class VpnManagerImpl implements IVpnManager {
         return VpnUtil.getVpnId(dataBroker, vpnInstanceId.getValue());
     }
 
+    public VpnInstance getVpnInstance(DataBroker broker, String vpnInstanceName) {
+        return VpnUtil.getVpnInstance(broker, vpnInstanceName);
+    }
+
+    public String getVpnRd(DataBroker broker, String vpnName) {
+        return VpnUtil.getVpnRd(broker, vpnName);
+    }
+
+    public VpnPortipToPort getNeutronPortFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp) {
+        return VpnUtil.getNeutronPortFromVpnPortFixedIp(broker, vpnName, fixedIp);
+    }
+
+    public String getMacAddressForInterface(DataBroker dataBroker, String interfaceName) {
+        return InterfaceUtils.getMacAddressForInterface(dataBroker, interfaceName).get();
+    }
 }
