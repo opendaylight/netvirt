@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.vpnmanager;
 import static java.util.stream.Collectors.toList;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.math.BigInteger;
@@ -34,8 +35,12 @@ import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeMplsOverGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpnInterfaceListInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpnInterfaceListOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -178,12 +183,13 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
 
         LOG.trace("Handle tunnel event for srcDpn {} SrcTepIp {} DestTepIp {} ", srcDpnId, srcTepIp, destTepIp);
         int tunTypeVal = getTunnelType(stateTunnelList);
-
         LOG.trace("tunTypeVal is {}", tunTypeVal);
-
         try {
             if (tunnelAction == TunnelAction.TUNNEL_EP_ADD) {
                 LOG.trace(" Tunnel ADD event received for Dpn {} VTEP Ip {} ", srcDpnId, srcTepIp);
+                if (isTunnelInLogicalGroup(stateTunnelList)) {
+                    return;
+                }
             } else if (tunnelAction == TunnelAction.TUNNEL_EP_DELETE) {
                 LOG.trace(" Tunnel DELETE event received for Dpn {} VTEP Ip {} ", srcDpnId, srcTepIp);
                 // When tunnel EP is deleted on a DPN , VPN gets two deletion event.
@@ -439,5 +445,21 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                 .filter(dcGwIp -> dcGwIp.getTunnnelType().equals(TunnelTypeMplsOverGre.class))
                 .map(dcGwIp -> String.valueOf(dcGwIp.getIpAddress().getValue())).sorted()
                 .collect(toList());
+    }
+
+    private boolean isTunnelInLogicalGroup(StateTunnelList stateTunnelList) {
+        String ifaceName = stateTunnelList.getTunnelInterfaceName();
+        if (getTunnelType(stateTunnelList) == VpnConstants.ITMTunnelLocType.Internal.getValue()) {
+            Interface configIface = InterfaceUtils.getInterface(dataBroker, stateTunnelList.getTunnelInterfaceName());
+            IfTunnel ifTunnel = (configIface != null) ? configIface.getAugmentation(IfTunnel.class) : null;
+            if (ifTunnel != null && ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)) {
+                ParentRefs refs = configIface.getAugmentation(ParentRefs.class);
+                if (refs != null && !Strings.isNullOrEmpty(refs.getParentInterface())) {
+                    return true; //multiple VxLAN tunnels enabled, i.e. only logical tunnel should be treated
+                }
+            }
+        }
+        LOG.trace("MULTIPLE_VxLAN_TUNNELS: ignoring the tunnel event for {}", ifaceName);
+        return false;
     }
 }
