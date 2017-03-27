@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_3ea1eba9",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-03-27T13:53:48Z",
+      "side": 1,
+      "message": "do we need to update here? Interface already present in the cache?",
+      "revId": "454556f9c867582bb6489f7cf7e5aade74ba2de0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_feac838e",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-03-27T13:53:48Z",
+      "side": 1,
+      "message": "Should this be outside  the for loop?",
+      "revId": "454556f9c867582bb6489f7cf7e5aade74ba2de0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1eb987cb",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-03-27T13:53:48Z",
+      "side": 1,
+      "message": "Doesn\u0027t the above method(writeCurrentAclForRemoteAcls) already installed this flow in all DPN?",
+      "range": {
+        "startLine": 276,
+        "startChar": 30,
+        "endLine": 276,
+        "endChar": 31
+      },
+      "revId": "454556f9c867582bb6489f7cf7e5aade74ba2de0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bea2fb97",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-03-27T13:53:48Z",
+      "side": 1,
+      "message": "nit elan Id?",
+      "range": {
+        "startLine": 319,
+        "startChar": 62,
+        "endLine": 319,
+        "endChar": 68
+      },
+      "revId": "454556f9c867582bb6489f7cf7e5aade74ba2de0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
