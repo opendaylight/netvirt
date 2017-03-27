@@ -26,6 +26,10 @@ public class OpenStackSFCTranslatorProvider extends AbstractLifecycle {
     private static final Logger LOG = LoggerFactory.getLogger(OpenStackSFCTranslatorProvider.class);
     private final DataBroker dataBroker;
     private final RenderedServicePathService rspService;
+    private NeutronFlowClassifierListener neutronFlowClassifierListener;
+    private NeutronPortPairListener neutronPortPairListener;
+    private NeutronPortPairGroupListener neutronPortPairGroupListener;
+    private NeutronPortChainListener neutronPortChainListener;
 
     @Inject
     public OpenStackSFCTranslatorProvider(final DataBroker dataBroker, final RenderedServicePathService rspService) {
@@ -37,10 +41,10 @@ public class OpenStackSFCTranslatorProvider extends AbstractLifecycle {
     @Override
     protected void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        new NeutronFlowClassifierListener(dataBroker);
-        new NeutronPortPairListener(dataBroker);
-        new NeutronPortPairGroupListener(dataBroker);
-        new NeutronPortChainListener(dataBroker, rspService);
+        neutronFlowClassifierListener = new NeutronFlowClassifierListener(dataBroker);
+        neutronPortPairListener = new NeutronPortPairListener(dataBroker);
+        neutronPortPairGroupListener = new NeutronPortPairGroupListener(dataBroker);
+        neutronPortChainListener = new NeutronPortChainListener(dataBroker, rspService);
         if (this.rspService == null) {
             LOG.warn("RenderedServicePath Service is not available. Translation layer might not work as expected.");
         }
@@ -48,6 +52,10 @@ public class OpenStackSFCTranslatorProvider extends AbstractLifecycle {
 
     @Override
     protected void stop() {
+        neutronFlowClassifierListener.close();
+        neutronPortPairListener.close();
+        neutronPortPairGroupListener.close();
+        neutronPortChainListener.close();
         LOG.info("{} close", getClass().getSimpleName());
     }
 }
