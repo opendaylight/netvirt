@@ -291,4 +291,26 @@
     <argument ref="elanUtils" />
   </bean>
 
+  <bean id="elanEvpnUtils" class="org.opendaylight.netvirt.elan.evpn.utils.ElanEvpnUtils"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="elanUtils" />
+    <argument ref="idManagerService" />
+    <argument ref="vpnManager" />
+  </bean>
+
+  <bean id="evpnUtils" class="org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils"
+        init-method="init" destroy-method="close">
+    <argument ref="bgpManager" />
+    <argument ref="dataBroker" />
+    <argument ref="elanEvpnUtils" />
+    <argument ref="interfaceManager" />
+    <argument ref="vpnManager" />
+  </bean>
+
+  <bean id="EvpnElanInstanceManager" class="org.opendaylight.netvirt.elan.evpn.listeners.EvpnElanInstanceManager"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="evpnUtils" />
+  </bean>
 </blueprint>
