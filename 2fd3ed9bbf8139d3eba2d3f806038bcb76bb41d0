@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_01776603",
+        "filename": "vpnservice/sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/OpenStackSFCTranslatorProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-27T16:37:19Z",
+      "side": 1,
+      "message": "can we just add AutoClosable to the listeners and not need this?",
+      "revId": "2fd3ed9bbf8139d3eba2d3f806038bcb76bb41d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
