@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6093d3fa",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2232,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-27T15:50:16Z",
+      "side": 1,
+      "message": "In PNF case this list will contain only one IP.",
+      "parentUuid": "fafc7978_e56d1506",
+      "range": {
+        "startLine": 2232,
+        "startChar": 43,
+        "endLine": 2232,
+        "endChar": 56
+      },
+      "revId": "5b76a3375d5da29e8569e5a84f3c7cf521681407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_0572d9e2",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 1
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e09fc301",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2245,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-27T15:50:16Z",
+      "side": 1,
+      "message": "Added log",
+      "parentUuid": "fafc7978_0572d9e2",
+      "range": {
+        "startLine": 2208,
+        "startChar": 8,
+        "endLine": 2245,
+        "endChar": 13
+      },
+      "revId": "5b76a3375d5da29e8569e5a84f3c7cf521681407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6581258f",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
         "patchSetId": 1
@@ -82,6 +130,30 @@
       "writtenOn": "2017-03-26T08:30:48Z",
       "side": 1,
       "message": "tabs/formatting",
+      "range": {
+        "startLine": 192,
+        "startChar": 2,
+        "endLine": 208,
+        "endChar": 41
+      },
+      "revId": "5b76a3375d5da29e8569e5a84f3c7cf521681407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c070bfde",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-27T15:50:16Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "fafc7978_6581258f",
       "range": {
         "startLine": 192,
         "startChar": 2,
@@ -122,6 +194,30 @@
       "writtenOn": "2017-03-26T08:30:48Z",
       "side": 1,
       "message": "maybe move to a utility class? I think if someone else needs this code they wouldn\u0027t know to look for it in your class",
+      "range": {
+        "startLine": 1654,
+        "startChar": 0,
+        "endLine": 1664,
+        "endChar": 5
+      },
+      "revId": "5b76a3375d5da29e8569e5a84f3c7cf521681407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e06d0306",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1664,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-27T15:50:16Z",
+      "side": 1,
+      "message": "Moved to VpnUtil",
+      "parentUuid": "fafc7978_457ce1b5",
       "range": {
         "startLine": 1654,
         "startChar": 0,
