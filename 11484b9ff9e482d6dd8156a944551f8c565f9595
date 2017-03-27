@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_dbf6f15c",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-27T11:54:24Z",
+      "side": 1,
+      "message": "nit (not really important): seems a bit overkill to me to have this function just for a print in stateless.. you can also print PacketHandling directly it should have a toString",
+      "revId": "11484b9ff9e482d6dd8156a944551f8c565f9595",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3bee1d8c",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-27T11:54:24Z",
+      "side": 1,
+      "message": "No changes in this file - please revert.",
+      "revId": "11484b9ff9e482d6dd8156a944551f8c565f9595",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5beb2178",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-27T11:54:24Z",
+      "side": 1,
+      "message": "Why this change? Doesn\u0027t look right to me..\n\nWe want to choose transparent if the config is denyByDefault?\n\nAlso, I\u0027m missing where you actually read this config and decide on the default rule.",
+      "range": {
+        "startLine": 125,
+        "startChar": 12,
+        "endLine": 125,
+        "endChar": 37
+      },
+      "revId": "11484b9ff9e482d6dd8156a944551f8c565f9595",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bb016d3b",
+        "filename": "vpnservice/aclservice/impl/src/main/yang/aclservice-config.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-27T11:54:24Z",
+      "side": 1,
+      "message": "I think it would be more understandable as an enumeration like the security-group-mode above - maybe a leaf called default-behavior with enums allow and deny (deny is default)",
+      "revId": "11484b9ff9e482d6dd8156a944551f8c565f9595",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
