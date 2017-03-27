@@ -2283,4 +2283,14 @@ public class ElanUtils {
 
         return srcIpAddress;
     }
+
+    public List<MacEntry> getElanMacEntries(String elanName) {
+        MacTable macTable = getElanMacTable(elanName);
+        if (macTable == null) {
+            LOG.error("getElanMacEntries : macTable  is not present ");
+            return Collections.emptyList();
+        }
+
+        return macTable.getMacEntry();
+    }
 }
