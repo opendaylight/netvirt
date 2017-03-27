@@ -43,36 +43,43 @@ import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.manager.rev170219.FederatedNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.manager.rev170219.FederatedSecurityGroups;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.manager.rev170219.MgrContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.manager.rev170219.RoutedContainer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.manager.rev170219.federated.nets.SiteNetwork;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.manager.rev170219.federated.networks.FederatedNetwork;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.manager.rev170219.federated.networks.FederatedNetworkBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.manager.rev170219.federated.networks.FederatedNetworkKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.manager.rev170219.federated.sec.groups.SiteSecurityGroup;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.manager.rev170219.federated.security.groups.FederatedSecurityGroup;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.manager.rev170219.federated.security.groups.FederatedSecurityGroupBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.manager.rev170219.federated.security.groups.FederatedSecurityGroupKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.manager.rev170219.routed.container.RouteKeyItem;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.manager.rev170219.routed.container.RouteKeyItemKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.routed.rpc.rev170219.FederationPluginRoutedRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.routed.rpc.rev170219.UpdateFederatedNetworksInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.routed.rpc.rev170219.update.federated.networks.input.FederatedNetworksIn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.routed.rpc.rev170219.update.federated.networks.input.FederatedSecurityGroupsIn;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcError.ErrorType;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 @Singleton
 public class FederationPluginMgr
-        implements IFederationSubscriptionMgr, FederationPluginRoutedRpcService, ClusterSingletonService {
+    implements IFederationSubscriptionMgr, FederationPluginRoutedRpcService, ClusterSingletonService {
     private static final Logger LOG = LoggerFactory.getLogger(FederationPluginMgr.class);
 
     private final IFederationConsumerMgr consumerMgr;
     private final DataBroker db;
 
-    private static final ServiceGroupIdentifier IDENT = ServiceGroupIdentifier
-            .create(FederationConstants.CLUSTERING_SERVICE_ID);
+    private static final ServiceGroupIdentifier IDENT =
+        ServiceGroupIdentifier.create(FederationConstants.CLUSTERING_SERVICE_ID);
 
     private final HashMap<String, FederationPluginIngress> ingressPlugins = new HashMap<>();
     private final RpcProviderRegistry rpcRegistry;
@@ -83,8 +90,8 @@ public class FederationPluginMgr
 
     @Inject
     public FederationPluginMgr(final DataBroker dataBroker, final RpcProviderRegistry rpcReg,
-            final IFederationConsumerMgr consumerMgr,
-            final ClusterSingletonServiceProvider clusterSingletonServiceProvider) {
+        final IFederationConsumerMgr consumerMgr,
+        final ClusterSingletonServiceProvider clusterSingletonServiceProvider) {
         this.db = dataBroker;
         this.consumerMgr = consumerMgr;
         this.clusterSingletonServiceProvider = clusterSingletonServiceProvider;
@@ -120,7 +127,7 @@ public class FederationPluginMgr
     public synchronized Future<RpcResult<Void>> updateFederatedNetworks(UpdateFederatedNetworksInput input) {
         if (!isLeader) {
             return Futures.immediateFuture(RpcResultBuilder.<Void>failed()
-                    .withError(ErrorType.RPC, "updateFederatedNetworks was called on a non-leader service").build());
+                .withError(ErrorType.RPC, "updateFederatedNetworks was called on a non-leader service").build());
         }
 
         // Write the new config data
@@ -135,12 +142,34 @@ public class FederationPluginMgr
         return ingressPlugins;
     }
 
+    private FederatedSecurityGroup getFederatedSecGroupFromConfigDs(Uuid secGroupId) {
+        ReadTransaction readTx = db.newReadOnlyTransaction();
+        InstanceIdentifier<FederatedSecurityGroup> groupPath = InstanceIdentifier.create(FederatedSecurityGroups.class)
+            .child(FederatedSecurityGroup.class, new FederatedSecurityGroupKey(secGroupId));
+        CheckedFuture<Optional<FederatedSecurityGroup>, ReadFailedException> future =
+            readTx.read(LogicalDatastoreType.CONFIGURATION, groupPath);
+
+        Optional<FederatedSecurityGroup> optionalSecGroupInConfig = null;
+
+        try {
+            optionalSecGroupInConfig = future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Read security group failed", e);
+            return null;
+        }
+        if (optionalSecGroupInConfig != null && optionalSecGroupInConfig.isPresent()) {
+            return optionalSecGroupInConfig.get();
+        } else {
+            return null;
+        }
+    }
+
     private FederatedNetwork getFederatedNetFromConfigDs(String netId) {
         ReadTransaction readTx = db.newReadOnlyTransaction();
         InstanceIdentifier<FederatedNetwork> netPath = InstanceIdentifier.create(FederatedNetworks.class)
-                .child(FederatedNetwork.class, new FederatedNetworkKey(netId));
-        CheckedFuture<Optional<FederatedNetwork>, ReadFailedException> future = readTx
-                .read(LogicalDatastoreType.CONFIGURATION, netPath);
+            .child(FederatedNetwork.class, new FederatedNetworkKey(netId));
+        CheckedFuture<Optional<FederatedNetwork>, ReadFailedException> future =
+            readTx.read(LogicalDatastoreType.CONFIGURATION, netPath);
 
         Optional<FederatedNetwork> optionalNetInConfig = null;
 
@@ -168,7 +197,7 @@ public class FederationPluginMgr
         for (FederatedNetworksIn net : newFederatedNetworks) {
             FederatedNetwork netInConfig = getFederatedNetFromConfigDs(net.getSelfNetId());
 
-            if (!isEqualFederatednet(netInConfig, net)) {
+            if (!isEqualFederatedNet(netInConfig, net)) {
                 // network updates or new
                 FederatedNetworkBuilder builder = new FederatedNetworkBuilder();
                 builder.setSelfNetId(net.getSelfNetId());
@@ -176,16 +205,33 @@ public class FederationPluginMgr
                 builder.setSelfTenantId(net.getSelfTenantId());
                 builder.setSiteNetwork(net.getSiteNetwork());
                 InstanceIdentifier<FederatedNetwork> path = InstanceIdentifier.create(FederatedNetworks.class)
-                        .child(FederatedNetwork.class, new FederatedNetworkKey(net.getSelfNetId()));
+                    .child(FederatedNetwork.class, new FederatedNetworkKey(net.getSelfNetId()));
                 FederatedNetwork newNet = builder.build();
-                LOG.info("writeNewConfig add new network {}", newNet);
-                putTx.put(LogicalDatastoreType.CONFIGURATION, path, builder.build());
+                LOG.info("writeNewConfig add new federated network {}", newNet);
+                putTx.put(LogicalDatastoreType.CONFIGURATION, path, newNet);
+            }
+        }
+        List<FederatedSecurityGroupsIn> newFederatedSecGroups = input.getFederatedSecurityGroupsIn();
+        for (FederatedSecurityGroupsIn secGroup : newFederatedSecGroups) {
+            FederatedSecurityGroup secInConfig = getFederatedSecGroupFromConfigDs(secGroup.getSelfSecurityGroupId());
+
+            if (!isEqualSecurityGroup(secInConfig, secGroup)) {
+                // group update or new group
+                FederatedSecurityGroupBuilder builder = new FederatedSecurityGroupBuilder();
+                builder.setSelfSecurityGroupId(secGroup.getSelfSecurityGroupId());
+                builder.setSiteSecurityGroup(secGroup.getSiteSecurityGroup());
+                KeyedInstanceIdentifier<FederatedSecurityGroup, FederatedSecurityGroupKey> path =
+                    InstanceIdentifier.create(FederatedSecurityGroups.class).child(FederatedSecurityGroup.class,
+                        new FederatedSecurityGroupKey(secGroup.getSelfSecurityGroupId()));
+                FederatedSecurityGroup newSecGroup = builder.build();
+                LOG.info("writeNewConfig add new federated security group {}", newSecGroup);
+                putTx.put(LogicalDatastoreType.CONFIGURATION, path, newSecGroup);
             }
         }
         CheckedFuture<Void, TransactionCommitFailedException> future1 = putTx.submit();
         try {
             future1.checkedGet();
-        } catch (org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException e) {
+        } catch (TransactionCommitFailedException e) {
             LOG.error("updateFederatedNetworks - Failed to write new configuration " + e.getMessage(), e);
             return false;
         }
@@ -196,7 +242,7 @@ public class FederationPluginMgr
         LOG.info("deleteFederatedNetFromConfigDs {}", netId);
         WriteTransaction deleteTx = db.newWriteOnlyTransaction();
         InstanceIdentifier<FederatedNetwork> netPath = InstanceIdentifier.create(FederatedNetworks.class)
-                .child(FederatedNetwork.class, new FederatedNetworkKey(netId));
+            .child(FederatedNetwork.class, new FederatedNetworkKey(netId));
         deleteTx.delete(LogicalDatastoreType.CONFIGURATION, netPath);
         CheckedFuture<Void, TransactionCommitFailedException> future1 = deleteTx.submit();
         try {
@@ -212,8 +258,8 @@ public class FederationPluginMgr
         Set<String> candidateSitesToRemove = new HashSet<>();
         ReadOnlyTransaction readTx = db.newReadOnlyTransaction();
         InstanceIdentifier<FederatedNetworks> existingNetworksPath = InstanceIdentifier.create(FederatedNetworks.class);
-        CheckedFuture<Optional<FederatedNetworks>, ReadFailedException> existingNetworksFuture = readTx
-                .read(LogicalDatastoreType.CONFIGURATION, existingNetworksPath);
+        CheckedFuture<Optional<FederatedNetworks>, ReadFailedException> existingNetworksFuture =
+            readTx.read(LogicalDatastoreType.CONFIGURATION, existingNetworksPath);
         readTx.close();
         Optional<FederatedNetworks> existingNetsOptional = null;
         try {
@@ -249,29 +295,22 @@ public class FederationPluginMgr
 
     private void subscribeOneIngressPlugin(String remoteIp) {
         LOG.info("subscribeOneIngressPlugin ");
-        ReadOnlyTransaction tx = db.newReadOnlyTransaction();
-        InstanceIdentifier<FederatedNetworks> path = InstanceIdentifier.create(FederatedNetworks.class);
-        CheckedFuture<Optional<FederatedNetworks>, ReadFailedException> future = tx
-                .read(LogicalDatastoreType.CONFIGURATION, path);
-        Optional<FederatedNetworks> nets = null;
+        Optional<FederatedNetworks> nets = readFederatedNetworks();
+        Optional<FederatedSecurityGroups> secGroups = readFederatedSecurityGroups();
 
-        try {
-            nets = future.get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("subscribeOneIngressPlugin Didn't find any federated nets!");
-        }
         if (nets != null && nets.isPresent()) {
             RemoteSite site = new RemoteSite(remoteIp);
             for (FederatedNetwork net : nets.get().getFederatedNetwork()) {
                 for (SiteNetwork siteNet : net.getSiteNetwork()) {
-                    site.pairs.add(
-                            new FederatedNetworkPair(net.getSelfNetId(), siteNet.getSiteNetId(), net.getSelfSubnetId(),
-                                    siteNet.getSiteSubnetId(), net.getSelfTenantId(), siteNet.getSiteTenantId()));
+                    site.networkPairs
+                        .add(new FederatedNetworkPair(net.getSelfNetId(), siteNet.getSiteNetId(), net.getSelfSubnetId(),
+                            siteNet.getSiteSubnetId(), net.getSelfTenantId(), siteNet.getSiteTenantId()));
+                    addFederatedSecurityGroupsToRemoteSite(site, secGroups, siteNet.getId());
                 }
             }
             LOG.info("Aborting ingress plugin for remote ip {}", remoteIp);
             ingressPlugins.get(remoteIp).abort();
-            createNewIngressPlugin(site.remoteIp, site.pairs, false);
+            createNewIngressPlugin(site, false);
         } else {
             LOG.error("subscribeOneIngressPlugin Didn't find any federated nets!");
         }
@@ -283,17 +322,8 @@ public class FederationPluginMgr
         // if these sites contain no new network we will remove their ingress
         // plugin
         LOG.debug("subscribeIngressPlugins ");
-        ReadOnlyTransaction tx = db.newReadOnlyTransaction();
-        InstanceIdentifier<FederatedNetworks> path = InstanceIdentifier.create(FederatedNetworks.class);
-        CheckedFuture<Optional<FederatedNetworks>, ReadFailedException> future = tx
-                .read(LogicalDatastoreType.CONFIGURATION, path);
-        Optional<FederatedNetworks> nets = null;
-
-        try {
-            nets = future.get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("subscribeIngressPlugins Exception Didn't find any federated nets!");
-        }
+        Optional<FederatedNetworks> nets = readFederatedNetworks();
+        Optional<FederatedSecurityGroups> secGroups = readFederatedSecurityGroups();
         if (nets != null && nets.isPresent()) {
             HashMap<String, RemoteSite> sites = new HashMap<>();
             for (FederatedNetwork net : nets.get().getFederatedNetwork()) {
@@ -303,9 +333,10 @@ public class FederationPluginMgr
                         sites.put(siteIp, new RemoteSite(siteIp));
                     }
                     RemoteSite site = sites.get(siteNet.getSiteIp());
-                    site.pairs.add(
-                            new FederatedNetworkPair(net.getSelfNetId(), siteNet.getSiteNetId(), net.getSelfSubnetId(),
-                                    siteNet.getSiteSubnetId(), net.getSelfTenantId(), siteNet.getSiteTenantId()));
+                    site.networkPairs
+                        .add(new FederatedNetworkPair(net.getSelfNetId(), siteNet.getSiteNetId(), net.getSelfSubnetId(),
+                            siteNet.getSiteSubnetId(), net.getSelfTenantId(), siteNet.getSiteTenantId()));
+                    addFederatedSecurityGroupsToRemoteSite(site, secGroups, siteNet.getId());
                     sites.put(siteIp, site);
                 }
             }
@@ -322,12 +353,80 @@ public class FederationPluginMgr
                 }
             }
             for (RemoteSite site : sites.values()) {
-                createNewIngressPlugin(site.remoteIp, site.pairs, fromRecovery);
+                createNewIngressPlugin(site, fromRecovery);
             }
         }
     }
 
-    private boolean isEqualFederatednet(FederatedNetwork configNet, FederatedNetworksIn inputNet) {
+    private Optional<FederatedSecurityGroups> readFederatedSecurityGroups() {
+        ReadOnlyTransaction tx2 = db.newReadOnlyTransaction();
+        InstanceIdentifier<FederatedSecurityGroups> secGroupsPath =
+            InstanceIdentifier.create(FederatedSecurityGroups.class);
+        CheckedFuture<Optional<FederatedSecurityGroups>, ReadFailedException> secGroupsFuture =
+            tx2.read(LogicalDatastoreType.CONFIGURATION, secGroupsPath);
+
+        try {
+            return secGroupsFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Exception while reading SecurityGroups from MD-SAL", e);
+        }
+        return null;
+    }
+
+    private Optional<FederatedNetworks> readFederatedNetworks() {
+        ReadOnlyTransaction tx = db.newReadOnlyTransaction();
+        InstanceIdentifier<FederatedNetworks> networksPath = InstanceIdentifier.create(FederatedNetworks.class);
+        CheckedFuture<Optional<FederatedNetworks>, ReadFailedException> networksFuture =
+            tx.read(LogicalDatastoreType.CONFIGURATION, networksPath);
+        try {
+            return networksFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Exception while reading FederatedNetworks from MD-SAL", e);
+        }
+        return null;
+    }
+
+    private void addFederatedSecurityGroupsToRemoteSite(RemoteSite site, Optional<FederatedSecurityGroups> secGroups,
+        String siteId) {
+        if (secGroups.isPresent()) {
+            for (FederatedSecurityGroup groupMapping : secGroups.get().getFederatedSecurityGroup()) {
+                for (SiteSecurityGroup remoteSiteSecurityGroup : groupMapping.getSiteSecurityGroup()) {
+                    if (remoteSiteSecurityGroup.getId().equals(siteId)) { // Found the relevant remote site
+                        site.secGroupsPairs.add(new FederatedSecurityGroupPair(groupMapping.getSelfSecurityGroupId(),
+                            remoteSiteSecurityGroup.getSiteSecurityGroupId()));
+                        break;
+                    }
+                }
+            }
+        }
+
+    }
+
+    private boolean isEqualSecurityGroup(FederatedSecurityGroup configSecGroup,
+        FederatedSecurityGroupsIn inputSecGroup) {
+        if (configSecGroup == null || inputSecGroup == null) {
+            return false;
+        }
+
+        if (configSecGroup.getSelfSecurityGroupId() != inputSecGroup.getSelfSecurityGroupId()) {
+            return false;
+        }
+
+        if (configSecGroup.getSiteSecurityGroup().size() != inputSecGroup.getSiteSecurityGroup().size()) {
+            return false;
+        }
+
+        if (!configSecGroup.getSiteSecurityGroup().containsAll(inputSecGroup.getSiteSecurityGroup())) {
+            return false;
+        }
+
+        if (!inputSecGroup.getSiteSecurityGroup().containsAll(configSecGroup.getSiteSecurityGroup())) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isEqualFederatedNet(FederatedNetwork configNet, FederatedNetworksIn inputNet) {
 
         if (configNet == null && inputNet != null) {
             return false;
@@ -358,15 +457,17 @@ public class FederationPluginMgr
         return true;
     }
 
-    private void createNewIngressPlugin(String remoteIp, List<FederatedNetworkPair> pairs, boolean fromRecovery) {
+    private void createNewIngressPlugin(RemoteSite remoteSite, boolean fromRecovery) {
         synchronized (ingressPlugins) {
-            LOG.info("createNewIngressPlugin remoteIp {} pairs {}", remoteIp, pairs);
-            FederationPluginIngress newIngress = new FederationPluginIngress(this, db, remoteIp, pairs);
-            FederationPluginIngress prevPlugin = ingressPlugins.put(remoteIp, newIngress);
+            LOG.info("createNewIngressPlugin remoteSite {}", remoteSite);
+            FederationPluginIngress newIngress = new FederationPluginIngress(this, db, remoteSite.remoteIp,
+                remoteSite.networkPairs, remoteSite.secGroupsPairs);
+            FederationPluginIngress prevPlugin = ingressPlugins.put(remoteSite.remoteIp, newIngress);
             if (prevPlugin != null) {
                 prevPlugin.abort();
             }
-            consumerMgr.subscribe(remoteIp, pairs, newIngress, fromRecovery);
+            consumerMgr.subscribe(remoteSite.remoteIp,
+                new FederatedPayload(remoteSite.networkPairs, remoteSite.secGroupsPairs), newIngress, fromRecovery);
         }
     }
 
@@ -379,10 +480,17 @@ public class FederationPluginMgr
 
     private class RemoteSite {
         public String remoteIp;
-        public List<FederatedNetworkPair> pairs = new ArrayList<>();
+        public List<FederatedNetworkPair> networkPairs = new ArrayList<>();
+        public List<FederatedSecurityGroupPair> secGroupsPairs = new ArrayList<>();
 
         RemoteSite(String remoteIp) {
             this.remoteIp = remoteIp;
+        }
+
+        @Override
+        public String toString() {
+            return "RemoteSite [remoteIp=" + remoteIp + ", networkPairs=" + networkPairs + ", secGroupsPairs="
+                + secGroupsPairs + "]";
         }
     }
 
@@ -409,7 +517,7 @@ public class FederationPluginMgr
             LOG.info("Gained federation leadership, registering routed RPCs.");
             routedRpcHandle = rpcRegistry.addRoutedRpcImplementation(FederationPluginRoutedRpcService.class, this);
             InstanceIdentifier<RouteKeyItem> path = InstanceIdentifier.create(RoutedContainer.class)
-                    .child(RouteKeyItem.class, new RouteKeyItemKey(FederationPluginConstants.RPC_ROUTE_KEY));
+                .child(RouteKeyItem.class, new RouteKeyItemKey(FederationPluginConstants.RPC_ROUTE_KEY));
             routedRpcHandle.registerPath(MgrContext.class, path);
             subscribeIngressPluginsIfNeeded(null, true);
         } catch (Throwable t) {

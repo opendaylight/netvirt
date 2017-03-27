@@ -31,6 +31,11 @@ module federation-plugin-routed-rpc {
                 key self-net-id;
                 uses federation-plugin-manager:federated-nets;
             }
+
+            list federated-security-groups-in {
+                key self-security-group-id;
+                uses federation-plugin-manager:federated-sec-groups;
+            }
         }
     }
 }

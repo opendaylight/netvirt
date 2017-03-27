@@ -38,6 +38,13 @@ module federation-plugin-manager {
         }
     }
 
+    container federated-security-groups {
+        list federated-security-group {
+            key self-security-group-id;
+            uses federated-sec-groups;
+        }
+    }
+
     container federation-generations {
         description
                 "Federation generation information for a remote site.";
@@ -53,6 +60,24 @@ module federation-plugin-manager {
             leaf generation-number {
                 type int32;
                 description "The current generation number used for the remote site.";
+            }
+        }
+    }
+
+    grouping federated-sec-groups {
+        leaf self-security-group-id {
+            type yang:uuid;
+            description "UUID representing the self security group";
+        }
+        list site-security-group {
+            key id;
+            leaf id {
+                type string;
+                description "UUID representing the site ID (from xsite manager)";
+            }
+            leaf site-security-group-id {
+                type yang:uuid;
+                description "UUID of the security group in the site";
             }
         }
     }

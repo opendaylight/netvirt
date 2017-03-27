@@ -29,6 +29,13 @@ module federation-plugin-rpc {
                              connected, a federated network that does not appear will be considered
                              disconnected";
             }
+            list federated-security-groups-in {
+                key self-security-group-id;
+                uses federation-plugin-manager:federated-sec-groups;
+                description "Contain all security groups in this site that are still
+                             federated, a federated security group that does not appear will be considered
+                             non-federated";
+            }
         }
     }
 }
