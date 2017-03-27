@@ -169,6 +169,15 @@ public class FederationPluginUtils {
 
     }
 
+    public static String uuidToCleanStr(Uuid uuid) {
+        String uuidStr = uuid.toString();
+        String str = "";
+        if (uuidStr.indexOf('=') != -1 && uuidStr.indexOf(']') != -1) {
+            str = uuidStr.substring(uuidStr.indexOf('=') + 1, uuidStr.indexOf(']'));
+        }
+        return str;
+    }
+
     @SuppressWarnings("checkstyle:IllegalCatch")
     public static synchronized void initYangModules() {
         if (yangModulesInitialized) {

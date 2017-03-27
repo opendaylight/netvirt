@@ -42,6 +42,7 @@ import org.opendaylight.messagequeue.AbstractFederationMessage;
 import org.opendaylight.messagequeue.IMessageBusClient;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.federation.plugin.FederatedNetworkPair;
+import org.opendaylight.netvirt.federation.plugin.FederatedAclPair;
 import org.opendaylight.netvirt.federation.plugin.FederationPluginEgress;
 import org.opendaylight.netvirt.federation.plugin.FederationPluginIngress;
 import org.opendaylight.netvirt.federation.plugin.FederationPluginMgr;
@@ -79,6 +80,7 @@ import org.opendaylight.netvirt.federation.plugin.transformers.FederationL2Gatew
 import org.opendaylight.netvirt.federation.plugin.transformers.FederationTopologyHwvtepNodeTransformer;
 import org.opendaylight.netvirt.federation.plugin.transformers.FederationTopologyNodeTransformer;
 import org.opendaylight.netvirt.federation.plugin.transformers.FederationVpnInterfaceTransformer;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.manager.rev170219.FederationGenerations;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.manager.rev170219.federation.generations.RemoteSiteGenerationInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.manager.rev170219.federation.generations.RemoteSiteGenerationInfoBuilder;
@@ -126,8 +128,8 @@ public class AbstractEnd2EndTest {
     @SuppressWarnings("rawtypes")
     protected HashMap<String, ArgumentCaptor<DataTreeChangeListener>> listenerKeyToCaptor;
 
-    protected final ArgumentCaptor<AbstractFederationMessage> msgCaptor = ArgumentCaptor
-            .forClass(AbstractFederationMessage.class);
+    protected final ArgumentCaptor<AbstractFederationMessage> msgCaptor =
+        ArgumentCaptor.forClass(AbstractFederationMessage.class);
 
     protected static final String REMOTE_IP = "1.1.1.1";
     protected static final String DUMMYINTERFACE = "dummyinterface";
@@ -140,6 +142,8 @@ public class AbstractEnd2EndTest {
     protected static final String CONSUMER1_QUEUE = "consumer1Queue";
     protected static final String CONSUMER2_QUEUE = "consumer2Queue";
     protected static final String INTEGRATION_BRIDGE_PREFIX = "bridge/br-int";
+    protected static final Uuid CONSUMER_SEC_GROUP_ID = new Uuid("11112222-ffff-a55a-2222-333444555666");
+    protected static final Uuid PRODUCER_SEC_GROUP_ID = new Uuid("11117777-ffff-a55a-2222-333444555666");
 
     public AbstractEnd2EndTest() {
         FederationInventoryNodeTransformer inventoryNodeTransformer = new FederationInventoryNodeTransformer();
@@ -181,9 +185,13 @@ public class AbstractEnd2EndTest {
         producer = new FederationProducerMgr(msgBusConsumerMock, dataBroker, configMock, singletonService, consumerMgr);
         producer.attachPluginFactory("netvirt", (payload, queueName, contextId) -> egressPlugin);
         List<FederatedNetworkPair> federatedNetworkPairs = Arrays.asList(new FederatedNetworkPair(CONSUMER_NETWORK_ID,
-                PRODUCER_NETWORK_ID, CONSUMER_SUBNET_ID, PRODUCER_SUBNET_ID, LOCAL_TENANT_ID, REMOTE_TENANT_ID));
-        egressPlugin = new FederationPluginEgress(producer, federatedNetworkPairs, CONSUMER1_QUEUE, CONSUMER1_QUEUE);
-        ingressPlugin = new FederationPluginIngress(mgr, dataBroker, REMOTE_IP, federatedNetworkPairs);
+            PRODUCER_NETWORK_ID, CONSUMER_SUBNET_ID, PRODUCER_SUBNET_ID, LOCAL_TENANT_ID, REMOTE_TENANT_ID));
+        List<FederatedAclPair> federatedSecurityGroupsPairs =
+            Arrays.asList(new FederatedAclPair(CONSUMER_SEC_GROUP_ID, PRODUCER_SEC_GROUP_ID));
+        egressPlugin = new FederationPluginEgress(producer, federatedNetworkPairs, federatedSecurityGroupsPairs,
+            CONSUMER1_QUEUE, CONSUMER1_QUEUE);
+        ingressPlugin = new FederationPluginIngress(mgr, dataBroker, REMOTE_IP, federatedNetworkPairs,
+            federatedSecurityGroupsPairs);
         wrapperConsumer = new WrapperConsumer(REMOTE_IP, ingressPlugin);
 
         prepareMocks();
@@ -193,11 +201,11 @@ public class AbstractEnd2EndTest {
         HashMap<String, DataTreeIdentifier<?>> listenerKeyToIdentifer = new HashMap<>();
         listenerKeyToCaptor = new HashMap<>();
         egressPlugin.getListenersData().forEach(p -> listenerKeyToIdentifer.put(p.listenerId, p.listenerPath));
-        egressPlugin.getListenersData().forEach(
-            p -> listenerKeyToCaptor.put(p.listenerId, ArgumentCaptor.forClass(DataTreeChangeListener.class)));
+        egressPlugin.getListenersData()
+            .forEach(p -> listenerKeyToCaptor.put(p.listenerId, ArgumentCaptor.forClass(DataTreeChangeListener.class)));
         for (String key : FederationPluginUtils.getOrderedListenerKeys()) {
             when(dataBroker.registerDataTreeChangeListener(eq(listenerKeyToIdentifer.get(key)),
-                    listenerKeyToCaptor.get(key).capture())).thenReturn(null);
+                listenerKeyToCaptor.get(key).capture())).thenReturn(null);
         }
 
         doAnswer(invocation -> {
@@ -253,14 +261,14 @@ public class AbstractEnd2EndTest {
     protected void dcn(String listenerKey, DataObject newObject) {
         DataTreeChangeListener listener = getListenerForKey(listenerKey);
         listener.onDataTreeChanged(change(newObject, FederationPluginUtils.getListenerDatastoreType(listenerKey),
-                FederationPluginUtils.getInstanceIdentifier(listenerKey)));
+            FederationPluginUtils.getInstanceIdentifier(listenerKey)));
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected void dcns(String listenerKey, List<? extends DataObject> newObjects) {
         DataTreeChangeListener listener = getListenerForKey(listenerKey);
         listener.onDataTreeChanged(changes(FederationPluginUtils.getListenerDatastoreType(listenerKey),
-                FederationPluginUtils.getInstanceIdentifier(listenerKey), newObjects));
+            FederationPluginUtils.getInstanceIdentifier(listenerKey), newObjects));
     }
 
     protected DataTreeChangeListener<?> getListenerForKey(String listenerKey) {
@@ -268,14 +276,14 @@ public class AbstractEnd2EndTest {
     }
 
     protected Collection<DataTreeModification<?>> changes(LogicalDatastoreType datastoreType,
-            InstanceIdentifier<? extends DataObject> instanceIdentifier, List<? extends DataObject> dataObjects) {
+        InstanceIdentifier<? extends DataObject> instanceIdentifier, List<? extends DataObject> dataObjects) {
         ArrayList<DataTreeModification<?>> changes = new ArrayList<>();
         dataObjects.forEach(data -> changes.add(new FakeDataTreeModification(data, datastoreType, instanceIdentifier)));
         return changes;
     }
 
     protected Collection<?> change(DataObject newObject, LogicalDatastoreType datastoreType,
-            InstanceIdentifier<? extends DataObject> instanceIdentifier) {
+        InstanceIdentifier<? extends DataObject> instanceIdentifier) {
         ArrayList<DataTreeModification<?>> changes = new ArrayList<>();
         changes.add(new FakeDataTreeModification(newObject, datastoreType, instanceIdentifier));
         return changes;
@@ -283,13 +291,13 @@ public class AbstractEnd2EndTest {
 
     protected void setGenerationNumberMock() {
         int generationNumberValue = 2;
-        KeyedInstanceIdentifier<RemoteSiteGenerationInfo, RemoteSiteGenerationInfoKey>
-            generationNumberPath = InstanceIdentifier.create(FederationGenerations.class)
-                .child(RemoteSiteGenerationInfo.class, new RemoteSiteGenerationInfoKey(REMOTE_IP));
+        KeyedInstanceIdentifier<RemoteSiteGenerationInfo, RemoteSiteGenerationInfoKey> generationNumberPath =
+            InstanceIdentifier.create(FederationGenerations.class).child(RemoteSiteGenerationInfo.class,
+                new RemoteSiteGenerationInfoKey(REMOTE_IP));
         RemoteSiteGenerationInfo generationNumber = new RemoteSiteGenerationInfoBuilder().setRemoteIp(REMOTE_IP)
-                .setGenerationNumber(generationNumberValue).build();
+            .setGenerationNumber(generationNumberValue).build();
         when(mockReadTx.read(LogicalDatastoreType.CONFIGURATION, generationNumberPath))
-                .thenReturn(Futures.immediateCheckedFuture(Optional.of(generationNumber)));
+            .thenReturn(Futures.immediateCheckedFuture(Optional.of(generationNumber)));
     }
 
     @SuppressWarnings("rawtypes")
@@ -300,7 +308,7 @@ public class AbstractEnd2EndTest {
         private final InstanceIdentifier<? extends DataObject> instanceIdentifier;
 
         public FakeDataTreeModification(DataObject theObject, LogicalDatastoreType datastoreType,
-                InstanceIdentifier<? extends DataObject> instanceIdentifier) {
+            InstanceIdentifier<? extends DataObject> instanceIdentifier) {
             fakeMod = new FakeDataObjectModification(theObject);
             this.dataStoreType = datastoreType;
             this.instanceIdentifier = instanceIdentifier;

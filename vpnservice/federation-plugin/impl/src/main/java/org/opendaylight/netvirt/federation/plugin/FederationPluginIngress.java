@@ -54,13 +54,13 @@ public class FederationPluginIngress implements IFederationPluginIngress {
     }
 
     public FederationPluginIngress(final IFederationSubscriptionMgr subscriptionMgr, final DataBroker dataBroker,
-            String remoteId, List<FederatedNetworkPair> pairs) {
+            String remoteIp, List<FederatedNetworkPair> networkPairs, List<FederatedAclPair> secGroupsPairs) {
         this.subscriptionMgr = subscriptionMgr;
         this.dataBroker = dataBroker;
-        this.remoteIp = remoteId;
-        this.federatedMappings = new FederatedMappings(pairs);
+        this.remoteIp = remoteIp;
+        this.federatedMappings = new FederatedMappings(networkPairs, secGroupsPairs);
         logger = FederationUtils.createLogger(remoteIp, FederationPluginIngress.class);
-        logger.info("Created new NetvirtPluginIngress instance for remoteIp {}", remoteId);
+        logger.info("Created new NetvirtPluginIngress instance for remoteIp {}", remoteIp);
     }
 
     @Override
