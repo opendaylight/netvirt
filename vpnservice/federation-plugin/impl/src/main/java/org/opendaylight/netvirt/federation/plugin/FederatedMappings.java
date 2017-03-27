@@ -17,12 +17,15 @@ public class FederatedMappings {
 
     private final Map<String, String> producerToConsumerNetworkMap = Maps.newConcurrentMap();
     private final Map<String, String> producerToConsumerSubnetMap = Maps.newConcurrentMap();
+    private final Map<String, String> producerToConsumerTenantMap = Maps.newConcurrentMap();
 
     public FederatedMappings(List<FederatedNetworkPair> federatedNetworkPairs) {
         federatedNetworkPairs.stream()
                 .forEach((pair) -> producerToConsumerNetworkMap.put(pair.producerNetworkId, pair.consumerNetworkId));
         federatedNetworkPairs.stream()
                 .forEach((pair) -> producerToConsumerSubnetMap.put(pair.producerSubnetId, pair.consumerSubnetId));
+        federatedNetworkPairs.stream()
+                .forEach((pair) -> producerToConsumerTenantMap.put(pair.producerTenantId, pair.consumerTenantId));
     }
 
     public String getConsumerNetworkId(String producerNetworkId) {
@@ -49,10 +52,24 @@ public class FederatedMappings {
         return producerToConsumerSubnetMap.containsValue(consumerSubnetId);
     }
 
+    public String getConsumerTenantId(String producerTenantId) {
+        return producerToConsumerTenantMap.get(producerTenantId);
+    }
+
+    public boolean containsProducerTenantId(String producerTenantId) {
+        return producerToConsumerTenantMap.containsKey(producerTenantId);
+    }
+
+    public boolean containsConsumerTenantId(String consumerTenantId) {
+        return producerToConsumerTenantMap.containsValue(consumerTenantId);
+    }
+
     @Override
     public String toString() {
-        return "FederatedMappings [federatedNetworkMap=" + producerToConsumerNetworkMap + ", federatedSubnetMap="
-                + producerToConsumerSubnetMap + "]";
+        return "FederatedMappings [producerToConsumerNetworkMap=" + producerToConsumerNetworkMap
+                + ", producerToConsumerSubnetMap=" + producerToConsumerSubnetMap + ", producerToConsumerTenantMap="
+                + producerToConsumerTenantMap + "]";
     }
+
 
 }

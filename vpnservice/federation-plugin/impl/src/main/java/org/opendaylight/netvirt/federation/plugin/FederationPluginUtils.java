@@ -45,7 +45,6 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
@@ -107,6 +106,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.r
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.rev170219.IfShadowPropertiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.rev170219.InventoryNodeShadowProperties;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.rev170219.InventoryNodeShadowPropertiesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.rev170219.L2gwConnectionShadowProperties;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.rev170219.L2gwShadowProperties;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.rev170219.TopologyNodeShadowProperties;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.rev170219.TopologyNodeShadowPropertiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.rev170219.VpnShadowProperties;
@@ -119,6 +120,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OpS
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.L2gatewayConnections;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.l2gatewayconnections.L2gatewayConnection;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateways.attributes.L2gateways;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateways.attributes.l2gateways.L2gateway;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
@@ -130,10 +135,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.F
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -149,6 +152,10 @@ public class FederationPluginUtils {
 
             ImmutableList.of(FederationPluginConstants.TOPOLOGY_NODE_CONFIG_KEY, //
                     FederationPluginConstants.TOPOLOGY_NODE_OPER_KEY, //
+                    FederationPluginConstants.TOPOLOGY_HWVTEP_NODE_CONFIG_KEY, //
+                    FederationPluginConstants.TOPOLOGY_HWVTEP_NODE_OPER_KEY, //
+                    FederationPluginConstants.L2_GATEWAY_KEY, //
+                    FederationPluginConstants.L2_GATEWAY_CONNECTION_KEY, //
                     FederationPluginConstants.INVENTORY_NODE_CONFIG_KEY, //
                     FederationPluginConstants.INVENTORY_NODE_OPER_KEY, //
                     FederationPluginConstants.IETF_INTERFACE_KEY, //
@@ -196,6 +203,14 @@ public class FederationPluginUtils {
             moduleInfos.add(BindingReflections.getModuleInfo(IfShadowProperties.class));
             moduleInfos.add(BindingReflections.getModuleInfo(InventoryNodeShadowProperties.class));
             moduleInfos.add(BindingReflections.getModuleInfo(VpnShadowProperties.class));
+            moduleInfos.add(BindingReflections.getModuleInfo(Neutron.class));
+            moduleInfos.add(BindingReflections.getModuleInfo(L2gateways.class));
+            moduleInfos.add(BindingReflections.getModuleInfo(L2gateway.class));
+            moduleInfos.add(BindingReflections.getModuleInfo(L2gatewayConnections.class));
+            moduleInfos.add(BindingReflections.getModuleInfo(L2gatewayConnection.class));
+            moduleInfos.add(BindingReflections.getModuleInfo(L2gwConnectionShadowProperties.class));
+            moduleInfos.add(BindingReflections.getModuleInfo(L2gwShadowProperties.class));
+
             BindingAwareJsonConverter.init(moduleInfos);
             bug7420Workaround(5);
             yangModulesInitialized = true;
@@ -470,7 +485,7 @@ public class FederationPluginUtils {
         try {
 
             TopologyBuilder topologyBuilder = new TopologyBuilder();
-            topologyBuilder.setKey(new TopologyKey(new TopologyId(new Uri("ovsdb:1"))));
+            topologyBuilder.setKey(FederationPluginConstants.OVSDB_TOPOLOGY_KEY);
             String nodeName = "aaa";
             NodeBuilder nodeBuilder = new NodeBuilder();
             nodeBuilder.setNodeId(new NodeId(nodeName));
