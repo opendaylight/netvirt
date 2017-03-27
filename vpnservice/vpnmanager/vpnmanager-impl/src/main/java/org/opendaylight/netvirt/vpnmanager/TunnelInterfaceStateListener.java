@@ -34,7 +34,9 @@ import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeMplsOverGre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpnInterfaceListInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpnInterfaceListOutput;
@@ -178,9 +180,13 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
 
         LOG.trace("Handle tunnel event for srcDpn {} SrcTepIp {} DestTepIp {} ", srcDpnId, srcTepIp, destTepIp);
         int tunTypeVal = getTunnelType(stateTunnelList);
-
         LOG.trace("tunTypeVal is {}", tunTypeVal);
-
+        if (tunTypeVal == VpnConstants.ITMTunnelLocType.Internal.getValue()
+                && tunnelAction == TunnelAction.TUNNEL_EP_ADD && isTunnelAggregationEnabled(stateTunnelList)) {
+            LOG.trace("MULTIPLE_VxLAN_TUNNELS: not handle the tunnel event for {}",
+                    stateTunnelList.getTunnelInterfaceName());
+            return;
+        }
         try {
             if (tunnelAction == TunnelAction.TUNNEL_EP_ADD) {
                 LOG.trace(" Tunnel ADD event received for Dpn {} VTEP Ip {} ", srcDpnId, srcTepIp);
@@ -440,4 +446,14 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                 .map(dcGwIp -> String.valueOf(dcGwIp.getIpAddress().getValue())).sorted()
                 .collect(toList());
     }
+
+    private boolean isTunnelAggregationEnabled(StateTunnelList stateTunnelList) {
+        Interface configIface = InterfaceUtils.getInterface(dataBroker, stateTunnelList.getTunnelInterfaceName());
+        ParentRefs refs = (configIface != null) ? configIface.getAugmentation(ParentRefs.class) : null;
+        if (refs != null && refs.getParentInterface() != null && !refs.getParentInterface().isEmpty()) {
+            return true; //multiple VxLAN tunnels enabled, i.e. only logical tunnel should be treated
+        }
+        return false;
+    }
 }
+

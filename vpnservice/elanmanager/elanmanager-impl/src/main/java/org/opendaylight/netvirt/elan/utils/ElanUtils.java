@@ -70,7 +70,9 @@ import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.AdminStatus;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
@@ -2283,5 +2285,15 @@ public class ElanUtils {
 
     public static boolean isNotEmpty(Collection collection) {
         return (!isEmpty(collection));
+    }
+
+    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
+                                        .Interface getInterfaceFromConfigDS(String interfaceName, DataBroker broker) {
+        InterfaceKey interfaceKey = new InterfaceKey(interfaceName);
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+                        .ietf.interfaces.rev140508.interfaces.Interface> interfaceId = InstanceIdentifier
+                            .builder(Interfaces.class).child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+                                    .ietf.interfaces.rev140508.interfaces.Interface.class, interfaceKey).build();
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, interfaceId).orNull();
     }
 }

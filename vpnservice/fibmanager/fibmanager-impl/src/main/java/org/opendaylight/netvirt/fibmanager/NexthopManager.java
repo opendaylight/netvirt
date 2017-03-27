@@ -73,6 +73,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeLogicalGroup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeMplsOverGre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
@@ -890,7 +891,7 @@ public class NexthopManager implements AutoCloseable {
                     Class<? extends TunnelTypeBase> tunnelType = VpnExtraRouteHelper
                             .getTunnelType(interfaceManager,
                                     egressInterface);
-                    if (!tunnelType.equals(TunnelTypeVxlan.class)) {
+                    if (!tunnelType.equals(TunnelTypeVxlan.class) && !tunnelType.equals(TunnelTypeLogicalGroup.class)) {
                         return;
                     }
                     Long label = FibUtil.getLabelFromRoutePaths(vrfEntry).get();
