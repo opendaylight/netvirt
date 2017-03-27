@@ -60,6 +60,15 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>mdsalutil-api</artifactId>
       <version>${genius.version}</version>
     </dependency>
+
+    <!-- Following are <scope>test (only) dependencies -->
+    <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>testutils</artifactId>
+      <version>${genius.version}</version>
+      <type>pom</type>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
