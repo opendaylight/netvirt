@@ -1724,8 +1724,9 @@ public class BgpConfigurationManager {
     private static void replayNbrConfig(List<Neighbors> neighbors, BgpRouter br) {
         for (Neighbors nbr : neighbors) {
             try {
+                final String md5password = extractMd5Secret(nbr);
                 br.addNeighbor(nbr.getAddress().getValue(),
-                        nbr.getRemoteAs());
+                        nbr.getRemoteAs(), md5password);
                 //itmProvider.buildTunnelsToDCGW(new IpAddress(nbr.getAddress().getValue().toCharArray()));
             } catch (TException | BgpRouterException e) {
                 LOG.error("Replay:addNbr() received exception", e);
