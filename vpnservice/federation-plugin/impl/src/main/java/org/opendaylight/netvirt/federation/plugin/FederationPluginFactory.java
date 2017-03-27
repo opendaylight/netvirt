@@ -48,7 +48,9 @@ public class FederationPluginFactory implements IPluginFactory {
                                     + pair.getClass().getName());
                 }
             }
-            return new FederationPluginEgress(producerMgr, (List<FederatedNetworkPair>) payload, queueName, contextId);
+            FederatedPayload federatedPayload = (FederatedPayload) payload;
+            return new FederationPluginEgress(producerMgr, federatedPayload.networkPairs,
+                federatedPayload.secGroupsPairs, queueName, contextId);
         } else {
             throw new IllegalArgumentException("payload expected to be List<FederatedNetworkPair>"
                     + " but was something else: " + payload.getClass().getName());
