@@ -42,6 +42,8 @@ public class ElanBridgeManager {
     private static final String INTEGRATION_BRIDGE = "br-int";
     private static final String INT_SIDE_PATCH_PORT_SUFFIX = "-patch";
     private static final String EX_SIDE_PATCH_PORT_SUFFIX = "-int-patch";
+    private static final String OTHER_CONFIG_PARAMETERS_DELIMITER = ",";
+    private static final String OTHER_CONFIG_KEY_VALUE_DELIMITER = ":";
     private static final int MAX_LINUX_INTERFACE_NAME_LENGTH = 15;
 
     private final MdsalUtils mdsalUtils;
@@ -402,9 +404,9 @@ public class ElanBridgeManager {
         }
 
         Map<String, String> valueMap = new HashMap<>();
-        Splitter splitter = Splitter.on(",");
+        Splitter splitter = Splitter.on(OTHER_CONFIG_PARAMETERS_DELIMITER);
         for (String keyValue : splitter.split(multiKeyValueStr)) {
-            String[] split = keyValue.split(":", 2);
+            String[] split = keyValue.split(OTHER_CONFIG_KEY_VALUE_DELIMITER, 2);
             if (split.length == 2) {
                 valueMap.put(split[0], split[1]);
             }

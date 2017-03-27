@@ -14,6 +14,9 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -353,6 +356,17 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 String subnetString = subnetmapEntry.getSubnetIp();
                 String[] subnetSplit = subnetString.split("/");
                 String subnetIp = subnetSplit[0];
+                try {
+                    InetAddress address = InetAddress.getByName(subnetIp);
+                    if (address instanceof Inet6Address) {
+                        // TODO: Revisit when IPv6 external connectivity support is added.
+                        LOG.debug("Skipping ipv6 address {}.", address);
+                        return;
+                    }
+                } catch (UnknownHostException e) {
+                    LOG.warn("Invalid ip address {}", subnetIp, e);
+                    return;
+                }
                 String subnetPrefix = "0";
                 if (subnetSplit.length == 2) {
                     subnetPrefix = subnetSplit[1];
@@ -1398,13 +1412,24 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     private void allocateExternalIp(BigInteger dpnId, Routers router, long routerId, String routerName,
             Uuid networkId, String subnetIp) {
+        String[] subnetIpParts = NatUtil.getSubnetIpAndPrefix(subnetIp);
+        try {
+            InetAddress address = InetAddress.getByName(subnetIpParts[0]);
+            if (address instanceof Inet6Address) {
+                // TODO: Revisit when IPv6 external connectivity support is added.
+                LOG.debug("Currently skipping ipv6 address {}.", address);
+                return;
+            }
+        } catch (UnknownHostException e) {
+            LOG.warn("Invalid ip address {}", subnetIpParts[0], e);
+            return;
+        }
         String leastLoadedExtIpAddr = NatUtil.getLeastLoadedExternalIp(dataBroker, routerId);
         if (leastLoadedExtIpAddr != null) {
             String[] externalIpParts = NatUtil.getExternalIpAndPrefix(leastLoadedExtIpAddr);
             String leastLoadedExtIp = externalIpParts[0];
             String leastLoadedExtIpPrefix = externalIpParts[1];
             IPAddress externalIpAddr = new IPAddress(leastLoadedExtIp, Integer.parseInt(leastLoadedExtIpPrefix));
-            String[] subnetIpParts = NatUtil.getSubnetIpAndPrefix(subnetIp);
             subnetIp = subnetIpParts[0];
             String subnetIpPrefix = subnetIpParts[1];
             IPAddress subnetIpAddr = new IPAddress(subnetIp, Integer.parseInt(subnetIpPrefix));
