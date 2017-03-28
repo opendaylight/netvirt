@@ -14,6 +14,8 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -28,19 +30,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+@Singleton
 public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchScheduler {
     private final Map<BigInteger,Integer> switchWeightsMap = new HashMap<>();
     private final DataBroker dataBroker;
     final OdlInterfaceRpcService interfaceManager;
     private final int initialSwitchWeight = 0;
 
+    @Inject
     public WeightedCentralizedSwitchScheduler(DataBroker dataBroker, OdlInterfaceRpcService interfaceManager) {
         this.dataBroker = dataBroker;
         this.interfaceManager = interfaceManager;
-    }
-
-    public void init(){
-
     }
 
     @Override
@@ -51,11 +51,9 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         RouterToNaptSwitch id = routerToNaptSwitchBuilder.setPrimarySwitchId(nextSwitchId).build();
         try {
             WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-            NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerName, routerName,
-                    nextSwitchId , writeOperTxn);
+            NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerName, routerName, nextSwitchId, writeOperTxn);
             NatUtil.addToDpnRoutersMap(dataBroker, routerName, routerName, nextSwitchId, writeOperTxn);
             writeOperTxn.submit();
-
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     getNaptSwitchesIdentifier(routerName), id);
             switchWeightsMap.put(nextSwitchId,switchWeightsMap.get(nextSwitchId) + 1);
@@ -73,7 +71,6 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         try {
             WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
             NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerName, primarySwitchId, writeOperTxn);
-            writeOperTxn.submit();
             NatUtil.removeFromDpnRoutersMap(dataBroker, routerName, routerName, interfaceManager, writeOperTxn);
             writeOperTxn.submit();
             SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
