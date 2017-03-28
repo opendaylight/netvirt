@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_1f4b3e5a",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/listeners/PolicyNodeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-28T09:55:20Z",
+      "side": 1,
+      "message": "There\u0027s no scenario we want to remove the miss flows from DPN?",
+      "revId": "f526db665c05697b4f7c45610e361d8f97edbb1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bfd7924e",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/listeners/TunnelStateChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-28T09:55:20Z",
+      "side": 1,
+      "message": "Add here and in unbind @SuppressWarnings(\"deprecation\")",
+      "revId": "f526db665c05697b4f7c45610e361d8f97edbb1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
