@@ -21,6 +21,8 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig.NatMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.IntextIpMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
@@ -51,6 +53,7 @@ public class ExternalNetworksChangeListener
     private final IBgpManager bgpManager;
     private final VpnRpcService vpnService;
     private final FibRpcService fibService;
+    private NatMode natMode = NatMode.Controller;
 
     public ExternalNetworksChangeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                                           final FloatingIPListener floatingIpListener,
@@ -59,7 +62,8 @@ public class ExternalNetworksChangeListener
                                           final NaptManager naptManager,
                                           final IBgpManager bgpManager,
                                           final VpnRpcService vpnService,
-                                          final FibRpcService fibService) {
+                                          final FibRpcService fibService,
+                                          final NatserviceConfig config) {
         super(Networks.class, ExternalNetworksChangeListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
@@ -70,6 +74,9 @@ public class ExternalNetworksChangeListener
         this.bgpManager = bgpManager;
         this.vpnService = vpnService;
         this.fibService = fibService;
+        if (config != null) {
+            this.natMode = config.getNatMode();
+        }
     }
 
     @Override
@@ -144,8 +151,10 @@ public class ExternalNetworksChangeListener
                 return;
             }
             List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker,routerId);
-            externalRouterListener.handleDisableSnatInternetVpn(routerUuid.getValue(), networkUuid, externalIps,
-                false, original.getVpnid().getValue());
+            if (natMode == NatMode.Controller) {
+                externalRouterListener.handleDisableSnatInternetVpn(routerUuid.getValue(), networkUuid, externalIps,
+                        false, original.getVpnid().getValue());
+            }
         }
     }
 
@@ -229,9 +238,12 @@ public class ExternalNetworksChangeListener
                     LOG.debug("NAT Service : got externalIp as {}", externalIp);
                     LOG.debug("NAT Service : About to call advToBgpAndInstallFibAndTsFlows for dpnId {}, "
                         + "vpnName {} and externalIp {}", dpnId, vpnName, externalIp);
-                    externalRouterListener.advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE,
-                        vpnName, NatUtil.getVpnId(dataBroker, routerId.getValue()), routerId.getValue(), externalIp,
-                        null /* external-router */, vpnService, fibService, bgpManager, dataBroker, LOG);
+                    if (natMode == NatMode.Controller) {
+                        externalRouterListener.advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE,
+                                vpnName, NatUtil.getVpnId(dataBroker, routerId.getValue()), routerId.getValue(),
+                                externalIp, null /* external-router */, vpnService, fibService, bgpManager, dataBroker,
+                                LOG);
+                    }
                 }
             } else {
                 LOG.warn("NAT Service : No ipMapping present fot the routerId {}", routerId);
@@ -239,11 +251,13 @@ public class ExternalNetworksChangeListener
 
             long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
             // Install 47 entry to point to 21
-            externalRouterListener.installNaptPfibEntriesForExternalSubnets(routerId.getValue(), dpnId);
-            if (vpnId != -1) {
-                LOG.debug("NAT Service : Calling externalRouterListener installNaptPfibEntry for dpnId {} "
-                    + "and vpnId {}", dpnId, vpnId);
-                externalRouterListener.installNaptPfibEntry(dpnId, vpnId);
+            if (natMode == NatMode.Controller) {
+                externalRouterListener.installNaptPfibEntriesForExternalSubnets(routerId.getValue(), dpnId);
+                if (vpnId != -1) {
+                    LOG.debug("NAT Service : Calling externalRouterListener installNaptPfibEntry for dpnId {} "
+                            + "and vpnId {}", dpnId, vpnId);
+                    externalRouterListener.installNaptPfibEntry(dpnId, vpnId);
+                }
             }
         }
 
