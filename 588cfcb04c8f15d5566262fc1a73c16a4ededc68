@@ -16,6 +16,24 @@
       "revId": "588cfcb04c8f15d5566262fc1a73c16a4ededc68",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f58db9d4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/UuidUtilTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-03-28T15:10:39Z",
+      "side": 1,
+      "message": "well spotted (just a test to see if anyone is paying attention ;-) - of course it\u0027s actually not, so removed.  It was a left over from where I moved things around during the manual back patch, to find the right new place in boron.",
+      "parentUuid": "fafc7978_9509cd2e",
+      "revId": "588cfcb04c8f15d5566262fc1a73c16a4ededc68",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
