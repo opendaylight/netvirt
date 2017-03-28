@@ -8,8 +8,8 @@
 
 package org.opendaylight.netvirt.sfc.classifier.service.domain.api;
 
-import java.util.Set;
+public interface ClassifierRenderableEntry {
+    void render(ClassifierEntryRenderer classifierEntryRenderer);
 
-public interface ClassifierState {
-    Set<ClassifierRenderableEntry> getAllEntries();
+    void suppress(ClassifierEntryRenderer classifierEntryRenderer);
 }

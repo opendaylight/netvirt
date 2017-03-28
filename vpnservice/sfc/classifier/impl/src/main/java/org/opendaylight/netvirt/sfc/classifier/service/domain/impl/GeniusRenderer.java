@@ -9,12 +9,12 @@
 package org.opendaylight.netvirt.sfc.classifier.service.domain.impl;
 
 import org.opendaylight.netvirt.sfc.classifier.providers.GeniusProvider;
-import org.opendaylight.netvirt.sfc.classifier.service.domain.ClassifierEntry;
-import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierRenderer;
+import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierEntryRenderer;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 
-public class GeniusRenderer implements ClassifierRenderer {
+public class GeniusRenderer implements ClassifierEntryRenderer {
 
     private final GeniusProvider geniusProvider;
 
@@ -23,36 +23,52 @@ public class GeniusRenderer implements ClassifierRenderer {
     }
 
     @Override
-    public void render(ClassifierEntry entry) {
+    public void renderIngress(InterfaceKey interfaceKey) {
+        // TODO
+    }
+
+    @Override
+    public void renderNode(NodeId nodeId) {
         // noop
     }
 
     @Override
-    public void render(NodeKey nodeKey) {
+    public void renderPath(NodeId nodeId, Long nsp, String ip) {
         // noop
     }
 
     @Override
-    public void render(InterfaceKey interfaceKey) {
-        String interfaceName = interfaceKey.getName();
-        geniusProvider.bindPortOnIngressClassifier(interfaceName);
-        geniusProvider.bindPortOnEgressClassifier(interfaceName);
-    }
-
-    @Override
-    public void suppress(ClassifierEntry entry) {
+    public void renderMatch(NodeId nodeId, Long port, Matches matches, Long nsp, Short nsi) {
         // noop
     }
 
     @Override
-    public void suppress(NodeKey nodeKey) {
+    public void renderEgress(InterfaceKey interfaceKey) {
+        // TODO
+    }
+
+    @Override
+    public void suppressIngress(InterfaceKey interfaceKey) {
+        // TODO
+    }
+
+    @Override
+    public void suppressNode(NodeId nodeId) {
         // noop
     }
 
     @Override
-    public void suppress(InterfaceKey interfaceKey) {
-        String interfaceName = interfaceKey.getName();
-        geniusProvider.unbindPortOnEgressClassifier(interfaceName);
-        geniusProvider.unbindPortOnIngressClassifier(interfaceName);
+    public void suppressPath(NodeId nodeId, Long nsp, String ip) {
+        // noop
+    }
+
+    @Override
+    public void suppressMatch(NodeId nodeId, Long port, Matches matches, Long nsp, Short nsi) {
+        // noop
+    }
+
+    @Override
+    public void suppressEgress(InterfaceKey interfaceKey) {
+        // TODO
     }
 }
