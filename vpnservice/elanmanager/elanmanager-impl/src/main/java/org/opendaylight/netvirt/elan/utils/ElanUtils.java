@@ -1504,12 +1504,6 @@ public class ElanUtils {
         itmRpcService.createTerminatingServiceActions(input);
     }
 
-    public static TunnelList buildInternalTunnel(DataBroker broker) {
-        InstanceIdentifier<TunnelList> tunnelListInstanceIdentifier = InstanceIdentifier.builder(TunnelList.class)
-                .build();
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, tunnelListInstanceIdentifier).orNull();
-    }
-
     /**
      * Gets the external tunnel.
      *
