@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -163,7 +164,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeFlat;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
@@ -1232,26 +1239,32 @@ public class VpnUtil {
         return InstanceIdentifier.create(Subnetmaps.class);
     }
 
-    static void setupSubnetMacIntoVpnInstance(DataBroker dataBroker, IMdsalApiManager mdsalManager, String vpnName,
-            String subnetVpnName, String srcMacAddress, BigInteger dpnId, WriteTransaction writeTx, int addOrRemove) {
+    static void setupSubnetMacIntoVpnInstanceOnDpns(DataBroker dataBroker, IMdsalApiManager mdsalManager,
+            String vpnName, String subnetVpnName, String srcMacAddress, List<BigInteger> dpnIdList,
+            WriteTransaction writeTx, int addOrRemove) {
         long vpnId = getVpnId(dataBroker, vpnName);
         long subnetVpnId = VpnConstants.INVALID_ID;
         if (subnetVpnName != null) {
             subnetVpnId = getVpnId(dataBroker,subnetVpnName);
         }
+        for (BigInteger dpId : dpnIdList) {
+            addGwMacIntoTx(mdsalManager, srcMacAddress, writeTx, addOrRemove, vpnId, dpId, subnetVpnId);
+        }
+    }
 
+    static void setupSubnetMacIntoVpnInstance(DataBroker dataBroker, IMdsalApiManager mdsalManager, String vpnName,
+            String subnetVpnName, String srcMacAddress, BigInteger dpnId, WriteTransaction writeTx, int addOrRemove) {
         if (dpnId.equals(BigInteger.ZERO)) {
             /* Apply the MAC on all DPNs in a VPN */
-            List<BigInteger> dpIds = getDpnsOnVpn(dataBroker, vpnName);
-            if (dpIds == null || dpIds.isEmpty()) {
+            List<BigInteger> dpnIdsList = getDpnsOnVpn(dataBroker, vpnName);
+            if (dpnIdsList == null || dpnIdsList.isEmpty()) {
                 return;
             }
-            for (BigInteger dpId : dpIds) {
-                addGwMacIntoTx(mdsalManager, srcMacAddress, writeTx, addOrRemove, vpnId, dpId, subnetVpnId);
-            }
-        } else {
-            addGwMacIntoTx(mdsalManager, srcMacAddress, writeTx, addOrRemove, vpnId, dpnId, subnetVpnId);
+            setupSubnetMacIntoVpnInstanceOnDpns(dataBroker, mdsalManager, vpnName, subnetVpnName, srcMacAddress,
+                    dpnIdsList, writeTx, addOrRemove);
         }
+        setupSubnetMacIntoVpnInstanceOnDpns(dataBroker, mdsalManager, vpnName, subnetVpnName, srcMacAddress,
+                Arrays.asList(dpnId), writeTx, addOrRemove);
     }
 
     static void addGwMacIntoTx(IMdsalApiManager mdsalManager, String srcMacAddress, WriteTransaction writeTx,
@@ -1453,20 +1466,23 @@ public class VpnUtil {
 
     public static Optional<String> getVpnSubnetGatewayIp(DataBroker dataBroker, final Uuid subnetUuid) {
         Optional<String> gwIpAddress = Optional.absent();
-        final SubnetKey subnetkey = new SubnetKey(subnetUuid);
-        final InstanceIdentifier<Subnet> subnetidentifier = InstanceIdentifier.create(Neutron.class)
-                .child(Subnets.class)
-                .child(Subnet.class, subnetkey);
-        final Optional<Subnet> subnet = read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetidentifier);
-        if (subnet.isPresent()) {
-            Class<? extends IpVersionBase> ipVersionBase = subnet.get().getIpVersion();
+        final Subnet subnet = getSubnetById(dataBroker, subnetUuid);
+        if (subnet != null) {
+            Class<? extends IpVersionBase> ipVersionBase = subnet.getIpVersion();
             if (ipVersionBase.equals(IpVersionV4.class)) {
-                LOG.trace("Obtained subnet {} for vpn interface", subnet.get().getUuid().getValue());
-                gwIpAddress = Optional.of(subnet.get().getGatewayIp().getIpv4Address().getValue());
+                LOG.trace("Obtained subnet {} for vpn interface", subnet.getUuid().getValue());
+                gwIpAddress = Optional.of(subnet.getGatewayIp().getIpv4Address().getValue());
                 return gwIpAddress;
             }
         }
         return gwIpAddress;
+    }
+
+    public static Subnet getSubnetById(DataBroker dataBroker, final Uuid subnetUuid) {
+        final InstanceIdentifier<Subnet> subnetidentifier = InstanceIdentifier.create(Neutron.class)
+                .child(Subnets.class).child(Subnet.class, new SubnetKey(subnetUuid));
+        final Optional<Subnet> subnet = read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetidentifier);
+        return subnet.isPresent() ? subnet.get() : null;
     }
 
     public static RouterToNaptSwitch getRouterToNaptSwitch(DataBroker dataBroker, String routerName) {
@@ -1695,5 +1711,25 @@ public class VpnUtil {
             }
         }
         return null;
+    }
+
+    static boolean isFlatOrVlanNetwork(Network network) {
+        // FIXME: Change the lookup from neutron network to SubnetOpData ones that will be populated.
+        return network != null
+                && (isNetworkOfType(network, NetworkTypeVlan.class) || isNetworkOfType(network, NetworkTypeFlat.class));
+    }
+
+    static boolean isNetworkOfType(Network network, Class<? extends NetworkTypeBase> type) {
+        NetworkProviderExtension npe = network.getAugmentation(NetworkProviderExtension.class);
+        return npe != null && npe.getNetworkType() != null && type.isAssignableFrom(npe.getNetworkType());
+    }
+
+    protected static Network getNeutronNetwork(DataBroker broker, Uuid networkId) {
+        LOG.debug("getNeutronNetwork for {}", networkId.getValue());
+        InstanceIdentifier<Network> inst = InstanceIdentifier.create(Neutron.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes
+                        .Networks.class).child(Network.class, new NetworkKey(networkId));
+        Optional<Network> net = read(broker, LogicalDatastoreType.CONFIGURATION, inst);
+        return net.isPresent() ? net.get() : null;
     }
 }
