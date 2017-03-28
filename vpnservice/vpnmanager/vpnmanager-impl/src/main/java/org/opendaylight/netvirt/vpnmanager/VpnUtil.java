@@ -17,6 +17,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -132,6 +133,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.rou
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpnKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
@@ -153,6 +156,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes.NetworkType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterInterfacesMap;
@@ -1225,26 +1229,32 @@ public class VpnUtil {
         return InstanceIdentifier.create(Subnetmaps.class);
     }
 
-    static void setupSubnetMacIntoVpnInstance(DataBroker dataBroker, IMdsalApiManager mdsalManager, String vpnName,
-            String subnetVpnName, String srcMacAddress, BigInteger dpnId, WriteTransaction writeTx, int addOrRemove) {
+    static void setupSubnetMacIntoVpnInstanceOnDpns(DataBroker dataBroker, IMdsalApiManager mdsalManager,
+            String vpnName, String subnetVpnName, String srcMacAddress, List<BigInteger> dpnIdList,
+            WriteTransaction writeTx, int addOrRemove) {
         long vpnId = getVpnId(dataBroker, vpnName);
         long subnetVpnId = VpnConstants.INVALID_ID;
         if (subnetVpnName != null) {
             subnetVpnId = getVpnId(dataBroker,subnetVpnName);
         }
+        for (BigInteger dpId : dpnIdList) {
+            addGwMacIntoTx(mdsalManager, srcMacAddress, writeTx, addOrRemove, vpnId, dpId, subnetVpnId);
+        }
+    }
 
+    static void setupSubnetMacIntoVpnInstance(DataBroker dataBroker, IMdsalApiManager mdsalManager, String vpnName,
+            String subnetVpnName, String srcMacAddress, BigInteger dpnId, WriteTransaction writeTx, int addOrRemove) {
         if (dpnId.equals(BigInteger.ZERO)) {
             /* Apply the MAC on all DPNs in a VPN */
-            List<BigInteger> dpIds = getDpnsOnVpn(dataBroker, vpnName);
-            if (dpIds == null || dpIds.isEmpty()) {
+            List<BigInteger> dpnIdsList = getDpnsOnVpn(dataBroker, vpnName);
+            if (dpnIdsList == null || dpnIdsList.isEmpty()) {
                 return;
             }
-            for (BigInteger dpId : dpIds) {
-                addGwMacIntoTx(mdsalManager, srcMacAddress, writeTx, addOrRemove, vpnId, dpId, subnetVpnId);
-            }
-        } else {
-            addGwMacIntoTx(mdsalManager, srcMacAddress, writeTx, addOrRemove, vpnId, dpnId, subnetVpnId);
+            setupSubnetMacIntoVpnInstanceOnDpns(dataBroker, mdsalManager, vpnName, subnetVpnName, srcMacAddress,
+                    dpnIdsList, writeTx, addOrRemove);
         }
+        setupSubnetMacIntoVpnInstanceOnDpns(dataBroker, mdsalManager, vpnName, subnetVpnName, srcMacAddress,
+                Arrays.asList(dpnId), writeTx, addOrRemove);
     }
 
     static void addGwMacIntoTx(IMdsalApiManager mdsalManager, String srcMacAddress, WriteTransaction writeTx,
@@ -1446,20 +1456,23 @@ public class VpnUtil {
 
     public static Optional<String> getVpnSubnetGatewayIp(DataBroker dataBroker, final Uuid subnetUuid) {
         Optional<String> gwIpAddress = Optional.absent();
-        final SubnetKey subnetkey = new SubnetKey(subnetUuid);
-        final InstanceIdentifier<Subnet> subnetidentifier = InstanceIdentifier.create(Neutron.class)
-                .child(Subnets.class)
-                .child(Subnet.class, subnetkey);
-        final Optional<Subnet> subnet = read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetidentifier);
-        if (subnet.isPresent()) {
-            Class<? extends IpVersionBase> ipVersionBase = subnet.get().getIpVersion();
+        final Subnet subnet = getSubnetById(dataBroker, subnetUuid);
+        if (subnet != null) {
+            Class<? extends IpVersionBase> ipVersionBase = subnet.getIpVersion();
             if (ipVersionBase.equals(IpVersionV4.class)) {
-                LOG.trace("Obtained subnet {} for vpn interface", subnet.get().getUuid().getValue());
-                gwIpAddress = Optional.of(subnet.get().getGatewayIp().getIpv4Address().getValue());
+                LOG.trace("Obtained subnet {} for vpn interface", subnet.getUuid().getValue());
+                gwIpAddress = Optional.of(subnet.getGatewayIp().getIpv4Address().getValue());
                 return gwIpAddress;
             }
         }
         return gwIpAddress;
+    }
+
+    public static Subnet getSubnetById(DataBroker dataBroker, final Uuid subnetUuid) {
+        final InstanceIdentifier<Subnet> subnetidentifier = InstanceIdentifier.create(Neutron.class)
+                .child(Subnets.class).child(Subnet.class, new SubnetKey(subnetUuid));
+        final Optional<Subnet> subnet = read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetidentifier);
+        return subnet.isPresent() ? subnet.get() : null;
     }
 
     public static RouterToNaptSwitch getRouterToNaptSwitch(DataBroker dataBroker, String routerName) {
@@ -1470,7 +1483,7 @@ public class VpnUtil {
     }
 
     static InstanceIdentifier<Subnetmap> buildSubnetmapIdentifier(Uuid subnetId) {
-        return (InstanceIdentifier<Subnetmap>) InstanceIdentifier.builder(Subnetmaps.class)
+        return InstanceIdentifier.builder(Subnetmaps.class)
         .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
 
     }
@@ -1726,5 +1739,32 @@ public class VpnUtil {
             network = net.get();
         }
         return network;
+    }
+
+    static Subnetmap getSubnetmap(DataBroker broker, Uuid subnetId) {
+        InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class).child(Subnetmap.class,
+                new SubnetmapKey(subnetId)).build();
+        Optional<Subnetmap> sn = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+
+        if (sn.isPresent()) {
+            return sn.get();
+        }
+        return null;
+    }
+
+    static SubnetToDpn getSubnetToDpn(DataBroker broker, Uuid subnetId, BigInteger dpnId) {
+        InstanceIdentifier<SubnetToDpn> id = InstanceIdentifier.builder(SubnetOpData.class)
+                .child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).child(SubnetToDpn.class,
+                        new SubnetToDpnKey(dpnId)).build();
+        Optional<SubnetToDpn> sn = read(broker, LogicalDatastoreType.OPERATIONAL, id);
+
+        if (sn.isPresent()) {
+            return sn.get();
+        }
+        return null;
+    }
+
+    static boolean isFlatOrVlanNetwork(NetworkType networkType) {
+        return networkType == NetworkType.FLAT || networkType == NetworkType.VLAN;
     }
 }

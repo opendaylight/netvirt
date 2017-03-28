@@ -7,10 +7,13 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -99,5 +102,21 @@ public class NeutronvpnManagerImpl implements INeutronVpnManager {
     @Override
     public Boolean getEnforceOpenstackSemanticsConfig() {
         return nvManager.getEnforceOpenstackSemanticsConfig();
+    }
+
+    @Override
+    public void createExternalVpnInterfaceForDpn(Uuid networkId, Uuid vpnInstanceId, BigInteger dpnId,
+            WriteTransaction writeTx) {
+        nvManager.createExternalVpnInterfaceForDpn(networkId, vpnInstanceId, dpnId, writeTx);
+    }
+
+    @Override
+    public Collection<Uuid> getSubnetIdsFromNetworkId(Uuid networkId) {
+        return nvManager.getSubnetIdsFromNetworkId(networkId);
+    }
+
+    @Override
+    public void removeExternalVpnInterfaceForDpn(Uuid networkId, BigInteger dpnId, WriteTransaction writeTx) {
+        nvManager.removeExternalVpnInterfaceForDpn(networkId, dpnId, writeTx);
     }
 }
