@@ -11,6 +11,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.natservice.api.SnatServiceListener;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
@@ -22,6 +24,14 @@ public class SnatServiceManagerImpl implements SnatServiceManager {
 
     private final List<SnatServiceListener> snatServiceListeners = new ArrayList<>();
     private static final Logger LOG = LoggerFactory.getLogger(SnatServiceManagerImpl.class);
+
+    @Inject
+    public SnatServiceManagerImpl(final SnatServiceImplFactory factory) {
+        AbstractSnatService snatServiceImpl = factory.createSnatServiceImpl();
+        if (snatServiceImpl != null) {
+            addNatServiceListener(snatServiceImpl);
+        }
+    }
 
     @Override
     public void addNatServiceListener(SnatServiceListener natServiceListner) {
