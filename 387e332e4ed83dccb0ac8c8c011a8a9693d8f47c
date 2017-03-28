@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e2397dd9",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyIdManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T12:18:09Z",
+      "side": 1,
+      "message": "this is actually the remote dp-id\nI will rename the arg to avoid confusion",
+      "parentUuid": "fafc7978_3fe0c2cb",
+      "revId": "387e332e4ed83dccb0ac8c8c011a8a9693d8f47c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ffbe3aad",
         "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyIdManager.java",
         "patchSetId": 12
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-28T11:08:23Z",
       "side": 1,
       "message": "do we need separate id pool policy group id\u0027s ? Like ELAN, why can\u0027t we derive group id\u0027s from policy classifier id.",
+      "revId": "387e332e4ed83dccb0ac8c8c011a8a9693d8f47c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_62746d9c",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyIdManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T12:18:09Z",
+      "side": 1,
+      "message": "There are N group ids for each policy classifier since each group will contain only tunnels to specific destination\n\nin policy routing table:\n\nmatch: logical tunnel lport-tag + policy classifier id\naction: goto group based on remote dp-id of logical tunnel and the classifier",
+      "parentUuid": "fafc7978_ffbe3aad",
       "revId": "387e332e4ed83dccb0ac8c8c011a8a9693d8f47c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_62e90d1a",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyRouteGroupProgrammer.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T12:18:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9f356e48",
+      "revId": "387e332e4ed83dccb0ac8c8c011a8a9693d8f47c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_df6c1639",
         "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyRouteGroupProgrammer.java",
         "patchSetId": 12
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_226c259c",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyRouteGroupProgrammer.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T12:18:09Z",
+      "side": 1,
+      "message": "it won\u0027t compile otherwise",
+      "parentUuid": "fafc7978_df6c1639",
+      "revId": "387e332e4ed83dccb0ac8c8c011a8a9693d8f47c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fff63a5c",
         "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/listeners/UnderlayNetworkDpnListener.java",
         "patchSetId": 12
@@ -81,6 +153,24 @@
       "writtenOn": "2017-03-28T11:08:23Z",
       "side": 1,
       "message": "same comment comment here. we could simply use ifPresent",
+      "revId": "387e332e4ed83dccb0ac8c8c011a8a9693d8f47c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c2f399e5",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/listeners/UnderlayNetworkDpnListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T12:18:09Z",
+      "side": 1,
+      "message": "ifPreset has no else case",
+      "parentUuid": "fafc7978_fff63a5c",
       "revId": "387e332e4ed83dccb0ac8c8c011a8a9693d8f47c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -115,6 +205,24 @@
       "writtenOn": "2017-03-28T11:08:23Z",
       "side": 1,
       "message": "same here.",
+      "revId": "387e332e4ed83dccb0ac8c8c011a8a9693d8f47c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_02fe41ae",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/util/PolicyServiceUtil.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T12:18:09Z",
+      "side": 1,
+      "message": "null check is in line #255",
+      "parentUuid": "fafc7978_3fbf2262",
       "revId": "387e332e4ed83dccb0ac8c8c011a8a9693d8f47c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
