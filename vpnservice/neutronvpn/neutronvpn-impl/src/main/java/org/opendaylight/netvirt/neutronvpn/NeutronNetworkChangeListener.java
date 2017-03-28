@@ -101,6 +101,7 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         ElanInstance elanInstance = createElanInstance(input);
         // Create ELAN interface and IETF interfaces for the physical network
         elanService.createExternalElanNetwork(elanInstance);
+
         if (NeutronvpnUtils.getIsExternal(input)) {
             ProviderTypes providerNwType = NeutronvpnUtils.getProviderNetworkType(input);
             if (providerNwType == null) {
@@ -111,7 +112,7 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
             nvpnNatManager.addExternalNetwork(input);
             if (NeutronvpnUtils.isFlatOrVlanNetwork(input)) {
                 nvpnManager.createL3InternalVpn(input.getUuid(), null, null, null, null, null, null, null);
-                nvpnManager.createExternalVpnInterfaces(input.getUuid());
+                nvpnManager.createExternalVpnInterfacesForExternalNetwork(input.getUuid());
             }
         }
     }
@@ -126,6 +127,7 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
             }
             nvpnNatManager.removeExternalNetwork(input);
         }
+
         //Delete ELAN instance for this network
         String elanInstanceName = input.getUuid().getValue();
         ElanInstance elanInstance = elanService.getElanInstance(elanInstanceName);
@@ -163,7 +165,7 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
             }
 
             if (NeutronvpnUtils.getIsExternal(update) && NeutronvpnUtils.isFlatOrVlanNetwork(update)) {
-                nvpnManager.createExternalVpnInterfaces(update.getUuid());
+                nvpnManager.createExternalVpnInterfacesForExternalNetwork(update.getUuid());
             }
         }
     }

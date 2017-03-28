@@ -344,4 +344,12 @@
     <argument ref="dataBroker" />
     <argument ref="vpnSubnetRouteHandler" />
   </bean>
+  <bean id="subnetOpDpnChangeListener"
+        class="org.opendaylight.netvirt.vpnmanager.SubnetOpDpnChangeListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="elanService" />
+    <argument ref="neutronVpnService" />
+  </bean>
+
 </blueprint>

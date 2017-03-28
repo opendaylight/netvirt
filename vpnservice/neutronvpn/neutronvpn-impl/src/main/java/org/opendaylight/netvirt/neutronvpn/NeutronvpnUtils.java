@@ -1258,4 +1258,12 @@ public class NeutronvpnUtils {
     public static boolean isNotEmpty(Collection collection) {
         return (!isEmpty(collection));
     }
+
+    protected static NetworkMap getNetworkMap(DataBroker dataBroker, Uuid networkId) {
+        InstanceIdentifier<NetworkMap> iid = InstanceIdentifier.builder(NetworkMaps.class).child(NetworkMap.class,
+                new NetworkMapKey(networkId)).build();
+        Optional<NetworkMap> networkMap = read(dataBroker, LogicalDatastoreType.CONFIGURATION, iid);
+        return networkMap.isPresent() ? networkMap.get() : null;
+
+    }
 }
