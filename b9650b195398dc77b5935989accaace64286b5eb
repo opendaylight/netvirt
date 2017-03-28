@@ -22,6 +22,30 @@
       "revId": "b9650b195398dc77b5935989accaace64286b5eb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f2767205",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulIngressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T07:18:06Z",
+      "side": 1,
+      "message": "I added buildLPortTagMatch(int lportTag) in the abstract ingress and egress services calling AclServiceUtils with the right mode for each type of service",
+      "parentUuid": "fafc7978_720c4295",
+      "range": {
+        "startLine": 86,
+        "startChar": 43,
+        "endLine": 86,
+        "endChar": 44
+      },
+      "revId": "b9650b195398dc77b5935989accaace64286b5eb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
