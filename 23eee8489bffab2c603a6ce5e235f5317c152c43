@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_53881d22",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T19:45:27Z",
+      "side": 1,
+      "message": "try not to change the order here... you are opening a pandora box",
+      "revId": "23eee8489bffab2c603a6ce5e235f5317c152c43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_73856106",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetMacHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T19:45:27Z",
+      "side": 1,
+      "message": "what is limiting this to private networks?",
+      "revId": "23eee8489bffab2c603a6ce5e235f5317c152c43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d37b6d27",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1431,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T19:45:27Z",
+      "side": 1,
+      "message": "finally you need just the network id \ntry to minimize access to neutron models\nsubnet map should be good enough. No?",
+      "revId": "23eee8489bffab2c603a6ce5e235f5317c152c43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b376a93d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1637,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T19:45:27Z",
+      "side": 1,
+      "message": "at least put a FIXME here \nthat this info is soon to be taken from subnetOpData",
+      "revId": "23eee8489bffab2c603a6ce5e235f5317c152c43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
