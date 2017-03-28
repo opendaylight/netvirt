@@ -218,6 +218,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_12633642",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/CountersServiceUtils.java",
+        "patchSetId": 23
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-28T07:27:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0c92fd4a",
+      "revId": "921f7eb80e4e5a2d6f8ec34fb57daf08d360f70e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6cb0e9dd",
         "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/EgressCountersServiceImpl.java",
         "patchSetId": 23
