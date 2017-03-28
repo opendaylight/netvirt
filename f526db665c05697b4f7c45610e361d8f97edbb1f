@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_82aeb196",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/listeners/PolicyNodeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T12:24:15Z",
+      "side": 1,
+      "message": "not that I know of... all other node listeners look the same\noperational data is deleted on each OVS restart so no point deleting from there",
+      "parentUuid": "fafc7978_1f4b3e5a",
+      "revId": "f526db665c05697b4f7c45610e361d8f97edbb1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_bfd7924e",
         "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/listeners/TunnelStateChangeListener.java",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-28T09:55:20Z",
       "side": 1,
       "message": "Add here and in unbind @SuppressWarnings(\"deprecation\")",
+      "revId": "f526db665c05697b4f7c45610e361d8f97edbb1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e2cdfd87",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/listeners/TunnelStateChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T12:24:15Z",
+      "side": 1,
+      "message": "what is deprecated?",
+      "parentUuid": "fafc7978_bfd7924e",
       "revId": "f526db665c05697b4f7c45610e361d8f97edbb1f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
