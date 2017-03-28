@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import javax.inject.Inject;
@@ -99,5 +100,20 @@ public class NeutronvpnManagerImpl implements INeutronVpnManager {
     @Override
     public Boolean getEnforceOpenstackSemanticsConfig() {
         return nvManager.getEnforceOpenstackSemanticsConfig();
+    }
+
+    @Override
+    public void createExternalVpnInterfaceForDpn(Uuid networkId, Uuid vpnInstanceId, BigInteger dpnId) {
+        nvManager.createExternalVpnInterfaceForDpn(networkId, vpnInstanceId, dpnId);
+    }
+
+    @Override
+    public Collection<String> getAllSubnetsNamesInNetwork(Uuid networkId) {
+        return nvManager.getAllSubnetsNamesInNetwork(networkId);
+    }
+
+    @Override
+    public void removeExternalVpnInterfaceForDpn(Uuid networkId, BigInteger dpnId) {
+        nvManager.removeExternalVpnInterfaceForDpn(networkId, dpnId);
     }
 }

@@ -28,6 +28,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -1257,5 +1259,24 @@ public class NeutronvpnUtils {
 
     public static boolean isNotEmpty(Collection collection) {
         return (!isEmpty(collection));
+    }
+
+    protected static NetworkMap getNetworkMap(DataBroker dataBroker, Uuid networkId) {
+        InstanceIdentifier<NetworkMap> iid = InstanceIdentifier.builder(NetworkMaps.class).child(NetworkMap.class,
+                new NetworkMapKey(networkId)).build();
+        Optional<NetworkMap> networkMap = read(dataBroker, LogicalDatastoreType.CONFIGURATION, iid);
+        return networkMap.isPresent() ? networkMap.get() : null;
+
+    }
+
+    protected static Collection<String> getAllSubnetsNamesInNetwork(DataBroker broker, Uuid networkId) {
+        NetworkMap networkMap = NeutronvpnUtils.getNetworkMap(broker, networkId);
+        if (networkMap != null && networkMap.getSubnetIdList() != null) {
+            return networkMap.getSubnetIdList().stream()
+                                               .map(subnetUuid -> subnetUuid.getValue())
+                                               .collect(Collectors.toSet());
+        } else {
+            return Collections.emptySet();
+        }
     }
 }

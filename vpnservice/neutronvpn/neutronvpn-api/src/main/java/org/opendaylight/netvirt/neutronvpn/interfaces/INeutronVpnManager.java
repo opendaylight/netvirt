@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.neutronvpn.interfaces;
 
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -46,5 +47,10 @@ public interface INeutronVpnManager {
 
     Boolean getEnforceOpenstackSemanticsConfig();
 
+    void createExternalVpnInterfaceForDpn(Uuid networkId, Uuid vpnInstanceId, BigInteger dpnId);
+
+    Collection<String> getAllSubnetsNamesInNetwork(Uuid networkId);
+
+    void removeExternalVpnInterfaceForDpn(Uuid networkId, BigInteger dpnId);
 }
 
