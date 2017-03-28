@@ -918,6 +918,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
             evpnSnatFlowProgrammer.evpnAdvToBgpAndInstallFibAndTsFlows(dpnId, tableId, externalIp, vpnName, rd,
                     nextHopIp, writeTx, routerId);
+            writeTx.submit();
             return;
         }
         //Generate VPN label for the external IP
@@ -968,9 +969,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         Routers extRouter = router != null ? router :
                             NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
                         Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(dataBroker, externalIp,
-                                router);
+                                extRouter);
                         NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, externalSubnetId,
-                            externalIp, nextHopIp, router.getNetworkId().getValue(), null, label, log,
+                            externalIp, nextHopIp, extRouter.getNetworkId().getValue(), null, label, log,
                             RouteOrigin.STATIC, dpnId);
 
                         //Install custom FIB routes
