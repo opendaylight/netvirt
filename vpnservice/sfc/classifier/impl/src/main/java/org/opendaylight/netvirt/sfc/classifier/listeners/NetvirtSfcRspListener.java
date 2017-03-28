@@ -14,8 +14,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.netvirt.sfc.classifier.processors.NetvirtSfcDataProcessorBase;
-import org.opendaylight.netvirt.sfc.classifier.processors.NetvirtSfcRspDataProcessor;
+import org.opendaylight.netvirt.sfc.classifier.service.ClassifierService;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.RenderedServicePaths;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.rendered.service.paths.RenderedServicePath;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -27,14 +26,14 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class NetvirtSfcRspListener extends AsyncDataTreeChangeListenerBase<RenderedServicePath, NetvirtSfcRspListener> {
 
     private final DataBroker dataBroker;
-    private final NetvirtSfcDataProcessorBase<RenderedServicePath> dataProcessor;
+    private final ClassifierService classifierService;
 
     @Inject
-    public NetvirtSfcRspListener(DataBroker dataBroker) {
+    public NetvirtSfcRspListener(final DataBroker dataBroker, final ClassifierService classifierService) {
         super(RenderedServicePath.class, NetvirtSfcRspListener.class);
 
         this.dataBroker = dataBroker;
-        this.dataProcessor = new NetvirtSfcRspDataProcessor();
+        this.classifierService = classifierService;
     }
 
     @Override
@@ -57,17 +56,17 @@ public class NetvirtSfcRspListener extends AsyncDataTreeChangeListenerBase<Rende
 
     @Override
     protected void add(InstanceIdentifier<RenderedServicePath> key, RenderedServicePath rsp) {
-        dataProcessor.add(key, rsp);
+        classifierService.updateAll();
     }
 
     @Override
     protected void remove(InstanceIdentifier<RenderedServicePath> key, RenderedServicePath rsp) {
-        dataProcessor.remove(key, rsp);
+        classifierService.updateAll();
     }
 
     @Override
     protected void update(InstanceIdentifier<RenderedServicePath> key, RenderedServicePath rspBefore,
             RenderedServicePath rspAfter) {
-        dataProcessor.update(key, rspBefore, rspAfter);
+        classifierService.updateAll();
     }
 }
