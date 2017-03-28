@@ -472,6 +472,24 @@
       "revId": "9c9fe6d2919d2d256c44ec445a2fa43496a64788",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ad95ab89",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/FlowEntryObjectsStateful.xtend",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-28T08:18:44Z",
+      "side": 1,
+      "message": "What I meant is - Do we now have two tests - one with a single SG on the port testing the new remote ACL metadata usage, and one with two SGs on the port testing the \"old\" method without metadata?\nIt seems to me like all the tests changed to use the new behavior but correct me if I missed it.",
+      "parentUuid": "fafc7978_1b3a3998",
+      "revId": "9c9fe6d2919d2d256c44ec445a2fa43496a64788",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
