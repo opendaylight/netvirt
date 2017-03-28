@@ -11,6 +11,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.natservice.api.SnatServiceListener;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
@@ -18,10 +20,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class SnatServiceManagerImpl implements SnatServiceManager {
 
     private final List<SnatServiceListener> snatServiceListeners = new ArrayList<>();
     private static final Logger LOG = LoggerFactory.getLogger(SnatServiceManagerImpl.class);
+
+    @Inject
+    public SnatServiceManagerImpl(final SnatServiceImplFactory factory) {
+        AbstractSnatService snatServiceImpl = factory.createSnatServiceImpl();
+        if (snatServiceImpl != null) {
+            addNatServiceListener(snatServiceImpl);
+        }
+    }
 
     @Override
     public void addNatServiceListener(SnatServiceListener natServiceListner) {

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            odl:use-default-for-reference-types="true">
 
   <reference id="dataBroker"
@@ -45,6 +46,12 @@
 
   <service ref="vpnFloatingIpHandler"
            interface="org.opendaylight.netvirt.natservice.internal.FloatingIPHandler" />
+
+  <odl:clustered-app-config id="natserviceConfig"
+                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig"
+                            default-config-file-name="netvirt-natservice-config.xml">
+  </odl:clustered-app-config>
+
   <service ref="natRpcServiceImpl"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rpc.rev170209.OdlNatRpcService"/>
 

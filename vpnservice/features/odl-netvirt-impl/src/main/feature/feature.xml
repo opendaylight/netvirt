@@ -18,6 +18,9 @@
         <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-elanmanager-config.xml">
             mvn:org.opendaylight.netvirt/elanmanager-impl/${project.version}/xml/config
         </configfile>
+        <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-natservice-config.xml">
+            mvn:org.opendaylight.netvirt/natservice-impl/${project.version}/xml/config
+        </configfile>
         <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-neutronvpn-config.xml">
             mvn:org.opendaylight.netvirt/neutronvpn-impl/${project.version}/xml/config
         </configfile>

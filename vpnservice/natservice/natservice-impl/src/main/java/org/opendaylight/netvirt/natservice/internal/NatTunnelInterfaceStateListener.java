@@ -37,6 +37,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
@@ -55,6 +56,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.R
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.DpnRoutersList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.dpn.routers.list.RoutersList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig.NatMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
@@ -79,10 +82,12 @@ public class NatTunnelInterfaceStateListener
     private final IdManagerService idManager;
     private final IBgpManager bgpManager;
     private final ExternalRoutersListener externalRouterListner;
+    private final SnatServiceManager natServiceManager;
     private final OdlInterfaceRpcService interfaceService;
     private final FloatingIPListener floatingIPListener;
     private final FibRpcService fibRpcService;
     private final INeutronVpnManager nvpnManager;
+    private NatMode natMode = NatMode.Controller;
 
     protected enum TunnelAction {
         TUNNEL_EP_ADD,
@@ -114,10 +119,12 @@ public class NatTunnelInterfaceStateListener
                                            final IMdsalApiManager mdsalManager,
                                            final IdManagerService idManager,
                                            final ExternalRoutersListener externalRouterListner,
+                                           final SnatServiceManager natServiceManager,
                                            final OdlInterfaceRpcService interfaceService,
                                            final FloatingIPListener floatingIPListener,
                                            final FibRpcService fibRpcService,
-                                           final INeutronVpnManager nvpnManager) {
+                                           final INeutronVpnManager nvpnManager,
+                                           final NatserviceConfig config) {
         super(StateTunnelList.class, NatTunnelInterfaceStateListener.class);
         this.dataBroker = dataBroker;
         this.bgpManager = bgpManager;
@@ -127,10 +134,14 @@ public class NatTunnelInterfaceStateListener
         this.mdsalManager = mdsalManager;
         this.idManager = idManager;
         this.externalRouterListner = externalRouterListner;
+        this.natServiceManager = natServiceManager;
         this.interfaceService = interfaceService;
         this.floatingIPListener = floatingIPListener;
         this.fibRpcService = fibRpcService;
         this.nvpnManager = nvpnManager;
+        if (config != null) {
+            this.natMode = config.getNatMode();
+        }
     }
 
     @Override
@@ -428,7 +439,7 @@ public class NatTunnelInterfaceStateListener
     }
 
     private void hndlTepAddForSnatInEachRtr(RoutersList router, final BigInteger srcDpnId, String tunnelType,
-                                            String srcTepIp, String destTepIp, String tunnelName, String nextHopIp) {
+            String srcTepIp, String destTepIp, String tunnelName, String nextHopIp) {
 
         /*SNAT : Remove the old routes to the external IP having the old TEP IP as the next hop IP
                  Advertise to the BGP about the new route to the external IP having the new TEP IP
@@ -439,10 +450,10 @@ public class NatTunnelInterfaceStateListener
         // Check if this is externalRouter else ignore
         InstanceIdentifier<Routers> extRoutersId = NatUtil.buildRouterIdentifier(routerName);
         Optional<Routers> routerData = NatUtil.read(dataBroker, LogicalDatastoreType
-            .CONFIGURATION, extRoutersId);
+                .CONFIGURATION, extRoutersId);
         if (!routerData.isPresent()) {
             LOG.debug("NAT Service : SNAT -> Ignoring TEP add for router {} since its not External Router",
-                routerName);
+                    routerName);
             return;
         }
 
@@ -450,29 +461,33 @@ public class NatTunnelInterfaceStateListener
         BigInteger naptId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
         if (naptId == null || naptId.equals(BigInteger.ZERO)) {
             LOG.warn("NAT Service : SNAT -> Ignoring TEP add for the DPN {} having the router {} since"
-                + " the router is not part of the NAT service  - the TUNNEL TYPE {} b/w SRC IP {} and DST IP {} and"
-                + "TUNNEL NAME {} ", srcDpnId, routerName, tunnelType, srcTepIp, destTepIp, tunnelName);
+                    + " the router is not part of the NAT service  - the TUNNEL TYPE {} b/w SRC IP {} and DST IP {} and"
+                    + "TUNNEL NAME {} ", srcDpnId, routerName, tunnelType, srcTepIp, destTepIp, tunnelName);
             return;
         }
-
-        //Check if the DPN having the router is the NAPT switch
-        if (!naptId.equals(srcDpnId)) {
-            /*
+        if (natMode == NatMode.Conntrack) {
+            natServiceManager.notify(routerData.get(), naptId, srcDpnId,
+                    SnatServiceManager.Action.SNAT_ROUTER_ENBL);
+        } else {
+            //Check if the DPN having the router is the NAPT switch
+            if (!naptId.equals(srcDpnId)) {
+                /*
             1) Install default NAT rule from table 21 to 26
             2) Install the group which forward packet to the tunnel port for the NAPT switch.
             3) Install the flow 26 which forwards the packet to the group.
-            */
-            if (!hndlTepAddOnNonNaptSwitch(srcDpnId, naptId, tunnelType, srcTepIp, destTepIp, tunnelName,
-                routerName, routerId)) {
-                LOG.debug("NAT Service : Unable to process the TEP add event on NON-NAPT switch {}", srcDpnId);
+                 */
+                if (!hndlTepAddOnNonNaptSwitch(srcDpnId, naptId, tunnelType, srcTepIp, destTepIp, tunnelName,
+                        routerName, routerId)) {
+                    LOG.debug("NAT Service : Unable to process the TEP add event on NON-NAPT switch {}", srcDpnId);
+                    return;
+                }
                 return;
             }
-            return;
-        }
-        if (!hndlTepAddOnNaptSwitch(srcDpnId, tunnelType, srcTepIp, destTepIp, tunnelName, routerId,
-            routerData, nextHopIp)) {
-            LOG.debug("NAT Service : Unable to process the TEP add event on NAPT switch {}", srcDpnId);
-            return;
+            if (!hndlTepAddOnNaptSwitch(srcDpnId, tunnelType, srcTepIp, destTepIp, tunnelName, routerId,
+                    routerData, nextHopIp)) {
+                LOG.debug("NAT Service : Unable to process the TEP add event on NAPT switch {}", srcDpnId);
+                return;
+            }
         }
         return;
     }
@@ -835,7 +850,7 @@ public class NatTunnelInterfaceStateListener
 
     private void hndlTepDelForSnatInEachRtr(RoutersList router, BigInteger dpnId, String tunnelType,
                                             String srcTepIp, String destTepIp, String tunnelName) {
-        /*SNAT :
+       /*SNAT :
             1) Elect a new switch as the primary NAPT
             2) Advertise the new routes to BGP for the newly elected TEP IP as the DPN IP
             3) This will make sure old routes are withdrawn and new routes are advertised.
@@ -843,15 +858,15 @@ public class NatTunnelInterfaceStateListener
 
         String routerName = router.getRouter();
         LOG.debug("NAT Service : SNAT -> Trying to clear routes to the External fixed IP associated to the router"
-            + " {}", routerName);
+                + " {}", routerName);
 
         // Check if this is externalRouter else ignore
         InstanceIdentifier<Routers> extRoutersId = NatUtil.buildRouterIdentifier(routerName);
         Optional<Routers> routerData = NatUtil.read(dataBroker, LogicalDatastoreType
-            .CONFIGURATION, extRoutersId);
+                .CONFIGURATION, extRoutersId);
         if (!routerData.isPresent()) {
             LOG.debug("NAT Service : SNAT -> Ignoring TEP del for router {} since its not External Router",
-                routerName);
+                    routerName);
             return;
         }
 
@@ -866,65 +881,71 @@ public class NatTunnelInterfaceStateListener
         BigInteger naptId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
         if (naptId == null || naptId.equals(BigInteger.ZERO) || (!naptId.equals(dpnId))) {
             LOG.warn("NAT Service : SNAT -> Ignoring TEP delete for the DPN {} since"
-                + " its NOT a NAPT switch for the TUNNEL TYPE {} b/w SRC IP {} and DST IP {} and"
-                + "TUNNEL NAME {} ", dpnId, tunnelType, srcTepIp, destTepIp, tunnelName);
+                    + " its NOT a NAPT switch for the TUNNEL TYPE {} b/w SRC IP {} and DST IP {} and"
+                    + "TUNNEL NAME {} ", dpnId, tunnelType, srcTepIp, destTepIp, tunnelName);
             return;
         }
-
-        Uuid networkId = routerData.get().getNetworkId();
-        if (networkId == null) {
-            LOG.debug("NAT Service : SNAT -> Ignoring TEP delete for the DPN {} having the router {} "
-                + "since the Router instance {} not found in ExtRouters model b/w SRC IP {} and DST IP {} "
-                + "and TUNNEL NAME {} ", dpnId, tunnelType, srcTepIp, destTepIp, tunnelName);
-            return;
-        }
-
-        LOG.debug("NAT Service : SNAT -> Router {} is associated with ext nw {}", routerId, networkId);
-        Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerName);
-        Long vpnId;
-        if (vpnName == null) {
-            LOG.debug("NAT Service : SNAT -> Internal VPN-ID {} associated to router {}", routerId, routerName);
-            vpnId = routerId;
-
-            //Install default entry in FIB to SNAT table
-            LOG.debug("NAT Service : Installing default route in FIB on DPN {} for router {} with"
-                + " vpn {}...", dpnId, routerName, vpnId);
-            defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId);
+        if (natMode == NatMode.Conntrack) {
+            natServiceManager.notify(routerData.get(), naptId, dpnId, SnatServiceManager.Action.SNAT_ROUTER_DISBL);
         } else {
-            vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
-            if (vpnId == NatConstants.INVALID_ID) {
-                LOG.error("NAT Service : SNAT -> Invalid Private BGP VPN ID returned for routerName {}", routerName);
+
+
+            Uuid networkId = routerData.get().getNetworkId();
+            if (networkId == null) {
+                LOG.debug("NAT Service : SNAT -> Ignoring TEP delete for the DPN {} having the router {} "
+                        + "since the Router instance {} not found in ExtRouters model b/w SRC IP {} and DST IP {} "
+                        + "and TUNNEL NAME {} ", dpnId, tunnelType, srcTepIp, destTepIp, tunnelName);
                 return;
             }
-            LOG.debug("NAT Service : SNAT -> External BGP VPN (Private BGP) {} associated to router {}",
-                vpnId, routerName);
-            //Install default entry in FIB to SNAT table
-            LOG.debug("NAT Service : Installing default route in FIB on dpn {} for routerId {} "
-                + "with vpnId {}...", dpnId, routerId, vpnId);
-            defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routerId);
-        }
 
-        if (routerData.get().isEnableSnat()) {
-            LOG.info("NAT Service : SNAT enabled for router {}", routerId);
+            LOG.debug("NAT Service : SNAT -> Router {} is associated with ext nw {}", routerId, networkId);
+            Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerName);
+            Long vpnId;
+            if (vpnName == null) {
+                LOG.debug("NAT Service : SNAT -> Internal VPN-ID {} associated to router {}", routerId, routerName);
+                vpnId = routerId;
 
-            long routerVpnId = routerId;
-            long bgpVpnId = NatConstants.INVALID_ID;
-            Uuid bgpVpnUuid = NatUtil.getVpnForRouter(dataBroker, routerName);
-            if (bgpVpnUuid != null) {
-                bgpVpnId = NatUtil.getVpnId(dataBroker, bgpVpnUuid.getValue());
-            }
-            if (bgpVpnId != NatConstants.INVALID_ID) {
-                LOG.debug("NAT Service : SNAT -> Private BGP VPN ID (Internal BGP VPN ID) {} associated "
-                    + "to the router {}", bgpVpnId, routerName);
-                routerVpnId = bgpVpnId;
+                //Install default entry in FIB to SNAT table
+                LOG.debug("NAT Service : Installing default route in FIB on DPN {} for router {} with"
+                        + " vpn {}...", dpnId, routerName, vpnId);
+                defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId);
             } else {
-                LOG.debug("NAT Service : SNAT -> Internal L3 VPN ID (Router ID) {} associated to the router {}",
-                    routerVpnId, routerName);
+                vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
+                if (vpnId == NatConstants.INVALID_ID) {
+                    LOG.error("NAT Service : SNAT -> Invalid Private BGP VPN ID returned for routerName {}",
+                            routerName);
+                    return;
+                }
+                LOG.debug("NAT Service : SNAT -> External BGP VPN (Private BGP) {} associated to router {}",
+                        vpnId, routerName);
+                //Install default entry in FIB to SNAT table
+                LOG.debug("NAT Service : Installing default route in FIB on dpn {} for routerId {} "
+                        + "with vpnId {}...", dpnId, routerId, vpnId);
+                defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routerId);
             }
-            //Re-elect the other available switch as the NAPT switch and program the NAT flows.
-            removeSNATFromDPN(dpnId, routerName, routerVpnId, networkId);
-        } else {
-            LOG.info("NAT Service : SNAT is not enabled for router {} to handle addDPN event {}", routerId, dpnId);
+
+            if (routerData.get().isEnableSnat()) {
+                LOG.info("NAT Service : SNAT enabled for router {}", routerId);
+
+                long routerVpnId = routerId;
+                long bgpVpnId = NatConstants.INVALID_ID;
+                Uuid bgpVpnUuid = NatUtil.getVpnForRouter(dataBroker, routerName);
+                if (bgpVpnUuid != null) {
+                    bgpVpnId = NatUtil.getVpnId(dataBroker, bgpVpnUuid.getValue());
+                }
+                if (bgpVpnId != NatConstants.INVALID_ID) {
+                    LOG.debug("NAT Service : SNAT -> Private BGP VPN ID (Internal BGP VPN ID) {} associated "
+                            + "to the router {}", bgpVpnId, routerName);
+                    routerVpnId = bgpVpnId;
+                } else {
+                    LOG.debug("NAT Service : SNAT -> Internal L3 VPN ID (Router ID) {} associated to the router {}",
+                            routerVpnId, routerName);
+                }
+                //Re-elect the other available switch as the NAPT switch and program the NAT flows.
+                removeSNATFromDPN(dpnId, routerName, routerVpnId, networkId);
+            } else {
+                LOG.info("NAT Service : SNAT is not enabled for router {} to handle addDPN event {}", routerId, dpnId);
+            }
         }
     }
 
