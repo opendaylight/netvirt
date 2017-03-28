@@ -12,50 +12,73 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.ClassifierEntry;
-import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierRenderer;
+import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierEntryRenderer;
+import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierRenderableEntry;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierState;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 
 public class OperationalClassifierImpl implements ClassifierState {
 
-    private final Set<ClassifierEntry> entries = new HashSet<>();
+    private final Set<ClassifierRenderableEntry> entries = new HashSet<>();
 
     @Override
-    public Set<ClassifierEntry> getAllEntries() {
+    public Set<ClassifierRenderableEntry> getAllEntries() {
         return Collections.unmodifiableSet(entries);
     }
 
-    public ClassifierRenderer getRenderer() {
-        return new ClassifierRenderer() {
+    public ClassifierEntryRenderer getRenderer() {
+        return new ClassifierEntryRenderer() {
+
             @Override
-            public void render(ClassifierEntry entry) {
-                entries.add(entry);
+            public void renderIngress(InterfaceKey interfaceKey) {
+                entries.add(ClassifierEntry.buildIngressEntry(new InterfaceKey(interfaceKey)));
             }
 
             @Override
-            public void render(NodeKey nodeKey) {
-                // noop
+            public void renderNode(NodeId nodeId) {
+                entries.add(ClassifierEntry.buildNodeEntry(nodeId));
             }
 
             @Override
-            public void render(InterfaceKey interfaceKey) {
-                // noop
+            public void renderPath(NodeId nodeId, Long nsp, String ip) {
+                entries.add(ClassifierEntry.buildPathEntry(nodeId, nsp, ip));
             }
 
             @Override
-            public void suppress(ClassifierEntry entry) {
-                entries.remove(entry);
+            public void renderMatch(NodeId nodeId, Long port, Matches matches, Long nsp, Short nsi) {
+                entries.add(ClassifierEntry.buildMatchEntry(nodeId, port, matches, nsp, nsi));
             }
 
             @Override
-            public void suppress(NodeKey nodeKey) {
-                // noop
+            public void renderEgress(InterfaceKey interfaceKey) {
+                entries.add(ClassifierEntry.buildEgressEntry(interfaceKey));
             }
 
             @Override
-            public void suppress(InterfaceKey interfaceKey) {
-                // noop
+            public void suppressIngress(InterfaceKey interfaceKey) {
+                entries.remove(ClassifierEntry.buildIngressEntry(new InterfaceKey(interfaceKey)));
+            }
+
+            @Override
+            public void suppressNode(NodeId nodeId) {
+                entries.remove(ClassifierEntry.buildNodeEntry(nodeId));
+            }
+
+            @Override
+            public void suppressPath(NodeId nodeId, Long nsp, String ip) {
+                entries.remove(ClassifierEntry.buildPathEntry(nodeId, nsp, ip));
+            }
+
+            @Override
+            public void suppressMatch(NodeId nodeId, Long port, Matches matches, Long nsp, Short nsi) {
+                entries.remove(ClassifierEntry.buildMatchEntry(nodeId, port, matches, nsp, nsi));
+            }
+
+            @Override
+            public void suppressEgress(InterfaceKey interfaceKey) {
+                entries.remove(ClassifierEntry.buildEgressEntry(interfaceKey));
             }
         };
     }

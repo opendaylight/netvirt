@@ -20,7 +20,7 @@ import org.opendaylight.netvirt.sfc.classifier.providers.GeniusProvider;
 import org.opendaylight.netvirt.sfc.classifier.providers.NetvirtProvider;
 import org.opendaylight.netvirt.sfc.classifier.providers.OpenFlow13Provider;
 import org.opendaylight.netvirt.sfc.classifier.providers.SfcProvider;
-import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierRenderer;
+import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierEntryRenderer;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierState;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.impl.ClassifierUpdate;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.impl.ConfigurationClassifierImpl;
@@ -36,10 +36,10 @@ public class ClassifierService {
     private final SfcProvider sfcProvider;
     private final OpenFlow13Provider openFlow13Provider;
     private final DataBroker dataBroker;
-    private final Executor executor = Executors.newSingleThreadExecutor(); // TODO inject this
+    private final Executor executor = Executors.newSingleThreadExecutor();
     private final AtomicReference<Runnable> lastTask = new AtomicReference<>();
     private final OperationalClassifierImpl operationalClassifier = new OperationalClassifierImpl();
-    private final List<ClassifierRenderer> classifierRenderers = new ArrayList<>();
+    private final List<ClassifierEntryRenderer> classifierRenderers = new ArrayList<>();
 
     @Inject
     public ClassifierService(final NetvirtProvider netvirtProvider, final GeniusProvider geniusProvider,
