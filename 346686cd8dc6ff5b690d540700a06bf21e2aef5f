@@ -33,6 +33,24 @@
       "revId": "346686cd8dc6ff5b690d540700a06bf21e2aef5f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3f028209",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 921,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-28T09:40:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_ed9213f5",
+      "revId": "346686cd8dc6ff5b690d540700a06bf21e2aef5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
