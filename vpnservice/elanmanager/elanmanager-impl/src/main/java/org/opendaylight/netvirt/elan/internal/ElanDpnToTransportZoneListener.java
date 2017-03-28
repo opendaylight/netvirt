@@ -33,7 +33,7 @@ public class ElanDpnToTransportZoneListener
 
     public ElanDpnToTransportZoneListener(final DataBroker dbx, final IInterfaceManager interfaceManager,
             final ElanConfig elanConfig, final TransportZoneNotificationUtil tznu) {
-        useTransportZone = elanConfig.isAutoConfigTransportZones();
+            useTransportZone = elanConfig.isAutoConfigTransportZones();
         transportZoneNotificationUtil = tznu;
         this.dbx = dbx;
     }
