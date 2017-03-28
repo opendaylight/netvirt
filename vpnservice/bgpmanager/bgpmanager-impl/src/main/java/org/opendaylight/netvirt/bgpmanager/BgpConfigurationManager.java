@@ -2013,14 +2013,6 @@ public class BgpConfigurationManager {
 
     public synchronized void addNeighbor(
             String nbrIp, long remoteAs, @Nullable final TcpMd5SignaturePasswordType md5Secret) {
-        addNeighborAux(nbrIp, remoteAs, md5Secret);
-    } // public addNeighbor(nbrIp, remoteAs, md5Secret)
-
-    public synchronized void addNeighbor(String nbrIp, long remoteAs) {
-        addNeighborAux(nbrIp, remoteAs, null);
-    } // public addNeighbor(nbrIp, remoteAs)
-
-    private void addNeighborAux(String nbrIp, long remoteAs, @Nullable final TcpMd5SignaturePasswordType md5Secret) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<Neighbors> iib =
                 InstanceIdentifier.builder(Bgp.class)
@@ -2033,7 +2025,7 @@ public class BgpConfigurationManager {
         Neighbors dto = new NeighborsBuilder().setAddress(nbrAddr)
                 .setRemoteAs(remoteAs).setTcpSecurityOption(tcpSecOption).build();
         update(iid, dto);
-    } // private addNeighborAux(nbrIp, remoteAs, md5Secret)
+    } // public addNeighbor(nbrIp, remoteAs, md5Secret)
 
     public synchronized void addUpdateSource(String nbrIp, String srcIp) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);

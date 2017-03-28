@@ -273,26 +273,20 @@ public class BgpRouter {
         dispatch(bop);
     }
 
-    public synchronized void addNeighbor(String nbrIp, long nbrAsNum) throws TException, BgpRouterException {
-        LOGGER.debug("Adding BGP Neighbor {} with as number {} ", nbrIp, nbrAsNum);
-        addNeighborAux(nbrIp, nbrAsNum, null);
-    }
-
     public synchronized void addNeighbor(String nbrIp, long nbrAsNum, @Nullable String md5Secret)
             throws TException, BgpRouterException {
-        LOGGER.debug("Adding BGP Neighbor {} with as number {} and MD5 secret {}", nbrIp, nbrAsNum, md5Secret);
-        addNeighborAux(nbrIp, nbrAsNum, md5Secret);
-    } // public addNeighbor( nbrIp, nbrAsNum, md5Secret )
-
-    private void addNeighborAux(String nbrIp, long nbrAsNum, @Nullable String md5Secret)
-            throws TException, BgpRouterException {
+        if (md5Secret == null) {
+            LOGGER.debug("Adding BGP Neighbor {} with as number {} ", nbrIp, nbrAsNum);
+        } else {
+            LOGGER.debug("Adding BGP Neighbor {} with as number {} and MD5 secret {}", nbrIp, nbrAsNum, md5Secret);
+        }
         bop.type = Optype.NBR;
         bop.add = true;
         bop.strs[0] = nbrIp;
         bop.asNumber = nbrAsNum;
         bop.strs[1] = md5Secret;
         dispatch(bop);
-    } // private addNeighborAux
+    } // public addNeighbor( nbrIp, nbrAsNum, md5Secret )
 
     public synchronized void delNeighbor(String nbrIp) throws TException, BgpRouterException {
         bop.type = Optype.NBR;
