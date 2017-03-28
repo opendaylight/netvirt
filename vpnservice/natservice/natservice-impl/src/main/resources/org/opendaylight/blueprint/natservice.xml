@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            odl:use-default-for-reference-types="true">
 
   <reference id="dataBroker"
@@ -55,11 +56,17 @@
     <argument ref="blueprintBundleContext" />
   </bean>
 
+  <odl:clustered-app-config id="natserviceConfig"
+                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig"
+                            default-config-file-name="netvirt-natservice-config.xml">
+  </odl:clustered-app-config>
+
   <bean id="externalNetworkListener"
         class="org.opendaylight.netvirt.natservice.internal.ExternalNetworkListener"
         init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />
+    <argument ref="natserviceConfig"/>
   </bean>
 
   <bean id="externalSubneVpnInstanceListener"
@@ -119,6 +126,11 @@
     <argument ref="dataBroker" />
   </bean>
 
+  <bean id="weightedCentralizedSwitchScheduler" class="org.opendaylight.netvirt.natservice.ha.WeightedCentralizedSwitchScheduler" ext:field-injection="true">
+    <argument ref="dataBroker" />
+    <argument ref="odlInterfaceRpcService" />
+  </bean>
+
   <bean id="externalRoutersListener"
         class="org.opendaylight.netvirt.natservice.internal.ExternalRoutersListener"
         init-method="init" destroy-method="close">
@@ -138,6 +150,34 @@
     <argument ref="fibManager" />
     <argument ref="vpnManager"/>
     <argument ref="evpnSnatFlowProgrammer"/>
+    <argument ref="weightedCentralizedSwitchScheduler" />
+    <argument ref="natserviceConfig"/>
+  </bean>
+
+   <bean id="snatServiceImplFactory" class="org.opendaylight.netvirt.natservice.internal.SnatServiceImplFactory" ext:field-injection="true" init-method="init" destroy-method="destroy">
+    <argument ref="dataBroker" />
+    <argument ref="mdsalUtils" />
+    <argument ref="itmRpcService" />
+    <argument ref="odlInterfaceRpcService" />
+    <argument ref="idManagerService" />
+    <argument ref="naptManager" />
+    <argument ref="nAPTSwitchSelector" />
+    <argument ref="vpnManager"/>
+    <argument ref="natserviceConfig"/>
+  </bean>
+
+  <bean id="snatServiceManagerImpl" class="org.opendaylight.netvirt.natservice.internal.SnatServiceManagerImpl" ext:field-injection="true">
+    <argument ref="snatServiceImplFactory"/>
+  </bean>
+
+    <bean id="snatCentralizedSwitchChangeListener" class="org.opendaylight.netvirt.natservice.ha.SnatCentralizedSwitchChangeListener" init-method="init" ext:field-injection="true">
+    <argument ref="dataBroker" />
+    <argument ref="snatServiceManagerImpl" />
+  </bean>
+
+   <bean id="SnatNodeEventListener" class="org.opendaylight.netvirt.natservice.ha.SnatNodeEventListener" init-method="init" ext:field-injection="true">
+    <argument ref="dataBroker" />
+    <argument ref="weightedCentralizedSwitchScheduler" />
   </bean>
 
   <bean id="externalNetworksChangeListener"
@@ -152,6 +192,7 @@
     <argument ref="bgpManager" />
     <argument ref="vpnRpcService" />
     <argument ref="fibRpcService" />
+    <argument ref="natserviceConfig"/>
   </bean>
 
   <bean id="naptFlowRemovedEventHandler"
@@ -195,6 +236,8 @@
     <argument ref="fibRpcService" />
     <argument ref="fibManager" />
     <argument ref="evpnNaptSwitchHA" />
+    <argument ref="snatServiceManagerImpl" />
+    <argument ref="natserviceConfig"/>
   </bean>
 
   <bean id="natNodeEventListener"
@@ -218,6 +261,8 @@
     <argument ref="naptSwitchHA" />
     <argument ref="idManagerService" />
     <argument ref="externalNetworkGroupInstaller" />
+    <argument ref="snatServiceManagerImpl" />
+    <argument ref="natserviceConfig"/>
   </bean>
 
   <bean id="routerToVpnListener"
@@ -271,9 +316,11 @@
     <argument ref="mdsalUtils" />
     <argument ref="idManagerService" />
     <argument ref="externalRoutersListener" />
+    <argument ref="snatServiceManagerImpl" />
     <argument ref="odlInterfaceRpcService" />
     <argument ref="floatingIPListener" />
     <argument ref="fibRpcService" />
+    <argument ref="natserviceConfig"/>
   </bean>
 
   <bean id="natRpcServiceImpl" class="org.opendaylight.netvirt.natservice.rpcservice.NatRpcServiceImpl">

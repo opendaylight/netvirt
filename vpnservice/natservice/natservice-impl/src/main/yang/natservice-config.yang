@@ -1,6 +1,6 @@
 module natservice-config {
     yang-version 1;
-    namespace "urn:opendaylight:netvirt:natservice-config";
+    namespace "urn:opendaylight:netvirt:natservice:config";
     prefix "natservice-config";
 
     description
