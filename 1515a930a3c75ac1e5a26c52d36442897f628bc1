@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_cd8aaf63",
+        "filename": "vpnservice/federation-plugin/api/src/main/yang/federation-plugin-manager.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2017-03-28T10:00:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a1fc9a40",
+      "range": {
+        "startLine": 76,
+        "startChar": 59,
+        "endLine": 76,
+        "endChar": 79
+      },
+      "revId": "1515a930a3c75ac1e5a26c52d36442897f628bc1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_81e8767d",
         "filename": "vpnservice/federation-plugin/api/src/main/yang/federation-plugin-rpc.yang",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_2de9bb1a",
+        "filename": "vpnservice/federation-plugin/api/src/main/yang/federation-plugin-rpc.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2017-03-28T10:00:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_81e8767d",
+      "range": {
+        "startLine": 32,
+        "startChar": 17,
+        "endLine": 32,
+        "endChar": 45
+      },
+      "revId": "1515a930a3c75ac1e5a26c52d36442897f628bc1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_aca2d197",
         "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginUtils.java",
         "patchSetId": 2
@@ -59,6 +107,24 @@
       "writtenOn": "2017-03-27T19:14:33Z",
       "side": 1,
       "message": "why not use uuid.getValue()?",
+      "revId": "1515a930a3c75ac1e5a26c52d36442897f628bc1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_addc8b75",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2017-03-28T10:00:56Z",
+      "side": 1,
+      "message": "I just refactored the method here, and kept the same logic as before.",
+      "parentUuid": "fafc7978_aca2d197",
       "revId": "1515a930a3c75ac1e5a26c52d36442897f628bc1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
