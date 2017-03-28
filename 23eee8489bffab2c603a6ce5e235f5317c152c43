@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_13c4d53e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-28T20:31:47Z",
+      "side": 1,
+      "message": "Ok, moved this part after \"AddExternalNetwork\"",
+      "parentUuid": "fafc7978_53881d22",
+      "revId": "23eee8489bffab2c603a6ce5e235f5317c152c43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_73856106",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetMacHandler.java",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-03-28T19:45:27Z",
       "side": 1,
       "message": "what is limiting this to private networks?",
+      "revId": "23eee8489bffab2c603a6ce5e235f5317c152c43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_93e725e4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetMacHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-28T20:31:47Z",
+      "side": 1,
+      "message": "isSubnetIp tells us that this is a router_inteface. If i\u0027m not mistaken a vpn-intertface for a router_interface can only be connected to a private network.\nCorrect me if I\u0027m wrong.",
+      "parentUuid": "fafc7978_73856106",
       "revId": "23eee8489bffab2c603a6ce5e235f5317c152c43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_13db351c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1431,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-28T20:31:47Z",
+      "side": 1,
+      "message": "I have refactored the code from getVpnSubnetGatewayIp method, which is also a consumer of this method. the lookup in the neutron model was there before my change.\n\nI haven\u0027t checked if the necessary info getVpnSubnetGatewayIp needs get be retrieved from neutronvpn/subnetmaps",
+      "parentUuid": "fafc7978_d37b6d27",
+      "revId": "23eee8489bffab2c603a6ce5e235f5317c152c43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b376a93d",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 4
@@ -64,6 +118,24 @@
       "writtenOn": "2017-03-28T19:45:27Z",
       "side": 1,
       "message": "at least put a FIXME here \nthat this info is soon to be taken from subnetOpData",
+      "revId": "23eee8489bffab2c603a6ce5e235f5317c152c43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f3d5d1e5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1637,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-28T20:31:47Z",
+      "side": 1,
+      "message": "Added",
+      "parentUuid": "fafc7978_b376a93d",
       "revId": "23eee8489bffab2c603a6ce5e235f5317c152c43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
