@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_15031db9",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatelessIngressAclServiceImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 656
+      },
+      "writtenOn": "2017-03-28T14:19:15Z",
+      "side": 1,
+      "message": "you don\u0027t need to define the variable\"instructions\". you can just use return in both of the cases",
+      "revId": "c4eeebcfeaf87f004b7d9943c23bae201c279c23",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
