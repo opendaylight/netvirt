@@ -27,7 +27,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <controller.mdsal.version>1.5.0-SNAPSHOT</controller.mdsal.version>
     <genius.version>0.2.0-SNAPSHOT</genius.version>
     <infrautils.version>1.1.0-SNAPSHOT</infrautils.version>
-    <karaf.shell.console.version>3.0.3</karaf.shell.console.version>
     <liblldp.version>0.12.0-SNAPSHOT</liblldp.version>
     <mdsal.model.version>0.10.0-SNAPSHOT</mdsal.model.version>
     <model.bgp.version>2013.07.15.10-SNAPSHOT</model.bgp.version>

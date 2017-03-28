@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright © 2017 Red Hat, Inc. and others.
+
+ This program and the accompanying materials are made available under the
+ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ and is available at http://www.eclipse.org/legal/epl-v10.html
+-->
+<features name="odl-netvirt-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0">
+    <feature name="odl-netvirt-impl" version="${project.version}">
+        <bundle>wrap:mvn:org.apache.thrift/libthrift/0.9.1$overwrite=merge&amp;Bundle-Version=0.9.1&amp;Export-Package=*;-noimport:=true;version="0.9.1"</bundle>
+        <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-aclservice-config.xml">
+            mvn:org.opendaylight.netvirt/aclservice-impl/${project.version}/xml/config
+        </configfile>
+        <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-dhcpservice-config.xml">
+            mvn:org.opendaylight.netvirt/dhcpservice-impl/${project.version}/xml/config
+        </configfile>
+        <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-elanmanager-config.xml">
+            mvn:org.opendaylight.netvirt/elanmanager-impl/${project.version}/xml/config
+        </configfile>
+        <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-neutronvpn-config.xml">
+            mvn:org.opendaylight.netvirt/neutronvpn-impl/${project.version}/xml/config
+        </configfile>
+        <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-qosalert-config.xml">
+            mvn:org.opendaylight.netvirt/qosservice-impl/${project.version}/xml/config
+        </configfile>
+        <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-statistics-config.xml">
+            mvn:org.opendaylight.netvirt/statistics-impl/${project.version}/xml/config
+        </configfile>
+        <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-vpnmanager-config.xml">
+            mvn:org.opendaylight.netvirt/vpnmanager-impl/${project.version}/xml/config
+        </configfile>
+    </feature>
+</features>
