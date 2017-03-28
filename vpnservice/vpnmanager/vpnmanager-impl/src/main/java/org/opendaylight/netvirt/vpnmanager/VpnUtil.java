@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -16,6 +17,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -1181,26 +1183,31 @@ public class VpnUtil {
         return InstanceIdentifier.create(Subnetmaps.class);
     }
 
-    static void setupSubnetMacIntoVpnInstance(DataBroker dataBroker, IMdsalApiManager mdsalManager, String vpnName,
-            String subnetVpnName, String srcMacAddress, BigInteger dpnId, WriteTransaction writeTx, int addOrRemove) {
+    static void setupSubnetMacIntoVpnInstanceOnDpns(DataBroker dataBroker, IMdsalApiManager mdsalManager, String vpnName,
+            String subnetVpnName, String srcMacAddress, List<BigInteger> dpnIdList, WriteTransaction writeTx, int addOrRemove) {
         long vpnId = getVpnId(dataBroker, vpnName);
         long subnetVpnId = VpnConstants.INVALID_ID;
         if (subnetVpnName != null) {
             subnetVpnId = getVpnId(dataBroker,subnetVpnName);
         }
+        for (BigInteger dpId : dpnIdList) {
+            addGwMacIntoTx(mdsalManager, srcMacAddress, writeTx, addOrRemove, vpnId, dpId, subnetVpnId);
+        }
+    }
 
+    static void setupSubnetMacIntoVpnInstance(DataBroker dataBroker, IMdsalApiManager mdsalManager, String vpnName,
+            String subnetVpnName, String srcMacAddress, BigInteger dpnId, WriteTransaction writeTx, int addOrRemove) {
         if (dpnId.equals(BigInteger.ZERO)) {
             /* Apply the MAC on all DPNs in a VPN */
-            List<BigInteger> dpIds = getDpnsOnVpn(dataBroker, vpnName);
-            if (dpIds == null || dpIds.isEmpty()) {
+            List<BigInteger> dpnIdsList = getDpnsOnVpn(dataBroker, vpnName);
+            if (dpnIdsList == null || dpnIdsList.isEmpty()) {
                 return;
             }
-            for (BigInteger dpId : dpIds) {
-                addGwMacIntoTx(mdsalManager, srcMacAddress, writeTx, addOrRemove, vpnId, dpId, subnetVpnId);
-            }
-        } else {
-            addGwMacIntoTx(mdsalManager, srcMacAddress, writeTx, addOrRemove, vpnId, dpnId, subnetVpnId);
+            setupSubnetMacIntoVpnInstanceOnDpns(dataBroker, mdsalManager, vpnName, subnetVpnName, srcMacAddress,
+                    dpnIdsList, writeTx, addOrRemove);
         }
+        setupSubnetMacIntoVpnInstanceOnDpns(dataBroker, mdsalManager, vpnName, subnetVpnName, srcMacAddress,
+                Arrays.asList(dpnId), writeTx, addOrRemove);
     }
 
     static void addGwMacIntoTx(IMdsalApiManager mdsalManager, String srcMacAddress, WriteTransaction writeTx,
@@ -1402,20 +1409,23 @@ public class VpnUtil {
 
     public static Optional<String> getVpnSubnetGatewayIp(DataBroker dataBroker, final Uuid subnetUuid) {
         Optional<String> gwIpAddress = Optional.absent();
-        final SubnetKey subnetkey = new SubnetKey(subnetUuid);
-        final InstanceIdentifier<Subnet> subnetidentifier = InstanceIdentifier.create(Neutron.class)
-                .child(Subnets.class)
-                .child(Subnet.class, subnetkey);
-        final Optional<Subnet> subnet = read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetidentifier);
-        if (subnet.isPresent()) {
-            Class<? extends IpVersionBase> ipVersionBase = subnet.get().getIpVersion();
+        final Subnet subnet = getSubnetById(dataBroker, subnetUuid);
+        if (subnet != null) {
+            Class<? extends IpVersionBase> ipVersionBase = subnet.getIpVersion();
             if (ipVersionBase.equals(IpVersionV4.class)) {
-                LOG.trace("Obtained subnet {} for vpn interface", subnet.get().getUuid().getValue());
-                gwIpAddress = Optional.of(subnet.get().getGatewayIp().getIpv4Address().getValue());
+                LOG.trace("Obtained subnet {} for vpn interface", subnet.getUuid().getValue());
+                gwIpAddress = Optional.of(subnet.getGatewayIp().getIpv4Address().getValue());
                 return gwIpAddress;
             }
         }
         return gwIpAddress;
+    }
+
+    public static Subnet getSubnetById(DataBroker dataBroker, final Uuid subnetUuid) {
+        final InstanceIdentifier<Subnet> subnetidentifier = InstanceIdentifier.create(Neutron.class)
+                .child(Subnets.class).child(Subnet.class, new SubnetKey(subnetUuid));
+        final Optional<Subnet> subnet = read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetidentifier);
+        return subnet.isPresent() ? subnet.get() : null;
     }
 
     public static RouterToNaptSwitch getRouterToNaptSwitch(DataBroker dataBroker, String routerName) {
@@ -1616,4 +1626,5 @@ public class VpnUtil {
         flowEntity.setFlowId(flowId);
         return flowEntity;
     }
+
 }
