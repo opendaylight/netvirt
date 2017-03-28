@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_6d7c6373",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-28T09:14:12Z",
+      "side": 1,
+      "message": "Please add more details in the message",
+      "revId": "10d3e6a72e4eb55ae7d60875480d783579d2f90f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ad712b79",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyRouteFlowProgrammer.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-28T09:14:12Z",
+      "side": 1,
+      "message": "Could you add suppress warning here for deprecation?",
+      "revId": "10d3e6a72e4eb55ae7d60875480d783579d2f90f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0de037cb",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyRouteFlowProgrammer.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-28T09:14:12Z",
+      "side": 1,
+      "message": "Naming: checkGroupExist is actually shouldCreateGroupIfNotExist",
+      "revId": "10d3e6a72e4eb55ae7d60875480d783579d2f90f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4d123f0a",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyRouteFlowProgrammer.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-28T09:14:12Z",
+      "side": 1,
+      "message": "Will be better to use \"dst\" or \"destination\" instead of \"des\"",
+      "revId": "10d3e6a72e4eb55ae7d60875480d783579d2f90f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0d079782",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyRouteFlowProgrammer.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-28T09:14:12Z",
+      "side": 1,
+      "message": "Might be better to move it to Util, what do you think?",
+      "revId": "10d3e6a72e4eb55ae7d60875480d783579d2f90f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6dfe236d",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyRouteFlowProgrammer.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-03-28T09:14:12Z",
+      "side": 1,
+      "message": "Might be better to move it to Util, what do you think?",
+      "revId": "10d3e6a72e4eb55ae7d60875480d783579d2f90f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
