@@ -10,7 +10,9 @@ package org.opendaylight.netvirt.sfc.classifier.service.domain.impl;
 
 import java.util.AbstractMap;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -21,6 +23,7 @@ import org.opendaylight.netvirt.sfc.classifier.providers.GeniusProvider;
 import org.opendaylight.netvirt.sfc.classifier.providers.NetvirtProvider;
 import org.opendaylight.netvirt.sfc.classifier.providers.SfcProvider;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.ClassifierEntry;
+import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierRenderableEntry;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierState;
 import org.opendaylight.netvirt.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.rendered.service.paths.RenderedServicePath;
@@ -32,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.NetvirtsfcAclActions;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.NeutronNetwork;
@@ -58,7 +62,7 @@ public class ConfigurationClassifierImpl implements ClassifierState {
     }
 
     @Override
-    public Set<ClassifierEntry> getAllEntries() {
+    public Set<ClassifierRenderableEntry> getAllEntries() {
         return readClassifiers().stream()
                 .map(Classifier::getAcl)
                 .filter(Objects::nonNull)
@@ -88,7 +92,7 @@ public class ConfigurationClassifierImpl implements ClassifierState {
         return  mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, aclIID);
     }
 
-    public Set<ClassifierEntry> getEntries(Ace ace) {
+    public Set<ClassifierRenderableEntry> getEntries(Ace ace) {
 
         Matches matches = ace.getMatches();
 
@@ -121,16 +125,37 @@ public class ConfigurationClassifierImpl implements ClassifierState {
 
         String destinationIp = null; // TODO GeniusProvider should give me the interface of first SF
 
-        return Optional.ofNullable(matches.getAugmentation(NeutronNetwork.class))
+
+        Map<NodeId, List<InterfaceKey>> nodeToInterfaces = Optional.ofNullable(matches.getAugmentation(NeutronNetwork
+                .class))
                 .flatMap(netvirtProvider::getLogicalInterfacesFromNeutronNetwork)
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(iface -> new AbstractMap.SimpleEntry<>(
                         new InterfaceKey(iface),
-                        new NodeKey(geniusProvider.getNodeIdFromLogicalInterface(iface).orElse(null))))
+                        geniusProvider.getNodeIdFromLogicalInterface(iface).orElse(null)))
                 .filter(entry -> Objects.isNull(entry.getValue()))
-                .map(entry -> new ClassifierEntry(entry.getValue(), entry.getKey(), matches, nsp, nsi,
-                        destinationNode, destinationIp))
-                .collect(Collectors.toSet());
+                .collect(Collectors.groupingBy(
+                        AbstractMap.Entry::getValue,
+                        Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
+
+        Set<ClassifierRenderableEntry> entries = new HashSet<>();
+        nodeToInterfaces.entrySet().forEach(nodeIdListEntry -> {
+            NodeId nodeId = nodeIdListEntry.getKey();
+            nodeIdListEntry.getValue().forEach(interfaceKey -> {
+                entries.add(ClassifierEntry.buildIngressEntry(interfaceKey));
+                entries.add(ClassifierEntry.buildMatchEntry(
+                        nodeId,
+                        null, // TODO get openflow port number
+                        matches,
+                        nsp,
+                        nsi));
+            });
+            entries.add(ClassifierEntry.buildNodeEntry(nodeId));
+            entries.add(ClassifierEntry.buildPathEntry(nodeIdListEntry.getKey(), nsp, destinationIp));
+            // TODO get the interfaces of node and add the corresponding egress entries
+        });
+
+        return entries;
     }
 }
