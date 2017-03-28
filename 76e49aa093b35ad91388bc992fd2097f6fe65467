@@ -1,0 +1,141 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_dfaff629",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T13:11:03Z",
+      "side": 1,
+      "message": "the name is not accurate since it sounds like checking some config attribute \nmaybe try something like isTunnelInLogicalGroup",
+      "range": {
+        "startLine": 175,
+        "startChar": 22,
+        "endLine": 175,
+        "endChar": 48
+      },
+      "revId": "76e49aa093b35ad91388bc992fd2097f6fe65467",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5f95c6e2",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T13:11:03Z",
+      "side": 1,
+      "message": "you can join both using Tunnel.class.equals(cnfigIface.getType())\nAlso note these are checked outside the method",
+      "range": {
+        "startLine": 179,
+        "startChar": 35,
+        "endLine": 179,
+        "endChar": 110
+      },
+      "revId": "76e49aa093b35ad91388bc992fd2097f6fe65467",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7fa24a4c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T13:11:03Z",
+      "side": 1,
+      "message": "Strings.isNullOrEmpty",
+      "range": {
+        "startLine": 181,
+        "startChar": 32,
+        "endLine": 181,
+        "endChar": 105
+      },
+      "revId": "76e49aa093b35ad91388bc992fd2097f6fe65467",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5f63061a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T13:11:03Z",
+      "side": 1,
+      "message": "also worthwhile to check if tunnel type is vxlan",
+      "revId": "76e49aa093b35ad91388bc992fd2097f6fe65467",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_221a6517",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2290,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T13:11:03Z",
+      "side": 1,
+      "message": "get from interfacemanager cached copy",
+      "revId": "76e49aa093b35ad91388bc992fd2097f6fe65467",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0215a1e4",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 894,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T13:11:03Z",
+      "side": 1,
+      "message": "this is ECMP case\nnot relevant for us",
+      "revId": "76e49aa093b35ad91388bc992fd2097f6fe65467",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_82eb5177",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T13:11:03Z",
+      "side": 1,
+      "message": "you can move this to line #316",
+      "revId": "76e49aa093b35ad91388bc992fd2097f6fe65467",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
