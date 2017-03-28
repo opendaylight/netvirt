@@ -10,6 +10,8 @@ package org.opendaylight.netvirt.neutronvpn;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
+
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,6 +26,7 @@ import java.util.concurrent.Future;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -2158,9 +2161,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         return result;
     }
 
-    protected void createExternalVpnInterfaces(Uuid extNetId) {
+    protected void createExternalVpnInterfacesForExternalNetwork(Uuid extNetId) {
         if (extNetId == null) {
-            LOG.trace("external network is null");
+            LOG.trace("external network id is null");
             return;
         }
 
@@ -2175,6 +2178,34 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             createExternalVpnInterface(extNetId, elanInterface, wrtConfigTxn);
         }
         wrtConfigTxn.submit();
+    }
+
+    public void createExternalVpnInterfaceForDpn(Uuid networkId, Uuid vpnInstanceId, BigInteger dpnId) {
+        if (networkId == null) {
+            LOG.error("Network id is null, can not create external vpn interface for dpn {} and vpnId {}",
+                    dpnId, vpnInstanceId);
+            return;
+        }
+
+        if (vpnInstanceId == null) {
+            LOG.error("VpnInstance id is null, can not create external vpn interface for dpn {} in network {}",
+                    dpnId, networkId);
+            return;
+        }
+
+        if (dpnId == null || BigInteger.ZERO.equals(dpnId)) {
+            LOG.error("dpn id is not valid, can not create external vpn interface for in network {} for vpnId {}",
+                    networkId, vpnInstanceId);
+            return;
+        }
+
+        String externalIntfName = elanService.getExternalElanInterface(networkId.getValue(), dpnId);
+        if (externalIntfName == null) {
+            LOG.trace("No external port attached to network {} on dpn {}", networkId.getValue(), dpnId);
+            return;
+        }
+
+        createExternalVpnInterface(vpnInstanceId, externalIntfName, null /* writeTransaction*/);
     }
 
     // TODO Clean up the exception handling
@@ -2265,5 +2296,34 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     protected void dissociatefixedIPFromFloatingIP(String fixedNeutronPortName) {
         floatingIpMapListener.dissociatefixedIPFromFloatingIP(fixedNeutronPortName);
+    }
+
+    protected Collection<Uuid> getSubnetIdsFromNetworkId(Uuid networkId) {
+        return NeutronvpnUtils.getSubnetIdsFromNetworkId(dataBroker, networkId);
+    }
+
+    public void removeExternalVpnInterfaceForDpn(Uuid networkId, BigInteger dpnId) {
+        if (networkId == null) {
+            LOG.error("Network id is null, can not remove external vpn interface for dpn {}", dpnId);
+            return;
+        }
+
+        if (dpnId == null || BigInteger.ZERO.equals(dpnId)) {
+            LOG.error("dpn id is not valid,  can not remove external vpn interface in network {}", networkId);
+            return;
+        }
+
+        String externalIntfName = elanService.getExternalElanInterface(networkId.getValue(), dpnId);
+        if (externalIntfName == null) {
+            LOG.error("No external port attached to network {} on dpn {}", networkId.getValue(), dpnId);
+            return;
+        }
+
+        WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+        InstanceIdentifier<VpnInterface> vpnIfIdentifier =
+                NeutronvpnUtils.buildVpnInterfaceIdentifier(externalIntfName);
+        LOG.info("Deleting vpn interface {}", externalIntfName);
+        wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
+        wrtConfigTxn.submit();
     }
 }
