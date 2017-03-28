@@ -37,6 +37,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -58,6 +59,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig.NatMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProtocolTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
@@ -94,6 +97,8 @@ public class NaptSwitchHA {
     private List<String> externalIpsCache;
     private HashMap<String, Long> externalIpsLabel;
     private final EvpnNaptSwitchHA evpnNaptSwitchHA;
+    private SnatServiceManager natServiceManager;
+    private NatMode natMode = NatMode.Controller;
 
     public NaptSwitchHA(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                         final ExternalRoutersListener externalRouterListener,
@@ -106,7 +111,9 @@ public class NaptSwitchHA {
                         final FibRpcService fibService,
                         final IFibManager fibManager,
                         final EvpnNaptSwitchHA evpnNaptSwitchHA,
-                        final INeutronVpnManager nvpnManager) {
+                        final INeutronVpnManager nvpnManager,
+                        final SnatServiceManager natServiceManager,
+                        final NatserviceConfig config) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.externalRouterListener = externalRouterListener;
@@ -120,6 +127,10 @@ public class NaptSwitchHA {
         this.fibManager = fibManager;
         this.evpnNaptSwitchHA = evpnNaptSwitchHA;
         this.nvpnManager = nvpnManager;
+        this.natServiceManager = natServiceManager;
+        if (config != null) {
+            this.natMode = config.getNatMode();
+        }
     }
 
     /* This method checks the switch that gone down is a NaptSwitch for a router.
@@ -373,87 +384,95 @@ public class NaptSwitchHA {
         }
         //elect a new NaptSwitch
         naptSwitch = naptSwitchSelector.selectNewNAPTSwitch(routerName);
-        if (naptSwitch.equals(BigInteger.ZERO)) {
-            LOG.error("NAT Service : No napt switch is elected since all the switches for router {} are down. SNAT IS"
-                + " NOT SUPPORTED FOR ROUTER {}", routerName);
-            boolean naptUpdatedStatus = updateNaptSwitch(routerName, naptSwitch);
-            if (!naptUpdatedStatus) {
-                LOG.debug("Failed to update naptSwitch {} for router {} in ds", naptSwitch, routerName);
-            }
-            //clearBgpRoutes
-            if (externalIpsCache != null) {
-                String vpnName = getExtNetworkVpnName(routerName);
-                if (vpnName != null) {
-                    //List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
-                    //if (externalIps != null) {
-                    if (isClearBgpRts) {
-                        LOG.debug("NAT Service : Clearing both FIB entries and the BGP routes");
-                        for (String externalIp : externalIpsCache) {
-                            externalRouterListener.clearBgpRoutes(externalIp, vpnName);
+        if (natMode == NatMode.Conntrack) {
+            Routers extRouters = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
+            natServiceManager.notify(extRouters, dpnId, dpnId, SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
+            natServiceManager.notify(extRouters, naptSwitch, naptSwitch,
+                    SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
+        } else {
+            if (naptSwitch.equals(BigInteger.ZERO)) {
+                LOG.error("NAT Service : No napt switch is elected since all the switches for router {}"
+                        + " are down. SNAT IS NOT SUPPORTED FOR ROUTER {}", routerName);
+                boolean naptUpdatedStatus = updateNaptSwitch(routerName, naptSwitch);
+                if (!naptUpdatedStatus) {
+                    LOG.debug("Failed to update naptSwitch {} for router {} in ds", naptSwitch, routerName);
+                }
+                //clearBgpRoutes
+                if (externalIpsCache != null) {
+                    String vpnName = getExtNetworkVpnName(routerName);
+                    if (vpnName != null) {
+                        //List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
+                        //if (externalIps != null) {
+                        if (isClearBgpRts) {
+                            LOG.debug("NAT Service : Clearing both FIB entries and the BGP routes");
+                            for (String externalIp : externalIpsCache) {
+                                externalRouterListener.clearBgpRoutes(externalIp, vpnName);
+                            }
+                        } else {
+                            LOG.debug("NAT Service : Clearing the FIB entries but not the BGP routes");
+                            String rd = NatUtil.getVpnRd(dataBroker, vpnName);
+                            for (String externalIp : externalIpsCache) {
+                                LOG.debug("NAT Service : Removing Fib entry rd {} prefix {}", rd, externalIp);
+                                fibManager.removeFibEntry(dataBroker, rd, externalIp, null);
+                            }
                         }
                     } else {
-                        LOG.debug("NAT Service : Clearing the FIB entries but not the BGP routes");
-                        String rd = NatUtil.getVpnRd(dataBroker, vpnName);
-                        for (String externalIp : externalIpsCache) {
-                            LOG.debug("NAT Service : Removing Fib entry rd {} prefix {}", rd, externalIp);
-                            fibManager.removeFibEntry(dataBroker, rd, externalIp, null);
-                        }
+                        LOG.debug("vpn is not associated to extn/w for router {}", routerName);
                     }
                 } else {
-                    LOG.debug("vpn is not associated to extn/w for router {}", routerName);
+                    LOG.debug("No ExternalIps found for subnets under router {}, no bgp routes need to be cleared",
+                            routerName);
                 }
-            } else {
-                LOG.debug("No ExternalIps found for subnets under router {}, no bgp routes need to be cleared",
-                    routerName);
+                return true;
             }
-            return true;
-        }
-        //checking elected switch health status
-        if (!getSwitchStatus(naptSwitch)) {
-            LOG.error("Newly elected Napt switch {} for router {} is down", naptSwitch, routerName);
-            return true;
-        }
-        LOG.debug("New NaptSwitch {} is up for Router {} and can proceed for flow installation",
-            naptSwitch, routerName);
-        //update napt model for new napt switch
-        boolean naptUpdated = updateNaptSwitch(routerName, naptSwitch);
-        if (naptUpdated) {
-            //update group of ordinary switch point to naptSwitch tunnel port
-            updateNaptSwitchBucketStatus(routerName, naptSwitch);
-        } else {
-            LOG.error("Failed to update naptSwitch model for newNaptSwitch {} for router {}", naptSwitch, routerName);
-        }
+            //checking elected switch health status
+            if (!getSwitchStatus(naptSwitch)) {
+                LOG.error("Newly elected Napt switch {} for router {} is down", naptSwitch, routerName);
+                return true;
+            }
+            LOG.debug("New NaptSwitch {} is up for Router {} and can proceed for flow installation",
+                    naptSwitch, routerName);
+            //update napt model for new napt switch
+            boolean naptUpdated = updateNaptSwitch(routerName, naptSwitch);
+            if (naptUpdated) {
+                //update group of ordinary switch point to naptSwitch tunnel port
+                updateNaptSwitchBucketStatus(routerName, naptSwitch);
+            } else {
+                LOG.error("Failed to update naptSwitch model for newNaptSwitch {} for router {}",
+                        naptSwitch, routerName);
+            }
 
-        //update table26 forward packets to table46(outbound napt table)
-        FlowEntity flowEntity =
-            buildSnatFlowEntityForNaptSwitch(naptSwitch, routerName, routerVpnId, NatConstants.ADD_FLOW);
-        if (flowEntity == null) {
-            LOG.debug("Failed to populate flowentity for router {} in naptSwitch {}", routerName, naptSwitch);
-        } else {
-            LOG.debug("Successfully installed flow in naptSwitch {} for router {}", naptSwitch, routerName);
-            mdsalManager.installFlow(flowEntity);
-        }
+            //update table26 forward packets to table46(outbound napt table)
+            FlowEntity flowEntity =
+                    buildSnatFlowEntityForNaptSwitch(naptSwitch, routerName, routerVpnId, NatConstants.ADD_FLOW);
+            if (flowEntity == null) {
+                LOG.debug("Failed to populate flowentity for router {} in naptSwitch {}", routerName, naptSwitch);
+            } else {
+                LOG.debug("Successfully installed flow in naptSwitch {} for router {}", naptSwitch, routerName);
+                mdsalManager.installFlow(flowEntity);
+            }
 
-        installSnatFlows(routerName, routerId, naptSwitch, routerVpnId);
+            installSnatFlows(routerName, routerId, naptSwitch, routerVpnId);
 
-        boolean flowInstalledStatus = handleNatFlowsInNewNaptSwitch(routerId, dpnId, naptSwitch, routerVpnId);
-        if (flowInstalledStatus) {
-            LOG.debug("Installed all active session flows in newNaptSwitch {} for routerName {}",
-                naptSwitch, routerName);
-        } else {
-            LOG.error("Failed to install flows in newNaptSwitch {} for routerId {}", naptSwitch, routerId);
-        }
+            boolean flowInstalledStatus = handleNatFlowsInNewNaptSwitch(routerId, dpnId, naptSwitch, routerVpnId);
+            if (flowInstalledStatus) {
+                LOG.debug("Installed all active session flows in newNaptSwitch {} for routerName {}",
+                        naptSwitch, routerName);
+            } else {
+                LOG.error("Failed to install flows in newNaptSwitch {} for routerId {}", naptSwitch, routerId);
+            }
 
-        //remove group in new naptswitch, coz this switch acted previously as ordinary switch
-        long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(routerName), idManager);
-        GroupEntity groupEntity = null;
-        try {
-            groupEntity = MDSALUtil.buildGroupEntity(naptSwitch, groupId, routerName,
-                GroupTypes.GroupAll, null);
-            LOG.info("NAT Service : Removing NAPT Group in new naptSwitch {}", naptSwitch);
-            mdsalManager.removeGroup(groupEntity);
-        } catch (Exception ex) {
-            LOG.debug("NAT Service : Failed to remove group in new naptSwitch {} : {}", groupEntity, ex);
+            //remove group in new naptswitch, coz this switch acted previously as ordinary switch
+            long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(routerName), idManager);
+            GroupEntity groupEntity = null;
+            try {
+                groupEntity = MDSALUtil.buildGroupEntity(naptSwitch, groupId, routerName,
+                        GroupTypes.GroupAll, null);
+                LOG.info("NAT Service : Removing NAPT Group in new naptSwitch {}", naptSwitch);
+                mdsalManager.removeGroup(groupEntity);
+            } catch (Exception ex) {
+                LOG.debug("NAT Service : Failed to remove group in new naptSwitch {} : {}", groupEntity, ex);
+            }
         }
         return true;
     }
