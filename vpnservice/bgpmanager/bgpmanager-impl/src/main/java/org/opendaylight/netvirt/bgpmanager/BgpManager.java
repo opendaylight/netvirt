@@ -73,10 +73,6 @@ public class BgpManager implements AutoCloseable, IBgpManager {
         bcm.delGracefulRestart();
     }
 
-    public void addNeighbor(String ipAddress, long asNum) throws TException {
-        bcm.addNeighbor(ipAddress, asNum);
-    }
-
     public void addNeighbor(String ipAddress, long asNum,
             @Nullable final TcpMd5SignaturePasswordType md5Password) throws TException {
         bcm.addNeighbor(ipAddress, asNum, md5Password);
