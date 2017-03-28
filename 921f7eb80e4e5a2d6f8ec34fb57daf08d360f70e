@@ -1,0 +1,135 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_0cd67d27",
+        "filename": "vpnservice/statistics/impl/pom.xml",
+        "patchSetId": 23
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-28T05:52:53Z",
+      "side": 1,
+      "message": "add the checkstyle plugin configuration",
+      "revId": "921f7eb80e4e5a2d6f8ec34fb57daf08d360f70e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ec197923",
+        "filename": "vpnservice/statistics/impl/pom.xml",
+        "patchSetId": 23
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-28T05:52:53Z",
+      "side": 1,
+      "message": "we don\u0027t need that",
+      "range": {
+        "startLine": 59,
+        "startChar": 14,
+        "endLine": 62,
+        "endChar": 15
+      },
+      "revId": "921f7eb80e4e5a2d6f8ec34fb57daf08d360f70e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ac7bf127",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/CountersServiceUtils.java",
+        "patchSetId": 23
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-28T05:52:53Z",
+      "side": 1,
+      "message": "probably should be UDP",
+      "revId": "921f7eb80e4e5a2d6f8ec34fb57daf08d360f70e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8c76ed3d",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/CountersServiceUtils.java",
+        "patchSetId": 23
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-28T05:52:53Z",
+      "side": 1,
+      "message": "should be UDP",
+      "revId": "921f7eb80e4e5a2d6f8ec34fb57daf08d360f70e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ec75f932",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/CountersServiceUtils.java",
+        "patchSetId": 23
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-28T05:52:53Z",
+      "side": 1,
+      "message": "why the method needs to get this as parameter if this is always false",
+      "range": {
+        "startLine": 230,
+        "startChar": 20,
+        "endLine": 230,
+        "endChar": 34
+      },
+      "revId": "921f7eb80e4e5a2d6f8ec34fb57daf08d360f70e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0c92fd4a",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/CountersServiceUtils.java",
+        "patchSetId": 23
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-28T05:52:53Z",
+      "side": 1,
+      "message": "i think it will be more readable like:\nif (ecr.isGroupFilterExist(CountersUtils.ELEMENT_COUNTERS_TCP_FILTER_GROUP_NAME)) {\n    matches.add(MatchIpProtocol.TCP);\n.\n.\n    case for each one of the specific filter (dst_port/src_port)\n}",
+      "revId": "921f7eb80e4e5a2d6f8ec34fb57daf08d360f70e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6cb0e9dd",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/EgressCountersServiceImpl.java",
+        "patchSetId": 23
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-03-28T05:52:53Z",
+      "side": 1,
+      "message": "isn\u0027t adding the toString of ecr problematic (too big)?",
+      "revId": "921f7eb80e4e5a2d6f8ec34fb57daf08d360f70e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
