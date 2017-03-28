@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_72dd6242",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-28T07:05:01Z",
+      "side": 1,
+      "message": "RouteOrigin.value() method only defined in enum. Please change it accordingly.\n\nAlso please change the condition check like below to take care of null case also.\n\nRouteOrigin.value(vrfEntry.getOrigin()) \u003d\u003d RouteOrigin.CONNECTED",
+      "range": {
+        "startLine": 88,
+        "startChar": 12,
+        "endLine": 88,
+        "endChar": 31
+      },
+      "revId": "ccacf6bb61bbfdd7774083a434e3d5d79eac3479",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
