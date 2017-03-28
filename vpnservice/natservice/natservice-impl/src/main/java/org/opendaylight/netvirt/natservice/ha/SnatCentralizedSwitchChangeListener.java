@@ -12,6 +12,9 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -28,11 +31,11 @@ import org.slf4j.LoggerFactory;
  * CentralizedSwitchChangeListener detect changes in switch:router mapping and
  * update flows accordingly.
  */
+@Singleton
 public class SnatCentralizedSwitchChangeListener
         extends AsyncDataTreeChangeListenerBase<RouterToNaptSwitch, SnatCentralizedSwitchChangeListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SnatCentralizedSwitchChangeListener.class);
-
     private final DataBroker dataBroker;
     private final SnatServiceManager snatServiceManger;
 
@@ -41,6 +44,7 @@ public class SnatCentralizedSwitchChangeListener
      */
     private final Map<String,Routers> routerMap = new HashMap<>();
 
+    @Inject
     public SnatCentralizedSwitchChangeListener(final DataBroker dataBroker,
             final SnatServiceManager snatServiceManger) {
         super(RouterToNaptSwitch.class, SnatCentralizedSwitchChangeListener.class);
@@ -49,6 +53,7 @@ public class SnatCentralizedSwitchChangeListener
     }
 
     @Override
+    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
