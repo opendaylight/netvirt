@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b2f86ac5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1220,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-28T17:17:27Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "fafc7978_32e91a1b",
+      "revId": "1827e7136a6c965a662e18826a326f314f76ca16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b2c34a89",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
         "patchSetId": 5
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_921a8616",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-28T17:17:27Z",
+      "side": 1,
+      "message": "Changed to trace",
+      "parentUuid": "fafc7978_b2c34a89",
+      "revId": "1827e7136a6c965a662e18826a326f314f76ca16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_72ca82a2",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
         "patchSetId": 5
@@ -47,6 +83,24 @@
       "writtenOn": "2017-03-28T06:10:54Z",
       "side": 1,
       "message": "return?",
+      "revId": "1827e7136a6c965a662e18826a326f314f76ca16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_122fb63f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-03-28T17:17:27Z",
+      "side": 1,
+      "message": "Oops... added return",
+      "parentUuid": "fafc7978_72ca82a2",
       "revId": "1827e7136a6c965a662e18826a326f314f76ca16",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
