@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_62046d7e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-28T12:43:13Z",
+      "side": 1,
+      "message": "ACLs",
+      "range": {
+        "startLine": 7,
+        "startChar": 24,
+        "endLine": 7,
+        "endChar": 39
+      },
+      "revId": "d49b64accc4d6bfb7e8a1f32175cb1c717033512",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a2e775e3",
+        "filename": "vpnservice/features/src/main/features/features.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-28T12:43:13Z",
+      "side": 1,
+      "message": "We fixed this, just need to rebase",
+      "revId": "d49b64accc4d6bfb7e8a1f32175cb1c717033512",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_82ea31aa",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederatedPayload.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-28T12:43:13Z",
+      "side": 1,
+      "message": "aclPairs",
+      "range": {
+        "startLine": 15,
+        "startChar": 34,
+        "endLine": 15,
+        "endChar": 48
+      },
+      "revId": "d49b64accc4d6bfb7e8a1f32175cb1c717033512",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e2d05df9",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginEgress.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-28T12:43:13Z",
+      "side": 1,
+      "message": "federatedAclPairs",
+      "range": {
+        "startLine": 59,
+        "startChar": 73,
+        "endLine": 59,
+        "endChar": 101
+      },
+      "revId": "d49b64accc4d6bfb7e8a1f32175cb1c717033512",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c2cb9948",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginIngress.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-28T12:43:13Z",
+      "side": 1,
+      "message": "aclPairs",
+      "range": {
+        "startLine": 62,
+        "startChar": 69,
+        "endLine": 62,
+        "endChar": 83
+      },
+      "revId": "d49b64accc4d6bfb7e8a1f32175cb1c717033512",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
