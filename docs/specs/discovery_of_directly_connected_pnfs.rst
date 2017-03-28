@@ -1,3 +1,7 @@
+.. contents:: Table of Contents
+   :depth: 3
+
+===================================================================
 Discovery of directly connected PNFs in Flat/VLAN provider networks
 ===================================================================
 https://git.opendaylight.org/gerrit/#/q/topic:directly_connected_pnf_discovery

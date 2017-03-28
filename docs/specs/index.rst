@@ -9,29 +9,29 @@ Contents:
 .. toctree::
    :maxdepth: 1
 
-   ACL Remote ACLs - Indirection Table to Improve Scale <remote_acl_indirection>
-   IPv6 Data Center to internet connectivity using L3VPN <ipv6-l3vpn-internet>
-   ACL Statistics <acl-stats>
-   Conntrack Based SNAT <conntrack-based-snat>
-   Cross site connectivity with federation service <federation-plugin>
-   DHCP Server with dynamic allocation pool <dhcp-dynamic-allocation-pool>
    Design Specification Template <specs-template>
-   Discovery of directly connected PNFs in Flat/VLAN provider networks <directly_connected_pnf_discovery>
+   ACLs - ACL Statistics <acl-stats>
+   ACLs - Remote ACL - Indirection Table to Improve Scale <remote_acl_indirection>
+   Conntrack Based SNAT <conntrack-based-snat>
+   Cross site connectivity with Federation service <federation-plugin>
+   DHCP Server with Dynamic Allocation Pool <dhcp-dynamic-allocation-pool>
+   Discovery of directly connected PNFs in Flat/VLAN provider networks <discovery_of_directly_connected_pnfs>
    ECMP Support for BGP based L3VPN <ecmp-bgp-l3vpn>
-   Element counters <element-counters>
-   Enhancement to VLAN provider network support <vlan-provider-enhancement>
+   Element Counters <element-counters>
    Hairpinning of floating IPs in flat/VLAN provider networks <hairpinning-flat-vlan>
+   IPv6 Data Center to internet connectivity using L3VPN <ipv6-l3vpn-internet>
    IPv6 Inter Data Center connectivity using L3VPN <ipv6-interdc-l3vpn>
    IPv6 L3 North-South support for Flat/VLAN based Provider Networks <ipv6-cvr-north-south>
    Listener Dependency Helper, avoids waiting for dependent IID <listener-dependency-helper>
+   Migrate the SFC classifier from the old to the new netvirt <new-sfc-classifier>
    Netvirt counters <netvirt-statistics-spec>
    Policy based path selection for multiple VxLAN tunnels <policy-based-path-selection>
-   Support for TCP MD5 Signature Option configuration of Quagga BGP <qbgp-tcp-md5-signature-option>
    QoS Alert <qos-alert>
    Quality of Service <qos>
    Setup Source-MAC-Address for routed packets to virtual endpoints <setup-smac-for-routed-packets-to-virt-endpoints>
+   Support for TCP MD5 Signature Option configuration of Quagga BGP <qbgp-tcp-md5-signature-option>
+   Support of VXLAN based L2 connectivity across Datacenters <l2vpn-over-vxlan-with-evpn-rt2>
    Support of VXLAN based connectivity across Datacenters <l3vpn-over-vxlan-with-evpn-rt5>
    Temporary SMAC Learning <temporary-smac-learning>
+   VLAN provider network enhancement <vlan-provider-enhancement>
    VNI based L2 switching, L3 forwarding and NATing <vni-based-l2-switching-l3-forwarding-and-NATing>
-   Migrate the SFC classifier from the old to the new netvirt <new-sfc-classifier>
-   Support of VXLAN based L2 connectivity across Datacenters <l2vpn-over-vxlan-with-evpn-rt2>
