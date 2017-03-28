@@ -199,6 +199,14 @@
             <classifier>config</classifier>
         </dependency>
         <dependency>
+            <!-- finalname="etc/opendaylight/datastore/initial/config/netvirt-natservice-config.xml" -->
+            <groupId>${project.groupId}</groupId>
+            <artifactId>natservice-impl</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>config</classifier>
+        </dependency>
+        <dependency>
             <!-- finalname="etc/opendaylight/datastore/initial/config/netvirt-neutronvpn-config.xml" -->
             <groupId>${project.groupId}</groupId>
             <artifactId>neutronvpn-impl</artifactId>
