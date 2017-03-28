@@ -9,22 +9,17 @@ package org.opendaylight.netvirt.elan.internal;
 
 
 import java.math.BigInteger;
-import java.util.Collections;
-import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnel.list.InternalTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
@@ -80,32 +75,6 @@ public class ElanInterfaceStateChangeListener
     @Override
     protected void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
         LOG.trace("Operation Interface update event - Old: {}, New: {}", original, update);
-        String interfaceName = update.getName();
-        if (update.getType() == null) {
-            LOG.trace("Interface type for interface {} is null", interfaceName);
-            return;
-        }
-        if (update.getType().equals(Tunnel.class)) {
-            DataStoreJobCoordinator.getInstance().enqueueJob(interfaceName, () -> {
-                if (!original.getOperStatus().equals(Interface.OperStatus.Unknown)
-                        && !update.getOperStatus().equals(Interface.OperStatus.Unknown)) {
-                    if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
-                        InternalTunnel internalTunnel = getTunnelState(interfaceName);
-                        if (internalTunnel != null) {
-                            try {
-                                LOG.debug("ITM Tunnel Update event between source DPN {} and destination DPN {} ",
-                                    internalTunnel.getSourceDPN(), internalTunnel.getDestinationDPN());
-                                elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
-                                        internalTunnel.getDestinationDPN());
-                            } catch (ElanException e) {
-                                LOG.error("Failed to update interface: " + identifier.toString(), e);
-                            }
-                        }
-                    }
-                }
-                return Collections.emptyList();
-            }, ElanConstants.JOB_MAX_RETRIES);
-        }
     }
 
     @Override
@@ -114,25 +83,6 @@ public class ElanInterfaceStateChangeListener
         String interfaceName =  intrf.getName();
         ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
         if (elanInterface == null) {
-            if (intrf.getType() != null && intrf.getType().equals(Tunnel.class)) {
-                DataStoreJobCoordinator.getInstance().enqueueJob(interfaceName,
-                    () -> {
-                        if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
-                            InternalTunnel internalTunnel = getTunnelState(interfaceName);
-                            if (internalTunnel != null) {
-                                try {
-                                    LOG.debug("ITM Tunnel Add event between source DPN {} and destination DPN {} ",
-                                        internalTunnel.getSourceDPN(), internalTunnel.getDestinationDPN());
-                                    elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
-                                            internalTunnel.getDestinationDPN());
-                                } catch (ElanException e) {
-                                    LOG.error("Failed to add interface: " + identifier.toString(), e);
-                                }
-                            }
-                        }
-                        return Collections.emptyList();
-                    }, ElanConstants.JOB_MAX_RETRIES);
-            }
             return;
         }
         InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils
@@ -143,21 +93,6 @@ public class ElanInterfaceStateChangeListener
     @Override
     public void close() throws Exception {
 
-    }
-
-    public  InternalTunnel getTunnelState(String interfaceName) {
-        InternalTunnel internalTunnel = null;
-        TunnelList tunnelList = ElanUtils.buildInternalTunnel(broker);
-        if (tunnelList != null && tunnelList.getInternalTunnel() != null) {
-            List<InternalTunnel> internalTunnels = tunnelList.getInternalTunnel();
-            for (InternalTunnel tunnel : internalTunnels) {
-                if (tunnel.getTunnelInterfaceName().equalsIgnoreCase(interfaceName)) {
-                    internalTunnel = tunnel;
-                    break;
-                }
-            }
-        }
-        return internalTunnel;
     }
 
     @Override
