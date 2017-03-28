@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_8238713e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRoutePacketInHandler.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-28T12:49:30Z",
+      "side": 1,
+      "message": "This comment lost formatting.\nCan probably remove these lines, they\u0027ve been there since 2016-04-01",
+      "range": {
+        "startLine": 97,
+        "startChar": 0,
+        "endLine": 103,
+        "endChar": 23
+      },
+      "revId": "b3aafea00d2e4801c84b426051393c6a3e7f2502",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
