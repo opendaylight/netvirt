@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_3fe0c2cb",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyIdManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-28T11:08:23Z",
+      "side": 1,
+      "message": "Should we consider dpId for the PC group id ? I think this groupId should be same across all the DPNs.",
+      "revId": "387e332e4ed83dccb0ac8c8c011a8a9693d8f47c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ffbe3aad",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyIdManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-28T11:08:23Z",
+      "side": 1,
+      "message": "do we need separate id pool policy group id\u0027s ? Like ELAN, why can\u0027t we derive group id\u0027s from policy classifier id.",
+      "revId": "387e332e4ed83dccb0ac8c8c011a8a9693d8f47c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9f356e48",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyRouteGroupProgrammer.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-28T11:08:23Z",
+      "side": 1,
+      "message": "guard against null and empty list check for remoteDpIds. Also do it in missing places",
+      "revId": "387e332e4ed83dccb0ac8c8c011a8a9693d8f47c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_df6c1639",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyRouteGroupProgrammer.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-28T11:08:23Z",
+      "side": 1,
+      "message": "do we need return ? I don\u0027t see this is being consumed.",
+      "revId": "387e332e4ed83dccb0ac8c8c011a8a9693d8f47c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fff63a5c",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/listeners/UnderlayNetworkDpnListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-28T11:08:23Z",
+      "side": 1,
+      "message": "same comment comment here. we could simply use ifPresent",
+      "revId": "387e332e4ed83dccb0ac8c8c011a8a9693d8f47c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ff8d9ad4",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/util/PolicyServiceUtil.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-28T11:08:23Z",
+      "side": 1,
+      "message": "do it with flatMap(t -\u003e getUnderlayNetworkRemoteDpns(t.stream()))",
+      "revId": "387e332e4ed83dccb0ac8c8c011a8a9693d8f47c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3fbf2262",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/util/PolicyServiceUtil.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-03-28T11:08:23Z",
+      "side": 1,
+      "message": "same here.",
+      "revId": "387e332e4ed83dccb0ac8c8c011a8a9693d8f47c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
