@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_52e01efa",
+        "filename": "vpnservice/statistics/impl/pom.xml",
+        "patchSetId": 23
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-28T07:04:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0cd67d27",
+      "revId": "921f7eb80e4e5a2d6f8ec34fb57daf08d360f70e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ec197923",
         "filename": "vpnservice/statistics/impl/pom.xml",
         "patchSetId": 23
@@ -30,6 +48,30 @@
       "writtenOn": "2017-03-28T05:52:53Z",
       "side": 1,
       "message": "we don\u0027t need that",
+      "range": {
+        "startLine": 59,
+        "startChar": 14,
+        "endLine": 62,
+        "endChar": 15
+      },
+      "revId": "921f7eb80e4e5a2d6f8ec34fb57daf08d360f70e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b2e6aa14",
+        "filename": "vpnservice/statistics/impl/pom.xml",
+        "patchSetId": 23
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-28T07:04:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_ec197923",
       "range": {
         "startLine": 59,
         "startChar": 14,
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_32a11aaa",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/CountersServiceUtils.java",
+        "patchSetId": 23
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-28T07:04:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_ac7bf127",
+      "revId": "921f7eb80e4e5a2d6f8ec34fb57daf08d360f70e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8c76ed3d",
         "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/CountersServiceUtils.java",
         "patchSetId": 23
@@ -76,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_72aba289",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/CountersServiceUtils.java",
+        "patchSetId": 23
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-28T07:04:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_8c76ed3d",
+      "revId": "921f7eb80e4e5a2d6f8ec34fb57daf08d360f70e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ec75f932",
         "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/CountersServiceUtils.java",
         "patchSetId": 23
@@ -87,6 +165,30 @@
       "writtenOn": "2017-03-28T05:52:53Z",
       "side": 1,
       "message": "why the method needs to get this as parameter if this is always false",
+      "range": {
+        "startLine": 230,
+        "startChar": 20,
+        "endLine": 230,
+        "endChar": 34
+      },
+      "revId": "921f7eb80e4e5a2d6f8ec34fb57daf08d360f70e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1292164b",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/CountersServiceUtils.java",
+        "patchSetId": 23
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-28T07:04:41Z",
+      "side": 1,
+      "message": "Java automatic extract to method refactoring, fixed",
+      "parentUuid": "fafc7978_ec75f932",
       "range": {
         "startLine": 230,
         "startChar": 20,
@@ -127,6 +229,24 @@
       "writtenOn": "2017-03-28T05:52:53Z",
       "side": 1,
       "message": "isn\u0027t adding the toString of ecr problematic (too big)?",
+      "revId": "921f7eb80e4e5a2d6f8ec34fb57daf08d360f70e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b2cd0a89",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/EgressCountersServiceImpl.java",
+        "patchSetId": 23
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-03-28T07:04:41Z",
+      "side": 1,
+      "message": "Replaced with UUID",
+      "parentUuid": "fafc7978_6cb0e9dd",
       "revId": "921f7eb80e4e5a2d6f8ec34fb57daf08d360f70e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
