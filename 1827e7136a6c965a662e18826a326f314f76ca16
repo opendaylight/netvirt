@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_32e91a1b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1220,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T06:10:54Z",
+      "side": 1,
+      "message": "this method does not require an change. else is redundant and missing interface is ok for nat entries",
+      "revId": "1827e7136a6c965a662e18826a326f314f76ca16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b2c34a89",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T06:10:54Z",
+      "side": 1,
+      "message": "is this really an error? looks like this could happen for any non-router ip coming from the l2 broadcast domain",
+      "revId": "1827e7136a6c965a662e18826a326f314f76ca16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_72ca82a2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T06:10:54Z",
+      "side": 1,
+      "message": "return?",
+      "revId": "1827e7136a6c965a662e18826a326f314f76ca16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f26b1283",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1648,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-28T06:10:54Z",
+      "side": 1,
+      "message": "isn\u0027t this the same type of info you are getting from getSubentFromExternalRouterByIp?\nDon\u0027t you want to take the router interface ips from here?\nif this is the case, can you do access port-ip-to-port to get the vpn-interface name and then get the subnet id from the vpn-interface (also possible to verify it\u0027s a router interface as validation)\nIMHO this is better than going back to neutron models",
+      "revId": "1827e7136a6c965a662e18826a326f314f76ca16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
