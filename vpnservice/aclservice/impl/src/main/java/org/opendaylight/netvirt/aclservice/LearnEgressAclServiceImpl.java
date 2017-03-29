@@ -26,6 +26,7 @@ import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.slf4j.Logger;
@@ -65,8 +66,10 @@ public class LearnEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
         flowMatches.add(buildLPortTagMatch(lportTag));
         List<ActionInfo> actionsInfos = new ArrayList<>();
 
-        if (ace.getActions() != null && ace.getActions().getPacketHandling() instanceof Permit) {
-            addLearnActions(flowMatches, actionsInfos);
+        PacketHandling packetHandling = ace.getActions() != null ? ace.getActions().getPacketHandling() : null;
+        if (packetHandling instanceof Permit) {
+            int priority = getEgressSpecificAclFlowPriority(dpId, addOrRemove, flowName, packetHandling);
+            addLearnActions(flowMatches, actionsInfos, priority);
             actionsInfos.add(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
         } else {
             actionsInfos.add(new ActionDrop());
@@ -88,7 +91,7 @@ public class LearnEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
      *
      * learn flowmod learnFlowModType srcField dstField FlowModNumBits 0 1 2 3
      */
-    private void addLearnActions(List<MatchInfoBase> flows, List<ActionInfo> actionsInfos) {
+    private void addLearnActions(List<MatchInfoBase> flows, List<ActionInfo> actionsInfos, int priority) {
         if (AclServiceUtils.containsTcpMatchField(flows)) {
             addTcpLearnActions(actionsInfos);
         } else if (AclServiceUtils.containsUdpMatchField(flows)) {
