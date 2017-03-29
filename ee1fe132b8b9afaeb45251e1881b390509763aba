@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_354d819a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-29T16:14:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c26c39a0",
+      "range": {
+        "startLine": 89,
+        "startChar": 38,
+        "endLine": 89,
+        "endChar": 52
+      },
+      "revId": "ee1fe132b8b9afaeb45251e1881b390509763aba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e2c97d5b",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2017-03-28T12:35:46Z",
       "side": 1,
       "message": "Is this hashMap key is correct? Since while putting the key into hashMap is done from localNextHopInfo.getDpnId() --\u003e This will return localDpnId only. But you are passing remoteDpnId while getting the value. Please check this logic.",
+      "range": {
+        "startLine": 175,
+        "startChar": 83,
+        "endLine": 175,
+        "endChar": 100
+      },
+      "revId": "ee1fe132b8b9afaeb45251e1881b390509763aba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_896891bb",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-29T16:14:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e2c97d5b",
       "range": {
         "startLine": 175,
         "startChar": 83,
