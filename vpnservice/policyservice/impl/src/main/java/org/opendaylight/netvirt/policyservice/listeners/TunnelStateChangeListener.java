@@ -101,6 +101,7 @@ public class TunnelStateChangeListener
         String underlayNetwork = policyServiceUtil.getTunnelUnderlayNetwork(dpnId, tunnelIp);
         if (underlayNetwork == null) {
             LOG.debug("No underlay networks defined for tunnel {} DPN {}", tunnelInterfaceName, dpnId);
+            return;
         }
 
         LOG.info("Handle tunnel state update for interface {} on DPN {} underlay network", tunnelInterfaceName, dpnId,
