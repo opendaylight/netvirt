@@ -26,6 +26,7 @@ import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.slf4j.Logger;
@@ -52,8 +53,10 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
         List<MatchInfoBase> flowMatches = flowMap.get(flowName);
         flowMatches.add(buildLPortTagMatch(lportTag));
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        if (ace.getActions() != null && ace.getActions().getPacketHandling() instanceof Permit) {
-            addLearnActions(flowMatches, actionsInfos);
+        PacketHandling packetHandling = ace.getActions() != null ? ace.getActions().getPacketHandling() : null;
+        int priority = getIngressSpecificAclFlowPriority(dpId, addOrRemove, flowName, packetHandling);
+        if (packetHandling instanceof Permit) {
+            addLearnActions(flowMatches, actionsInfos, priority);
             actionsInfos.add(new ActionNxResubmit(NwConstants.EGRESS_LPORT_DISPATCHER_TABLE));
         } else {
             actionsInfos.add(new ActionDrop());
@@ -63,7 +66,7 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
         instructions.add(new InstructionApplyActions(actionsInfos));
 
         String flowNameAdded = flowName + "Ingress" + lportTag + ace.getKey().getRuleName();
-        syncFlow(dpId, NwConstants.EGRESS_LEARN_ACL_FILTER_TABLE, flowNameAdded, AclConstants.PROTO_MATCH_PRIORITY,
+        syncFlow(dpId, NwConstants.EGRESS_LEARN_ACL_FILTER_TABLE, flowNameAdded, priority,
                 "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
         return flowName;
     }
@@ -75,21 +78,21 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
      *
      * learn flowmod learnFlowModType srcField dstField FlowModNumBits 0 1 2 3
      */
-    private void addLearnActions(List<MatchInfoBase> flows, List<ActionInfo> actionsInfos) {
+    private void addLearnActions(List<MatchInfoBase> flows, List<ActionInfo> actionsInfos, int priority) {
         if (AclServiceUtils.containsTcpMatchField(flows)) {
-            addTcpLearnActions(actionsInfos);
+            addTcpLearnActions(actionsInfos, priority);
         } else if (AclServiceUtils.containsUdpMatchField(flows)) {
-            addUdpLearnActions(actionsInfos);
+            addUdpLearnActions(actionsInfos, priority);
         } else {
-            addOtherProtocolsLearnActions(actionsInfos);
+            addOtherProtocolsLearnActions(actionsInfos, priority);
         }
     }
 
-    private void addOtherProtocolsLearnActions(List<ActionInfo> actionsInfos) {
+    private void addOtherProtocolsLearnActions(List<ActionInfo> actionsInfos, int priority) {
         actionsInfos.add(new ActionLearn(
                 this.aclServiceUtils.getConfig().getSecurityGroupDefaultIdleTimeout(),
                 this.aclServiceUtils.getConfig().getSecurityGroupDefaultHardTimeout(),
-                AclConstants.PROTO_MATCH_PRIORITY,
+                priority,
                 AclConstants.COOKIE_ACL_BASE,
                 AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE,
                 NwConstants.INGRESS_LEARN_TABLE,
@@ -98,11 +101,11 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
                 LearnCommonAclServiceImpl.getOtherProtocolsLearnActionMatches()));
     }
 
-    private void addTcpLearnActions(List<ActionInfo> actionsInfos) {
+    private void addTcpLearnActions(List<ActionInfo> actionsInfos, int priority) {
         actionsInfos.add(new ActionLearn(
                 this.aclServiceUtils.getConfig().getSecurityGroupTcpIdleTimeout(),
                 this.aclServiceUtils.getConfig().getSecurityGroupTcpHardTimeout(),
-                AclConstants.PROTO_MATCH_PRIORITY,
+                priority,
                 AclConstants.COOKIE_ACL_BASE,
                 AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE,
                 NwConstants.INGRESS_LEARN_TABLE,
@@ -111,11 +114,11 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
                 LearnCommonAclServiceImpl.getTcpLearnActionMatches()));
     }
 
-    private void addUdpLearnActions(List<ActionInfo> actionsInfos) {
+    private void addUdpLearnActions(List<ActionInfo> actionsInfos, int priority) {
         actionsInfos.add(new ActionLearn(
                 this.aclServiceUtils.getConfig().getSecurityGroupUdpIdleTimeout(),
                 this.aclServiceUtils.getConfig().getSecurityGroupUdpHardTimeout(),
-                AclConstants.PROTO_MATCH_PRIORITY,
+                priority,
                 AclConstants.COOKIE_ACL_BASE,
                 AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE,
                 NwConstants.INGRESS_LEARN_TABLE,
