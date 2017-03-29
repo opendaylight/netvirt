@@ -245,6 +245,32 @@ public class MatchUtils {
     }
 
     /**
+     * Create Ethernet Source and Destination Match
+     *
+     * @param matchBuilder MatchBuilder Object without a match yet
+     * @param sMacAddr     String representing a source MAC
+     * @param dMacAddr     String representing a destination MAC
+     * @param mask the mask of the Destination Mac Address
+     * @return matchBuilder Map MatchBuilder Object with a match
+     */
+    public static MatchBuilder createEthSrcDestMatch(MatchBuilder matchBuilder, MacAddress sMacAddr, MacAddress dMacAddr, MacAddress mask) {
+        EthernetMatchBuilder ethernetMatch = new EthernetMatchBuilder();
+        EthernetSourceBuilder ethSourceBuilder = new EthernetSourceBuilder();
+        ethSourceBuilder.setAddress(sMacAddr);
+        ethernetMatch.setEthernetSource(ethSourceBuilder.build());
+
+        EthernetDestinationBuilder ethDestinationBuilder = new EthernetDestinationBuilder();
+        ethDestinationBuilder.setAddress(dMacAddr);
+        if (mask != null) {
+            ethDestinationBuilder.setMask(mask);
+        }
+        ethernetMatch.setEthernetDestination(ethDestinationBuilder.build());
+        matchBuilder.setEthernetMatch(ethernetMatch.build());
+
+        return matchBuilder;
+    }
+
+    /**
      * Tunnel ID Match Builder
      *
      * @param matchBuilder MatchBuilder Object without a match yet
