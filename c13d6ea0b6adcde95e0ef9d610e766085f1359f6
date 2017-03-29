@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_afc3d555",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-29T20:06:58Z",
+      "side": 1,
+      "message": "what about cases where the tunnel is part of a logical group? I think in this case the creation of logical group should trigger the same type of handling as for tunnel outside group\nSame comment goes for L3VPN",
+      "revId": "c13d6ea0b6adcde95e0ef9d610e766085f1359f6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
