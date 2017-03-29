@@ -16,6 +16,24 @@
       "revId": "11aed301b6a480437ce1b2b5e928a4a3e1ecbb25",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8941b13b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-03-29T15:33:20Z",
+      "side": 0,
+      "message": "Write only transaction can be submitted only once , but can have multiple changes. So a second submit was not necessary it was gving an exception as well.",
+      "parentUuid": "fafc7978_7370c1dc",
+      "revId": "11aed301b6a480437ce1b2b5e928a4a3e1ecbb25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }

@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c94bb957",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworkListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-03-29T15:33:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f37b11bc",
+      "revId": "e86e22cfae56b35a4b316dc21d17f2a1fc33a027",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_93444575",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e9779d9d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1203,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-03-29T15:33:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_93444575",
+      "revId": "e86e22cfae56b35a4b316dc21d17f2a1fc33a027",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d35d2d4a",
         "filename": "vpnservice/natservice/natservice-impl/src/main/resources/initial/netvirt-natservice-config.xml",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2017-03-28T21:59:16Z",
       "side": 1,
       "message": "change the - to :. I think all the other configs other than aclservice-config, do it that way so might as well be mostly consistent.",
+      "revId": "e86e22cfae56b35a4b316dc21d17f2a1fc33a027",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a9b47535",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/resources/initial/netvirt-natservice-config.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-03-29T15:33:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d35d2d4a",
       "revId": "e86e22cfae56b35a4b316dc21d17f2a1fc33a027",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
