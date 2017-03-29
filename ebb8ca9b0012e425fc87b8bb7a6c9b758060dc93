@@ -16,6 +16,24 @@
       "revId": "ebb8ca9b0012e425fc87b8bb7a6c9b758060dc93",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ae063e1f",
+        "filename": "vpnservice/dhcpservice/dhcpservice-api/src/main/yang/dhcp_allocation_pool.yang",
+        "patchSetId": 11
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 6947
+      },
+      "writtenOn": "2017-03-29T12:08:37Z",
+      "side": 0,
+      "message": "Done - I will update the spec",
+      "parentUuid": "fafc7978_33d3d960",
+      "revId": "ebb8ca9b0012e425fc87b8bb7a6c9b758060dc93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
