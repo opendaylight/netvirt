@@ -38,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.AceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -347,5 +348,18 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
                     AclConstants.PROTO_ARP_TRAFFIC_MATCH_PRIORITY, "ACL", 0, 0,
                     AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
         }
+    }
+
+    protected int getEgressSpecificAclFlowPriority(BigInteger dpId, int addOrRemove, String flowName,
+                                                 PacketHandling packetHandling) {
+        int priority;
+        if (addOrRemove == NwConstants.DEL_FLOW) {
+            priority = aclServiceUtils.releaseAndRemoveFlowPriorityFromCache(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
+                    flowName, packetHandling);
+        } else {
+            priority = aclServiceUtils.allocateAndSaveFlowPriorityInCache(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
+                    flowName, packetHandling);
+        }
+        return priority;
     }
 }
