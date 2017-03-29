@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_2c87f3d8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-29T18:20:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_72dd6242",
+      "range": {
+        "startLine": 88,
+        "startChar": 12,
+        "endLine": 88,
+        "endChar": 31
+      },
+      "revId": "ccacf6bb61bbfdd7774083a434e3d5d79eac3479",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2c02536f",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
         "patchSetId": 12
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_0c7aeff0",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-29T18:20:21Z",
+      "side": 1,
+      "message": "Fixed.",
+      "parentUuid": "fafc7978_2c02536f",
+      "range": {
+        "startLine": 197,
+        "startChar": 11,
+        "endLine": 198,
+        "endChar": 73
+      },
+      "revId": "ccacf6bb61bbfdd7774083a434e3d5d79eac3479",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ecb96bcc",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnRpcServiceImpl.java",
         "patchSetId": 12
@@ -59,6 +107,30 @@
       "writtenOn": "2017-03-29T18:11:33Z",
       "side": 1,
       "message": "Remove this",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 12
+      },
+      "revId": "ccacf6bb61bbfdd7774083a434e3d5d79eac3479",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8c6d3f35",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnRpcServiceImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-03-29T18:20:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_ecb96bcc",
       "range": {
         "startLine": 24,
         "startChar": 0,
