@@ -116,7 +116,7 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
             dsJobCoordinator.enqueueJob(new InterVpnLinkCreatorTask(dataBroker, ivl.getInterVpnLinkConfig(),
                                                                     specificJobKey));
         } catch (InvalidJobException e) {
-            LOG.debug("Could not complete InterVpnLink {} update process", ivlName, e);
+            LOG.error("Could not complete InterVpnLink {} update process", ivlName, e);
         }
     }
 
