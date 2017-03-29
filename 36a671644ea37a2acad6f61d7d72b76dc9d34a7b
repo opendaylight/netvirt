@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_0ceaef0e",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-29T17:18:28Z",
+      "side": 1,
+      "message": "what about this method? why is it needed?\nwhy not use straight uuid.getValue instead of doing this parsing",
+      "revId": "36a671644ea37a2acad6f61d7d72b76dc9d34a7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
