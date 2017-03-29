@@ -18,8 +18,6 @@ import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
-import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack.NxCtAction;
@@ -32,6 +30,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -149,8 +148,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
                 dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
-        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
-                new long[] {snatCtState, snatCtStateMask}));
+        matches.add(new NxMatchCtState(snatCtState, snatCtStateMask));
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil
@@ -173,8 +171,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
                 dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
-        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
-                new long[] {trackedNewCtState, trackedNewCtMask}));
+        matches.add(new NxMatchCtState(trackedNewCtState, trackedNewCtMask));
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
         List<ActionInfo> actionsInfos = new ArrayList<>();
         ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil
@@ -212,8 +209,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
                 dpnId, extNetId, externalIps);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
-        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
-                new long[] {snatCtState, snatCtStateMask}));
+        matches.add(new NxMatchCtState(snatCtState, snatCtStateMask));
         if (externalIps.isEmpty()) {
             LOG.error("ConntrackBasedSnatService : installNaptPfibExternalOutputFlow no externalIP present for "
                     + "routerId {}", routers.getRouterName());
@@ -268,8 +264,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
                 dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
-        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
-                new long[] {dnatCtState, dnatCtStateMask}));
+        matches.add(new NxMatchCtState(dnatCtState, dnatCtStateMask));
 
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();

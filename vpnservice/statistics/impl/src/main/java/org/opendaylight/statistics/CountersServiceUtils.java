@@ -17,8 +17,6 @@ import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
-import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
@@ -32,6 +30,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchTcpDestinationPort;
 import org.opendaylight.genius.mdsalutil.matches.MatchTcpSourcePort;
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpDestinationPort;
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
@@ -57,6 +56,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.rev170120.EgressElementCountersRequestConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.rev170120.IngressElementCountersRequestConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 @SuppressWarnings("deprecation")
@@ -109,8 +109,8 @@ public class CountersServiceUtils {
             return new MatchMetadata(MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG);
         } else if (ElementCountersDirection.EGRESS.equals(direction)) {
             // Should match against lport tag part only once Genius supports a match with a mask on a register.
-            return (new NxMatchInfo(NxMatchFieldType.nxm_reg_6, new long[] {
-                    MetaDataUtil.getReg6ValueForLPortDispatcher(lportTag, NwConstants.DEFAULT_EGRESS_SERVICE_INDEX) }));
+            return (new NxMatchRegister(NxmNxReg6.class,
+                    MetaDataUtil.getReg6ValueForLPortDispatcher(lportTag, NwConstants.DEFAULT_EGRESS_SERVICE_INDEX)));
         }
         return null;
     }
