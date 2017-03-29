@@ -166,7 +166,6 @@ public class AclServiceTestUtils {
                 assertEquals(actionLearn.getFlags(), check.getFlags());
                 assertEquals(actionLearn.getHardTimeout(), check.getHardTimeout());
                 assertEquals(actionLearn.getIdleTimeout(), check.getIdleTimeout());
-                assertEquals(actionLearn.getPriority(), check.getPriority());
                 assertEquals(actionLearn.getTableId(), check.getTableId());
             }
         }
