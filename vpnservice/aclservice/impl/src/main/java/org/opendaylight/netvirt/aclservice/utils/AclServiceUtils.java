@@ -46,6 +46,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.packet.handling.Deny;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -709,8 +712,9 @@ public final class AclServiceUtils {
      * @param key the key
      * @return the integer
      */
-    public Integer allocateAndSaveFlowPriorityInCache(BigInteger dpId, short tableId, String key) {
-        String poolName = getAclPoolName(dpId, tableId);
+    public Integer allocateAndSaveFlowPriorityInCache(BigInteger dpId, short tableId, String key,
+                                                      PacketHandling packetHandling) {
+        String poolName = getAclPoolName(dpId, tableId, packetHandling);
         Integer flowPriority = AclServiceUtils.allocateId(this.idManager, poolName, key);
         this.aclDataUtil.addAclFlowPriority(key, flowPriority);
         return flowPriority;
@@ -722,8 +726,9 @@ public final class AclServiceUtils {
      * @param key the key
      * @return the integer
      */
-    public Integer releaseAndRemoveFlowPriorityFromCache(BigInteger dpId, short tableId, String key) {
-        String poolName = getAclPoolName(dpId, tableId);
+    public Integer releaseAndRemoveFlowPriorityFromCache(BigInteger dpId, short tableId, String key,
+                                                         PacketHandling packetHandling) {
+        String poolName = getAclPoolName(dpId, tableId, packetHandling);
         AclServiceUtils.releaseId(this.idManager, poolName, key);
         Integer flowPriority = this.aclDataUtil.removeAclFlowPriority(key);
         if (flowPriority == null) {
@@ -747,10 +752,26 @@ public final class AclServiceUtils {
      *
      * @param poolName the pool name
      */
-    public void createIdPool(String poolName) {
-        CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
-                .setPoolName(poolName).setLow(AclConstants.ACL_FLOW_PRIORITY_POOL_START)
-                .setHigh(AclConstants.ACL_FLOW_PRIORITY_POOL_END).build();
+    public void createIdPool(String poolName, PacketHandling packetHandling) {
+        CreateIdPoolInput createPool = null;
+
+        // If the default behavior is Deny, then ACLs with Allow packetHandling must have lower priority than
+        // ACLs with Deny packetHandling - otherwise the Deny ACLs are redundant, and vice versa
+        if ((config.getDefaultBehavior() == DefaultBehavior.Deny && packetHandling instanceof Permit)
+                || (config.getDefaultBehavior() == DefaultBehavior.Allow && packetHandling instanceof Deny)) {
+            createPool = new CreateIdPoolInputBuilder()
+                    .setPoolName(poolName).setLow(AclConstants.ACL_FLOW_PRIORITY_LOW_POOL_START)
+                    .setHigh(AclConstants.ACL_FLOW_PRIORITY_LOW_POOL_END).build();
+        } else if ((config.getDefaultBehavior() == DefaultBehavior.Deny && packetHandling instanceof Deny)
+                || (config.getDefaultBehavior() == DefaultBehavior.Allow && packetHandling instanceof Permit)) {
+            createPool = new CreateIdPoolInputBuilder()
+                    .setPoolName(poolName).setLow(AclConstants.ACL_FLOW_PRIORITY_HIGH_POOL_START)
+                    .setHigh(AclConstants.ACL_FLOW_PRIORITY_HIGH_POOL_END).build();
+        } else {
+            LOG.error("Got unexpected PacketHandling {} combined with default behavior {}, skipping creation"
+                    + "of pool {}", packetHandling, config.getDefaultBehavior(), poolName);
+            return;
+        }
         try {
             Future<RpcResult<Void>> result = this.idManager.createIdPool(createPool);
             if ((result != null) && (result.get().isSuccessful())) {
@@ -767,7 +788,7 @@ public final class AclServiceUtils {
      *
      * @param poolName the pool name
      */
-    public void deleteIdPool(String poolName) {
+    public void deleteIdPool(String poolName, PacketHandling packetHandling) {
         DeleteIdPoolInput deletePool = new DeleteIdPoolInputBuilder().setPoolName(poolName).build();
         try {
             Future<RpcResult<Void>> result = this.idManager.deleteIdPool(deletePool);
@@ -787,8 +808,8 @@ public final class AclServiceUtils {
      * @param tableId the table id
      * @return the acl pool name
      */
-    public static String getAclPoolName(BigInteger dpId, short tableId) {
-        return AclConstants.ACL_FLOW_PRIORITY_POOL_NAME + "." + dpId + "." + tableId;
+    public static String getAclPoolName(BigInteger dpId, short tableId, PacketHandling packetHandling) {
+        return AclConstants.ACL_FLOW_PRIORITY_POOL_NAME + "." + dpId + "." + tableId + "." + packetHandling;
     }
 
     /**
@@ -797,8 +818,10 @@ public final class AclServiceUtils {
      * @param dpId the dp id
      */
     public void createAclIdPools(BigInteger dpId) {
-        createIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE));
-        createIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE));
+        createIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, Permit), Permit);
+        createIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, Deny), Deny);
+        createIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, Permit), Permit);
+        createIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, Deny), Deny);
     }
 
     /**
@@ -807,7 +830,9 @@ public final class AclServiceUtils {
      * @param dpId the dp id
      */
     public void deleteAclIdPools(BigInteger dpId) {
-        deleteIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE));
-        deleteIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE));
+        deleteIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, Permit), Permit);
+        deleteIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, Deny), Deny);
+        deleteIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, Permit), Permit);
+        deleteIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, Deny), Deny);
     }
 }

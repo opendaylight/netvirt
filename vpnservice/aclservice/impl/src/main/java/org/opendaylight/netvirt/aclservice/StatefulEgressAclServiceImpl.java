@@ -29,6 +29,7 @@ import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
@@ -78,7 +79,8 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
         Long elanId = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions;
-        if (ace.getActions() != null && ace.getActions().getPacketHandling() instanceof Permit) {
+        PacketHandling packetHandling = ace.getActions() != null ? ace.getActions().getPacketHandling() : null;
+        if (packetHandling instanceof Permit) {
             actionsInfos.add(new ActionNxConntrack(2, 1, 0, elanId.intValue(), (short) 255));
             instructions = getDispatcherTableResubmitInstructions(actionsInfos);
         } else {
@@ -87,23 +89,11 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
 
         // For flows related remote ACL, unique flow priority is used for
         // each flow to avoid overlapping flows
-        int priority = getEgressSpecificAclFlowPriority(dpId, addOrRemove, flowName);
+        int priority = getEgressSpecificAclFlowPriority(dpId, addOrRemove, flowName, packetHandling);
 
         syncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, flowName, priority, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
         return flowName;
-    }
-
-    private int getEgressSpecificAclFlowPriority(BigInteger dpId, int addOrRemove, String flowName) {
-        int priority;
-        if (addOrRemove == NwConstants.DEL_FLOW) {
-            priority = aclServiceUtils.releaseAndRemoveFlowPriorityFromCache(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
-                    flowName);
-        } else {
-            priority = aclServiceUtils.allocateAndSaveFlowPriorityInCache(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
-                    flowName);
-        }
-        return priority;
     }
 
     /**

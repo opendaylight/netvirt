@@ -87,8 +87,10 @@ public final class AclConstants {
     public static final int LEARN_DELETE_LEARNED_FLAG_VALUE = 2;
 
     public static final String ACL_FLOW_PRIORITY_POOL_NAME = "acl.flow.priorities.pool";
-    public static final long ACL_FLOW_PRIORITY_POOL_START = 1000L;
-    public static final long ACL_FLOW_PRIORITY_POOL_END = 60000L;
+    public static final long ACL_FLOW_PRIORITY_HIGH_POOL_START = 1000L;
+    public static final long ACL_FLOW_PRIORITY_HIGH_POOL_END = 30000L;
+    public static final long ACL_FLOW_PRIORITY_LOW_POOL_START = 30001L;
+    public static final long ACL_FLOW_PRIORITY_LOW_POOL_END = 60000L;
 
     public static final int SOURCE_LOWER_PORT_UNSPECIFIED = -1;
     public static final int SOURCE_UPPER_PORT_UNSPECIFIED = -1;
