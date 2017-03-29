@@ -110,7 +110,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 classifierEntryRenderer.renderPath(node, nsp, destinationIp);
                 break;
             case MATCH_ENTRY_TYPE:
-                classifierEntryRenderer.renderMatch(node, port, matches, nsp, nsi);
+                classifierEntryRenderer.renderMatch(node, port, matches, nsp, nsi, destinationIp);
                 break;
             case EGRESS_INTERFACE_ENTRY_TYPE:
                 classifierEntryRenderer.renderEgress(interfaceKey);
@@ -132,7 +132,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 classifierEntryRenderer.suppressPath(node, nsp, destinationIp);
                 break;
             case MATCH_ENTRY_TYPE:
-                classifierEntryRenderer.suppressMatch(node, port, matches, nsp, nsi);
+                classifierEntryRenderer.suppressMatch(node, port, matches, nsp, nsi, destinationIp);
                 break;
             case EGRESS_INTERFACE_ENTRY_TYPE:
                 classifierEntryRenderer.suppressEgress(interfaceKey);
@@ -156,9 +156,10 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 null, destinationIp);
     }
 
-    public static ClassifierEntry buildMatchEntry(NodeId node, Long port, Matches matches, Long nsp, Short nsi) {
+    public static ClassifierEntry buildMatchEntry(NodeId node, Long port, Matches matches, Long nsp, Short nsi,
+            String destinationIp) {
         return new ClassifierEntry(EntryType.MATCH_ENTRY_TYPE, node, null, port, matches, nsp,
-                nsi, null);
+                nsi, destinationIp);
     }
 
     public static ClassifierEntry buildEgressEntry(InterfaceKey interfaceKey) {
