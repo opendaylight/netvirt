@@ -62,55 +62,6 @@ network and subnet.
 .. code-block:: none
    :caption: dhcp_allocation_pool.yang
 
-    grouping dhcp_allocations {
-        list allocation {
-            key "subnet";
-            leaf subnet {
-                description "subnet for the dhcp to allocate ip addresses";
-                type inet:ip-prefix;
-            }
-
-            list allocation-instance {
-                key "mac";
-                leaf mac {
-                    description "requesting mac";
-                    type yang:phys-address;
-                }
-                leaf allocated-ip {
-                    description "allocated ip address";
-                    type inet:ip-address;
-                }
-            }
-        }
-        list allocation-pool {
-            key "subnet";
-            leaf subnet {
-                description "subnet for the dhcp to allocate ip addresses";
-                type inet:ip-prefix;
-            }
-            leaf allocate-from {
-                description "low allocation limit";
-                type inet:ip-address;
-            }
-            leaf allocate-to {
-                description "high allocation limit";
-                type inet:ip-address;
-            }
-            leaf gateway {
-                description "default gateway for dhcp allocation";
-                type inet:ip-address;
-            }
-            list dns-servers {
-                description "dns server list";
-                leaf dns-server {
-                    description "dns server entry";
-                    type inet:ip-address;
-                }
-            }
-        }
-    }
-
-
     container dhcp_allocation_pool {
         config true;
         description "contains DHCP Server dynamic allocations";
@@ -121,7 +72,51 @@ network and subnet.
                 description "network (elan-instance) id";
                 type string;
             }
-            uses dhcp_allocations;
+            list allocation {
+                key "subnet";
+                leaf subnet {
+                    description "subnet for the dhcp to allocate ip addresses";
+                    type inet:ip-prefix;
+                }
+
+                list allocation-instance {
+                    key "mac";
+                    leaf mac {
+                        description "requesting mac";
+                        type yang:phys-address;
+                    }
+                    leaf allocated-ip {
+                        description "allocated ip address";
+                        type inet:ip-address;
+                    }
+                }
+            }
+            list allocation-pool {
+                key "subnet";
+                leaf subnet {
+                    description "subnet for the dhcp to allocate ip addresses";
+                    type inet:ip-prefix;
+                }
+                leaf allocate-from {
+                    description "low allocation limit";
+                    type inet:ip-address;
+                }
+                leaf allocate-to {
+                    description "high allocation limit";
+                    type inet:ip-address;
+                }
+                leaf gateway {
+                    description "default gateway for dhcp allocation";
+                    type inet:ip-address;
+                }
+                list dns-servers {
+                    description "dns server list";
+                    leaf dns-server {
+                        description "dns server entry";
+                        type inet:ip-address;
+                    }
+                }
+            }
         }
     }
 
