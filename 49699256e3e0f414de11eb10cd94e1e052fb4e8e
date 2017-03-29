@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ec084bdb",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/LearnEgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2017-03-29T17:34:30Z",
+      "side": 1,
+      "message": "Shouldn\u0027t we calculate priority for the \"else\" section as well? And use it in syncFlow below? (similar to what you did in stateful)",
+      "revId": "49699256e3e0f414de11eb10cd94e1e052fb4e8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cc6c679f",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/LearnEgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2017-03-29T17:34:30Z",
+      "side": 1,
+      "message": "Unused priority here - probably need to propagate?",
+      "revId": "49699256e3e0f414de11eb10cd94e1e052fb4e8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
