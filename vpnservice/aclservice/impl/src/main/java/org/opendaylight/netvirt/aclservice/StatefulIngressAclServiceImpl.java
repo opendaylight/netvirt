@@ -11,7 +11,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -30,6 +29,7 @@ import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
@@ -91,7 +91,8 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
         Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions = null;
-        if (ace.getActions() != null && ace.getActions().getPacketHandling() instanceof Permit) {
+        PacketHandling packetHandling = ace.getActions() != null ? ace.getActions().getPacketHandling() : null;
+        if (packetHandling instanceof Permit) {
             actionsInfos.add(new ActionNxConntrack(2, 1, 0, elanTag.intValue(), (short) 255));
             instructions = getDispatcherTableResubmitInstructions(actionsInfos);
         } else {
@@ -100,23 +101,11 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
 
         // For flows related remote ACL, unique flow priority is used for
         // each flow to avoid overlapping flows
-        int priority = getIngressSpecificAclFlowPriority(dpId, addOrRemove, flowName);
+        int priority = getIngressSpecificAclFlowPriority(dpId, addOrRemove, flowName, packetHandling);
 
         syncFlow(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, flowName, priority, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
         return flowName;
-    }
-
-    private int getIngressSpecificAclFlowPriority(BigInteger dpId, int addOrRemove, String flowName) {
-        int priority;
-        if (addOrRemove == NwConstants.DEL_FLOW) {
-            priority = aclServiceUtils.releaseAndRemoveFlowPriorityFromCache(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
-                    flowName);
-        } else {
-            priority = aclServiceUtils.allocateAndSaveFlowPriorityInCache(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
-                    flowName);
-        }
-        return priority;
     }
 
     /**
