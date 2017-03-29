@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ee71660d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-29T07:58:18Z",
+      "side": 1,
+      "message": "revert",
+      "revId": "467793205571bd99ca6e35ca0c920fa83305ee62",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ae4e3ec0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1634,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-29T07:58:18Z",
+      "side": 1,
+      "message": "typo Subnet",
+      "range": {
+        "startLine": 1634,
+        "startChar": 19,
+        "endLine": 1634,
+        "endChar": 25
+      },
+      "revId": "467793205571bd99ca6e35ca0c920fa83305ee62",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
