@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_4c9a3764",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyServiceConstants.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2017-03-29T18:12:04Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be the highest priority as it is the most specific?",
+      "revId": "942be996909a6de039e6794c831ed9c89979b582",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2caff395",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/util/PolicyServiceFlowUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2017-03-29T18:12:04Z",
+      "side": 1,
+      "message": "Can we make the reg classes less hardcoded some way? expose them from elanService (/vpnManager)? Or some other place?",
+      "revId": "942be996909a6de039e6794c831ed9c89979b582",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
