@@ -128,6 +128,9 @@ public class LearnEgressAclServiceImplTest {
         doReturn(idResult).when(idManager).allocateId(any(AllocateIdInput.class));
         AclServiceUtils aclServiceUtils = new AclServiceUtils(aclDataUtil, config, idManager);
         testedService = new LearnEgressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
+        RpcResult<Object> allocateIdResult = RpcResultBuilder.success().withResult(new AllocateIdOutputBuilder()
+                .setIdValue(10L).build()).build();
+        doReturn(Futures.immediateFuture(allocateIdResult)).when(idManager).allocateId(any(AllocateIdInput.class));
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
