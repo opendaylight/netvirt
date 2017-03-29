@@ -24,7 +24,7 @@ public class GeniusRenderer implements ClassifierEntryRenderer {
 
     @Override
     public void renderIngress(InterfaceKey interfaceKey) {
-        // TODO
+        geniusProvider.bindPortOnIngressClassifier(interfaceKey.getName());
     }
 
     @Override
@@ -38,18 +38,18 @@ public class GeniusRenderer implements ClassifierEntryRenderer {
     }
 
     @Override
-    public void renderMatch(NodeId nodeId, Long port, Matches matches, Long nsp, Short nsi) {
+    public void renderMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi, String ip) {
         // noop
     }
 
     @Override
     public void renderEgress(InterfaceKey interfaceKey) {
-        // TODO
+        geniusProvider.bindPortOnEgressClassifier(interfaceKey.getName());
     }
 
     @Override
     public void suppressIngress(InterfaceKey interfaceKey) {
-        // TODO
+        geniusProvider.unbindPortOnIngressClassifier(interfaceKey.getName());
     }
 
     @Override
@@ -63,12 +63,12 @@ public class GeniusRenderer implements ClassifierEntryRenderer {
     }
 
     @Override
-    public void suppressMatch(NodeId nodeId, Long port, Matches matches, Long nsp, Short nsi) {
+    public void suppressMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi, String ip) {
         // noop
     }
 
     @Override
     public void suppressEgress(InterfaceKey interfaceKey) {
-        // TODO
+        geniusProvider.unbindPortOnEgressClassifier(interfaceKey.getName());
     }
 }

@@ -27,8 +27,8 @@ public class NetvirtSfcAclListener
     extends AsyncDataTreeChangeListenerBase<Acl, NetvirtSfcAclListener>
     implements AutoCloseable {
 
-    private DataBroker dataBroker;
-    private ClassifierService classifierService;
+    private final DataBroker dataBroker;
+    private final ClassifierService classifierService;
 
     @Inject
     public NetvirtSfcAclListener(final DataBroker dataBroker, final ClassifierService classifierService) {
@@ -40,7 +40,7 @@ public class NetvirtSfcAclListener
     @Override
     @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override

@@ -14,12 +14,15 @@ import java.util.Set;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierEntryRenderer;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierRenderableEntry;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClassifierUpdate implements Runnable {
 
     private final ClassifierState configurationClassifier;
     private final ClassifierState operationalClassifier;
     private final List<ClassifierEntryRenderer> classifierRenderers;
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigurationClassifierImpl.class);
 
     public ClassifierUpdate(ClassifierState configurationClassifier, ClassifierState operationalClassifier,
                             List<ClassifierEntryRenderer> classifierRenderers) {
@@ -34,6 +37,11 @@ public class ClassifierUpdate implements Runnable {
         Set<ClassifierRenderableEntry> operationalEntries = operationalClassifier.getAllEntries();
         Set<ClassifierRenderableEntry> entriesToAdd = Sets.difference(configurationEntries, operationalEntries);
         Set<ClassifierRenderableEntry> entriesToRemove = Sets.difference(operationalEntries, configurationEntries);
+
+        LOG.trace("Configuration entries: {}", configurationEntries);
+        LOG.trace("Operational entries: {}", operationalEntries);
+        LOG.trace("Entries to add: {}", entriesToAdd);
+        LOG.trace("Entries to remove: {}", entriesToRemove);
 
         classifierRenderers.forEach(
             classifierRenderer -> {
