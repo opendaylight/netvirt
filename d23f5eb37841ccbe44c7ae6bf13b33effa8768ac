@@ -16,6 +16,24 @@
       "revId": "d23f5eb37841ccbe44c7ae6bf13b33effa8768ac",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_24926d4b",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-29T12:54:00Z",
+      "side": 1,
+      "message": "You\u0027re right, there was a lot of mess in this area. I tried to correct this file\u0027s behavior, have a look if you can.",
+      "parentUuid": "fafc7978_89b094de",
+      "revId": "d23f5eb37841ccbe44c7ae6bf13b33effa8768ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
