@@ -41,7 +41,7 @@ public class NetvirtSfcClassifierListener
     @Override
     @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override

@@ -29,19 +29,19 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
     private final EntryType entryType;
     private final NodeId node;
     private final InterfaceKey interfaceKey;
-    private final Long port;
+    private final String connector;
     private final Matches matches;
     private final Long nsp;
     private final Short nsi;
     private final String destinationIp;
 
-    private ClassifierEntry(EntryType entryType, NodeId node, InterfaceKey interfaceKey, Long port,
+    private ClassifierEntry(EntryType entryType, NodeId node, InterfaceKey interfaceKey, String connector,
                             Matches matches, Long nsp, Short nsi, String destinationIp) {
 
         this.entryType = entryType;
         this.node = node;
         this.interfaceKey = interfaceKey;
-        this.port = port;
+        this.connector = connector;
         this.matches = matches;
         this.nsp = nsp;
         this.nsi = nsi;
@@ -54,7 +54,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 entryType,
                 node,
                 interfaceKey,
-                port,
+                connector,
                 matches,
                 nsp,
                 nsi,
@@ -76,7 +76,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
         return Objects.equals(entryType, other.entryType)
                 && Objects.equals(node, other.node)
                 && Objects.equals(interfaceKey, other.interfaceKey)
-                && Objects.equals(port, other.port)
+                && Objects.equals(connector, other.connector)
                 && Objects.equals(matches, other.matches)
                 && Objects.equals(nsp, other.nsp)
                 && Objects.equals(nsi, other.nsi)
@@ -89,7 +89,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 .add("entryType", entryType)
                 .add("node", node)
                 .add("interfaceKey", interfaceKey)
-                .add("port", port)
+                .add("connector", connector)
                 .add("matches", matches)
                 .add("nsp", nsp)
                 .add("nsi", nsi)
@@ -110,7 +110,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 classifierEntryRenderer.renderPath(node, nsp, destinationIp);
                 break;
             case MATCH_ENTRY_TYPE:
-                classifierEntryRenderer.renderMatch(node, port, matches, nsp, nsi);
+                classifierEntryRenderer.renderMatch(node, connector, matches, nsp, nsi, destinationIp);
                 break;
             case EGRESS_INTERFACE_ENTRY_TYPE:
                 classifierEntryRenderer.renderEgress(interfaceKey);
@@ -132,7 +132,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 classifierEntryRenderer.suppressPath(node, nsp, destinationIp);
                 break;
             case MATCH_ENTRY_TYPE:
-                classifierEntryRenderer.suppressMatch(node, port, matches, nsp, nsi);
+                classifierEntryRenderer.suppressMatch(node, connector, matches, nsp, nsi, destinationIp);
                 break;
             case EGRESS_INTERFACE_ENTRY_TYPE:
                 classifierEntryRenderer.suppressEgress(interfaceKey);
@@ -156,9 +156,10 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 null, destinationIp);
     }
 
-    public static ClassifierEntry buildMatchEntry(NodeId node, Long port, Matches matches, Long nsp, Short nsi) {
-        return new ClassifierEntry(EntryType.MATCH_ENTRY_TYPE, node, null, port, matches, nsp,
-                nsi, null);
+    public static ClassifierEntry buildMatchEntry(NodeId node, String connector, Matches matches, Long nsp, Short nsi,
+            String destinationIp) {
+        return new ClassifierEntry(EntryType.MATCH_ENTRY_TYPE, node, null, connector, matches, nsp,
+                nsi, destinationIp);
     }
 
     public static ClassifierEntry buildEgressEntry(InterfaceKey interfaceKey) {
