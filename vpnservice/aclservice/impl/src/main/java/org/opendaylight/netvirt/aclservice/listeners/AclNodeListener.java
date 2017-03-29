@@ -428,7 +428,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         allowAllInstructions.add(new InstructionGotoTable(NwConstants.INGRESS_ACL_REMOTE_ACL_TABLE));
 
         FlowEntity synAckFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE,
-                "SYN-ACK-ALLOW-" + getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE),
+                "SYN-ACK-DEFAULT_ALLOW-" + getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE),
                 AclConstants.PROTO_MATCH_SYN_ACK_ALLOW_PRIORITY, "Ingress Syn Ack ACL Table Allow", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, synMatches, allowAllInstructions);
         mdsalManager.installFlow(synAckFlowEntity);
@@ -489,7 +489,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         synMatches.add(MatchTcpFlags.SYN_ACK);
 
         FlowEntity synAckFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE,
-                "SYN-ACK-ALLOW-" + getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE),
+                "SYN-ACK-DEFAULT_ALLOW-" + getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE),
                 AclConstants.PROTO_MATCH_SYN_ACK_ALLOW_PRIORITY, "Egress Syn Ack ACL Table Allow", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, synMatches, allowAllInstructions);
         mdsalManager.installFlow(synAckFlowEntity);
