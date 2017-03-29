@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_af5d9517",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-29T19:18:13Z",
+      "side": 1,
+      "message": "maybe extract this code to it\u0027s own method and keep this method here more readable?",
+      "revId": "ad7f29f00b6b0253190b8be9857e0e0ba9f05682",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
