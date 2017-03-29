@@ -20,7 +20,7 @@ public interface ClassifierEntryRenderer {
 
     void renderPath(NodeId nodeId, Long nsp, String ip);
 
-    void renderMatch(NodeId nodeId, Long port, Matches matches, Long nsp, Short nsi);
+    void renderMatch(NodeId nodeId, Long port, Matches matches, Long nsp, Short nsi, String ip);
 
     void renderEgress(InterfaceKey interfaceKey);
 
@@ -30,7 +30,7 @@ public interface ClassifierEntryRenderer {
 
     void suppressPath(NodeId nodeId, Long nsp, String ip);
 
-    void suppressMatch(NodeId nodeId, Long port, Matches matches, Long nsp, Short nsi);
+    void suppressMatch(NodeId nodeId, Long port, Matches matches, Long nsp, Short nsi, String ip);
 
     void suppressEgress(InterfaceKey interfaceKey);
 }

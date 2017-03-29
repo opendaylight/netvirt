@@ -8,10 +8,14 @@
 
 package org.opendaylight.netvirt.sfc.classifier.service.domain.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.sfc.classifier.providers.OpenFlow13Provider;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierEntryRenderer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 
 public class OpenflowRenderer implements ClassifierEntryRenderer {
@@ -29,17 +33,42 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
 
     @Override
     public void renderNode(NodeId nodeId) {
-        // TODO
+        List<Flow> flows = new ArrayList<>();
+        flows.add(this.openFlow13Provider.createIngressClassifierFilterVxgpeNshFlow());
+        flows.add(this.openFlow13Provider.createIngressClassifierFilterEthNshFlow());
+        flows.add(this.openFlow13Provider.createIngressClassifierFilterNoNshFlow());
+
+        flows.add(this.openFlow13Provider.createEgressClassifierFilterVxgpeNshFlow());
+        flows.add(this.openFlow13Provider.createEgressClassifierFilterEthNshFlow());
+        flows.add(this.openFlow13Provider.createEgressClassifierFilterNoNshFlow());
+
+        flows.add(this.openFlow13Provider.createEgressClassifierNextHopC1C2Flow());
+        flows.add(this.openFlow13Provider.createEgressClassifierNextHopNoC1C2Flow());
+
+        WriteTransaction tx = this.openFlow13Provider.newWriteOnlyTransaction();
+        flows.forEach((flow) -> this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx));
+        tx.submit();
     }
 
     @Override
     public void renderPath(NodeId nodeId, Long nsp, String ip) {
-        // TODO
+        List<Flow> flows = new ArrayList<>();
+        flows.add(this.openFlow13Provider.createEgressClassifierTransportEgressLocalFlow(nsp, ip));
+        flows.add(this.openFlow13Provider.createEgressClassifierTransportEgressRemoteFlow(nsp));
+
+        WriteTransaction tx = this.openFlow13Provider.newWriteOnlyTransaction();
+        flows.forEach((flow) -> this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx));
+        tx.submit();
     }
 
     @Override
-    public void renderMatch(NodeId nodeId, Long port, Matches matches, Long nsp, Short nsi) {
-        // TODO
+    public void renderMatch(NodeId nodeId, Long port, Matches matches, Long nsp, Short nsi, String ip) {
+        Flow flow = this.openFlow13Provider.createIngressClassifierAclFlow(
+                nodeId, this.openFlow13Provider.getMatchBuilderFromAceMatches(matches), port, ip, nsp, nsi);
+
+        WriteTransaction tx = this.openFlow13Provider.newWriteOnlyTransaction();
+        this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx);
+        tx.submit();
     }
 
     @Override
@@ -54,17 +83,42 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
 
     @Override
     public void suppressNode(NodeId nodeId) {
-        // TODO
+        List<Flow> flows = new ArrayList<>();
+        flows.add(this.openFlow13Provider.createIngressClassifierFilterVxgpeNshFlow());
+        flows.add(this.openFlow13Provider.createIngressClassifierFilterEthNshFlow());
+        flows.add(this.openFlow13Provider.createIngressClassifierFilterNoNshFlow());
+
+        flows.add(this.openFlow13Provider.createEgressClassifierFilterVxgpeNshFlow());
+        flows.add(this.openFlow13Provider.createEgressClassifierFilterEthNshFlow());
+        flows.add(this.openFlow13Provider.createEgressClassifierFilterNoNshFlow());
+
+        flows.add(this.openFlow13Provider.createEgressClassifierNextHopC1C2Flow());
+        flows.add(this.openFlow13Provider.createEgressClassifierNextHopNoC1C2Flow());
+
+        WriteTransaction tx = this.openFlow13Provider.newWriteOnlyTransaction();
+        flows.forEach((flow) -> this.openFlow13Provider.appendFlowForDelete(nodeId, flow, tx));
+        tx.submit();
     }
 
     @Override
     public void suppressPath(NodeId nodeId, Long nsp, String ip) {
-        // TODO
+        List<Flow> flows = new ArrayList<>();
+        flows.add(this.openFlow13Provider.createEgressClassifierTransportEgressLocalFlow(nsp, ip));
+        flows.add(this.openFlow13Provider.createEgressClassifierTransportEgressRemoteFlow(nsp));
+
+        WriteTransaction tx = this.openFlow13Provider.newWriteOnlyTransaction();
+        flows.forEach((flow) -> this.openFlow13Provider.appendFlowForDelete(nodeId, flow, tx));
+        tx.submit();
     }
 
     @Override
-    public void suppressMatch(NodeId nodeId, Long port, Matches matches, Long nsp, Short nsi) {
-        // TODO
+    public void suppressMatch(NodeId nodeId, Long port, Matches matches, Long nsp, Short nsi, String ip) {
+        Flow flow = this.openFlow13Provider.createIngressClassifierAclFlow(
+                nodeId, this.openFlow13Provider.getMatchBuilderFromAceMatches(matches), port, ip, nsp, nsi);
+
+        WriteTransaction tx = this.openFlow13Provider.newWriteOnlyTransaction();
+        this.openFlow13Provider.appendFlowForDelete(nodeId, flow, tx);
+        tx.submit();
     }
 
     @Override

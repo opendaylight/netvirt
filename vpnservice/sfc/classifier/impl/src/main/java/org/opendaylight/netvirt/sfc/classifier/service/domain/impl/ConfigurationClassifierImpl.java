@@ -105,14 +105,19 @@ public class ConfigurationClassifierImpl implements ClassifierState {
                 .map(NetvirtsfcAclActions::getRspName)
                 .flatMap(sfcProvider::getRenderedServicePath)
                 .orElse(null);
-        Long nsp = rsp.getPathId();
-        Short nsi = rsp.getStartingIndex();
 
-        if (Objects.isNull(rsp) || Objects.isNull(nsp) || Objects.isNull(nsi)) {
+        if (Objects.isNull(rsp)) {
             return Collections.emptySet();
         }
 
-        String destinationIf = null;  //TODO SfcProvider should give me the interface of first SFof RSP
+        Long nsp = rsp.getPathId();
+        Short nsi = rsp.getStartingIndex();
+
+        if (Objects.isNull(nsp) || Objects.isNull(nsi)) {
+            return Collections.emptySet();
+        }
+
+        String destinationIf = sfcProvider.getFirstHopSfInterfaceFromRsp(rsp).orElse(null);
 
         NodeKey destinationNode = Optional.ofNullable(destinationIf)
                 .flatMap(geniusProvider::getNodeIdFromLogicalInterface)
@@ -123,12 +128,11 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             return Collections.emptySet();
         }
 
-        String destinationIp = null; // TODO GeniusProvider should give me the interface of first SF
-
+        String destinationIp = geniusProvider.getIpFromInterfaceName(destinationIf).orElse(null);
 
         Map<NodeId, List<InterfaceKey>> nodeToInterfaces = Optional.ofNullable(matches.getAugmentation(NeutronNetwork
                 .class))
-                .flatMap(netvirtProvider::getLogicalInterfacesFromNeutronNetwork)
+                .map(netvirtProvider::getLogicalInterfacesFromNeutronNetwork)
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(iface -> new AbstractMap.SimpleEntry<>(
@@ -146,10 +150,11 @@ public class ConfigurationClassifierImpl implements ClassifierState {
                 entries.add(ClassifierEntry.buildIngressEntry(interfaceKey));
                 entries.add(ClassifierEntry.buildMatchEntry(
                         nodeId,
-                        null, // TODO get openflow port number
+                        geniusProvider.getNodeConnectorIdFromInterfaceName(interfaceKey.getName()).get(),
                         matches,
                         nsp,
-                        nsi));
+                        nsi,
+                        destinationIp));
             });
             entries.add(ClassifierEntry.buildNodeEntry(nodeId));
             entries.add(ClassifierEntry.buildPathEntry(nodeIdListEntry.getKey(), nsp, destinationIp));

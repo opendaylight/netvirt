@@ -47,8 +47,8 @@ public class OperationalClassifierImpl implements ClassifierState {
             }
 
             @Override
-            public void renderMatch(NodeId nodeId, Long port, Matches matches, Long nsp, Short nsi) {
-                entries.add(ClassifierEntry.buildMatchEntry(nodeId, port, matches, nsp, nsi));
+            public void renderMatch(NodeId nodeId, Long port, Matches matches, Long nsp, Short nsi, String ip) {
+                entries.add(ClassifierEntry.buildMatchEntry(nodeId, port, matches, nsp, nsi, ip));
             }
 
             @Override
@@ -72,8 +72,8 @@ public class OperationalClassifierImpl implements ClassifierState {
             }
 
             @Override
-            public void suppressMatch(NodeId nodeId, Long port, Matches matches, Long nsp, Short nsi) {
-                entries.remove(ClassifierEntry.buildMatchEntry(nodeId, port, matches, nsp, nsi));
+            public void suppressMatch(NodeId nodeId, Long port, Matches matches, Long nsp, Short nsi, String ip) {
+                entries.remove(ClassifierEntry.buildMatchEntry(nodeId, port, matches, nsp, nsi, ip));
             }
 
             @Override
