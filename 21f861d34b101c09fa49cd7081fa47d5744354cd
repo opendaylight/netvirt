@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_29ec058f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-29T16:44:07Z",
+      "side": 1,
+      "message": "could prefixToInterface be null? we had bugs around missing prefixToInterface for VM prefixes",
+      "revId": "21f861d34b101c09fa49cd7081fa47d5744354cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_49a06943",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-29T16:44:07Z",
+      "side": 1,
+      "message": "if this is info is relevant only for tunnel underlays please move it under Tunnel.class.equals(egressIfType) block",
+      "revId": "21f861d34b101c09fa49cd7081fa47d5744354cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6959ed5a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-29T16:44:07Z",
+      "side": 1,
+      "message": "This would result in the non-EVPN flow taking two DS access to read the same mac address \nsee VrfEntryListener lin #1241\nIf this would be part of the AdjacencyResult you need to make the other flows use it as well.\nOtherwise limit this read to be in the scope of EVPN specific scope",
+      "revId": "21f861d34b101c09fa49cd7081fa47d5744354cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
