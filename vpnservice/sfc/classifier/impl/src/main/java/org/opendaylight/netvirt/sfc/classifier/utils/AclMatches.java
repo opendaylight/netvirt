@@ -14,13 +14,22 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv6;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.EtherType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.IpMatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._3.match.Ipv4MatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._4.match.TcpMatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._4.match.UdpMatchBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AclMatches {
     private static final Logger LOG = LoggerFactory.getLogger(AclMatches.class);
+    public static final short IP_PROTOCOL_TCP = (short) 6;
+    public static final short IP_PROTOCOL_UDP = (short) 17;
     MatchBuilder matchBuilder;
     Matches matches;
 
@@ -43,7 +52,8 @@ public class AclMatches {
             addIpMatch();
         }
 
-        LOG.info("buildMatch: {}", matchBuilder.build());
+        LOG.debug("buildMatch: {}", matchBuilder.build());
+
         return matchBuilder;
     }
 
@@ -74,26 +84,71 @@ public class AclMatches {
     }
 
     private void addIpProtocolMatch(AceIp aceIp) {
-        int srcPort = 0;
-        int dstPort = 0;
+        // Match on IP
+        IpMatchBuilder ipMatch = new IpMatchBuilder();
+        ipMatch.setIpProtocol(aceIp.getProtocol());
+        matchBuilder.setIpMatch(ipMatch.build());
 
         // TODO Ranges are not supported yet
+
+        int srcPort = 0;
         if (aceIp.getSourcePortRange() != null && aceIp.getSourcePortRange().getLowerPort() != null) {
             srcPort = aceIp.getSourcePortRange().getLowerPort().getValue();
         }
+
+        int dstPort = 0;
         if (aceIp.getDestinationPortRange() != null && aceIp.getDestinationPortRange().getLowerPort() != null) {
             dstPort = aceIp.getDestinationPortRange().getLowerPort().getValue();
         }
-        MatchUtils.createIpProtocolMatch(matchBuilder, aceIp.getProtocol());
-        MatchUtils.addLayer4Match(matchBuilder, aceIp.getProtocol().intValue(), srcPort, dstPort);
+
+        // Match on a TCP/UDP src/dst port
+        if (aceIp.getProtocol() == IP_PROTOCOL_TCP) {
+            TcpMatchBuilder tcpMatch = new TcpMatchBuilder();
+            if (srcPort != 0) {
+                tcpMatch.setTcpSourcePort(new PortNumber(srcPort));
+            }
+            if (dstPort != 0) {
+                tcpMatch.setTcpDestinationPort(new PortNumber(dstPort));
+            }
+            if (srcPort != 0 || dstPort != 0) {
+                matchBuilder.setLayer4Match(tcpMatch.build());
+            }
+        } else if (aceIp.getProtocol() == IP_PROTOCOL_UDP) {
+            UdpMatchBuilder udpMatch = new UdpMatchBuilder();
+            if (srcPort != 0) {
+                udpMatch.setUdpSourcePort(new PortNumber(srcPort));
+            }
+            if (dstPort != 0) {
+                udpMatch.setUdpDestinationPort(new PortNumber(dstPort));
+            }
+            if (srcPort != 0 || dstPort != 0) {
+                matchBuilder.setLayer4Match(udpMatch.build());
+            }
+        }
     }
 
     private void addIpV4Match(AceIp aceIp) {
-        AceIpv4 aceIpv4 = (AceIpv4)aceIp.getAceIpVersion();
+        EthernetMatchBuilder ethernetMatch = new EthernetMatchBuilder();
+        EthernetTypeBuilder ethTypeBuilder = new EthernetTypeBuilder();
+        ethTypeBuilder.setType(new EtherType(MatchUtils.ETHERTYPE_IPV4));
+        ethernetMatch.setEthernetType(ethTypeBuilder.build());
+        matchBuilder.setEthernetMatch(ethernetMatch.build());
 
-        MatchUtils.createEtherTypeMatch(matchBuilder, new EtherType(MatchUtils.ETHERTYPE_IPV4));
-        matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder, aceIpv4.getSourceIpv4Network(),
-                aceIpv4.getDestinationIpv4Network());
+        AceIpv4 aceIpv4 = (AceIpv4)aceIp.getAceIpVersion();
+        Ipv4MatchBuilder ipv4match = new Ipv4MatchBuilder();
+        boolean hasIpMatch = false;
+        if (aceIpv4.getDestinationIpv4Network() != null) {
+            hasIpMatch = true;
+            ipv4match.setIpv4Destination(aceIpv4.getDestinationIpv4Network());
+        }
+        if (aceIpv4.getSourceIpv4Network() != null) {
+            hasIpMatch = true;
+            ipv4match.setIpv4Source(aceIpv4.getSourceIpv4Network());
+        }
+
+        if (hasIpMatch) {
+            matchBuilder.setLayer3Match(ipv4match.build());
+        }
     }
 
     private void addIpV6Match(AceIp aceIp) {

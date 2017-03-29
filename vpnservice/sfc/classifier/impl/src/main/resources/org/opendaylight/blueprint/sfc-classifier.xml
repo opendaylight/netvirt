@@ -12,4 +12,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
   <reference id="dataBroker"
     interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" />
+
+  <reference id="rpcProviderRegistry"
+    interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry" />
+
 </blueprint>

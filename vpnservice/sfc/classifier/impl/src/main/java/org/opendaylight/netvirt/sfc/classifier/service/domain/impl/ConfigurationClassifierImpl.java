@@ -19,37 +19,35 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.sfc.classifier.providers.GeniusProvider;
 import org.opendaylight.netvirt.sfc.classifier.providers.NetvirtProvider;
 import org.opendaylight.netvirt.sfc.classifier.providers.SfcProvider;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.ClassifierEntry;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierRenderableEntry;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierState;
-import org.opendaylight.netvirt.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.rendered.service.paths.RenderedServicePath;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AclBase;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.NetvirtsfcAclActions;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.NeutronNetwork;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.RedirectToSfc;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.classifier.rev150105.Classifiers;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.classifier.rev150105.classifiers.Classifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConfigurationClassifierImpl implements ClassifierState {
 
     private final SfcProvider sfcProvider;
-    private final MdsalUtils mdsalUtils;
+    private final DataBroker dataBroker;
     private final GeniusProvider geniusProvider;
     private final NetvirtProvider netvirtProvider;
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigurationClassifierImpl.class);
 
     public ConfigurationClassifierImpl(GeniusProvider geniusProvider,
                                        NetvirtProvider netvirtProvider,
@@ -58,17 +56,12 @@ public class ConfigurationClassifierImpl implements ClassifierState {
         this.geniusProvider = geniusProvider;
         this.netvirtProvider = netvirtProvider;
         this.sfcProvider = sfcProvider;
-        this.mdsalUtils = new MdsalUtils(dataBroker);
+        this.dataBroker = dataBroker;
     }
 
     @Override
     public Set<ClassifierRenderableEntry> getAllEntries() {
-        return readClassifiers().stream()
-                .map(Classifier::getAcl)
-                .filter(Objects::nonNull)
-                .distinct()
-                .map(this::readAcl)
-                .filter(Objects::nonNull)
+        return readAcls().stream()
                 .map(Acl::getAccessListEntries)
                 .filter(Objects::nonNull)
                 .map(AccessListEntries::getAce)
@@ -79,24 +72,21 @@ public class ConfigurationClassifierImpl implements ClassifierState {
                 .collect(Collectors.toSet());
     }
 
-    public List<Classifier> readClassifiers() {
-        InstanceIdentifier<Classifiers> classifiersIID = InstanceIdentifier.builder(Classifiers.class).build();
-        Classifiers classifiers = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, classifiersIID);
-        return Optional.ofNullable(classifiers).map(Classifiers::getClassifier).orElse(Collections.emptyList());
-    }
-
-    public Acl readAcl(String aclName) {
-        InstanceIdentifier<Acl> aclIID = InstanceIdentifier.builder(AccessLists.class)
-                .child(Acl.class, new AclKey(aclName, AclBase.class))
-                .build();
-        return  mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, aclIID);
+    public List<Acl> readAcls() {
+        InstanceIdentifier<AccessLists> aclsIID = InstanceIdentifier.builder(AccessLists.class).build();
+        AccessLists acls = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, aclsIID).orNull();
+        LOG.trace("Acls read from datastore: {}", acls);
+        return Optional.ofNullable(acls).map(AccessLists::getAcl).orElse(Collections.emptyList());
     }
 
     public Set<ClassifierRenderableEntry> getEntries(Ace ace) {
 
+        LOG.trace("Get entries for Ace {}", ace);
+
         Matches matches = ace.getMatches();
 
         if (Objects.isNull(matches)) {
+            LOG.trace("Ace has no matches");
             return Collections.emptySet();
         }
 
@@ -105,39 +95,43 @@ public class ConfigurationClassifierImpl implements ClassifierState {
                 .map(NetvirtsfcAclActions::getRspName)
                 .flatMap(sfcProvider::getRenderedServicePath)
                 .orElse(null);
+
+        if (Objects.isNull(rsp)) {
+            LOG.trace("Ace has no valid SFC redirect action");
+            return Collections.emptySet();
+        }
+
         Long nsp = rsp.getPathId();
         Short nsi = rsp.getStartingIndex();
 
-        if (Objects.isNull(rsp) || Objects.isNull(nsp) || Objects.isNull(nsi)) {
+        if (Objects.isNull(nsp) || Objects.isNull(nsi)) {
+            LOG.trace("RSP has no valid NSI or NSP");
             return Collections.emptySet();
         }
 
-        String destinationIf = null;  //TODO SfcProvider should give me the interface of first SFof RSP
-
-        NodeKey destinationNode = Optional.ofNullable(destinationIf)
-                .flatMap(geniusProvider::getNodeIdFromLogicalInterface)
-                .map(NodeKey::new)
+        String destinationIp = sfcProvider.getFirstHopSfInterfaceFromRsp(rsp)
+                .flatMap(geniusProvider::getIpFromInterfaceName)
                 .orElse(null);
 
-        if (Objects.isNull(destinationNode)) {
+        if (Objects.isNull(destinationIp)) {
+            LOG.trace("Could not acquire a valid first RSP hop destination ip");
             return Collections.emptySet();
         }
-
-        String destinationIp = null; // TODO GeniusProvider should give me the interface of first SF
-
 
         Map<NodeId, List<InterfaceKey>> nodeToInterfaces = Optional.ofNullable(matches.getAugmentation(NeutronNetwork
                 .class))
-                .flatMap(netvirtProvider::getLogicalInterfacesFromNeutronNetwork)
+                .map(netvirtProvider::getLogicalInterfacesFromNeutronNetwork)
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(iface -> new AbstractMap.SimpleEntry<>(
                         new InterfaceKey(iface),
                         geniusProvider.getNodeIdFromLogicalInterface(iface).orElse(null)))
-                .filter(entry -> Objects.isNull(entry.getValue()))
+                .filter(entry -> Objects.nonNull(entry.getValue()))
                 .collect(Collectors.groupingBy(
                         AbstractMap.Entry::getValue,
                         Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
+
+        LOG.trace("Got classifier nodes and interfaces: {}", nodeToInterfaces);
 
         Set<ClassifierRenderableEntry> entries = new HashSet<>();
         nodeToInterfaces.entrySet().forEach(nodeIdListEntry -> {
@@ -146,10 +140,11 @@ public class ConfigurationClassifierImpl implements ClassifierState {
                 entries.add(ClassifierEntry.buildIngressEntry(interfaceKey));
                 entries.add(ClassifierEntry.buildMatchEntry(
                         nodeId,
-                        null, // TODO get openflow port number
+                        geniusProvider.getNodeConnectorIdFromInterfaceName(interfaceKey.getName()).get(),
                         matches,
                         nsp,
-                        nsi));
+                        nsi,
+                        destinationIp));
             });
             entries.add(ClassifierEntry.buildNodeEntry(nodeId));
             entries.add(ClassifierEntry.buildPathEntry(nodeIdListEntry.getKey(), nsp, destinationIp));
