@@ -213,6 +213,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_2fe1a5fe",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2290,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-03-29T20:06:58Z",
+      "side": 1,
+      "message": "I don\u0027t see why not.\nElanServiceProvider is getting ElanUtil in BP injection\nElanUtil is declared as bean",
+      "parentUuid": "fafc7978_f87bf0bb",
+      "revId": "76e49aa093b35ad91388bc992fd2097f6fe65467",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_0215a1e4",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 1
