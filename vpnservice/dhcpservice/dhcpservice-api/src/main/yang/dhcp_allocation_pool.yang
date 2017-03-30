@@ -68,6 +68,18 @@ module dhcp_allocation_pool {
                     description "dns server list";
                     type inet:ip-address;
                 }
+                list static-routes {
+                    description "static routes list for dhcp allocation";
+                    key "destination";
+                    leaf destination {
+                        description "destination in CIDR format";
+                        type inet:ip-prefix;
+                    }
+                    leaf nexthop {
+                        description "router ip address";
+                        type inet:ip-address;
+                    }
+                }
             }
         }
     }
