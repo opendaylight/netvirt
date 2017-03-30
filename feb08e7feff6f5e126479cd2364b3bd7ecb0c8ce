@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_fb159f9b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/IVpnLinkServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-03-30T12:19:42Z",
+      "side": 1,
+      "message": "is this new code? It would be good to catch the proper exception. Refer to https://wiki.opendaylight.org/view/BestPractices/Coding_Guidelines#IllegalCatch",
+      "revId": "feb08e7feff6f5e126479cd2364b3bd7ecb0c8ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
