@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_55d2bad2",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-03-30T08:21:52Z",
+      "side": 1,
+      "message": "Please add the below logic to work external fixed IP (SNAT) to be programmed on remote switch by setting tunnel-id field only. Since for external fixed IP, there is no vpn interface. \n\nString macAddress \u003d null;\n            List\u003cActionInfo\u003e actionInfos \u003d new ArrayList\u003c\u003e();\n            if (interfaceName \u003d\u003d null \u0026\u0026 isNatPrefix) {\n                //macAddress value can be null for external fixed IP. Since no Vpn Interface\n            } else {\n                macAddress \u003d FibUtil.getMacAddressFromPrefix(dataBroker, interfaceName, prefix);\n                actionInfos.add(new ActionSetFieldEthernetDestination(new MacAddress(macAddress)));\n            }\n            actionInfos.add(new ActionSetFieldTunnelId(tunnelId));",
+      "range": {
+        "startLine": 217,
+        "startChar": 19,
+        "endLine": 217,
+        "endChar": 29
+      },
+      "revId": "77e3e25fe0f03f857706cb1ade41708e242189f9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
