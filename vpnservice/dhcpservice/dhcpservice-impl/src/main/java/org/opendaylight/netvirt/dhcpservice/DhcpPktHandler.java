@@ -13,7 +13,6 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -193,6 +192,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
                 // FIXME: requested ip is currently ignored in moment of allocation
                 return getDhcpInfoFromAllocationPool(networkId, pool, macAddress);
             case DHCPConstants.MSG_RELEASE:
+            case DHCPConstants.MSG_DECLINE:
                 dhcpAllocationPoolMgr.releaseIpAllocation(networkId, pool, macAddress);
                 break;
             default:
@@ -243,7 +243,8 @@ public class DhcpPktHandler implements PacketProcessingListener {
             List<IpAddress> dnsServers = ap.getDnsServers();
             dhcpInfo = new DhcpInfo();
             dhcpInfo.setClientIp(clientIp).setServerIp(serverIp).setCidr(String.valueOf(ap.getSubnet().getValue()))
-                    .setHostRoutes(Collections.emptyList()).setDnsServersIpAddrs(dnsServers).setGatewayIp(serverIp);
+                    .setHostRoutes(DhcpNeutronUtils.convertStaticRoutesToHostRoutes(ap.getStaticRoutes()))
+                    .setDnsServersIpAddrs(dnsServers).setGatewayIp(serverIp);
         }
 
         return dhcpInfo;
@@ -625,12 +626,9 @@ public class DhcpPktHandler implements PacketProcessingListener {
         String strNetAddr = info.getNetworkAddress();
         try {
             byte[] netAddr = InetAddress.getByName(strNetAddr).getAddress();
-          //Strip any trailing 0s from netAddr
-            for (int i = 0; i < netAddr.length;i++) {
-                if (netAddr[i] != 0) {
-                    byteArray.write(netAddr,i,1);
-                }
-            }
+            //Use only the significant octets from netAddr according to prefix
+            Short len = (short) ((prefix + 7) / 8);
+            byteArray.write(netAddr,0,len);
             byteArray.write(InetAddress.getByName(router).getAddress());
         } catch (IOException e) {
             return null;
