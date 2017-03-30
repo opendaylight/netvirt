@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fb1bdf7d",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-30T12:53:10Z",
+      "side": 1,
+      "message": "Ya, its the way it should be, I just left the TODO in.\nThe index for the TODO in bindPortOnEgressClassifier has been changed.",
+      "parentUuid": "fafc7978_5bd2ebd2",
+      "revId": "0510b9e3c9e72f5c3e2df20c59641de3a9ba7848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9ba3b39d",
         "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
         "patchSetId": 2
@@ -94,6 +112,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9b5e1344",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-30T12:53:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_7bd6cfc4",
+      "revId": "0510b9e3c9e72f5c3e2df20c59641de3a9ba7848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_dbe53ba9",
         "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
         "patchSetId": 2
@@ -111,6 +147,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1b322310",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-30T12:53:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_dbe53ba9",
+      "revId": "0510b9e3c9e72f5c3e2df20c59641de3a9ba7848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5ba02b43",
         "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/NetvirtProvider.java",
         "patchSetId": 2
@@ -122,6 +176,24 @@
       "writtenOn": "2017-03-30T12:36:10Z",
       "side": 1,
       "message": "can we migrate to the genius mdsal utils? genius should have the same utils and we can add any missing ones. These legacy utils need to go away.",
+      "revId": "0510b9e3c9e72f5c3e2df20c59641de3a9ba7848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6d13b25c",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/NetvirtProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-30T12:53:10Z",
+      "side": 1,
+      "message": "Im confused: the genius mdsalutils are deprecated.",
+      "parentUuid": "fafc7978_5ba02b43",
       "revId": "0510b9e3c9e72f5c3e2df20c59641de3a9ba7848",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
