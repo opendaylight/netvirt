@@ -160,6 +160,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e6605f37",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2017-03-30T20:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_8da9c7df",
+      "range": {
+        "startLine": 276,
+        "startChar": 30,
+        "endLine": 276,
+        "endChar": 31
+      },
+      "revId": "454556f9c867582bb6489f7cf7e5aade74ba2de0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_edb8532c",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
         "patchSetId": 16
@@ -171,6 +195,30 @@
       "writtenOn": "2017-03-28T08:18:44Z",
       "side": 1,
       "message": "why check this so deep in the loop if it is a function parameter?",
+      "range": {
+        "startLine": 318,
+        "startChar": 20,
+        "endLine": 318,
+        "endChar": 39
+      },
+      "revId": "454556f9c867582bb6489f7cf7e5aade74ba2de0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_265b8788",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2017-03-30T20:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_edb8532c",
       "range": {
         "startLine": 318,
         "startChar": 20,
