@@ -16,6 +16,24 @@
       "revId": "36a671644ea37a2acad6f61d7d72b76dc9d34a7b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5513da65",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2017-03-30T08:33:45Z",
+      "side": 1,
+      "message": "Tali, as I wrote on your previous comment, I am not even using this method. It\u0027s just a refactor of existing logic.",
+      "parentUuid": "fafc7978_0ceaef0e",
+      "revId": "36a671644ea37a2acad6f61d7d72b76dc9d34a7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
