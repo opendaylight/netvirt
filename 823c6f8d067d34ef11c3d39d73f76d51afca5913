@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_26e9c780",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/FlowEntryObjectsStateful.xtend",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2017-03-30T20:16:04Z",
+      "side": 1,
+      "message": "We don\u0027t have tests of Port which is in 2 SGs. This test will be added as part of csit tests",
+      "revId": "823c6f8d067d34ef11c3d39d73f76d51afca5913",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
