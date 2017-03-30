@@ -18,7 +18,8 @@
 
   <odl:clustered-app-config id="aclserviceConfig"
                             binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig"
-                            default-config-file-name="netvirt-aclservice-config.xml">
+                            default-config-file-name="netvirt-aclservice-config.xml"
+                            update-strategy="none">
   </odl:clustered-app-config>
 
   <bean id="aclLiveStatisticsRpcServiceImpl" class="org.opendaylight.netvirt.aclservice.stats.AclLiveStatisticsRpcServiceImpl">

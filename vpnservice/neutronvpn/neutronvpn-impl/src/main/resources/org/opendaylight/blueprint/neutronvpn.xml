@@ -32,7 +32,8 @@
 
   <odl:clustered-app-config id="neutronvpnConfig"
                             binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.config.rev160806.NeutronvpnConfig"
-                            default-config-file-name="netvirt-neutronvpn-config.xml">
+                            default-config-file-name="netvirt-neutronvpn-config.xml"
+                            update-strategy="none">
   </odl:clustered-app-config>
 
   <bean id="neutronvpnNatManager"
