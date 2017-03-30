@@ -59,6 +59,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp_allocation_pool.rev161214.dhcp_allocation_pool.network.allocation.pool.StaticRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeFlat;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeGre;
@@ -113,6 +114,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.portsecurity.rev150
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.QosPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnet.attributes.HostRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnet.attributes.HostRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnet.attributes.HostRoutesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
@@ -1257,5 +1261,19 @@ public class NeutronvpnUtils {
 
     public static boolean isNotEmpty(Collection collection) {
         return (!isEmpty(collection));
+    }
+
+    public static List<HostRoutes> convertToHostRoutes(List<StaticRoutes> staticRoutesList) {
+        List<HostRoutes> hostRoutesList = new ArrayList<>();
+        if (staticRoutesList != null) {
+            for (StaticRoutes dhcpHostRoutes : staticRoutesList) {
+                HostRoutes hostRoutes = new HostRoutesBuilder()
+                        .setKey(new HostRoutesKey(dhcpHostRoutes.getDestination()))
+                        .setDestination(dhcpHostRoutes.getDestination())
+                        .setNexthop(dhcpHostRoutes.getNexthop()).build();
+                hostRoutesList.add(hostRoutes);
+            }
+        }
+        return hostRoutesList;
     }
 }
