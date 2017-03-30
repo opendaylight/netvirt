@@ -22,6 +22,7 @@ Contents:
    IPv6 Data Center to internet connectivity using L3VPN <ipv6-l3vpn-internet>
    IPv6 Inter Data Center connectivity using L3VPN <ipv6-interdc-l3vpn>
    IPv6 L3 North-South support for Flat/VLAN based Provider Networks <ipv6-cvr-north-south>
+   L3VPN Dual Stack for VMs <l3vpn-dual-stack-vms>
    Listener Dependency Helper, avoids waiting for dependent IID <listener-dependency-helper>
    Migrate the SFC classifier from the old to the new netvirt <new-sfc-classifier>
    Netvirt counters <netvirt-statistics-spec>
