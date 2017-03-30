@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_9ba3b39d",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-30T12:12:33Z",
+      "side": 1,
+      "message": "This and other utilities below feel like something that should already exist, or should be added in genius. Maybe IfmUtil? Can always refactor later",
+      "revId": "0510b9e3c9e72f5c3e2df20c59641de3a9ba7848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dbad3b8a",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-30T12:12:33Z",
+      "side": 1,
+      "message": "this is definitely in IfmUtil - getNodeConnectorIdFromInterface",
+      "range": {
+        "startLine": 186,
+        "startChar": 26,
+        "endLine": 186,
+        "endChar": 61
+      },
+      "revId": "0510b9e3c9e72f5c3e2df20c59641de3a9ba7848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bbbf97a9",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/NetvirtProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-30T12:12:33Z",
+      "side": 1,
+      "message": "This gets a port Uuid, checks if it exists via a DS read and then returns this same Uuid? Why is it needed?",
+      "revId": "0510b9e3c9e72f5c3e2df20c59641de3a9ba7848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1bdea311",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/OpenFlow13Provider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-30T12:12:33Z",
+      "side": 1,
+      "message": "Did you really mean to commit it with this?",
+      "range": {
+        "startLine": 336,
+        "startChar": 8,
+        "endLine": 337,
+        "endChar": 29
+      },
+      "revId": "0510b9e3c9e72f5c3e2df20c59641de3a9ba7848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bbd677ef",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/OpenFlow13Utils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-30T12:12:33Z",
+      "side": 1,
+      "message": "We barely use MatchBuilders anymore, Stephen refactored a lot of this - can do it later though.",
+      "revId": "0510b9e3c9e72f5c3e2df20c59641de3a9ba7848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7bcc0f62",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/OpenFlow13Utils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-03-30T12:12:33Z",
+      "side": 1,
+      "message": "You could probably use MatchInPort instead of implementing this",
+      "range": {
+        "startLine": 133,
+        "startChar": 23,
+        "endLine": 133,
+        "endChar": 37
+      },
+      "revId": "0510b9e3c9e72f5c3e2df20c59641de3a9ba7848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
