@@ -89,6 +89,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-elanmanager-config.xml">mvn:org.opendaylight.netvirt/elanmanager-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-neutronvpn-config.xml">mvn:org.opendaylight.netvirt/neutronvpn-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-qosalert-config.xml">mvn:org.opendaylight.netvirt/qosservice-impl/{{VERSION}}/xml/config</configfile>
+    <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-statistics-config.xml">mvn:org.opendaylight.netvirt/statistics-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-vpnmanager-config.xml">mvn:org.opendaylight.netvirt/vpnmanager-impl/{{VERSION}}/xml/config</configfile>
   </feature>
 

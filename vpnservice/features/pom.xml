@@ -226,6 +226,13 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>statistics-impl</artifactId>
+      <version>${vpnservices.version}</version>
+      <type>xml</type>
+      <classifier>config</classifier>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>fibmanager-impl</artifactId>
       <version>${fibmanager.version}</version>
     </dependency>
