@@ -337,6 +337,13 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>neutronvpn-impl</artifactId>
+      <version>${neutronvpn.version}</version>
+      <type>xml</type>
+      <classifier>config</classifier>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>vpnmanager-shell</artifactId>
       <version>${vpnmanager.version}</version>
     </dependency>
