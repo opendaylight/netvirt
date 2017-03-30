@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1bbd0369",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-30T12:46:23Z",
+      "side": 1,
+      "message": "I didnt see it. I was trying to only use Genius via the MDSAL, that\u0027s why Im only using RPCs. I thought it was poor practice to directly use classes from other projects, and everything via MDSAL.",
+      "parentUuid": "fafc7978_9ba3b39d",
+      "revId": "0510b9e3c9e72f5c3e2df20c59641de3a9ba7848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_dbad3b8a",
         "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
         "patchSetId": 2
@@ -127,6 +145,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9bb0d38c",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/NetvirtProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-30T12:46:23Z",
+      "side": 1,
+      "message": "Good point. Originally, give the port uuid, I was returning a different field from the Port object. Later I changed it to return the uuid. So its not needed. I\u0027ll remove it.",
+      "parentUuid": "fafc7978_bbbf97a9",
+      "revId": "0510b9e3c9e72f5c3e2df20c59641de3a9ba7848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1bdea311",
         "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/OpenFlow13Provider.java",
         "patchSetId": 2
@@ -138,6 +174,30 @@
       "writtenOn": "2017-03-30T12:12:33Z",
       "side": 1,
       "message": "Did you really mean to commit it with this?",
+      "range": {
+        "startLine": 336,
+        "startChar": 8,
+        "endLine": 337,
+        "endChar": 29
+      },
+      "revId": "0510b9e3c9e72f5c3e2df20c59641de3a9ba7848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3b71e7e0",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/OpenFlow13Provider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-03-30T12:46:23Z",
+      "side": 1,
+      "message": "This was to be addressed in the next commit.",
+      "parentUuid": "fafc7978_1bdea311",
       "range": {
         "startLine": 336,
         "startChar": 8,
