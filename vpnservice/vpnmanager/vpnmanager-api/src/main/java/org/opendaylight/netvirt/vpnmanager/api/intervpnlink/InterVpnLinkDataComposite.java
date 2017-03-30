@@ -73,6 +73,10 @@ public class InterVpnLinkDataComposite {
         return isComplete() && getState().isPresent() && getState().get() == InterVpnLinkState.State.Active;
     }
 
+    public boolean stepsOnDpn(BigInteger dpnId) {
+        return getFirstEndpointDpns().contains(dpnId) || getSecondEndpointDpns().contains(dpnId);
+    }
+
     public boolean isBgpRoutesLeaking() {
         return this.interVpnLinkCfg != null && this.interVpnLinkCfg.isBgpRoutesLeaking();
     }

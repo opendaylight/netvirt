@@ -120,18 +120,14 @@ public class InterVpnLinkCache {
 
     public static void addInterVpnLinkToCaches(InterVpnLink interVpnLink) {
 
+        String ivlName = interVpnLink.getName();
         LOG.debug("Adding InterVpnLink {} with vpn1=[id={} endpoint={}] and vpn2=[id={}  endpoint={}] ]",
-                interVpnLink.getName(), interVpnLink.getFirstEndpoint().getVpnUuid(),
+                  ivlName, interVpnLink.getFirstEndpoint().getVpnUuid(),
                 interVpnLink.getFirstEndpoint().getIpAddress(), interVpnLink.getSecondEndpoint().getVpnUuid(),
                 interVpnLink.getSecondEndpoint().getIpAddress());
 
-        InterVpnLinkDataComposite interVpnLinkDataComposite;
-
-        Optional<InterVpnLinkDataComposite> optIVpnLinkComposite =
-                getInterVpnLinkByName(interVpnLink.getName());
-
-        if (optIVpnLinkComposite.isPresent()) {
-            interVpnLinkDataComposite = optIVpnLinkComposite.get();
+        InterVpnLinkDataComposite interVpnLinkDataComposite = getInterVpnLinkByName(ivlName).orNull();
+        if (interVpnLinkDataComposite != null) {
             interVpnLinkDataComposite.setInterVpnLinkConfig(interVpnLink);
         } else {
             interVpnLinkDataComposite = new InterVpnLinkDataComposite(interVpnLink);
@@ -142,27 +138,22 @@ public class InterVpnLinkCache {
         addToVpnUuidCache(interVpnLinkDataComposite);
     }
 
-
     public static void addInterVpnLinkStateToCaches(InterVpnLinkState interVpnLinkState) {
 
+        String ivlName = interVpnLinkState.getInterVpnLinkName();
         LOG.debug("Adding InterVpnLinkState {} with vpn1=[{}]  and vpn2=[{}]",
-                interVpnLinkState.getInterVpnLinkName(), interVpnLinkState.getFirstEndpointState(),
-                interVpnLinkState.getSecondEndpointState());
+                  ivlName, interVpnLinkState.getFirstEndpointState(), interVpnLinkState.getSecondEndpointState());
 
-        Optional<InterVpnLinkDataComposite> optIVpnLink =
-                getInterVpnLinkByName(interVpnLinkState.getInterVpnLinkName());
-
-        InterVpnLinkDataComposite interVpnLinkComposite;
-        if (optIVpnLink.isPresent()) {
-            interVpnLinkComposite = optIVpnLink.get();
-            interVpnLinkComposite.setInterVpnLinkState(interVpnLinkState);
+        InterVpnLinkDataComposite ivl = getInterVpnLinkByName(ivlName).orNull();
+        if (ivl != null) {
+            ivl.setInterVpnLinkState(interVpnLinkState);
         } else {
-            interVpnLinkComposite = new InterVpnLinkDataComposite(interVpnLinkState);
-            addToIVpnLinkNameCache(interVpnLinkComposite);
+            ivl = new InterVpnLinkDataComposite(interVpnLinkState);
+            addToIVpnLinkNameCache(ivl);
         }
 
-        addToEndpointCache(interVpnLinkComposite);
-        addToVpnUuidCache(interVpnLinkComposite);
+        addToEndpointCache(ivl);
+        addToVpnUuidCache(ivl);
     }
 
     private static void addToEndpointCache(InterVpnLinkDataComposite interVpnLink) {
