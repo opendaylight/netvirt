@@ -130,6 +130,7 @@
 
   <odl:clustered-app-config id="vpnConfig"
                             binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig"
+                            default-config-file-name="netvirt-vpnmanager-config.xml"
                             update-strategy="none">
   </odl:clustered-app-config>
 
