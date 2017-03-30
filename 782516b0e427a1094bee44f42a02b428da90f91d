@@ -16,6 +16,24 @@
       "revId": "782516b0e427a1094bee44f42a02b428da90f91d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2de9aa80",
+        "filename": "vpnservice/federation-plugin/impl/src/main/java/org/opendaylight/netvirt/federation/plugin/FederationPluginUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2017-03-30T14:11:37Z",
+      "side": 1,
+      "message": "I did not do anything with this method. Just moved it here. I am not touching its logic in this commit",
+      "parentUuid": "fafc7978_00358ef6",
+      "revId": "782516b0e427a1094bee44f42a02b428da90f91d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
