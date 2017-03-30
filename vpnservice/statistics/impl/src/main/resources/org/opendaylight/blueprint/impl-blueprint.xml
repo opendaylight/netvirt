@@ -25,6 +25,7 @@
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
   <odl:clustered-app-config id="statisticsConfig"
     binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.config.rev170326.StatisticsConfig"
-    default-config-file-name="netvirt-statistics-config.xml">
+    default-config-file-name="netvirt-statistics-config.xml"
+    update-strategy="none">
   </odl:clustered-app-config>
 </blueprint>
