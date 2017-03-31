@@ -18,6 +18,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.sfc.sff.logical.rev160620.DpnIdType;
@@ -43,6 +44,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeVxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -52,12 +57,15 @@ import org.slf4j.LoggerFactory;
 public class GeniusProvider {
 
     private final DataBroker dataBroker;
+    private final IInterfaceManager interfaceMgr;
     private final OdlInterfaceRpcService interfaceManagerRpcService;
     private static final Logger LOG = LoggerFactory.getLogger(GeniusProvider.class);
 
     @Inject
-    public GeniusProvider(final DataBroker dataBroker, RpcProviderRegistry rpcProviderRegistry) {
+    public GeniusProvider(final DataBroker dataBroker, RpcProviderRegistry rpcProviderRegistry,
+            IInterfaceManager interfaceMgr) {
         this.dataBroker = dataBroker;
+        this.interfaceMgr = interfaceMgr;
         interfaceManagerRpcService = rpcProviderRegistry.getRpcService(OdlInterfaceRpcService.class);
     }
 
@@ -129,6 +137,8 @@ public class GeniusProvider {
         return Optional.ofNullable(ipList.get(0).getIpv4Address().getValue());
     }
 
+    // TODO Should better use the Genius InterfaceManager to avoid duplicate code
+    //      https://bugs.opendaylight.org/show_bug.cgi?id=8127
     public List<IpAddress> getIpFromDpnId(DpnIdType dpnid) {
         GetEndpointIpForDpnInputBuilder builder = new GetEndpointIpForDpnInputBuilder();
         builder.setDpid(dpnid.getValue());
@@ -208,6 +218,23 @@ public class GeniusProvider {
         }
 
         return nodeConnId;
+    }
+
+    public Optional<Long> getEgressVxlanPortForNode(BigInteger dpnId) {
+//        List<OvsdbTerminationPointAugmentation> tpList = interfaceMgr.getTunnelPortsOnBridge(dpnId);
+        List<OvsdbTerminationPointAugmentation> tpList = interfaceMgr.getPortsOnBridge(dpnId);
+        for (OvsdbTerminationPointAugmentation tp : tpList) {
+            if (tp == null) {
+                continue;
+            }
+            Class<? extends InterfaceTypeBase> ifType = tp.getInterfaceType();
+            if (ifType.equals(InterfaceTypeGre.class) || ifType.equals(InterfaceTypeVxlan.class)) {
+                return Optional.ofNullable(tp.getOfport());
+            }
+        }
+
+        LOG.warn("getEgressVxlanPortForNode nothing available");
+        return Optional.empty();
     }
 
     private void bindService(short serviceId, String serviceName, int servicePriority,
