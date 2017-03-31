@@ -20,22 +20,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.EtherTyp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.ethernet.match.fields.EthernetTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.IpMatchBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._3.match.Ipv4MatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._4.match.TcpMatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._4.match.UdpMatchBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AclMatches {
-    private static final Logger LOG = LoggerFactory.getLogger(AclMatches.class);
     public static final short IP_PROTOCOL_TCP = (short) 6;
     public static final short IP_PROTOCOL_UDP = (short) 17;
-    MatchBuilder matchBuilder;
-    Matches matches;
+    private static final Logger LOG = LoggerFactory.getLogger(AclMatches.class);
+    private MatchBuilder matchBuilder;
+    private final Matches matches;
+    private boolean ipv4EtherTypeSet;
 
     public AclMatches(Matches matches) {
-        matchBuilder = new MatchBuilder();
+        this.matchBuilder = new MatchBuilder();
         this.matches = matches;
+        this.ipv4EtherTypeSet = false;
     }
 
     /**
@@ -85,6 +86,7 @@ public class AclMatches {
 
     private void addIpProtocolMatch(AceIp aceIp) {
         // Match on IP
+        setIpv4EtherType();
         IpMatchBuilder ipMatch = new IpMatchBuilder();
         ipMatch.setIpProtocol(aceIp.getProtocol());
         matchBuilder.setIpMatch(ipMatch.build());
@@ -128,27 +130,28 @@ public class AclMatches {
     }
 
     private void addIpV4Match(AceIp aceIp) {
-        EthernetMatchBuilder ethernetMatch = new EthernetMatchBuilder();
-        EthernetTypeBuilder ethTypeBuilder = new EthernetTypeBuilder();
-        ethTypeBuilder.setType(new EtherType(MatchUtils.ETHERTYPE_IPV4));
-        ethernetMatch.setEthernetType(ethTypeBuilder.build());
-        matchBuilder.setEthernetMatch(ethernetMatch.build());
+        setIpv4EtherType();
 
+        /* TODO for some reason these matches cause the flow not to be written
         AceIpv4 aceIpv4 = (AceIpv4)aceIp.getAceIpVersion();
         Ipv4MatchBuilder ipv4match = new Ipv4MatchBuilder();
         boolean hasIpMatch = false;
         if (aceIpv4.getDestinationIpv4Network() != null) {
             hasIpMatch = true;
             ipv4match.setIpv4Destination(aceIpv4.getDestinationIpv4Network());
+            LOG.info("addIpV4Match with Dst IP [{}]", aceIpv4.getDestinationIpv4Network().getValue());
         }
+
         if (aceIpv4.getSourceIpv4Network() != null) {
             hasIpMatch = true;
             ipv4match.setIpv4Source(aceIpv4.getSourceIpv4Network());
+            LOG.info("addIpV4Match with Src IP [{}]", aceIpv4.getSourceIpv4Network().getValue());
         }
 
         if (hasIpMatch) {
             matchBuilder.setLayer3Match(ipv4match.build());
         }
+        /**/
     }
 
     private void addIpV6Match(AceIp aceIp) {
@@ -157,5 +160,19 @@ public class AclMatches {
         MatchUtils.createEtherTypeMatch(matchBuilder, new EtherType(MatchUtils.ETHERTYPE_IPV6));
         matchBuilder = MatchUtils.addRemoteIpv6Prefix(matchBuilder, aceIpv6.getSourceIpv6Network(),
                 aceIpv6.getDestinationIpv6Network());
+    }
+
+    private void setIpv4EtherType() {
+        if (this.ipv4EtherTypeSet) {
+            // No need to set it twice
+            return;
+        }
+
+        EthernetTypeBuilder ethTypeBuilder = new EthernetTypeBuilder();
+        ethTypeBuilder.setType(new EtherType(MatchUtils.ETHERTYPE_IPV4));
+        EthernetMatchBuilder ethernetMatch = new EthernetMatchBuilder();
+        ethernetMatch.setEthernetType(ethTypeBuilder.build());
+        matchBuilder.setEthernetMatch(ethernetMatch.build());
+        this.ipv4EtherTypeSet = true;
     }
 }
