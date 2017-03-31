@@ -25,10 +25,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.NeutronNetwork;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 @Singleton
@@ -60,12 +56,11 @@ public class NetvirtProvider {
                 continue;
             }
 
-            for (Uuid subnetPortUuid : subnet.getPortList()) {
-                Optional<String> portId = getNeutronPort(subnetPortUuid);
-                if (portId.isPresent()) {
-                    interfaces.add(portId.get());
-                }
+            if (subnet.getPortList().isEmpty()) {
+                continue;
             }
+
+            subnet.getPortList().forEach(portId -> interfaces.add(portId.getValue()));
         }
 
         return interfaces;
@@ -84,15 +79,4 @@ public class NetvirtProvider {
         return InstanceIdentifier.builder(Subnetmaps.class)
                 .child(Subnetmap.class, new SubnetmapKey(subnetUuidStr)).build();
     }
-
-    // Returns the Port UUID string, which is the same as a Genius Logical Interface name
-    private Optional<String> getNeutronPort(Uuid portUuid) {
-        InstanceIdentifier<Port> instId = InstanceIdentifier.create(Neutron.class).child(Ports.class)
-                .child(Port.class, new PortKey(portUuid));
-        Port port = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, instId).orNull();
-
-        return port == null
-                ? Optional.empty() : Optional.of(port.getUuid().getValue());
-    }
-
 }
