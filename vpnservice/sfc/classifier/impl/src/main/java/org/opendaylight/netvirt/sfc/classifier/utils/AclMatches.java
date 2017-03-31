@@ -27,15 +27,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AclMatches {
-    private static final Logger LOG = LoggerFactory.getLogger(AclMatches.class);
     public static final short IP_PROTOCOL_TCP = (short) 6;
     public static final short IP_PROTOCOL_UDP = (short) 17;
-    MatchBuilder matchBuilder;
-    Matches matches;
+    private static final Logger LOG = LoggerFactory.getLogger(AclMatches.class);
+    private MatchBuilder matchBuilder;
+    private final Matches matches;
+    private boolean ipv4EtherTypeSet;
+
+    // TODO need to remove usage of legacy MatchUtils
+    //      https://bugs.opendaylight.org/show_bug.cgi?id=8129
 
     public AclMatches(Matches matches) {
-        matchBuilder = new MatchBuilder();
+        this.matchBuilder = new MatchBuilder();
         this.matches = matches;
+        this.ipv4EtherTypeSet = false;
     }
 
     /**
@@ -85,6 +90,7 @@ public class AclMatches {
 
     private void addIpProtocolMatch(AceIp aceIp) {
         // Match on IP
+        setIpv4EtherType();
         IpMatchBuilder ipMatch = new IpMatchBuilder();
         ipMatch.setIpProtocol(aceIp.getProtocol());
         matchBuilder.setIpMatch(ipMatch.build());
@@ -128,22 +134,23 @@ public class AclMatches {
     }
 
     private void addIpV4Match(AceIp aceIp) {
-        EthernetMatchBuilder ethernetMatch = new EthernetMatchBuilder();
-        EthernetTypeBuilder ethTypeBuilder = new EthernetTypeBuilder();
-        ethTypeBuilder.setType(new EtherType(MatchUtils.ETHERTYPE_IPV4));
-        ethernetMatch.setEthernetType(ethTypeBuilder.build());
-        matchBuilder.setEthernetMatch(ethernetMatch.build());
+        setIpv4EtherType();
 
+        // TODO https://bugs.opendaylight.org/show_bug.cgi?id=8128
+        // TODO for some reason these matches cause the flow not to be written for netmasks other than 32
         AceIpv4 aceIpv4 = (AceIpv4)aceIp.getAceIpVersion();
         Ipv4MatchBuilder ipv4match = new Ipv4MatchBuilder();
         boolean hasIpMatch = false;
         if (aceIpv4.getDestinationIpv4Network() != null) {
             hasIpMatch = true;
             ipv4match.setIpv4Destination(aceIpv4.getDestinationIpv4Network());
+            LOG.info("addIpV4Match with Dst IP [{}]", aceIpv4.getDestinationIpv4Network().getValue());
         }
+
         if (aceIpv4.getSourceIpv4Network() != null) {
             hasIpMatch = true;
             ipv4match.setIpv4Source(aceIpv4.getSourceIpv4Network());
+            LOG.info("addIpV4Match with Src IP [{}]", aceIpv4.getSourceIpv4Network().getValue());
         }
 
         if (hasIpMatch) {
@@ -157,5 +164,19 @@ public class AclMatches {
         MatchUtils.createEtherTypeMatch(matchBuilder, new EtherType(MatchUtils.ETHERTYPE_IPV6));
         matchBuilder = MatchUtils.addRemoteIpv6Prefix(matchBuilder, aceIpv6.getSourceIpv6Network(),
                 aceIpv6.getDestinationIpv6Network());
+    }
+
+    private void setIpv4EtherType() {
+        if (this.ipv4EtherTypeSet) {
+            // No need to set it twice
+            return;
+        }
+
+        EthernetTypeBuilder ethTypeBuilder = new EthernetTypeBuilder();
+        ethTypeBuilder.setType(new EtherType(MatchUtils.ETHERTYPE_IPV4));
+        EthernetMatchBuilder ethernetMatch = new EthernetMatchBuilder();
+        ethernetMatch.setEthernetType(ethTypeBuilder.build());
+        matchBuilder.setEthernetMatch(ethernetMatch.build());
+        this.ipv4EtherTypeSet = true;
     }
 }

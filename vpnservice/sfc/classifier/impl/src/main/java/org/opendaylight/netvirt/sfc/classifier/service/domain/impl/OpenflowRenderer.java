@@ -8,9 +8,12 @@
 
 package org.opendaylight.netvirt.sfc.classifier.service.domain.impl;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.netvirt.sfc.classifier.providers.GeniusProvider;
 import org.opendaylight.netvirt.sfc.classifier.providers.OpenFlow13Provider;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierEntryRenderer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
@@ -23,11 +26,13 @@ import org.slf4j.LoggerFactory;
 public class OpenflowRenderer implements ClassifierEntryRenderer {
 
     private final OpenFlow13Provider openFlow13Provider;
+    private final GeniusProvider geniusProvider;
     private static final Logger LOG = LoggerFactory.getLogger(OpenflowRenderer.class);
     public static final String OF_URI_SEPARATOR = ":";
 
-    public OpenflowRenderer(OpenFlow13Provider openFlow13Provider) {
+    public OpenflowRenderer(OpenFlow13Provider openFlow13Provider, GeniusProvider geniusProvider) {
         this.openFlow13Provider = openFlow13Provider;
+        this.geniusProvider = geniusProvider;
     }
 
     @Override
@@ -58,7 +63,14 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
     public void renderPath(NodeId nodeId, Long nsp, String ip) {
         List<Flow> flows = new ArrayList<>();
         flows.add(this.openFlow13Provider.createEgressClassifierTransportEgressLocalFlow(nsp, ip));
-        flows.add(this.openFlow13Provider.createEgressClassifierTransportEgressRemoteFlow(nsp));
+        LOG.info("renderPath NodeId [{}] dpnFromNodeId [{}]", nodeId.getValue(), getDpnIdFromNodeId(nodeId));
+        Optional<Long> egressPort = geniusProvider.getEgressVxlanPortForNode(getDpnIdFromNodeId(nodeId));
+        LOG.info("renderPath egressPort [{}]", egressPort.orElse(0L));
+        if (!egressPort.isPresent()) {
+            LOG.error("OpenflowRenderer: cant get egressPort for nodeId [{}]", nodeId.getValue());
+            return;
+        }
+        flows.add(this.openFlow13Provider.createEgressClassifierTransportEgressRemoteFlow(nsp, egressPort.get()));
 
         WriteTransaction tx = this.openFlow13Provider.newWriteOnlyTransaction();
         flows.forEach((flow) -> this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx));
@@ -109,7 +121,12 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
     public void suppressPath(NodeId nodeId, Long nsp, String ip) {
         List<Flow> flows = new ArrayList<>();
         flows.add(this.openFlow13Provider.createEgressClassifierTransportEgressLocalFlow(nsp, ip));
-        flows.add(this.openFlow13Provider.createEgressClassifierTransportEgressRemoteFlow(nsp));
+        Optional<Long> egressPort = geniusProvider.getEgressVxlanPortForNode(getDpnIdFromNodeId(nodeId));
+        if (!egressPort.isPresent()) {
+            LOG.error("OpenflowRenderer: cant get egressPort for nodeId [{}]", nodeId.getValue());
+            return;
+        }
+        flows.add(this.openFlow13Provider.createEgressClassifierTransportEgressRemoteFlow(nsp, egressPort.get()));
 
         WriteTransaction tx = this.openFlow13Provider.newWriteOnlyTransaction();
         flows.forEach((flow) -> this.openFlow13Provider.appendFlowForDelete(nodeId, flow, tx));
@@ -134,8 +151,15 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
 
     private static Long getPortNoFromNodeConnector(String connector) {
         /*
-         * NodeConnectorId is of form 'openflow:dpnid:portnum'
+         * NodeConnectorId is of the form 'openflow:dpnid:portnum'
          */
         return Long.valueOf(connector.split(OF_URI_SEPARATOR)[2]);
+    }
+
+    private static BigInteger getDpnIdFromNodeId(NodeId nodeId) {
+        /*
+         * NodeId is of the form 'openflow:dpnid'
+         */
+        return BigInteger.valueOf(Long.valueOf(nodeId.getValue().split(OF_URI_SEPARATOR)[1]));
     }
 }

@@ -329,13 +329,9 @@ public class OpenFlow13Provider {
      *     packet should go to a local or remote SFF.
      *     Match on Nsp, Output to port to send to remote SFF on match.
      */
-    public Flow createEgressClassifierTransportEgressRemoteFlow(long nsp) {
+    public Flow createEgressClassifierTransportEgressRemoteFlow(long nsp, long outport) {
         MatchBuilder match = OpenFlow13Utils.getNspMatch(nsp);
 
-        // TODO which port to output to??? The SF or SFF???
-        String outport = "6";
-
-        // TODO what else do we need to Set on the packet here??
         List<Action> actionList = new ArrayList<>();
         actionList.add(OpenFlow13Utils.createActionOutPort("output:" + outport, actionList.size()));
 
