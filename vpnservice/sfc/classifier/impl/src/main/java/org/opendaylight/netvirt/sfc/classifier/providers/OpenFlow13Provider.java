@@ -12,7 +12,6 @@ import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -32,9 +31,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class OpenFlow13Provider {
+    private static final Logger LOG = LoggerFactory.getLogger(OpenFlow13Provider.class);
+
     // Unique cookie values for each type of flow
     public static final BigInteger INGRESS_CLASSIFIER_FILTER_COOKIE = new BigInteger("F005BA1100000001", 16);
     public static final BigInteger INGRESS_CLASSIFIER_ACL_COOKIE = new BigInteger("F005BA1100000002", 16);
@@ -55,16 +58,20 @@ public class OpenFlow13Provider {
     private static final int EGRESS_CLASSIFIER_EGRESS_REMOTE_PRIORITY = 250;
 
     // Flow names for each table
-    private static final String INGRESS_CLASSIFIER_FILTER_FLOW_NAME = "netvirt ingress classifier filter";
-    private static final String INGRESS_CLASSIFIER_ACL_FLOW_NAME = "netvirt ingress classifier acl";
-    private static final String EGRESS_CLASSIFIER_FILTER_FLOW_NAME = "netvirt egress classifier filter";
-    private static final String EGRESS_CLASSIFIER_NEXTHOP_FLOW_NAME = "netvirt egress classifier nexthop";
-    private static final String EGRESS_CLASSIFIER_TPORTEGRESS_FLOW_NAME = "netvirt egress classifier tport egress";
+    private static final String INGRESS_CLASSIFIER_FILTER_VXGPENSH_FLOW_NAME = "nvsfc_ingr_class_filter_vxgpe";
+    private static final String INGRESS_CLASSIFIER_FILTER_ETHNSH_FLOW_NAME = "nvsfc_ingr_class_filter_eth";
+    private static final String INGRESS_CLASSIFIER_FILTER_NONSH_FLOW_NAME = "nvsfc_ingr_class_filter_nonsh";
+    private static final String INGRESS_CLASSIFIER_ACL_FLOW_NAME = "nvsfc_ingr_class_acl";
+    private static final String EGRESS_CLASSIFIER_FILTER_VXGPENSH_FLOW_NAME = "nvsfc_egr_class_filter_vxgpe";
+    private static final String EGRESS_CLASSIFIER_FILTER_ETHNSH_FLOW_NAME = "nvsfc_egr_class_filter_eth";
+    private static final String EGRESS_CLASSIFIER_FILTER_NONSH_FLOW_NAME = "nvsfc_egr_class_filter_nonsh";
+    private static final String EGRESS_CLASSIFIER_NEXTHOP_C1C2_FLOW_NAME = "nvsfc_egr_class_nexthop_c1c2";
+    private static final String EGRESS_CLASSIFIER_NEXTHOP_NOC1C2_FLOW_NAME = "nvsfc_egr_class_nexthop_noc1c2";
+    private static final String EGRESS_CLASSIFIER_TPORTEGRESS_FLOW_NAME = "nvsfc_egr_class_ tport egress";
 
     private static final long DEFAULT_NSH_CONTEXT_VALUE = 0L;
     private static final short NSH_MDTYPE_ONE = 0x01;
     private static final int DEFAULT_NETMASK = 32;
-    private static AtomicLong flowIdInc = new AtomicLong();
 
     public MatchBuilder getMatchBuilderFromAceMatches(Matches matches) {
         if (matches == null) {
@@ -103,7 +110,7 @@ public class OpenFlow13Provider {
      *     Only allows Non-NSH packets to proceed in the classifier
      *     Match on NSP and resubmit to Ingress Dispatch on match
      */
-    public Flow createIngressClassifierFilterVxgpeNshFlow() {
+    public Flow createIngressClassifierFilterVxgpeNshFlow(NodeId nodeId) {
         MatchBuilder match = new MatchBuilder();
         OpenFlow13Utils.addMatchVxgpeNsh(match);
 
@@ -112,10 +119,11 @@ public class OpenFlow13Provider {
             actionList.size()));
 
         InstructionsBuilder isb = OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(actionList);
+        String flowIdStr = INGRESS_CLASSIFIER_FILTER_VXGPENSH_FLOW_NAME + nodeId.getValue();
 
         return OpenFlow13Utils.createFlowBuilder(NwConstants.INGRESS_SFC_CLASSIFIER_FILTER_TABLE,
             INGRESS_CLASSIFIER_FILTER_NSH_PRIORITY, INGRESS_CLASSIFIER_FILTER_COOKIE,
-            INGRESS_CLASSIFIER_FILTER_FLOW_NAME, String.valueOf(flowIdInc.getAndIncrement()), match, isb).build();
+            INGRESS_CLASSIFIER_FILTER_VXGPENSH_FLOW_NAME, flowIdStr, match, isb).build();
     }
 
     /*
@@ -123,7 +131,7 @@ public class OpenFlow13Provider {
      *     Only allows Non-NSH packets to proceed in the classifier
      *     Match on NSP and resubmit to Ingress Dispatch on match
      */
-    public Flow createIngressClassifierFilterEthNshFlow() {
+    public Flow createIngressClassifierFilterEthNshFlow(NodeId nodeId) {
         MatchBuilder match = new MatchBuilder();
         OpenFlow13Utils.addMatchEthNsh(match);
 
@@ -132,10 +140,11 @@ public class OpenFlow13Provider {
             actionList.size()));
 
         InstructionsBuilder isb = OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(actionList);
+        String flowIdStr = INGRESS_CLASSIFIER_FILTER_ETHNSH_FLOW_NAME + nodeId.getValue();
 
         return OpenFlow13Utils.createFlowBuilder(NwConstants.INGRESS_SFC_CLASSIFIER_FILTER_TABLE,
             INGRESS_CLASSIFIER_FILTER_NSH_PRIORITY, INGRESS_CLASSIFIER_FILTER_COOKIE,
-            INGRESS_CLASSIFIER_FILTER_FLOW_NAME, String.valueOf(flowIdInc.getAndIncrement()), match, isb).build();
+            INGRESS_CLASSIFIER_FILTER_ETHNSH_FLOW_NAME, flowIdStr, match, isb).build();
     }
 
     /*
@@ -143,16 +152,17 @@ public class OpenFlow13Provider {
      *     Only allows Non-NSH packets to proceed in the classifier
      *     Match Any (NSH not present), Goto Classifier ACL table
      */
-    public Flow createIngressClassifierFilterNoNshFlow() {
+    public Flow createIngressClassifierFilterNoNshFlow(NodeId nodeId) {
         // MatchAny
         MatchBuilder match = new MatchBuilder();
 
         InstructionsBuilder isb = OpenFlow13Utils.appendGotoTableInstruction(new InstructionsBuilder(),
             NwConstants.INGRESS_SFC_CLASSIFIER_ACL_TABLE);
+        String flowIdStr = INGRESS_CLASSIFIER_FILTER_NONSH_FLOW_NAME + nodeId.getValue();
 
         return OpenFlow13Utils.createFlowBuilder(NwConstants.INGRESS_SFC_CLASSIFIER_FILTER_TABLE,
             INGRESS_CLASSIFIER_FILTER_NONSH_PRIORITY, INGRESS_CLASSIFIER_FILTER_COOKIE,
-            INGRESS_CLASSIFIER_FILTER_FLOW_NAME, String.valueOf(flowIdInc.getAndIncrement()), match, isb).build();
+            INGRESS_CLASSIFIER_FILTER_NONSH_FLOW_NAME, flowIdStr, match, isb).build();
     }
 
     /*
@@ -179,10 +189,14 @@ public class OpenFlow13Provider {
             actionList.size()));
 
         InstructionsBuilder isb = OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(actionList);
+        LOG.info("createIngressClassifierAclFlow match.toString() [{}]", match.build().toString());
+
+        // The flowIdStr needs to be unique, so the best way to make it unique is to use the match
+        String flowIdStr = INGRESS_CLASSIFIER_ACL_FLOW_NAME + "_" + nodeId.getValue() + match.build().toString();
 
         return OpenFlow13Utils.createFlowBuilder(NwConstants.INGRESS_SFC_CLASSIFIER_ACL_TABLE,
             INGRESS_CLASSIFIER_ACL_PRIORITY, INGRESS_CLASSIFIER_ACL_COOKIE, INGRESS_CLASSIFIER_ACL_FLOW_NAME,
-            String.valueOf(flowIdInc.getAndIncrement()), match, isb).build();
+            flowIdStr, match, isb).build();
 
     }
 
@@ -195,16 +209,17 @@ public class OpenFlow13Provider {
      *     Only allows NSH packets to proceed in the egress classifier
      *     Match on NSP, Goto table Egress Classifier NextHop on match
      */
-    public Flow createEgressClassifierFilterVxgpeNshFlow() {
+    public Flow createEgressClassifierFilterVxgpeNshFlow(NodeId nodeId) {
         MatchBuilder match = new MatchBuilder();
         OpenFlow13Utils.addMatchVxgpeNsh(match);
 
         InstructionsBuilder isb = OpenFlow13Utils.appendGotoTableInstruction(new InstructionsBuilder(),
             NwConstants.EGRESS_SFC_CLASSIFIER_NEXTHOP_TABLE);
+        String flowIdStr = INGRESS_CLASSIFIER_FILTER_VXGPENSH_FLOW_NAME + nodeId.getValue();
 
         return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_FILTER_TABLE,
             EGRESS_CLASSIFIER_FILTER_NSH_PRIORITY, EGRESS_CLASSIFIER_FILTER_COOKIE,
-            EGRESS_CLASSIFIER_FILTER_FLOW_NAME, String.valueOf(flowIdInc.getAndIncrement()), match, isb).build();
+            EGRESS_CLASSIFIER_FILTER_VXGPENSH_FLOW_NAME, flowIdStr, match, isb).build();
     }
 
     /*
@@ -212,16 +227,17 @@ public class OpenFlow13Provider {
      *     Only allows NSH packets to proceed in the egress classifier
      *     Match on NSP, Goto table Egress Classifier NextHop on match
      */
-    public Flow createEgressClassifierFilterEthNshFlow() {
+    public Flow createEgressClassifierFilterEthNshFlow(NodeId nodeId) {
         MatchBuilder match = new MatchBuilder();
         OpenFlow13Utils.addMatchEthNsh(match);
 
         InstructionsBuilder isb = OpenFlow13Utils.appendGotoTableInstruction(new InstructionsBuilder(),
             NwConstants.EGRESS_SFC_CLASSIFIER_NEXTHOP_TABLE);
+        String flowIdStr = EGRESS_CLASSIFIER_FILTER_ETHNSH_FLOW_NAME + nodeId.getValue();
 
         return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_FILTER_TABLE,
             EGRESS_CLASSIFIER_FILTER_NSH_PRIORITY, EGRESS_CLASSIFIER_FILTER_COOKIE,
-            EGRESS_CLASSIFIER_FILTER_FLOW_NAME, String.valueOf(flowIdInc.getAndIncrement()), match, isb).build();
+            EGRESS_CLASSIFIER_FILTER_ETHNSH_FLOW_NAME, flowIdStr, match, isb).build();
     }
 
     /*
@@ -230,7 +246,7 @@ public class OpenFlow13Provider {
      *     MatchAny (NSH not present), Resubmit to Egress Dispatcher
      *     since the packet is not for SFC
      */
-    public Flow createEgressClassifierFilterNoNshFlow() {
+    public Flow createEgressClassifierFilterNoNshFlow(NodeId nodeId) {
         MatchBuilder match = new MatchBuilder();
 
         List<Action> actionList = new ArrayList<>();
@@ -238,10 +254,11 @@ public class OpenFlow13Provider {
             actionList.size()));
 
         InstructionsBuilder isb = OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(actionList);
+        String flowIdStr = EGRESS_CLASSIFIER_FILTER_NONSH_FLOW_NAME + nodeId.getValue();
 
         return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_FILTER_TABLE,
             EGRESS_CLASSIFIER_FILTER_NONSH_PRIORITY, EGRESS_CLASSIFIER_FILTER_COOKIE,
-            EGRESS_CLASSIFIER_FILTER_FLOW_NAME, String.valueOf(flowIdInc.getAndIncrement()), match, isb).build();
+            EGRESS_CLASSIFIER_FILTER_NONSH_FLOW_NAME, flowIdStr, match, isb).build();
     }
 
     /*
@@ -251,7 +268,7 @@ public class OpenFlow13Provider {
      *     Move Reg0 (SFF IP) to TunIpv4Dst, and goto Egress Classifier
      *     Transport Egress table on match
      */
-    public Flow createEgressClassifierNextHopNoC1C2Flow() {
+    public Flow createEgressClassifierNextHopNoC1C2Flow(NodeId nodeId) {
         MatchBuilder match = new MatchBuilder();
         OpenFlow13Utils.addMatchNshNsc1(match, DEFAULT_NSH_CONTEXT_VALUE);
         OpenFlow13Utils.addMatchNshNsc2(match, DEFAULT_NSH_CONTEXT_VALUE);
@@ -263,10 +280,11 @@ public class OpenFlow13Provider {
 
         InstructionsBuilder isb = OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(actionList);
         OpenFlow13Utils.appendGotoTableInstruction(isb, NwConstants.EGRESS_SFC_CLASSIFIER_EGRESS_TABLE);
+        String flowIdStr = EGRESS_CLASSIFIER_NEXTHOP_NOC1C2_FLOW_NAME + nodeId.getValue();
 
         return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_NEXTHOP_TABLE,
             EGRESS_CLASSIFIER_NEXTHOP_NOC1C2_PRIORITY, EGRESS_CLASSIFIER_NEXTHOP_COOKIE,
-            EGRESS_CLASSIFIER_NEXTHOP_FLOW_NAME, String.valueOf(flowIdInc.getAndIncrement()), match, isb).build();
+            EGRESS_CLASSIFIER_NEXTHOP_NOC1C2_FLOW_NAME, flowIdStr, match, isb).build();
     }
 
     /*
@@ -275,15 +293,16 @@ public class OpenFlow13Provider {
      *     MatchAny (C1, C2 already set) goto Egress Classifier
      *     Transport Egress table
      */
-    public Flow createEgressClassifierNextHopC1C2Flow() {
+    public Flow createEgressClassifierNextHopC1C2Flow(NodeId nodeId) {
         MatchBuilder match = new MatchBuilder();
 
         InstructionsBuilder isb = OpenFlow13Utils.appendGotoTableInstruction(new InstructionsBuilder(),
             NwConstants.EGRESS_SFC_CLASSIFIER_EGRESS_TABLE);
+        String flowIdStr = EGRESS_CLASSIFIER_NEXTHOP_C1C2_FLOW_NAME + nodeId.getValue();
 
         return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_NEXTHOP_TABLE,
             EGRESS_CLASSIFIER_NEXTHOP_C1C2_PRIORITY, EGRESS_CLASSIFIER_NEXTHOP_COOKIE,
-            EGRESS_CLASSIFIER_NEXTHOP_FLOW_NAME, String.valueOf(flowIdInc.getAndIncrement()), match, isb).build();
+            EGRESS_CLASSIFIER_NEXTHOP_C1C2_FLOW_NAME, flowIdStr, match, isb).build();
     }
 
     /*
@@ -293,7 +312,7 @@ public class OpenFlow13Provider {
      *     Match on [Nsp, TunIpv4Dst==thisNodeIp], Resubmit to Ingress
      *     Dispatcher to be processed by SFC SFF on match
      */
-    public Flow createEgressClassifierTransportEgressLocalFlow(long nsp, String localIpStr) {
+    public Flow createEgressClassifierTransportEgressLocalFlow(NodeId nodeId, long nsp, String localIpStr) {
         MatchBuilder match = OpenFlow13Utils.getNspMatch(nsp);
         OpenFlow13Utils.addMatchTunIpv4Dst(match, localIpStr, DEFAULT_NETMASK);
 
@@ -302,10 +321,11 @@ public class OpenFlow13Provider {
             actionList.size()));
 
         InstructionsBuilder isb = OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(actionList);
+        String flowIdStr = EGRESS_CLASSIFIER_TPORTEGRESS_FLOW_NAME + nodeId.getValue() + "_" + nsp + "_" + localIpStr;
 
         return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_EGRESS_TABLE,
             EGRESS_CLASSIFIER_EGRESS_LOCAL_PRIORITY, EGRESS_CLASSIFIER_TPORTEGRESS_COOKIE,
-            EGRESS_CLASSIFIER_TPORTEGRESS_FLOW_NAME, String.valueOf(flowIdInc.getAndIncrement()), match, isb).build();
+            EGRESS_CLASSIFIER_TPORTEGRESS_FLOW_NAME, flowIdStr, match, isb).build();
     }
 
     /*
@@ -314,20 +334,17 @@ public class OpenFlow13Provider {
      *     packet should go to a local or remote SFF.
      *     Match on Nsp, Output to port to send to remote SFF on match.
      */
-    public Flow createEgressClassifierTransportEgressRemoteFlow(long nsp) {
+    public Flow createEgressClassifierTransportEgressRemoteFlow(NodeId nodeId, long nsp, long outport) {
         MatchBuilder match = OpenFlow13Utils.getNspMatch(nsp);
 
-        // TODO which port to output to??? The SF or SFF???
-        String outport = "6";
-
-        // TODO what else do we need to Set on the packet here??
         List<Action> actionList = new ArrayList<>();
         actionList.add(OpenFlow13Utils.createActionOutPort("output:" + outport, actionList.size()));
 
         InstructionsBuilder isb = OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(actionList);
+        String flowIdStr = EGRESS_CLASSIFIER_TPORTEGRESS_FLOW_NAME + nodeId.getValue() + "_" + nsp;
 
         return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_EGRESS_TABLE,
             EGRESS_CLASSIFIER_EGRESS_REMOTE_PRIORITY, EGRESS_CLASSIFIER_TPORTEGRESS_COOKIE,
-            EGRESS_CLASSIFIER_TPORTEGRESS_FLOW_NAME, String.valueOf(flowIdInc.getAndIncrement()), match, isb).build();
+            EGRESS_CLASSIFIER_TPORTEGRESS_FLOW_NAME, flowIdStr, match, isb).build();
     }
 }
