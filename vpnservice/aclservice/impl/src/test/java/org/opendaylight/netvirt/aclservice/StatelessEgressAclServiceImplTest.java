@@ -25,6 +25,7 @@ import java.util.concurrent.Future;
 import javax.inject.Inject;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
@@ -83,6 +84,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 
 @RunWith(MockitoJUnitRunner.class)
+@Ignore
 public class StatelessEgressAclServiceImplTest {
 
     public @Rule MethodRule guice = new GuiceRule(new AclServiceModule(),
@@ -210,7 +212,7 @@ public class StatelessEgressAclServiceImplTest {
         assertEquals(true, testedService.removeAcl(ai));
         AclServiceTestUtils.waitABit(asyncEventsWaiter);
         assertEquals(10, removeFlowValueSaver.getNumOfInvocations());
-        FlowEntity firstRangeFlow = (FlowEntity)AclServiceTestUtils.verifyMatchInfoInSomeFlow(removeFlowValueSaver,
+        FlowEntity firstRangeFlow = AclServiceTestUtils.verifyMatchInfoInSomeFlow(removeFlowValueSaver,
                 new NxMatchTcpDestinationPort(80, 65535));
         assertTrue(firstRangeFlow.getMatchInfoList().contains(new MatchTcpFlags(2)));
 
