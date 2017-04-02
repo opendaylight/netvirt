@@ -191,8 +191,7 @@ public class VpnUtil {
     }
 
     static VpnInterface getVpnInterface(DataBroker broker, String vpnInterfaceName) {
-        InstanceIdentifier<VpnInterface> id = InstanceIdentifier.builder(VpnInterfaces.class).child(VpnInterface.class,
-            new VpnInterfaceKey(vpnInterfaceName)).build();
+        InstanceIdentifier<VpnInterface> id = getVpnInterfaceIdentifier(vpnInterfaceName);
         Optional<VpnInterface> vpnInterface = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         return (vpnInterface.isPresent()) ? vpnInterface.get() : null;
     }
