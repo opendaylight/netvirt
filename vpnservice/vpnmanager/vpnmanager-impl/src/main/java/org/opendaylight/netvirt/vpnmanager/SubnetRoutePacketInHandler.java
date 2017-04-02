@@ -128,7 +128,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                         return;
                     }
 
-                    long elanTag = getElanTagFromSubnetRouteMetadata(metadata);
+                    long elanTag = MetaDataUtil.getElanTagFromMetadata(metadata);
                     if (elanTag == 0L) {
                         VpnManagerCounters.subnet_route_packet_failed.inc();
                         LOG.debug(
@@ -188,10 +188,10 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
 
         if (vmVpnInterface.getVpnInstanceName().equals(vpnIdVpnInstanceName)) {
             LOG.trace("Unknown IP is in internal network");
-            handleInternalNetwork(dstIp, dstIpStr, destinationAddress, elanTag);
+            handlePacketToInternalNetwork(dstIp, dstIpStr, destinationAddress, elanTag);
         } else {
             LOG.trace("Unknown IP is in external network");
-            handleExternalNetwork(new Uuid(vpnIdVpnInstanceName), vmVpnInterface, dstIp, elanTag);
+            handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName), vmVpnInterface, dstIp, elanTag);
         }
     }
 
@@ -205,7 +205,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         packetService.transmitPacket(arpRequestInput);
     }
 
-    private void handleInternalNetwork(byte[] dstIp, String dstIpStr, int destinationAddress, long elanTag)
+    private void handlePacketToInternalNetwork(byte[] dstIp, String dstIpStr, int destinationAddress, long elanTag)
             throws UnknownHostException {
 
         SubnetOpDataEntry targetSubnetForPacketOut =
@@ -224,12 +224,25 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             VpnManagerCounters.subnet_route_packet_failed.inc();
             return;
         }
+
         String sourceIp = subnetMap.get().getRouterInterfaceFixedIp();
+        if (sourceIp == null) {
+            LOG.debug("Subnet map {} doesn't have a router interface ip defined", subnetMap.get().getId());
+            VpnManagerCounters.subnet_route_packet_failed.inc();
+            return;
+        }
+
         String sourceMac = subnetMap.get().getRouterIntfMacAddress();
+        if (sourceMac == null) {
+            LOG.debug("Subnet map {} doesn't have a router interface mac address defined", subnetMap.get().getId());
+            VpnManagerCounters.subnet_route_packet_failed.inc();
+            return;
+        }
+
         transmitArpPacket(targetSubnetForPacketOut.getNhDpnId(), sourceIp, sourceMac, dstIp, elanTag);
     }
 
-    private void handleExternalNetwork(Uuid vpnInstanceNameUuid, VpnInterface vmVpnInterface, byte[] dstIp,
+    private void handlePacketToExternalNetwork(Uuid vpnInstanceNameUuid, VpnInterface vmVpnInterface, byte[] dstIp,
             long elanTag) throws UnknownHostException {
         String routerId = vmVpnInterface.getVpnInstanceName();
         Routers externalRouter = VpnUtil.getExternalRouter(dataBroker, routerId);
@@ -299,9 +312,5 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         }
 
         return null;
-    }
-
-    public static long getElanTagFromSubnetRouteMetadata(BigInteger metadata) {
-        return ((metadata.and(MetaDataUtil.METADATA_MASK_ELAN_SUBNET_ROUTE)).shiftRight(24)).longValue();
     }
 }
