@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_545fc272",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-04-02T11:03:12Z",
+      "side": 1,
+      "message": "We should probably refactor all these if,else across the files into functions, and even better an abstract/interface with different implementations. I believe you started work on this and will do more refactoring to have the controller based NAT use the new hierarchy?",
+      "range": {
+        "startLine": 230,
+        "startChar": 12,
+        "endLine": 254,
+        "endChar": 66
+      },
+      "revId": "de7c91c2a7e94c0fd2d9123838de4009479bf910",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
