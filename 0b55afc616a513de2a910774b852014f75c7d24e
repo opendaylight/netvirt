@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_9ac0317e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1266,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-02T22:15:34Z",
+      "side": 1,
+      "message": "I am a little confused. dhcp adds a dependency on neutronvpn-impl to gt this method and neutronvpn adds a dependency on dhcpsevice-api. Can we just move this method over to dhcpservice? Probably not a good thing to be including the neutronvpn-impl.",
+      "revId": "0b55afc616a513de2a910774b852014f75c7d24e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
