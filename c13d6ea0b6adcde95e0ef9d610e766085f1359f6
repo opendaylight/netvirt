@@ -16,6 +16,24 @@
       "revId": "c13d6ea0b6adcde95e0ef9d610e766085f1359f6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_37d3203a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-04-02T15:37:15Z",
+      "side": 1,
+      "message": "The logical tunnel doesn\u0027t have parent ref, then the function returns false for it and it will be  handled.\nThanks.",
+      "parentUuid": "fafc7978_afc3d555",
+      "revId": "c13d6ea0b6adcde95e0ef9d610e766085f1359f6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
