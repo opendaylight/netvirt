@@ -25,6 +25,7 @@ import java.util.concurrent.Future;
 import javax.inject.Inject;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
@@ -83,6 +84,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 
 @RunWith(MockitoJUnitRunner.class)
+@Ignore
 public class StatelessIngressAclServiceImplTest {
 
     public @Rule MethodRule guice = new GuiceRule(new AclServiceModule(),
