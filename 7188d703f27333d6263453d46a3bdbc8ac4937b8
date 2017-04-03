@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_9a202c9d",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBase.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-04-03T14:53:26Z",
+      "side": 1,
+      "message": "document why @Ignore ?",
+      "revId": "7188d703f27333d6263453d46a3bdbc8ac4937b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
