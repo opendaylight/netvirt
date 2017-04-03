@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_a0cd0460",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanTunnelInterfaceStateListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-03T09:53:05Z",
+      "side": 1,
+      "message": "return?",
+      "revId": "93b44ba300f9bc3be50c41bee98843382f8f6b8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
