@@ -8,6 +8,9 @@
              odl:type="default" />
   <reference id="entityOwnershipService"
              interface="org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService" />
+  <reference id="interVpnLinkService"
+             interface="org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService"
+             availability="optional" />
 
   <bean id="bgpAlarmBroadcaster"
         class="org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmBroadcaster"
@@ -17,7 +20,7 @@
   <bean id="fibDSWriter" class="org.opendaylight.netvirt.bgpmanager.FibDSWriter">
     <argument ref="dataBroker" />
   </bean>
-  
+
   <bean id="bgpCommands" class="org.opendaylight.netvirt.bgpmanager.commands.Commands">
     <argument ref="bgpManager" />
   </bean>
@@ -38,6 +41,7 @@
     <argument ref="dataBroker" />
     <argument ref="entityOwnershipService" />
     <argument ref="fibDSWriter" />
+    <argument ref="interVpnLinkService" />
     <argument ref="blueprintBundleContext" />
   </bean>
 </blueprint>

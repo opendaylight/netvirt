@@ -105,6 +105,7 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
 
     private void reinstallInterVpnLink(InterVpnLinkDataComposite ivl) {
         String ivlName = ivl.getInterVpnLinkName();
+        LOG.debug("Reinstalling InterVpnLink {} affected by node going down", ivlName);
         // Lets move the InterVpnLink to some other place. Basically, remove it and create it again
         InstanceIdentifier<InterVpnLink> interVpnLinkIid = InterVpnLinkUtil.getInterVpnLinkPath(ivlName);
         String specificJobKey = "InterVpnLink.update." + ivlName;
