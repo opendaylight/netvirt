@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.vpnmanager.populator.impl;
 
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -52,6 +51,11 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
 
     @Override
     public void populateFib(L3vpnInput input, WriteTransaction writeConfigTxn, WriteTransaction writeOperTxn) {
+        if (input.getRouteOrigin() == RouteOrigin.CONNECTED) {
+            LOG.info("populateFib : Found SubnetRoute for subnet {} rd {}", input.getSubnetIp(), input.getRd());
+            addSubnetRouteFibEntry(input);
+            return;
+        }
         Adjacency nextHop = input.getNextHop();
         long label = nextHop.getLabel();
         String vpnName = input.getVpnName();
@@ -59,10 +63,11 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         String rd = input.getRd();
         String nextHopIp = input.getNextHopIp();
         VrfEntry.EncapType encapType = input.getEncapType();
+        LOG.info("populateFib : Found Interface Adjacency with prefix {} rd {}", nextHop.getIpAddress(), rd);
         List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnInterfaceManager.getVpnsImportingMyRoute(vpnName);
         long vpnId = VpnUtil.getVpnId(broker, vpnName);
         String nextHopIpAddress = nextHop.getIpAddress(); // it is a valid case for nextHopIpAddress to be null
-        if (!rd.equalsIgnoreCase(vpnName)) {
+        if (!rd.equalsIgnoreCase(vpnName) && !rd.equals(input.getNetworkName())) {
             vpnInterfaceManager.addToLabelMapper(label, input.getDpnId(), nextHopIpAddress,
                     Arrays.asList(nextHopIp), vpnId, input.getInterfaceName(), null,false,
                     primaryRd, writeOperTxn);
@@ -111,11 +116,4 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
                 .setIpAddress(prefix).setVrfId(rd).setKey(new AdjacencyKey(prefix))
                 .setPrimaryAdjacency(nextHop.isPrimaryAdjacency()).build();
     }
-
-    @Override
-    public void addSubnetRouteFibEntry(String rd, String vpnName, String prefix, String nextHop, int label,
-                                       long elantag, BigInteger dpnId, WriteTransaction writeTxn,
-                                       VrfEntry.EncapType encapType) {
-    }
-
 }
