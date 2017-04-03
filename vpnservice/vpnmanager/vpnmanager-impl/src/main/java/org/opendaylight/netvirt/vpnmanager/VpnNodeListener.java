@@ -7,14 +7,19 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -50,6 +55,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
     private final IdManagerService idManagerService;
+    private List<BigInteger> connectedDpnIds;
 
     public VpnNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager,
         final IdManagerService idManagerService) {
@@ -57,6 +63,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         this.broker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.idManagerService = idManagerService;
+        this.connectedDpnIds = new ArrayList<>();
     }
 
     public void start() {
@@ -87,28 +94,52 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
             return;
         }
         BigInteger dpId = new BigInteger(node[1]);
+        if (!connectedDpnIds.contains(dpId)) {
+            connectedDpnIds.add(dpId);
+        }
         processNodeAdd(dpId);
     }
 
     @Override
     protected void remove(InstanceIdentifier<Node> identifier, Node del) {
+        NodeId nodeId = del.getId();
+        String[] node =  nodeId.getValue().split(":");
+        if (node.length < 2) {
+            LOG.warn("Unexpected nodeId {}", nodeId.getValue());
+            return;
+        }
+        BigInteger dpId = new BigInteger(node[1]);
+        connectedDpnIds.remove(dpId);
     }
 
     @Override
     protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
     }
 
+    public List<BigInteger> getConnectedNodes() {
+        return connectedDpnIds;
+    }
+
     private void processNodeAdd(BigInteger dpId) {
-        LOG.debug("Received notification to install TableMiss entries for dpn {} ", dpId);
-        WriteTransaction writeFlowTx = broker.newWriteOnlyTransaction();
-        makeTableMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
-        makeL3IntfTblMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
-        makeSubnetRouteTableMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
-        createTableMissForVpnGwFlow(writeFlowTx, dpId);
-        createArpRequestMatchFlowForGwMacTable(writeFlowTx, dpId);
-        createArpResponseMatchFlowForGwMacTable(writeFlowTx, dpId);
-        programTableMissForVpnVniDemuxTable(writeFlowTx, dpId, NwConstants.ADD_FLOW);
-        writeFlowTx.submit();
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob("VPNNODE-" + dpId.toString(),
+            new Callable<List<ListenableFuture<Void>>>() {
+                @Override
+                public List<ListenableFuture<Void>> call() throws Exception {
+                    WriteTransaction writeFlowTx = broker.newWriteOnlyTransaction();
+                    LOG.debug("Received notification to install TableMiss entries for dpn {} ", dpId);
+                    makeTableMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
+                    makeL3IntfTblMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
+                    makeSubnetRouteTableMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
+                    createTableMissForVpnGwFlow(writeFlowTx, dpId);
+                    createArpRequestMatchFlowForGwMacTable(writeFlowTx, dpId);
+                    createArpResponseMatchFlowForGwMacTable(writeFlowTx, dpId);
+                    programTableMissForVpnVniDemuxTable(writeFlowTx, dpId, NwConstants.ADD_FLOW);
+                    List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                    futures.add(writeFlowTx.submit());
+                    return futures;
+                }
+            });
     }
 
     private void makeTableMissFlow(WriteTransaction writeFlowTx, BigInteger dpnId, int addOrRemove) {
