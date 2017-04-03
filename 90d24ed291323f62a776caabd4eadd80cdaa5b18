@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_7ae2a804",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statistics/CountersServiceUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-03T15:59:45Z",
+      "side": 1,
+      "message": "you can simply use lportTag",
+      "range": {
+        "startLine": 111,
+        "startChar": 56,
+        "endLine": 111,
+        "endChar": 109
+      },
+      "revId": "90d24ed291323f62a776caabd4eadd80cdaa5b18",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
