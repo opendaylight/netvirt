@@ -36,6 +36,52 @@
     },
     {
       "key": {
+        "uuid": "da01753e_9db4a6f3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-03T19:54:23Z",
+      "side": 1,
+      "message": "In non BGPVPN usecase we don\u0027t use a next hop IP as this feature is enabled in Flat/VLAN networks (we don\u0027t use tunnels).\nYou need to call addSubnetRouteToFib without a nhTepIP.",
+      "range": {
+        "startLine": 206,
+        "startChar": 19,
+        "endLine": 206,
+        "endChar": 98
+      },
+      "revId": "216336d4bfe9228c708f854ec1dcd92cdd70a5b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_7db902e9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-03T19:54:23Z",
+      "side": 1,
+      "message": "This is needed for both use-cases",
+      "range": {
+        "startLine": 211,
+        "startChar": 16,
+        "endLine": 213,
+        "endChar": 17
+      },
+      "revId": "216336d4bfe9228c708f854ec1dcd92cdd70a5b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_baf41088",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 1
