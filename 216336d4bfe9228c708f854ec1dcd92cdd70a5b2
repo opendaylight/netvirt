@@ -16,6 +16,108 @@
       "revId": "216336d4bfe9228c708f854ec1dcd92cdd70a5b2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_bac6d047",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 759,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T16:36:19Z",
+      "side": 1,
+      "message": "we can add a label field to the subnet-op-data yang.  We can store allocated label there and re-use the label from there instead of requesting from IdManager everytime, as its expensive.",
+      "revId": "216336d4bfe9228c708f854ec1dcd92cdd70a5b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_3abb00c6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 775,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T16:36:19Z",
+      "side": 1,
+      "message": "you should return false here.",
+      "revId": "216336d4bfe9228c708f854ec1dcd92cdd70a5b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_7ab588cc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 777,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T16:36:19Z",
+      "side": 1,
+      "message": "this line is unnecessary.",
+      "revId": "216336d4bfe9228c708f854ec1dcd92cdd70a5b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_9ab02cdf",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 779,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T16:36:19Z",
+      "side": 1,
+      "message": "this should return true;",
+      "revId": "216336d4bfe9228c708f854ec1dcd92cdd70a5b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_1aad5c89",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 818,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T16:36:19Z",
+      "side": 1,
+      "message": "if the control has reached here, then there is a valid nhTepIp and so we can break unconditionally.",
+      "revId": "216336d4bfe9228c708f854ec1dcd92cdd70a5b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_ba9ff04f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 823,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T16:36:19Z",
+      "side": 1,
+      "message": "instead of isAlternateDpnSelected, you can check for (nhTepIp !\u003d null)",
+      "revId": "216336d4bfe9228c708f854ec1dcd92cdd70a5b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
