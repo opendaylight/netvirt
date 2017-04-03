@@ -2222,10 +2222,14 @@ public class ElanUtils {
     public Optional<IpAddress> getSourceIpAddress(Ethernet ethernet, byte[] data) {
         /*IPV6 is not yet present in genius, hence V6 case ignored*/
         Optional<IpAddress> srcIpAddress = Optional.absent();
-        if (NwConstants.ETHTYPE_IPV4 == ethernet.getEtherType()) {
-            srcIpAddress = getSourceIpV4Address(data);
-        } else if (NwConstants.ETHTYPE_ARP == ethernet.getEtherType()) {
-            srcIpAddress = getSrcIpAddrFromArp(data);
+        try {
+            if (NwConstants.ETHTYPE_IPV4 == ethernet.getEtherType()) {
+                srcIpAddress = getSourceIpV4Address(data);
+            } else if (NwConstants.ETHTYPE_ARP == ethernet.getEtherType()) {
+                srcIpAddress = getSrcIpAddrFromArp(data);
+            }
+        } catch (Exception e) {
+            LOG.error("Error in getting ip address from packet", e);
         }
         return srcIpAddress;
     }
