@@ -73,7 +73,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.VrfEntryBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
@@ -82,7 +81,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.label.route.map.LabelRouteInfoBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.label.route.map.LabelRouteInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
@@ -1476,72 +1474,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 LabelRouteInfo labelRouteInfo =
                     new LabelRouteInfoBuilder(opResult.get()).setNextHopIpList(nextHopIpList).build();
                 MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, lriIid, labelRouteInfo);
-            }
-        }
-    }
-
-    public void addSubnetRouteFibEntryToDS(String rd, String vpnName, String prefix, String nextHop, int label,
-        long elantag, BigInteger dpnId, String networkName, WriteTransaction writeTxn) {
-        SubnetRoute route = new SubnetRouteBuilder().setElantag(elantag).build();
-        RouteOrigin origin = RouteOrigin.CONNECTED; // Only case when a route is considered as directly connected
-        VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop, origin, networkName)
-                .addAugmentation(SubnetRoute.class, route).build();
-
-        LOG.debug("Created vrfEntry for {} nexthop {} label {} and elantag {}", prefix, nextHop, label, elantag);
-
-        //TODO: What should be parentVpnId? Get it from RD?
-        long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-        addToLabelMapper((long) label, dpnId, prefix, Collections.singletonList(nextHop), vpnId, null, elantag, true,
-                rd, null);
-        InstanceIdentifier<VrfEntry> vrfEntryId =
-            InstanceIdentifier.builder(FibEntries.class)
-                .child(VrfTables.class, new VrfTablesKey(rd))
-                .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
-        Optional<VrfEntry> entry = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
-
-        if (!entry.isPresent()) {
-            List<VrfEntry> vrfEntryList = Collections.singletonList(vrfEntry);
-
-            InstanceIdentifierBuilder<VrfTables> idBuilder =
-                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
-            InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
-
-            VrfTables vrfTableNew = new VrfTablesBuilder().setRouteDistinguisher(rd).setVrfEntry(vrfEntryList).build();
-
-            if (writeTxn != null) {
-                writeTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTableNew, true);
-            } else {
-                VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTableNew);
-            }
-        } else { // Found in MDSAL database
-            if (writeTxn != null) {
-                writeTxn.put(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
-            } else {
-                VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
-            }
-            LOG.debug("Updated vrfEntry for {} nexthop {} label {}", prefix, nextHop, label);
-        }
-
-        List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
-        if (vpnsToImportRoute.size() > 0) {
-            VrfEntry importingVrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop, RouteOrigin.SELF_IMPORTED,
-                    networkName).addAugmentation(SubnetRoute.class, route).build();
-            List<VrfEntry> importingVrfEntryList = Collections.singletonList(importingVrfEntry);
-            for (VpnInstanceOpDataEntry vpnInstance : vpnsToImportRoute) {
-                LOG.info("Exporting subnet route rd {} prefix {} nexthop {} label {} to vpn {}", rd, prefix, nextHop,
-                    label, vpnInstance.getVpnInstanceName());
-                String importingRd = vpnInstance.getVrfId();
-                InstanceIdentifier<VrfTables> importingVrfTableId =
-                    InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class,
-                        new VrfTablesKey(importingRd)).build();
-                VrfTables importingVrfTable = new VrfTablesBuilder().setRouteDistinguisher(importingRd).setVrfEntry(
-                    importingVrfEntryList).build();
-                if (writeTxn != null) {
-                    writeTxn.merge(LogicalDatastoreType.CONFIGURATION, importingVrfTableId, importingVrfTable, true);
-                } else {
-                    VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, importingVrfTableId,
-                        importingVrfTable);
-                }
             }
         }
     }
