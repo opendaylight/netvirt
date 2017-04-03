@@ -39,6 +39,7 @@ import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.vpnmanager.SubnetOpDpnManager;
 import org.opendaylight.netvirt.vpnmanager.VpnInterfaceManager;
+import org.opendaylight.netvirt.vpnmanager.VpnNodeListener;
 import org.opendaylight.netvirt.vpnmanager.VpnOpDataSyncer;
 import org.opendaylight.netvirt.vpnmanager.VpnSubnetRouteHandler;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
@@ -184,6 +185,8 @@ public class VpnSubnetRouteHandlerTest {
     LockManagerService lockManagerService;
     @Mock
     VpnOpDataSyncer vpnOpDataSyncer;
+    @Mock
+    VpnNodeListener vpnNodeListener;
 
     VpnSubnetRouteHandler vpnSubnetRouteHandler;
 
@@ -211,7 +214,7 @@ public class VpnSubnetRouteHandlerTest {
         setupMocks();
 
         vpnSubnetRouteHandler = new VpnSubnetRouteHandler(dataBroker, subnetOpDpnManager, bgpManager,
-            vpnInterfaceManager, idManager, lockManagerService, vpnOpDataSyncer);
+            vpnInterfaceManager, idManager, lockManagerService, vpnOpDataSyncer, vpnNodeListener);
         final Future<RpcResult<AllocateIdOutput>> idOutputOptional =
             RpcResultBuilder.success(allocateIdOutput).buildFuture();
 
@@ -292,7 +295,7 @@ public class VpnSubnetRouteHandlerTest {
         stateInterface = ifaceBuilder.build();
         subnetOp = new SubnetOpDataEntryBuilder().setElanTag(elanTag).setNhDpnId(dpId).setSubnetCidr(subnetIp)
             .setSubnetId(subnetId).setKey(new SubnetOpDataEntryKey(subnetId)).setVpnName(interfaceName)
-            .setVrfId(primaryRd).setSubnetToDpn(subToDpn).setRouteAdvState(TaskState.Done).build();
+            .setVrfId(primaryRd).setSubnetToDpn(subToDpn).setRouteAdvState(TaskState.Advertised).build();
         vpnInstance = new VpnInstanceBuilder().setVpnId(elanTag).setVpnInstanceName(interfaceName)
             .setVrfId(interfaceName).setKey(new VpnInstanceKey(interfaceName)).build();
         subnetmap = new SubnetmapBuilder().setSubnetIp(subnetIp).setId(subnetId).setNetworkId(portId).setKey(new
@@ -342,7 +345,7 @@ public class VpnSubnetRouteHandlerTest {
     @Test
     public void testOnInterfaceUp() {
 
-        vpnSubnetRouteHandler.onInterfaceUp(dpId, interfaceName);
+        vpnSubnetRouteHandler.onInterfaceUp(dpId, interfaceName, subnetId);
 
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, instPortOp, portOp, true);
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn, true);
@@ -353,7 +356,7 @@ public class VpnSubnetRouteHandlerTest {
     @Test
     public void testOnInterfaceDown() {
 
-        vpnSubnetRouteHandler.onInterfaceDown(dpId, interfaceName);
+        vpnSubnetRouteHandler.onInterfaceDown(dpId, interfaceName, subnetId);
 
         // TODO: subnetOpDpnManager is mocked so not sure how this delete ever worked.
         //verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, dpnOpId);
@@ -380,7 +383,7 @@ public class VpnSubnetRouteHandlerTest {
     @Test
     public void testOnSubnetUpdatedInVpn() {
 
-        vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetmap, false, elanTag);
+        vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetmap, false, true, elanTag);
 
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
