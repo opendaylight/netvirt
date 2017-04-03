@@ -1698,4 +1698,8 @@ public class VpnUtil {
         }
         return null;
     }
+
+    static boolean isExternalSubnetVpn(String vpnName, String subnetId) {
+        return vpnName.equals(subnetId);
+    }
 }

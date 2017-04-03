@@ -2065,10 +2065,10 @@ public class BgpConfigurationManager {
     }
 
     public synchronized void addPrefix(String rd, String macAddress, String pfx, List<String> nhList,
-              VrfEntry.EncapType encapType, int lbl, long l3vni, long l2vni, String gatewayMac, int addressFamily) {
+              VrfEntry.EncapType encapType, long lbl, long l3vni, long l2vni, String gatewayMac, int addressFamily) {
         for (String nh : nhList) {
             Ipv4Address nexthop = nh != null ? new Ipv4Address(nh) : null;
-            Long label = (long) lbl;
+            Long label = lbl;
             Long afi = (long) addressFamily;
             InstanceIdentifier<Networks> iid = InstanceIdentifier.builder(Bgp.class)
                     .child(Networks.class, new NetworksKey(pfx, rd)).build();
