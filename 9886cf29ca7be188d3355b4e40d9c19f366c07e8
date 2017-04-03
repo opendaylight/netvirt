@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_0bb9912e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T13:47:31Z",
+      "side": 1,
+      "message": "It looks like for every network now we create a transparent VPN..  This is really expensive!",
+      "revId": "9886cf29ca7be188d3355b4e40d9c19f366c07e8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
