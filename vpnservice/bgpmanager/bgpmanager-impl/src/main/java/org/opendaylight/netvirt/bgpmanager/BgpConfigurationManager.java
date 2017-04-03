@@ -159,8 +159,10 @@ public class BgpConfigurationManager {
     private static final String DEF_UPORT = "6644";
     private static final String DEF_CHOST = "127.0.0.1";
     private static final String DEF_CPORT = "7644";
-    private static final String SDNC_BGP_MIP = "sdnc_bgp_mip";
-    private static final String BGP_SDNC_MIP = "bgp_sdnc_mip";
+    private static final String DEF_SDNC_BGP_MIP = "127.0.0.1";
+    private static final String DEF_BGP_SDNC_MIP = "127.0.0.1";
+    private static final String SDNC_BGP_MIP = "vpnservice.bgp.thrift.bgp.mip";
+    private static final String BGP_SDNC_MIP = "vpnservice.bgp.thrift.odl.mip";
     private static final String CLUSTER_CONF_FILE = "/cluster/etc/cluster.conf";
     private static final Timer IP_ACTIVATION_CHECK_TIMER = new Timer();
     private static final int STALE_FIB_WAIT = 60;
@@ -174,7 +176,7 @@ public class BgpConfigurationManager {
     private static final long WAIT_TIME_BETWEEN_EACH_TRY_MILLIS = 1000L; //one second sleep after every retry
 
     public String getBgpSdncMipIp() {
-        return readThriftIpForCommunication(BGP_SDNC_MIP);
+        return getProperty(BGP_SDNC_MIP, DEF_BGP_SDNC_MIP);
     }
 
     public long getStaleCleanupTime() {
@@ -267,8 +269,8 @@ public class BgpConfigurationManager {
         ClearBgpCli.setHostAddr(cHostStartup);
         setEntityOwnershipService(entityOwnershipService);
         bgpRouter = BgpRouter.getInstance();
-        odlThriftIp = readThriftIpForCommunication(SDNC_BGP_MIP);
-        bgpThriftIp = readThriftIpForCommunication(BGP_SDNC_MIP);
+        odlThriftIp = getProperty(SDNC_BGP_MIP, DEF_SDNC_BGP_MIP);
+        bgpThriftIp = getProperty(BGP_SDNC_MIP, DEF_BGP_SDNC_MIP);
         registerCallbacks();
 
         LOG.info("BGP Configuration manager initialized");
