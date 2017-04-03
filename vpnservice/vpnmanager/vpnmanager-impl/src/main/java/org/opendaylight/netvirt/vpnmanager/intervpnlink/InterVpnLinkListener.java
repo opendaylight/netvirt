@@ -13,7 +13,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -233,11 +232,11 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             InterVpnLinkUtil.updateVpnFootprint(vpnFootprintService, vpn1Name, secondDpnList);
 
             // Program static routes if needed
-            Optional<InterVpnLinkDataComposite> interVpnLink = InterVpnLinkCache.getInterVpnLinkByName(add.getName());
+            Optional<InterVpnLinkDataComposite> interVpnLink = InterVpnLinkCache.getInterVpnLinkByName(ivpnLinkName);
             ivpnLinkService.handleStaticRoutes(interVpnLink.get());
 
             // Now, if the corresponding flags are activated, there will be some routes exchange
-            leakRoutesIfNeeded(add);
+            ivpnLinkService.exchangeRoutes(interVpnLink.get());
         } else {
             // If there is no connection to DPNs, the InterVpnLink is created and the InterVpnLinkState is also created
             // with the corresponding LPortTags but no DPN is assigned since there is no DPN operative.
@@ -254,56 +253,6 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         }
     }
 
-    private void leakRoutesIfNeeded(InterVpnLink vpnLink) {
-
-        // The type of routes to exchange depend on the leaking flags that have been activated
-        List<RouteOrigin> originsToConsider = new ArrayList<>();
-        if (vpnLink.isBgpRoutesLeaking()) {
-            originsToConsider.add(RouteOrigin.BGP);
-        }
-        if (vpnLink.isConnectedRoutesLeaking()) {
-            originsToConsider.add(RouteOrigin.CONNECTED);
-        }
-
-        /* NOTE: There are 2 types of static routes depending on the next hop:
-                 + static route when next hop is a VM, the DC-GW or a DPNIP
-                 + static route when next hop is an Inter-VPN Link
-          Only the 1st type should be considered since the 2nd has a special treatment */
-        if (vpnLink.isStaticRoutesLeaking()) {
-            originsToConsider.add(RouteOrigin.STATIC);
-        }
-        String vpn1Uuid = vpnLink.getFirstEndpoint().getVpnUuid().getValue();
-        String vpn2Uuid = vpnLink.getSecondEndpoint().getVpnUuid().getValue();
-
-        if (!originsToConsider.isEmpty()) {
-            // 1st Endpoint ==> 2nd endpoint
-            leakRoutes(vpnLink, vpn1Uuid, vpn2Uuid, originsToConsider);
-
-            // 2nd Endpoint ==> 1st endpoint
-            leakRoutes(vpnLink, vpn2Uuid, vpn1Uuid, originsToConsider);
-        }
-    }
-
-    private void leakRoutes(InterVpnLink vpnLink, String srcVpnUuid, String dstVpnUuid,
-        List<RouteOrigin> originsToConsider) {
-        String srcVpnRd = VpnUtil.getVpnRd(dataBroker, srcVpnUuid);
-        String dstVpnRd = VpnUtil.getVpnRd(dataBroker, dstVpnUuid);
-        List<VrfEntry> srcVpnRemoteVrfEntries = VpnUtil.getVrfEntriesByOrigin(dataBroker, srcVpnRd, originsToConsider);
-        for (VrfEntry vrfEntry : srcVpnRemoteVrfEntries) {
-            long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                VpnUtil.getNextHopLabelKey(dstVpnRd, vrfEntry.getDestPrefix()));
-            if (label == VpnConstants.INVALID_LABEL) {
-                LOG.error(
-                    "Unable to fetch label from Id Manager. Bailing out of leaking routes for InterVpnLink {} rd {} "
-                        + "prefix {}",
-                    vpnLink.getName(), dstVpnRd, vrfEntry.getDestPrefix());
-                continue;
-            }
-            InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, vpnLink, srcVpnUuid, dstVpnUuid,
-                vrfEntry.getDestPrefix(), label);
-        }
-    }
-
     private boolean checkVpnAvailability(InterVpnLinkKey key, String vpnName) {
         Preconditions.checkNotNull(vpnName);
 
@@ -312,8 +261,8 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             return true;
         }
 
-        return allInterVpnLinks.stream().anyMatch(ivl -> !ivl.getInterVpnLinkName().equals(key.getName())
-                                                         && ivl.isVpnLinked(vpnName));
+        return allInterVpnLinks.stream().noneMatch(ivl -> !ivl.getInterVpnLinkName().equals(key.getName())
+                                                          && ivl.isVpnLinked(vpnName));
     }
 
     @Override
