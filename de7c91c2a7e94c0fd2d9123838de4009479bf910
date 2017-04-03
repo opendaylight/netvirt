@@ -22,6 +22,30 @@
       "revId": "de7c91c2a7e94c0fd2d9123838de4009479bf910",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_e55efe11",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-04-03T05:47:44Z",
+      "side": 1,
+      "message": "Yes right, I have started with a framework  and the whole else here need to move to ControllerBasedSnat class. As there enhancement  happening in the controller based implementation      it is not done now. The current HA code also need to move to new hierarchy to avoid the if else.",
+      "parentUuid": "da01753e_545fc272",
+      "range": {
+        "startLine": 230,
+        "startChar": 12,
+        "endLine": 254,
+        "endChar": 66
+      },
+      "revId": "de7c91c2a7e94c0fd2d9123838de4009479bf910",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
