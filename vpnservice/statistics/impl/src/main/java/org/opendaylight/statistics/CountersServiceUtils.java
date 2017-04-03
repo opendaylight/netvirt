@@ -108,9 +108,8 @@ public class CountersServiceUtils {
         if (ElementCountersDirection.INGRESS.equals(direction)) {
             return new MatchMetadata(MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG);
         } else if (ElementCountersDirection.EGRESS.equals(direction)) {
-            // Should match against lport tag part only once Genius supports a match with a mask on a register.
-            return (new NxMatchRegister(NxmNxReg6.class,
-                    MetaDataUtil.getReg6ValueForLPortDispatcher(lportTag, NwConstants.DEFAULT_EGRESS_SERVICE_INDEX)));
+            return new NxMatchRegister(NxmNxReg6.class, MetaDataUtil.getLportTagForReg6(lportTag).longValue(),
+                    MetaDataUtil.getLportTagMaskForReg6());
         }
         return null;
     }
