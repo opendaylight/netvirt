@@ -151,6 +151,7 @@
     <argument ref="dataBroker" />
     <argument ref="vpnInterfaceManager" />
     <argument ref="vpnSubnetRouteHandler" />
+    <argument ref="subnetOpDpnManager" />
   </bean>
 
   <bean id="vpnSubnetRouteHandler"
@@ -162,6 +163,7 @@
     <argument ref="idManagerService" />
     <argument ref="lockManagerService" />
     <argument ref="vpnOpDataSyncer"/>
+    <argument ref="VpnNodeListener"/>
   </bean>
 
   <bean id="tunnelInterfaceStateListener"
