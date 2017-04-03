@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_3aa660c2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T16:15:42Z",
+      "side": 1,
+      "message": "the commit message needs to be fixed.\n\nWhen a physical switch on the cloud management network in the cloud is rebooted, it results in disconnection of datapath-nodes from the ODL controller.   Under such conditions, the subnetRoute is removed from all the DPNs.\n\nHowever, once the physical switch comes back up after reboot, the datapath-nodes are all getting reconnected to the ODL controller.  During this time in a scaled environment, the subnetRoute flow rules aren\u0027t getting reapplied to the datapath-nodes.  This is because the election process fails in figuring out a designated datapath-node for hosting subnetroute, thereby the subnetRoute is not getting reconfigured on all the datapath-nodes.",
+      "revId": "216336d4bfe9228c708f854ec1dcd92cdd70a5b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
