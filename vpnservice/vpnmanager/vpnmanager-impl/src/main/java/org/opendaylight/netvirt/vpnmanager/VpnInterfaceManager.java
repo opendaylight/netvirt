@@ -1159,8 +1159,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 writeInvTxn, NwConstants.DEL_FLOW, interfaceState);
                         removeArpResponderFlow(dpnId, lportTag, subnetId, writeInvTxn);
                     }
-
+                    LOG.info("nhlist is {}", nhList);
                     if (!nhList.isEmpty()) {
+                        LOG.info("!nhlist is {}", !nhList.isEmpty());
                         if (rd.equals(vpnName)) {
                             //this is an internal vpn - the rd is assigned to the vpn instance name;
                             //remove from FIB directly

@@ -75,6 +75,8 @@ public class VpnSubnetRouteHandler {
     public void onSubnetAddedToVpn(Subnetmap subnetmap, boolean isBgpVpn, Long elanTag) {
         Uuid subnetId = subnetmap.getId();
         String vpnName = subnetmap.getVpnId().getValue();
+        LOG.info("vpnname is {} and subnet is {} {} {}", vpnName, subnetmap, subnetmap.getVpnId(),
+                subnetmap.getVpnId().getValue());
         String subnetIp = subnetmap.getSubnetIp();
         boolean isRouteAdvertised = false;
 
