@@ -10,7 +10,6 @@ package org.opendaylight.statistics;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -81,7 +80,7 @@ public class IngressCountersServiceImpl extends AbstractCountersService {
     }
 
     private String createFlowName(ElementCountersRequest ecr, int lportTag, BigInteger dpn) {
-        return "Ingress_Counters" + dpn + "_" + lportTag + "_" + UUID.randomUUID().toString();
+        return "Ingress_Counters" + dpn + "_" + lportTag + "_" + ecr.toString().hashCode();
     }
 
     @Override
