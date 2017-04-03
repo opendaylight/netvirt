@@ -49,6 +49,7 @@ import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
+import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderUtil;
@@ -127,6 +128,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     private final VpnFootprintService vpnFootprintService;
     private final IInterfaceManager interfaceManager;
     private final IVpnManager vpnManager;
+    private final IVpnLinkService ivpnLinkService;
 
     private ConcurrentHashMap<String, Runnable> vpnIntfMap = new ConcurrentHashMap<>();
 
@@ -146,7 +148,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                final OdlInterfaceRpcService ifaceMgrRpcService,
                                final VpnFootprintService vpnFootprintService,
                                final IInterfaceManager interfaceManager,
-                               final IVpnManager vpnManager) {
+                               final IVpnManager vpnManager,
+                               final IVpnLinkService ivpnLnkSrvce) {
         super(VpnInterface.class, VpnInterfaceManager.class);
 
         this.dataBroker = dataBroker;
@@ -159,6 +162,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         this.vpnFootprintService = vpnFootprintService;
         this.interfaceManager = interfaceManager;
         this.vpnManager = vpnManager;
+        this.ivpnLinkService = ivpnLnkSrvce;
         vpnInfUpdateTaskExecutor.scheduleWithFixedDelay(new VpnInterfaceUpdateTimerTask(),
             0, VPN_INF_UPDATE_TIMER_TASK_DELAY, TIME_UNIT);
     }
@@ -1750,10 +1754,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             // pointing to the DPNs where Vpn1 is instantiated. LFIB in these DPNS must have a flow entry, with lower
             // priority, where if Label matches then sets the lportTag of the Vpn2 endpoint and goes to LportDispatcher
             // This is like leaking one of the Vpn2 routes towards Vpn1
-            boolean nexthopIsVpn2 = interVpnLink.getSecondEndpointVpnUuid().get().equals(nextHop);
-            String srcVpnUuid = nexthopIsVpn2 ? interVpnLink.getSecondEndpointVpnUuid().get()
-                                              : interVpnLink.getFirstEndpointVpnUuid().get();
-            String dstVpnUuid = interVpnLink.getOtherVpnName(srcVpnUuid);
+            String srcVpnUuid = interVpnLink.getVpnNameByIpAddress(nextHop);
+            String dstVpnUuid = interVpnLink.getOtherVpnNameByIpAddress(nextHop);
             String dstVpnRd = VpnUtil.getVpnRd(dataBroker, dstVpnUuid);
             long newLabel = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
                                                 VpnUtil.getNextHopLabelKey(dstVpnRd, destination));
@@ -1762,8 +1764,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                           + "for destination {}", destination);
                 return;
             }
-            InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, interVpnLink.getInterVpnLinkConfig(),
-                                       srcVpnUuid, dstVpnUuid, destination, newLabel);
+            ivpnLinkService.leakRoute(interVpnLink, srcVpnUuid, dstVpnUuid, destination, newLabel, RouteOrigin.STATIC,
+                                      NwConstants.ADD_FLOW);
         } else {
             L3vpnInput input = new L3vpnInput().setNextHop(operationalAdj).setNextHopIp(nextHop).setL3vni(l3vni)
                     .setPrimaryRd(VpnUtil.getPrimaryRd(dataBroker, vpnName)).setVpnName(vpnName).setDpnId(dpnId)
