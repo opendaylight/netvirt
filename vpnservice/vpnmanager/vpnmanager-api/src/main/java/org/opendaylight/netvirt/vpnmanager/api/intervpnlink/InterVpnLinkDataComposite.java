@@ -306,4 +306,13 @@ public class InterVpnLinkDataComposite {
         return isFirstEndpointIpAddr(endpointIp) ? this.interVpnLinkState.getSecondEndpointState().getDpId()
                                                  : this.interVpnLinkState.getFirstEndpointState().getDpId();
     }
+
+    @Override
+    public String toString() {
+        final String ns = "Not specified";
+        return "InterVpnLink " + getInterVpnLinkName() + " 1stEndpoint=[vpn=" + getFirstEndpointVpnUuid().or(ns)
+            + " ipAddr=" + getFirstEndpointIpAddr().or(ns) + " dpn=" + getFirstEndpointDpns() + "]  2ndEndpoint=[vpn="
+            + getSecondEndpointVpnUuid().or(ns) + " ipAddr=" + getSecondEndpointIpAddr().or(ns) + " dpn="
+            + getSecondEndpointDpns() + "]";
+    }
 }
