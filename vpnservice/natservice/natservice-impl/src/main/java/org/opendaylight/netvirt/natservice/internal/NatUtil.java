@@ -1254,7 +1254,7 @@ public class NatUtil {
         }
         LOG.debug("NAT Service : Router {} is present in the DPN {} only through the interface {} "
             + "Hence DPN router model WILL be cleared. Possibly last VM for the router "
-            + "deleted in the DPN", routerName, curDpnId);
+            + "deleted in the DPN", routerName, curDpnId, vpnInterfaceName);
         writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, routersListIdentifier);
     }
 
