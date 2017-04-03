@@ -19,6 +19,57 @@
     },
     {
       "key": {
+        "uuid": "da01753e_ba3b7037",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T16:44:24Z",
+      "side": 1,
+      "message": "what if nhTepIp is not retrievable.. I think we should simply call electNewDpnForSubnetRoute() here too.\n\nAnd so there is no need for a separate !isBgpVpn() stuff.",
+      "revId": "216336d4bfe9228c708f854ec1dcd92cdd70a5b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_baf41088",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T16:44:24Z",
+      "side": 1,
+      "message": "Use (Objects.equals(dpnId, BigInteger.ZERO))",
+      "revId": "216336d4bfe9228c708f854ec1dcd92cdd70a5b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_daf7548b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T16:44:24Z",
+      "side": 1,
+      "message": "for port {}\", intfName",
+      "revId": "216336d4bfe9228c708f854ec1dcd92cdd70a5b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_bac6d047",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 1
