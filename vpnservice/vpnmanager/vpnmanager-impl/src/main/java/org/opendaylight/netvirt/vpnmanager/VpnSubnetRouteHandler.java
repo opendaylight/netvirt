@@ -73,9 +73,13 @@ public class VpnSubnetRouteHandler {
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void onSubnetAddedToVpn(Subnetmap subnetmap, boolean isBgpVpn, Long elanTag) {
+        LOG.info("in onsubnetaddedtovpn");
         Uuid subnetId = subnetmap.getId();
         String vpnName = subnetmap.getVpnId().getValue();
+        LOG.info("vpnname is {} and subnet is {} {} {}", vpnName, subnetmap, subnetmap.getVpnId(),
+                subnetmap.getVpnId().getValue());
         String subnetIp = subnetmap.getSubnetIp();
+        LOG.info("subnetip {}", subnetIp);
         boolean isRouteAdvertised = false;
 
         Preconditions.checkNotNull(subnetId, "SubnetId cannot be null or empty!");

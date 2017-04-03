@@ -115,6 +115,9 @@ public class VrfListener extends AsyncDataTreeChangeListenerBase<VrfEntry, VrfLi
     }
 
     private List<Long> getUniqueLabelList(VrfEntry original) {
+        LOG.info("in getuniquelablelist");
+        LOG.info("in {}", original.getRoutePaths().stream().map(routePath -> routePath.getLabel()).distinct()
+                .sorted().collect(Collectors.toList()));
         return original.getRoutePaths().stream().map(routePath -> routePath.getLabel()).distinct()
                 .sorted().collect(Collectors.toList());
     }
