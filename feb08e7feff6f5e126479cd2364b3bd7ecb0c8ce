@@ -16,6 +16,24 @@
       "revId": "feb08e7feff6f5e126479cd2364b3bd7ecb0c8ce",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_400538c1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/IVpnLinkServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-04-03T09:20:38Z",
+      "side": 1,
+      "message": "Hi Sam,\nadvertisePrefix is still throwing Exception explicitely. I\u0027m forced to either catch it or explicitely add the throws clause.",
+      "parentUuid": "fafc7978_fb159f9b",
+      "revId": "feb08e7feff6f5e126479cd2364b3bd7ecb0c8ce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
