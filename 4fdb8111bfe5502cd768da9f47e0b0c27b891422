@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "da01753e_bd1c0a15",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-03T19:10:56Z",
+      "side": 1,
+      "message": "{} is not needed for the exception. Refer to https://wiki.opendaylight.org/view/BestPractices/Logging_Best_Practices#Use_parameterized_logging",
+      "range": {
+        "startLine": 376,
+        "startChar": 67,
+        "endLine": 376,
+        "endChar": 69
+      },
+      "revId": "4fdb8111bfe5502cd768da9f47e0b0c27b891422",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_9d266667",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 527,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-03T19:10:56Z",
+      "side": 1,
+      "message": "{} is not needed for the exception. Refer to https://wiki.opendaylight.org/view/BestPractices/Logging_Best_Practices#Use_parameterized_logging",
+      "revId": "4fdb8111bfe5502cd768da9f47e0b0c27b891422",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_3a7e60e5",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 1
@@ -19,6 +59,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_5d2cfe4a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-03T19:10:56Z",
+      "side": 1,
+      "message": "The previous way didn\u0027t even add the exception. This way here does not need the third {} as the logger will pick up the now include e.",
+      "parentUuid": "da01753e_3a7e60e5",
+      "revId": "4fdb8111bfe5502cd768da9f47e0b0c27b891422",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_7a88e8e7",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 1
@@ -30,6 +88,29 @@
       "writtenOn": "2017-04-03T16:50:17Z",
       "side": 1,
       "message": "ditto here",
+      "revId": "4fdb8111bfe5502cd768da9f47e0b0c27b891422",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_1d1a7617",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1023,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-03T19:10:56Z",
+      "side": 1,
+      "message": "double check this one - I am not sure about the Throwables.",
+      "range": {
+        "startLine": 1023,
+        "startChar": 97,
+        "endLine": 1023,
+        "endChar": 99
+      },
       "revId": "4fdb8111bfe5502cd768da9f47e0b0c27b891422",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
