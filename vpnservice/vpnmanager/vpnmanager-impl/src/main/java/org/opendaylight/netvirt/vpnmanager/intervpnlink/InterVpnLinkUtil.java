@@ -215,11 +215,11 @@ public class InterVpnLinkUtil {
                                 ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
                         MetaDataUtil.getMetaDataMaskForLPortDispatcher()));
         String flowRef = getLportDispatcherFlowRef(interVpnLinkName, lportTag);
-        Flow lportDispatcherFlow = MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
-            VpnConstants.DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY, flowRef,
-            0, 0, VpnUtil.getCookieL3((int) vpnId), matches,
-            buildLportDispatcherTableInstructions(vpnId));
-        return lportDispatcherFlow;
+
+        return MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
+                                      VpnConstants.DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY, flowRef,
+                                      0, 0, VpnUtil.getCookieL3((int) vpnId), matches,
+                                      buildLportDispatcherTableInstructions(vpnId));
     }
 
     /**
@@ -231,15 +231,11 @@ public class InterVpnLinkUtil {
      * @return the flow reference string
      */
     public static String getLportDispatcherFlowRef(String interVpnLinkName, Integer lportTag) {
-        return new StringBuffer()
-            .append(VpnConstants.FLOWID_PREFIX).append("INTERVPNLINK")
-            .append(NwConstants.FLOWID_SEPARATOR).append(interVpnLinkName)
-            .append(NwConstants.FLOWID_SEPARATOR).append(lportTag)
-            .append(NwConstants.FLOWID_SEPARATOR).append(ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
-                NwConstants.L3VPN_SERVICE_INDEX))
-            .append(NwConstants.FLOWID_SEPARATOR)
-            .append(VpnConstants.DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY)
-            .toString();
+        return VpnConstants.FLOWID_PREFIX + "INTERVPNLINK" + NwConstants.FLOWID_SEPARATOR + interVpnLinkName
+             + NwConstants.FLOWID_SEPARATOR + lportTag
+             + NwConstants.FLOWID_SEPARATOR + ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
+                                                                    NwConstants.L3VPN_SERVICE_INDEX)
+             + NwConstants.FLOWID_SEPARATOR + VpnConstants.DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY;
     }
 
 
@@ -413,7 +409,7 @@ public class InterVpnLinkUtil {
         List<BigInteger> endpointDpns = interVpnLink.getEndpointDpnsByVpnName(vpnName);
         List<String> nexthopList =
             endpointDpns.stream().map(dpnId -> InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId))
-                .collect(Collectors.toList());
+                        .collect(Collectors.toList());
         LOG.debug("advertising IVpnLink route to BGP:  vpnRd={}, prefix={}, label={}, nexthops={}",
             vpnRd, destination, label, nexthopList);
         bgpManager.advertisePrefix(vpnRd, null /*macAddress*/, destination, nexthopList,
