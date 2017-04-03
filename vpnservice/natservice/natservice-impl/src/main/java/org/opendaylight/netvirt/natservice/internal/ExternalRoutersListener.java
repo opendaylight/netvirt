@@ -286,7 +286,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         // Allocate Primary Napt Switch for this router
         BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
         if (primarySwitchId != null && !primarySwitchId.equals(BigInteger.ZERO)) {
-            LOG.debug("NAT Service : Primary NAPT switch with DPN ID {} is already elected for router",
+            LOG.debug("NAT Service : Primary NAPT switch with DPN ID {} is already elected for router {}",
                 primarySwitchId, routerName);
             return primarySwitchId;
         }
@@ -373,7 +373,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         return;
                     }
                 } catch (UnknownHostException e) {
-                    LOG.warn("Invalid ip address {}", subnetIp, e);
+                    LOG.warn("Invalid ip address {} with exception {}", subnetIp, e);
                     return;
                 }
                 String subnetPrefix = "0";
@@ -524,7 +524,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             try {
                 listenerRegistration.close();
             } catch (final Exception e) {
-                LOG.error("Error when cleaning up ExternalRoutersListener.", e);
+                LOG.error("Cleaning up ExternalRoutersListener failed with exception {}", e);
             }
 
             listenerRegistration = null;
@@ -617,8 +617,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 return rpcResult.getResult().getInterfaceName();
             }
         } catch (InterruptedException | ExecutionException | NullPointerException e) {
-            LOG.warn("NAT Service : Exception when getting tunnel interface Id for tunnel between {} and  {}",
-                srcDpId, dstDpId);
+            LOG.warn("NAT Service : Getting tunnel interface Id for tunnel between {} and  {} failed with exception {}",
+                srcDpId, dstDpId, e);
         }
 
         return null;
@@ -782,7 +782,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 LOG.error("NAT Service : Unable to create GroupIdPool");
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Failed to create PortPool for NAPT Service", e);
+            LOG.error("Create PortPool for NAPT Service failed with exception {}", e);
         }
     }
 
@@ -887,7 +887,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     private void handleSnatReverseTraffic(BigInteger dpnId, Routers router, long routerId, String routerName,
             String externalIp) {
-        LOG.debug("NAT Service : handleSnatReverseTraffic() entry for DPN ID, routerId, externalIp: {}",
+        LOG.debug("NAT Service : handleSnatReverseTraffic() entry for DPN ID {}, routerId {}, externalIp: {}",
             dpnId, routerId, externalIp);
         Uuid networkId = NatUtil.getNetworkIdFromRouterId(dataBroker, routerId);
         if (networkId == null) {
@@ -903,7 +903,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
         advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnName, routerId, routerName,
             externalIp, router, vpnService, fibService, bgpManager, dataBroker, LOG);
-        LOG.debug("NAT Service : handleSnatReverseTraffic() exit for DPN ID, routerId, externalIp : {}",
+        LOG.debug("NAT Service : handleSnatReverseTraffic() exit for DPN ID {}, routerId {}, externalIp : {}",
             dpnId, routerId, externalIp);
     }
 
@@ -1020,7 +1020,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
             @Override
             public void onFailure(Throwable error) {
-                log.error("NAT Service : Error in generate label or fib install process", error);
+                log.error("NAT Service : Generate label or fib install process failed with error {}", error);
             }
 
             @Override
@@ -1074,7 +1074,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         mdsalManager.installFlow(dpId, flowEntity);
 
-        LOG.debug("NAT Service : LFIB Entry for dpID {} : label : {} modified successfully {}", dpId, serviceId);
+        LOG.debug("NAT Service : LFIB Entry for dpID {} : label : {} modified successfully", dpId, serviceId);
     }
 
     private void makeTunnelTableEntry(BigInteger dpnId, long serviceId, long l3Vni,
@@ -1082,7 +1082,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         List<MatchInfo> mkMatches = new ArrayList<>();
 
         LOG.debug("NAT Service : Create terminatingServiceAction on DpnId = {} and serviceId = {} and actions = {}",
-            dpnId, serviceId);
+            dpnId, serviceId, customInstructions);
 
         if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
             mkMatches.add(new MatchTunnelId(BigInteger.valueOf(l3Vni)));
@@ -2036,7 +2036,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
             @Override
             public void onFailure(Throwable error) {
-                LOG.error("NAT Service : Error in removing the label or custom fib entries", error);
+                LOG.error("NAT Service : Removing the label or custom fib entries failed with error {}", error);
             }
 
             @Override
@@ -2126,7 +2126,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
             @Override
             public void onFailure(Throwable error) {
-                LOG.error("NAT Service : Error in removing the label or custom fib entries", error);
+                LOG.error("NAT Service : Removing the label or custom fib entries failed with error {}", error);
             }
 
             @Override
@@ -2214,7 +2214,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         mdsalManager.removeFlow(dpnId, flowEntity);
 
-        LOG.debug("NAT Service : LFIB Entry for dpID : {} label : {} removed successfully {}", dpnId, serviceId);
+        LOG.debug("NAT Service : LFIB Entry for dpID : {} label : {} removed successfully", dpnId, serviceId);
     }
 
     /**
@@ -2322,7 +2322,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 FlowEntity flowEntity = buildSnatFlowEntityWithUpdatedVpnId(dpnId, routerName, groupId, changedVpnId);
                 mdsalManager.installFlow(flowEntity);
             } else {
-                LOG.debug(logMsg + " in the SNAT miss entry pointing to group {} in the primary switch {}",
+                LOG.debug(logMsg + " in the SNAT miss entry pointing to group in the primary switch {}",
                     changedVpnId, primarySwitchId);
                 FlowEntity flowEntity =
                     buildSnatFlowEntityWithUpdatedVpnIdForPrimrySwtch(primarySwitchId, routerName, changedVpnId);

@@ -692,7 +692,7 @@ public class NatUtil {
             LOG.info("NAT Service : ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd,
                     prefix, nextHopIp, label);
         } catch (Exception e) {
-            LOG.error("NAT Service : Add prefix rd {} prefix {} nextHop {} label {} failed", rd,
+            LOG.error("NAT Service : Add prefix rd {} prefix {} nextHop {} label {} failed with exception {}", rd,
                     prefix, nextHopIp, label, e);
         }
     }
@@ -791,7 +791,7 @@ public class NatUtil {
             }
             LOG.info("REMOVE: Removed Fib entry rd {} prefix {}", rd, prefix);
         } catch (Exception e) {
-            log.error("Delete prefix for rd {} prefix {} vpnName {} failed", rd, prefix, vpnName, e);
+            log.error("Delete prefix for rd {} prefix {} vpnName {} failed with exception {}", rd, prefix, vpnName, e);
         }
     }
 
@@ -1254,7 +1254,7 @@ public class NatUtil {
         }
         LOG.debug("NAT Service : Router {} is present in the DPN {} only through the interface {} "
             + "Hence DPN router model WILL be cleared. Possibly last VM for the router "
-            + "deleted in the DPN", routerName, curDpnId);
+            + "deleted in the DPN", routerName, curDpnId, vpnInterfaceName);
         writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, routersListIdentifier);
     }
 
@@ -1290,7 +1290,7 @@ public class NatUtil {
                 LOG.error("NAT Service : Could not retrieve DPN Id for interface {}", ifName);
             }
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("NAT Service : Exception when getting dpn for interface {}", ifName, e);
+            LOG.error("NAT Service : Getting dpn for interface {} failed with exception {}", ifName, e);
         }
         return nodeId;
     }
@@ -1345,7 +1345,7 @@ public class NatUtil {
                 }
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when egress actions for interface {}", ifName, e);
+            LOG.warn("Egress actions for interface {} failed with exception {}", ifName, e);
         }
         return listActionInfo;
     }
@@ -1505,7 +1505,7 @@ public class NatUtil {
 
             @Override
             public void onFailure(Throwable error) {
-                LOG.error("NAT Service : Error in Datastore operation", error);
+                LOG.error("NAT Service : Datastore operation failed with error {}", error);
             }
 
             ;
