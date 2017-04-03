@@ -70,12 +70,22 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
     @Override
     protected void remove(InstanceIdentifier<Acl> key, Acl acl) {
+        if (!AclServiceUtils.isOfAclInterest(acl)) {
+            LOG.trace("{} does not have SecurityRuleAttr augmentation", acl.getAclName());
+            return;
+        }
+
         this.aclServiceUtils.releaseAclId(acl.getAclName());
         updateRemoteAclCache(acl.getAccessListEntries().getAce(), acl.getAclName(), AclServiceManager.Action.REMOVE);
     }
 
     @Override
     protected void update(InstanceIdentifier<Acl> key, Acl aclBefore, Acl aclAfter) {
+        if (!AclServiceUtils.isOfAclInterest(aclAfter)) {
+            LOG.trace("{} does not have SecurityRuleAttr augmentation", aclAfter.getAclName());
+            return;
+        }
+
         String aclName = aclAfter.getAclName();
         List<AclInterface> interfaceList = aclDataUtil.getInterfaceList(new Uuid(aclName));
         // find and update added ace rules in acl
@@ -107,6 +117,11 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
     @Override
     protected void add(InstanceIdentifier<Acl> key, Acl acl) {
+        if (!AclServiceUtils.isOfAclInterest(acl)) {
+            LOG.trace("{} does not have SecurityRuleAttr augmentation", acl.getAclName());
+            return;
+        }
+
         updateRemoteAclCache(acl.getAccessListEntries().getAce(), acl.getAclName(), AclServiceManager.Action.ADD);
     }
 

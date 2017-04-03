@@ -49,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.DestinationPortRangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.SourcePortRangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
@@ -105,9 +106,9 @@ public class AclServiceTestUtils {
         aclDataUtil.addAclInterfaceMap(prapreaAclIds(updatedAclNames), inter);
     }
 
-    public static Acl prepareAcl(String aclName, String... aces) {
+    public static Acl prepareAcl(String aclName, boolean includeAug, String... aces) {
         AccessListEntries aceEntries = mock(AccessListEntries.class);
-        List<Ace> aceList = prepareAceList(aces);
+        List<Ace> aceList = prepareAceList(includeAug, aces);
         when(aceEntries.getAce()).thenReturn(aceList);
 
         Acl acl = mock(Acl.class);
@@ -116,11 +117,14 @@ public class AclServiceTestUtils {
         return acl;
     }
 
-    public static List<Ace> prepareAceList(String... aces) {
+    public static List<Ace> prepareAceList(boolean includeAug, String... aces) {
         List<Ace> aceList = new ArrayList<>();
         for (String aceName : aces) {
             Ace aceMock = mock(Ace.class);
             when(aceMock.getRuleName()).thenReturn(aceName);
+            if (includeAug) {
+                when(aceMock.getAugmentation(SecurityRuleAttr.class)).thenReturn(mock(SecurityRuleAttr.class));
+            }
             aceList.add(aceMock);
         }
         return aceList;

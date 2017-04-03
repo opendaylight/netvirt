@@ -80,8 +80,8 @@ public class AclEventListenerTest {
     public void testUpdate_singleInterface_addNewAce() {
         prepareAclDataUtil(aclDataUtil, aclInterfaceMock, aclName);
 
-        Acl previousAcl = prepareAcl(aclName, "AllowUDP");
-        Acl updatedAcl = prepareAcl(aclName, "AllowICMP", "AllowUDP");
+        Acl previousAcl = prepareAcl(aclName, true, "AllowUDP");
+        Acl updatedAcl = prepareAcl(aclName, true, "AllowICMP", "AllowUDP");
 
         aclEventListener.update(mockInstanceId, previousAcl, updatedAcl);
 
@@ -96,8 +96,8 @@ public class AclEventListenerTest {
     public void testUpdate_singleInterface_removeOldAce() {
         prepareAclDataUtil(aclDataUtil, aclInterfaceMock, aclName);
 
-        Acl previousAcl = prepareAcl(aclName, "AllowICMP", "AllowUDP");
-        Acl updatedAcl = prepareAcl(aclName, "AllowUDP");
+        Acl previousAcl = prepareAcl(aclName, true, "AllowICMP", "AllowUDP");
+        Acl updatedAcl = prepareAcl(aclName, true, "AllowUDP");
 
         aclEventListener.update(mockInstanceId, previousAcl, updatedAcl);
 
@@ -112,8 +112,8 @@ public class AclEventListenerTest {
     public void testUpdate_singleInterface_addNewAceAndRemoveOldAce() {
         prepareAclDataUtil(aclDataUtil, aclInterfaceMock, aclName);
 
-        Acl previousAcl = prepareAcl(aclName, "AllowICMP", "AllowUDP");
-        Acl updatedAcl = prepareAcl(aclName, "AllowTCP", "AllowUDP");
+        Acl previousAcl = prepareAcl(aclName, true, "AllowICMP", "AllowUDP");
+        Acl updatedAcl = prepareAcl(aclName, true, "AllowTCP", "AllowUDP");
 
         aclEventListener.update(mockInstanceId, previousAcl, updatedAcl);
 
@@ -125,5 +125,31 @@ public class AclEventListenerTest {
 
         assertEquals(Action.REMOVE, actionValueSaver.getAllValues().get(1));
         assertEquals("AllowICMP", aceValueSaver.getAllValues().get(1).getRuleName());
+    }
+
+    @Test
+    public void testUpdate_addNewAce_withoutSecurityAttrAugmentation() {
+        prepareAclDataUtil(aclDataUtil, aclInterfaceMock, aclName);
+
+        Acl previousAcl = prepareAcl(aclName, false, "AllowUDP");
+        Acl updatedAcl = prepareAcl(aclName, false, "AllowICMP", "AllowUDP");
+
+        aclEventListener.update(mockInstanceId, previousAcl, updatedAcl);
+
+        verify(aclServiceManager, times(0)).notifyAce(aclInterfaceValueSaver.capture(), actionValueSaver.capture(),
+                aclNameSaver.capture(), aceValueSaver.capture());
+    }
+
+    @Test
+    public void testUpdate_removeOldAce_withoutSecurityAttrAugmentation() {
+        prepareAclDataUtil(aclDataUtil, aclInterfaceMock, aclName);
+
+        Acl previousAcl = prepareAcl(aclName, false, "AllowICMP", "AllowUDP");
+        Acl updatedAcl = prepareAcl(aclName, false, "AllowUDP");
+
+        aclEventListener.update(mockInstanceId, previousAcl, updatedAcl);
+
+        verify(aclServiceManager, times(0)).notifyAce(aclInterfaceValueSaver.capture(), actionValueSaver.capture(),
+                aclNameSaver.capture(), aceValueSaver.capture());
     }
 }

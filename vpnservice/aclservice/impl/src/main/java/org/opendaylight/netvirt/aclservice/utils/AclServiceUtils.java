@@ -1049,4 +1049,12 @@ public final class AclServiceUtils {
     public static boolean isMoreThanOneAcl(AclInterface port) {
         return port.getSecurityGroups().size() > 1;
     }
+
+    public static boolean isOfAclInterest(Acl acl) {
+        List<Ace> aceList = acl.getAccessListEntries().getAce();
+        if (aceList != null) {
+            return (aceList.get(0).getAugmentation(SecurityRuleAttr.class) != null);
+        }
+        return false;
+    }
 }
