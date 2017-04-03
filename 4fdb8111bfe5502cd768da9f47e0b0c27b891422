@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_3a7e60e5",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T16:50:17Z",
+      "side": 1,
+      "message": "this way of printing exception will print only the exception message instead of the entire trace.  Bettter to leave this one as is..",
+      "revId": "4fdb8111bfe5502cd768da9f47e0b0c27b891422",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_7a88e8e7",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 785,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T16:50:17Z",
+      "side": 1,
+      "message": "ditto here",
+      "revId": "4fdb8111bfe5502cd768da9f47e0b0c27b891422",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_5a608435",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T16:50:17Z",
+      "side": 1,
+      "message": "ditto comment here as in previous file.",
+      "revId": "4fdb8111bfe5502cd768da9f47e0b0c27b891422",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_3a65c045",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T16:50:17Z",
+      "side": 1,
+      "message": "ditto comment here.",
+      "revId": "4fdb8111bfe5502cd768da9f47e0b0c27b891422",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_9a5aec81",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1293,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T16:50:17Z",
+      "side": 1,
+      "message": "ditto comment here.",
+      "revId": "4fdb8111bfe5502cd768da9f47e0b0c27b891422",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_7a5f4873",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1348,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T16:50:17Z",
+      "side": 1,
+      "message": "ditto here",
+      "revId": "4fdb8111bfe5502cd768da9f47e0b0c27b891422",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
