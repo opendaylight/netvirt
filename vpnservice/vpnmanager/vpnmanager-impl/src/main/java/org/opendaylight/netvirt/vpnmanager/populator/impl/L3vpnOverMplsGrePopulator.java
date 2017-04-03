@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.vpnmanager.populator.impl;
 
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -111,11 +110,4 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
                 .setIpAddress(prefix).setVrfId(rd).setKey(new AdjacencyKey(prefix))
                 .setPrimaryAdjacency(nextHop.isPrimaryAdjacency()).build();
     }
-
-    @Override
-    public void addSubnetRouteFibEntry(String rd, String vpnName, String prefix, String nextHop, int label,
-                                       long elantag, BigInteger dpnId, WriteTransaction writeTxn,
-                                       VrfEntry.EncapType encapType) {
-    }
-
 }

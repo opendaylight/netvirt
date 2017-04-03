@@ -27,6 +27,7 @@ import org.opendaylight.netvirt.vpnmanager.populator.intfc.VpnPopulator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.VrfEntryBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
@@ -34,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,20 +60,14 @@ public class L3vpnPopulator implements VpnPopulator {
                             WriteTransaction writeOperTxn) {}
 
     @Override
-    public void addSubnetRouteFibEntry(String rd, String vpnName, String prefix, String nextHop, int label,
+    public void addSubnetRouteFibEntry(String rd, String vpnName, String prefix, String nextHop, int label, long l3vni,
                                        long elantag, BigInteger dpnId, WriteTransaction writeTxn,
-                                       VrfEntry.EncapType encapType) {
+                                       VrfEntry.EncapType encapType, String networkName) {
         SubnetRoute route = new SubnetRouteBuilder().setElantag(elantag).build();
         RouteOrigin origin = RouteOrigin.CONNECTED; // Only case when a route is considered as directly connected
-        VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop, origin, null)
-                .addAugmentation(SubnetRoute.class, route).build();
-
+        VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop, origin, networkName)
+                .addAugmentation(SubnetRoute.class, route).setL3vni(l3vni).build();
         LOG.debug("Created vrfEntry for {} nexthop {} label {} and elantag {}", prefix, nextHop, label, elantag);
-
-        //TODO: What should be parentVpnId? Get it from RD?
-        //long vpnId = VpnUtil.getVpnId(broker, vpnName);
-        //addToLabelMapper((long) label, dpnId, prefix, Collections.singletonList(nextHop), vpnId, null, elantag, true,
-        //      rd, null);
         InstanceIdentifier<VrfEntry> vrfEntryId =
                 InstanceIdentifier.builder(FibEntries.class)
                         .child(VrfTables.class, new VrfTablesKey(rd))
@@ -99,6 +95,36 @@ public class L3vpnPopulator implements VpnPopulator {
                 VpnUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
             }
             LOG.debug("Updated vrfEntry for {} nexthop {} label {}", prefix, nextHop, label);
+        }
+
+        //Will be handled appropriately with the iRT patch for EVPN
+        if (encapType.equals(VrfEntryBase.EncapType.Mplsgre)) {
+            long vpnId = VpnUtil.getVpnId(broker, vpnName);
+            vpnInterfaceManager.addToLabelMapper((long) label, dpnId, prefix, Collections.singletonList(nextHop),
+                    vpnId, null, elantag, true, rd, null);
+            List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnInterfaceManager.getVpnsImportingMyRoute(vpnName);
+            if (vpnsToImportRoute.size() > 0) {
+                VrfEntry importingVrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop,
+                        RouteOrigin.SELF_IMPORTED, networkName).addAugmentation(SubnetRoute.class, route).build();
+                List<VrfEntry> importingVrfEntryList = Collections.singletonList(importingVrfEntry);
+                for (VpnInstanceOpDataEntry vpnInstance : vpnsToImportRoute) {
+                    LOG.info("Exporting subnet route rd {} prefix {} nexthop {} label {} to vpn {}", rd, prefix,
+                            nextHop, label, vpnInstance.getVpnInstanceName());
+                    String importingRd = vpnInstance.getVrfId();
+                    InstanceIdentifier<VrfTables> importingVrfTableId =
+                            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class,
+                                    new VrfTablesKey(importingRd)).build();
+                    VrfTables importingVrfTable = new VrfTablesBuilder().setRouteDistinguisher(importingRd)
+                            .setVrfEntry(importingVrfEntryList).build();
+                    if (writeTxn != null) {
+                        writeTxn.merge(LogicalDatastoreType.CONFIGURATION, importingVrfTableId,
+                                importingVrfTable, true);
+                    } else {
+                        VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, importingVrfTableId,
+                                importingVrfTable);
+                    }
+                }
+            }
         }
     }
 

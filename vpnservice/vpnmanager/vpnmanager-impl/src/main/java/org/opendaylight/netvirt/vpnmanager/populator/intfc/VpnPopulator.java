@@ -16,9 +16,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adj
 public interface VpnPopulator {
     void populateFib(L3vpnInput input, WriteTransaction writeCfgTxn, WriteTransaction writeOperTxn);
 
-    void addSubnetRouteFibEntry(String rd, String vpnName, String prefix, String nextHop, int label,
+    void addSubnetRouteFibEntry(String rd, String vpnName, String prefix, String nextHop, int label, long l3vni,
                                 long elantag, BigInteger dpnId, WriteTransaction writeTxn,
-                                VrfEntry.EncapType encapType);
+                                VrfEntry.EncapType encapType, String networkName);
 
 
     Adjacency createOperationalAdjacency(L3vpnInput input);
