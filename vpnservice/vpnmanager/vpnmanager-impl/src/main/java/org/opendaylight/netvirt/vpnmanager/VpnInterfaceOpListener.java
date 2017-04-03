@@ -164,6 +164,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
         final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
         final String interfaceName = key.getName();
 
+        LOG.info("VpnInterfaceOpListener updated: original {} updated {}", original, update);
         if (original.getVpnInstanceName().equals(update.getVpnInstanceName())) {
             return;
         }
