@@ -306,28 +306,32 @@ module odl-l3vpn {
 
 
     typedef task-state {
-         type enumeration {
-           enum na {
-             value "0";
-             description
-              "Task not applicable";
-           }
-           enum pending {
-             value "1";
-             description
-              "Task is in pending state";
-           }
-           enum done {
-             value "2";
-             description
-              "Task has been completed";
-           }
-         }
-         description
-          "This value the status of any task.
-           The possible values are NA, PENDING or DONE.
-           ";
-           }
+        type enumeration {
+            enum idle {
+                value "0";
+                description "Task in idle state";
+            }
+            enum pending_advertise {
+                value "1";
+                description "Task is pending advertisement state";
+            }
+            enum pending_withdraw {
+                value "2";
+                description "Task is pending withdrawal state";
+            }
+            enum advertised {
+                value "3";
+                description "Task is in advertised state";
+            }
+            enum withdrawn {
+                value "4";
+                description "Task is in withdrawn state";
+            }
+        }
+        description
+            "This value the status of any task.
+             The possible values are IDLE, PENDING_ADVERTISE, PENDING_WITHDRAW, ADVERTISED, WITHDRAWN.";
+    }
 
 
     container subnet-op-data {
@@ -355,9 +359,9 @@ module odl-l3vpn {
             }
             leaf route-adv-state {
                 type task-state;
-                description "The status of the subnet route advertisement. Route advertisement could be in a NA, PENDING or DONE state.";
+                description "The status of the subnet route advertisement/withdrawal";
             }
-            leaf elan-tag{
+            leaf elan-tag {
                 type uint32;
             }
             list subnet-to-dpn {
@@ -372,7 +376,12 @@ module odl-l3vpn {
                     }
                 }
             }
-
+            leaf label {
+                type uint32;
+            }
+	    leaf l3vni {
+	        type uint32;
+            }
             uses nvpn:network-attributes;
 
         }
