@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_7d2582aa",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 1055,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-03T17:59:45Z",
+      "side": 1,
+      "message": "for an extra-route if localNextHopInfo is unavailable, then that is an ERROR and so you must log an ERROR when localNextHopInfo \u003d\u003d null..",
+      "revId": "b08eab51ef3c72086f6337a893583b605a00b547",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
