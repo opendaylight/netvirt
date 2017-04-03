@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.r
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.routed.rpc.rev170219.UpdateFederatedNetworksInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.rpc.rev170219.FederationPluginRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.rpc.rev170219.UpdateFederatedNetworksInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.rpc.rev170219.update.federated.networks.input.FederatedAclsIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.rpc.rev170219.update.federated.networks.input.FederatedNetworksIn;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcError.ErrorType;
@@ -63,9 +64,29 @@ public class FederationPluginRpcServiceImpl implements FederationPluginRpcServic
         List<FederatedNetworksIn> federatedNetworks = input.getFederatedNetworksIn();
         UpdateFederatedNetworksInputBuilder builder = new UpdateFederatedNetworksInputBuilder()
                 .setFederatedNetworksIn(convertFederatedNetworks(federatedNetworks))
+                .setFederatedAclsIn(convertFederatedAcls(input.getFederatedAclsIn()))
                 .setRouteKeyItem(buildtRouteKeyInstanceIdentifier());
 
         return routedRpcService.updateFederatedNetworks(builder.build());
+    }
+
+    private List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.routed.rpc.rev170219
+        .update.federated.networks.input.FederatedAclsIn> convertFederatedAcls(
+            List<FederatedAclsIn> federatedAclsIn) {
+        if (federatedAclsIn == null) {
+            return null;
+        }
+
+        List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.routed.rpc.rev170219
+            .update.federated.networks.input.FederatedAclsIn> routedFederatedAcls = new ArrayList<>();
+        for (FederatedAclsIn federatedAcl : federatedAclsIn) {
+            routedFederatedAcls
+                    .add(new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.routed.rpc
+                            .rev170219.update.federated.networks.input.FederatedAclsInBuilder(
+                            federatedAcl).build());
+        }
+
+        return routedFederatedAcls;
     }
 
     private static List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.federation.plugin.routed.rpc.rev170219
