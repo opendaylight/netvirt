@@ -1159,9 +1159,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 writeInvTxn, NwConstants.DEL_FLOW, interfaceState);
                         removeArpResponderFlow(dpnId, lportTag, subnetId, writeInvTxn);
                     }
-
+                    LOG.info("nhlist is {}", nhList);
                     if (!nhList.isEmpty()) {
+                        LOG.info("!nhlist is {} vpnName is {}", !nhList.isEmpty(), vpnName);
                         if (rd.equals(vpnName)) {
+                            LOG.info("after rd.equals rd is {} fibmanager is {}", rd, fibManager);
                             //this is an internal vpn - the rd is assigned to the vpn instance name;
                             //remove from FIB directly
                             for (String nh : nhList) {
@@ -1170,6 +1172,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             }
                         } else {
                             List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
+                            LOG.info("vpntoimportroute is {}", vpnsToImportRoute);
                             for (String nh : nhList) {
                                 //IRT: remove routes from other vpns importing it
                                 removePrefixFromBGP(rd, vpnName, nextHop.getIpAddress(), nh, writeConfigTxn);
