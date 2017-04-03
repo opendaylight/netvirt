@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_1a1a7c17",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworksChangeListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-03T15:56:50Z",
+      "side": 1,
+      "message": "don\u0027t you need these flows as part of the pipeline? could you shortly describe the SNAT/reverse SNAT flows in combination with hairpinning changes so it would be easier to review this patch? Thanks",
+      "revId": "686c159a9c08d0ccd2b4b9b978a48d0d8964df8d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
