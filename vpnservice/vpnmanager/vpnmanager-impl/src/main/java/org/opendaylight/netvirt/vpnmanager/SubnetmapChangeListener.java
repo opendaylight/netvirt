@@ -20,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +64,12 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         Uuid subnetId = subnetmap.getId();
         Uuid vpnId = subnetmap.getVpnId();
         if (subnetmap.getVpnId() != null) {
+            // SubnetRoute for ExternalSubnets is handled in ExternalSubnetVpnInstanceListener.
+            // Here we must handle only InternalVpnSubnetRoute and BGPVPNBasedSubnetRoute
+            Network network = VpnUtil.getNeutronNetwork(dataBroker, subnetmap.getNetworkId());
+            if (VpnUtil.getIsExternal(network)) {
+                return;
+            }
             boolean isBgpVpn = !vpnId.equals(subnetmap.getRouterId());
             String elanInstanceName = subnetmap.getNetworkId().getValue();
             Long elanTag = getElanTag(elanInstanceName);
@@ -74,7 +81,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             // subnet added to VPN case upon config DS replay after reboot
             // ports added to subnet upon config DS replay after reboot are handled implicitly by subnetAddedToVpn
             // in SubnetRouteHandler
-            vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, isBgpVpn, elanTag);
+            vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, isBgpVpn , elanTag);
         }
     }
 
@@ -95,7 +102,12 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         Uuid vpnIdOld = subnetmapOriginal.getVpnId();
         Uuid subnetId = subnetmapUpdate.getId();
         String elanInstanceName = subnetmapUpdate.getNetworkId().getValue();
-        String subnetIp = subnetmapUpdate.getSubnetIp();
+        // SubnetRoute for ExternalSubnets is handled in ExternalSubnetVpnInstanceListener.
+        // Here we must handle only InternalVpnSubnetRoute and BGPVPNBasedSubnetRoute
+        Network network = VpnUtil.getNeutronNetwork(dataBroker, subnetmapUpdate.getNetworkId());
+        if (VpnUtil.getIsExternal(network)) {
+            return;
+        }
         Long elanTag = getElanTag(elanInstanceName);
         if (elanTag.equals(0L)) {
             LOG.error("update:Unable to fetch elantag from ElanInstance {} and hence not proceeding with "
@@ -116,8 +128,9 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         }
         // subnet updated in VPN case
         if (vpnIdOld != null && vpnIdNew != null && (!vpnIdNew.equals(vpnIdOld))) {
-            boolean isBeingAssociated = subnetmapUpdate.getVpnId().equals(subnetmapUpdate.getRouterId()) ? false : true;
-            vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetmapUpdate, isBeingAssociated, elanTag);
+            boolean isBeingAssociated = vpnIdNew.equals(subnetmapUpdate.getRouterId()) ? false : true;
+            vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetmapUpdate, !isBeingAssociated /* oldVpnType */,
+                    isBeingAssociated /* newVpnType */, elanTag);
             return;
         }
         // port added/removed to/from subnet case
