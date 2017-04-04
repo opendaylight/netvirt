@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_f3e1a39b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1856,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-04T11:39:50Z",
+      "side": 1,
+      "message": "having Y Number of reads just to figure out if the ipAddress retrieved is not a pending floatingip is very circuitous.\n\nWhy can\u0027t you enhance dpn-to-vpn list to hold a structure instead of just ipAddress\n{\nString ipAddress\nenum { router-external-fixed-ip,  floating-ip }.",
+      "revId": "4bcae1db2bfc954242ac488f0930170e81d2569d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_13fc273e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-04T11:39:50Z",
+      "side": 1,
+      "message": "why is this check introduced here?",
+      "revId": "4bcae1db2bfc954242ac488f0930170e81d2569d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
