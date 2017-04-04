@@ -197,6 +197,15 @@ module odl-l3vpn {
                list ip-addresses {
                    key ip-address;
                    leaf ip-address { type string; }
+                   leaf ip-address-source {
+                        description
+                         "This field indicates whether the IP address here is an External-Fixed-Ip(Owned by Router).
+                          or Floating-Ip(Used by Ports).";
+                        type enumeration {
+                            enum "ExternalFixedIP";
+                            enum "FloatingIP";
+                        }
+                   }
                }
                leaf dpn-state {
                   description
