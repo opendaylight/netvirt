@@ -61,6 +61,7 @@ public class ElanTunnelInterfaceStateListener extends AsyncDataTreeChangeListene
         LOG.info("processing add state for StateTunnelList {}", add);
         if (!isInternalTunnel(add)) {
             LOG.trace("tunnel {} is not a internal vxlan tunnel", add);
+            return;
         }
         TunnelOperStatus tunOpStatus = add.getOperState();
         if (tunOpStatus != TunnelOperStatus.Down && tunOpStatus != TunnelOperStatus.Up) {
