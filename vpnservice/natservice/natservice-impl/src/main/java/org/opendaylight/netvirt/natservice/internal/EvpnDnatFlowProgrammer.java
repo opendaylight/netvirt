@@ -222,9 +222,6 @@ public class EvpnDnatFlowProgrammer {
         //Remove Prefix from BGP
         NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32", vpnName, LOG);
 
-       //Remove the flow for INTERNAL_TUNNEL_TABLE (table=36)-> PDNAT_TABLE (table=25)
-        removeTunnelTableEntry(dpnId, l3Vni);
-
         //Remove custom FIB routes flow for L3_FIB_TABLE (table=21)-> PDNAT_TABLE (table=25)
         RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName)
                 .setSourceDpid(dpnId).setIpAddress(externalIp + "/32").setServiceId(l3Vni).build();
@@ -271,6 +268,14 @@ public class EvpnDnatFlowProgrammer {
         } else {
             LOG.debug("NAT Service : No vpnInterface {} found in Operational l3vpn:vpn-interfaces ",
                     floatingIpInterface);
+        }
+
+         /* check if any floating IP information is available in vpn-to-dpn-list for given dpn id. If exist any
+          *  floating IP then do not remove INTERNAL_TUNNEL_TABLE (table=36) -> PDNAT_TABLE (table=25) flow entry.
+          */
+        if (!NatUtil.isFloatingIpPresentForDpn(dataBroker, dpnId, rd, vpnName, externalIp)) {
+            //Remove the flow for INTERNAL_TUNNEL_TABLE (table=36)-> PDNAT_TABLE (table=25)
+            removeTunnelTableEntry(dpnId, l3Vni);
         }
     }
 
