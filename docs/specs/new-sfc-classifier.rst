@@ -106,7 +106,7 @@ cycle.
 
 The new Netvirt SFC code base will be located here:
 
-- netvirt/sfc/{api,impl}
+- netvirt/vpnservice/sfc/classifier/{api,impl}
 
 The new Netvirt SFC classifier implementation will be new code. This
 implementation is not to be confused with the existing Netvirt aclservice,
@@ -221,14 +221,16 @@ If there is an ACL match, then the classifier will encapsulate NSH,
 set the NSP and NSI accordingly, initialize C1 and C2 to 0, and send
 the packet down the rest of the pipeline. Since the SFC service (SFF)
 will most likely not be bound to this same Neutron port, the packet
-wont be processed by the SFF on the ingress pipeline. When the packet
-is processed by the egress SFC classifier, it will be resubmit back
-to the Ingress SFC service (SFC SFF) for SFC processing.
+wont be processed by the SFF on the ingress pipeline. If classifier
+and first SFF are in the same node, when the packet is processed by 
+the egress SFC classifier, it will be resubmitted back to the Ingress SFC 
+service (SFC SFF) for SFC processing. If not, the packet will be sent to 
+the first SFF.
 
 The Ingress SFC service (SFF) will bind on the Neutron ports for the Service
 Functions and on the VXGPE ports. The Ingress SFC service will receive
 packets from these Neutron and VXGPE ports, and also those that have
-been resubmit from the Egress SFC Classifier. It may be possible that
+been resubmitted from the Egress SFC Classifier. It may be possible that
 packets received from the SFs are not NSH encapsulated, so any packets
 received by the Ingress SFC service that are not NSH encapsulated will
 not be processed and will be sent back to the Ingress Dispatcher. For
@@ -303,10 +305,10 @@ The following flows are an approximation of what the Ingress Classifier
 service pipeline will look like. Notice there are 2 tables defined as
 follows:
 
-- table 11: Ingress Classifier Filter table.
+- table 100: Ingress Classifier Filter table.
    - Only allows Non-NSH packets to proceed in the classifier
 
-- table 12: Ingress Classifier ACL table.
+- table 101: Ingress Classifier ACL table.
    - Performs the ACL classification, and sends packets to Ingress Dispatcher
 
 The final table numbers may change depending on how they are assigned
@@ -343,16 +345,16 @@ by Genius.
 **Egress Classifier Flows:**
 
 The following flows are an approximation of what the Egress Classifier
-service pipeline will look like. Notice there are 2 tables defined as
+service pipeline will look like. Notice there are 3 tables defined as
 follows:
 
-- table 250: Egress Classifier Filter table.
+- table 110: Egress Classifier Filter table.
    - Only allows NSH packets to proceed in the egress classifier
 
-- table 251: Egress Classifier NextHop table.
+- table 111: Egress Classifier NextHop table.
    - Set C1/C2 accordingly
 
-- table 252: Egress Classifier TransportEgress table.
+- table 112: Egress Classifier TransportEgress table.
    - Final egress processing and egress packets
    - Determines if the packet should go to a local or remote SFF
 
@@ -402,18 +404,18 @@ by Genius.
 **Ingress SFC Service (SFF) Flows:**
 
 The following flows are an approximation of what the Ingress SFC
-service (SFF) pipeline will look like. Notice there are 2 tables
+service (SFF) pipeline will look like. Notice there are 3 tables
 defined as follows:
 
-- table 150: SFF TransportIngress table.
+- table 83: SFF TransportIngress table.
    - Only allows NSH packets to proceed into the SFF
 
-- table 151: SFF NextHop table.
+- tables 84 and 85 are not used for NSH
+
+- table 86: SFF NextHop table.
    - Set the destination of the next SF
 
-- tables 152 and 153 are not used for NSH
-
-- table 158: SFF TransportEgress table.
+- table 87: SFF TransportEgress table.
    - Prepare the packet for egress
 
 The final table numbers may change depending on how they are assigned
