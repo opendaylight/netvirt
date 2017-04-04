@@ -199,6 +199,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
                         .setSourceDpid(dpnId).setInstruction(customInstructions)
                         .setIpAddress(externalIp + "/32").setServiceId(label)
+                        .setIpAddressSource(CreateFibEntryInput.IpAddressSource.FloatingIP)
                         .setInstruction(customInstructions).build();
                     //Future<RpcResult<java.lang.Void>> createFibEntry(CreateFibEntryInput input);
                     Future<RpcResult<Void>> future1 = fibService.createFibEntry(input);
@@ -303,7 +304,18 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             (AsyncFunction<RpcResult<Void>, RpcResult<Void>>) result -> {
                 //Release label
                 if (result.isSuccessful()) {
-                    removeTunnelTableEntry(dpnId, label);
+                /*  check if any floating IP information is available in vpn-to-dpn-list for given dpn id. If exist any
+                 *  floating IP then do not remove INTERNAL_TUNNEL_TABLE (table=36) -> PDNAT_TABLE (table=25) flow entry
+                 */
+                    Boolean removeTunnelFlow = Boolean.TRUE;
+                    if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                        if (NatUtil.isFloatingIpPresentForDpn(dataBroker, dpnId, rd, vpnName, externalIp)) {
+                            removeTunnelFlow = Boolean.FALSE;
+                        }
+                    }
+                    if (removeTunnelFlow) {
+                        removeTunnelTableEntry(dpnId, label);
+                    }
                     removeLFibTableEntry(dpnId, label);
                     RemoveVpnLabelInput labelInput = new RemoveVpnLabelInputBuilder()
                         .setVpnName(vpnName).setIpPrefix(externalIp).build();
