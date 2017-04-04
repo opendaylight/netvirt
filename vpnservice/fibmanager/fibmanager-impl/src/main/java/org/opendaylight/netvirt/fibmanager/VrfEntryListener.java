@@ -1063,6 +1063,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                 vrfEntry.getDestPrefix(), /*listBucketInfo*/ null, /*remove*/ false);
                         returnLocalDpnId.add(dpnId);
                     }
+                } else {
+                    LOG.error("localNextHopInfo unavailable.");
                 }
             }
 
