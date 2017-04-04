@@ -16,6 +16,24 @@
       "revId": "b08eab51ef3c72086f6337a893583b605a00b547",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_dd246ec8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 1055,
+      "author": {
+        "id": 6464
+      },
+      "writtenOn": "2017-04-04T04:52:57Z",
+      "side": 1,
+      "message": "Would this be different from the null localNextHopInfo block at L1065?",
+      "parentUuid": "da01753e_7d2582aa",
+      "revId": "b08eab51ef3c72086f6337a893583b605a00b547",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
