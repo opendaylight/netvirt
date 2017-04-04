@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_d00bb529",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1861,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-04-04T09:01:54Z",
+      "side": 1,
+      "message": "Sorry, I guess I wasn\u0027t clear enough, I was talking about having an else to:\n\"if (ipAddressStringList.size() \u003e 0) \" (the size is 0)\nThat will have \"return Boolean.FALSE;\"\n\nThis else is not really needed.\n\nThanks !",
+      "revId": "cbd8536e3eae589576a5f578ca84712a03bd47a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
