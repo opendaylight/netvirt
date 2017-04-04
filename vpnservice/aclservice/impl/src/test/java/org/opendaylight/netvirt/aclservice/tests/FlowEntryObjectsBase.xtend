@@ -1192,7 +1192,7 @@ class FlowEntryObjectsBase {
             flowId = "Acl_Filter_Ingress_" + ip + "/32_5000"
             flowName = "ACL"
             instructionInfoList = #[
-                new InstructionWriteMetadata(2bi, 16777214bi),
+                new InstructionWriteMetadata(4bi, 16777214bi),
                 new InstructionGotoTable(213 as short)
             ]
             matchInfoList = #[
@@ -1211,7 +1211,7 @@ class FlowEntryObjectsBase {
             flowId = "Acl_Filter_Egress_" + ip + "/32_5000"
             flowName = "ACL"
             instructionInfoList = #[
-                new InstructionWriteMetadata(2bi, 16777214bi),
+                new InstructionWriteMetadata(4bi, 16777214bi),
                 new InstructionGotoTable(243 as short)
             ]
             matchInfoList = #[

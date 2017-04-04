@@ -227,7 +227,8 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
         List<InstructionInfo> instructions = new ArrayList<>();
 
         InstructionWriteMetadata writeMetatdata =
-                new InstructionWriteMetadata(aclId, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID);
+                new InstructionWriteMetadata(AclServiceUtils.getAclIdMetadata(aclId),
+                        MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID);
         instructions.add(writeMetatdata);
         instructions.add(new InstructionGotoTable(getIngressAclFilterTable()));
 
@@ -264,7 +265,8 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
             List<InstructionInfo> instructions = new ArrayList<>();
 
             InstructionWriteMetadata writeMetatdata =
-                    new InstructionWriteMetadata(aclId, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID);
+                    new InstructionWriteMetadata(AclServiceUtils.getAclIdMetadata(aclId),
+                            MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID);
             instructions.add(writeMetatdata);
             instructions.add(new InstructionGotoTable(getIngressAclFilterTable()));
 
