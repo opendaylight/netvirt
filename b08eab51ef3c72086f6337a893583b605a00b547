@@ -34,6 +34,24 @@
       "revId": "b08eab51ef3c72086f6337a893583b605a00b547",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_d0af352a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 1055,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-04T08:46:36Z",
+      "side": 1,
+      "message": "L1065 is for self-imported routes (check RouteOrigin.SELF_IMPORTED references for more understanding) and so it is different from this line here.\nThis line here clearly knows that the prefix we are dealing with is an extra-route and it must have found the prefix-to-interface fo rhte parent of extra-route correctly, but if it can\u0027t find, its should be coded as an ERROR followed by return with no further processing .",
+      "parentUuid": "da01753e_dd246ec8",
+      "revId": "b08eab51ef3c72086f6337a893583b605a00b547",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
