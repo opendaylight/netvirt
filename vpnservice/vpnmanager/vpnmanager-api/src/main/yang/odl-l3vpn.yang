@@ -197,6 +197,16 @@ module odl-l3vpn {
                list ip-addresses {
                    key ip-address;
                    leaf ip-address { type string; }
+                   leaf ip-address-type {
+                        description
+                        "This IP Address type indicates that whether external IP address is SNAT or DNAT IP.
+                         RouterExternalFixedIP indicates it is an SNAT IP.
+                         FloatingIP indicates it is an DNAT IP";
+                        type enumeration {
+                            enum "RouterExternalFixedIP";
+                            enum "FloatingIP";
+                        }
+                   }
                }
                leaf dpn-state {
                   description

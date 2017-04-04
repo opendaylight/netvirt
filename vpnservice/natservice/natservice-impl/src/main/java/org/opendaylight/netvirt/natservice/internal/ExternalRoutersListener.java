@@ -1005,6 +1005,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         String fibExternalIp = externalIp.contains("/32") ? externalIp : (externalIp + "/32");
                         CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
                             .setSourceDpid(dpnId).setIpAddress(fibExternalIp).setServiceId(label)
+                            .setIpAddressType(CreateFibEntryInput.IpAddressType.RouterExternalFixedIP)
                             .setInstruction(fibTableCustomInstructions).build();
                         Future<RpcResult<Void>> future1 = fibService.createFibEntry(input);
                         return JdkFutureAdapters.listenInPoolThread(future1);
