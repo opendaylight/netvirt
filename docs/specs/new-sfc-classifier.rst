@@ -106,7 +106,7 @@ cycle.
 
 The new Netvirt SFC code base will be located here:
 
-- netvirt/sfc/{api,impl}
+- netvirt/vpnservice/sfc/classifier/{api,impl}
 
 The new Netvirt SFC classifier implementation will be new code. This
 implementation is not to be confused with the existing Netvirt aclservice,
@@ -221,14 +221,16 @@ If there is an ACL match, then the classifier will encapsulate NSH,
 set the NSP and NSI accordingly, initialize C1 and C2 to 0, and send
 the packet down the rest of the pipeline. Since the SFC service (SFF)
 will most likely not be bound to this same Neutron port, the packet
-wont be processed by the SFF on the ingress pipeline. When the packet
-is processed by the egress SFC classifier, it will be resubmit back
-to the Ingress SFC service (SFC SFF) for SFC processing.
+wont be processed by the SFF on the ingress pipeline. If the classifier
+and first SFF are in the same node, when the packet is processed by 
+the egress SFC classifier, it will be resubmitted back to the Ingress SFC
+service (SFC SFF) for SFC processing. If not, the packet will be sent to
+the first SFF.
 
 The Ingress SFC service (SFF) will bind on the Neutron ports for the Service
 Functions and on the VXGPE ports. The Ingress SFC service will receive
 packets from these Neutron and VXGPE ports, and also those that have
-been resubmit from the Egress SFC Classifier. It may be possible that
+been resubmitted from the Egress SFC Classifier. It may be possible that
 packets received from the SFs are not NSH encapsulated, so any packets
 received by the Ingress SFC service that are not NSH encapsulated will
 not be processed and will be sent back to the Ingress Dispatcher. For
@@ -303,10 +305,10 @@ The following flows are an approximation of what the Ingress Classifier
 service pipeline will look like. Notice there are 2 tables defined as
 follows:
 
-- table 11: Ingress Classifier Filter table.
+- table 100: Ingress Classifier Filter table.
    - Only allows Non-NSH packets to proceed in the classifier
 
-- table 12: Ingress Classifier ACL table.
+- table 101: Ingress Classifier ACL table.
    - Performs the ACL classification, and sends packets to Ingress Dispatcher
 
 The final table numbers may change depending on how they are assigned
@@ -315,12 +317,12 @@ by Genius.
 .. code-block:: none
 
     // Pkt has NSH, send back to Ingress Dispatcher
-  cookie=0xf005ball00000101 table=11, n_packets=11, n_bytes=918,
+  cookie=0xf005ball00000101 table=100, n_packets=11, n_bytes=918,
       priority=550,nsp=42 actions=resubmit(,GENIUS_INGRESS_DISPATCHER_TABLE)
 
-    // Pkt does NOT have NSH, send to table 12 for further processing
-  cookie=0xf005ball00000102 table=11, n_packets=11, n_bytes=918,
-      priority=5 actions=goto_table:12
+    // Pkt does NOT have NSH, send to table 101 for further processing
+  cookie=0xf005ball00000102 table=100, n_packets=11, n_bytes=918,
+      priority=5 actions=goto_table:101
 
     // ACL match: if TCP port=80
     // Action: encapsulate NSH and set NSH NSP, NSI, C1, C2, first SFF
@@ -328,7 +330,7 @@ by Genius.
     // the Netvirt pipeline. The in_port in the match is derived from
     // the Neutron Network specified in the ACL match and identifies
     // the tenant/Neutron Network the packet originates from
-  cookie=0xf005ball00000103, table=12, n_packets=11, n_bytes=918,
+  cookie=0xf005ball00000103, table=101, n_packets=11, n_bytes=918,
       tcp,tp_dst=80, in_port=10
       actions=push_nsh,
           load:0x1->NXM_NX_NSH_MDTYPE[],
@@ -343,16 +345,16 @@ by Genius.
 **Egress Classifier Flows:**
 
 The following flows are an approximation of what the Egress Classifier
-service pipeline will look like. Notice there are 2 tables defined as
+service pipeline will look like. Notice there are 3 tables defined as
 follows:
 
-- table 250: Egress Classifier Filter table.
+- table 110: Egress Classifier Filter table.
    - Only allows NSH packets to proceed in the egress classifier
 
-- table 251: Egress Classifier NextHop table.
+- table 111: Egress Classifier NextHop table.
    - Set C1/C2 accordingly
 
-- table 252: Egress Classifier TransportEgress table.
+- table 112: Egress Classifier TransportEgress table.
    - Final egress processing and egress packets
    - Determines if the packet should go to a local or remote SFF
 
@@ -361,40 +363,40 @@ by Genius.
 
 .. code-block:: none
 
-    // If pkt has NSH, goto table 251 for more processing
-  cookie=0x14 table=250, n_packets=11, n_bytes=918,
+    // If pkt has NSH, goto table 111 for more processing
+  cookie=0x14 table=110, n_packets=11, n_bytes=918,
       priority=250,nsp=42
-      actions=goto_table:251
+      actions=goto_table:111
 
     // Pkt does not have NSH, send back to Egress Dispatcher
-  cookie=0x14 table=250, n_packets=0, n_bytes=0,
+  cookie=0x14 table=110, n_packets=0, n_bytes=0,
       priority=5
       actions=resubmit(,GENIUS_EGRESS_DISPATCHER_TABLE)
 
 
     // Pkt has NSH, if NSH C1/C2 = 0, Set C1/C2 and overwrite TunIpv4Dst
-    // with SFF IP (Reg0) and send to table 252 for egress
-  cookie=0x14 table=251, n_packets=11, n_bytes=918,
+    // with SFF IP (Reg0) and send to table 112 for egress
+  cookie=0x14 table=111, n_packets=11, n_bytes=918,
       priority=260,nshc1=0,nshc2=0
       actions=load:NXM_NX_TUN_IPV4_DST[]->NXM_NX_NSH_C1[],
               load:NXM_NX_TUN_ID[]->NXM_NX_NSH_C2[],
               load:NXM_NX_REG0[]->NXM_NX_TUN_IPV4_DST[]
-              goto_table:252
+              goto_table:112
 
     // Pkt has NSH, but NSH C1/C2 aleady set,
-    // send to table 252 for egress
-  cookie=0x14 table=251, n_packets=11, n_bytes=918,
+    // send to table 112 for egress
+  cookie=0x14 table=111, n_packets=11, n_bytes=918,
       priority=250
-      actions=goto_table:252
+      actions=goto_table:112
 
 
     // Checks if the first SFF (IP stored in reg0) is on this node,
     // if so resubmit to SFC SFF service
-  cookie=0x14 table=252, n_packets=0, n_bytes=0,
+  cookie=0x14 table=112, n_packets=0, n_bytes=0,
       priority=260,nsp=42,reg0=0x0a00010b
       actions=resubmit(SFC_SFF_PORT, GENIUS_INGRESS_DISPATCHER_TABLE)
 
-  cookie=0x14 table=252, n_packets=0, n_bytes=0,
+  cookie=0x14 table=112, n_packets=0, n_bytes=0,
       priority=250,nsp=42
       actions=outport:6
 
@@ -402,18 +404,18 @@ by Genius.
 **Ingress SFC Service (SFF) Flows:**
 
 The following flows are an approximation of what the Ingress SFC
-service (SFF) pipeline will look like. Notice there are 2 tables
+service (SFF) pipeline will look like. Notice there are 3 tables
 defined as follows:
 
-- table 150: SFF TransportIngress table.
+- table 83: SFF TransportIngress table.
    - Only allows NSH packets to proceed into the SFF
 
-- table 151: SFF NextHop table.
+- tables 84 and 85 are not used for NSH
+
+- table 86: SFF NextHop table.
    - Set the destination of the next SF
 
-- tables 152 and 153 are not used for NSH
-
-- table 158: SFF TransportEgress table.
+- table 87: SFF TransportEgress table.
    - Prepare the packet for egress
 
 The final table numbers may change depending on how they are assigned
@@ -421,40 +423,40 @@ by Genius.
 
 .. code-block:: none
 
-    // Pkt has NSH, send to table 153 for further processing
-  cookie=0x14 table=150, n_packets=11, n_bytes=918,
+    // Pkt has NSH, send to table 86 for further processing
+  cookie=0x14 table=83, n_packets=11, n_bytes=918,
       priority=250,nsp=42
-      actions=goto_table:153
+      actions=goto_table:86
     // Pkt does NOT have NSH, send back to Ingress Dispatcher
-  cookie=0x14 table=150, n_packets=0, n_bytes=0,
+  cookie=0x14 table=83, n_packets=0, n_bytes=0,
       priority=5
       actions=resubmit(,GENIUS_INGRESS_DISPATCHER_TABLE)
 
     // Table not used for NSH, shown for completeness
-  cookie=0x14 table=151, n_packets=0, n_bytes=0,
+  cookie=0x14 table=84, n_packets=0, n_bytes=0,
       priority=250
-      actions=goto_table:153
+      actions=goto_table:86
 
     // Table not used for NSH, shown for completeness
-  cookie=0x14 table=152, n_packets=0, n_bytes=0,
+  cookie=0x14 table=85, n_packets=0, n_bytes=0,
       priority=250
-      actions=goto_table:153
+      actions=goto_table:86
 
     // Match on specific NSH NSI/NSP, Encapsulate outer Ethernet
-    // transport. Send to table 158 for further processing.
-  cookie=0x14 table=153, n_packets=11, n_bytes=918,
+    // transport. Send to table 87 for further processing.
+  cookie=0x14 table=86, n_packets=11, n_bytes=918,
       priority=550,nsi=255,nsp=42
       actions=load:0xb00000c->NXM_NX_TUN_IPV4_DST[],
-      goto_table:158
+      goto_table:87
     // The rest of the packets are sent to
-    // table 158 for further processing
-  cookie=0x14 table=153, n_packets=8, n_bytes=836,
+    // table 87 for further processing
+  cookie=0x14 table=86, n_packets=8, n_bytes=836,
       priority=5
-      actions=goto_table:158
+      actions=goto_table:87
 
     // Match on specific NSH NSI/NSP, C1/C2 set
     // prepare pkt for egress, send to Egress Dispatcher
-  cookie=0xba5eba1100000101 table=158, n_packets=11, n_bytes=918,
+  cookie=0xba5eba1100000101 table=87, n_packets=11, n_bytes=918,
           priority=650,nsi=255,nsp=42
           actions=move:NXM_NX_NSH_MDTYPE[]->NXM_NX_NSH_MDTYPE[],
                   move:NXM_NX_NSH_NP[]->NXM_NX_NSH_NP[],
