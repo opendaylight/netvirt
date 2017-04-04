@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_701129ac",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1814,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-04-04T08:40:37Z",
+      "side": 1,
+      "message": "Method name can be shorter, what do you think about \"isFloatingIpPresentForDpn\" ?",
+      "revId": "68b1f5ae6624c8fe7dd4c1cb3ae228170a64d19f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_9083edcb",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1821,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-04-04T08:40:37Z",
+      "side": 1,
+      "message": "This is a util method, in the future someone might use it for more than removal of internal_tunnel_table flow.\nI think it will be best to remove the \"Remove the flow INTERNAL_TUNNEL_TABLE (table\u003d36)-\u003e PDNAT_TABLE (table\u003d25)\" part from the log.",
+      "revId": "68b1f5ae6624c8fe7dd4c1cb3ae228170a64d19f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_708809e8",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1825,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-04-04T08:40:37Z",
+      "side": 1,
+      "message": "Same as comment above might be better to remove the \"for removing\" part.",
+      "revId": "68b1f5ae6624c8fe7dd4c1cb3ae228170a64d19f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_f04a39ab",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1832,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-04-04T08:40:37Z",
+      "side": 1,
+      "message": "If (ipAddressStringList.size() \u003d\u003d 0) we should return false.\nPlease add else to this if.",
+      "revId": "68b1f5ae6624c8fe7dd4c1cb3ae228170a64d19f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
