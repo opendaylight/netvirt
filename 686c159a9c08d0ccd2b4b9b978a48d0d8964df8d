@@ -34,6 +34,46 @@
       "revId": "686c159a9c08d0ccd2b4b9b978a48d0d8964df8d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_845c4b27",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-04T18:10:49Z",
+      "side": 1,
+      "message": "nit: else not needed",
+      "range": {
+        "startLine": 236,
+        "startChar": 18,
+        "endLine": 236,
+        "endChar": 24
+      },
+      "revId": "686c159a9c08d0ccd2b4b9b978a48d0d8964df8d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_8473abb0",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/SnatServiceManagerImpl.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-04T18:10:49Z",
+      "side": 1,
+      "message": "why did you added both inject annonation and bean in the BP? Isn\u0027t one of them enough?",
+      "revId": "686c159a9c08d0ccd2b4b9b978a48d0d8964df8d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
