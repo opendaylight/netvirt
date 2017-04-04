@@ -16,6 +16,24 @@
       "revId": "686c159a9c08d0ccd2b4b9b978a48d0d8964df8d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_d06735e9",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworksChangeListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-04-04T06:27:07Z",
+      "side": 1,
+      "message": "These flows are inserted now as part of SNAT enable/disable adn router g/w set in the router. I believe this class  takes care of   adding/deleting external n/w once the router g/w set is already done. I will revisit this class for any modification required for the new implementation. Now just disabling the controller mode if that is not the mode.\n\nThe reverse SNAT takes a similar path to the current implementation Table 21 - \u003e 44 -\u003e 47 -\u003e21.\n\ntable\u003d21, priority\u003d42,ip,metadata\u003d0x222e0/0xfffffffe,nw_dst\u003d192.168.111.21 actions\u003dresubmit(,44)\n table\u003d44, priority\u003d10,ip,metadata\u003d0x222e0/0xfffffffe,nw_dst\u003d192.168.111.21 actions\u003dset_field:0x222e2-\u003emetadata,ct(table\u003d47,zone\u003d5003,nat)\n table\u003d47, priority\u003d5,ct_state\u003d+dnat,ip actions\u003dresubmit(,21)",
+      "parentUuid": "da01753e_1a1a7c17",
+      "revId": "686c159a9c08d0ccd2b4b9b978a48d0d8964df8d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
