@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_e976d0d7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-04T17:43:33Z",
+      "side": 1,
+      "message": "i believe label is uint32 in vrfentry, so why it should be uint16 here?  Let us make this uniform and everything be uint32 as labels coming from bgp peers can be larger in numeric.",
+      "revId": "85f2ece874cb1696b9d6b124cc19c634c7cb948d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_e90b7029",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-04T17:43:33Z",
+      "side": 1,
+      "message": "in general wherever getLabel() is called, can we please use only subOpBuilder.getLabel(), except for the getLabel() invocation inside electNewxxx() method.",
+      "revId": "85f2ece874cb1696b9d6b124cc19c634c7cb948d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_292f38a3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-04T17:43:33Z",
+      "side": 1,
+      "message": "this should be invoked only for bgpvpn case as nhDpnId and nhTepIp are not used for non-bgpvpn case.",
+      "revId": "85f2ece874cb1696b9d6b124cc19c634c7cb948d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_8972a4e3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnPopulator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-04T17:43:33Z",
+      "side": 1,
+      "message": "as I said, this would be absorbed within populateFib() as a subcase.",
+      "revId": "85f2ece874cb1696b9d6b124cc19c634c7cb948d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_a96de806",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/intfc/VpnPopulator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-04T17:43:33Z",
+      "side": 1,
+      "message": "I would instead suggest you to add subnentRoute specific items into L3VPNInput and use populateFib itself to branch out inside L3VPNPopulator to create the subnetroutevrfentry, instead of introducing a new method here..",
+      "revId": "85f2ece874cb1696b9d6b124cc19c634c7cb948d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
