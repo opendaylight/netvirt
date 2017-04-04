@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_4ef3a273",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1856,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-04T14:15:46Z",
+      "side": 1,
+      "message": "It is fine to have that change.. Many bugfixes have gone in with yang changes in ODL...",
+      "parentUuid": "da01753e_8e73cab0",
+      "revId": "4bcae1db2bfc954242ac488f0930170e81d2569d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_13fc273e",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
         "patchSetId": 4
