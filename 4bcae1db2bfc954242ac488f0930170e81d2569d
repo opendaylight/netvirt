@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_2949f8d0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-04T16:31:02Z",
+      "side": 1,
+      "message": "The issue here mostly is to distinguish between router-external-ips and floating-ips as the tunnel-table entry of 36 -\u003e 25 is of significance and must be present up and until atleast one floating-ip is available on that DPN.\n\nDPN-to-VPN Listener gives only list of IPAddresses on a DPN and does not tell whether the available elements in that list are FloatingIPs (or) just only RouterExternalFixedIPs.",
+      "parentUuid": "da01753e_c9d94c85",
+      "revId": "4bcae1db2bfc954242ac488f0930170e81d2569d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_f3e1a39b",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 4
