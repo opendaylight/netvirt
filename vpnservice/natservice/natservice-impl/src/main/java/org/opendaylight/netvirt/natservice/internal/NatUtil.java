@@ -116,6 +116,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalIpsCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
@@ -1806,5 +1809,33 @@ public class NatUtil {
     private static String getFlowRefPreDnatToSnat(BigInteger dpnId, short tableId, String uniqueId) {
         return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId
                 + NwConstants.FLOWID_SEPARATOR + uniqueId;
+    }
+
+    public static Boolean isFloatingIpPresentForDpn(DataBroker dataBroker, BigInteger dpnId, String rd,
+                                                           String vpnName, String externalIp) {
+        InstanceIdentifier<VpnToDpnList> id = getVpnToDpnListIdentifier(rd, dpnId);
+        Optional<VpnToDpnList> dpnInVpn = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        if (dpnInVpn.isPresent()) {
+            LOG.debug("vpn-to-dpn-list is not empty for vpnName {}, dpn id {}, rd {} and floatingIp {}",
+                    vpnName, dpnId, rd, externalIp);
+            List<IpAddresses> ipAddressList = dpnInVpn.get().getIpAddresses();
+            if (ipAddressList.size() > 0) {
+                for (IpAddresses ipAddress: ipAddressList) {
+                    if (!ipAddress.getIpAddress().equals(externalIp)
+                            && IpAddresses.IpAddressType.FloatingIP.equals(ipAddress.getIpAddressType())) {
+                        return Boolean.TRUE;
+                    }
+                }
+            } else {
+                return Boolean.FALSE;
+            }
+        }
+        return Boolean.FALSE;
+    }
+
+    private static InstanceIdentifier<VpnToDpnList> getVpnToDpnListIdentifier(String rd, BigInteger dpnId) {
+        return InstanceIdentifier.builder(VpnInstanceOpData.class)
+                .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd))
+                .child(VpnToDpnList.class, new VpnToDpnListKey(dpnId)).build();
     }
 }
