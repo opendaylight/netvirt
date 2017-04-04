@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_698f8024",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/test/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkLocatorTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-04-04T16:18:17Z",
+      "side": 1,
+      "message": "if you use the AbstractConcurrentDataBrokerTest, then you do not mock read calls - you use \"real\" (but fast) test DataBroker implementation.. so e.g. if your test needs some data to be in the DataBroker so that it can test code which reads that data, then you just write it into the DataBroker at the beginning of your test.  The main advantage I see is that you do not write tests where half of the code is related to mocking DataBroker, instead of actually really testing anything - such as you (had to) do in this class!",
+      "parentUuid": "da01753e_5304ef7d",
+      "revId": "d411f7a8c486671d5ebfc20ab922756729871007",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9732f8a4",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/test/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkLocatorTest.java",
         "patchSetId": 5
