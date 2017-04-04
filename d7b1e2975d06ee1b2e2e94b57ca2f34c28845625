@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_90e80d7e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAJobScheduler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-04-04T08:42:14Z",
+      "side": 1,
+      "message": "Consider using the ThreadFactoryProvider introduced in https://git.opendaylight.org/gerrit/#/c/53744/",
+      "revId": "d7b1e2975d06ee1b2e2e94b57ca2f34c28845625",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
