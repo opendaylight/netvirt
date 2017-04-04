@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_6474c79c",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-04-04T18:10:34Z",
+      "side": 1,
+      "message": "Good catch, getTunnelPorts returns a subset of what PortsOnBridge returns, but I wanted the tunnelPorts. Also, I forgot to add a check for the tunnel port options, so that\u0027s in the next patch-set.",
+      "parentUuid": "da01753e_ae832ecb",
+      "revId": "e3cfdcb4b091f320ca35daa6f87da849a1164b9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_8e72aae3",
         "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
         "patchSetId": 9
@@ -30,6 +48,24 @@
       "writtenOn": "2017-04-04T15:08:59Z",
       "side": 1,
       "message": "Does this means SFC would only work with combination with OF tunnels enabled?",
+      "revId": "e3cfdcb4b091f320ca35daa6f87da849a1164b9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_4479c392",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-04-04T18:10:34Z",
+      "side": 1,
+      "message": "Yes, SFC needs OF tunnels enabled. The Genius folks are aware of this.",
+      "parentUuid": "da01753e_8e72aae3",
       "revId": "e3cfdcb4b091f320ca35daa6f87da849a1164b9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "da01753e_a46eafc7",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-04-04T18:10:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_4e656244",
+      "range": {
+        "startLine": 236,
+        "startChar": 44,
+        "endLine": 236,
+        "endChar": 61
+      },
+      "revId": "e3cfdcb4b091f320ca35daa6f87da849a1164b9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_492b9c82",
         "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
         "patchSetId": 9
@@ -70,6 +130,24 @@
       "writtenOn": "2017-04-04T15:08:59Z",
       "side": 1,
       "message": "This class it seems to have overlapping code with ACL matches. Is it possible to use IAclServiceUtil.programIpFlow() to build these matches?",
+      "revId": "e3cfdcb4b091f320ca35daa6f87da849a1164b9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_045fbb0f",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-04-04T18:10:34Z",
+      "side": 1,
+      "message": "Good point. I would prefer we combine the 2 classes into a common util class. That way we wont have problems later on if one or the other feature isnt installed.",
+      "parentUuid": "da01753e_492b9c82",
       "revId": "e3cfdcb4b091f320ca35daa6f87da849a1164b9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
