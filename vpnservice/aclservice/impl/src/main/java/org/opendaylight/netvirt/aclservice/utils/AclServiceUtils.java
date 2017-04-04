@@ -491,7 +491,7 @@ public final class AclServiceUtils {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         BigInteger aclId = buildAclId(remoteAclId);
         if (aclId.intValue() != AclConstants.INVALID_ACL_ID) {
-            MatchMetadata metadataMatch = new MatchMetadata(aclId.shiftLeft(1),
+            MatchMetadata metadataMatch = new MatchMetadata(getAclIdMetadata(aclId),
                     MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID);
             flowMatches.add(metadataMatch);
         } else {
@@ -503,6 +503,10 @@ public final class AclServiceUtils {
     public BigInteger buildAclId(Uuid remoteAclId) {
         Integer aclId = allocateAclId(remoteAclId.getValue());
         return BigInteger.valueOf(aclId);
+    }
+
+    public static BigInteger getAclIdMetadata(BigInteger aclId) {
+        return aclId.shiftLeft(1);
     }
 
     /**
