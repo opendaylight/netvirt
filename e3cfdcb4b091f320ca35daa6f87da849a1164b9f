@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_ae832ecb",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-04-04T14:16:08Z",
+      "side": 1,
+      "message": "Remove comment? Or did you want to use getTunnelPorts?",
+      "revId": "e3cfdcb4b091f320ca35daa6f87da849a1164b9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_4e656244",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-04-04T14:16:08Z",
+      "side": 1,
+      "message": "no tunnel ports found for node {}, dpnId ?",
+      "range": {
+        "startLine": 236,
+        "startChar": 44,
+        "endLine": 236,
+        "endChar": 61
+      },
+      "revId": "e3cfdcb4b091f320ca35daa6f87da849a1164b9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
