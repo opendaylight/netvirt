@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_c4f49389",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-04T22:17:43Z",
+      "side": 1,
+      "message": "make all final",
+      "revId": "1c303ed998fc599758bcede26d3d35b3407afe94",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_4430a356",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-04T22:17:43Z",
+      "side": 1,
+      "message": "tpList can be null so we need to check for it before calling the loop. We should make a change to the genius utils to return Colelctions.emptyList() rather than null.",
+      "revId": "1c303ed998fc599758bcede26d3d35b3407afe94",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_a4350f48",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-04T22:17:43Z",
+      "side": 1,
+      "message": "this i don\u0027t think could happen if the list iterates.",
+      "revId": "1c303ed998fc599758bcede26d3d35b3407afe94",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_e43ef728",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/OpenFlow13Provider.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-04T22:17:43Z",
+      "side": 1,
+      "message": "does this mean you could only have a single flow per node since the name is not unique?",
+      "revId": "1c303ed998fc599758bcede26d3d35b3407afe94",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
