@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "da01753e_8e72aae3",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-04T15:08:59Z",
+      "side": 1,
+      "message": "Does this means SFC would only work with combination with OF tunnels enabled?",
+      "revId": "e3cfdcb4b091f320ca35daa6f87da849a1164b9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_4e656244",
         "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
         "patchSetId": 9
@@ -36,6 +53,23 @@
         "endLine": 236,
         "endChar": 61
       },
+      "revId": "e3cfdcb4b091f320ca35daa6f87da849a1164b9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_492b9c82",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-04T15:08:59Z",
+      "side": 1,
+      "message": "This class it seems to have overlapping code with ACL matches. Is it possible to use IAclServiceUtil.programIpFlow() to build these matches?",
       "revId": "e3cfdcb4b091f320ca35daa6f87da849a1164b9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
