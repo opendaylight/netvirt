@@ -16,6 +16,24 @@
       "revId": "0b55afc616a513de2a910774b852014f75c7d24e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_139f0761",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1266,
+      "author": {
+        "id": 6947
+      },
+      "writtenOn": "2017-04-04T11:35:39Z",
+      "side": 1,
+      "message": "my intention was to separate between things that are related to Neutron and Netvirt. In the long run, maybe separate completely the dhcp service from its \"users\" - the neutron dhcp and allocation pool dhcp implementations. I agree that the corner stone was indeed placed in the wrong place :) I assume that placing it in a new general neutron util class  in the dhcp package is more reasonable - agree?",
+      "parentUuid": "da01753e_9ac0317e",
+      "revId": "0b55afc616a513de2a910774b852014f75c7d24e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
