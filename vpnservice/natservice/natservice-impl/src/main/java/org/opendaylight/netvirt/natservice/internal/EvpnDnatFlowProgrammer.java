@@ -105,23 +105,18 @@ public class EvpnDnatFlowProgrammer {
             LOG.error("NAT Service : Unable to retrieve L3VNI value for Floating IP {} ", externalIp);
             return;
         }
+        long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
+        if (vpnId == NatConstants.INVALID_ID) {
+            LOG.warn("NAT Service : Invalid Vpn Id is found for Vpn Name {}", vpnName);
+            return;
+        }
         FloatingIPListener.updateOperationalDS(dataBroker, routerName, interfaceName, NatConstants.DEFAULT_LABEL_VALUE,
                 internalIp, externalIp);
-        //Inform to FIB
+        //Inform to FIB and BGP
         NatEvpnUtil.addRoutesForVxLanProvType(dataBroker, bgpManager, fibManager, vpnName, rd, externalIp + "/32",
                 nextHopIp, l3Vni, floatingIpInterface, floatingIpPortMacAddress,
                 writeTx, RouteOrigin.STATIC, dpnId);
 
-        List<Instruction> instructions = new ArrayList<>();
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        List<Instruction> customInstructions = new ArrayList<>();
-        customInstructions.add(new InstructionGotoTable(NwConstants.PDNAT_TABLE).buildInstruction(0));
-        actionsInfos.add(new ActionNxResubmit(NwConstants.PDNAT_TABLE));
-        instructions.add(new InstructionApplyActions(actionsInfos).buildInstruction(0));
-        /* Install the Flow table INTERNAL_TUNNEL_TABLE (table=36)-> PDNAT_TABLE (table=25) for SNAT to DNAT
-         * reverse traffic for Non-FIP VM on DPN1 to FIP VM on DPN2
-         */
-        makeTunnelTableEntry(dpnId, l3Vni, instructions);
         /* Install the flow table L3_FIB_TABLE (table=21)-> PDNAT_TABLE (table=25)
          * (SNAT to DNAT reverse traffic: If the DPN has both SNAT and  DNAT configured )
          */
@@ -132,7 +127,8 @@ public class EvpnDnatFlowProgrammer {
         instructionsFib.add(new InstructionGotoTable(NwConstants.PDNAT_TABLE).buildInstruction(1));
 
         CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
-                .setSourceDpid(dpnId).setIpAddress(externalIp + "/32").setServiceId(l3Vni)
+                .setSourceDpid(dpnId).setIpAddress(externalIp + "/32")
+                .setServiceId(l3Vni).setIpAddressSource(CreateFibEntryInput.IpAddressSource.FloatingIP)
                 .setInstruction(instructionsFib).build();
 
         Future<RpcResult<Void>> future1 = fibService.createFibEntry(input);
@@ -160,17 +156,28 @@ public class EvpnDnatFlowProgrammer {
                 if (result.isSuccessful()) {
                     LOG.info("NAT Service : Successfully installed custom FIB routes for Floating "
                             + "IP Prefix {} on DPN {}", externalIp, dpnId);
+                    List<Instruction> instructions = new ArrayList<>();
+                    List<ActionInfo> actionsInfos = new ArrayList<>();
+                    List<Instruction> customInstructions = new ArrayList<>();
+                    customInstructions.add(new InstructionGotoTable(NwConstants.PDNAT_TABLE).buildInstruction(0));
+                    actionsInfos.add(new ActionNxResubmit(NwConstants.PDNAT_TABLE));
+                    instructions.add(new InstructionApplyActions(actionsInfos).buildInstruction(0));
+                 /* Install the Flow table INTERNAL_TUNNEL_TABLE (table=36)-> PDNAT_TABLE (table=25) for SNAT to DNAT
+                  * reverse traffic for Non-FIP VM on DPN1 to FIP VM on DPN2
+                  */
+                    makeTunnelTableEntry(dpnId, l3Vni, instructions);
+
+                 /* Install the flow L3_GW_MAC_TABLE (table=19)-> PDNAT_TABLE (table=25)
+                  * (DNAT reverse traffic: If the traffic is Initiated from DC-GW to FIP VM (DNAT forward traffic))
+                  */
+                    NatEvpnUtil.makeL3GwMacTableEntry(dpnId, vpnId, floatingIpPortMacAddress, customInstructions,
+                            mdsalManager);
                 } else {
                     LOG.error("NAT Service : Error {} in rpc call to create custom Fib entries for Floating "
                             + "IP Prefix {} on DPN {}, {}", result.getErrors(), externalIp, dpnId);
                 }
             }
         });
-        /* Install the flow L3_GW_MAC_TABLE (table=19)-> PDNAT_TABLE (table=25)
-         * (DNAT reverse traffic: If the traffic is Initiated from DC-GW to FIP VM (DNAT forward traffic))
-         */
-        long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
-        NatEvpnUtil.makeL3GwMacTableEntry(dpnId, vpnId, floatingIpPortMacAddress, customInstructions, mdsalManager);
 
         //Read the FIP vpn-interface details from Configuration l3vpn:vpn-interfaces model and write into Operational DS
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NatUtil.getVpnInterfaceIdentifier(floatingIpInterface);
@@ -218,11 +225,13 @@ public class EvpnDnatFlowProgrammer {
             LOG.error("NAT Service : Could not retrieve L3VNI value from RD {} in ", rd);
             return;
         }
+        long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
+        if (vpnId == NatConstants.INVALID_ID) {
+            LOG.warn("NAT Service : Invalid Vpn Id is found for Vpn Name {}", vpnName);
+            return;
+        }
         //Remove Prefix from BGP
         NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32", vpnName, LOG);
-
-       //Remove the flow for INTERNAL_TUNNEL_TABLE (table=36)-> PDNAT_TABLE (table=25)
-        removeTunnelTableEntry(dpnId, l3Vni);
 
         //Remove custom FIB routes flow for L3_FIB_TABLE (table=21)-> PDNAT_TABLE (table=25)
         RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName)
@@ -242,20 +251,23 @@ public class EvpnDnatFlowProgrammer {
                 if (result.isSuccessful()) {
                     LOG.info("NAT Service : Successfully removed custom FIB routes for Floating "
                             + "IP Prefix {} on DPN {}", externalIp, dpnId);
+                     /*  check if any floating IP information is available in vpn-to-dpn-list for given dpn id.
+                      *  If exist any floating IP then do not remove
+                      *  INTERNAL_TUNNEL_TABLE (table=36) -> PDNAT_TABLE (table=25) flow entry.
+                      */
+                    if (!NatUtil.isFloatingIpPresentForDpn(dataBroker, dpnId, rd, vpnName, externalIp)) {
+                        //Remove the flow for INTERNAL_TUNNEL_TABLE (table=36)-> PDNAT_TABLE (table=25)
+                        removeTunnelTableEntry(dpnId, l3Vni);
+                    }
+                    //Remove the flow for L3_GW_MAC_TABLE (table=19)-> PDNAT_TABLE (table=25)
+                    NatEvpnUtil.removeL3GwMacTableEntry(dpnId, vpnId, floatingIpPortMacAddress, mdsalManager);
+
                 } else {
                     LOG.error("NAT Service : Error {} in rpc call to remove custom Fib entries for Floating "
                             + "IP Prefix {} on DPN {}, {}", result.getErrors(), externalIp, dpnId);
                 }
             }
         });
-
-        long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
-        if (vpnId == NatConstants.INVALID_ID) {
-            LOG.warn("NAT Service : Invalid Vpn Id is found for Vpn Name {}", vpnName);
-        }
-        //Remove the flow for L3_GW_MAC_TABLE (table=19)-> PDNAT_TABLE (table=25)
-        NatEvpnUtil.removeL3GwMacTableEntry(dpnId, vpnId, floatingIpPortMacAddress, mdsalManager);
-
         //Read the FIP vpn-interface details from Operational l3vpn:vpn-interfaces model and delete from Operational DS
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NatUtil.getVpnInterfaceIdentifier(floatingIpInterface);
         Optional<VpnInterface> optionalVpnInterface = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
