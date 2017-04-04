@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "da01753e_c9d94c85",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-04T15:58:34Z",
+      "side": 1,
+      "message": "Maybe coming in too late with this question but still... why does the flow 36 -\u003e 25 has to be programmed for each associated FIP? Doesn\u0027t it make more sense to trigger both installation and removal of this flow from vpn-to-dpn listener or some other listener not triggered in a FIP scale?",
+      "revId": "4bcae1db2bfc954242ac488f0930170e81d2569d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_f3e1a39b",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 4
