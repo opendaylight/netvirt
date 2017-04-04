@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_e440b737",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-04-04T19:12:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_e976d0d7",
+      "revId": "85f2ece874cb1696b9d6b124cc19c634c7cb948d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_e90b7029",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-04-04T17:43:33Z",
       "side": 1,
       "message": "in general wherever getLabel() is called, can we please use only subOpBuilder.getLabel(), except for the getLabel() invocation inside electNewxxx() method.",
+      "revId": "85f2ece874cb1696b9d6b124cc19c634c7cb948d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_44870362",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-04-04T19:12:22Z",
+      "side": 1,
+      "message": "Done. getLabel() is called in electNewXXX and in publishSubnetRouteToBgp(). Both have been handled",
+      "parentUuid": "da01753e_e90b7029",
       "revId": "85f2ece874cb1696b9d6b124cc19c634c7cb948d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_84aa8bd2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-04-04T19:12:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_292f38a3",
+      "revId": "85f2ece874cb1696b9d6b124cc19c634c7cb948d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_8972a4e3",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnPopulator.java",
         "patchSetId": 2
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_64e9671a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnPopulator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-04-04T19:12:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_8972a4e3",
+      "revId": "85f2ece874cb1696b9d6b124cc19c634c7cb948d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_a96de806",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/intfc/VpnPopulator.java",
         "patchSetId": 2
@@ -81,6 +153,24 @@
       "writtenOn": "2017-04-04T17:43:33Z",
       "side": 1,
       "message": "I would instead suggest you to add subnentRoute specific items into L3VPNInput and use populateFib itself to branch out inside L3VPNPopulator to create the subnetroutevrfentry, instead of introducing a new method here..",
+      "revId": "85f2ece874cb1696b9d6b124cc19c634c7cb948d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_a4418f0d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/intfc/VpnPopulator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-04-04T19:12:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_a96de806",
       "revId": "85f2ece874cb1696b9d6b124cc19c634c7cb948d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
