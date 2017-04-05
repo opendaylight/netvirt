@@ -37,6 +37,7 @@ import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.globals.ITMConstants;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -363,7 +364,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
                 // Removing all those MACs from External Devices belonging
                 // to this ELAN
-                if ((ElanUtils.isVxlan(elanInfo) || (ElanUtils.isVxlanSegment(elanInfo))) && ! macAddresses.isEmpty()) {
+                if ((ElanUtils.isVxlan(elanInfo) || ElanUtils.isVxlanSegment(elanInfo)) && ! macAddresses.isEmpty()) {
                     elanL2GatewayUtils.removeMacsFromElanExternalDevices(elanInfo, macAddresses);
                 }
             }
@@ -628,7 +629,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 dpnInterfaces = createElanInterfacesList(elanInstanceName, interfaceName, dpId, tx);
                 // The 1st ElanInterface in a DPN must program the Ext Tunnel
                 // table, but only if Elan has VNI
-                if ((ElanUtils.isVxlan(elanInstance) || (ElanUtils.isVxlanSegment(elanInstance)))) {
+                if (ElanUtils.isVxlan(elanInstance) || ElanUtils.isVxlanSegment(elanInstance)) {
                     setExternalTunnelTable(dpId, elanInstance);
                 }
                 elanL2GatewayUtils.installElanL2gwDevicesLocalMacsInDpn(dpId, elanInstance, interfaceName);
@@ -1291,9 +1292,11 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         // exact order
 
         String flowId = getFlowRef(NwConstants.EXTERNAL_TUNNEL_TABLE, elanInfo.getElanTag());
-        FlowEntity flowEntity = new FlowEntity(dpnId);
-        flowEntity.setTableId(NwConstants.EXTERNAL_TUNNEL_TABLE);
-        flowEntity.setFlowId(flowId);
+        FlowEntity flowEntity = new FlowEntityBuilder()
+            .setDpnId(dpnId)
+            .setTableId(NwConstants.EXTERNAL_TUNNEL_TABLE)
+            .setFlowId(flowId)
+            .build();
         mdsalManager.removeFlow(flowEntity);
     }
 

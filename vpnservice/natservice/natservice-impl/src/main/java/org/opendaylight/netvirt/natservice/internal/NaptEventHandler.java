@@ -22,6 +22,7 @@ import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -78,7 +79,7 @@ public class NaptEventHandler {
     private final PacketProcessingService pktService;
     private final OdlInterfaceRpcService interfaceManagerRpc;
     private final NaptManager naptManager;
-    private IInterfaceManager interfaceManager;
+    private final IInterfaceManager interfaceManager;
 
     public NaptEventHandler(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                             final NaptManager naptManager,
@@ -236,7 +237,7 @@ public class NaptEventHandler {
                 List<ActionInfo> actionInfos = new ArrayList<>();
                 if (ethPkt.getPayload() instanceof IPv4) {
                     IPv4 ipPkt = (IPv4) ethPkt.getPayload();
-                    if ((ipPkt.getPayload() instanceof TCP) || (ipPkt.getPayload() instanceof UDP)) {
+                    if (ipPkt.getPayload() instanceof TCP || ipPkt.getPayload() instanceof UDP) {
                         if (ethPkt.getEtherType() != (short) NwConstants.ETHTYPE_802_1Q) {
                             // VLAN Access port
                             if (infInfo != null) {
@@ -302,13 +303,21 @@ public class NaptEventHandler {
         int actualPort = actualSourceAddress.getPortNumber();
         String switchFlowRef =
             NatUtil.getNaptFlowRef(dpnId, tableId, String.valueOf(routerId), actualIp, actualPort);
-        FlowEntity snatFlowEntity = MDSALUtil.buildFlowEntity(dpnId, tableId, switchFlowRef,
-                NatConstants.DEFAULT_NAPT_FLOW_PRIORITY, NatConstants.NAPT_FLOW_NAME, idleTimeout, 0,
-                NatUtil.getCookieNaptFlow(routerId),
-                buildAndGetMatchInfo(actualIp, actualPort, tableId, protocol, intranetVpnId),
-                buildAndGetSetActionInstructionInfo(translatedIp, translatedPort, intranetVpnId, vpnId, tableId,
-                        protocol, extGwMacAddress));
-        snatFlowEntity.setSendFlowRemFlag(true);
+
+        FlowEntity snatFlowEntity = new FlowEntityBuilder()
+            .setDpnId(dpnId)
+            .setTableId(tableId)
+            .setFlowId(switchFlowRef)
+            .setPriority(NatConstants.DEFAULT_NAPT_FLOW_PRIORITY)
+            .setFlowName(NatConstants.NAPT_FLOW_NAME)
+            .setIdleTimeOut(idleTimeout)
+            .setHardTimeOut(0)
+            .setCookie(NatUtil.getCookieNaptFlow(routerId))
+            .setMatchInfoList(buildAndGetMatchInfo(actualIp, actualPort, tableId, protocol, intranetVpnId))
+            .setInstructionInfoList(buildAndGetSetActionInstructionInfo(translatedIp, translatedPort,
+                                            intranetVpnId, vpnId, tableId, protocol, extGwMacAddress))
+            .setSendFlowRemFlag(true)
+            .build();
 
         LOG.debug("NAT Service : Installing the NAPT flow in the table {} for the switch with the DPN ID {} ",
             tableId, dpnId);
@@ -442,7 +451,7 @@ public class NaptEventHandler {
         if (etherPkt.getPayload() instanceof IPv4) {
             byte[] rawPkt;
             IPv4 ipPkt = (IPv4) etherPkt.getPayload();
-            if ((ipPkt.getPayload() instanceof TCP) || (ipPkt.getPayload() instanceof UDP)) {
+            if (ipPkt.getPayload() instanceof TCP || ipPkt.getPayload() instanceof UDP) {
                 try {
                     rawPkt = etherPkt.serialize();
                     return rawPkt;
