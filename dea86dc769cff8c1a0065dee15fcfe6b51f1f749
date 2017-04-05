@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_68049515",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-04-05T18:13:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_65368005",
+      "revId": "dea86dc769cff8c1a0065dee15fcfe6b51f1f749",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_c5448c76",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 6
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_c809412e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 788,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-04-05T18:13:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_c5448c76",
+      "revId": "dea86dc769cff8c1a0065dee15fcfe6b51f1f749",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_252c78ab",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 6
@@ -47,6 +83,24 @@
       "writtenOn": "2017-04-05T17:12:27Z",
       "side": 1,
       "message": "if you are not able to select any DPN, you should withdraw the same way as the else case line 821 above here too.. so please re-arrange this code appropriately.",
+      "revId": "dea86dc769cff8c1a0065dee15fcfe6b51f1f749",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_e80fe52c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 838,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-04-05T18:13:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_252c78ab",
       "revId": "dea86dc769cff8c1a0065dee15fcfe6b51f1f749",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
