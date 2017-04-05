@@ -14,14 +14,14 @@
   <parent>
     <groupId>org.opendaylight.controller</groupId>
     <artifactId>config-parent</artifactId>
-    <version>0.5.3-SNAPSHOT</version>
+    <version>0.5.3-Boron-SR3</version>
     <relativePath/>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>openstack.sfc-translator-impl</artifactId>
-  <version>1.3.3-SNAPSHOT</version>
+  <version>1.3.3-Boron-SR3</version>
   <packaging>bundle</packaging>
 
   <description>
@@ -42,8 +42,8 @@
   </developers>
 
   <properties>
-    <neutron.model.version>0.7.3-SNAPSHOT</neutron.model.version>
-    <sfc.version>0.3.3-SNAPSHOT</sfc.version>
+    <neutron.model.version>0.7.3-Boron-SR3</neutron.model.version>
+    <sfc.version>0.3.3-Boron-SR3</sfc.version>
   </properties>
 
   <dependencies>

@@ -5,7 +5,7 @@
   <parent>
     <artifactId>it-parent</artifactId>
     <groupId>org.opendaylight.netvirt</groupId>
-    <version>0.3.3-SNAPSHOT</version>
+    <version>0.3.3-Boron-SR3</version>
     <relativePath>../../commons/it-parent/</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
