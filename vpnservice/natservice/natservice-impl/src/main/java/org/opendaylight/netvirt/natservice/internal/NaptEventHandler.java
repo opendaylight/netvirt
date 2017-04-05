@@ -22,6 +22,7 @@ import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -78,7 +79,7 @@ public class NaptEventHandler {
     private final PacketProcessingService pktService;
     private final OdlInterfaceRpcService interfaceManagerRpc;
     private final NaptManager naptManager;
-    private IInterfaceManager interfaceManager;
+    private final IInterfaceManager interfaceManager;
 
     public NaptEventHandler(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                             final NaptManager naptManager,
@@ -236,7 +237,7 @@ public class NaptEventHandler {
                 List<ActionInfo> actionInfos = new ArrayList<>();
                 if (ethPkt.getPayload() instanceof IPv4) {
                     IPv4 ipPkt = (IPv4) ethPkt.getPayload();
-                    if ((ipPkt.getPayload() instanceof TCP) || (ipPkt.getPayload() instanceof UDP)) {
+                    if (ipPkt.getPayload() instanceof TCP || ipPkt.getPayload() instanceof UDP) {
                         if (ethPkt.getEtherType() != (short) NwConstants.ETHTYPE_802_1Q) {
                             // VLAN Access port
                             if (infInfo != null) {
@@ -442,7 +443,7 @@ public class NaptEventHandler {
         if (etherPkt.getPayload() instanceof IPv4) {
             byte[] rawPkt;
             IPv4 ipPkt = (IPv4) etherPkt.getPayload();
-            if ((ipPkt.getPayload() instanceof TCP) || (ipPkt.getPayload() instanceof UDP)) {
+            if (ipPkt.getPayload() instanceof TCP || ipPkt.getPayload() instanceof UDP) {
                 try {
                     rawPkt = etherPkt.serialize();
                     return rawPkt;
