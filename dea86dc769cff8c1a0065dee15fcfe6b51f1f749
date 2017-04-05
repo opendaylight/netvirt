@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "da01753e_65368005",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-05T17:12:27Z",
+      "side": 1,
+      "message": "please always use {} form in new log messages instead of + interfaceName form going forward.",
+      "revId": "dea86dc769cff8c1a0065dee15fcfe6b51f1f749",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_c5448c76",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 6
@@ -13,6 +30,23 @@
       "writtenOn": "2017-04-05T17:04:05Z",
       "side": 1,
       "message": "it is better to selected only connected nodes kiran...\nplease move this within the try block below before you get the nhTepIp..",
+      "revId": "dea86dc769cff8c1a0065dee15fcfe6b51f1f749",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_252c78ab",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 838,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-05T17:12:27Z",
+      "side": 1,
+      "message": "if you are not able to select any DPN, you should withdraw the same way as the else case line 821 above here too.. so please re-arrange this code appropriately.",
       "revId": "dea86dc769cff8c1a0065dee15fcfe6b51f1f749",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
