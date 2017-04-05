@@ -33,6 +33,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -377,7 +378,7 @@ public class NatUtil {
     public static ProviderTypes getProviderTypefromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
         Optional<Networks> networkData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
-        if ((networkData.isPresent()) && (networkData.get() != null)) {
+        if (networkData.isPresent() && networkData.get() != null) {
             return networkData.get().getProviderNetworkType();
         }
         return null;
@@ -476,45 +477,26 @@ public class NatUtil {
         return vpnId;
     }
 
-    public static FlowEntity buildFlowEntity(BigInteger dpnId, short tableId, BigInteger cookie) {
-        FlowEntity flowEntity = new FlowEntity(dpnId);
-        flowEntity.setTableId(tableId);
-        flowEntity.setCookie(cookie);
-        return flowEntity;
-    }
-
-    public static FlowEntity buildFlowEntity(BigInteger dpnId, short tableId, String flowId,
-                                             int priority, String flowName,
-                                             BigInteger cookie, List<MatchInfo> listMatchInfo) {
-
-        FlowEntity flowEntity = new FlowEntity(dpnId);
-        flowEntity.setTableId(tableId);
-        flowEntity.setFlowId(flowId);
-        flowEntity.setPriority(priority);
-        flowEntity.setFlowName(flowName);
-        flowEntity.setCookie(cookie);
-        flowEntity.setMatchInfoList(listMatchInfo);
-        return flowEntity;
-    }
-
     public static FlowEntity buildFlowEntity(BigInteger dpnId, short tableId, BigInteger cookie, String flowId) {
-        FlowEntity flowEntity = new FlowEntity(dpnId);
-        flowEntity.setTableId(tableId);
-        flowEntity.setCookie(cookie);
-        flowEntity.setFlowId(flowId);
-        return flowEntity;
+        return new FlowEntityBuilder()
+                .setDpnId(dpnId)
+                .setTableId(tableId)
+                .setCookie(cookie)
+                .setFlowId(flowId)
+                .build();
     }
 
     public static FlowEntity buildFlowEntity(BigInteger dpnId, short tableId, String flowId) {
-        FlowEntity flowEntity = new FlowEntity(dpnId);
-        flowEntity.setTableId(tableId);
-        flowEntity.setFlowId(flowId);
-        return flowEntity;
+        return new FlowEntityBuilder()
+                .setDpnId(dpnId)
+                .setTableId(tableId)
+                .setFlowId(flowId)
+                .build();
     }
 
     public static long getIpAddress(byte[] rawIpAddress) {
-        return (((rawIpAddress[0] & 0xFF) << (3 * 8)) + ((rawIpAddress[1] & 0xFF) << (2 * 8))
-            + ((rawIpAddress[2] & 0xFF) << (1 * 8)) + (rawIpAddress[3] & 0xFF)) & 0xffffffffL;
+        return ((rawIpAddress[0] & 0xFF) << 3 * 8) + ((rawIpAddress[1] & 0xFF) << 2 * 8)
+            + ((rawIpAddress[2] & 0xFF) << 1 * 8) + (rawIpAddress[3] & 0xFF) & 0xffffffffL;
     }
 
     public static String getEndpointIpAddressForDPN(DataBroker broker, BigInteger dpnId) {
@@ -684,7 +666,7 @@ public class NatUtil {
             fibManager.addOrUpdateFibEntry(broker, rd, macAddress, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, (int)label, l3vni /*l3vni*/,
                     null /*gatewayMacAddress*/, parentVpnRd, origin, null /*writeTxn*/);
-            if ((rd != null) && (!rd.equalsIgnoreCase(vpnName))) {
+            if (rd != null && !rd.equalsIgnoreCase(vpnName)) {
             /* Publish to Bgp only if its an INTERNET VPN */
                 bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),
                         VrfEntry.EncapType.Mplsgre, (int) label, 0 /*l3vni*/, 0 /*l2vni*/, null /*gatewayMac*/);
@@ -1651,7 +1633,7 @@ public class NatUtil {
             long ipLo = ipToLong(InetAddress.getByName(start));
             long ipHi = ipToLong(InetAddress.getByName(end));
             long ipToTest = ipToLong(InetAddress.getByName(ipAddress));
-            return (ipToTest >= ipLo && ipToTest <= ipHi);
+            return ipToTest >= ipLo && ipToTest <= ipHi;
         } catch (UnknownHostException e) {
             LOG.error("NAT Service : isIpInSubnet failed for IP {}. Exception {}", ipAddress, e.getMessage());
             return false;
@@ -1665,7 +1647,7 @@ public class NatUtil {
 
         Set<Uuid> subnetsSet = externalIps.stream().map(externalIp -> externalIp.getSubnetId())
                 .collect(Collectors.toSet());
-        return new ArrayList<Uuid>(subnetsSet);
+        return new ArrayList<>(subnetsSet);
     }
 
     public static List<Uuid> getExternalSubnetIdsForRouter(DataBroker dataBroker, String routerName) {
@@ -1724,7 +1706,7 @@ public class NatUtil {
             Routers router) {
         List<ExternalIps> externalIps = router.getExternalIps();
         for (ExternalIps extIp : externalIps) {
-            String extIpString = extIp.getIpAddress().contains("/32") ? (extIp.getIpAddress() + "/32") :
+            String extIpString = extIp.getIpAddress().contains("/32") ? extIp.getIpAddress() + "/32" :
                 extIp.getIpAddress();
             if (extIpString.equals(externalIpAddress)) {
                 return extIp.getSubnetId();
