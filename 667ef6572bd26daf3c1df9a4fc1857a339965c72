@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "da01753e_df473d1c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-04-05T09:24:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_ff3042ea",
+      "range": {
+        "startLine": 66,
+        "startChar": 31,
+        "endLine": 66,
+        "endChar": 48
+      },
+      "revId": "667ef6572bd26daf3c1df9a4fc1857a339965c72",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_1f3426dd",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
         "patchSetId": 3
@@ -36,6 +60,24 @@
       "writtenOn": "2017-04-05T04:04:33Z",
       "side": 1,
       "message": "you can use MDSALUtil.getDpnIdFromNodeName() here and in lines #90-96",
+      "revId": "667ef6572bd26daf3c1df9a4fc1857a339965c72",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_7f0571c1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-04-05T09:24:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_1f3426dd",
       "revId": "667ef6572bd26daf3c1df9a4fc1857a339965c72",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_bfca399f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-04-05T09:24:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_5f4d0e72",
+      "revId": "667ef6572bd26daf3c1df9a4fc1857a339965c72",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_3f52ca13",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 3
@@ -70,6 +130,24 @@
       "writtenOn": "2017-04-05T04:04:33Z",
       "side": 1,
       "message": "could this be extracted to method? there are at least 2 other blocks in this file that looks exactly the same (to me). Are they any different?",
+      "revId": "667ef6572bd26daf3c1df9a4fc1857a339965c72",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_9f465522",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-04-05T09:24:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_3f52ca13",
       "revId": "667ef6572bd26daf3c1df9a4fc1857a339965c72",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -93,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_dfd9fd84",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverVxlanPopulator.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-04-05T09:24:25Z",
+      "side": 1,
+      "message": "Yes. This needs to mention the vpn interface adjacency. Thanks",
+      "parentUuid": "da01753e_242f5fa3",
+      "revId": "667ef6572bd26daf3c1df9a4fc1857a339965c72",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_bf3d1abe",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnPopulator.java",
         "patchSetId": 3
@@ -104,6 +200,24 @@
       "writtenOn": "2017-04-05T04:04:33Z",
       "side": 1,
       "message": "I believe tenant vxlan network also has encap type mplsgre \nis this logic valid for this UC?",
+      "revId": "667ef6572bd26daf3c1df9a4fc1857a339965c72",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_df645de7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnPopulator.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-04-05T09:24:25Z",
+      "side": 1,
+      "message": "The encap type simply specifies the tunnel type towards the DC-GW. Even for the tenant vxlan n/w that uses MplsOverGRE to send packets to the DC-GW, this logic will hold true.\nFor VxLAN tunnel towards the DC-GW, a new review will be raised and it will modify this logic apropriately.",
+      "parentUuid": "da01753e_bf3d1abe",
       "revId": "667ef6572bd26daf3c1df9a4fc1857a339965c72",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
