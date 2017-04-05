@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "da01753e_e5f550cc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-05T14:35:02Z",
+      "side": 1,
+      "message": "I think we can live with that. Is there an ETA for a next patch?",
+      "parentUuid": "da01753e_05ddf470",
+      "range": {
+        "startLine": 213,
+        "startChar": 17,
+        "endLine": 213,
+        "endChar": 24
+      },
+      "revId": "4afa33a241d30d53c693f53bb3fbe73e3536798f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_622b1683",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 4
