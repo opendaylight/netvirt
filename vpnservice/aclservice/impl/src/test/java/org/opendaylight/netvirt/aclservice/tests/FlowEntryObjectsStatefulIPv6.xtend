@@ -28,8 +28,70 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6
+import org.opendaylight.genius.mdsalutil.matches.MatchArpSha
+import org.opendaylight.genius.mdsalutil.NwConstants
 
 class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
+
+    protected def aapWithIpv6AllFlows() {
+        icmpFlows()
+        + aapIpv6AllFlowsPort2
+    }
+
+    protected def aapIpv6AllFlowsPort2() {
+        #[
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F4_::/0_Recirc"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 0, 0, 5000, NwConstants.INGRESS_ACL_REMOTE_ACL_TABLE)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F4")),
+                    new MatchEthernetType(34525L)
+                ]
+                priority = 61010
+                tableId = NwConstants.INGRESS_ACL_TABLE
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F4_::/0_Recirc"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 0, 0, 5000, NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:F4")),
+                    new MatchEthernetType(34525L)
+                ]
+                priority = 61010
+                tableId = NwConstants.EGRESS_ACL_TABLE
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F4"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new MatchArpSha(new MacAddress("0D:AA:D8:42:30:F4")),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 63010
+                tableId = NwConstants.INGRESS_ACL_TABLE
+            ]
+        ]
+    }
 
     override fixedConntrackIngressFlowsPort1() {
         #[
@@ -39,11 +101,11 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
             flowName = "ACL"
             instructionInfoList = #[
                 new InstructionApplyActions(#[
-                    new ActionNxConntrack(2, 0, 0, 5000, 243 as short)
+                    new ActionNxConntrack(2, 0, 0, 5000, 242 as short)
                 ])
             ]
             matchInfoList = #[
-                new MatchEthernetType(34525L),
+                new MatchEthernetType(2048L),
                 new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:F3")),
                 new MatchEthernetType(34525L),
                 new MatchIpv6Destination("2001:db8:1::/64")
@@ -145,7 +207,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
-                        new ActionNxConntrack(2, 0, 0, 5000, 213 as short)
+                        new ActionNxConntrack(2, 0, 0, 5000, 212 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -800,7 +862,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
-                    new MatchIpv6Source("::/0"),
+                 //   new MatchIpv6Source("::/0"),
                     new MatchEthernetType(34525L),
                     new NxMatchUdpDestinationPort(2000, 65532),
                     new MatchIpProtocol(17 as short),
@@ -827,7 +889,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
-                    new MatchIpv6Source("::/0"),
+                   // new MatchIpv6Source("::/0"),
                     new MatchEthernetType(34525L),
                     new NxMatchTcpDestinationPort(776, 65534),
                     new MatchIpProtocol(6 as short),
@@ -849,7 +911,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
-                    new MatchIpv6Source("::/0"),
+                 //   new MatchIpv6Source("::/0"),
                     new MatchEthernetType(34525L),
                     new NxMatchTcpDestinationPort(512, 65280),
                     new MatchIpProtocol(6 as short),
@@ -871,7 +933,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
-                    new MatchIpv6Source("::/0"),
+                 //   new MatchIpv6Source("::/0"),
                     new MatchEthernetType(34525L),
                     new NxMatchTcpDestinationPort(334, 65534),
                     new MatchIpProtocol(6 as short),
@@ -893,7 +955,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
-                    new MatchIpv6Source("::/0"),
+                 //   new MatchIpv6Source("::/0"),
                     new MatchEthernetType(34525L),
                     new NxMatchTcpDestinationPort(333, 65535),
                     new MatchIpProtocol(6 as short),
@@ -915,7 +977,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
-                    new MatchIpv6Source("::/0"),
+                //    new MatchIpv6Source("::/0"),
                     new MatchEthernetType(34525L),
                     new NxMatchTcpDestinationPort(336, 65520),
                     new MatchIpProtocol(6 as short),
@@ -937,7 +999,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
-                    new MatchIpv6Source("::/0"),
+                 //   new MatchIpv6Source("::/0"),
                     new MatchEthernetType(34525L),
                     new NxMatchTcpDestinationPort(352, 65504),
                     new MatchIpProtocol(6 as short),
@@ -959,7 +1021,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
-                    new MatchIpv6Source("::/0"),
+                 //   new MatchIpv6Source("::/0"),
                     new MatchEthernetType(34525L),
                     new NxMatchTcpDestinationPort(384, 65408),
                     new MatchIpProtocol(6 as short),
@@ -981,7 +1043,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
-                    new MatchIpv6Source("::/0"),
+                //    new MatchIpv6Source("::/0"),
                     new MatchEthernetType(34525L),
                     new NxMatchTcpDestinationPort(768, 65528),
                     new MatchIpProtocol(6 as short),
@@ -1008,7 +1070,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
-                    new MatchIpv6Source("::/0"),
+                    // new MatchIpv6Source("::/0"),
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(17 as short),
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
@@ -1034,7 +1096,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
-                    new MatchIpv6Source("::/0"),
+                    // new MatchIpv6Source("::/0"),
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(6 as short),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),

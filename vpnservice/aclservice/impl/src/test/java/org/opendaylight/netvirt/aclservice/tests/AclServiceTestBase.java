@@ -195,7 +195,6 @@ public abstract class AclServiceTestBase {
 
     abstract void newInterfaceWithTcpDstAclCheck();
 
-    @Ignore
     @Test
     public void newInterfaceWithUdpDstAcl() throws Exception {
         LOG.info("newInterfaceWithUdpDstAcl - start");
@@ -380,9 +379,8 @@ public abstract class AclServiceTestBase {
      *             the exception
      */
     @Test
-    @Ignore
-    public void newInterfaceWithAapIpv4All() throws Exception {
-        LOG.info("newInterfaceWithAapIpv4All test - start");
+    public void newInterfaceWithAapAll() throws Exception {
+        LOG.info("newInterfaceWithAapAll test - start");
 
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
         newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1),
@@ -396,11 +394,11 @@ public abstract class AclServiceTestBase {
         AclServiceTestUtils.waitABit(asyncEventsWaiter);
 
         // Then
-        newInterfaceWithAapIpv4AllCheck();
+        newInterfaceWithAapAllCheck();
         LOG.info("newInterfaceWithAapIpv4All test - end");
     }
 
-    abstract void newInterfaceWithAapIpv4AllCheck();
+    abstract void newInterfaceWithAapAllCheck();
 
     protected void assertFlowsInAnyOrder(Iterable<FlowEntity> expectedFlows) {
         asyncEventsWaiter.awaitEventsConsumption();

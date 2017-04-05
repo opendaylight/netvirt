@@ -64,7 +64,7 @@ public class AclServiceStatefulTest extends AclServiceTestBase {
     }
 
     @Override
-    void newInterfaceWithAapIpv4AllCheck() {
+    void newInterfaceWithAapAllCheck() {
         assertFlowsInAnyOrder(ipv4statefulentries.aapWithIpv4AllFlows());
     }
 }
