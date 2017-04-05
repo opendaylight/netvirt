@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_02ca0a4f",
+        "filename": "docs/specs/new-sfc-classifier.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-05T14:22:09Z",
+      "side": 1,
+      "message": "whtiespace",
+      "revId": "eb615fd0599cc7daaccd3c0eb8a93335be4de278",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
