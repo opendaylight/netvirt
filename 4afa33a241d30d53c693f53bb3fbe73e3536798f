@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "da01753e_62367605",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-05T13:52:51Z",
+      "side": 1,
+      "message": "The code as it is now will not elect a dpn for that subnet in non bgpvpn use case, which we need to set in the subnet-op-data entity.\n\nDepends on what we do in electNewDpnForSubnetRoute, we way remove the call to addSubnetRouteToFib from here.\nI think that calling addSubnetRouteToFib from electNewDpnForSubnetRoute on both usecases (bgpvpn/non-bgpvpn) should do the trick. \n\nWhat do you think?",
+      "parentUuid": "da01753e_221d8ebe",
+      "range": {
+        "startLine": 213,
+        "startChar": 17,
+        "endLine": 213,
+        "endChar": 24
+      },
+      "revId": "4afa33a241d30d53c693f53bb3fbe73e3536798f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_622b1683",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 4
