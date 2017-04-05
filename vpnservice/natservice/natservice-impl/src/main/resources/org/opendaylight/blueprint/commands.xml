@@ -1,0 +1,14 @@
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+
+    <reference id="dataBrokerRef"
+               interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+               odl:type="pingpong"/>
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
+        <command>
+            <action class="org.opendaylight.netvirt.natservice.cli.DisplayNaptSwithcesCli">
+                <property name="dataBroker" ref="dataBrokerRef"/>
+            </action>
+        </command>
+    </command-bundle>
+</blueprint>
