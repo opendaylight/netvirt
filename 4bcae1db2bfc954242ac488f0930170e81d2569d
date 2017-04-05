@@ -104,6 +104,24 @@
       "revId": "4bcae1db2bfc954242ac488f0930170e81d2569d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_1f20a6f6",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-04-05T07:36:02Z",
+      "side": 1,
+      "message": "when OpenStack Semantics is enabled, then an \"Internet VPN VNI\" will be carved out and will be used as tun_id. So, if we have two Fips(on a given dpn), there will be only one 36-\u003e25 flow(tun_id\u003d\"internet-vpn-vni\"). As a result, check to find if there exist any other FIPs on a dpn is required before this flow removal(VNI cases too).",
+      "parentUuid": "da01753e_13fc273e",
+      "revId": "4bcae1db2bfc954242ac488f0930170e81d2569d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
