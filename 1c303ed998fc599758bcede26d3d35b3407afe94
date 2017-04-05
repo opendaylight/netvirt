@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_3f2bea83",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-04-05T03:36:07Z",
+      "side": 1,
+      "message": "tpList null means Genius couldn\u0027t find this bridgeEntry, while tpList means bridgeEntry exists but no tunnel ports. May not be valid here but in some cases one may want to retry if tpList is null. I\u0027d prefer to retain the different meaning conveyed by tpList null and tpList empty. You can probably use something like:\n\nOptional.ofNullable(tpList).ifPresent(tps -\u003e tps.parallelStream().forEach(tp -\u003e tpHandlerMethod(tp)));",
+      "parentUuid": "da01753e_4430a356",
+      "revId": "1c303ed998fc599758bcede26d3d35b3407afe94",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_a4350f48",
         "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
         "patchSetId": 10
