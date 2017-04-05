@@ -33,6 +33,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -198,7 +199,7 @@ public class VpnUtil {
     static VpnInterface getVpnInterface(DataBroker broker, String vpnInterfaceName) {
         InstanceIdentifier<VpnInterface> id = getVpnInterfaceIdentifier(vpnInterfaceName);
         Optional<VpnInterface> vpnInterface = read(broker, LogicalDatastoreType.CONFIGURATION, id);
-        return (vpnInterface.isPresent()) ? vpnInterface.get() : null;
+        return vpnInterface.isPresent() ? vpnInterface.get() : null;
     }
 
     static VpnInterface getVpnInterface(String intfName, String vpnName, Adjacencies aug, BigInteger dpnId,
@@ -288,7 +289,7 @@ public class VpnUtil {
      */
     public static List<VrfEntry> getAllVrfEntries(DataBroker broker, String rd) {
         VrfTables vrfTables = VpnUtil.getVrfTable(broker, rd);
-        return (vrfTables != null) ? vrfTables.getVrfEntry() : new ArrayList<>();
+        return vrfTables != null ? vrfTables.getVrfEntry() : new ArrayList<>();
     }
 
     //FIXME: Implement caches for DS reads
@@ -296,7 +297,7 @@ public class VpnUtil {
         InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class).child(VpnInstance.class,
             new VpnInstanceKey(vpnInstanceName)).build();
         Optional<VpnInstance> vpnInstance = read(broker, LogicalDatastoreType.CONFIGURATION, id);
-        return (vpnInstance.isPresent()) ? vpnInstance.get() : null;
+        return vpnInstance.isPresent() ? vpnInstance.get() : null;
     }
 
     static List<VpnInstance> getAllVpnInstances(DataBroker broker) {
@@ -477,7 +478,7 @@ public class VpnUtil {
      */
     public static String getVpnNameFromRd(DataBroker broker, String rd) {
         VpnInstanceOpDataEntry vpnInstanceOpData = getVpnInstanceOpData(broker, rd);
-        return (vpnInstanceOpData != null) ? vpnInstanceOpData.getVpnInstanceName() : null;
+        return vpnInstanceOpData != null ? vpnInstanceOpData.getVpnInstanceName() : null;
     }
 
     /**
@@ -754,7 +755,7 @@ public class VpnUtil {
 
         if (optConfiguredVpnInterface.isPresent()) {
             String configuredVpnName = optConfiguredVpnInterface.get().getVpnInstanceName();
-            if ((configuredVpnName != null) && (configuredVpnName.equalsIgnoreCase(vpnName))) {
+            if (configuredVpnName != null && configuredVpnName.equalsIgnoreCase(vpnName)) {
                 return true;
             }
         }
@@ -870,7 +871,7 @@ public class VpnUtil {
     }
 
     public static long getRemoteBCGroup(long elanTag) {
-        return VpnConstants.ELAN_GID_MIN + ((elanTag % VpnConstants.ELAN_GID_MIN) * 2);
+        return VpnConstants.ELAN_GID_MIN + elanTag % VpnConstants.ELAN_GID_MIN * 2;
     }
 
     // interface-index-tag operational container
@@ -1120,7 +1121,7 @@ public class VpnUtil {
         InstanceIdentifier id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         Optional<VpnPortipToPort> vpnPortipToPortData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         if (vpnPortipToPortData.isPresent()) {
-            return (vpnPortipToPortData.get());
+            return vpnPortipToPortData.get();
         }
         return null;
     }
@@ -1129,7 +1130,7 @@ public class VpnUtil {
         InstanceIdentifier id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
         Optional<LearntVpnVipToPort> learntVpnVipToPort = read(broker, LogicalDatastoreType.OPERATIONAL, id);
         if (learntVpnVipToPort.isPresent()) {
-            return (learntVpnVipToPort.get());
+            return learntVpnVipToPort.get();
         }
         return null;
     }
@@ -1286,7 +1287,7 @@ public class VpnUtil {
         Future<RpcResult<Void>> result = lockManager.tryLock(input);
         String errMsg = "Unable to getLock for subnet " + subnetId;
         try {
-            if ((result != null) && (result.get().isSuccessful())) {
+            if (result != null && result.get().isSuccessful()) {
                 LOG.debug("Acquired lock for {}", subnetId);
             } else {
                 throw new RuntimeException(errMsg);
@@ -1301,7 +1302,7 @@ public class VpnUtil {
         UnlockInput input = new UnlockInputBuilder().setLockName(subnetId).build();
         Future<RpcResult<Void>> result = lockManager.unlock(input);
         try {
-            if ((result != null) && (result.get().isSuccessful())) {
+            if (result != null && result.get().isSuccessful()) {
                 LOG.debug("Unlocked {}", subnetId);
             } else {
                 LOG.debug("Unable to unlock subnet {}", subnetId);
@@ -1470,7 +1471,7 @@ public class VpnUtil {
     }
 
     static InstanceIdentifier<Subnetmap> buildSubnetmapIdentifier(Uuid subnetId) {
-        return (InstanceIdentifier<Subnetmap>) InstanceIdentifier.builder(Subnetmaps.class)
+        return InstanceIdentifier.builder(Subnetmaps.class)
         .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
 
     }
@@ -1481,11 +1482,11 @@ public class VpnUtil {
     }
 
     static boolean isL3VpnOverVxLan(Long l3Vni) {
-        return (l3Vni != null && l3Vni != 0);
+        return l3Vni != null && l3Vni != 0;
     }
 
     static boolean isEvpnOverVxLan(Long l2Vni) { //To be used by RT2
-        return (l2Vni != null && l2Vni != 0);
+        return l2Vni != null && l2Vni != 0;
     }
 
     /**
@@ -1537,7 +1538,7 @@ public class VpnUtil {
                 .map(usedRd -> {
                     Optional<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getVpnExtraroutes(dataBroker,
                             vpnName, usedRd, prefix);
-                    return vpnExtraRoutes.isPresent() ? new ImmutablePair<String, String>(
+                    return vpnExtraRoutes.isPresent() ? new ImmutablePair<>(
                             vpnExtraRoutes.get().getNexthopIpList().get(0),
                             usedRd) : new ImmutablePair<>("", "");
                 })
@@ -1670,10 +1671,11 @@ public class VpnUtil {
     }
 
     static FlowEntity buildFlowEntity(BigInteger dpnId, short tableId, String flowId) {
-        FlowEntity flowEntity = new FlowEntity(dpnId);
-        flowEntity.setTableId(tableId);
-        flowEntity.setFlowId(flowId);
-        return flowEntity;
+        return new FlowEntityBuilder()
+            .setDpnId(dpnId)
+            .setTableId(tableId)
+            .setFlowId(flowId)
+            .build();
     }
 
     static VrfEntryBase.EncapType getEncapType(boolean isVxLan) {

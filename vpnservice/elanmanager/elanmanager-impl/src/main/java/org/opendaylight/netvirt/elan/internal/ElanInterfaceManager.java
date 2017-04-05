@@ -40,6 +40,7 @@ import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.globals.ITMConstants;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -1309,9 +1310,11 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         // exact order
 
         String flowId = getFlowRef(NwConstants.EXTERNAL_TUNNEL_TABLE, elanInfo.getElanTag());
-        FlowEntity flowEntity = new FlowEntity(dpnId);
-        flowEntity.setTableId(NwConstants.EXTERNAL_TUNNEL_TABLE);
-        flowEntity.setFlowId(flowId);
+        FlowEntity flowEntity = new FlowEntityBuilder()
+            .setDpnId(dpnId)
+            .setTableId(NwConstants.EXTERNAL_TUNNEL_TABLE)
+            .setFlowId(flowId)
+            .build();
         mdsalManager.removeFlow(flowEntity);
     }
 
