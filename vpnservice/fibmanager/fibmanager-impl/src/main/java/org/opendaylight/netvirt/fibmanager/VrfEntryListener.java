@@ -1737,9 +1737,14 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                 }
                             }
                         }
-                        // Passing null as we don't know the dpn
-                        // to which prefix is attached at this point
-                        createRemoteFibEntry(dpnId, vpnId, vrfTable.get().getKey(), vrfEntry, tx);
+
+                        boolean shouldCreateRemoteFibEntry = shouldCreateFibEntryForVrfAndVpnIdOnDpn(vpnId,
+                                vrfEntry, dpnId);
+                        if (shouldCreateRemoteFibEntry) {
+                            LOG.trace("Will create remote FIB entry for vrfEntry {} on DPN {}",
+                                    vrfEntry, dpnId);
+                            createRemoteFibEntry(dpnId, vpnId, vrfTable.get().getKey(), vrfEntry, tx);
+                        }
                     }
                     //TODO: if we have 100K entries in FIB, can it fit in one Tranasaction (?)
                     futures.add(tx.submit());
@@ -2291,5 +2296,23 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                LFIB_INTERVPN_PRIORITY, NwConstants.DEL_FLOW, tx);
         }
         tx.submit();
+    }
+
+    private boolean shouldCreateFibEntryForVrfAndVpnIdOnDpn(Long vpnId, VrfEntry vrfEntry, BigInteger dpnId) {
+        if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
+            return true;
+        }
+
+        Prefixes prefix = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
+        if (prefix != null) {
+            BigInteger prefixDpnId = prefix.getDpnId();
+            if (prefixDpnId == dpnId) {
+                LOG.trace("Should not create remote FIB entry for vrfEntry {} on DPN {}",
+                        vrfEntry, dpnId);
+                return false;
+            }
+        }
+
+        return true;
     }
 }
