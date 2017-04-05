@@ -76,28 +76,33 @@ public class VpnSubnetRouteHandler {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void onSubnetAddedToVpn(Subnetmap subnetmap, boolean isBgpVpn, Long elanTag) {
         Uuid subnetId = subnetmap.getId();
-        String vpnName = subnetmap.getVpnId().getValue();
         String subnetIp = subnetmap.getSubnetIp();
         boolean isRouteAdvertised = false;
 
         Preconditions.checkNotNull(subnetId, "SubnetId cannot be null or empty!");
         Preconditions.checkNotNull(subnetIp, "SubnetPrefix cannot be null or empty!");
-        Preconditions.checkNotNull(vpnName, "VpnName cannot be null or empty!");
         Preconditions.checkNotNull(elanTag, "ElanTag cannot be null or empty!");
 
         LOG.info("onSubnetAddedToVpn: Subnet {} being added to vpn", subnetId.getValue());
 
-        long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-        if (vpnId == VpnConstants.INVALID_ID) {
-            vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataType.vpnInstanceToId, vpnName,
-                VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);
-            vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+        String vpnName;
+        if (subnetmap.getVpnId() != null) {
+            vpnName = subnetmap.getVpnId().getValue();
+            long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
             if (vpnId == VpnConstants.INVALID_ID) {
-                LOG.error(
-                    "onSubnetAddedToVpn: VpnInstance to VPNId mapping not yet available for VpnName {} processing "
-                        + "subnet {} with IP {}, bailing out now.", vpnName, subnetId, subnetIp);
-                return;
+                vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataType.vpnInstanceToId, vpnName,
+                        VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);
+                vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+                if (vpnId == VpnConstants.INVALID_ID) {
+                    LOG.error(
+                            "onSubnetAddedToVpn: VpnInstance to VPNId mapping not yet available for VpnName {} processing "
+                                    + "subnet {} with IP {}, bailing out now.", vpnName, subnetId, subnetIp);
+                    return;
+                }
             }
+        } else {
+            LOG.error("VpnId {} for subnet {} not found. Bailing out", subnetmap.getVpnId(), subnetId );
+            return;
         }
 
         //TODO(vivek): Change this to use more granularized lock at subnetId level
