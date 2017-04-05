@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_6204b615",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-05T12:38:25Z",
+      "side": 1,
+      "message": "Remove the else part. \nNH-DPN is needed in both use-cases",
+      "range": {
+        "startLine": 213,
+        "startChar": 17,
+        "endLine": 213,
+        "endChar": 24
+      },
+      "revId": "4afa33a241d30d53c693f53bb3fbe73e3536798f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_622b1683",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-05T12:38:25Z",
+      "side": 1,
+      "message": "in non BGPVPN use case, you need to break here without checking existence of nhTepIp",
+      "range": {
+        "startLine": 791,
+        "startChar": 20,
+        "endLine": 794,
+        "endChar": 21
+      },
+      "revId": "4afa33a241d30d53c693f53bb3fbe73e3536798f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_424b7259",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 805,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-05T12:38:25Z",
+      "side": 1,
+      "message": "In non BGPVPN you need to set the NH-DPN, without checking for nhTepIP",
+      "range": {
+        "startLine": 802,
+        "startChar": 8,
+        "endLine": 805,
+        "endChar": 45
+      },
+      "revId": "4afa33a241d30d53c693f53bb3fbe73e3536798f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_2248ee5a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 807,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-05T12:38:25Z",
+      "side": 1,
+      "message": "This method calls addSubnetRouteToFib which internaly uses BGPVPN\u003dtrue, which is not always correct. You have isBgpVpn parameter in the current method, so you can pass it to addSubnetRouteToFib",
+      "range": {
+        "startLine": 807,
+        "startChar": 32,
+        "endLine": 807,
+        "endChar": 51
+      },
+      "revId": "4afa33a241d30d53c693f53bb3fbe73e3536798f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
