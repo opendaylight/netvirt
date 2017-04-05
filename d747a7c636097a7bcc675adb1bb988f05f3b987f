@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_65a040f5",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/fib-rpc.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-05T14:10:19Z",
+      "side": 1,
+      "message": "type is not a good representation.\n\nip-address-source would be a better name.\n\nand enum options can just be external-fixed-ip , floating-ip",
+      "revId": "d747a7c636097a7bcc675adb1bb988f05f3b987f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_05afb4e4",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1827,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-05T14:10:19Z",
+      "side": 1,
+      "message": "is there a possibility of a race here where none of them finally removes the flow and the flow in 36 on this DPN becomes stale?",
+      "revId": "d747a7c636097a7bcc675adb1bb988f05f3b987f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
