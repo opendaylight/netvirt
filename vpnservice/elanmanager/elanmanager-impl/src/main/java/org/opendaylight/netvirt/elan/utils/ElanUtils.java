@@ -44,6 +44,7 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.globals.ITMConstants;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MDSALUtil.MdsalOp;
@@ -730,17 +731,21 @@ public class ElanUtils {
 
         BigInteger dpId = interfaceInfo.getDpId();
         long elanTag = getElanTag(broker, elanInfo, interfaceInfo);
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_SMAC_TABLE,
-                getKnownDynamicmacFlowRef(NwConstants.ELAN_SMAC_TABLE, dpId, lportTag, macAddress, elanTag), 20,
-                elanInfo.getDescription(), (int) macTimeout, 0,
-                ElanConstants.COOKIE_ELAN_KNOWN_SMAC.add(BigInteger.valueOf(elanTag)), mkMatches, mkInstructions);
-        flowEntity.setStrictFlag(true);
-        flowEntity.setSendFlowRemFlag(macTimeout != 0); // If Mac timeout is 0,
-                                                        // the flow wont be
-                                                        // deleted
-                                                        // automatically, so no
-                                                        // need to get notified
-        return flowEntity;
+        return new FlowEntityBuilder()
+            .dpnId(dpId)
+            .tableId(NwConstants.ELAN_SMAC_TABLE)
+            .flowId(getKnownDynamicmacFlowRef(NwConstants.ELAN_SMAC_TABLE, dpId, lportTag, macAddress, elanTag))
+            .priority(20)
+            .flowName(elanInfo.getDescription())
+            .idleTimeOut((int) macTimeout)
+            .hardTimeOut(0)
+            .cookie(ElanConstants.COOKIE_ELAN_KNOWN_SMAC.add(BigInteger.valueOf(elanTag)))
+            .addAllMatchInfoList(mkMatches)
+            .addAllInstructionInfoList(mkInstructions)
+            .strictFlag(true)
+            // If Mac timeout is 0, the flow won't be deleted automatically, so no need to get notified
+            .sendFlowRemFlag(macTimeout != 0)
+            .build();
     }
 
     private static Long getElanTag(DataBroker broker, ElanInstance elanInfo, InterfaceInfo interfaceInfo) {
@@ -1998,7 +2003,7 @@ public class ElanUtils {
 
     public static boolean isVxlanNetwork(DataBroker broker, String elanInstanceName) {
         ElanInstance elanInstance = getElanInstanceByName(broker, elanInstanceName);
-        return (elanInstance != null && isVxlan(elanInstance));
+        return elanInstance != null && isVxlan(elanInstance);
     }
 
     public static boolean isVxlanSegment(ElanInstance elanInstance) {
@@ -2006,9 +2011,9 @@ public class ElanUtils {
             List<ElanSegments> elanSegments = elanInstance.getElanSegments();
             if (elanSegments != null) {
                 for (ElanSegments segment : elanSegments) {
-                    if (segment != null && (segment.getSegmentType().isAssignableFrom(SegmentTypeVxlan.class)
+                    if (segment != null && segment.getSegmentType().isAssignableFrom(SegmentTypeVxlan.class)
                             && segment.getSegmentationId() != null
-                            && segment.getSegmentationId().longValue() != 0)) {
+                            && segment.getSegmentationId().longValue() != 0) {
                         return true;
                     }
                 }
@@ -2286,7 +2291,7 @@ public class ElanUtils {
     }
 
     public static boolean isNotEmpty(Collection collection) {
-        return (!isEmpty(collection));
+        return !isEmpty(collection);
     }
 
     public static void setElanInstancToDpnsCache(Map<String, Set<DpnInterfaces>> elanInstancToDpnsCache) {
@@ -2302,6 +2307,6 @@ public class ElanUtils {
     }
 
     public static void removeDPNInterfaceFromElanInCache(String elanName, DpnInterfaces dpnInterfaces) {
-        elanInstancToDpnsCache.computeIfAbsent(elanName, key -> new HashSet<DpnInterfaces>()).remove(dpnInterfaces);
+        elanInstancToDpnsCache.computeIfAbsent(elanName, key -> new HashSet<>()).remove(dpnInterfaces);
     }
 }
