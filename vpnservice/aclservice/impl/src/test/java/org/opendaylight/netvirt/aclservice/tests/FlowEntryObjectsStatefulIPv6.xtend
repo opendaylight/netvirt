@@ -7,11 +7,11 @@
  */
 package org.opendaylight.netvirt.aclservice.tests
 
-import org.opendaylight.genius.mdsalutil.FlowEntity
 import org.opendaylight.genius.mdsalutil.MetaDataUtil
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit
+import org.opendaylight.genius.mdsalutil.FlowEntityBuilder
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource
@@ -28,11 +28,14 @@ import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchUdpDestinationPort
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6
 
+import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
+
 class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
 
     override fixedConntrackIngressFlowsPort1() {
         #[
-           new FlowEntity(123bi) => [
+           new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F3_2001:db8:1::/64_Recirc"
             flowName = "ACL"
@@ -50,7 +53,8 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 priority = 61010
                 tableId = 241 as short
             ],
-           new FlowEntity(123bi) => [
+           new FlowEntityBuilder >> [
+                dpnId = 123bi
                cookie = 110100481bi
                flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_New"
                flowName = "ACL"
@@ -66,7 +70,8 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                priority = 50
                tableId = 213 as short
            ],
-           new FlowEntity(123bi) => [
+           new FlowEntityBuilder >> [
+                dpnId = 123bi
                cookie = 110100481bi
                flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                flowName = "ACL"
@@ -86,11 +91,13 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
     }
 
     override etherIngressFlowsPort2() {
+        val flowId1 = "ETHERnull_ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F3_2001:db8:1::/64Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+        val flowId2 = "ETHERnull_ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F4_2001:db8:2::/64Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "ETHERnull_ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F3_2001:db8:1::/64"
-                        +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+                flowId = flowId1
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -107,13 +114,13 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(flowId1)
                 tableId = 243 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "ETHERnull_ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F4_2001:db8:2::/64"
-                        +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+                flowId = flowId2
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -130,7 +137,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(flowId2)
                 tableId = 243 as short
             ]
         ]
@@ -138,7 +145,8 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
 
     override fixedConntrackEgressFlowsPort1() {
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F3_2001:db8:1::/64_Recirc"
                 flowName = "ACL"
@@ -155,7 +163,8 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 priority = 61010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100481bi
                 flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_New"
                 flowName = "ACL"
@@ -171,7 +180,8 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 priority = 50
                 tableId = 243 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100481bi
                 flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                 flowName = "ACL"
@@ -192,7 +202,8 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
 
     override fixedConntrackIngressFlowsPort2() {
         #[
-             new FlowEntity(123bi) => [
+             new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F4_2001:db8:2::/64_Recirc"
                 flowName = "ACL"
@@ -210,7 +221,8 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 priority = 61010
                 tableId = 241 as short
              ],
-             new FlowEntity(123bi) => [
+             new FlowEntityBuilder >> [
+                dpnId = 123bi
                  cookie = 110100481bi
                  flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_New"
                  flowName = "ACL"
@@ -226,7 +238,8 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                  priority = 50
                  tableId = 213 as short
              ],
-             new FlowEntity(123bi) => [
+             new FlowEntityBuilder >> [
+                dpnId = 123bi
                  cookie = 110100481bi
                  flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                  flowName = "ACL"
@@ -248,7 +261,8 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
 
     override fixedConntrackEgressFlowsPort2() {
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F4_2001:db8:2::/64_Recirc"
                 flowName = "ACL"
@@ -265,7 +279,8 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 priority = 61010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100481bi
                 flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_New"
                 flowName = "ACL"
@@ -281,7 +296,8 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 priority = 50
                 tableId = 243 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100481bi
                 flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                 flowName = "ACL"
@@ -302,7 +318,8 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
 
     override fixedConntrackIngressFlowsPort3() {
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F5_2001:db8:3::/64_Recirc"
                 flowName = "ACL"
@@ -320,7 +337,8 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 priority = 61010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100481bi
                 flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_New"
                 flowName = "ACL"
@@ -336,7 +354,8 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 priority = 50
                 tableId = 213 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100481bi
                 flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                 flowName = "ACL"
@@ -357,7 +376,8 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
 
     override fixedConntrackEgressFlowsPort3() {
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F5_2001:db8:3::/64_Recirc"
                 flowName = "ACL"
@@ -374,7 +394,8 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 priority = 61010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100481bi
                 flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_New"
                 flowName = "ACL"
@@ -390,7 +411,8 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 priority = 50
                 tableId = 243 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100481bi
                 flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                 flowName = "ACL"
@@ -411,10 +433,12 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
     }
 
     override etherEgressFlowsPort1() {
+        val theFlowId = "ETHERnullEgress98785cc3048-abc3-43cc-89b3-377341426ac6"
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "ETHERnullEgress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowId = theFlowId
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -429,17 +453,19 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(theFlowId)
                 tableId = 213 as short
             ]
         ]
     }
 
     override etheregressFlowPort2() {
+        val theFlowId = "ETHERnullEgress98785cc3048-abc3-43cc-89b3-377341426ac6"
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "ETHERnullEgress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowId = theFlowId
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -454,17 +480,19 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(theFlowId)
                 tableId = 213 as short
             ]
         ]
     }
 
     override tcpIngressFlowPort1() {
+        val theFlowId = "TCP_DESTINATION_80_65535Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "TCP_DESTINATION_80_65535Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+                flowId = theFlowId
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -481,17 +509,19 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(theFlowId)
                 tableId = 243 as short
             ]
         ]
     }
 
     override tcpIngressFlowPort2() {
+        val theFlowId = "TCP_DESTINATION_80_65535Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "TCP_DESTINATION_80_65535Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+                flowId = theFlowId
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -508,18 +538,20 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(theFlowId)
                 tableId = 243 as short
             ]
         ]
     }
 
     override tcpEgressFlowPort2() {
+        val flowId1 = "TCP_DESTINATION_80_65535_ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F3_2001:db8:1::/64Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+        val flowId2 = "TCP_DESTINATION_80_65535_ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F4_2001:db8:2::/64Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "TCP_DESTINATION_80_65535_ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F3_2001:db8:1::/64"
-                        +"Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowId = flowId1
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -538,12 +570,13 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(flowId1)
                 tableId = 213 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "TCP_DESTINATION_80_65535_ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F4_2001:db8:2::/64Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowId = flowId1
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -562,17 +595,19 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(flowId2)
                 tableId = 213 as short
             ]
         ]
     }
 
     override udpEgressFlowsPort1() {
+        val theFlowId = "UDP_DESTINATION_80_65535Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
         #[
-             new FlowEntity(123bi) => [
+             new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "UDP_DESTINATION_80_65535Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowId = theFlowId
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -589,18 +624,20 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(theFlowId)
                 tableId = 213 as short
             ]
         ]
     }
 
     override udpIngressFlowsPort2() {
+        val flowId1 = "UDP_DESTINATION_80_65535_ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F3_2001:db8:1::/64Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+        val flowId2 = "UDP_DESTINATION_80_65535_ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F4_2001:db8:2::/64Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "UDP_DESTINATION_80_65535_ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F3_2001:db8:1::/64"
-                        +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+                flowId = flowId1
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -619,12 +656,13 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(flowId1)
                 tableId = 243 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "UDP_DESTINATION_80_65535_ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F4_2001:db8:2::/64Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+                flowId = flowId2
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -643,17 +681,19 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(flowId2)
                 tableId = 243 as short
             ]
         ]
     }
 
     override udpEgressFlowsPort2() {
+        val theFlowId = "UDP_DESTINATION_80_65535Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "UDP_DESTINATION_80_65535Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowId = theFlowId
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -670,17 +710,19 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(theFlowId)
                 tableId = 213 as short
             ]
         ]
     }
 
     override icmpIngressFlowsPort1() {
+        val theFlowId = "ICMP_V6_DESTINATION_23_Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "ICMP_V6_DESTINATION_23_Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+                flowId = theFlowId
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -697,17 +739,19 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(theFlowId)
                 tableId = 243 as short
             ]
         ]
     }
 
     override icmpIngressFlowsPort2() {
+        val theFlowId = "ICMP_V6_DESTINATION_23_Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "ICMP_V6_DESTINATION_23_Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+                flowId = theFlowId
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -724,18 +768,20 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(theFlowId)
                 tableId = 243 as short
             ]
         ]
     }
 
     override icmpEgressFlowsPort2() {
+        val flowId1 = "ICMP_V6_DESTINATION_23__ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F3_2001:db8:1::/64Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+        val flowId2 = "ICMP_V6_DESTINATION_23__ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F4_2001:db8:2::/64Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "ICMP_V6_DESTINATION_23__ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F3_2001:db8:1::/64"
-                        +"Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowId = flowId1
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -754,13 +800,13 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(flowId1)
                 tableId = 213 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "ICMP_V6_DESTINATION_23__ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F4_2001:db8:2::/64"
-                        +"Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowId = flowId2
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -779,17 +825,19 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(flowId2)
                 tableId = 213 as short
             ]
         ]
     }
 
     override udpIngressPortRangeFlows() {
+        val theFlowId = "UDP_DESTINATION_2000_65532Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "UDP_DESTINATION_2000_65532Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+                flowId = theFlowId
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -806,17 +854,26 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(theFlowId)
                 tableId = 243 as short
             ]
         ]
     }
 
     override tcpEgressRangeFlows() {
+        val flowId1 = "TCP_DESTINATION_776_65534Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+        val flowId2 = "TCP_DESTINATION_512_65280Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+        val flowId3 = "TCP_DESTINATION_334_65534Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+        val flowId4 = "TCP_DESTINATION_333_65535Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+        val flowId5 = "TCP_DESTINATION_336_65520Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+        val flowId6 = "TCP_DESTINATION_352_65504Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+        val flowId7 = "TCP_DESTINATION_384_65408Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+        val flowId8 = "TCP_DESTINATION_768_65528Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "TCP_DESTINATION_776_65534Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowId = flowId1
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -833,12 +890,13 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(flowId1)
                 tableId = 213 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "TCP_DESTINATION_512_65280Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowId = flowId2
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -855,12 +913,13 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(flowId2)
                 tableId = 213 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "TCP_DESTINATION_334_65534Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowId = flowId3
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -877,12 +936,13 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(flowId3)
                 tableId = 213 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "TCP_DESTINATION_333_65535Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowId = flowId4
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -899,12 +959,13 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(flowId4)
                 tableId = 213 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "TCP_DESTINATION_336_65520Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowId = flowId5
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -921,12 +982,13 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(flowId5)
                 tableId = 213 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "TCP_DESTINATION_352_65504Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowId = flowId6
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -943,12 +1005,13 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(flowId6)
                 tableId = 213 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "TCP_DESTINATION_384_65408Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowId = flowId7
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -965,12 +1028,13 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(flowId7)
                 tableId = 213 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "TCP_DESTINATION_768_65528Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowId = flowId8
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -987,17 +1051,19 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(flowId8)
                 tableId = 213 as short
             ]
         ]
     }
 
     override udpIngressAllFlows() {
+        val theFlowId = "UDP_DESTINATION_1_0Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "UDP_DESTINATION_1_0Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+                flowId = theFlowId
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -1013,17 +1079,19 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(theFlowId)
                 tableId = 243 as short
             ]
         ]
     }
 
     override tcpEgressAllFlows() {
+        val theFlowId = "TCP_DESTINATION_1_0Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
          #[
-             new FlowEntity(123bi) => [
+             new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "TCP_DESTINATION_1_0Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowId = theFlowId
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -1039,7 +1107,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(theFlowId)
                 tableId = 213 as short
             ]
          ]
@@ -1047,10 +1115,13 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
      }
 
     override icmpIngressFlowsPort3() {
+        val flowId1 = "ICMP_V6_DESTINATION_23_Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+        val flowId2 = "ICMP_V6_DESTINATION_23_Ingress98785cc3048-abc3-43cc-89b3-377341426a22"
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "ICMP_V6_DESTINATION_23_Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+                flowId = flowId1
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -1067,12 +1138,13 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(flowId1)
                 tableId = 243 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "ICMP_V6_DESTINATION_23_Ingress98785cc3048-abc3-43cc-89b3-377341426a22"
+                flowId = flowId2
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -1089,17 +1161,20 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(flowId2)
                 tableId = 243 as short
             ]
         ]
     }
 
     override icmpEgressFlowsPort3() {
+        val flowId1 = "ICMP_V6_DESTINATION_23_Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+        val flowId2 = "ICMP_V6_DESTINATION_23_Egress98785cc3048-abc3-43cc-89b3-377341426a21"
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "ICMP_V6_DESTINATION_23_Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowId = flowId1
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -1116,12 +1191,13 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(flowId1)
                 tableId = 213 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "ICMP_V6_DESTINATION_23_Egress98785cc3048-abc3-43cc-89b3-377341426a21"
+                flowId = flowId2
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -1138,7 +1214,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getId(flowId)
+                priority = IdHelper.getId(flowId2)
                 tableId = 213 as short
             ]
         ]

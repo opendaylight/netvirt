@@ -12,11 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The Id Helper class.
- * <p>
- * Disabling checkstyle:linelength for readability purpose.
- * </p>
+ * Id Helper.
  */
+// Disabling checkstyle:linelength for readability purpose.
 @SuppressWarnings("checkstyle:linelength")
 public class IdHelper {
     private static Map<String, Integer> idCacheMap = new HashMap<>();
