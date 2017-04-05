@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_42e532a7",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-04-05T13:30:38Z",
+      "side": 1,
+      "message": "should be a re-submit. also, the same vrf can have v4 as well as v6 addresses, and this action should only happen for v6 pkts, v4 pkts should go through the nat pipeline, so it should be keyed for ipv6.",
+      "range": {
+        "startLine": 210,
+        "startChar": 89,
+        "endLine": 210,
+        "endChar": 90
+      },
+      "revId": "e8c239394bd0713ac9134f76004f034651094da2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
