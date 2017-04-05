@@ -161,6 +161,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_0554d452",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-04-05T16:14:38Z",
+      "side": 1,
+      "message": "Ok, so how do we proceed? Would you prefer I remove this check?",
+      "parentUuid": "da01753e_a55d08ec",
+      "revId": "1c303ed998fc599758bcede26d3d35b3407afe94",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_e43ef728",
         "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/OpenFlow13Provider.java",
         "patchSetId": 10
