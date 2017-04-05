@@ -21,15 +21,4 @@
   <reference id="vpnManager"
              interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
 
-  <bean id="stateManagerImpl"
-        class="org.opendaylight.netvirt.statemanager.StateManager"
-    init-method="start">
-    <argument ref="dataBroker" />
-    <argument ref="bgpManager" />
-    <argument ref="elanService" />
-    <argument ref="fibManager" />
-    <argument ref="neutronVpnManager" />
-    <argument ref="vpnManager" />
-  </bean>
-
 </blueprint>

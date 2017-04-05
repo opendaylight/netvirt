@@ -9,6 +9,9 @@
 package org.opendaylight.netvirt.statemanager;
 
 import com.google.common.util.concurrent.CheckedFuture;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -27,10 +30,14 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class StateManager implements IStateManager {
-    private static final Logger LOG = LoggerFactory.getLogger(StateManager.class);
-    private DataBroker dataBroker;
 
+    private static final Logger LOG = LoggerFactory.getLogger(StateManager.class);
+
+    private final DataBroker dataBroker;
+
+    @Inject
     public StateManager(DataBroker databroker, IBgpManager bgpManager, IElanService elanService,
                         IFibManager fibManager, INeutronVpnManager neutronVpnManager, IVpnManager vpnManager) {
         this.dataBroker = databroker;
@@ -39,6 +46,7 @@ public class StateManager implements IStateManager {
     /**
      * Start method called by blueprint.
      */
+    @PostConstruct
     public void start() {
         setReady(true);
     }
@@ -78,6 +86,7 @@ public class StateManager implements IStateManager {
     }
 
     private class WriteTopology implements Runnable {
+        @Override
         public void run() {
             try {
                 Thread.sleep(5000);
