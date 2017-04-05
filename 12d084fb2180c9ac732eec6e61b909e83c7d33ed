@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_65ee8024",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1086,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-05T14:14:26Z",
+      "side": 1,
+      "message": "what is the use of an Error statement without Context...\n\nPlease include the VPNID {} RD {}, Prefix {} in the log here and do an early return.",
+      "revId": "12d084fb2180c9ac732eec6e61b909e83c7d33ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
