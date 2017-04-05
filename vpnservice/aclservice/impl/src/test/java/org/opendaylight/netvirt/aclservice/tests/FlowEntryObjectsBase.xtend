@@ -7,24 +7,26 @@
  */
 package org.opendaylight.netvirt.aclservice.tests
 
+import org.opendaylight.genius.mdsalutil.FlowEntityBuilder
+import org.opendaylight.genius.mdsalutil.MetaDataUtil
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit
-import org.opendaylight.genius.mdsalutil.FlowEntity
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions
-import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable
+import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata
 import org.opendaylight.genius.mdsalutil.matches.MatchArpSha
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType
 import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6
 import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpDestinationPort
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6
-import org.opendaylight.genius.mdsalutil.MetaDataUtil
-import org.opendaylight.genius.mdsalutil.matches.MatchMetadata
+
+import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
 
 class FlowEntryObjectsBase {
 
@@ -34,15 +36,16 @@ class FlowEntryObjectsBase {
 
     protected def fixedIngressFlowsPort1() {
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_DHCP_Server_v4123_987__Permit_"
-            flowName = "ACL"
-            instructionInfoList = #[
-                new InstructionApplyActions(#[
-                    new ActionNxResubmit(220 as short)
-                    ])
-                ]
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
+                        ])
+                    ]
                 matchInfoList = #[
                     new MatchEthernetType(2048L),
                     new MatchIpProtocol(17 as short),
@@ -53,7 +56,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_DHCP_Server_v6_123_987___Permit_"
             flowName = "ACL"
@@ -72,7 +76,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_130_Permit_"
             flowName = "ACL"
@@ -90,7 +95,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_135_Permit_"
             flowName = "ACL"
@@ -108,7 +114,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_136_Permit_"
             flowName = "ACL"
@@ -126,7 +133,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ARP_123_987"
             flowName = "ACL"
@@ -149,7 +157,8 @@ class FlowEntryObjectsBase {
      protected def fixedEgressFlowsPort1() {
         #[
 
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Client_v4123_987__Permit_"
                 flowName = "ACL"
@@ -168,7 +177,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Client_v6_123_987__Permit_"
                 flowName = "ACL"
@@ -187,7 +197,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Server_v4123_987__Drop_"
                 flowName = "ACL"
@@ -203,7 +214,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Server_v6_123_987__Drop_"
                 flowName = "ACL"
@@ -219,7 +231,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_134_Drop_"
                 flowName = "ACL"
@@ -234,7 +247,8 @@ class FlowEntryObjectsBase {
                 priority = 63020
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
                 flowName = "ACL"
@@ -252,7 +266,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
                 flowName = "ACL"
@@ -270,7 +285,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
                 flowName = "ACL"
@@ -288,7 +304,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F3"
                 flowName = "ACL"
@@ -311,7 +328,8 @@ class FlowEntryObjectsBase {
 
      protected def fixedIngressFlowsPort2() {
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_DHCP_Server_v4123_987__Permit_"
                 flowName = "ACL"
@@ -330,7 +348,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_DHCP_Server_v6_123_987___Permit_"
                 flowName = "ACL"
@@ -349,7 +368,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_130_Permit_"
                 flowName = "ACL"
@@ -367,7 +387,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_135_Permit_"
                 flowName = "ACL"
@@ -385,7 +406,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_136_Permit_"
                 flowName = "ACL"
@@ -403,7 +425,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ARP_123_987"
                 flowName = "ACL"
@@ -424,7 +447,8 @@ class FlowEntryObjectsBase {
 
      protected def fixedEgressFlowsPort2 () {
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Client_v4123_987__Permit_"
                 flowName = "ACL"
@@ -443,7 +467,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Client_v6_123_987__Permit_"
                 flowName = "ACL"
@@ -462,7 +487,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Server_v4123_987__Drop_"
                 flowName = "ACL"
@@ -478,7 +504,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Server_v6_123_987__Drop_"
                 flowName = "ACL"
@@ -494,7 +521,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_134_Drop_"
                 flowName = "ACL"
@@ -509,7 +537,8 @@ class FlowEntryObjectsBase {
                 priority = 63020
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
                 flowName = "ACL"
@@ -527,7 +556,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
                 flowName = "ACL"
@@ -545,7 +575,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
                 flowName = "ACL"
@@ -563,7 +594,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F4"
                 flowName = "ACL"
@@ -586,7 +618,8 @@ class FlowEntryObjectsBase {
 
      protected def fixedIngressFlowsPort3() {
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_DHCP_Server_v4123_987__Permit_"
                 flowName = "ACL"
@@ -605,7 +638,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_DHCP_Server_v6_123_987___Permit_"
                 flowName = "ACL"
@@ -624,7 +658,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_130_Permit_"
                 flowName = "ACL"
@@ -642,7 +677,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_135_Permit_"
                 flowName = "ACL"
@@ -660,7 +696,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_136_Permit_"
                 flowName = "ACL"
@@ -678,7 +715,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ARP_123_987"
                 flowName = "ACL"
@@ -699,7 +737,8 @@ class FlowEntryObjectsBase {
 
      protected def fixedEgressFlowsPort3 () {
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Client_v4123_987__Permit_"
                 flowName = "ACL"
@@ -718,7 +757,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Client_v6_123_987__Permit_"
                 flowName = "ACL"
@@ -737,7 +777,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Server_v4123_987__Drop_"
                 flowName = "ACL"
@@ -753,7 +794,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Server_v6_123_987__Drop_"
                 flowName = "ACL"
@@ -769,7 +811,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_134_Drop_"
                 flowName = "ACL"
@@ -784,7 +827,8 @@ class FlowEntryObjectsBase {
                 priority = 63020
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
                 flowName = "ACL"
@@ -802,7 +846,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
                 flowName = "ACL"
@@ -820,7 +865,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
                 flowName = "ACL"
@@ -838,7 +884,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F5"
                 flowName = "ACL"
@@ -860,7 +907,8 @@ class FlowEntryObjectsBase {
 
     static def fixedIngressFlowsPort4() {
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_DHCP_Server_v4123_987__Permit_"
                 flowName = "ACL"
@@ -879,7 +927,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_DHCP_Server_v6_123_987___Permit_"
                 flowName = "ACL"
@@ -898,7 +947,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_130_Permit_"
                 flowName = "ACL"
@@ -916,7 +966,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_135_Permit_"
                 flowName = "ACL"
@@ -934,7 +985,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_136_Permit_"
                 flowName = "ACL"
@@ -952,7 +1004,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ARP_123_987"
                 flowName = "ACL"
@@ -973,7 +1026,8 @@ class FlowEntryObjectsBase {
 
     static def fixedEgressFlowsPort4 () {
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Client_v4123_987__Permit_"
                 flowName = "ACL"
@@ -992,7 +1046,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Client_v6_123_987__Permit_"
                 flowName = "ACL"
@@ -1011,7 +1066,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Server_v4123_987__Drop_"
                 flowName = "ACL"
@@ -1027,7 +1083,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Server_v6_123_987__Drop_"
                 flowName = "ACL"
@@ -1043,7 +1100,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_134_Drop_"
                 flowName = "ACL"
@@ -1058,7 +1116,8 @@ class FlowEntryObjectsBase {
                 priority = 63020
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
                 flowName = "ACL"
@@ -1076,7 +1135,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
                 flowName = "ACL"
@@ -1094,7 +1154,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
                 flowName = "ACL"
@@ -1112,7 +1173,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F6"
                 flowName = "ACL"
@@ -1129,7 +1191,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F6"
                 flowName = "ACL"
@@ -1187,7 +1250,8 @@ class FlowEntryObjectsBase {
     }
 
     protected def remoteIngressFlowsPort(String ip) {
-        new FlowEntity(123bi) => [
+        new FlowEntityBuilder >> [
+                dpnId = 123bi
             cookie = 110100480bi
             flowId = "Acl_Filter_Ingress_" + ip + "/32_5000"
             flowName = "ACL"
@@ -1206,7 +1270,8 @@ class FlowEntryObjectsBase {
     }
 
     protected def remoteEgressFlowsPort(String ip) {
-        new FlowEntity(123bi) => [
+        new FlowEntityBuilder >> [
+                dpnId = 123bi
             cookie = 110100480bi
             flowId = "Acl_Filter_Egress_" + ip + "/32_5000"
             flowName = "ACL"
@@ -1227,7 +1292,8 @@ class FlowEntryObjectsBase {
     protected def expectedFlows(String mac) {
         // Code auto. generated by https://github.com/vorburger/xtendbeans
         #[
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_DHCP_Server_v4123_987__Permit_"
                 flowName = "ACL"
@@ -1246,7 +1312,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_DHCP_Server_v6_123_987___Permit_"
                 flowName = "ACL"
@@ -1265,7 +1332,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_130_Permit_"
                 flowName = "ACL"
@@ -1283,7 +1351,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_135_Permit_"
                 flowName = "ACL"
@@ -1301,7 +1370,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_136_Permit_"
                 flowName = "ACL"
@@ -1319,7 +1389,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ARP_123_987"
                 flowName = "ACL"
@@ -1335,7 +1406,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Client_v4123_987__Permit_"
                 flowName = "ACL"
@@ -1354,7 +1426,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Client_v6_123_987__Permit_"
                 flowName = "ACL"
@@ -1373,7 +1446,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Server_v4123_987__Drop_"
                 flowName = "ACL"
@@ -1389,7 +1463,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Server_v6_123_987__Drop_"
                 flowName = "ACL"
@@ -1405,7 +1480,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_134_Drop_"
                 flowName = "ACL"
@@ -1420,7 +1496,8 @@ class FlowEntryObjectsBase {
                 priority = 63020
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
                 flowName = "ACL"
@@ -1438,7 +1515,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
                 flowName = "ACL"
@@ -1456,7 +1534,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
                 flowName = "ACL"
@@ -1474,7 +1553,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ],
-            new FlowEntity(123bi) => [
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ARP_123_987_" + mac
                 flowName = "ACL"
