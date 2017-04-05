@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_3fc12ae5",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-04-05T08:10:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_c4f49389",
+      "revId": "1c303ed998fc599758bcede26d3d35b3407afe94",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_4430a356",
         "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
         "patchSetId": 10
@@ -54,6 +72,42 @@
     },
     {
       "key": {
+        "uuid": "da01753e_1faa6619",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-04-05T08:10:28Z",
+      "side": 1,
+      "message": "I just checked tpList for null and return Optional.empty() if it is. If tpList is empty, then it wont enter the iteration loop and will also return Optional.empty().",
+      "parentUuid": "da01753e_3f2bea83",
+      "revId": "1c303ed998fc599758bcede26d3d35b3407afe94",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_dfaf3e2a",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-04-05T08:10:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_4430a356",
+      "revId": "1c303ed998fc599758bcede26d3d35b3407afe94",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_a4350f48",
         "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
         "patchSetId": 10
@@ -71,6 +125,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_9fb65689",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-04-05T08:10:28Z",
+      "side": 1,
+      "message": "In the first version I tested from Vishal, for a list of size 4, all the entries were null. I prefer to keep the check just in case.",
+      "parentUuid": "da01753e_a4350f48",
+      "revId": "1c303ed998fc599758bcede26d3d35b3407afe94",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_e43ef728",
         "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/OpenFlow13Provider.java",
         "patchSetId": 10
@@ -82,6 +154,24 @@
       "writtenOn": "2017-04-04T22:17:43Z",
       "side": 1,
       "message": "does this mean you could only have a single flow per node since the name is not unique?",
+      "revId": "1c303ed998fc599758bcede26d3d35b3407afe94",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_7f7292e6",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/OpenFlow13Provider.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-04-05T08:10:28Z",
+      "side": 1,
+      "message": "That\u0027s right. We\u0027re just checking for NSH, and only one flow is needed per node. Here are the flows that gets created for this and createIngressClassifierFilterEthNshFlow():\n\ncookie\u003d0xf005ba1100000001, table\u003d100, priority\u003d510,encap_eth_type\u003d0x894f actions\u003dresubmit(,17)\ncookie\u003d0xf005ba1100000001, table\u003d100, priority\u003d510,tun_gpe_np\u003d0x4 actions\u003dresubmit(,17)",
+      "parentUuid": "da01753e_e43ef728",
       "revId": "1c303ed998fc599758bcede26d3d35b3407afe94",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
