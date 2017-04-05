@@ -238,6 +238,7 @@ public class BgpConfigurationManager {
 
     static int totalStaledCount = 0;
     static int totalCleared = 0;
+    static int totalExternalRoutes = 0;
 
     private static final Class[] REACTORS = {
         ConfigServerReactor.class, AsIdReactor.class,
@@ -469,35 +470,32 @@ public class BgpConfigurationManager {
             }
             LOG.debug("received add router config asNum {}", val.getLocalAs());
             synchronized (BgpConfigurationManager.this) {
-                IpAddress routerId = val.getRouterId();
                 BgpRouter br = getClient(YANG_OBJ);
-                long asNum = val.getLocalAs();
                 if (br == null) {
-                    LOG.error("{} Unable to process add for routerId {} asNum {}; {}", YANG_OBJ, routerId, asNum,
+                    LOG.error("{} Unable to process add for asNum {}; {}", YANG_OBJ, val.getLocalAs(),
                             BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
                     return;
                 }
-                Boolean afb = val.isAnnounceFbit();
-                String rid = (routerId == null) ? "" : new String(routerId.getValue());
-                int stalepathTime = (int) getStalePathtime(RESTART_DEFAULT_GR, val);
-                boolean announceFbit = true;
-                try {
-                    br.startBgp(asNum, rid, stalepathTime, announceFbit);
-                    if (getBgpCounters() == null) {
-                        startBgpCountersTask();
-                    }
-                    if (getBgpAlarms() == null) {
-                        startBgpAlarmsTask();
-                    }
-                } catch (BgpRouterException bre) {
-                    if (bre.getErrorCode() == BgpRouterException.BGP_ERR_ACTIVE) {
-                        LOG.error(YANG_OBJ + "Add requested when BGP is already active");
-                    } else {
-                        LOG.error(YANG_OBJ + "Add received exception: \""
-                                + bre + "\"; " + ADD_WARN);
-                    }
-                } catch (TException e) {
-                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
+                if (isIpAvailable(odlThriftIp)) {
+                    bgpRestarted();
+                } else {
+                    IP_ACTIVATION_CHECK_TIMER.scheduleAtFixedRate(new TimerTask() {
+                        @Override
+                        public void run() {
+                            if (isIpAvailable(odlThriftIp)) {
+                                bgpRestarted();
+                                IP_ACTIVATION_CHECK_TIMER.cancel();
+                            } else {
+                                LOG.trace("waiting for odlThriftIP: {} to be present", odlThriftIp);
+                            }
+                        }
+                    }, 10000L, 10000L);
+                }
+                if (getBgpCounters() == null) {
+                    startBgpCountersTask();
+                }
+                if (getBgpAlarms() == null) {
+                    startBgpAlarmsTask();
                 }
             }
         }
@@ -536,6 +534,21 @@ public class BgpConfigurationManager {
                 }
                 if (getBgpAlarms() != null) {
                     stopBgpAlarmsTask();
+                }
+                Bgp conf = getConfig();
+                if (conf == null) {
+                    LOG.error("Config Null while removing the as-id");
+                    return;
+                }
+                LOG.debug("Removing external routes from FIB");
+                deleteExternalFibRoutes();
+                List<Neighbors> nbrs = conf.getNeighbors();
+                if (nbrs != null && nbrs.size() > 0) {
+                    LOG.error("Tring to remove the as-id when neighbor config is already present");
+                    for (Neighbors nbr : nbrs) {
+                        LOG.debug("Removing Neighbor {} from Data store", nbr.getAddress().getValue());
+                        delNeighbor(nbr.getAddress().getValue());
+                    }
                 }
             }
         }
@@ -1242,7 +1255,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected synchronized void add(InstanceIdentifier<Bgp> iid, Bgp val) {
-            LOG.error("received add Bgp config replaying the config");
+            LOG.error("received add Bgp config");
 
             try {
                 initer.await();
@@ -1255,21 +1268,6 @@ public class BgpConfigurationManager {
                     return;
                 }
                 activateMIP();
-                if (isIpAvailable(odlThriftIp)) {
-                    bgpRestarted();
-                } else {
-                    IP_ACTIVATION_CHECK_TIMER.scheduleAtFixedRate(new TimerTask() {
-                        @Override
-                        public void run() {
-                            if (isIpAvailable(odlThriftIp)) {
-                                bgpRestarted();
-                                IP_ACTIVATION_CHECK_TIMER.cancel();
-                            } else {
-                                LOG.trace("waiting for odlThriftIP: {} to be present", odlThriftIp);
-                            }
-                        }
-                    }, 10000L, 10000L);
-                }
             }
         }
 
@@ -1836,7 +1834,7 @@ public class BgpConfigurationManager {
             Long spt = asId.getStalepathTime();
             Boolean afb = asId.isAnnounceFbit();
             String rid = (routerId == null) ? "" : new String(routerId.getValue());
-            int stalepathTime = (int) getStalePathtime(0, config.getAsId());
+            int stalepathTime = (int) getStalePathtime(RESTART_DEFAULT_GR, config.getAsId());
             boolean announceFbit = true;
             try {
                 br.startBgp(asNum, rid, stalepathTime, announceFbit);
@@ -2317,6 +2315,65 @@ public class BgpConfigurationManager {
             LOG.error("createStaleFibMap:: error ", e);
         }
         LOG.error("created {} staled entries ", totalStaledCount);
+    }
+
+    /*
+     * BGP config remove scenario, Need to remove all the
+     * external routes from FIB.
+     */
+    public static void deleteExternalFibRoutes() {
+        totalExternalRoutes = 0;
+        try {
+            /*
+            * at the time FIB route deletion, Wait till all PENDING write transaction
+             * to complete (or)wait for max timeout value of STALE_FIB_WAIT Seconds.
+             */
+            int retry = STALE_FIB_WAIT;
+            String rd;
+            while ((BgpUtil.getGetPendingWrTransaction() != 0) && (retry > 0)) {
+                Thread.sleep(1000);
+                retry--;
+                if (retry == 0) {
+                    LOG.error("TimeOut occured {} seconds, while deleting external routes", STALE_FIB_WAIT);
+                }
+            }
+            InstanceIdentifier<FibEntries> id = InstanceIdentifier.create(FibEntries.class);
+            DataBroker db = BgpUtil.getBroker();
+            if (db == null) {
+                LOG.error("Couldn't find BgpUtil dataBroker while deleting external routes");
+                return;
+            }
+
+            Optional<FibEntries> fibEntries = SingleTransactionDataBroker.syncReadOptional(BgpUtil.getBroker(),
+                    LogicalDatastoreType.CONFIGURATION, id);
+            if (fibEntries.isPresent()) {
+                if (fibEntries.get().getVrfTables() == null) {
+                    LOG.error("deleteExternalFibRoutes::getVrfTables is null");
+                    return;
+                }
+                List<VrfTables> staleVrfTables = fibEntries.get().getVrfTables();
+                for (VrfTables vrfTable : staleVrfTables) {
+                    rd = vrfTable.getRouteDistinguisher();
+                    if (vrfTable.getVrfEntry() == null) {
+                        LOG.error("deleteExternalFibRoutes::getVrfEntry is null");
+                        continue;
+                    }
+                    for (VrfEntry vrfEntry : vrfTable.getVrfEntry()) {
+                        if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
+                            //route cleanup is only meant for the routes learned through BGP.
+                            continue;
+                        }
+                        totalExternalRoutes++;
+                        fibDSWriter.removeFibEntryFromDS(rd, vrfEntry.getDestPrefix());
+                    }
+                }
+            } else {
+                LOG.error("deleteExternalFibRoutes:: FIBentries.class is not present");
+            }
+        } catch (InterruptedException | ReadFailedException e) {
+            LOG.error("deleteExternalFibRoutes:: error ", e);
+        }
+        LOG.debug("deleted {} fib entries ", totalExternalRoutes);
     }
 
     //map<rd, map<prefix/len:nexthop, label>>
