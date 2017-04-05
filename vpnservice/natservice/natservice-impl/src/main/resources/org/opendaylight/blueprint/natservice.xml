@@ -38,6 +38,8 @@
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService" />
   <odl:rpc-service id="odlArputilService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService" />
+  <odl:rpc-service id="salFlowService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService" />
   <odl:rpc-implementation ref="natRpcServiceImpl"/>
 
   <odl:notification-listener ref="naptPacketInHandler" />
