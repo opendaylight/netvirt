@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_a872fde2",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-05T23:53:23Z",
+      "side": 1,
+      "message": "maybe just add this method to the class using it, If it needs ot be used by others we can move it out.",
+      "revId": "3e54d1d3d8ab5e6b0774062bd6741e5afdbd9e58",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
