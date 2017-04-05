@@ -16,6 +16,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.liblldp.BitBufferHelper;
 import org.opendaylight.controller.liblldp.BufferException;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
@@ -45,6 +48,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6PktHandler.class);
     private long pktProccessedCounter = 0;
@@ -53,6 +57,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
     private final Ipv6ServiceUtils ipv6Utils;
     private final ExecutorService packetProcessor = Executors.newCachedThreadPool();
 
+    @Inject
     public Ipv6PktHandler(PacketProcessingService pktService) {
         this.pktService = pktService;
         ifMgr = IfMgr.getIfMgrInstance();
@@ -381,6 +386,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
     }
 
     @Override
+    @PreDestroy
     public void close() throws Exception {
         packetProcessor.shutdown();
     }

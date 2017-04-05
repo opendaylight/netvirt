@@ -10,6 +10,9 @@ package org.opendaylight.netvirt.ipv6service;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -32,6 +35,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class Ipv6NodeListener extends AsyncDataTreeChangeListenerBase<FlowCapableNode, Ipv6NodeListener>
         implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6NodeListener.class);
@@ -39,13 +43,16 @@ public class Ipv6NodeListener extends AsyncDataTreeChangeListenerBase<FlowCapabl
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalUtil;
 
+    @Inject
     public Ipv6NodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalUtil) {
         this.dataBroker = dataBroker;
         this.mdsalUtil = mdsalUtil;
     }
 
-    public void start() {
-        LOG.info("{} start", getClass().getSimpleName());
+    @Override
+    @PostConstruct
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 

@@ -6,75 +6,14 @@
   <reference id="dataBroker"
              interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
              odl:type="default" />
-  <reference id="mdsalUtils"
+  <reference id="iMdsalApiManager"
              interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
-
-  <reference id="elanProvider" interface="org.opendaylight.netvirt.elanmanager.api.IElanService" availability="optional" />
+  <reference id="iElanService"
+             interface="org.opendaylight.netvirt.elanmanager.api.IElanService" />
 
   <odl:rpc-service id="odlInterfaceRpcService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService" />
   <odl:rpc-service id="packetProcessingService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService" />
-
-  <bean id="ipv6NodeListener"
-        class="org.opendaylight.netvirt.ipv6service.Ipv6NodeListener"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
-  </bean>
-
-  <bean id="ipv6ServiceInterfaceEventListener"
-        class="org.opendaylight.netvirt.ipv6service.Ipv6ServiceInterfaceEventListener"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-  </bean>
-
-  <bean id="neutronPortChangeListener"
-        class="org.opendaylight.netvirt.ipv6service.NeutronPortChangeListener"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-  </bean>
-
-  <bean id="neutronRouterChangeListener"
-        class="org.opendaylight.netvirt.ipv6service.NeutronRouterChangeListener"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-  </bean>
-
-  <bean id="neutronNetworkChangeListener"
-        class="org.opendaylight.netvirt.ipv6service.NeutronNetworkChangeListener"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-  </bean>
-
-  <bean id="neutronSubnetChangeListener"
-        class="org.opendaylight.netvirt.ipv6service.NeutronSubnetChangeListener"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-  </bean>
-
-  <bean id="ipv6PktHandler"
-        class="org.opendaylight.netvirt.ipv6service.Ipv6PktHandler"
-        destroy-method="close">
-    <argument ref="packetProcessingService" />
-  </bean>
-  <odl:notification-listener ref="ipv6PktHandler" />
-
-  <bean id="ipv6ServiceImpl"
-        class="org.opendaylight.netvirt.ipv6service.Ipv6ServiceImpl"
-        init-method="start" destroy-method="close">
-    <argument ref="packetProcessingService" />
-    <argument ref="odlInterfaceRpcService" />
-    <argument ref="elanProvider" />
-    <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
-  </bean>
-
-  <bean id="Ipv6NdUtilServiceImpl"
-        class="org.opendaylight.netvirt.ipv6service.Ipv6NdUtilServiceImpl">
-    <argument ref="dataBroker" />
-    <argument ref="odlInterfaceRpcService" />
-  </bean>
-  <odl:rpc-implementation ref="Ipv6NdUtilServiceImpl" />
 
 </blueprint>
