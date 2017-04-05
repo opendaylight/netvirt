@@ -46,30 +46,30 @@ public class OpenFlow13Provider {
     public static final int SFC_SERVICE_PRIORITY = 6;
 
     // Priorities for each flow
-    private static final int INGRESS_CLASSIFIER_FILTER_NSH_PRIORITY = 510;
-    private static final int INGRESS_CLASSIFIER_FILTER_NONSH_PRIORITY = 500;
-    private static final int INGRESS_CLASSIFIER_ACL_PRIORITY = 500;
-    private static final int EGRESS_CLASSIFIER_FILTER_NSH_PRIORITY = 260;
-    private static final int EGRESS_CLASSIFIER_FILTER_NONSH_PRIORITY = 250;
-    private static final int EGRESS_CLASSIFIER_NEXTHOP_C1C2_PRIORITY = 250;
-    private static final int EGRESS_CLASSIFIER_NEXTHOP_NOC1C2_PRIORITY = 260;
-    private static final int EGRESS_CLASSIFIER_EGRESS_LOCAL_PRIORITY = 260;
-    private static final int EGRESS_CLASSIFIER_EGRESS_REMOTE_PRIORITY = 250;
+    public static final int INGRESS_CLASSIFIER_FILTER_NSH_PRIORITY = 510;
+    public static final int INGRESS_CLASSIFIER_FILTER_NONSH_PRIORITY = 500;
+    public static final int INGRESS_CLASSIFIER_ACL_PRIORITY = 500;
+    public static final int EGRESS_CLASSIFIER_FILTER_NSH_PRIORITY = 260;
+    public static final int EGRESS_CLASSIFIER_FILTER_NONSH_PRIORITY = 250;
+    public static final int EGRESS_CLASSIFIER_NEXTHOP_C1C2_PRIORITY = 250;
+    public static final int EGRESS_CLASSIFIER_NEXTHOP_NOC1C2_PRIORITY = 260;
+    public static final int EGRESS_CLASSIFIER_EGRESS_LOCAL_PRIORITY = 260;
+    public static final int EGRESS_CLASSIFIER_EGRESS_REMOTE_PRIORITY = 250;
 
     // Flow names for each table
-    private static final String INGRESS_CLASSIFIER_FILTER_VXGPENSH_FLOW_NAME = "nvsfc_ingr_class_filter_vxgpe";
-    private static final String INGRESS_CLASSIFIER_FILTER_ETHNSH_FLOW_NAME = "nvsfc_ingr_class_filter_eth";
-    private static final String INGRESS_CLASSIFIER_FILTER_NONSH_FLOW_NAME = "nvsfc_ingr_class_filter_nonsh";
-    private static final String INGRESS_CLASSIFIER_ACL_FLOW_NAME = "nvsfc_ingr_class_acl";
-    private static final String EGRESS_CLASSIFIER_FILTER_VXGPENSH_FLOW_NAME = "nvsfc_egr_class_filter_vxgpe";
-    private static final String EGRESS_CLASSIFIER_FILTER_ETHNSH_FLOW_NAME = "nvsfc_egr_class_filter_eth";
-    private static final String EGRESS_CLASSIFIER_FILTER_NONSH_FLOW_NAME = "nvsfc_egr_class_filter_nonsh";
-    private static final String EGRESS_CLASSIFIER_NEXTHOP_C1C2_FLOW_NAME = "nvsfc_egr_class_nexthop_c1c2";
-    private static final String EGRESS_CLASSIFIER_NEXTHOP_NOC1C2_FLOW_NAME = "nvsfc_egr_class_nexthop_noc1c2";
-    private static final String EGRESS_CLASSIFIER_TPORTEGRESS_FLOW_NAME = "nvsfc_egr_class_ tport egress";
+    public static final String INGRESS_CLASSIFIER_FILTER_VXGPENSH_FLOW_NAME = "nvsfc_ingr_class_filter_vxgpe";
+    public static final String INGRESS_CLASSIFIER_FILTER_ETHNSH_FLOW_NAME = "nvsfc_ingr_class_filter_eth";
+    public static final String INGRESS_CLASSIFIER_FILTER_NONSH_FLOW_NAME = "nvsfc_ingr_class_filter_nonsh";
+    public static final String INGRESS_CLASSIFIER_ACL_FLOW_NAME = "nvsfc_ingr_class_acl";
+    public static final String EGRESS_CLASSIFIER_FILTER_VXGPENSH_FLOW_NAME = "nvsfc_egr_class_filter_vxgpe";
+    public static final String EGRESS_CLASSIFIER_FILTER_ETHNSH_FLOW_NAME = "nvsfc_egr_class_filter_eth";
+    public static final String EGRESS_CLASSIFIER_FILTER_NONSH_FLOW_NAME = "nvsfc_egr_class_filter_nonsh";
+    public static final String EGRESS_CLASSIFIER_NEXTHOP_C1C2_FLOW_NAME = "nvsfc_egr_class_nexthop_c1c2";
+    public static final String EGRESS_CLASSIFIER_NEXTHOP_NOC1C2_FLOW_NAME = "nvsfc_egr_class_nexthop_noc1c2";
+    public static final String EGRESS_CLASSIFIER_TPORTEGRESS_FLOW_NAME = "nvsfc_egr_class_ tport egress";
 
-    private static final long DEFAULT_NSH_CONTEXT_VALUE = 0L;
-    private static final short NSH_MDTYPE_ONE = 0x01;
+    public static final short NSH_MDTYPE_ONE = 0x01;
+    public static final long DEFAULT_NSH_CONTEXT_VALUE = 0L;
     private static final int DEFAULT_NETMASK = 32;
     private static final Logger LOG = LoggerFactory.getLogger(OpenFlow13Provider.class);
     private static AtomicLong flowIdInc = new AtomicLong();
@@ -216,7 +216,7 @@ public class OpenFlow13Provider {
 
         InstructionsBuilder isb = OpenFlow13Utils.appendGotoTableInstruction(new InstructionsBuilder(),
             NwConstants.EGRESS_SFC_CLASSIFIER_NEXTHOP_TABLE);
-        String flowIdStr = INGRESS_CLASSIFIER_FILTER_VXGPENSH_FLOW_NAME + nodeId.getValue();
+        String flowIdStr = EGRESS_CLASSIFIER_FILTER_VXGPENSH_FLOW_NAME + nodeId.getValue();
 
         return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_FILTER_TABLE,
             EGRESS_CLASSIFIER_FILTER_NSH_PRIORITY, EGRESS_CLASSIFIER_FILTER_COOKIE,
