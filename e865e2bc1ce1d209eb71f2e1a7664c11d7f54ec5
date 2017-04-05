@@ -16,6 +16,24 @@
       "revId": "e865e2bc1ce1d209eb71f2e1a7664c11d7f54ec5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_ffa68252",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-04-05T07:58:19Z",
+      "side": 1,
+      "message": "the aclId itself shouldn\u0027t be shifted.. it\u0027s shifted only when writing to metadata, according to the mask\n\ngrep for other uses for InstructionWriteMetadata - the value is translated there as a convention (usually using a utility from MetaDataUtil)",
+      "parentUuid": "da01753e_5f37ceb0",
+      "revId": "e865e2bc1ce1d209eb71f2e1a7664c11d7f54ec5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
