@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_c5448c76",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 788,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-05T17:04:05Z",
+      "side": 1,
+      "message": "it is better to selected only connected nodes kiran...\nplease move this within the try block below before you get the nhTepIp..",
+      "revId": "dea86dc769cff8c1a0065dee15fcfe6b51f1f749",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
