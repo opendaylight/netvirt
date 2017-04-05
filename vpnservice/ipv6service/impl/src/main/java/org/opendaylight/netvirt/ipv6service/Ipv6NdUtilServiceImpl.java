@@ -14,6 +14,7 @@ import com.google.common.util.concurrent.Futures;
 import java.math.BigInteger;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -44,6 +45,7 @@ public class Ipv6NdUtilServiceImpl implements Ipv6NdutilService {
     private static final String DPN_NOT_FOUND_ERROR = "dpn not found for interface %s ";
     private static final String NODE_CONNECTOR_NOT_FOUND_ERROR = "Node connector id not found for interface %s";
 
+    @Inject
     public Ipv6NdUtilServiceImpl(final DataBroker dataBroker, final OdlInterfaceRpcService odlInterfaceRpcService) {
         this.dataBroker = dataBroker;
         this.odlInterfaceRpcService = odlInterfaceRpcService;

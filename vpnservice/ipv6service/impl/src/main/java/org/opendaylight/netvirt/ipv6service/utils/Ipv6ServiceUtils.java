@@ -40,7 +40,6 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv6NdTarget;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.ServiceIndex;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -348,7 +347,7 @@ public class Ipv6ServiceUtils {
         matches.add(MatchEthernetType.IPV6);
         matches.add(MatchIpProtocol.ICMPV6);
         matches.add(new MatchIcmpv6(Ipv6Constants.ICMP_V6_RS_CODE, (short) 0));
-        matches.add(new MatchMetadata(ElanUtils.getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
+        matches.add(new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
         return matches;
     }
 
@@ -358,7 +357,7 @@ public class Ipv6ServiceUtils {
         matches.add(MatchIpProtocol.ICMPV6);
         matches.add(new MatchIcmpv6(Ipv6Constants.ICMP_V6_NS_CODE, (short) 0));
         matches.add(new MatchIpv6NdTarget(new Ipv6Address(ndTarget)));
-        matches.add(new MatchMetadata(ElanUtils.getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
+        matches.add(new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
         return matches;
     }
 
@@ -431,7 +430,7 @@ public class Ipv6ServiceUtils {
     public void bindIpv6Service(DataBroker broker, String interfaceName, Long elanTag, short tableId) {
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
-        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(ElanUtils.getElanMetadataLabel(elanTag),
+        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getElanTagMetadata(elanTag),
                 MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(tableId, ++instructionKey));
         short serviceIndex = ServiceIndex.getIndex(NwConstants.IPV6_SERVICE_NAME, NwConstants.IPV6_SERVICE_INDEX);
