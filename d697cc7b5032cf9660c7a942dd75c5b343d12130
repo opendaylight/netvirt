@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_c582ccff",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 838,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-05T15:04:33Z",
+      "side": 1,
+      "message": "Still missing subOpBuilder.setNhDpnId(nhDpnId) in this usecase, but as Vivek requested it could be added in a next PS.",
+      "range": {
+        "startLine": 837,
+        "startChar": 11,
+        "endLine": 838,
+        "endChar": 75
+      },
+      "revId": "d697cc7b5032cf9660c7a942dd75c5b343d12130",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
