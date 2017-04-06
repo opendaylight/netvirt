@@ -179,6 +179,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_d350d660",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-04-06T07:37:43Z",
+      "side": 1,
+      "message": "Let\u0027s just keep this and log an error here as a compromise. If it happens, we can think it through.",
+      "parentUuid": "da01753e_0554d452",
+      "revId": "1c303ed998fc599758bcede26d3d35b3407afe94",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_e43ef728",
         "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/OpenFlow13Provider.java",
         "patchSetId": 10
