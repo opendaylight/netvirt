@@ -16,6 +16,24 @@
       "revId": "038c99f380e7ea28d4ee4ca47b77bcefaada8e4d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_14d8841c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1770,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-04-06T13:43:21Z",
+      "side": 1,
+      "message": "from which cache? The class doesn\u0027t keep interfaceManager like ElanUtils.",
+      "parentUuid": "da01753e_5404cc14",
+      "revId": "038c99f380e7ea28d4ee4ca47b77bcefaada8e4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
