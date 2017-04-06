@@ -74,7 +74,7 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
             Map<String, List<MatchInfoBase>> flowMap, String flowName) {
         List<MatchInfoBase> matches = flowMap.get(flowName);
         flowName += "Egress" + lportTag + ace.getKey().getRuleName();
-        matches.add(buildLPortTagMatch(lportTag));
+        AclServiceUtils.addLportTagMetadataMatch(lportTag, matches, ServiceModeEgress.class);
         matches.add(new NxMatchCtState(AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK));
 
         Long elanId = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);

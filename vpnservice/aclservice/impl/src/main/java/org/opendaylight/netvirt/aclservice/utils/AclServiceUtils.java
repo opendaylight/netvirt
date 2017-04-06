@@ -23,6 +23,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
@@ -1056,5 +1057,11 @@ public final class AclServiceUtils {
             return (aceList.get(0).getAugmentation(SecurityRuleAttr.class) != null);
         }
         return false;
+    }
+
+    public static void addLportTagMetadataMatch(int lportTag, List<MatchInfoBase> flowMatches,
+            Class<? extends ServiceModeBase> serviceMode) {
+        MatchInfoBase lportMatch = buildLPortTagMatch(lportTag, serviceMode);
+        InterfaceServiceUtil.mergeMetadataMatchsOrAdd(flowMatches, lportMatch);
     }
 }
