@@ -9,16 +9,21 @@ package org.opendaylight.netvirt.neutronvpn;
 
 import java.util.List;
 
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class NeutronExternalSubnetHandler implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronExternalSubnetHandler.class);
     private final NeutronvpnManager nvpnManager;
     private final NeutronvpnNatManager nvpnNatManager;
 
+    @Inject
     public NeutronExternalSubnetHandler(final NeutronvpnManager neutronvpnManager,
             final NeutronvpnNatManager neutronvpnNatMgr) {
         this.nvpnManager = neutronvpnManager;
@@ -26,6 +31,7 @@ public class NeutronExternalSubnetHandler implements AutoCloseable {
     }
 
     @Override
+    @PreDestroy
     public void close() throws Exception {
         LOG.info("{} close", getClass().getSimpleName());
     }
