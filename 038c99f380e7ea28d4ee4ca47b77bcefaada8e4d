@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_5404cc14",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1770,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-06T12:13:00Z",
+      "side": 1,
+      "message": "needs to be taken from cache as well",
+      "revId": "038c99f380e7ea28d4ee4ca47b77bcefaada8e4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
