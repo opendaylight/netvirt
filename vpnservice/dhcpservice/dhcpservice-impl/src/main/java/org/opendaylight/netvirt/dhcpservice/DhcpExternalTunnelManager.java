@@ -24,6 +24,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -77,6 +80,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class DhcpExternalTunnelManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpExternalTunnelManager.class);
@@ -95,7 +99,7 @@ public class DhcpExternalTunnelManager {
     private final ConcurrentMap<Pair<IpAddress, String>, Set<String>> availableVMCache = new ConcurrentHashMap<>();
     private final ConcurrentMap<Pair<BigInteger, String>, Port> vniMacAddressToPortCache = new ConcurrentHashMap<>();
 
-
+    @Inject
     public DhcpExternalTunnelManager(final DataBroker broker,
             final IMdsalApiManager mdsalUtil, final ItmRpcService itmRpcService,
             final EntityOwnershipService entityOwnershipService, final IInterfaceManager interfaceManager) {
@@ -106,6 +110,7 @@ public class DhcpExternalTunnelManager {
         this.interfaceManager = interfaceManager;
     }
 
+    @PostConstruct
     public void init() {
         initilizeCaches();
     }

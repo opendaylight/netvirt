@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.opendaylight.controller.liblldp.EtherTypes;
@@ -61,6 +63,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class DhcpPktHandler implements PacketProcessingListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpPktHandler.class);
@@ -73,6 +76,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
     private final DhcpserviceConfig config;
     private final DhcpAllocationPoolManager dhcpAllocationPoolMgr;
 
+    @Inject
     public DhcpPktHandler(final DhcpManager dhcpManager,
                           final DhcpExternalTunnelManager dhcpExternalTunnelManager,
                           final OdlInterfaceRpcService interfaceManagerRpc,

@@ -11,6 +11,10 @@ import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -32,6 +36,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class DhcpLogicalSwitchListener
         extends AsyncDataTreeChangeListenerBase<LogicalSwitches, DhcpLogicalSwitchListener>
         implements AutoCloseable {
@@ -41,18 +46,21 @@ public class DhcpLogicalSwitchListener
     private final DataBroker dataBroker;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
 
-    public DhcpLogicalSwitchListener(DhcpExternalTunnelManager dhcpManager, DataBroker dataBroker) {
+    @Inject
+    public DhcpLogicalSwitchListener(final DhcpExternalTunnelManager dhcpManager, final DataBroker dataBroker) {
         super(LogicalSwitches.class, DhcpLogicalSwitchListener.class);
         this.dhcpExternalTunnelManager = dhcpManager;
         this.dataBroker = dataBroker;
     }
 
     @Override
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
+    @PreDestroy
     public void close() {
         super.close();
         LOG.info("DhcpLogicalSwitchListener Closed");

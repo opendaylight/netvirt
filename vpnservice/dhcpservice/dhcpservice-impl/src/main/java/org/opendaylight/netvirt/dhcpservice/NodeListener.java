@@ -10,6 +10,10 @@ package org.opendaylight.netvirt.dhcpservice;
 import java.math.BigInteger;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -22,6 +26,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class NodeListener extends AsyncDataTreeChangeListenerBase<Node, NodeListener> implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(NodeListener.class);
@@ -30,6 +35,7 @@ public class NodeListener extends AsyncDataTreeChangeListenerBase<Node, NodeList
     private final DhcpManager dhcpManager;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
 
+    @Inject
     public NodeListener(final DataBroker db, final DhcpManager dhcpMgr,
             final DhcpExternalTunnelManager dhcpExternalTunnelManager) {
         super(Node.class, NodeListener.class);
@@ -39,6 +45,7 @@ public class NodeListener extends AsyncDataTreeChangeListenerBase<Node, NodeList
     }
 
     @Override
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
@@ -72,6 +79,7 @@ public class NodeListener extends AsyncDataTreeChangeListenerBase<Node, NodeList
     }
 
     @Override
+    @PreDestroy
     public void close() {
         super.close();
         LOG.debug("Node Listener Closed");
