@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -30,6 +33,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnInterface, VpnInterfaceOpListener>
     implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInterfaceOpListener.class);
@@ -38,11 +42,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
     private final VpnFootprintService vpnFootprintService;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    /*public VpnInterfaceOpListener(final DataBroker dataBroker) {
-        super(VpnInterface.class);
-        this.dataBroker = dataBroker;
-    }*/
-
+    @Inject
     public VpnInterfaceOpListener(final DataBroker dataBroker, final VpnInterfaceManager vpnInterfaceManager,
         final VpnFootprintService vpnFootprintService) {
         super(VpnInterface.class, VpnInterfaceOpListener.class);
@@ -51,8 +51,10 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
         this.vpnFootprintService = vpnFootprintService;
     }
 
-    public void start() {
-        LOG.info("{} start", getClass().getSimpleName());
+    @Override
+    @PostConstruct
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 

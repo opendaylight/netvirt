@@ -9,6 +9,9 @@ package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
 import java.math.BigInteger;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -37,17 +40,17 @@ import org.slf4j.LoggerFactory;
  * Listens for Nodes going down, in order to check if the InterVpnLink must be
  * moved to some other DPN.
  */
+@Singleton
 public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<Node, InterVpnLinkNodeListener>
     implements AutoCloseable {
+
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkNodeListener.class);
-
     public static final TopologyId FLOW_TOPOLOGY_ID = new TopologyId(new Uri("flow:1"));
-
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final VpnFootprintService vpnFootprintService;
 
-
+    @Inject
     public InterVpnLinkNodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalMgr,
                                     final VpnFootprintService vpnFootprintService) {
         super();
@@ -56,8 +59,10 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
         this.vpnFootprintService = vpnFootprintService;
     }
 
-    public void start() {
-        LOG.info("{} start", getClass().getSimpleName());
+    @Override
+    @PostConstruct
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 

@@ -10,6 +10,9 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import java.math.BigInteger;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -20,18 +23,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+@Singleton
 public class SubnetMacHandler extends AsyncDataTreeChangeListenerBase<VpnPortipToPort, SubnetMacHandler> {
 
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
 
-    public SubnetMacHandler(DataBroker dataBroker, IMdsalApiManager mdsalManager) {
+    @Inject
+    public SubnetMacHandler(final DataBroker dataBroker, final IMdsalApiManager mdsalManager) {
         super(VpnPortipToPort.class, SubnetMacHandler.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
     }
 
-    public void start() {
+    @Override
+    @PostConstruct
+    public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 

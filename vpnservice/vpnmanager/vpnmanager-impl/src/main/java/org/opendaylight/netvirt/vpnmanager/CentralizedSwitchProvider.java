@@ -10,13 +10,17 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import java.math.BigInteger;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider;
 
+@Singleton
 public class CentralizedSwitchProvider implements ICentralizedSwitchProvider {
 
     private final DataBroker dataBroker;
 
+    @Inject
     public CentralizedSwitchProvider(DataBroker dataBroker) {
         this.dataBroker = dataBroker;
     }

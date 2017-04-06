@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
  * want to know when certain type of Operational data is ready for a given VPN,
  * and those others that can notify that the Operational data is ready.
  */
+@Singleton
 public class VpnOpDataSyncer {
 
     static final Logger LOG = LoggerFactory.getLogger(VpnOpDataSyncer.class);

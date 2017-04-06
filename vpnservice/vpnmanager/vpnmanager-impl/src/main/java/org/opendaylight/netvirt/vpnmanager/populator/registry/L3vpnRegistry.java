@@ -9,19 +9,25 @@ package org.opendaylight.netvirt.vpnmanager.populator.registry;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Singleton;
 import org.opendaylight.netvirt.vpnmanager.populator.intfc.VpnPopulator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class L3vpnRegistry {
-    private static Map<VrfEntry.EncapType, VpnPopulator> l3VpnPopulatorRegistry = new ConcurrentHashMap<>();
     private static final Logger LOG = LoggerFactory.getLogger(L3vpnRegistry.class);
+    private static Map<VrfEntry.EncapType, VpnPopulator> l3VpnPopulatorRegistry = new ConcurrentHashMap<>();
 
+    @PostConstruct
     public void init() {
         LOG.info("{} start", getClass().getSimpleName());
     }
 
+    @PreDestroy
     public void close() {
         LOG.trace("L3vpnRegistry Closed");
     }

@@ -16,6 +16,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -50,6 +52,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class VpnSubnetRouteHandler {
     private static final Logger LOG = LoggerFactory.getLogger(VpnSubnetRouteHandler.class);
     private final DataBroker dataBroker;
@@ -60,9 +63,11 @@ public class VpnSubnetRouteHandler {
     private LockManagerService lockManager;
     private final VpnOpDataSyncer vpnOpDataSyncer;
 
+    @Inject
     public VpnSubnetRouteHandler(final DataBroker dataBroker, final SubnetOpDpnManager subnetOpDpnManager,
-        final IBgpManager bgpManager, final VpnInterfaceManager vpnIntfManager, final IdManagerService idManager,
-        LockManagerService lockManagerService, final VpnOpDataSyncer vpnOpDataSyncer) {
+                                 final IBgpManager bgpManager, final VpnInterfaceManager vpnIntfManager,
+                                 final IdManagerService idManager,
+                                 final LockManagerService lockManagerService, final VpnOpDataSyncer vpnOpDataSyncer) {
         this.dataBroker = dataBroker;
         this.subOpDpnManager = subnetOpDpnManager;
         this.bgpManager = bgpManager;

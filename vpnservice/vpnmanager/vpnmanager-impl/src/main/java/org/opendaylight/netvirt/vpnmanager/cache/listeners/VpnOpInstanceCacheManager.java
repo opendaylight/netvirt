@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.vpnmanager.cache.listeners;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
@@ -21,20 +24,22 @@ import org.slf4j.LoggerFactory;
 /**
  * Listens to changes in the Vpn instance Operational data so that this data can be updated if needed.
  */
+@Singleton
 public class VpnOpInstanceCacheManager
     extends AsyncClusteredDataTreeChangeListenerBase<VpnInstanceOpDataEntry, VpnOpInstanceCacheManager>
     implements AutoCloseable {
 
     private final DataBroker dataBroker;
-
     private static final Logger LOG = LoggerFactory.getLogger(VpnOpInstanceCacheManager.class);
 
+    @Inject
     public VpnOpInstanceCacheManager(final DataBroker broker) {
         this.dataBroker = broker;
     }
 
-    public void start() {
-        LOG.info("{} start", getClass().getSimpleName());
+    @PostConstruct
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
         DataStoreCache.create(VpnConstants.VPN_OP_INSTANCE_CACHE_NAME);
         registerListener(LogicalDatastoreType.OPERATIONAL, this.dataBroker);
     }

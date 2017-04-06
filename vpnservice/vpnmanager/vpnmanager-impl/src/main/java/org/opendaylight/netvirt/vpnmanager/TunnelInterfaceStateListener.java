@@ -22,6 +22,9 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -57,6 +60,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBase<StateTunnelList,
     TunnelInterfaceStateListener> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelInterfaceStateListener.class);
@@ -64,9 +68,9 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     private final IBgpManager bgpManager;
     private final IFibManager fibManager;
     private final ItmRpcService itmRpcService;
-    private OdlInterfaceRpcService intfRpcService;
-    private VpnInterfaceManager vpnInterfaceManager;
-    private VpnSubnetRouteHandler vpnSubnetRouteHandler;
+    private final OdlInterfaceRpcService intfRpcService;
+    private final VpnInterfaceManager vpnInterfaceManager;
+    private final VpnSubnetRouteHandler vpnSubnetRouteHandler;
 
     protected enum UpdateRouteAction {
         ADVERTISE_ROUTE, WITHDRAW_ROUTE
@@ -86,6 +90,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
      * @param fibManager fibManager
      * @param itmRpcService itmRpcService
      */
+    @Inject
     public TunnelInterfaceStateListener(final DataBroker dataBroker,
         final IBgpManager bgpManager,
         final IFibManager fibManager,
@@ -103,8 +108,10 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         this.vpnSubnetRouteHandler = vpnSubnetRouteHandler;
     }
 
-    public void start() {
-        LOG.info("{} start", getClass().getSimpleName());
+    @Override
+    @PostConstruct
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 

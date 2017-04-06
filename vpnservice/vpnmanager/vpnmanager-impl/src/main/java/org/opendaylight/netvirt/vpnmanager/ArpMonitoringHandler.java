@@ -10,6 +10,9 @@ package org.opendaylight.netvirt.vpnmanager;
 import com.google.common.base.Optional;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlreadyRegisteredException;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
@@ -30,6 +33,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ArpMonitoringHandler
         extends AsyncClusteredDataTreeChangeListenerBase<LearntVpnVipToPort, ArpMonitoringHandler> {
     private static final Logger LOG = LoggerFactory.getLogger(ArpMonitoringHandler.class);
@@ -40,13 +44,13 @@ public class ArpMonitoringHandler
     private final INeutronVpnManager neutronVpnService;
     private final IInterfaceManager interfaceManager;
     private final EntityOwnershipService entityOwnershipService;
-
     private Long arpMonitorProfileId = 0L;
 
+    @Inject
     public ArpMonitoringHandler(final DataBroker dataBroker, final OdlInterfaceRpcService interfaceRpc,
-            IMdsalApiManager mdsalManager, AlivenessMonitorService alivenessManager,
-            INeutronVpnManager neutronVpnService, IInterfaceManager interfaceManager,
-            EntityOwnershipService entityOwnershipService) {
+                                final IMdsalApiManager mdsalManager, final AlivenessMonitorService alivenessManager,
+                                final INeutronVpnManager neutronVpnService, final IInterfaceManager interfaceManager,
+                                final EntityOwnershipService entityOwnershipService) {
         super(LearntVpnVipToPort.class, ArpMonitoringHandler.class);
         this.dataBroker = dataBroker;
         this.interfaceRpc = interfaceRpc;
@@ -57,7 +61,8 @@ public class ArpMonitoringHandler
         this.entityOwnershipService = entityOwnershipService;
     }
 
-    public void start() {
+    @PostConstruct
+    public void init() {
         Optional<Long> profileIdOptional = AlivenessMonitorUtils.allocateProfile(alivenessManager,
             ArpConstants.FAILURE_THRESHOLD, ArpConstants.ARP_CACHE_TIMEOUT_MILLIS, ArpConstants.MONITORING_WINDOW,
             EtherTypes.Arp);

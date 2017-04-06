@@ -10,6 +10,9 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import java.math.BigInteger;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -33,14 +36,15 @@ import org.slf4j.LoggerFactory;
  * and moved to either vpnmanager or new bundle as part of Carbon model changes
  *
  */
+@Singleton
 public class CentralizedSwitchChangeListener
         extends AsyncDataTreeChangeListenerBase<RouterToNaptSwitch, CentralizedSwitchChangeListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(CentralizedSwitchChangeListener.class);
-
     private final DataBroker dataBroker;
     private final IVpnManager vpnManager;
 
+    @Inject
     public CentralizedSwitchChangeListener(final DataBroker dataBroker, final IVpnManager vpnManager) {
         super(RouterToNaptSwitch.class, CentralizedSwitchChangeListener.class);
         this.dataBroker = dataBroker;
@@ -48,6 +52,7 @@ public class CentralizedSwitchChangeListener
     }
 
     @Override
+    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);

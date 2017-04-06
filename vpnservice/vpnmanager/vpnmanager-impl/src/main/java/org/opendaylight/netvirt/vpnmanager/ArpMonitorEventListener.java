@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.vpnmanager;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorListener;
@@ -21,12 +23,14 @@ import org.slf4j.LoggerFactory;
  * This class listens for interface creation/removal/update in Configuration DS.
  * This is used to handle interfaces for base of-ports.
  */
+@Singleton
 public class ArpMonitorEventListener implements AlivenessMonitorListener {
     private static final Logger LOG = LoggerFactory.getLogger(ArpMonitorEventListener.class);
-    private AlivenessMonitorService alivenessManager;
-    private DataBroker dataBroker;
+    private final AlivenessMonitorService alivenessManager;
+    private final DataBroker dataBroker;
 
-    public ArpMonitorEventListener(DataBroker dataBroker, AlivenessMonitorService alivenessManager) {
+    @Inject
+    public ArpMonitorEventListener(final DataBroker dataBroker, final AlivenessMonitorService alivenessManager) {
         this.alivenessManager = alivenessManager;
         this.dataBroker = dataBroker;
     }

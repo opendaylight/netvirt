@@ -17,6 +17,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -43,6 +45,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class VpnFootprintService {
 
     // TODO: Should this class have its own interface instead of being under IVpnManager's umbrella?
@@ -55,6 +58,7 @@ public class VpnFootprintService {
     private final OdlInterfaceRpcService ifaceMgrRpcService;
     private final NotificationPublishService notificationPublishService;
 
+    @Inject
     public VpnFootprintService(final DataBroker dataBroker, final IFibManager fibManager,
         final OdlInterfaceRpcService ifaceRpcService, final NotificationPublishService notificationPublishService,
         final VpnOpDataSyncer vpnOpDataSyncer) {

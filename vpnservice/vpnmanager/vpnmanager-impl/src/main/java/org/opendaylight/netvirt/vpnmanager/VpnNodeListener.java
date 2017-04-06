@@ -11,6 +11,10 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -40,18 +44,19 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<Node, VpnNodeListener>
     implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnNodeListener.class);
     private static final String FLOWID_PREFIX = "L3.";
     private static final String FLOWID_PREFIX_FOR_ARP = "L3.GW_MAC_TABLE.ARP.";
-
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
     private final IdManagerService idManagerService;
 
-    public VpnNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager,
+    @Inject
+    public VpnNodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
         final IdManagerService idManagerService) {
         super(Node.class, VpnNodeListener.class);
         this.broker = dataBroker;
@@ -59,11 +64,13 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         this.idManagerService = idManagerService;
     }
 
+    @PostConstruct
     public void start() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
 
     @Override
+    @PreDestroy
     public void close() {
         super.close();
     }

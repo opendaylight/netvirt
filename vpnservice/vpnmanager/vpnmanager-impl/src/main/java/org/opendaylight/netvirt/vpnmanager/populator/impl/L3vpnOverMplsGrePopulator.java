@@ -12,6 +12,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -31,21 +35,25 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
     private final IdManagerService idManager;
     private static final Logger LOG = LoggerFactory.getLogger(L3vpnOverMplsGrePopulator.class);
 
+    @Inject
     public L3vpnOverMplsGrePopulator(DataBroker dataBroker, VpnInterfaceManager vpnInterfaceManager,
                                      IBgpManager bgpManager, IFibManager fibManager, IdManagerService idManager) {
         super(dataBroker, vpnInterfaceManager, bgpManager, fibManager);
         this.idManager = idManager;
     }
 
+    @PostConstruct
     public void init() {
-        LOG.info("{} start", getClass().getSimpleName());
+        LOG.info("{} init", getClass().getSimpleName());
         L3vpnRegistry.registerL3vpnPopulator(VrfEntry.EncapType.Mplsgre, this);
     }
 
+    @PreDestroy
     public void close() {
         LOG.trace("L3vpnOverMplsGrePopulator Closed");
     }

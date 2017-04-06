@@ -17,6 +17,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -49,10 +53,10 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(IVpnLinkServiceImpl.class);
-
     private final DataBroker dataBroker;
     private final IdManagerService idManager;
     private final IBgpManager bgpManager;
@@ -62,7 +66,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
     private InterVpnLinkCacheFeeder ivpnLinkCacheFeeder;
     private InterVpnLinkStateCacheFeeder ivpnLinkStateCacheFeeder;
 
-
+    @Inject
     public IVpnLinkServiceImpl(final DataBroker dataBroker, final IdManagerService idMgr, final IBgpManager bgpMgr,
                                final IFibManager fibMgr) {
         this.dataBroker = dataBroker;
@@ -71,14 +75,16 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
         this.fibManager = fibMgr;
     }
 
-    public void start() {
-        LOG.info("{} start", getClass().getSimpleName());
+    @PostConstruct
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
         InterVpnLinkCache.createInterVpnLinkCaches(dataBroker);
         ivpnLinkCacheFeeder = new InterVpnLinkCacheFeeder(dataBroker);
         ivpnLinkStateCacheFeeder = new InterVpnLinkStateCacheFeeder(dataBroker);
     }
 
     @Override
+    @PreDestroy
     public void close() throws Exception {
         InterVpnLinkCache.destroyCaches();
     }

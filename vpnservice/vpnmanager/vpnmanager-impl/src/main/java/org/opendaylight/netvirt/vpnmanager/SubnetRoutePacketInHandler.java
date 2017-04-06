@@ -16,6 +16,8 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.liblldp.HexEncode;
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.liblldp.Packet;
@@ -46,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Tr
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     private static final Logger LOG = LoggerFactory.getLogger(SubnetRoutePacketInHandler.class);
     private final DataBroker dataBroker;
@@ -53,6 +56,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     private final OdlInterfaceRpcService odlInterfaceRpcService;
     private final ICentralizedSwitchProvider centralizedSwitchProvider;
 
+    @Inject
     public SubnetRoutePacketInHandler(final DataBroker dataBroker, final PacketProcessingService packetService,
             final OdlInterfaceRpcService odlInterfaceRpcService,
             final ICentralizedSwitchProvider centralizedSwitchProvider) {

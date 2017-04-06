@@ -18,6 +18,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -71,13 +74,12 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterVpnLink, InterVpnLinkListener>
     implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkListener.class);
-
     private static final long INVALID_ID = 0;
-
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final IdManagerService idManager;
@@ -89,7 +91,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     private final VpnFootprintService vpnFootprintService;
     private final VpnOpDataSyncer vpnOpDataSyncer;
 
-
+    @Inject
     public InterVpnLinkListener(final DataBroker dataBroker, final IdManagerService idManager,
                                 final IMdsalApiManager mdsalManager, final IBgpManager bgpManager,
                                 final IFibManager fibManager, final NotificationPublishService notifService,
@@ -110,9 +112,10 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         this.vpnOpDataSyncer = vpnOpDataSyncer;
     }
 
-
-    public void start() {
-        LOG.info("{} start", getClass().getSimpleName());
+    @Override
+    @PostConstruct
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
         InterVpnLinkCache.createInterVpnLinkCaches(dataBroker);
     }

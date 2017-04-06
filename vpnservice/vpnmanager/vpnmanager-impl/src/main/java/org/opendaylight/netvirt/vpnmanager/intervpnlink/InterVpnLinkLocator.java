@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
@@ -26,13 +28,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class InterVpnLinkLocator {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkLocator.class);
     private static final String NBR_OF_DPNS_PROPERTY_NAME = "vpnservice.intervpnlink.number.dpns";
-
     private final DataBroker dataBroker;
 
+    @Inject
     public InterVpnLinkLocator(final DataBroker dataBroker) {
         this.dataBroker = dataBroker;
     }
