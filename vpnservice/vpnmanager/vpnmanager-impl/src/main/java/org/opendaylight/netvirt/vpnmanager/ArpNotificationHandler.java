@@ -287,7 +287,8 @@ public class ArpNotificationHandler implements OdlArputilListener {
                         new VpnInterfaceKey(vpnInterface)).augmentation(Adjacencies.class).child(Adjacency.class,
                         new AdjacencyKey(ip)).build();
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, adjacencyIdentifier);
-                LOG.trace("Successfully Deleted Adjacency into VpnInterface {}", vpnInterface);
+                LOG.info("Successfully deleted the learned-ip-adjacency for prefix {} on vpn {} for interface {}",
+                        ip, vpnName, vpnInterface);
             }
         }
     }
