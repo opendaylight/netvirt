@@ -304,7 +304,11 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             return elanState;
         }
         List<String> elanInterfaces = elanState.getElanInterfaces();
-        elanInterfaces.remove(interfaceName);
+        boolean isRemoved = elanInterfaces.remove(interfaceName);
+        if (!isRemoved) {
+            return elanState;
+        }
+
         if (elanInterfaces.isEmpty()) {
             tx.delete(LogicalDatastoreType.OPERATIONAL, ElanUtils.getElanInstanceOperationalDataPath(elanName));
             tx.delete(LogicalDatastoreType.OPERATIONAL, ElanUtils.getElanMacTableOperationalDataPath(elanName));
