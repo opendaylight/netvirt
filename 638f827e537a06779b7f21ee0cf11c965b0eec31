@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_c812e161",
+        "filename": "vpnservice/statemanager/impl/src/main/resources/org/opendaylight/blueprint/statemanager-impl.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-06T00:42:20Z",
+      "side": 1,
+      "message": "these have to be name like the interface with the first char lowercase, i.e. ifibManager",
+      "revId": "638f827e537a06779b7f21ee0cf11c965b0eec31",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
