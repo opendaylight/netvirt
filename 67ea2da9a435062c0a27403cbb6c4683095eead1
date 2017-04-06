@@ -195,6 +195,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_544fac92",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-06T14:16:05Z",
+      "side": 1,
+      "message": "Ok, I referred the implementation and we are allocating a unique LPortTag for the routerName and using that for Non-Napt To Napt communication.  That is fine for now and let us not tinker with that as its proprietary to ODL.\n\nFor all other external network communications and external traffic on internal networks, we are uniformly using L3VNI of InternetVPN which is good enough.\n\nI had put a question in the VpnFloatingIpHandler , please check !",
+      "parentUuid": "da01753e_94a47458",
+      "revId": "67ea2da9a435062c0a27403cbb6c4683095eead1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_f48860c8",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
         "patchSetId": 7
