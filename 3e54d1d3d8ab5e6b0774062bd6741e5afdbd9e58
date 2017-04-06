@@ -16,6 +16,24 @@
       "revId": "3e54d1d3d8ab5e6b0774062bd6741e5afdbd9e58",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_54a68cc2",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6947
+      },
+      "writtenOn": "2017-04-06T13:32:06Z",
+      "side": 1,
+      "message": "i am less concerned about the use of this method by others, it is more about centralizing the DHCP service access to Neutron.. for example, if something changes in Neutron then we know exactly what class needs to be updated. Until the allocation pool server, the odl dhcp used only Neutron information and therefor it uses Neutron classes widely.",
+      "parentUuid": "da01753e_a872fde2",
+      "revId": "3e54d1d3d8ab5e6b0774062bd6741e5afdbd9e58",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
