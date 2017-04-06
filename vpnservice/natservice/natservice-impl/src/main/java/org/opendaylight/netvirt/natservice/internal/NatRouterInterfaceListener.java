@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -23,7 +26,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+@Singleton
 public class NatRouterInterfaceListener
     extends AsyncDataTreeChangeListenerBase<Interfaces, NatRouterInterfaceListener> {
 
@@ -31,6 +34,7 @@ public class NatRouterInterfaceListener
     private final DataBroker dataBroker;
     private final OdlInterfaceRpcService interfaceManager;
 
+    @Inject
     public NatRouterInterfaceListener(final DataBroker dataBroker, final OdlInterfaceRpcService interfaceManager) {
         super(Interfaces.class, NatRouterInterfaceListener.class);
         this.dataBroker = dataBroker;
@@ -38,6 +42,7 @@ public class NatRouterInterfaceListener
     }
 
     @Override
+    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);

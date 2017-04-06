@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Future;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -62,22 +65,23 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class NatTunnelInterfaceStateListener
     extends AsyncDataTreeChangeListenerBase<StateTunnelList, NatTunnelInterfaceStateListener>
     implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatTunnelInterfaceStateListener.class);
     private final DataBroker dataBroker;
-    private IFibManager fibManager;
-    private SNATDefaultRouteProgrammer defaultRouteProgrammer;
-    private NaptSwitchHA naptSwitchHA;
-    private IMdsalApiManager mdsalManager;
-    private IdManagerService idManager;
-    private IBgpManager bgpManager;
-    private ExternalRoutersListener externalRouterListner;
-    private OdlInterfaceRpcService interfaceService;
-    private FloatingIPListener floatingIPListener;
-    private FibRpcService fibRpcService;
+    private final IFibManager fibManager;
+    private final SNATDefaultRouteProgrammer defaultRouteProgrammer;
+    private final NaptSwitchHA naptSwitchHA;
+    private final IMdsalApiManager mdsalManager;
+    private final IdManagerService idManager;
+    private final IBgpManager bgpManager;
+    private final ExternalRoutersListener externalRouterListner;
+    private final OdlInterfaceRpcService interfaceService;
+    private final FloatingIPListener floatingIPListener;
+    private final FibRpcService fibRpcService;
     private final INeutronVpnManager nvpnManager;
 
     protected enum TunnelAction {
@@ -101,6 +105,7 @@ public class NatTunnelInterfaceStateListener
      * @param floatingIPListener     -  Floating IP Listner
      * @param fibRpcService          - FIB RPC Service
      */
+    @Inject
     public NatTunnelInterfaceStateListener(final DataBroker dataBroker,
                                            final IBgpManager bgpManager,
                                            final IFibManager fibManager,
@@ -129,6 +134,7 @@ public class NatTunnelInterfaceStateListener
     }
 
     @Override
+    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
