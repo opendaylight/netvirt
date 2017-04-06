@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_f3c35a88",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/fib-rpc.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-04-06T07:51:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_65a040f5",
+      "revId": "d747a7c636097a7bcc675adb1bb988f05f3b987f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_05afb4e4",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2017-04-05T14:10:19Z",
       "side": 1,
       "message": "is there a possibility of a race here where none of them finally removes the flow and the flow in 36 on this DPN becomes stale?",
+      "revId": "d747a7c636097a7bcc675adb1bb988f05f3b987f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_33be8200",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1827,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-04-06T07:51:35Z",
+      "side": 1,
+      "message": "Have observed race-condition for removing the flow 36-\u003e25 during multiple time testing for Vxlan and GRE external provider types.\n\nTo avoid race condition, modified the below changes.\n\n1) Used MDSALUtil.syncDelete() to remove FIP details from vpn-to-dpn list.\n\n2) Moved the following flow creation and removal code after successfully created/removed custom FIB entry flow (table 21-\u003e25) for EVPN case. \n\n(i) Table 36-\u003e25\n(ii) Table 19-\u003e25",
+      "parentUuid": "da01753e_05afb4e4",
       "revId": "d747a7c636097a7bcc675adb1bb988f05f3b987f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
