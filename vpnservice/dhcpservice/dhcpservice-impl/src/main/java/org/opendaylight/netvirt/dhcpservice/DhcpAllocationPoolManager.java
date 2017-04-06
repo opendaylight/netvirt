@@ -17,6 +17,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
@@ -49,6 +53,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
     private static final Logger LOG = LoggerFactory.getLogger(DhcpAllocationPoolManager.class);
 
@@ -59,6 +64,7 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
     private final IdManagerService idManager;
     private final DhcpserviceConfig config;
 
+    @Inject
     public DhcpAllocationPoolManager(final IMdsalApiManager mdsalApiManager, final DataBroker dataBroker,
             final IdManagerService idManager, final DhcpserviceConfig config) {
         this.mdsalUtil = mdsalApiManager;
@@ -67,17 +73,19 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
         this.config = config;
     }
 
-    @Override
-    public void close() throws Exception {
-        LOG.info("{} close", getClass().getSimpleName());
-        dhcpAllocationPoolListener.close();
-    }
-
+    @PostConstruct
     public void init() {
         if (config.isDhcpDynamicAllocationPoolEnabled()) {
             dhcpAllocationPoolListener = new DhcpAllocationPoolListener(this, dataBroker);
             LOG.info("DHCP Allocation Pool Service initialized");
         }
+    }
+
+    @Override
+    @PreDestroy
+    public void close() throws Exception {
+        LOG.info("{} close", getClass().getSimpleName());
+        dhcpAllocationPoolListener.close();
     }
 
     public IpAddress getIpAllocation(String networkId, AllocationPool pool, String macAddress) {

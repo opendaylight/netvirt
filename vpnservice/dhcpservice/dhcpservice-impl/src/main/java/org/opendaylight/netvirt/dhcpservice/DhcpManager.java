@@ -11,6 +11,10 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -34,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpserv
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class DhcpManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpManager.class);
@@ -49,9 +54,10 @@ public class DhcpManager {
     private DhcpInterfaceEventListener dhcpInterfaceEventListener;
     private DhcpInterfaceConfigListener dhcpInterfaceConfigListener;
 
+    @Inject
     public DhcpManager(final IMdsalApiManager mdsalApiManager,
             final INeutronVpnManager neutronVpnManager,
-            DhcpserviceConfig config, final DataBroker dataBroker,
+            final DhcpserviceConfig config, final DataBroker dataBroker,
             final DhcpExternalTunnelManager dhcpExternalTunnelManager, final IInterfaceManager interfaceManager) {
         this.mdsalUtil = mdsalApiManager;
         this.neutronVpnService = neutronVpnManager;
@@ -63,6 +69,7 @@ public class DhcpManager {
         configureLeaseDuration(DhcpMConstants.DEFAULT_LEASE_TIME);
     }
 
+    @PostConstruct
     public void init() {
         if (config.isControllerDhcpEnabled()) {
             dhcpInterfaceEventListener =
@@ -72,6 +79,7 @@ public class DhcpManager {
         }
     }
 
+    @PreDestroy
     public void close() throws Exception {
         if (dhcpInterfaceEventListener != null) {
             dhcpInterfaceEventListener.close();

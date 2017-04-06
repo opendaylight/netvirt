@@ -7,6 +7,10 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
@@ -17,6 +21,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class DhcpConfigListener extends AsyncClusteredDataTreeChangeListenerBase<DhcpConfig, DhcpConfigListener>
         implements AutoCloseable {
 
@@ -25,12 +30,14 @@ public class DhcpConfigListener extends AsyncClusteredDataTreeChangeListenerBase
     private final DhcpManager dhcpManager;
     private final DataBroker dataBroker;
 
+    @Inject
     public DhcpConfigListener(final DataBroker db, final DhcpManager dhcpMgr) {
         super(DhcpConfig.class, DhcpConfigListener.class);
         dhcpManager = dhcpMgr;
         this.dataBroker = db;
     }
 
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
@@ -41,6 +48,7 @@ public class DhcpConfigListener extends AsyncClusteredDataTreeChangeListenerBase
     }
 
     @Override
+    @PreDestroy
     public void close() {
         super.close();
         LOG.debug("DhcpConfig Listener Closed");
