@@ -16,6 +16,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -51,17 +55,16 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+@Singleton
 public class VPNServiceChainHandler implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(VPNServiceChainHandler.class);
-
     private final IMdsalApiManager mdsalManager;
     private final DataBroker dataBroker;
     private final IVpnManager vpnManager;
     private final IInterfaceManager interfaceManager;
 
-
+    @Inject
     public VPNServiceChainHandler(final DataBroker db, final IMdsalApiManager mdsalManager,
                                   final IVpnManager vpnManager, final IInterfaceManager ifaceMgr) {
         this.dataBroker = db;
@@ -70,11 +73,13 @@ public class VPNServiceChainHandler implements AutoCloseable {
         this.interfaceManager = ifaceMgr;
     }
 
+    @PostConstruct
     public void init() {
         VpnPseudoPortCache.createVpnPseudoPortCache(dataBroker);
     }
 
     @Override
+    @PreDestroy
     public void close() throws Exception {
         VpnPseudoPortCache.destroyVpnPseudoPortCache();
     }
