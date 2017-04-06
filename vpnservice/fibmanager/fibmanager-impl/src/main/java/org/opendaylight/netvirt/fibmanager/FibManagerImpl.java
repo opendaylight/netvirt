@@ -11,6 +11,9 @@ import com.google.common.util.concurrent.FutureCallback;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.math.BigInteger;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -24,7 +27,7 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+@Singleton
 public class FibManagerImpl implements IFibManager {
     private static final Logger LOG = LoggerFactory.getLogger(FibManagerImpl.class);
     private final NexthopManager nexthopManager;
@@ -32,6 +35,7 @@ public class FibManagerImpl implements IFibManager {
     private IVpnManager vpnmanager;
     private final DataBroker dataBroker;
 
+    @Inject
     public FibManagerImpl(final DataBroker dataBroker,
                           final NexthopManager nexthopManager,
                           final VrfEntryListener vrfEntryListener,
@@ -48,7 +52,8 @@ public class FibManagerImpl implements IFibManager {
         });
     }
 
-    public void start() {
+    @PostConstruct
+    public void init() {
         InterVpnLinkCache.createInterVpnLinkCaches(this.dataBroker);  // Idempotent creation
     }
 

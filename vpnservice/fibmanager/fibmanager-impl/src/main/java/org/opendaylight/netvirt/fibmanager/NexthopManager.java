@@ -24,6 +24,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -122,6 +125,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class NexthopManager implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NexthopManager.class);
     private final DataBroker dataBroker;
@@ -160,6 +164,7 @@ public class NexthopManager implements AutoCloseable {
      * @param interfaceManager - interfaceManager reference
      * @param itmManager       - itmManager reference
      */
+    @Inject
     public NexthopManager(final DataBroker dataBroker,
                           final IMdsalApiManager mdsalApiManager,
                           final IdManagerService idManager,
@@ -711,6 +716,7 @@ public class NexthopManager implements AutoCloseable {
     }
 
     @Override
+    @PreDestroy
     public void close() throws Exception {
         LOG.info("{} close", getClass().getSimpleName());
     }
