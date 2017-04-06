@@ -86,6 +86,8 @@
     <argument ref="packetProcessingService" />
     <argument ref="odlInterfaceRpcService" />
     <argument ref="interfaceManager" />
+    <argument ref="neutronvpnManager" />
+    <argument ref="idManagerService" />
   </bean>
 
   <bean id="eventDispatcher"
