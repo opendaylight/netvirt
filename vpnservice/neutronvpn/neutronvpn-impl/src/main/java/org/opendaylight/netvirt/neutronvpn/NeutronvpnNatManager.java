@@ -13,6 +13,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -44,6 +47,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class NeutronvpnNatManager implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronvpnNatManager.class);
     private final DataBroker dataBroker;
@@ -52,11 +56,13 @@ public class NeutronvpnNatManager implements AutoCloseable {
     private static final int EXTERNAL_REMOVED = 2;
     private static final int EXTERNAL_CHANGED = 3;
 
+    @Inject
     public NeutronvpnNatManager(final DataBroker dataBroker) {
         this.dataBroker = dataBroker;
     }
 
     @Override
+    @PreDestroy
     public void close() throws Exception {
         LOG.info("{} close", getClass().getSimpleName());
     }
