@@ -10,10 +10,14 @@ package org.opendaylight.netvirt.neutronvpn;
 import static org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils.buildfloatingIpIdToPortMappingIdentifier;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -105,11 +109,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         }
         NeutronvpnUtils.addToPortCache(input);
 
-        /* check if router interface has been created */
-        if ((input.getDeviceOwner() != null) && (input.getDeviceId() != null)) {
+        if (!Strings.isNullOrEmpty(input.getDeviceOwner()) && !Strings.isNullOrEmpty(input.getDeviceId())) {
             if (input.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF)) {
                 handleRouterInterfaceAdded(input);
-                /* nothing else to do here */
                 return;
             }
             if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(input.getDeviceOwner())) {
@@ -117,9 +119,10 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             } else if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(input.getDeviceOwner())) {
                 handleFloatingIpPortUpdated(null, input);
             }
-        }
-        if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
-            handleNeutronPortCreated(input);
+
+            if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
+                handleNeutronPortCreated(input);
+            }
         }
     }
 
@@ -136,7 +139,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         }
         NeutronvpnUtils.removeFromPortCache(input);
 
-        if ((input.getDeviceOwner() != null) && (input.getDeviceId() != null)) {
+        if (!Strings.isNullOrEmpty(input.getDeviceOwner()) && !Strings.isNullOrEmpty(input.getDeviceId())) {
             if (input.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF)) {
                 handleRouterInterfaceRemoved(input);
                 /* nothing else to do here */
@@ -167,12 +170,24 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         }
         NeutronvpnUtils.addToPortCache(update);
 
-        /* check if router interface has been updated */
-        if ((update.getDeviceOwner() != null) && (update.getDeviceId() != null)) {
+        if ((Strings.isNullOrEmpty(original.getDeviceOwner()) || Strings.isNullOrEmpty(original.getDeviceId()))
+                && !Strings.isNullOrEmpty(update.getDeviceOwner()) && !Strings.isNullOrEmpty(update.getDeviceId())) {
             if (update.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF)) {
                 handleRouterInterfaceAdded(update);
-                /* nothing else to do here */
                 return;
+            }
+            if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(update.getDeviceOwner())) {
+                handleRouterGatewayUpdated(update);
+            } else if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(update.getDeviceOwner())) {
+                handleFloatingIpPortUpdated(original, update);
+            }
+
+            handleNeutronPortCreated(update);
+        } else {
+            Set<FixedIps> oldIPs = getFixedIpSet(original.getFixedIps());
+            Set<FixedIps> newIPs = getFixedIpSet(update.getFixedIps());
+            if (!oldIPs.equals(newIPs)) {
+                handleNeutronPortUpdated(original, update);
             }
         }
 
@@ -209,17 +224,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 futures.add(wrtConfigTxn.submit());
                 return futures;
             });
-        }
-        List<FixedIps> oldIPs = (original.getFixedIps() != null) ? original.getFixedIps() : new ArrayList<>();
-        List<FixedIps> newIPs = (update.getFixedIps() != null) ? update.getFixedIps() : new ArrayList<>();
-        if (!oldIPs.equals(newIPs)) {
-            newIPs.removeIf(oldIPs::remove);
-            handleNeutronPortUpdated(original, update);
-        }
-        if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(update.getDeviceOwner())) {
-            handleRouterGatewayUpdated(update);
-        } else if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(update.getDeviceOwner())) {
-            handleFloatingIpPortUpdated(original, update);
         }
     }
 
@@ -555,5 +559,10 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 + " Port Info Config DS failed with exception {}",
                 floatingIpId.getValue(), floatingIpPortId.getValue(), e);
         }
+    }
+
+    private Set<FixedIps> getFixedIpSet(List<FixedIps> fixedIps) {
+        return java.util.Optional.ofNullable(fixedIps).map(fips -> (Set<FixedIps>) new HashSet<>(fips))
+                .orElse(Collections.emptySet());
     }
 }
