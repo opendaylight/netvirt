@@ -34,6 +34,24 @@
       "revId": "038c99f380e7ea28d4ee4ca47b77bcefaada8e4d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_f43ea028",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1770,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-06T13:47:18Z",
+      "side": 1,
+      "message": "Right. But TunnelInterfaceStateListener can add IInterfaceManager and call getInterfaceFromConfigDS",
+      "parentUuid": "da01753e_14d8841c",
+      "revId": "038c99f380e7ea28d4ee4ca47b77bcefaada8e4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
