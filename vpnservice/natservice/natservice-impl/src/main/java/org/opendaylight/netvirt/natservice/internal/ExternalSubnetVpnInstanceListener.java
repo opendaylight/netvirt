@@ -9,6 +9,9 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -25,6 +28,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInstance,
     ExternalSubnetVpnInstanceListener> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ExternalSubnetVpnInstanceListener.class);
@@ -33,6 +37,7 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
     private final IElanService elanService;
     private final IVpnManager vpnManager;
 
+    @Inject
     public ExternalSubnetVpnInstanceListener(final DataBroker dataBroker,
             final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer,
             final IElanService elanService, final IVpnManager vpnManager) {
@@ -43,6 +48,7 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
     }
 
     @Override
+    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);

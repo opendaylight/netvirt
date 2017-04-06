@@ -13,6 +13,9 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -28,6 +31,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class NatInterfaceStateChangeListener
     extends AsyncDataTreeChangeListenerBase<Interface, NatInterfaceStateChangeListener>
     implements AutoCloseable {
@@ -37,6 +41,7 @@ public class NatInterfaceStateChangeListener
     private final OdlInterfaceRpcService odlInterfaceRpcService;
     private static final String NAT_DS = "NATDS";
 
+    @Inject
     public NatInterfaceStateChangeListener(final DataBroker dataBroker,
             final OdlInterfaceRpcService odlInterfaceRpcService) {
         super(Interface.class, NatInterfaceStateChangeListener.class);
@@ -45,6 +50,7 @@ public class NatInterfaceStateChangeListener
     }
 
     @Override
+    @PostConstruct
     public void init() {
         LOG.info("NAT Service : {} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
