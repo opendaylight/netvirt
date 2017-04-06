@@ -19,6 +19,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -63,12 +65,14 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class FibRpcServiceImpl implements FibRpcService {
     private static final Logger LOG = LoggerFactory.getLogger(FibRpcServiceImpl.class);
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final IFibManager fibManager;
 
+    @Inject
     public FibRpcServiceImpl(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                              final IFibManager fibManager) {
         this.dataBroker = dataBroker;
