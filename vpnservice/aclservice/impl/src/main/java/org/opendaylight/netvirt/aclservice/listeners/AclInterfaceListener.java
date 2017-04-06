@@ -83,13 +83,14 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         if (aclInPortAfter != null && aclInPortAfter.isPortSecurityEnabled()
                 || aclInPortBefore != null && aclInPortBefore.isPortSecurityEnabled()) {
             String interfaceId = portAfter.getName();
-            AclInterface aclInterface = null;
-            if (aclInPortBefore == null) {
-                aclInterface = addAclInterfaceToCache(interfaceId, aclInPortAfter);
-            } else {
-                AclInterface cachedAclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
-                aclInterface = getOldAclInterfaceObject(cachedAclInterface, aclInPortAfter);
+            AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
+            if (aclInterface != null) {
+                aclInterface = getOldAclInterfaceObject(aclInterface, aclInPortAfter);
             }
+            else {
+                aclInterface = addAclInterfaceToCache(interfaceId, aclInPortAfter);
+            }
+
             AclInterface oldAclInterface = getOldAclInterfaceObject(aclInterface, aclInPortBefore);
             List<Uuid> deletedAclList = AclServiceUtils.getUpdatedAclList(oldAclInterface.getSecurityGroups(),
                     aclInterface.getSecurityGroups());
