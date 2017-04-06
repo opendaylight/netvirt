@@ -10,8 +10,10 @@ package org.opendaylight.netvirt.natservice.internal;
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -32,16 +34,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ExternalNetworksChangeListener
         extends AsyncDataTreeChangeListenerBase<Networks, ExternalNetworksChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(ExternalNetworksChangeListener.class);
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final FloatingIPListener floatingIpListener;
@@ -52,6 +53,7 @@ public class ExternalNetworksChangeListener
     private final VpnRpcService vpnService;
     private final FibRpcService fibService;
 
+    @Inject
     public ExternalNetworksChangeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                                           final FloatingIPListener floatingIpListener,
                                           final ExternalRoutersListener externalRouterListener,
@@ -73,6 +75,7 @@ public class ExternalNetworksChangeListener
     }
 
     @Override
+    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);

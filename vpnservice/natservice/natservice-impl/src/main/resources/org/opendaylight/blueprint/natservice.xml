@@ -6,21 +6,20 @@
   <reference id="dataBroker"
              interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
              odl:type="default" />
-  <reference id="bgpManager"
+  <reference id="iBgpManager"
              interface="org.opendaylight.netvirt.bgpmanager.api.IBgpManager" />
-  <reference id="elanService"
+  <reference id="iElanService"
              interface="org.opendaylight.netvirt.elanmanager.api.IElanService" />
-  <reference id="fibManager"
+  <reference id="iFibManager"
              interface="org.opendaylight.netvirt.fibmanager.api.IFibManager" />
-  <reference id="interfaceManager"
+  <reference id="iInterfaceManager"
              interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
-  <reference id="mdsalUtils"
+  <reference id="iMdsalApiManager"
              interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
-  <reference id="neutronvpnManager"
+  <reference id="iNeutronVpnManager"
              interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" />
-  <reference id="vpnManager"
+  <reference id="iVpnManager"
              interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
-
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
@@ -40,280 +39,13 @@
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService" />
   <odl:rpc-implementation ref="natRpcServiceImpl"/>
 
-  <bean id="subnetmapListener"
-        class="org.opendaylight.netvirt.natservice.internal.SubnetmapListener"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="externalNetworkGroupInstaller" />
-  </bean>
-
-  <bean id="floatingIPListener"
-        class="org.opendaylight.netvirt.natservice.internal.FloatingIPListener"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
-    <argument ref="odlInterfaceRpcService" />
-    <argument ref="blueprintBundleContext" />
-  </bean>
-
-  <bean id="externalNetworkListener"
-        class="org.opendaylight.netvirt.natservice.internal.ExternalNetworkListener"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
-  </bean>
-
-  <bean id="externalSubneVpnInstanceListener"
-        class="org.opendaylight.netvirt.natservice.internal.ExternalSubnetVpnInstanceListener"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="sNATDefaultRouteProgrammer" />
-    <argument ref="elanService" />
-    <argument ref="vpnManager"/>
-  </bean>
-
-  <bean id="naptManager"
-        class="org.opendaylight.netvirt.natservice.internal.NaptManager">
-    <argument ref="dataBroker" />
-    <argument ref="idManagerService" />
-  </bean>
-
-  <bean id="naptEventHandler"
-        class="org.opendaylight.netvirt.natservice.internal.NaptEventHandler">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
-    <argument ref="naptManager" />
-    <argument ref="packetProcessingService" />
-    <argument ref="odlInterfaceRpcService" />
-    <argument ref="interfaceManager" />
-  </bean>
-
-  <bean id="eventDispatcher"
-        class="org.opendaylight.netvirt.natservice.internal.EventDispatcher"
-        init-method="init">
-    <argument ref="naptEventHandler" />
-  </bean>
-
-  <bean id="naptPacketInHandler"
-        class="org.opendaylight.netvirt.natservice.internal.NaptPacketInHandler">
-    <argument ref="eventDispatcher" />
-  </bean>
   <odl:notification-listener ref="naptPacketInHandler" />
-
-  <bean id="vpnFloatingIpHandler"
-        class="org.opendaylight.netvirt.natservice.internal.VpnFloatingIpHandler">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
-    <argument ref="vpnRpcService" />
-    <argument ref="bgpManager" />
-    <argument ref="fibRpcService" />
-    <argument ref="floatingIPListener" />
-    <argument ref="fibManager" />
-    <argument ref="odlArputilService" />
-    <argument ref="vpnManager" />
-    <argument ref="elanService" />
-    <argument ref="evpnDnatFlowProgrammer" />
-    <argument ref="neutronvpnManager" />
-    <argument ref="idManagerService" />
-  </bean>
-  <service ref="vpnFloatingIpHandler"
-           interface="org.opendaylight.netvirt.natservice.internal.FloatingIPHandler" />
-
-  <bean id="nAPTSwitchSelector"
-        class="org.opendaylight.netvirt.natservice.internal.NAPTSwitchSelector">
-    <argument ref="dataBroker" />
-  </bean>
-
-  <bean id="externalRoutersListener"
-        class="org.opendaylight.netvirt.natservice.internal.ExternalRoutersListener"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
-    <argument ref="itmRpcService" />
-    <argument ref="odlInterfaceRpcService" />
-    <argument ref="idManagerService" />
-    <argument ref="naptManager" />
-    <argument ref="nAPTSwitchSelector" />
-    <argument ref="bgpManager" />
-    <argument ref="vpnRpcService" />
-    <argument ref="fibRpcService" />
-    <argument ref="sNATDefaultRouteProgrammer" />
-    <argument ref="naptEventHandler" />
-    <argument ref="naptPacketInHandler" />
-    <argument ref="fibManager" />
-    <argument ref="vpnManager"/>
-    <argument ref="evpnSnatFlowProgrammer"/>
-    <argument ref="neutronvpnManager" />
-  </bean>
-
-  <bean id="externalNetworksChangeListener"
-        class="org.opendaylight.netvirt.natservice.internal.ExternalNetworksChangeListener"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
-    <argument ref="floatingIPListener" />
-    <argument ref="externalRoutersListener" />
-    <argument ref="odlInterfaceRpcService" />
-    <argument ref="naptManager" />
-    <argument ref="bgpManager" />
-    <argument ref="vpnRpcService" />
-    <argument ref="fibRpcService" />
-  </bean>
-
-  <bean id="naptFlowRemovedEventHandler"
-        class="org.opendaylight.netvirt.natservice.internal.NaptFlowRemovedEventHandler">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
-    <argument ref="eventDispatcher" />
-    <argument ref="naptPacketInHandler" />
-    <argument ref="naptManager" />
-  </bean>
   <odl:notification-listener ref="naptFlowRemovedEventHandler" />
-
-  <bean id="interfaceStateEventListener"
-        class="org.opendaylight.netvirt.natservice.internal.InterfaceStateEventListener"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
-    <argument ref="floatingIPListener" />
-    <argument ref="naptManager" />
-    <argument ref="neutronvpnService" />
-  </bean>
-
-  <bean id="sNATDefaultRouteProgrammer"
-        class="org.opendaylight.netvirt.natservice.internal.SNATDefaultRouteProgrammer">
-    <argument ref="mdsalUtils" />
-    <argument ref="dataBroker" />
-    <argument ref="idManagerService" />
-  </bean>
-
-  <bean id="naptSwitchHA"
-        class="org.opendaylight.netvirt.natservice.internal.NaptSwitchHA">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
-    <argument ref="externalRoutersListener" />
-    <argument ref="itmRpcService" />
-    <argument ref="odlInterfaceRpcService" />
-    <argument ref="idManagerService" />
-    <argument ref="nAPTSwitchSelector" />
-    <argument ref="bgpManager" />
-    <argument ref="vpnRpcService" />
-    <argument ref="fibRpcService" />
-    <argument ref="fibManager" />
-    <argument ref="evpnNaptSwitchHA" />
-    <argument ref="neutronvpnManager" />
-  </bean>
-
-  <bean id="natNodeEventListener"
-        class="org.opendaylight.netvirt.natservice.internal.NatNodeEventListener"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-  </bean>
-
-  <bean id="routerPortsListener"
-        class="org.opendaylight.netvirt.natservice.internal.RouterPortsListener"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-  </bean>
-
-  <bean id="routerDpnChangeListener"
-        class="org.opendaylight.netvirt.natservice.internal.RouterDpnChangeListener"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
-    <argument ref="sNATDefaultRouteProgrammer" />
-    <argument ref="naptSwitchHA" />
-    <argument ref="idManagerService" />
-    <argument ref="externalNetworkGroupInstaller" />
-    <argument ref="neutronvpnManager" />
-  </bean>
-
-  <bean id="routerToVpnListener"
-        class="org.opendaylight.netvirt.natservice.internal.RouterToVpnListener">
-    <argument ref="dataBroker" />
-    <argument ref="floatingIPListener" />
-    <argument ref="odlInterfaceRpcService" />
-    <argument ref="externalRoutersListener" />
-  </bean>
   <odl:notification-listener ref="routerToVpnListener" />
 
-  <bean id="subnetGwMacChangeListener"
-        class="org.opendaylight.netvirt.natservice.internal.SubnetGwMacChangeListener"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="neutronvpnManager" />
-    <argument ref="externalNetworkGroupInstaller" />
-  </bean>
-
-  <bean id="externalNetworkGroupInstaller"
-        class="org.opendaylight.netvirt.natservice.internal.ExternalNetworkGroupInstaller">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
-    <argument ref="elanService" />
-    <argument ref="idManagerService" />
-    <argument ref="odlInterfaceRpcService" />
-  </bean>
-
-  <bean id="natRouterInterfaceListener"
-        class="org.opendaylight.netvirt.natservice.internal.NatRouterInterfaceListener"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="odlInterfaceRpcService" />
-  </bean>
-
-  <bean id="natInterfaceStateChangeListener"
-        class="org.opendaylight.netvirt.natservice.internal.NatInterfaceStateChangeListener"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="odlInterfaceRpcService" />
-  </bean>
-
-  <bean id="natTunnelInterfaceStateListener"
-        class="org.opendaylight.netvirt.natservice.internal.NatTunnelInterfaceStateListener"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="bgpManager" />
-    <argument ref="fibManager" />
-    <argument ref="sNATDefaultRouteProgrammer" />
-    <argument ref="naptSwitchHA" />
-    <argument ref="mdsalUtils" />
-    <argument ref="idManagerService" />
-    <argument ref="externalRoutersListener" />
-    <argument ref="odlInterfaceRpcService" />
-    <argument ref="floatingIPListener" />
-    <argument ref="fibRpcService" />
-    <argument ref="neutronvpnManager" />
-  </bean>
-
-  <bean id="natRpcServiceImpl" class="org.opendaylight.netvirt.natservice.rpcservice.NatRpcServiceImpl">
-    <argument ref="dataBroker"/>
-    <argument ref="neutronvpnManager" />
-  </bean>
-
+  <service ref="vpnFloatingIpHandler"
+           interface="org.opendaylight.netvirt.natservice.internal.FloatingIPHandler" />
   <service ref="natRpcServiceImpl"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rpc.rev170209.OdlNatRpcService"/>
 
-  <bean id="evpnSnatFlowProgrammer" class="org.opendaylight.netvirt.natservice.internal.EvpnSnatFlowProgrammer">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
-    <argument ref="bgpManager" />
-    <argument ref="fibManager" />
-  </bean>
-
-  <bean id="evpnNaptSwitchHA" class="org.opendaylight.netvirt.natservice.internal.EvpnNaptSwitchHA">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
-    <argument ref="evpnSnatFlowProgrammer" />
-    <argument ref="idManagerService" />
-  </bean>
-
-  <bean id="evpnDnatFlowProgrammer" class="org.opendaylight.netvirt.natservice.internal.EvpnDnatFlowProgrammer">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
-    <argument ref="bgpManager" />
-    <argument ref="fibManager" />
-    <argument ref="fibRpcService" />
-    <argument ref="vpnManager" />
-    <argument ref="floatingIPListener" />
-  </bean>
 </blueprint>
