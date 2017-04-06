@@ -15,13 +15,15 @@ public class MacEntry {
     private MacAddress macAddress;
     private InetAddress ipAddress;
     private String interfaceName;
+    private String createdTime;
 
-    public MacEntry(String vpnName, MacAddress macAddress,
-            InetAddress inetAddress, String interfaceName) {
+    public MacEntry(String vpnName, MacAddress macAddress, InetAddress inetAddress,
+                    String interfaceName, String createdTime) {
         this.vpnName = vpnName;
         this.macAddress = macAddress;
         this.ipAddress = inetAddress;
         this.interfaceName = interfaceName;
+        this.createdTime = createdTime;
     }
 
     public String getVpnName() {
@@ -48,6 +50,10 @@ public class MacEntry {
         return ipAddress;
     }
 
+    public String getCreatedTime() {
+        return  createdTime;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -64,8 +70,11 @@ public class MacEntry {
             return result;
         else {
             MacEntry other = (MacEntry) obj;
-            result = vpnName.equals(other.vpnName) && macAddress.equals(other.macAddress)
-                    && ipAddress.equals(other.ipAddress) && interfaceName.equals(other.interfaceName);
+            result = vpnName.equals(other.vpnName)
+                    && macAddress.equals(other.macAddress)
+                    && ipAddress.equals(other.ipAddress)
+                    && interfaceName.equals(other.interfaceName)
+                    && createdTime.equals(other.getCreatedTime());
         }
         return result;
     }
@@ -73,6 +82,6 @@ public class MacEntry {
     @Override
     public String toString() {
         return "MacEntry [vpnName=" + vpnName + ", macAddress=" + macAddress + ", ipAddress=" + ipAddress
-                + ", interfaceName=" + interfaceName + "]";
+                + ", interfaceName=" + interfaceName + ", createdTime=" + createdTime + "]";
     }
 }
