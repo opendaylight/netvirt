@@ -45,7 +45,70 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>truth</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>qosservice-api</artifactId>
+            <version>${vpnservices.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.infrautils</groupId>
+            <artifactId>inject</artifactId>
+            <version>${infrautils.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.shell</groupId>
+            <artifactId>org.apache.karaf.shell.console</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
+
+
+    <build>
+      <plugins>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>attach-artifacts</id>
+              <goals>
+                <goal>attach-artifact</goal>
+              </goals>
+              <phase>package</phase>
+              <configuration>
+                <artifacts>
+                  <artifact>
+                    <file>${project.build.directory}/classes/initial/netvirt-qosalert-config.xml</file>
+                    <type>xml</type>
+                    <classifier>config</classifier>
+                  </artifact>
+                </artifacts>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.aries.blueprint</groupId>
+          <artifactId>blueprint-maven-plugin</artifactId>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>maven-bundle-plugin</artifactId>
+          <extensions>true</extensions>
+          <configuration>
+            <instructions>
+              <!-- This bundle works with Karaf 3 and 4.0 -->
+              <Import-Package>
+                org.apache.karaf.shell.commands;version="[3.0.0,4.1)",
+                org.apache.karaf.shell.console;version="[3.0.0,4.1)",
+                *
+              </Import-Package>
+            </instructions>
+          </configuration>
+        </plugin>
+      </plugins>
+    </build>
 
     <!--
         Maven Site Configuration

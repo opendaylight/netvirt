@@ -1,58 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=4 tabstop=4: --><!--
+Copyright (c) 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+
+This program and the accompanying materials are made available under the
+terms of the Eclipse Public License v1.0 which accompanies this distribution,
+and is available at http://www.eclipse.org/legal/epl-v10.html
+-->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            odl:use-default-for-reference-types="true">
+
     <reference id="dataBroker"
                interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
                odl:type="default" />
-    <reference id="mdsalUtils"
+    <reference id="iMdsalApiManager"
                interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
-    <reference id="neutronvpnManager"
+    <reference id="iNeutronVpnManager"
                interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" />
     <odl:rpc-service id="odlInterfaceRpcService"
                  interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService" />
 
-    <bean id="QosPolicyChangeListener"
-          class="org.opendaylight.netvirt.qosservice.QosPolicyChangeListener"
-          init-method="start" destroy-method="close">
-        <argument ref="dataBroker" />
-        <argument ref="neutronvpnManager" />
-        <argument ref="odlInterfaceRpcService" />
-        <argument ref="mdsalUtils" />
-    </bean>
+    <odl:clustered-app-config id="qosalertConfig"
+                              binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.qosalert.config.rev170301.QosalertConfig"
+                              default-config-file-name="netvirt-qosalert-config.xml"
+                              update-strategy="none">
+    </odl:clustered-app-config>
 
-    <bean id="QosNeutronNetworkChangeListener"
-          class="org.opendaylight.netvirt.qosservice.QosNeutronNetworkChangeListener"
-          init-method="start" destroy-method="close">
-        <argument ref="dataBroker" />
-        <argument ref="neutronvpnManager" />
-        <argument ref="odlInterfaceRpcService" />
-        <argument ref="mdsalUtils" />
-    </bean>
+    <odl:rpc-service id="opendaylightDirectStatisticsService"
+                     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService" />
 
-    <bean id="QosNeutronPortChangeListener"
-          class="org.opendaylight.netvirt.qosservice.QosNeutronPortChangeListener"
-          init-method="start" destroy-method="close">
-        <argument ref="dataBroker" />
-        <argument ref="neutronvpnManager" />
-        <argument ref="odlInterfaceRpcService" />
-        <argument ref="mdsalUtils" />
-    </bean>
 
-    <bean id="QosInterfaceStateChangeListener"
-          class="org.opendaylight.netvirt.qosservice.QosInterfaceStateChangeListener"
-          init-method="init" destroy-method="close">
-        <argument ref="dataBroker" />
-        <argument ref="odlInterfaceRpcService" />
-        <argument ref="neutronvpnManager" />
-        <argument ref="mdsalUtils" />
-    </bean>
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
 
-    <bean id="QosNodeListener"
-          class="org.opendaylight.netvirt.qosservice.QosNodeListener"
-          init-method="init" destroy-method="close">
-        <argument ref="dataBroker" />
-        <argument ref="mdsalUtils"/>
-    </bean>
+        <command>
+            <action class="org.opendaylight.netvirt.qosservice.QosAlertEnableCLI">
+                <property name="qosAlertManager" ref="qosAlertManager"/>
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.netvirt.qosservice.QosAlertThresholdCLI">
+                <property name="qosAlertManager" ref="qosAlertManager"/>
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.netvirt.qosservice.QosAlertPollIntervalCLI">
+                <property name="qosAlertManager" ref="qosAlertManager"/>
+            </action>
+        </command>
+
+    </command-bundle>
 
 </blueprint>

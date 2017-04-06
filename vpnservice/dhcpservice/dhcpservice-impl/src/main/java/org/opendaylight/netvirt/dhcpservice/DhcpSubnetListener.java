@@ -12,6 +12,10 @@ import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -36,6 +40,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase<Subnet, DhcpSubnetListener>
         implements AutoCloseable {
     private DataBroker dataBroker;
@@ -43,6 +48,7 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
     private DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private static final Logger LOG = LoggerFactory.getLogger(DhcpSubnetListener.class);
 
+    @Inject
     public DhcpSubnetListener(final DhcpManager dhcpManager, final DhcpExternalTunnelManager
             dhcpExternalTunnelManager, final DataBroker
                                       broker) {
@@ -52,6 +58,7 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
     }
 
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
@@ -233,6 +240,7 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
     }
 
     @Override
+    @PreDestroy
     public void close() {
         super.close();
         LOG.info("DhcpSubnetListener Closed");

@@ -111,6 +111,13 @@
     <argument ref="elanInterfaceManager" />
   </bean>
 
+  <bean id="elanTunnelInterfaceStateListener"
+    class="org.opendaylight.netvirt.elan.internal.ElanTunnelInterfaceStateListener"
+    init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="elanInterfaceManager" />
+  </bean>
+
   <bean id="elanInterfaceStateClusterListener"
     class="org.opendaylight.netvirt.elan.internal.ElanInterfaceStateClusteredListener"
     init-method="init" destroy-method="close">
@@ -151,6 +158,8 @@
   </bean>
   <service ref="elanService" odl:type="default"
     interface="org.opendaylight.netvirt.elanmanager.api.IElanService" />
+  <service ref="elanBridgeManager" odl:type="default"
+    interface="org.opendaylight.netvirt.elanmanager.api.IElanBridgeManager" />
 
   <bean id="cacheElanInterfaceListener"
     class="org.opendaylight.netvirt.elan.utils.CacheElanInterfaceListener"

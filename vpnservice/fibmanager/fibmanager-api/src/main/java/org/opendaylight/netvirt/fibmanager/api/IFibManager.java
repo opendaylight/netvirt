@@ -42,7 +42,7 @@ public interface IFibManager {
     // TODO Feels like this method is not used anywhere
     void addStaticRoute(String vpnName, String prefix, String nextHop, String rd, int label);
 
-    void deleteStaticRoute(String prefix, String nextHop, String rd);
+    void deleteStaticRoute(String vpnName, String prefix, String nextHop, String rd);
 
     void setConfTransType(String service, String transportType);
 
@@ -89,4 +89,6 @@ public interface IFibManager {
 
     void programDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId,
             String destinationIp, int addRemoveOrUpdate, boolean isTunnelUp);
+
+    void refreshVrfEntry(String rd, String prefix);
 }

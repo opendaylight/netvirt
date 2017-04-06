@@ -24,7 +24,6 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -39,6 +38,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Source;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpDestinationPort;
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
@@ -46,9 +46,12 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -71,6 +74,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceTypeFlowBased;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflowBuilder;
@@ -91,6 +95,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
@@ -103,6 +108,8 @@ import org.slf4j.LoggerFactory;
 public final class AclServiceUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceUtils.class);
+    public static final AclserviceConfig.DefaultBehavior DEFAULT_DENY = AclserviceConfig.DefaultBehavior.Deny;
+    public static final AclserviceConfig.DefaultBehavior DEFAULT_ALLOW = AclserviceConfig.DefaultBehavior.Allow;
 
     private final AclDataUtil aclDataUtil;
     private final AclserviceConfig config;
@@ -287,15 +294,17 @@ public final class AclServiceUtils {
      * @param srcPort the source port.
      * @param dstPort the destination port.
      * @param lportTag the lport tag
+     * @param serviceMode ingress or egress service
      * @return list of matches.
      */
-    public static List<MatchInfoBase> buildDhcpMatches(int srcPort, int dstPort, int lportTag) {
+    public static List<MatchInfoBase> buildDhcpMatches(int srcPort, int dstPort, int lportTag,
+            Class<? extends ServiceModeBase> serviceMode) {
         List<MatchInfoBase> matches = new ArrayList<>(6);
         matches.add(MatchEthernetType.IPV4);
         matches.add(MatchIpProtocol.UDP);
         matches.add(new MatchUdpDestinationPort(dstPort));
         matches.add(new MatchUdpSourcePort(srcPort));
-        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
         return matches;
     }
 
@@ -305,15 +314,17 @@ public final class AclServiceUtils {
      * @param srcPort the source port.
      * @param dstPort the destination port.
      * @param lportTag the lport tag
+     * @param serviceMode ingress or egress
      * @return list of matches.
      */
-    public static List<MatchInfoBase> buildDhcpV6Matches(int srcPort, int dstPort, int lportTag) {
+    public static List<MatchInfoBase> buildDhcpV6Matches(int srcPort, int dstPort, int lportTag,
+            Class<? extends ServiceModeBase> serviceMode) {
         List<MatchInfoBase> matches = new ArrayList<>(6);
         matches.add(MatchEthernetType.IPV6);
         matches.add(MatchIpProtocol.UDP);
         matches.add(new MatchUdpDestinationPort(dstPort));
         matches.add(new MatchUdpSourcePort(srcPort));
-        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
         return matches;
     }
 
@@ -323,16 +334,18 @@ public final class AclServiceUtils {
      * @param icmpType the icmpv6-type.
      * @param icmpCode the icmpv6-code.
      * @param lportTag the lport tag
+     * @param serviceMode ingress or egress
      * @return list of matches.
      */
-    public static List<MatchInfoBase> buildIcmpV6Matches(int icmpType, int icmpCode, int lportTag) {
+    public static List<MatchInfoBase> buildIcmpV6Matches(int icmpType, int icmpCode, int lportTag,
+            Class<? extends ServiceModeBase> serviceMode) {
         List<MatchInfoBase> matches = new ArrayList<>(6);
         matches.add(MatchEthernetType.IPV6);
         matches.add(MatchIpProtocol.ICMPV6);
         if (icmpType != 0) {
             matches.add(new MatchIcmpv6((short) icmpType, (short) icmpCode));
         }
-        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
         return matches;
     }
 
@@ -478,14 +491,43 @@ public final class AclServiceUtils {
         return flowMatches;
     }
 
+    private List<MatchInfoBase> buildAclIdMetadataMatch(Uuid remoteAclId) {
+        List<MatchInfoBase> flowMatches = new ArrayList<>();
+        BigInteger aclId = buildAclId(remoteAclId);
+        if (aclId.intValue() != AclConstants.INVALID_ACL_ID) {
+            MatchMetadata metadataMatch = new MatchMetadata(getAclIdMetadata(aclId),
+                    MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID);
+            flowMatches.add(metadataMatch);
+        } else {
+            LOG.warn("Failed building metadata match for Acl id match. Failed to allocate id");
+        }
+        return flowMatches;
+    }
+
+    public BigInteger buildAclId(Uuid remoteAclId) {
+        Integer aclId = allocateAclId(remoteAclId.getValue());
+        return BigInteger.valueOf(aclId);
+    }
+
+    public static BigInteger getAclIdMetadata(BigInteger aclId) {
+        return aclId.shiftLeft(1);
+    }
+
     /**
      * Gets the lport tag match.
+     * Ingress match is based on metadata and egress match is based on masked reg6
      *
      * @param lportTag the lport tag
+     * @param serviceMode ingress or egress service mode
      * @return the lport tag match
      */
-    public static MatchInfo buildLPortTagMatch(int lportTag) {
-        return new MatchMetadata(MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG);
+    public static MatchInfoBase buildLPortTagMatch(int lportTag, Class<? extends ServiceModeBase> serviceMode) {
+        if (serviceMode != null && serviceMode.isAssignableFrom(ServiceModeIngress.class)) {
+            return new NxMatchRegister(NxmNxReg6.class, MetaDataUtil.getLportTagForReg6(lportTag).longValue(),
+                    MetaDataUtil.getLportTagMaskForReg6());
+        } else {
+            return new MatchMetadata(MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG);
+        }
     }
 
     public static List<Ace> getAceWithRemoteAclId(DataBroker dataBroker, AclInterface port, Uuid remoteAcl) {
@@ -515,16 +557,26 @@ public final class AclServiceUtils {
         MatchInfoBase ipv6Match = MatchEthernetType.IPV6;
         for (String flowName : flowMatchesMap.keySet()) {
             List<MatchInfoBase> flows = flowMatchesMap.get(flowName);
+
+            List<MatchInfoBase> matchInfoBaseList = addFlowMatchForAclId(remoteAclId, flows);
+            String flowId = flowName + "_remoteACL_id_" + remoteAclId.getValue();
+            updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
             for (AclInterface port : interfaceList) {
                 if (port.getInterfaceId().equals(ignoreInterfaceId)) {
                     continue;
                 }
-                //get allow address pair
+
+                if (port.getSecurityGroups() != null && port.getSecurityGroups().size() == 1) {
+                    LOG.debug(
+                            "port {} is in only one SG. "
+                                    + "Doesn't adding it's IPs {} to matches (handled in acl id match)",
+                            port.getLPortTag(), port.getAllowedAddressPairs());
+                    continue;
+                }
+                // get allow address pair
                 List<AllowedAddressPairs> allowedAddressPair = port.getAllowedAddressPairs();
                 // iterate over allow address pair and update match type
                 for (AllowedAddressPairs aap : allowedAddressPair) {
-                    List<MatchInfoBase> matchInfoBaseList;
-                    String flowId;
                     if (flows.contains(ipv4Match) && isIPv4Address(aap) && isNotIpv4AllNetwork(aap)) {
                         matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
                         flowId = flowName + "_ipv4_remoteACL_interface_aap_" + getAapFlowId(aap);
@@ -589,7 +641,7 @@ public final class AclServiceUtils {
         return updatedFlowMatchesMap;
     }
 
-    protected static boolean isNotIpv4AllNetwork(AllowedAddressPairs aap) {
+    public static boolean isNotIpv4AllNetwork(AllowedAddressPairs aap) {
         IpPrefix ipPrefix = aap.getIpAddress().getIpPrefix();
         if (ipPrefix != null && ipPrefix.getIpv4Prefix() != null
                 && ipPrefix.getIpv4Prefix().getValue().equals(AclConstants.IPV4_ALL_NETWORK)) {
@@ -653,6 +705,13 @@ public final class AclServiceUtils {
         return matchInfoBaseList;
     }
 
+    private List<MatchInfoBase> addFlowMatchForAclId(Uuid remoteAclId, List<MatchInfoBase> flows) {
+        List<MatchInfoBase> matchInfoBaseList;
+        matchInfoBaseList = buildAclIdMetadataMatch(remoteAclId);
+        matchInfoBaseList.addAll(flows);
+        return matchInfoBaseList;
+    }
+
     public static MatchInfoBase getMatchInfoByType(List<MatchInfoBase> flows, Class<? extends NxMatchInfo> type) {
         for (MatchInfoBase mib : flows) {
             if (type.isAssignableFrom(mib.getClass())) {
@@ -674,7 +733,7 @@ public final class AclServiceUtils {
         return flows.contains(MatchIpProtocol.UDP);
     }
 
-    public static Integer allocateId(IdManagerService idManager, String poolName, String idKey) {
+    public static Integer allocateId(IdManagerService idManager, String poolName, String idKey, Integer defaultId) {
         AllocateIdInput getIdInput = new AllocateIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
         try {
             Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
@@ -687,7 +746,7 @@ public final class AclServiceUtils {
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when getting Unique Id", e);
         }
-        return AclConstants.PROTO_MATCH_PRIORITY;
+        return defaultId;
     }
 
     public static void releaseId(IdManagerService idManager, String poolName, String idKey) {
@@ -709,11 +768,33 @@ public final class AclServiceUtils {
      * @param key the key
      * @return the integer
      */
-    public Integer allocateAndSaveFlowPriorityInCache(BigInteger dpId, short tableId, String key) {
-        String poolName = getAclPoolName(dpId, tableId);
-        Integer flowPriority = AclServiceUtils.allocateId(this.idManager, poolName, key);
+    public Integer allocateAndSaveFlowPriorityInCache(BigInteger dpId, short tableId, String key,
+                                                      PacketHandling packetHandling) {
+        String poolName = getAclPoolName(dpId, tableId, packetHandling);
+        Integer flowPriority = AclServiceUtils.allocateId(this.idManager, poolName, key,
+                AclConstants.PROTO_MATCH_PRIORITY);
         this.aclDataUtil.addAclFlowPriority(key, flowPriority);
         return flowPriority;
+    }
+
+    /**
+     * Allocate acl id.
+     *
+     * @param key the key
+     */
+    public Integer allocateAclId(String key) {
+        Integer aclId = AclServiceUtils.allocateId(this.idManager, AclConstants.ACL_ID_POOL_NAME, key,
+                AclConstants.INVALID_ACL_ID);
+        return aclId;
+    }
+
+    /**
+    * Allocate and save flow priority in cache.
+    *
+    * @param key the key
+    */
+    public void releaseAclId(String key) {
+        AclServiceUtils.releaseId(idManager, AclConstants.ACL_ID_POOL_NAME, key);
     }
 
     /**
@@ -722,8 +803,9 @@ public final class AclServiceUtils {
      * @param key the key
      * @return the integer
      */
-    public Integer releaseAndRemoveFlowPriorityFromCache(BigInteger dpId, short tableId, String key) {
-        String poolName = getAclPoolName(dpId, tableId);
+    public Integer releaseAndRemoveFlowPriorityFromCache(BigInteger dpId, short tableId, String key,
+                                                         PacketHandling packetHandling) {
+        String poolName = getAclPoolName(dpId, tableId, packetHandling);
         AclServiceUtils.releaseId(this.idManager, poolName, key);
         Integer flowPriority = this.aclDataUtil.removeAclFlowPriority(key);
         if (flowPriority == null) {
@@ -747,10 +829,30 @@ public final class AclServiceUtils {
      *
      * @param poolName the pool name
      */
-    public void createIdPool(String poolName) {
-        CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
-                .setPoolName(poolName).setLow(AclConstants.ACL_FLOW_PRIORITY_POOL_START)
-                .setHigh(AclConstants.ACL_FLOW_PRIORITY_POOL_END).build();
+    public void createIdPool(String poolName, AclConstants.PacketHandlingType packetHandlingType) {
+        CreateIdPoolInput createPool = null;
+
+        // If the default behavior is Deny, then ACLs with Allow packetHandling must have lower priority than
+        // ACLs with Deny packetHandling - otherwise the Deny ACLs are redundant, and vice versa
+        if ((config.getDefaultBehavior() == DEFAULT_DENY
+                && packetHandlingType == AclConstants.PacketHandlingType.PERMIT)
+                || (config.getDefaultBehavior() == DEFAULT_ALLOW
+                    && packetHandlingType == AclConstants.PacketHandlingType.DENY)) {
+            createPool = new CreateIdPoolInputBuilder()
+                    .setPoolName(poolName).setLow(AclConstants.ACL_FLOW_PRIORITY_LOW_POOL_START)
+                    .setHigh(AclConstants.ACL_FLOW_PRIORITY_LOW_POOL_END).build();
+        } else if ((config.getDefaultBehavior() == DEFAULT_DENY
+                && packetHandlingType == AclConstants.PacketHandlingType.DENY)
+                || (config.getDefaultBehavior() == DEFAULT_ALLOW
+                    && packetHandlingType == AclConstants.PacketHandlingType.PERMIT)) {
+            createPool = new CreateIdPoolInputBuilder()
+                    .setPoolName(poolName).setLow(AclConstants.ACL_FLOW_PRIORITY_HIGH_POOL_START)
+                    .setHigh(AclConstants.ACL_FLOW_PRIORITY_HIGH_POOL_END).build();
+        } else {
+            LOG.error("Got unexpected PacketHandling {} combined with default behavior {}, skipping creation"
+                    + "of pool {}", packetHandlingType, config.getDefaultBehavior(), poolName);
+            return;
+        }
         try {
             Future<RpcResult<Void>> result = this.idManager.createIdPool(createPool);
             if ((result != null) && (result.get().isSuccessful())) {
@@ -759,6 +861,26 @@ public final class AclServiceUtils {
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to create ID pool [{}] for ACL flow priority", poolName, e);
             throw new RuntimeException("Failed to create ID pool for ACL flow priority", e);
+        }
+    }
+
+    /**
+     * Creates the id pool.
+     *
+     * @param poolName the pool name
+     */
+    private void createIdPoolForAclId(String poolName) {
+        CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
+                .setPoolName(poolName).setLow(AclConstants.ACL_ID_METADATA_POOL_START)
+                .setHigh(AclConstants.ACL_ID_METADATA_POOL_END).build();
+        try {
+            Future<RpcResult<Void>> result = this.idManager.createIdPool(createPool);
+            if ((result != null) && (result.get().isSuccessful())) {
+                LOG.debug("Created IdPool for {}", poolName);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Failed to create ID pool [{}] for remote ACL ids", poolName, e);
+            throw new RuntimeException("Failed to create ID pool [{}] for remote ACL ids", e);
         }
     }
 
@@ -775,8 +897,8 @@ public final class AclServiceUtils {
                 LOG.debug("Deleted IdPool for {}", poolName);
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Failed to delete ID pool [{}] for ACL flow priority", poolName, e);
-            throw new RuntimeException("Failed to create ID pool for ACL flow priority", e);
+            LOG.error("Failed to delete ID pool [{}]", poolName, e);
+            throw new RuntimeException("Failed to delete ID pool [" + poolName + "]", e);
         }
     }
 
@@ -785,10 +907,26 @@ public final class AclServiceUtils {
      *
      * @param dpId the dp id
      * @param tableId the table id
+     * @param packetHandlingType packet handling type
      * @return the acl pool name
      */
-    public static String getAclPoolName(BigInteger dpId, short tableId) {
-        return AclConstants.ACL_FLOW_PRIORITY_POOL_NAME + "." + dpId + "." + tableId;
+    public static String getAclPoolName(BigInteger dpId, short tableId,
+                                        AclConstants.PacketHandlingType packetHandlingType) {
+        return AclConstants.ACL_FLOW_PRIORITY_POOL_NAME + "." + dpId + "." + tableId + "." + packetHandlingType;
+    }
+
+    /**
+     * Gets the acl pool name.
+     *
+     * @param dpId the dp id
+     * @param tableId the table id
+     * @param packetHandling packet handling type
+     * @return the acl pool name
+     */
+    public static String getAclPoolName(BigInteger dpId, short tableId, PacketHandling packetHandling) {
+        return packetHandling instanceof Permit
+                ? getAclPoolName(dpId, tableId, AclConstants.PacketHandlingType.PERMIT)
+                : getAclPoolName(dpId, tableId, AclConstants.PacketHandlingType.DENY);
     }
 
     /**
@@ -797,8 +935,28 @@ public final class AclServiceUtils {
      * @param dpId the dp id
      */
     public void createAclIdPools(BigInteger dpId) {
-        createIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE));
-        createIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE));
+        createIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
+                AclConstants.PacketHandlingType.PERMIT), AclConstants.PacketHandlingType.PERMIT);
+        createIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
+                AclConstants.PacketHandlingType.DENY), AclConstants.PacketHandlingType.DENY);
+        createIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
+                AclConstants.PacketHandlingType.PERMIT), AclConstants.PacketHandlingType.PERMIT);
+        createIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
+                AclConstants.PacketHandlingType.DENY), AclConstants.PacketHandlingType.DENY);
+    }
+
+    /**
+     * Creates remote the acl id pools.
+     */
+    public void createRemoteAclIdPool() {
+        createIdPoolForAclId(AclConstants.ACL_ID_POOL_NAME);
+    }
+
+    /**
+     * Delete remote the acl id pools.
+     */
+    public void deleteRemoteAclIdPool() {
+        deleteIdPool(AclConstants.ACL_ID_POOL_NAME);
     }
 
     /**
@@ -807,7 +965,100 @@ public final class AclServiceUtils {
      * @param dpId the dp id
      */
     public void deleteAclIdPools(BigInteger dpId) {
-        deleteIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE));
-        deleteIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE));
+        deleteIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
+                AclConstants.PacketHandlingType.PERMIT));
+        deleteIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
+                AclConstants.PacketHandlingType.DENY));
+        deleteIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
+                AclConstants.PacketHandlingType.PERMIT));
+        deleteIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
+                AclConstants.PacketHandlingType.DENY));
+    }
+
+    public static List<? extends MatchInfoBase> buildIpAndElanSrcMatch(long elanTag, AllowedAddressPairs ip,
+            DataBroker dataBroker) {
+        List<MatchInfoBase> flowMatches = new ArrayList<>();
+        MatchMetadata metadatMatch =
+                new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE);
+        flowMatches.add(metadatMatch);
+        if (ip.getIpAddress().getIpAddress() != null) {
+            if (ip.getIpAddress().getIpAddress().getIpv4Address() != null) {
+                MatchEthernetType ipv4EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV4);
+                flowMatches.add(ipv4EthMatch);
+                MatchIpv4Source srcMatch = new MatchIpv4Source(
+                        new Ipv4Prefix(ip.getIpAddress().getIpAddress().getIpv4Address().getValue() + "/32"));
+                flowMatches.add(srcMatch);
+            } else if (ip.getIpAddress().getIpAddress().getIpv6Address() != null) {
+                MatchEthernetType ipv6EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV6);
+                flowMatches.add(ipv6EthMatch);
+                MatchIpv6Source srcMatch = new MatchIpv6Source(
+                        new Ipv6Prefix(ip.getIpAddress().getIpAddress().getIpv6Address().getValue() + "/128"));
+                flowMatches.add(srcMatch);
+            }
+        } else if (ip.getIpAddress().getIpPrefix() != null) {
+            if (ip.getIpAddress().getIpPrefix().getIpv4Prefix() != null) {
+                MatchEthernetType ipv4EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV4);
+                flowMatches.add(ipv4EthMatch);
+                MatchIpv4Source srcMatch = new MatchIpv4Source(ip.getIpAddress().getIpPrefix().getIpv4Prefix());
+                flowMatches.add(srcMatch);
+            } else if (ip.getIpAddress().getIpPrefix().getIpv6Prefix() != null) {
+                MatchEthernetType ipv6EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV6);
+                flowMatches.add(ipv6EthMatch);
+                MatchIpv6Source srcMatch = new MatchIpv6Source(ip.getIpAddress().getIpPrefix().getIpv6Prefix());
+                flowMatches.add(srcMatch);
+            }
+        }
+        return flowMatches;
+    }
+
+    public static List<? extends MatchInfoBase> buildIpAndElanDstMatch(Long elanTag, AllowedAddressPairs ip,
+            DataBroker dataBroker) {
+        List<MatchInfoBase> flowMatches = new ArrayList<>();
+        MatchMetadata metadatMatch =
+                new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE);
+        flowMatches.add(metadatMatch);
+
+        if (ip.getIpAddress().getIpAddress() != null) {
+            if (ip.getIpAddress().getIpAddress().getIpv4Address() != null) {
+                MatchEthernetType ipv4EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV4);
+                flowMatches.add(ipv4EthMatch);
+                MatchIpv4Destination dstMatch = new MatchIpv4Destination(
+                        new Ipv4Prefix(ip.getIpAddress().getIpAddress().getIpv4Address().getValue() + "/32"));
+                flowMatches.add(dstMatch);
+            } else if (ip.getIpAddress().getIpAddress().getIpv6Address() != null) {
+                MatchEthernetType ipv6EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV6);
+                flowMatches.add(ipv6EthMatch);
+                MatchIpv6Destination dstMatch = new MatchIpv6Destination(
+                        new Ipv6Prefix(ip.getIpAddress().getIpAddress().getIpv6Address().getValue() + "/128"));
+                flowMatches.add(dstMatch);
+            }
+        } else if (ip.getIpAddress().getIpPrefix() != null) {
+            if (ip.getIpAddress().getIpPrefix().getIpv4Prefix() != null) {
+                MatchEthernetType ipv4EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV4);
+                flowMatches.add(ipv4EthMatch);
+                MatchIpv4Destination dstMatch =
+                        new MatchIpv4Destination(ip.getIpAddress().getIpPrefix().getIpv4Prefix());
+                flowMatches.add(dstMatch);
+            } else if (ip.getIpAddress().getIpPrefix().getIpv6Prefix() != null) {
+                MatchEthernetType ipv6EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV6);
+                flowMatches.add(ipv6EthMatch);
+                MatchIpv6Destination dstMatch =
+                        new MatchIpv6Destination(ip.getIpAddress().getIpPrefix().getIpv6Prefix());
+                flowMatches.add(dstMatch);
+            }
+        }
+        return flowMatches;
+    }
+
+    public static boolean isMoreThanOneAcl(AclInterface port) {
+        return port.getSecurityGroups().size() > 1;
+    }
+
+    public static boolean isOfAclInterest(Acl acl) {
+        List<Ace> aceList = acl.getAccessListEntries().getAce();
+        if (aceList != null) {
+            return (aceList.get(0).getAugmentation(SecurityRuleAttr.class) != null);
+        }
+        return false;
     }
 }

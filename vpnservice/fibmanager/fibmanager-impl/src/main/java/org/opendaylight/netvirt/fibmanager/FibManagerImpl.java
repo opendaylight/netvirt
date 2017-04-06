@@ -107,8 +107,8 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void deleteStaticRoute(String prefix, String nextHop, String rd) {
-        vpnmanager.delExtraRoute(prefix, nextHop, rd, null);
+    public void deleteStaticRoute(String vpnName, String prefix, String nextHop, String rd) {
+        vpnmanager.delExtraRoute(vpnName, prefix, nextHop, rd, null);
     }
 
     @Override
@@ -174,6 +174,7 @@ public class FibManagerImpl implements IFibManager {
         FibUtil.removeFibEntry(broker, rd, prefix, writeConfigTxn);
     }
 
+    @Override
     public void updateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
                                String gwMacAddress, long label, WriteTransaction writeConfigTxn) {
         FibUtil.updateFibEntry(broker, rd, prefix, nextHopList, gwMacAddress, label, writeConfigTxn);
@@ -206,6 +207,11 @@ public class FibManagerImpl implements IFibManager {
     public void programDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId,
             String destinationIp, int addRemoveOrUpdate, boolean isTunnelUp) {
         nexthopManager.programDcGwLoadBalancingGroup(availableDcGws, dpnId, destinationIp,
-                addRemoveOrUpdate, isTunnelUp);
+            addRemoveOrUpdate, isTunnelUp);
+    }
+
+    @Override
+    public void refreshVrfEntry(String rd, String prefix) {
+        vrfEntryListener.refreshFibTables(rd, prefix);
     }
 }

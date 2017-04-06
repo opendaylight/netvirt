@@ -26,7 +26,8 @@ import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpDestinationPort
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchUdpDestinationPort
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress
 
-import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6
 
 class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
 
@@ -104,10 +105,10 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchEthernetType(34525L),
                     new MatchIpv6Source("::/0"),
                     new MatchEthernetType(34525L),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ],
             new FlowEntity(123bi) => [
@@ -127,10 +128,10 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchEthernetType(34525L),
                     new MatchIpv6Source("::/0"),
                     new MatchEthernetType(34525L),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -165,7 +166,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
                 priority = 50
@@ -181,7 +182,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(48, 48)
                 ]
                 priority = 62015
@@ -275,7 +276,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
                 priority = 50
@@ -291,7 +292,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(48, 48)
                 ]
                 priority = 62015
@@ -384,7 +385,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
                 priority = 50
@@ -400,6 +401,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     ])
                 ]
                 matchInfoList = #[
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
                     new NxMatchCtState(48, 48)
                 ]
@@ -428,7 +430,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -453,7 +455,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -480,7 +482,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -504,10 +506,10 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchEthernetType(34525L),
                     new NxMatchTcpDestinationPort(80, 65535),
                     new MatchIpProtocol(6 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -537,7 +539,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -561,7 +563,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -588,7 +590,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -615,10 +617,10 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchEthernetType(34525L),
                     new NxMatchUdpDestinationPort(80, 65535),
                     new MatchIpProtocol(17 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ],
             new FlowEntity(123bi) => [
@@ -639,10 +641,10 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchEthernetType(34525L),
                     new NxMatchUdpDestinationPort(80, 65535),
                     new MatchIpProtocol(17 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -669,7 +671,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -693,10 +695,10 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchEthernetType(34525L),
                     new MatchIcmpv6(2 as short, 3 as short),
                     new MatchIpProtocol(1 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -720,10 +722,10 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchEthernetType(34525L),
                     new MatchIcmpv6(2 as short, 3 as short),
                     new MatchIpProtocol(1 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -753,7 +755,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -778,7 +780,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -802,10 +804,10 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchEthernetType(34525L),
                     new NxMatchUdpDestinationPort(2000, 65532),
                     new MatchIpProtocol(17 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -832,7 +834,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -854,7 +856,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -876,7 +878,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -898,7 +900,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -920,7 +922,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -942,7 +944,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -964,7 +966,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -986,7 +988,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -1009,10 +1011,10 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchIpv6Source("::/0"),
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(17 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -1038,7 +1040,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
          ]
@@ -1063,10 +1065,10 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchEthernetType(34525L),
                     new MatchIcmpv6(2 as short, 3 as short),
                     new MatchIpProtocol(1 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ],
             new FlowEntity(123bi) => [
@@ -1085,10 +1087,10 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchEthernetType(34525L),
                     new MatchIcmpv6(2 as short, 3 as short),
                     new MatchIpProtocol(1 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -1115,7 +1117,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -1137,7 +1139,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(33, 33)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]

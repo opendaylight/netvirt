@@ -8,6 +8,9 @@
 package org.opendaylight.netvirt.ipv6service;
 
 import com.google.common.collect.ImmutableBiMap;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -27,6 +30,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase<Subnet, NeutronSubnetChangeListener>
         implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronSubnetChangeListener.class);
@@ -47,13 +51,16 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
             .put(Dhcpv6Stateless.class,Ipv6Constants.IPV6_DHCPV6_STATELESS)
             .build();
 
+    @Inject
     public NeutronSubnetChangeListener(final DataBroker dataBroker) {
         this.dataBroker = dataBroker;
         ifMgr = IfMgr.getIfMgrInstance();
     }
 
-    public void start() {
-        LOG.info("{} start", getClass().getSimpleName());
+    @Override
+    @PostConstruct
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 

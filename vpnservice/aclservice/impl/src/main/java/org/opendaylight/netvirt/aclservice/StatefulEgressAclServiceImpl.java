@@ -29,7 +29,10 @@ import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.slf4j.Logger;
@@ -71,33 +74,27 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
             Map<String, List<MatchInfoBase>> flowMap, String flowName) {
         List<MatchInfoBase> matches = flowMap.get(flowName);
         flowName += "Egress" + lportTag + ace.getKey().getRuleName();
-        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        matches.add(buildLPortTagMatch(lportTag));
         matches.add(new NxMatchCtState(AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK));
 
         Long elanId = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionNxConntrack(2, 1, 0, elanId.intValue(), (short) 255));
-        List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
+        List<InstructionInfo> instructions;
+        PacketHandling packetHandling = ace.getActions() != null ? ace.getActions().getPacketHandling() : null;
+        if (packetHandling instanceof Permit) {
+            actionsInfos.add(new ActionNxConntrack(2, 1, 0, elanId.intValue(), (short) 255));
+            instructions = getDispatcherTableResubmitInstructions(actionsInfos);
+        } else {
+            instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+        }
 
         // For flows related remote ACL, unique flow priority is used for
         // each flow to avoid overlapping flows
-        int priority = getEgressSpecificAclFlowPriority(dpId, addOrRemove, flowName);
+        int priority = getEgressSpecificAclFlowPriority(dpId, addOrRemove, flowName, packetHandling);
 
         syncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, flowName, priority, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
         return flowName;
-    }
-
-    private int getEgressSpecificAclFlowPriority(BigInteger dpId, int addOrRemove, String flowName) {
-        int priority;
-        if (addOrRemove == NwConstants.DEL_FLOW) {
-            priority = aclServiceUtils.releaseAndRemoveFlowPriorityFromCache(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
-                    flowName);
-        } else {
-            priority = aclServiceUtils.allocateAndSaveFlowPriorityInCache(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
-                    flowName);
-        }
-        return priority;
     }
 
     /**
@@ -172,11 +169,11 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
     private void programConntrackDropRule(BigInteger dpId, int lportTag, Integer priority, String flowId,
             int conntrackState, int conntrackMask, int addOrRemove) {
         List<MatchInfoBase> matches = AclServiceOFFlowBuilder.addLPortTagMatches(lportTag, conntrackState,
-                conntrackMask);
+                conntrackMask, ServiceModeEgress.class);
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
 
-        flowId = "Egress_Fixed_Conntrk_Drop" + dpId + "_" + lportTag + "_" + flowId;
-        syncFlow(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, flowId, priority, "ACL", 0, 0,
+        flowId = "Ingress_Fixed_Conntrk_Drop" + dpId + "_" + lportTag + "_" + flowId;
+        syncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, flowId, priority, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_DROP_FLOW, matches, instructions, addOrRemove);
     }
 

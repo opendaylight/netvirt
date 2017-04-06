@@ -15,6 +15,7 @@ public final class DhcpMConstants {
     public static final long DHCP_TABLE_MAX_ENTRY = 10000;
 
     public static final int DEFAULT_DHCP_FLOW_PRIORITY = 50;
+    public static final int DEFAULT_DHCP_ALLOCATION_POOL_FLOW_PRIORITY = DEFAULT_DHCP_FLOW_PRIORITY - 1;
     public static final int ARP_FLOW_PRIORITY = 50;
     public static final short DEFAULT_FLOW_PRIORITY = 100;
 

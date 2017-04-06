@@ -9,14 +9,18 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.mdsalutil.MatchInfoBase;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -30,6 +34,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -46,6 +53,7 @@ public class VpnManagerImpl implements IVpnManager {
     private final VpnFootprintService vpnFootprintService;
     private final OdlInterfaceRpcService ifaceMgrRpcService;
     private final IElanService elanService;
+    private final VpnSubnetRouteHandler vpnSubnetRouteHandler;
 
     public VpnManagerImpl(final DataBroker dataBroker,
                           final IdManagerService idManagerService,
@@ -54,7 +62,8 @@ public class VpnManagerImpl implements IVpnManager {
                           final IMdsalApiManager mdsalManager,
                           final VpnFootprintService vpnFootprintService,
                           final OdlInterfaceRpcService ifaceMgrRpcService,
-                          final IElanService elanService) {
+                          final IElanService elanService,
+                          final VpnSubnetRouteHandler vpnSubnetRouteHandler) {
         this.dataBroker = dataBroker;
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.vpnInstanceListener = vpnInstanceListener;
@@ -63,6 +72,7 @@ public class VpnManagerImpl implements IVpnManager {
         this.vpnFootprintService = vpnFootprintService;
         this.ifaceMgrRpcService = ifaceMgrRpcService;
         this.elanService = elanService;
+        this.vpnSubnetRouteHandler = vpnSubnetRouteHandler;
     }
 
     public void start() {
@@ -118,14 +128,17 @@ public class VpnManagerImpl implements IVpnManager {
         int label,RouteOrigin origin) {
         LOG.info("Adding extra route with destination {}, nextHop {}, label{} and origin {}",
             destination, nextHop, label, origin);
-        vpnInterfaceManager.addExtraRoute(vpnName, destination, nextHop, rd, routerID, label, origin,
-            /*intfName*/ null, null);
+        VpnInstanceOpDataEntry vpnOpEntry = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
+        Boolean isVxlan = VpnUtil.isL3VpnOverVxLan(vpnOpEntry.getL3vni());
+        VrfEntry.EncapType encapType = VpnUtil.getEncapType(isVxlan);
+        vpnInterfaceManager.addExtraRoute(vpnName, destination, nextHop, rd, routerID, label, vpnOpEntry.getL3vni(),
+                origin,/*intfName*/ null, null /*Adjacency*/, encapType, null);
     }
 
     @Override
-    public void delExtraRoute(String destination, String nextHop, String rd, String routerID) {
+    public void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID) {
         LOG.info("Deleting extra route with destination {} and nextHop {}", destination, nextHop);
-        vpnInterfaceManager.delExtraRoute(destination, nextHop, rd, routerID, null, null);
+        vpnInterfaceManager.delExtraRoute(vpnName, destination, nextHop, rd, routerID, null, null);
     }
 
     @Override
@@ -267,6 +280,18 @@ public class VpnManagerImpl implements IVpnManager {
         }
     }
 
+    @Override
+    public List<MatchInfoBase> getEgressMatchesForVpn(String vpnName) {
+        long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+        if (vpnId == VpnConstants.INVALID_ID) {
+            LOG.warn("No VPN id found for {}", vpnName);
+            return Collections.emptyList();
+        }
+
+        return Collections
+                .singletonList(new NxMatchRegister(VpnConstants.VPN_REG_ID, vpnId, MetaDataUtil.getVpnIdMaskForReg()));
+    }
+
     private void installArpResponderFlowsToExternalNetworkIp(String macAddress, BigInteger dpnId,
             String extInterfaceName, Integer lportTag, long vpnId, String fixedIp, WriteTransaction writeTx) {
         String flowId = ArpResponderUtil.getFlowID(lportTag, fixedIp);
@@ -291,6 +316,16 @@ public class VpnManagerImpl implements IVpnManager {
         }
 
         return VpnUtil.getVpnId(dataBroker, vpnInstanceId.getValue());
+    }
+
+    @Override
+    public void onSubnetAddedToVpn(Subnetmap subnetmap, boolean isBgpVpn, Long elanTag) {
+        vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, isBgpVpn, elanTag);
+    }
+
+    @Override
+    public void onSubnetDeletedFromVpn(Subnetmap subnetmap, boolean isBgpVpn) {
+        vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmap, isBgpVpn);
     }
 
 }

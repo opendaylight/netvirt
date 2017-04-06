@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.Futures;
 import java.util.List;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.acl.live.statistics.rev161129.AclLiveStatisticsService;
@@ -32,14 +33,15 @@ import org.slf4j.LoggerFactory;
  * The class provides RPC service implementation for
  * {@link AclLiveStatisticsService}.
  */
+@Singleton
 public class AclLiveStatisticsRpcServiceImpl implements AclLiveStatisticsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclLiveStatisticsRpcServiceImpl.class);
 
-    private AclserviceConfig config;
-    private DataBroker dataBroker;
-    private OpendaylightDirectStatisticsService odlDirectStatsService;
-    private SecurityGroupMode securityGroupMode;
+    private final AclserviceConfig config;
+    private final DataBroker dataBroker;
+    private final OpendaylightDirectStatisticsService odlDirectStatsService;
+    private final SecurityGroupMode securityGroupMode;
 
     /**
      * Instantiates a new acl live statistics rpc service impl.
@@ -49,8 +51,8 @@ public class AclLiveStatisticsRpcServiceImpl implements AclLiveStatisticsService
      * @param odlDirectStatsService the odl direct stats service
      */
     @Inject
-    public AclLiveStatisticsRpcServiceImpl(AclserviceConfig config, DataBroker dataBroker,
-            OpendaylightDirectStatisticsService odlDirectStatsService) {
+    public AclLiveStatisticsRpcServiceImpl(final AclserviceConfig config, final DataBroker dataBroker,
+            final OpendaylightDirectStatisticsService odlDirectStatsService) {
         this.config = config;
         this.dataBroker = dataBroker;
         this.odlDirectStatsService = odlDirectStatsService;

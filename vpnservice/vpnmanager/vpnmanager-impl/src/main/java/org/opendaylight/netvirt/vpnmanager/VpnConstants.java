@@ -10,12 +10,16 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import java.math.BigInteger;
 
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg3;
+
 public class VpnConstants {
     public static final String VPN_IDPOOL_NAME = "vpnservices";
     public static final long VPN_IDPOOL_LOW = 100000L;
     public static final long VPN_IDPOOL_HIGH = 130000L;
     public static final short DEFAULT_FLOW_PRIORITY = 10;
     public static final int DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY = 1;
+    public static final int VPN_ID_LENGTH = 24;
     public static final long INVALID_ID = -1;
     public static final String SEPARATOR = ".";
     public static final BigInteger COOKIE_L3_BASE = new BigInteger("8000000", 16);
@@ -70,4 +74,5 @@ public class VpnConstants {
     }
 
     public static final String DEFAULT_GATEWAY_MAC_ADDRESS = "de:ad:be:ef:00:01";
+    public static final Class<? extends NxmNxReg> VPN_REG_ID = NxmNxReg3.class;
 }

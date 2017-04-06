@@ -8,10 +8,12 @@
 
 package org.opendaylight.netvirt.fibmanager.api;
 
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
@@ -37,23 +39,33 @@ public class FibHelper {
         });
     }
 
-    public static VrfEntryBuilder getVrfEntryBuilder(String prefix, List<RoutePaths> routePaths,
-            RouteOrigin origin) {
+    public static VrfEntryBuilder getVrfEntryBuilder(String prefix, RouteOrigin origin, String parentVpnRd) {
         return new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
-                .setRoutePaths(routePaths).setOrigin(origin.getValue());
+                .setOrigin(origin.getValue()).setParentVpnRd(parentVpnRd);
     }
 
-    public static VrfEntryBuilder getVrfEntryBuilder(String prefix, long label, String nextHop, RouteOrigin origin) {
-        RoutePaths routePath = buildRoutePath(nextHop, label);
-        return getVrfEntryBuilder(prefix, Arrays.asList(routePath), origin);
+    public static VrfEntryBuilder getVrfEntryBuilder(String prefix, List<RoutePaths> routePaths,
+            RouteOrigin origin, String parentVpnRd) {
+        return new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
+                .setRoutePaths(routePaths).setOrigin(origin.getValue()).setParentVpnRd(parentVpnRd);
+    }
+
+    public static VrfEntryBuilder getVrfEntryBuilder(String prefix, long label, String nextHop, RouteOrigin origin,
+            String parentVpnRd) {
+        if (nextHop != null) {
+            RoutePaths routePath = buildRoutePath(nextHop, label);
+            return getVrfEntryBuilder(prefix, Arrays.asList(routePath), origin, parentVpnRd);
+        } else {
+            return getVrfEntryBuilder(prefix, origin, parentVpnRd);
+        }
     }
 
     public static VrfEntryBuilder getVrfEntryBuilder(VrfEntry vrfEntry, long label,
-            List<String> nextHopList, RouteOrigin origin) {
+            List<String> nextHopList, RouteOrigin origin, String parentvpnRd) {
         List<RoutePaths> routePaths =
                 nextHopList.stream().map(nextHop -> buildRoutePath(nextHop, label))
-                        .collect(Collectors.toList());
-        return getVrfEntryBuilder(vrfEntry.getDestPrefix(), routePaths, origin);
+                        .collect(toList());
+        return getVrfEntryBuilder(vrfEntry.getDestPrefix(), routePaths, origin, parentvpnRd);
     }
 
     public static InstanceIdentifier<RoutePaths> buildRoutePathId(String rd, String prefix, String nextHop) {
@@ -85,5 +97,10 @@ public class FibHelper {
 
     public static boolean isControllerManagedNonSelfImportedRoute(RouteOrigin routeOrigin) {
         return routeOrigin != RouteOrigin.SELF_IMPORTED;
+    }
+
+    public static void sortIpAddress(List<RoutePaths> routePathList) {
+        Optional.ofNullable(routePathList).ifPresent(
+            routePaths -> routePaths.sort(comparing(RoutePaths::getNexthopAddress)));
     }
 }

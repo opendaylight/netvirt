@@ -18,6 +18,7 @@ import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv4;
@@ -40,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.DestinationPortRange;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.SourcePortRange;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -308,11 +310,13 @@ public class AclServiceOFFlowBuilder {
      * @param lportTag lport tag
      * @param conntrackState conntrack state to be used with matches
      * @param conntrackMask conntrack mask to be used with matches
+     * @param serviceMode ingress or egress service
      * @return list of matches
      */
-    public static List<MatchInfoBase> addLPortTagMatches(int lportTag, int conntrackState, int conntrackMask) {
+    public static List<MatchInfoBase> addLPortTagMatches(int lportTag, int conntrackState, int conntrackMask,
+            Class<? extends ServiceModeBase> serviceMode) {
         List<MatchInfoBase> matches = new ArrayList<>();
-        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
         matches.add(new NxMatchCtState(conntrackState, conntrackMask));
         return matches;
     }
@@ -324,6 +328,17 @@ public class AclServiceOFFlowBuilder {
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionDrop());
+        instructions.add(new InstructionApplyActions(actionsInfos));
+        return instructions;
+    }
+
+    /** Returns resubmit instruction info to the given table ID.
+     * @return resubmit list of InstructionInfo objects
+     */
+    public static List<InstructionInfo> getResubmitInstructionInfo(short tableId) {
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionNxResubmit(tableId));
         instructions.add(new InstructionApplyActions(actionsInfos));
         return instructions;
     }

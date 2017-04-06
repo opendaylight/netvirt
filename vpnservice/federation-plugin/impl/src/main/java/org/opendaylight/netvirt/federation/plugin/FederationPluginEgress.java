@@ -33,7 +33,6 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 
-
 public class FederationPluginEgress implements IFederationPluginEgress {
 
     private final Logger logger;
@@ -42,7 +41,7 @@ public class FederationPluginEgress implements IFederationPluginEgress {
     private final String contextId;
     private final FederatedMappings federatedMappings;
     private final PendingModificationCache<DataTreeModification<? extends DataObject>> pendingModifications = //
-            new PendingModificationCache<>();
+        new PendingModificationCache<>();
 
     private volatile boolean aborted = false;
 
@@ -51,17 +50,18 @@ public class FederationPluginEgress implements IFederationPluginEgress {
     }
 
     public FederationPluginEgress(final IFederationProducerMgr producerMgr,
-            List<FederatedNetworkPair> federatedNetworkPairs, String queueName, String contextId) {
+        List<FederatedNetworkPair> federatedNetworkPairs, List<FederatedAclPair> federatedSecurityGroupsPairs,
+        String queueName, String contextId) {
         this.producerMgr = producerMgr;
         this.queueName = queueName;
         this.contextId = contextId;
         logger = FederationUtils.createLogger(queueName, FederationPluginEgress.class);
-        federatedMappings = new FederatedMappings(federatedNetworkPairs);
+        federatedMappings = new FederatedMappings(federatedNetworkPairs, federatedSecurityGroupsPairs);
     }
 
     @Override
     public synchronized void steadyData(String listenerKey,
-            Collection<DataTreeModification<? extends DataObject>> dataTreeModifications) {
+        Collection<DataTreeModification<? extends DataObject>> dataTreeModifications) {
         if (!aborted) {
             FederationPluginCounters.egress_steady_data.inc();
             processDataTreeModifications(listenerKey, dataTreeModifications, false);
@@ -93,25 +93,25 @@ public class FederationPluginEgress implements IFederationPluginEgress {
                 continue;
             }
 
-            InstanceIdentifier<?> instanceIdentifierForListener = FederationPluginUtils
-                    .getInstanceIdentifier(listenerKey);
+            InstanceIdentifier<?> instanceIdentifierForListener =
+                FederationPluginUtils.getInstanceIdentifier(listenerKey);
             if (instanceIdentifierForListener == null) {
                 logger.error("Failed to get instance identifier of listener for listener key {}. Ignoring listener key",
-                        listenerKey);
+                    listenerKey);
                 continue;
             }
 
-            InstanceIdentifier<?> instanceIdentifierForExistingData = FederationPluginUtils
-                    .getParentInstanceIdentifier(listenerKey);
+            InstanceIdentifier<?> instanceIdentifierForExistingData =
+                FederationPluginUtils.getParentInstanceIdentifier(listenerKey);
             if (instanceIdentifierForExistingData == null) {
                 logger.error(
-                        "Failed to get instance identifier of existing data for listener key {}. Ignoring listener key",
-                        listenerKey);
+                    "Failed to get instance identifier of existing data for listener key {}. Ignoring listener key",
+                    listenerKey);
                 continue;
             }
 
-            ListenerData listenerData = new ListenerData(listenerKey,
-                    new DataTreeIdentifier<>(datastoreType, instanceIdentifierForListener),
+            ListenerData listenerData =
+                new ListenerData(listenerKey, new DataTreeIdentifier<>(datastoreType, instanceIdentifierForListener),
                     new DataTreeIdentifier<>(datastoreType, instanceIdentifierForExistingData));
             listenersData.add(listenerData);
         }
@@ -126,7 +126,7 @@ public class FederationPluginEgress implements IFederationPluginEgress {
     }
 
     private void processDataTreeModifications(String listenerKey,
-            Collection<DataTreeModification<? extends DataObject>> dataTreeModifications, boolean isFullSync) {
+        Collection<DataTreeModification<? extends DataObject>> dataTreeModifications, boolean isFullSync) {
         if (dataTreeModifications == null) {
             return;
         }
@@ -145,14 +145,14 @@ public class FederationPluginEgress implements IFederationPluginEgress {
         }
         DataObjectModification<? extends DataObject> rootNode = dataTreeModification.getRootNode();
         if (rootNode.getDataBefore() != null && rootNode.getDataAfter() != null
-                && rootNode.getDataBefore().equals(rootNode.getDataAfter())) {
+            && rootNode.getDataBefore().equals(rootNode.getDataAfter())) {
             return true;
         }
         return false;
     }
 
     private <T extends DataObject> void processDataTreeModification(String listenerKey,
-            DataTreeModification<T> dataTreeModification, boolean publishInTx) {
+        DataTreeModification<T> dataTreeModification, boolean publishInTx) {
         T dataObject = FederationPluginUtils.getDataObjectFromModification(dataTreeModification);
         if (dataObject == null) {
             logger.warn("Failed to get DataObject from {}", dataObject);
@@ -168,7 +168,7 @@ public class FederationPluginEgress implements IFederationPluginEgress {
         processPendingDataTreeModifications(listenerKey, dataObject, publishInTx);
         // queue deleted modification for future use if required
         if (ModificationType.DELETE.equals(dataTreeModification.getRootNode().getModificationType())
-                && PendingModificationCache.isLiberatorKey(listenerKey)) {
+            && PendingModificationCache.isLiberatorKey(listenerKey)) {
             addPendingModification(listenerKey, dataObject, dataTreeModification);
         }
         // publish the modification to the federation
@@ -176,12 +176,12 @@ public class FederationPluginEgress implements IFederationPluginEgress {
     }
 
     private <T extends DataObject> void processPendingDataTreeModifications(String listenerKey, T dataObject,
-            boolean publishInTx) {
-        Map<String, Collection<DataTreeModification<? extends DataObject>>>
-            associatedModifications = removePendingModifications(listenerKey, dataObject);
+        boolean publishInTx) {
+        Map<String, Collection<DataTreeModification<? extends DataObject>>> associatedModifications =
+            removePendingModifications(listenerKey, dataObject);
         if (associatedModifications != null) {
             for (Entry<String, Collection<DataTreeModification<? extends DataObject>>> entry : associatedModifications
-                    .entrySet()) {
+                .entrySet()) {
                 for (DataTreeModification<? extends DataObject> modification : entry.getValue()) {
                     processPendingDataTreeModification(entry.getKey(), modification, publishInTx);
                 }
@@ -190,7 +190,7 @@ public class FederationPluginEgress implements IFederationPluginEgress {
     }
 
     private <T extends DataObject> void processPendingDataTreeModification(String listenerKey,
-            DataTreeModification<T> dataTreeModification, boolean publishInTx) {
+        DataTreeModification<T> dataTreeModification, boolean publishInTx) {
         T dataObject = FederationPluginUtils.getDataObjectFromModification(dataTreeModification);
         if (dataObject == null) {
             logger.warn("Failed to get DataObject from {}", dataObject);
@@ -202,26 +202,26 @@ public class FederationPluginEgress implements IFederationPluginEgress {
     }
 
     private <T extends DataObject, S extends DataObject> void publishDataTreeModification(String listenerKey,
-            S dataObject, DataTreeModification<S> dataTreeModification, boolean publishInTx) {
+        S dataObject, DataTreeModification<S> dataTreeModification, boolean publishInTx) {
         T transformedObject = FederationPluginUtils.applyEgressTransformation(listenerKey, dataObject,
-                federatedMappings, pendingModifications);
+            federatedMappings, pendingModifications);
         if (transformedObject == null) {
             FederationPluginCounters.egress_transformation_failed.inc();
             logger.error("Failed to transform {} for listener {}", dataObject, listenerKey);
             return;
         }
 
-        EntityFederationMessage<T> msg = createEntityFederationMsgFromDataObject(listenerKey, transformedObject,
-                dataTreeModification);
+        EntityFederationMessage<T> msg =
+            createEntityFederationMsgFromDataObject(listenerKey, transformedObject, dataTreeModification);
         FederationPluginCounters.egress_publish_modification.inc();
         logger.trace("Publishing {} for listener {}", transformedObject, listenerKey);
         producerMgr.publishMessage(msg, queueName, contextId);
     }
 
     private <T extends DataObject> boolean applyFilter(String listenerKey, T dataObject,
-            DataTreeModification<T> dataTreeModification) {
+        DataTreeModification<T> dataTreeModification) {
         FilterResult filterResult = FederationPluginUtils.applyEgressFilter(listenerKey, dataObject, federatedMappings,
-                pendingModifications, dataTreeModification);
+            pendingModifications, dataTreeModification);
         if (filterResult == null) {
             logger.warn("Failed to get FilterResult for {} {}", listenerKey, dataObject);
             return false;
@@ -246,7 +246,7 @@ public class FederationPluginEgress implements IFederationPluginEgress {
     }
 
     private <T extends DataObject> void addPendingModification(String listenerKey, T dataObject,
-            DataTreeModification<? extends DataObject> dataTreeModification) {
+        DataTreeModification<? extends DataObject> dataTreeModification) {
         logger.trace("Add pending modification {} listener {}", dataObject, listenerKey);
         pendingModifications.add(dataObject, listenerKey, dataTreeModification);
     }
@@ -264,28 +264,27 @@ public class FederationPluginEgress implements IFederationPluginEgress {
     @SuppressWarnings({ "unchecked" })
     private <T extends DataObject, S extends DataObject> EntityFederationMessage<T>
         createEntityFederationMsgFromDataObject(String listenerKey, T dataObject,
-                DataTreeModification<S> dataTreeModification) {
+            DataTreeModification<S> dataTreeModification) {
         DataObjectModification<S> dataObjectModification = dataTreeModification.getRootNode();
         ModificationType modificationType = dataObjectModification.getModificationType();
-        InstanceIdentifier<T> instanceIdentifier = (InstanceIdentifier<T>) FederationPluginUtils
-                .getSubtreeInstanceIdentifier(listenerKey);
+        InstanceIdentifier<T> instanceIdentifier =
+            (InstanceIdentifier<T>) FederationPluginUtils.getSubtreeInstanceIdentifier(listenerKey);
         LogicalDatastoreType datastoreType = FederationPluginUtils.getListenerDatastoreType(listenerKey);
         EntityFederationMessage<T> msg = createMsgWithRetriesMechanism(dataObject, modificationType, instanceIdentifier,
-                datastoreType, 2);
+                datastoreType, listenerKey, 2);
         return msg;
     }
 
     /**
-     * This attempts to workaround
-     * https://bugs.opendaylight.org/show_bug.cgi?id=7420.
+     * This attempts to workaround https://bugs.opendaylight.org/show_bug.cgi?id=7420.
      */
     @SuppressWarnings({ "rawtypes", "unchecked", "checkstyle:emptyblock" })
     private <T extends DataObject, S extends DataObject> EntityFederationMessage<T> createMsgWithRetriesMechanism(
             T dataObject, ModificationType modificationType, InstanceIdentifier<T> instanceIdentifier,
-            LogicalDatastoreType datastoreType, int remainingRetries) {
+            LogicalDatastoreType datastoreType, String metadata, int remainingRetries) {
         try {
             EntityFederationMessage msg = new EntityFederationMessage(datastoreType.toString(),
-                    modificationType.toString(), null, queueName, instanceIdentifier, dataObject);
+                    modificationType.toString(), metadata, queueName, instanceIdentifier, dataObject);
             return msg;
         } catch (UncheckedExecutionException t) {
             if (remainingRetries > 0) {
@@ -296,7 +295,7 @@ public class FederationPluginEgress implements IFederationPluginEgress {
                 } catch (InterruptedException e) {
                 }
                 createMsgWithRetriesMechanism(dataObject, modificationType, instanceIdentifier, datastoreType,
-                        --remainingRetries);
+                        metadata, --remainingRetries);
             }
         }
 
@@ -312,7 +311,7 @@ public class FederationPluginEgress implements IFederationPluginEgress {
 
     @SuppressWarnings("rawtypes")
     private <T extends DataObject> Collection<DataTreeModification<T>> createModifications(String listenerKey,
-            Optional existingData) {
+        Optional existingData) {
         if (existingData.isPresent()) {
             return FederationPluginUtils.createModifications(listenerKey, (DataObject) existingData.get());
         }

@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification.ModificationType;
@@ -55,13 +54,13 @@ public class FederationPluginIngress implements IFederationPluginIngress {
     }
 
     public FederationPluginIngress(final IFederationSubscriptionMgr subscriptionMgr, final DataBroker dataBroker,
-            String remoteId, List<FederatedNetworkPair> pairs) {
+            String remoteIp, List<FederatedNetworkPair> networkPairs, List<FederatedAclPair> secGroupsPairs) {
         this.subscriptionMgr = subscriptionMgr;
         this.dataBroker = dataBroker;
-        this.remoteIp = remoteId;
-        this.federatedMappings = new FederatedMappings(pairs);
+        this.remoteIp = remoteIp;
+        this.federatedMappings = new FederatedMappings(networkPairs, secGroupsPairs);
         logger = FederationUtils.createLogger(remoteIp, FederationPluginIngress.class);
-        logger.info("Created new NetvirtPluginIngress instance for remoteIp {}", remoteId);
+        logger.info("Created new NetvirtPluginIngress instance for remoteIp {}", remoteIp);
     }
 
     @Override
@@ -130,7 +129,7 @@ public class FederationPluginIngress implements IFederationPluginIngress {
             return;
         }
 
-        String listenerKey = FederationPluginUtils.getClassListener(msg.getInputClassType(), datastoreType);
+        String listenerKey = msg.getMetadata();
         if (listenerKey == null) {
             logger.error("Failed to get listener key for {}", msg.getInputClassType());
             return;

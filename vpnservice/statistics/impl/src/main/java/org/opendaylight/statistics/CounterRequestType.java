@@ -9,5 +9,5 @@
 package org.opendaylight.statistics;
 
 public enum CounterRequestType {
-    OF_PORT
+    OF_PORT, FLOW
 }

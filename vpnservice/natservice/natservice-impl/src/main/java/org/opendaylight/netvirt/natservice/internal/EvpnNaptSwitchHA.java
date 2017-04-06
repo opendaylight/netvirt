@@ -62,7 +62,7 @@ public class EvpnNaptSwitchHA {
         NatEvpnUtil.removeL3GwMacTableEntry(naptSwitch, vpnId, gwMacAddress, mdsalManager);
 
         //Remove the PDNAT_TABLE which forwards the packet to Inbound NAPT Table (table25->44)
-        evpnSnatFlowProgrammer.removePreDnatToSnatTableEntry(naptSwitch);
+        NatUtil.removePreDnatToSnatTableEntry(mdsalManager, naptSwitch);
 
         //Remove the PSNAT_TABLE which forwards the packet to Outbound NAPT Table (table26->46)
         String flowRef = getFlowRefSnat(naptSwitch, NwConstants.PSNAT_TABLE, routerName);

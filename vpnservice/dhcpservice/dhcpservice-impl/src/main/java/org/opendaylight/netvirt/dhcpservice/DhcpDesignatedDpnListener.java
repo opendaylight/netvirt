@@ -10,6 +10,10 @@ package org.opendaylight.netvirt.dhcpservice;
 import java.math.BigInteger;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
@@ -20,15 +24,16 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class DhcpDesignatedDpnListener
         extends AsyncClusteredDataTreeChangeListenerBase<DesignatedSwitchForTunnel, DhcpDesignatedDpnListener>
         implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpDesignatedDpnListener.class);
-
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final DataBroker broker;
 
+    @Inject
     public DhcpDesignatedDpnListener(final DhcpExternalTunnelManager dhcpExternalTunnelManager,
                                      final DataBroker broker) {
         super(DesignatedSwitchForTunnel.class, DhcpDesignatedDpnListener.class);
@@ -36,11 +41,13 @@ public class DhcpDesignatedDpnListener
         this.broker = broker;
     }
 
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
     }
 
     @Override
+    @PreDestroy
     public void close() {
         super.close();
         LOG.debug("DhcpDesignatedDpnListener Listener Closed");

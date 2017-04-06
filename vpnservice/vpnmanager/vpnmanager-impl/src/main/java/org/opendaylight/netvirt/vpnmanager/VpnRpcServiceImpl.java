@@ -20,6 +20,8 @@ import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteOutputBuilder;
@@ -147,6 +149,9 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         }
 
         String vpnRd = VpnUtil.getVpnRd(dataBroker, input.getVpnInstanceName());
+        VpnInstanceOpDataEntry vpnOpEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnRd);
+        Boolean isVxlan = VpnUtil.isL3VpnOverVxLan(vpnOpEntry.getL3vni());
+        VrfEntry.EncapType encapType = VpnUtil.getEncapType(isVxlan);
         if (vpnRd == null) {
             String message = "Could not find Route-Distinguisher for VpnName " + vpnInstanceName;
             result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withError(RpcError.ErrorType.APPLICATION,
@@ -170,7 +175,8 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             }
         } else {
             vpnInterfaceMgr.addExtraRoute(vpnInstanceName, destination, nexthop, vpnRd, null /* routerId */,
-                    label.intValue(),RouteOrigin.STATIC, null /* intfName */, null);
+                    label.intValue(), vpnOpEntry.getL3vni(), RouteOrigin.STATIC, null /* intfName */,
+                            null /*Adjacency*/, encapType, null);
         }
 
         AddStaticRouteOutput labelOutput = new AddStaticRouteOutputBuilder().setLabel(label).build();
@@ -226,7 +232,8 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             fibManager.removeOrUpdateFibEntry(dataBroker,  vpnRd, destination, nexthop, null);
             bgpManager.withdrawPrefix(vpnRd, destination);
         } else {
-            vpnInterfaceMgr.delExtraRoute(destination, nexthop, vpnRd, null /*routerId*/, null /*intfName*/, null);
+            vpnInterfaceMgr.delExtraRoute(vpnInstanceName, destination,
+                    nexthop, vpnRd, null /* routerId */, null /* intfName */, null);
         }
         result.set(RpcResultBuilder.<Void>success().build());
 

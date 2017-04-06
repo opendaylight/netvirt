@@ -47,7 +47,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <dependency>
       <groupId>org.apache.karaf.shell</groupId>
       <artifactId>org.apache.karaf.shell.console</artifactId>
-      <version>${karaf.shell.console.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.neutron</groupId>
@@ -83,7 +83,16 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>counters-api</artifactId>
       <version>${infrautils.version}</version>
     </dependency>
-   </dependencies>
+    <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>idmanager-api</artifactId>
+      <version>${genius.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+    </dependency>
+  </dependencies>
 
 
   <build>
@@ -109,6 +118,25 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <!-- This bundle works with Karaf 3 and 4.0 -->
+            <Import-Package>
+              org.apache.karaf.shell.commands;version="[3.0.0,4.1)",
+              org.apache.karaf.shell.console;version="[3.0.0,4.1)",
+              *
+            </Import-Package>
+          </instructions>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.aries.blueprint</groupId>
+        <artifactId>blueprint-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

@@ -11,7 +11,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -22,6 +21,8 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.vpnmanager.VpnOpDataSyncer.VpnOpDataType;
+import org.opendaylight.netvirt.vpnmanager.populator.intfc.VpnPopulator;
+import org.opendaylight.netvirt.vpnmanager.populator.registry.L3vpnRegistry;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
@@ -38,19 +39,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.PortAddedToSubnet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.PortRemovedFromSubnet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterAssociatedToVpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterDisassociatedFromVpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetAddedToVpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetAddedToVpnBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetDeletedFromVpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetDeletedFromVpnBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetUpdatedInVpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
@@ -58,7 +50,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VpnSubnetRouteHandler implements NeutronvpnListener {
+public class VpnSubnetRouteHandler {
     private static final Logger LOG = LoggerFactory.getLogger(VpnSubnetRouteHandler.class);
     private final DataBroker dataBroker;
     private final SubnetOpDpnManager subOpDpnManager;
@@ -82,16 +74,10 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    @Override
-    public void onSubnetAddedToVpn(SubnetAddedToVpn notification) {
-        if (!notification.isBgpVpn()) {
-            return;
-        }
-
-        Uuid subnetId = notification.getSubnetId();
-        String vpnName = notification.getVpnName();
-        String subnetIp = notification.getSubnetIp();
-        Long elanTag = notification.getElanTag();
+    public void onSubnetAddedToVpn(Subnetmap subnetmap, boolean isBgpVpn, Long elanTag) {
+        Uuid subnetId = subnetmap.getId();
+        String vpnName = subnetmap.getVpnId().getValue();
+        String subnetIp = subnetmap.getSubnetIp();
         boolean isRouteAdvertised = false;
 
         Preconditions.checkNotNull(subnetId, "SubnetId cannot be null or empty!");
@@ -100,6 +86,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
         Preconditions.checkNotNull(elanTag, "ElanTag cannot be null or empty!");
 
         LOG.info("onSubnetAddedToVpn: Subnet {} being added to vpn", subnetId.getValue());
+
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
         if (vpnId == VpnConstants.INVALID_ID) {
             vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataType.vpnInstanceToId, vpnName,
@@ -112,6 +99,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 return;
             }
         }
+
         //TODO(vivek): Change this to use more granularized lock at subnetId level
         try {
             VpnUtil.lockSubnet(lockManager, subnetId.getValue());
@@ -128,16 +116,18 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                     return;
                 }
                 subMap = sm.get();
-                InstanceIdentifier<Networks> netsIdentifier =
-                    InstanceIdentifier.builder(ExternalNetworks.class).child(Networks.class,
-                        new NetworksKey(subMap.getNetworkId())).build();
-                Optional<Networks> optionalNets =
-                    VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier);
-                if (optionalNets.isPresent()) {
-                    LOG.info(
-                        "onSubnetAddedToVpn: subnet {} is an external subnet on external network {}, so ignoring this"
-                            + " for SubnetRoute", subnetId.getValue(), subMap.getNetworkId().getValue());
-                    return;
+
+                if (isBgpVpn) {
+                    InstanceIdentifier<Networks> netsIdentifier = InstanceIdentifier.builder(ExternalNetworks.class)
+                            .child(Networks.class, new NetworksKey(subMap.getNetworkId())).build();
+                    Optional<Networks> optionalNets = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            netsIdentifier);
+                    if (optionalNets.isPresent()) {
+                        LOG.info("onSubnetAddedToVpn: subnet {} is an external subnet on external network" + " {},"
+                                + " so ignoring this" + " for SubnetRoute",
+                                subnetId.getValue(), subMap.getNetworkId().getValue());
+                        return;
+                    }
                 }
                 //Create and add SubnetOpDataEntry object for this subnet to the SubnetOpData container
                 InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
@@ -162,11 +152,12 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 subOpBuilder.setSubnetId(subnetId);
                 subOpBuilder.setSubnetCidr(subnetIp);
                 String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
-                if (!VpnUtil.isBgpVpn(vpnName, primaryRd)) {
-                    LOG.error("onSubnetAddedToVpn: The VPN Instance name "
-                            + notification.getVpnName() + " does not have RD ");
+
+                if (isBgpVpn && !VpnUtil.isBgpVpn(vpnName, primaryRd)) {
+                    LOG.error("onSubnetAddedToVpn: The VPN Instance name " + vpnName + " does not have RD ");
                     return;
                 }
+
                 subOpBuilder.setVrfId(primaryRd);
                 subOpBuilder.setVpnName(vpnName);
                 subOpBuilder.setSubnetToDpn(new ArrayList<>());
@@ -232,7 +223,8 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                             return;
                         }
                         isRouteAdvertised =
-                            addSubnetRouteToFib(primaryRd, subnetIp, nhDpnId, vpnName, elanTag, label, subnetId);
+                            addSubnetRouteToFib(primaryRd, subnetIp, nhDpnId, vpnName, elanTag, label, subnetId,
+                                    isBgpVpn, subMap.getNetworkId().getValue());
                         if (isRouteAdvertised) {
                             subOpBuilder.setRouteAdvState(TaskState.Done);
                         } else {
@@ -246,6 +238,9 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                             nhDpnId, subnetId.getValue(), ex);
                         subOpBuilder.setRouteAdvState(TaskState.Pending);
                     }
+                } else if (!isBgpVpn) {
+                    addSubnetRouteToFib(primaryRd, subnetIp, null, vpnName, elanTag, 0, subnetId, false,
+                            subMap.getNetworkId().getValue());
                 } else {
                     LOG.info("Next-Hop dpn is unavailable for rd {} subnetIp {} vpn {}", primaryRd, subnetIp, vpnName);
                 }
@@ -266,13 +261,8 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    @Override
-    public void onSubnetDeletedFromVpn(SubnetDeletedFromVpn notification) {
-        Uuid subnetId = notification.getSubnetId();
-
-        if (!notification.isBgpVpn()) {
-            return;
-        }
+    public void onSubnetDeletedFromVpn(Subnetmap subnetmap, boolean isBgpVpn) {
+        Uuid subnetId = subnetmap.getId();
         LOG.info("onSubnetDeletedFromVpn: Subnet " + subnetId.getValue() + " being removed from vpn");
         //TODO(vivek): Change this to use more granularized lock at subnetId level
         try {
@@ -327,7 +317,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 try {
                     //Withdraw the routes for all the interfaces on this subnet
                     //Remove subnet route entry from FIB
-                    deleteSubnetRouteFromFib(rd, subnetIp, vpnName);
+                    deleteSubnetRouteFromFib(rd, subnetIp, vpnName, isBgpVpn);
                 } catch (Exception ex) {
                     LOG.error("onSubnetAddedToVpn: Withdrawing routes from BGP for subnet {} failed",
                         subnetId.getValue(), ex);
@@ -338,17 +328,15 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
             }
         } catch (Exception e) {
-            LOG.error("Unable to handle subnet {} removed to vpn {}", notification.getSubnetIp(),
-                notification.getVpnName(), e);
+            LOG.error("Unable to handle subnet {} removed to vpn {}", subnetmap.getSubnetIp(),
+                subnetmap.getVpnId().getValue(), e);
         }
     }
 
-    @Override
-    public void onSubnetUpdatedInVpn(SubnetUpdatedInVpn notification) {
-        Uuid subnetId = notification.getSubnetId();
-        String vpnName = notification.getVpnName();
-        String subnetIp = notification.getSubnetIp();
-        Long elanTag = notification.getElanTag();
+    public void onSubnetUpdatedInVpn(Subnetmap subnetmap, boolean isBgpVpn, Long elanTag) {
+        Uuid subnetId = subnetmap.getId();
+        String vpnName = subnetmap.getVpnId().getValue();
+        String subnetIp = subnetmap.getSubnetIp();
 
         Preconditions.checkNotNull(subnetId, "SubnetId cannot be null or empty!");
         Preconditions.checkNotNull(subnetIp, "SubnetPrefix cannot be null or empty!");
@@ -361,28 +349,22 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
         Optional<SubnetOpDataEntry> optionalSubs =
             VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
         if (optionalSubs.isPresent()) {
-            if (!notification.isBgpVpn()) {
-                SubnetDeletedFromVpnBuilder bldr = new SubnetDeletedFromVpnBuilder().setVpnName(vpnName);
-                bldr.setElanTag(elanTag).setBgpVpn(true).setSubnetIp(subnetIp).setSubnetId(subnetId);
-                onSubnetDeletedFromVpn(bldr.build());
+            if (!isBgpVpn) {
+                onSubnetDeletedFromVpn(subnetmap, !isBgpVpn);
             }
-            // TODO(vivek): Something got updated, but we donot know what ?
+        // TODO(vivek): Something got updated, but we donot know what ?
         } else {
-            if (notification.isBgpVpn()) {
-                SubnetAddedToVpnBuilder bldr = new SubnetAddedToVpnBuilder().setVpnName(vpnName).setElanTag(elanTag);
-                bldr.setSubnetIp(subnetIp).setSubnetId(subnetId).setBgpVpn(true);
-                onSubnetAddedToVpn(bldr.build());
+            if (isBgpVpn) {
+                onSubnetAddedToVpn(subnetmap, isBgpVpn, elanTag);
             }
-            // TODO(vivek): Something got updated, but we donot know what ?
+        // TODO(vivek): Something got updated, but we donot know what ?
         }
     }
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    @Override
-    public void onPortAddedToSubnet(PortAddedToSubnet notification) {
-        Uuid subnetId = notification.getSubnetId();
-        Uuid portId = notification.getPortId();
+    public void onPortAddedToSubnet(Subnetmap subnetmap, Uuid portId) {
+        Uuid subnetId = subnetmap.getId();
         boolean isRouteAdvertised = false;
 
         LOG.info("onPortAddedToSubnet: Port " + portId.getValue() + " being added to subnet " + subnetId.getValue());
@@ -487,10 +469,8 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    @Override
-    public void onPortRemovedFromSubnet(PortRemovedFromSubnet notification) {
-        Uuid subnetId = notification.getSubnetId();
-        Uuid portId = notification.getPortId();
+    public void onPortRemovedFromSubnet(Subnetmap subnetmap, Uuid portId) {
+        Uuid subnetId = subnetmap.getId();
         boolean isRouteAdvertised = false;
 
         LOG.info(
@@ -541,7 +521,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                             subOpBuilder.setNhDpnId(null);
                             try {
                                 // withdraw route from BGP
-                                deleteSubnetRouteFromFib(rd, subnetIp, vpnName);
+                                deleteSubnetRouteFromFib(rd, subnetIp, vpnName, true /* isBgpVpn*/);
                                 subOpBuilder.setRouteAdvState(TaskState.Na);
                             } catch (Exception ex) {
                                 LOG.error(
@@ -743,7 +723,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                             subOpBuilder.setNhDpnId(null);
                             try {
                                 // Withdraw route from BGP for this subnet
-                                deleteSubnetRouteFromFib(rd, subnetIp, vpnName);
+                                deleteSubnetRouteFromFib(rd, subnetIp, vpnName, true /* isBgpVpn*/);
                                 subOpBuilder.setRouteAdvState(TaskState.Na);
                             } catch (Exception ex) {
                                 LOG.error(
@@ -798,14 +778,6 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
             LOG.error("Unable to handle interface down event for port {} in subnet {} {}", portOpEntry.getPortId(),
                 subnetId.getValue(), e);
         }
-    }
-
-    @Override
-    public void onRouterAssociatedToVpn(RouterAssociatedToVpn notification) {
-    }
-
-    @Override
-    public void onRouterDisassociatedFromVpn(RouterDisassociatedFromVpn notification) {
     }
 
     // TODO Clean up the exception handling
@@ -919,15 +891,31 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
         }
     }
 
+    private boolean addSubnetRouteToFib(String rd, String subnetIp, BigInteger nhDpnId, String vpnName,
+            Long elanTag, int label, Uuid subnetId) throws Exception {
+        return addSubnetRouteToFib(rd, subnetIp, nhDpnId, vpnName, elanTag, label, subnetId,
+                true /* isBgpVpn*/, null /* networkId */);
+    }
+
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private boolean addSubnetRouteToFib(String rd, String subnetIp, BigInteger nhDpnId, String vpnName,
-        Long elanTag, int label, Uuid subnetId) throws Exception {
+        Long elanTag, int label, Uuid subnetId, boolean isBgpVpn, String networkName) throws Exception {
+
         Preconditions.checkNotNull(rd, "RouteDistinguisher cannot be null or empty!");
         Preconditions.checkNotNull(subnetIp, "SubnetRouteIp cannot be null or empty!");
         Preconditions.checkNotNull(vpnName, "vpnName cannot be null or empty!");
         Preconditions.checkNotNull(elanTag, "elanTag cannot be null or empty!");
+
         String nexthopIp = null;
+        if (!isBgpVpn) {
+            LOG.info("Adding SubnetRoute fib entry for vpnName {}, subnetIP {}, elanTag {}",
+                    vpnName, subnetIp, elanTag);
+            vpnInterfaceManager.addSubnetRouteFibEntryToDS(rd, vpnName, subnetIp, nexthopIp, label, elanTag, nhDpnId,
+                    networkName, null /* WriteTransaction */);
+            return true;
+        }
+
         try {
             nexthopIp = InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, nhDpnId);
         } catch (Exception e) {
@@ -935,20 +923,15 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
             return false;
         }
         if (nexthopIp != null) {
-            VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                VpnUtil.getPrefixToInterfaceIdentifier(VpnUtil.getVpnId(dataBroker, vpnName), subnetIp),
-                VpnUtil.getPrefixToInterface(nhDpnId, subnetId.getValue(), subnetIp, subnetId));
-            vpnInterfaceManager.addSubnetRouteFibEntryToDS(rd, vpnName, subnetIp, nexthopIp, label, elanTag, nhDpnId,
-                null);
-            try {
-                //BGP manager will handle withdraw and advertise internally if prefix
-                //already exist
-                bgpManager.advertisePrefix(rd, null /*macAddress*/, subnetIp, Collections.singletonList(nexthopIp),
-                        VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, 0 /*l2vni*/, null /*gatewayMacAddress*/);
-            } catch (Exception e) {
-                LOG.error("Fail: Subnet route not advertised for rd {} subnetIp {}", rd, subnetIp, e);
-                throw e;
-            }
+            VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, VpnUtil
+                    .getPrefixToInterfaceIdentifier(VpnUtil.getVpnId(dataBroker, vpnName), subnetIp), VpnUtil
+                    .getPrefixToInterface(nhDpnId, subnetId.getValue(), subnetIp, subnetId, true /*isNatPrefix*/));
+            VpnInstanceOpDataEntry vpnOpEntry = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
+            Boolean isVxlan = VpnUtil.isL3VpnOverVxLan(vpnOpEntry.getL3vni());
+            VrfEntry.EncapType encapType = (isVxlan == true) ? VrfEntry.EncapType.Vxlan : VrfEntry.EncapType.Mplsgre;
+            VpnPopulator vpnPopulator = L3vpnRegistry.getRegisteredPopulator(encapType);
+            vpnPopulator.addSubnetRouteFibEntry(rd, vpnName, subnetIp, nexthopIp, label, elanTag, nhDpnId,
+                    null, encapType);
         } else {
             LOG.warn("The nexthopip is empty for subnetroute subnetip {}, ignoring fib route addition", subnetIp);
             return false;
@@ -965,15 +948,18 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private void deleteSubnetRouteFromFib(String rd, String subnetIp, String vpnName) throws Exception {
+    private void deleteSubnetRouteFromFib(String rd, String subnetIp, String vpnName, boolean isBgpVpn)
+            throws Exception {
         Preconditions.checkNotNull(rd, "RouteDistinguisher cannot be null or empty!");
         Preconditions.checkNotNull(subnetIp, "SubnetRouteIp cannot be null or empty!");
         vpnInterfaceManager.deleteSubnetRouteFibEntryFromDS(rd, subnetIp, vpnName);
-        try {
-            bgpManager.withdrawPrefix(rd, subnetIp);
-        } catch (Exception e) {
-            LOG.error("Fail: Subnet route not withdrawn for rd {} subnetIp {}", rd, subnetIp, e);
-            throw e;
+        if (isBgpVpn) {
+            try {
+                bgpManager.withdrawPrefix(rd, subnetIp);
+            } catch (Exception e) {
+                LOG.error("Fail: Subnet route not withdrawn for rd {} subnetIp {}", rd, subnetIp, e);
+                throw e;
+            }
         }
     }
 
@@ -1019,7 +1005,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
             LOG.info("No alternate DPN available for subnet {}.Prefix withdrawn from BGP", subnetIp);
             try {
                 // Withdraw route from BGP for this subnet
-                deleteSubnetRouteFromFib(rd, subnetIp, vpnName);
+                deleteSubnetRouteFromFib(rd, subnetIp, vpnName, true /* isBgpVpn*/);
                 subOpBuilder.setNhDpnId(null);
                 subOpBuilder.setRouteAdvState(TaskState.Na);
             } catch (Exception ex) {

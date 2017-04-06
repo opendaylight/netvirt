@@ -12,7 +12,8 @@ import java.math.BigInteger;
 
 public class Ipv6Constants {
 
-    public static final int IP_V6_ETHTYPE = 34525;
+    public static final short IP_VERSION_6 = 6;
+    public static final int IP_V6_ETHTYPE = 0x86DD;
     public static final int ICMP_V6 = 1;
 
     public static final int ETHTYPE_START = 96;
@@ -32,13 +33,16 @@ public class Ipv6Constants {
     public static final int IPV6_RA_PREFERRED_LIFETIME = 604800;
     public static final int IPV6_RA_REACHABLE_TIME = 120000;
 
-    public static final int ICMP_V6_TYPE = 58;
+    public static final short ICMP_V6_TYPE = 58;
     public static final short ICMP_V6_RS_CODE = 133;
     public static final short ICMP_V6_RA_CODE = 134;
     public static final short ICMP_V6_NS_CODE = 135;
     public static final short ICMP_V6_NA_CODE = 136;
     public static final short ICMP_V6_MAX_HOP_LIMIT = 255;
     public static final int ICMPV6_OFFSET = 54;
+
+    public static final short ICMP_V6_OPTION_SOURCE_LLA = 1;
+    public static final short ICMP_V6_OPTION_TARGET_LLA = 2;
 
     public static final String DHCPV6_OFF = "DHCPV6_OFF";
     public static final String IPV6_SLAAC = "IPV6_SLAAC";

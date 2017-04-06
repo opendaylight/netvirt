@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.sfc.classifier.providers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -40,32 +41,34 @@ public class NetvirtProvider {
         this.dataBroker = dataBroker;
     }
 
-    public Optional<List<String>> getLogicalInterfacesFromNeutronNetwork(NeutronNetwork nw) {
+    public List<String> getLogicalInterfacesFromNeutronNetwork(NeutronNetwork nw) {
         InstanceIdentifier<NetworkMap> networkMapIdentifier =
                 getNetworkMapIdentifier(new Uuid(nw.getNetworkUuid()));
 
-        com.google.common.base.Optional<NetworkMap> networkMap =
-            MDSALUtil.read(LogicalDatastoreType.CONFIGURATION, networkMapIdentifier, dataBroker);
-        if (!networkMap.isPresent()) {
-            return Optional.empty();
+        NetworkMap networkMap =
+                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, networkMapIdentifier).orNull();
+        if (networkMap == null) {
+            return Collections.emptyList();
         }
 
         List<String> interfaces = new ArrayList<>();
-
-        List<Uuid> subnetUuidList = networkMap.get().getSubnetIdList();
+        List<Uuid> subnetUuidList = Optional.ofNullable(networkMap.getSubnetIdList()).orElse(Collections.emptyList());
         for (Uuid subnetUuid : subnetUuidList) {
             InstanceIdentifier<Subnetmap> subnetId = getSubnetMapIdentifier(subnetUuid);
-            com.google.common.base.Optional<Subnetmap> subnet =
-                MDSALUtil.read(LogicalDatastoreType.CONFIGURATION, subnetId, dataBroker);
-            if (!subnet.isPresent()) {
+            Subnetmap subnet = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetId).orNull();
+            if (subnet == null) {
                 continue;
             }
 
-            // TODO fix
-            subnet.get().getPortList().forEach((subnetPortUuid) -> interfaces.add(getNeutronPort(subnetPortUuid)));
+            for (Uuid subnetPortUuid : subnet.getPortList()) {
+                Optional<String> portId = getNeutronPort(subnetPortUuid);
+                if (portId.isPresent()) {
+                    interfaces.add(portId.get());
+                }
+            }
         }
 
-        return Optional.of(interfaces);
+        return interfaces;
     }
 
     //
@@ -82,13 +85,14 @@ public class NetvirtProvider {
                 .child(Subnetmap.class, new SubnetmapKey(subnetUuidStr)).build();
     }
 
-    private String getNeutronPort(Uuid portUuid) {
+    // Returns the Port UUID string, which is the same as a Genius Logical Interface name
+    private Optional<String> getNeutronPort(Uuid portUuid) {
         InstanceIdentifier<Port> instId = InstanceIdentifier.create(Neutron.class).child(Ports.class)
                 .child(Port.class, new PortKey(portUuid));
-        com.google.common.base.Optional<Port> port =
-            MDSALUtil.read(LogicalDatastoreType.CONFIGURATION, instId, dataBroker);
+        Port port = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, instId).orNull();
 
-        return port.isPresent() ? port.get().getName() : new String();
+        return port == null
+                ? Optional.empty() : Optional.of(port.getUuid().getValue());
     }
 
 }

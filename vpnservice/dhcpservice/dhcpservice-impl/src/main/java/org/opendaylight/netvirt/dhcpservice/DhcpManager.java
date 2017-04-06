@@ -11,6 +11,10 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -21,6 +25,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
+import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -33,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpserv
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class DhcpManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpManager.class);
@@ -48,9 +54,10 @@ public class DhcpManager {
     private DhcpInterfaceEventListener dhcpInterfaceEventListener;
     private DhcpInterfaceConfigListener dhcpInterfaceConfigListener;
 
+    @Inject
     public DhcpManager(final IMdsalApiManager mdsalApiManager,
             final INeutronVpnManager neutronVpnManager,
-            DhcpserviceConfig config, final DataBroker dataBroker,
+            final DhcpserviceConfig config, final DataBroker dataBroker,
             final DhcpExternalTunnelManager dhcpExternalTunnelManager, final IInterfaceManager interfaceManager) {
         this.mdsalUtil = mdsalApiManager;
         this.neutronVpnService = neutronVpnManager;
@@ -62,6 +69,7 @@ public class DhcpManager {
         configureLeaseDuration(DhcpMConstants.DEFAULT_LEASE_TIME);
     }
 
+    @PostConstruct
     public void init() {
         if (config.isControllerDhcpEnabled()) {
             dhcpInterfaceEventListener =
@@ -71,6 +79,7 @@ public class DhcpManager {
         }
     }
 
+    @PreDestroy
     public void close() throws Exception {
         if (dhcpInterfaceEventListener != null) {
             dhcpInterfaceEventListener.close();
@@ -141,7 +150,14 @@ public class DhcpManager {
                 mdsalUtil, tx);
     }
 
-    public void setupTableMissForDhcpTable(BigInteger dpId) {
+    public void setupDefaultDhcpFlows(BigInteger dpId) {
+        setupTableMissForDhcpTable(dpId);
+        if (config.isDhcpDynamicAllocationPoolEnabled()) {
+            setupDhcpAllocationPoolFlow(dpId);
+        }
+    }
+
+    private void setupTableMissForDhcpTable(BigInteger dpId) {
         List<MatchInfo> matches = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -153,6 +169,20 @@ public class DhcpManager {
         DhcpServiceCounters.install_dhcp_table_miss_flow.inc();
         mdsalUtil.installFlow(flowEntity);
         setupTableMissForHandlingExternalTunnel(dpId);
+    }
+
+    private void setupDhcpAllocationPoolFlow(BigInteger dpId) {
+        List<MatchInfo> matches = DhcpServiceUtils.getDhcpMatch();
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionPuntToController());
+        instructions.add(new InstructionApplyActions(actionsInfos));
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.DHCP_TABLE,
+                "DhcpAllocationPoolFlow", DhcpMConstants.DEFAULT_DHCP_ALLOCATION_POOL_FLOW_PRIORITY,
+                "Dhcp Allocation Pool Flow", 0, 0, DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
+        LOG.trace("Installing DHCP Allocation Pool Flow DpId {}", dpId);
+        DhcpServiceCounters.install_dhcp_flow.inc();
+        mdsalUtil.installFlow(flowEntity);
     }
 
     private void setupTableMissForHandlingExternalTunnel(BigInteger dpId) {

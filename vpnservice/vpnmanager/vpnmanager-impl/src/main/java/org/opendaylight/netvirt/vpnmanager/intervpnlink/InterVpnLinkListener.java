@@ -97,7 +97,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                                 final InterVpnLinkLocator interVpnLinkLocator,
                                 final VpnFootprintService vpnFootprintService,
                                 final VpnOpDataSyncer vpnOpDataSyncer) {
-        super(InterVpnLink.class, InterVpnLinkListener.class);
+        super();
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.mdsalManager = mdsalManager;
@@ -152,7 +152,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             setInError(vpnLinkStateIid, vpnLinkState, errMsg);
             return;
         }
-        if (!checkVpnAvailability(key, vpn1Uuid)) {
+        if (!checkVpnAvailability(key, vpn1Name)) {
             String errMsg = "InterVpnLink " + ivpnLinkName + " creation error: Vpn " + vpn1Name
                             + " is already associated to an inter-vpn-link ";
             setInError(vpnLinkStateIid, vpnLinkState, errMsg);
@@ -166,7 +166,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             setInError(vpnLinkStateIid, vpnLinkState, errMsg);
             return;
         }
-        if (!checkVpnAvailability(key, vpn2Uuid)) {
+        if (!checkVpnAvailability(key, vpn2Name)) {
             String errMsg = "InterVpnLink " + ivpnLinkName + " creation error: Vpn " + vpn2Name
                             + " is already associated with an inter-vpn-link";
             setInError(vpnLinkStateIid, vpnLinkState, errMsg);
@@ -304,20 +304,16 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         }
     }
 
-    private boolean checkVpnAvailability(InterVpnLinkKey key, Uuid vpnId) {
-        Preconditions.checkNotNull(vpnId);
+    private boolean checkVpnAvailability(InterVpnLinkKey key, String vpnName) {
+        Preconditions.checkNotNull(vpnName);
 
-        List<InterVpnLink> interVpnLinks = InterVpnLinkUtil.getAllInterVpnLinks(dataBroker);
-        if (interVpnLinks != null) {
-            for (InterVpnLink interVpnLink : interVpnLinks) {
-                if (!key.equals(interVpnLink.getKey())
-                    && (vpnId.equals(interVpnLink.getFirstEndpoint().getVpnUuid())
-                            || vpnId.equals(interVpnLink.getSecondEndpoint().getVpnUuid()))) {
-                    return false;
-                }
-            }
+        List<InterVpnLinkDataComposite> allInterVpnLinks = InterVpnLinkCache.getAllInterVpnLinks();
+        if (allInterVpnLinks.isEmpty()) {
+            return true;
         }
-        return true;
+
+        return allInterVpnLinks.stream().anyMatch(ivl -> !ivl.getInterVpnLinkName().equals(key.getName())
+                                                         && ivl.isVpnLinked(vpnName));
     }
 
     @Override

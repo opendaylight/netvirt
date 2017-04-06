@@ -21,6 +21,7 @@ import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
+import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
@@ -40,15 +41,17 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
     private final AclClusterUtil aclClusterUtil;
     private final DataBroker dataBroker;
     private final AclDataUtil aclDataUtil;
+    private final AclServiceUtils aclServiceUtils;
 
     @Inject
     public AclEventListener(AclServiceManager aclServiceManager, AclClusterUtil aclClusterUtil, DataBroker dataBroker,
-            AclDataUtil aclDataUtil) {
+            AclDataUtil aclDataUtil, AclServiceUtils aclServicUtils) {
         super(Acl.class, AclEventListener.class);
         this.aclServiceManager = aclServiceManager;
         this.aclClusterUtil = aclClusterUtil;
         this.dataBroker = dataBroker;
         this.aclDataUtil = aclDataUtil;
+        this.aclServiceUtils = aclServicUtils;
     }
 
     @Override
@@ -67,11 +70,22 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
     @Override
     protected void remove(InstanceIdentifier<Acl> key, Acl acl) {
+        if (!AclServiceUtils.isOfAclInterest(acl)) {
+            LOG.trace("{} does not have SecurityRuleAttr augmentation", acl.getAclName());
+            return;
+        }
+
+        this.aclServiceUtils.releaseAclId(acl.getAclName());
         updateRemoteAclCache(acl.getAccessListEntries().getAce(), acl.getAclName(), AclServiceManager.Action.REMOVE);
     }
 
     @Override
     protected void update(InstanceIdentifier<Acl> key, Acl aclBefore, Acl aclAfter) {
+        if (!AclServiceUtils.isOfAclInterest(aclAfter)) {
+            LOG.trace("{} does not have SecurityRuleAttr augmentation", aclAfter.getAclName());
+            return;
+        }
+
         String aclName = aclAfter.getAclName();
         List<AclInterface> interfaceList = aclDataUtil.getInterfaceList(new Uuid(aclName));
         // find and update added ace rules in acl
@@ -103,6 +117,11 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
     @Override
     protected void add(InstanceIdentifier<Acl> key, Acl acl) {
+        if (!AclServiceUtils.isOfAclInterest(acl)) {
+            LOG.trace("{} does not have SecurityRuleAttr augmentation", acl.getAclName());
+            return;
+        }
+
         updateRemoteAclCache(acl.getAccessListEntries().getAce(), acl.getAclName(), AclServiceManager.Action.ADD);
     }
 

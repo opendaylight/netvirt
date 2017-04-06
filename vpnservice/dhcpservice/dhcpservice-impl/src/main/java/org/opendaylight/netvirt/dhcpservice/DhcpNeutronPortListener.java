@@ -10,6 +10,10 @@ package org.opendaylight.netvirt.dhcpservice;
 import java.math.BigInteger;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
@@ -22,20 +26,22 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class DhcpNeutronPortListener
         extends AsyncClusteredDataTreeChangeListenerBase<Port, DhcpNeutronPortListener> implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpNeutronPortListener.class);
-
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final DataBroker broker;
 
+    @Inject
     public DhcpNeutronPortListener(final DataBroker db, final DhcpExternalTunnelManager dhcpExternalTunnelManager) {
         super(Port.class, DhcpNeutronPortListener.class);
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.broker = db;
     }
 
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
     }
@@ -46,6 +52,7 @@ public class DhcpNeutronPortListener
     }
 
     @Override
+    @PreDestroy
     public void close() {
         super.close();
         LOG.debug("DhcpNeutronPortListener Listener Closed");

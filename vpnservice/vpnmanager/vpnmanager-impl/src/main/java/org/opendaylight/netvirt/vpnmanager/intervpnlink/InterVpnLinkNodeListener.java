@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -7,26 +7,22 @@
  */
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.datastoreutils.InvalidJobException;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.vpnmanager.VpnFootprintService;
+import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
+import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
+import org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks.InterVpnLinkCleanedCheckerTask;
+import org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks.InterVpnLinkCreatorTask;
+import org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks.InterVpnLinkRemoverTask;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLinkBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
@@ -45,7 +41,6 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
     implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkNodeListener.class);
 
-    // TODO: Remove when included in ovsdb's SouthboundUtils
     public static final TopologyId FLOW_TOPOLOGY_ID = new TopologyId(new Uri("flow:1"));
 
     private final DataBroker dataBroker;
@@ -54,8 +49,8 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
 
 
     public InterVpnLinkNodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalMgr,
-        final VpnFootprintService vpnFootprintService) {
-        super(Node.class, InterVpnLinkNodeListener.class);
+                                    final VpnFootprintService vpnFootprintService) {
+        super();
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalMgr;
         this.vpnFootprintService = vpnFootprintService;
@@ -102,66 +97,30 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
             return;
         }
         BigInteger dpId = new BigInteger(node[1]);
-        DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
-        coordinator.enqueueJob("IVpnLink" + dpId.toString(), new InterVpnLinkNodeWorker(dataBroker, dpId));
+        List<InterVpnLinkDataComposite> allInterVpnLinks = InterVpnLinkCache.getAllInterVpnLinks();
+        allInterVpnLinks.stream()
+                        .filter(ivl -> ivl.stepsOnDpn(dpId))           // Only those affected by DPN going down
+                        .forEach(ivl -> reinstallInterVpnLink(ivl));   // Move them somewhere else
+    }
 
+    private void reinstallInterVpnLink(InterVpnLinkDataComposite ivl) {
+        String ivlName = ivl.getInterVpnLinkName();
+        // Lets move the InterVpnLink to some other place. Basically, remove it and create it again
+        InstanceIdentifier<InterVpnLink> interVpnLinkIid = InterVpnLinkUtil.getInterVpnLinkPath(ivlName);
+        String specificJobKey = "InterVpnLink.update." + ivlName;
+        DataStoreJobCoordinator dsJobCoordinator = DataStoreJobCoordinator.getInstance();
+        try {
+            dsJobCoordinator.enqueueJob(new InterVpnLinkRemoverTask(dataBroker, interVpnLinkIid, specificJobKey));
+            dsJobCoordinator.enqueueJob(new InterVpnLinkCleanedCheckerTask(dataBroker, ivl.getInterVpnLinkConfig(),
+                                                                           specificJobKey));
+            dsJobCoordinator.enqueueJob(new InterVpnLinkCreatorTask(dataBroker, ivl.getInterVpnLinkConfig(),
+                                                                    specificJobKey));
+        } catch (InvalidJobException e) {
+            LOG.error("Could not complete InterVpnLink {} update process", ivlName, e);
+        }
     }
 
     @Override
     protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
     }
-
-    protected class InterVpnLinkNodeWorker implements Callable<List<ListenableFuture<Void>>> {
-
-        private DataBroker broker;
-        private BigInteger dpnId;
-
-        public InterVpnLinkNodeWorker(final DataBroker broker, final BigInteger dpnId) {
-            this.broker = broker;
-            this.dpnId = dpnId;
-        }
-
-        @Override
-        public List<ListenableFuture<Void>> call() throws Exception {
-            List<ListenableFuture<Void>> result = new ArrayList<>();
-
-            List<InterVpnLink> allInterVpnLinks = InterVpnLinkUtil.getAllInterVpnLinks(broker);
-            for (InterVpnLink interVpnLink : allInterVpnLinks) {
-                Optional<InterVpnLinkState> optIVpnLinkState =
-                    InterVpnLinkUtil.getInterVpnLinkState(broker, interVpnLink.getName());
-                if (!optIVpnLinkState.isPresent()) {
-                    LOG.warn("Could not find State info for InterVpnLink={}", interVpnLink.getName());
-                    continue;
-                }
-
-                InterVpnLinkState interVpnLinkState = optIVpnLinkState.get();
-                if (interVpnLinkState.getFirstEndpointState().getDpId().contains(dpnId)
-                    || interVpnLinkState.getSecondEndpointState().getDpId().contains(dpnId)) {
-                    // InterVpnLink affected by Node DOWN.
-                    // Lets move the InterVpnLink to some other place. Basically, remove it and create it again
-                    InstanceIdentifier<InterVpnLink> interVpnLinkIid =
-                        InterVpnLinkUtil.getInterVpnLinkPath(interVpnLink.getName());
-                    // Remove it
-                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, interVpnLinkIid);
-                    // Create it again, but first we have to wait for everything to be removed from dataplane
-                    Long timeToWait = Long.getLong("wait.time.sync.install", 1500L);
-                    try {
-                        Thread.sleep(timeToWait);
-                    } catch (InterruptedException e) {
-                        LOG.warn("Interrupted while waiting for Flows removal sync.", e);
-                    }
-
-                    InterVpnLink interVpnLink2 = new InterVpnLinkBuilder(interVpnLink).build();
-                    WriteTransaction tx = broker.newWriteOnlyTransaction();
-                    tx.put(LogicalDatastoreType.CONFIGURATION, interVpnLinkIid, interVpnLink2, true);
-                    CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
-                    result.add(futures);
-                }
-            }
-
-            return result;
-        }
-
-    }
-
 }

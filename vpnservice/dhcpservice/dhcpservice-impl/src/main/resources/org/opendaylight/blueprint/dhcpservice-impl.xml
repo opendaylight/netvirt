@@ -6,16 +6,13 @@
   <reference id="dataBroker"
     interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
     odl:type="default" />
-  <!-- dhcpservice-impl fails to find the service below -->
-  <!--<reference id="rpcRegistry"
-    interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry" />-->
   <reference id="entityOwnershipService"
     interface="org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService" />
-  <reference id="mdsalUtils"
+  <reference id="iMdsalApiManager"
     interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
-  <reference id="neutronVpnMapper"
+  <reference id="iNeutronVpnManager"
     interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" />
-  <reference id="interfaceManager"
+  <reference id="iInterfaceManager"
     interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
 
   <odl:rpc-service id="odlInterfaceRpcService"
@@ -24,89 +21,15 @@
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService" />
   <odl:rpc-service id="packetProcessingService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService" />
+  <odl:rpc-service id="idManagerService"
+    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
 
-  <odl:clustered-app-config id="dhcpServiceConfig"
-    binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig" default-config-file-name="netvirt-dhcpservice-config.xml">
+  <odl:clustered-app-config id="dhcpserviceConfig"
+                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig"
+                            default-config-file-name="netvirt-dhcpservice-config.xml"
+                            update-strategy="none">
   </odl:clustered-app-config>
 
-  <bean id="dhcpManager" class="org.opendaylight.netvirt.dhcpservice.DhcpManager"
-    init-method="init" destroy-method="close">
-    <argument ref="mdsalUtils" />
-    <argument ref="neutronVpnMapper" />
-    <argument ref="dhcpServiceConfig" />
-    <argument ref="dataBroker" />
-    <argument ref="dhcpExternalTunnelManager" />
-    <argument ref="interfaceManager"/>
-  </bean>
-
-  <bean id="dhcpExternalTunnelManager" class="org.opendaylight.netvirt.dhcpservice.DhcpExternalTunnelManager"
-    init-method="init">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
-    <argument ref="itmRpcService" />
-    <argument ref="entityOwnershipService" />
-    <argument ref="interfaceManager"/>
-  </bean>
-
-  <bean id="dhcpPktHandler" class="org.opendaylight.netvirt.dhcpservice.DhcpPktHandler">
-    <argument ref="dhcpManager" />
-    <argument ref="dhcpExternalTunnelManager" />
-    <argument ref="odlInterfaceRpcService" />
-    <argument ref="packetProcessingService" />
-    <argument ref="interfaceManager" />
-    <argument ref="dhcpServiceConfig" />
-  </bean>
   <odl:notification-listener ref="dhcpPktHandler" />
-
-  <bean id="nodeListener" class="org.opendaylight.netvirt.dhcpservice.NodeListener"
-    init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="dhcpManager" />
-    <argument ref="dhcpExternalTunnelManager" />
-  </bean>
-
-  <bean id="dhcpConfigListener" class="org.opendaylight.netvirt.dhcpservice.DhcpConfigListener"
-    init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="dhcpManager" />
-  </bean>
-
-  <bean id="dhcpLogicalSwitchListener" class="org.opendaylight.netvirt.dhcpservice.DhcpLogicalSwitchListener"
-    init-method="init" destroy-method="close">
-    <argument ref="dhcpExternalTunnelManager" />
-    <argument ref="dataBroker" />
-  </bean>
-
-  <bean id="dhcpUCastMacListener" class="org.opendaylight.netvirt.dhcpservice.DhcpUCastMacListener"
-    init-method="init" destroy-method="close">
-    <argument ref="dhcpManager" />
-    <argument ref="dhcpExternalTunnelManager" />
-    <argument ref="dataBroker" />
-  </bean>
-
-  <bean id="dhcpNeutronPortListener" class="org.opendaylight.netvirt.dhcpservice.DhcpNeutronPortListener"
-    init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="dhcpExternalTunnelManager" />
-  </bean>
-
-  <bean id="dhcpDesignatedDpnListener" class="org.opendaylight.netvirt.dhcpservice.DhcpDesignatedDpnListener"
-    init-method="init" destroy-method="close">
-    <argument ref="dhcpExternalTunnelManager" />
-    <argument ref="dataBroker" />
-  </bean>
-
-  <bean id="dhcpSubnetListener" class="org.opendaylight.netvirt.dhcpservice.DhcpSubnetListener"
-    init-method="init" destroy-method="close">
-    <argument ref="dhcpManager" />
-    <argument ref="dhcpExternalTunnelManager" />
-    <argument ref="dataBroker" />
-  </bean>
-
-  <bean id="dhcpHwvtepListener" class="org.opendaylight.netvirt.dhcpservice.DhcpHwvtepListener"
-    init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="dhcpExternalTunnelManager" />
-  </bean>
 
 </blueprint>

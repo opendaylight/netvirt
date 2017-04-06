@@ -9,6 +9,10 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import com.google.common.base.Optional;
 import java.math.BigInteger;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -32,24 +36,26 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class DhcpUCastMacListener
         extends AsyncClusteredDataTreeChangeListenerBase<LocalUcastMacs, DhcpUCastMacListener>
         implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpUCastMacListener.class);
-
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final DhcpManager dhcpManager;
     private final DataBroker broker;
 
-    public DhcpUCastMacListener(DhcpManager dhcpManager,DhcpExternalTunnelManager dhcpExtTunnelMgr,
-                                DataBroker dataBroker) {
+    @Inject
+    public DhcpUCastMacListener(final DhcpManager dhcpManager, final DhcpExternalTunnelManager dhcpExtTunnelMgr,
+                                final DataBroker dataBroker) {
         super(LocalUcastMacs.class, DhcpUCastMacListener.class);
         this.broker = dataBroker;
         this.dhcpExternalTunnelManager = dhcpExtTunnelMgr;
         this.dhcpManager = dhcpManager;
     }
 
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
@@ -61,6 +67,7 @@ public class DhcpUCastMacListener
     }
 
     @Override
+    @PreDestroy
     public void close() {
         super.close();
         LOG.info("DhcpUCastMacListener Closed");

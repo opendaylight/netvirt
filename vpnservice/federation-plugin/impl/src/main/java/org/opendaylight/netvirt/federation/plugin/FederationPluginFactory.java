@@ -7,8 +7,6 @@
  */
 package org.opendaylight.netvirt.federation.plugin;
 
-import java.util.List;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -36,21 +34,14 @@ public class FederationPluginFactory implements IPluginFactory {
         producerMgr.attachPluginFactory(FederationPluginConstants.PLUGIN_TYPE, this);
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public IFederationPluginEgress createEgressPlugin(Object payload, String queueName, String contextId) {
-        if (payload instanceof List) {
-            List payloadList = (List) payload;
-            for (Object pair : payloadList) {
-                if (!(pair instanceof FederatedNetworkPair)) {
-                    throw new IllegalArgumentException(
-                            "payload expected to be List<FederatedNetworkPair> but was something else: "
-                                    + pair.getClass().getName());
-                }
-            }
-            return new FederationPluginEgress(producerMgr, (List<FederatedNetworkPair>) payload, queueName, contextId);
+        if (payload instanceof FederatedPayload) {
+            FederatedPayload federatedPayload = (FederatedPayload) payload;
+            return new FederationPluginEgress(producerMgr, federatedPayload.networkPairs,
+                federatedPayload.secGroupsPairs, queueName, contextId);
         } else {
-            throw new IllegalArgumentException("payload expected to be List<FederatedNetworkPair>"
+            throw new IllegalArgumentException("payload expected to be FederatedPayload"
                     + " but was something else: " + payload.getClass().getName());
         }
     }
