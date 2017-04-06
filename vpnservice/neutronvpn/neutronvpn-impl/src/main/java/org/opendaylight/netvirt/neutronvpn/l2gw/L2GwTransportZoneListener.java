@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.neutronvpn.l2gw;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -23,6 +26,7 @@ import org.slf4j.LoggerFactory;
 /**
  * The listener class for ITM transport zone updates.
  */
+@Singleton
 public class L2GwTransportZoneListener
         extends AsyncDataTreeChangeListenerBase<TransportZone, L2GwTransportZoneListener>
         implements AutoCloseable {
@@ -36,14 +40,17 @@ public class L2GwTransportZoneListener
      * @param dataBroker the data broker
      * @param itmRpcService the itm rpc service
      */
-    public L2GwTransportZoneListener(DataBroker dataBroker, ItmRpcService itmRpcService) {
+    @Inject
+    public L2GwTransportZoneListener(final DataBroker dataBroker, final ItmRpcService itmRpcService) {
         super(TransportZone.class, L2GwTransportZoneListener.class);
         this.dataBroker = dataBroker;
         this.itmRpcService = itmRpcService;
     }
 
-    public void start() {
-        LOG.info("{} start", getClass().getSimpleName());
+    @Override
+    @PostConstruct
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 

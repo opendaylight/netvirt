@@ -12,6 +12,9 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -35,6 +38,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<L2gateway, L2GatewayListener>
         implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayListener.class);
@@ -43,16 +47,18 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
     private final IL2gwService l2gwService;
     private final EntityOwnershipService entityOwnershipService;
 
+    @Inject
     public L2GatewayListener(final DataBroker dataBroker, final EntityOwnershipService entityOwnershipService,
-                             ItmRpcService itmRpcService, IL2gwService l2gwService) {
+                             final ItmRpcService itmRpcService, IL2gwService l2gwService) {
         this.dataBroker = dataBroker;
         this.entityOwnershipService = entityOwnershipService;
         this.itmRpcService = itmRpcService;
         this.l2gwService = l2gwService;
     }
 
-    public void start() {
-        LOG.info("{} start", getClass().getSimpleName());
+    @PostConstruct
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
         L2GatewayCacheUtils.createL2DeviceCache();
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
