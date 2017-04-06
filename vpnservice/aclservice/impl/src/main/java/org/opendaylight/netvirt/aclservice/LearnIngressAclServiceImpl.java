@@ -28,6 +28,7 @@ import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +52,7 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
     protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
             Map<String, List<MatchInfoBase>> flowMap, String flowName) {
         List<MatchInfoBase> flowMatches = flowMap.get(flowName);
-        flowMatches.add(buildLPortTagMatch(lportTag));
+        AclServiceUtils.addLportTagMetadataMatch(lportTag, flowMatches, ServiceModeIngress.class);
         List<ActionInfo> actionsInfos = new ArrayList<>();
         PacketHandling packetHandling = ace.getActions() != null ? ace.getActions().getPacketHandling() : null;
         int priority = getIngressSpecificAclFlowPriority(dpId, addOrRemove, flowName, packetHandling);
@@ -125,5 +126,15 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
                 0,
                 0,
                 LearnCommonAclServiceImpl.getUdpLearnActionMatches()));
+    }
+
+    @Override
+    protected short getIngressAclFilterTable() {
+        return NwConstants.EGRESS_LEARN_ACL_FILTER_TABLE;
+    }
+
+    @Override
+    protected short getIngressAclRemoteAclTable() {
+        return NwConstants.EGRESS_LEARN_ACL_REMOTE_ACL_TABLE;
     }
 }
