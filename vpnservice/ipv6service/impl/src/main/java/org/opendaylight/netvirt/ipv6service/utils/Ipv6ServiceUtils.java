@@ -40,7 +40,6 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv6NdTarget;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.ServiceIndex;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -293,12 +292,62 @@ public class Ipv6ServiceUtils {
         return ipv6LLA;
     }
 
+    public Ipv6Address getIpv6SolicitedNodeMcastAddress(Ipv6Address ipv6Address) {
+
+        /* According to RFC 4291, a Solicited Node Multicast Address is derived by adding the 24
+           lower order bits with the Solicited Node multicast prefix (i.e., FF02::1:FF00:0/104).
+           Example: For IPv6Address of FE80::2AA:FF:FE28:9C5A, the corresponding solicited node
+           multicast address would be FF02::1:FF28:9C5A
+         */
+
+        byte[] octets;
+        try {
+            octets = InetAddress.getByName(ipv6Address.getValue()).getAddress();
+        } catch (UnknownHostException e) {
+            LOG.error("getIpv6SolicitedNodeMcastAddress: Failed to serialize ipv6Address ", e);
+            return null;
+        }
+
+        // Return the address in its fully expanded format.
+        Ipv6Address solictedV6Address = new Ipv6Address(InetAddresses.forString("ff02::1:ff"
+                 + StringUtils.leftPad(Integer.toHexString(0xFF & octets[13]), 2, "0") + ":"
+                 + StringUtils.leftPad(Integer.toHexString(0xFF & octets[14]), 2, "0")
+                 + StringUtils.leftPad(Integer.toHexString(0xFF & octets[15]), 2, "0")).getHostAddress());
+
+        return solictedV6Address;
+    }
+
+    public MacAddress getIpv6MulticastMacAddress(Ipv6Address ipv6Address) {
+
+        /* According to RFC 2464, a Multicast MAC address is derived by concatenating 32 lower
+           order bits of IPv6 Multicast Address with the multicast prefix (i.e., 33:33).
+           Example: For Multicast IPv6Address of FF02::1:FF28:9C5A, the corresponding L2 multicast
+           address would be 33:33:28:9C:5A
+         */
+        byte[] octets;
+        try {
+            octets = InetAddress.getByName(ipv6Address.getValue()).getAddress();
+        } catch (UnknownHostException e) {
+            LOG.error("getIpv6MulticastMacAddress: Failed to serialize ipv6Address ", e);
+            return null;
+        }
+
+        StringBuffer macAddress = new StringBuffer();
+        macAddress.append("33:33:");
+        macAddress.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[12]), 2, "0") + ":");
+        macAddress.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[13]), 2, "0") + ":");
+        macAddress.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[14]), 2, "0") + ":");
+        macAddress.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[15]), 2, "0"));
+
+        return new MacAddress(macAddress.toString());
+    }
+
     private static List<MatchInfo> getIcmpv6RSMatch(Long elanTag) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV6);
         matches.add(MatchIpProtocol.ICMPV6);
         matches.add(new MatchIcmpv6(Ipv6Constants.ICMP_V6_RS_CODE, (short) 0));
-        matches.add(new MatchMetadata(ElanUtils.getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
+        matches.add(new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
         return matches;
     }
 
@@ -308,7 +357,7 @@ public class Ipv6ServiceUtils {
         matches.add(MatchIpProtocol.ICMPV6);
         matches.add(new MatchIcmpv6(Ipv6Constants.ICMP_V6_NS_CODE, (short) 0));
         matches.add(new MatchIpv6NdTarget(new Ipv6Address(ndTarget)));
-        matches.add(new MatchMetadata(ElanUtils.getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
+        matches.add(new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
         return matches;
     }
 
@@ -381,7 +430,7 @@ public class Ipv6ServiceUtils {
     public void bindIpv6Service(DataBroker broker, String interfaceName, Long elanTag, short tableId) {
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
-        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(ElanUtils.getElanMetadataLabel(elanTag),
+        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getElanTagMetadata(elanTag),
                 MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(tableId, ++instructionKey));
         short serviceIndex = ServiceIndex.getIndex(NwConstants.IPV6_SERVICE_NAME, NwConstants.IPV6_SERVICE_INDEX);

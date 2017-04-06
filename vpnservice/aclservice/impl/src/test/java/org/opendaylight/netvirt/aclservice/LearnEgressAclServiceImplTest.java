@@ -16,13 +16,20 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.math.BigInteger;
 
 import java.util.Collections;
+import java.util.concurrent.Future;
+
+import javax.inject.Inject;
+
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.MethodRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -30,13 +37,19 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.testutils.AsyncEventsWaiter;
+import org.opendaylight.genius.datastoreutils.testutils.TestableDataTreeChangeListenerModule;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchTcpFlags;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpDestinationPort;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchUdpDestinationPort;
+import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
+import org.opendaylight.netvirt.aclservice.tests.AclServiceModule;
+import org.opendaylight.netvirt.aclservice.tests.AclServiceTestModule;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils;
@@ -48,7 +61,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntriesBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.AceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.ActionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.MatchesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.packet.handling.PermitBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -56,44 +71,74 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.DestinationPortRangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairsBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 
 @RunWith(MockitoJUnitRunner.class)
+@Ignore
 public class LearnEgressAclServiceImplTest {
+
+    public @Rule MethodRule guice = new GuiceRule(new AclServiceModule(),
+            new AclServiceTestModule(SecurityGroupMode.Learn), new TestableDataTreeChangeListenerModule());
+
+    private static final Long ELAN_TAG = 500L;
+
+    private static final String SG_UUID = "12345678-1234-1234-1234-123456789012";
+
+    private static final long ACL_ID = 1L;
 
     LearnEgressAclServiceImpl testedService;
 
-    @Mock DataBroker dataBroker;
-    @Mock IMdsalApiManager mdsalManager;
-    @Mock WriteTransaction mockWriteTx;
-    @Mock ReadOnlyTransaction mockReadTx;
-    @Mock AclserviceConfig config;
-    @Mock IdManagerService idManager;
+    @Mock
+    DataBroker dataBroker;
+    @Mock
+    IMdsalApiManager mdsalManager;
+    @Mock
+    WriteTransaction mockWriteTx;
+    @Mock
+    ReadOnlyTransaction mockReadTx;
+    @Mock
+    AclserviceConfig config;
+    @Mock
+    IdManagerService idManager;
 
-    MethodInvocationParamSaver<Void> installFlowValueSaver = null;
-    MethodInvocationParamSaver<Void> removeFlowValueSaver = null;
+    @Inject
+    AsyncEventsWaiter asyncEventsWaiter;
+
+    MethodInvocationParamSaver<Future<?>> installFlowValueSaver = null;
+    MethodInvocationParamSaver<Future<?>> removeFlowValueSaver = null;
 
     final Integer tcpFinIdleTimeoutValue = 60;
 
     @Before
     public void setUp() {
         AclDataUtil aclDataUtil = new AclDataUtil();
+        ListenableFuture<RpcResult<AllocateIdOutput>> idResult = getAclIdResult(ACL_ID);
+        doReturn(idResult).when(idManager).allocateId(any(AllocateIdInput.class));
         AclServiceUtils aclServiceUtils = new AclServiceUtils(aclDataUtil, config, idManager);
         testedService = new LearnEgressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
+        RpcResult<Object> allocateIdResult = RpcResultBuilder.success().withResult(new AllocateIdOutputBuilder()
+                .setIdValue(10L).build()).build();
+        doReturn(Futures.immediateFuture(allocateIdResult)).when(idManager).allocateId(any(AllocateIdInput.class));
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
-        installFlowValueSaver = new MethodInvocationParamSaver<>(null);
-        doAnswer(installFlowValueSaver).when(mdsalManager).installFlow(any(FlowEntity.class));
-        removeFlowValueSaver = new MethodInvocationParamSaver<>(null);
-        doAnswer(installFlowValueSaver).when(mdsalManager).removeFlow(any(FlowEntity.class));
+        installFlowValueSaver = new MethodInvocationParamSaver<>(Futures.immediateCheckedFuture(null));
+        doAnswer(installFlowValueSaver).when(mdsalManager).installFlow(any(BigInteger.class), any(FlowEntity.class));
+        removeFlowValueSaver = new MethodInvocationParamSaver<>(Futures.immediateCheckedFuture(null));
+        doAnswer(removeFlowValueSaver).when(mdsalManager).removeFlow(any(BigInteger.class), any(FlowEntity.class));
         doReturn(tcpFinIdleTimeoutValue).when(config).getSecurityGroupTcpFinIdleTimeout();
     }
 
@@ -112,96 +157,86 @@ public class LearnEgressAclServiceImplTest {
 
     @Test
     public void addAcl__SinglePort() throws Exception {
-        Uuid sgUuid = new Uuid("12345678-1234-1234-1234-123456789012");
+        AclServiceTestUtils.prepareElanTag(mockReadTx, ELAN_TAG);
+        Uuid sgUuid = new Uuid(SG_UUID);
         AclInterface ai = stubTcpAclInterface(sgUuid, "if_name", "1.1.1.1/32", 80, 80);
         assertEquals(true, testedService.applyAcl(ai));
+        AclServiceTestUtils.waitABit(asyncEventsWaiter);
         assertEquals(10, installFlowValueSaver.getNumOfInvocations());
 
-        FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(0);
-        AclServiceTestUtils.verifyMatchInfo(flow.getMatchInfoList(),
-                NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
+        FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(1);
+        assertTrue(flow.getMatchInfoList().contains(new NxMatchTcpDestinationPort(80, 65535)));
         AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0), ActionLearn.class);
 
         // verify that tcpFinIdleTimeout is used for TCP
         AclServiceTestUtils.verifyActionLearn(flow.getInstructionInfoList().get(0),
-                new ActionLearn(
-                        0,
-                        0,
-                        AclConstants.PROTO_MATCH_PRIORITY,
-                        AclConstants.COOKIE_ACL_BASE,
-                        AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE,
-                        NwConstants.EGRESS_LEARN_TABLE,
-                        tcpFinIdleTimeoutValue,
-                        0,
-                        Collections.emptyList()));
+                new ActionLearn(0, 0, AclConstants.PROTO_MATCH_PRIORITY, AclConstants.COOKIE_ACL_BASE,
+                        AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE, NwConstants.EGRESS_LEARN_TABLE,
+                        tcpFinIdleTimeoutValue, 0, Collections.emptyList()));
     }
 
     @Test
     public void addAcl__AllowAll() throws Exception {
-        Uuid sgUuid = new Uuid("12345678-1234-1234-1234-123456789012");
+        AclServiceTestUtils.prepareElanTag(mockReadTx, ELAN_TAG);
+        Uuid sgUuid = new Uuid(SG_UUID);
         AclInterface ai = stubAllowAllInterface(sgUuid, "if_name");
         assertEquals(true, testedService.applyAcl(ai));
+        AclServiceTestUtils.waitABit(asyncEventsWaiter);
         assertEquals(10, installFlowValueSaver.getNumOfInvocations());
 
-        FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(0);
+        FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(1);
         AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0), ActionLearn.class);
     }
 
     @Test
     public void addAcl__MultipleRanges() throws Exception {
-        Uuid sgUuid = new Uuid("12345678-1234-1234-1234-123456789012");
+        AclServiceTestUtils.prepareElanTag(mockReadTx, ELAN_TAG);
+        Uuid sgUuid = new Uuid(SG_UUID);
         AclInterface ai = stubTcpAclInterface(sgUuid, "if_name", "1.1.1.1/32", 80, 84);
         assertEquals(true, testedService.applyAcl(ai));
+        AclServiceTestUtils.waitABit(asyncEventsWaiter);
         assertEquals(11, installFlowValueSaver.getNumOfInvocations());
-        FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(0);
-        AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(),
-                NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65532");
+        FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(1);
+        assertTrue(firstRangeFlow.getMatchInfoList().contains(new NxMatchTcpDestinationPort(80, 65532)));
 
-        FlowEntity secondRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(10).get(0);
-        AclServiceTestUtils.verifyMatchInfo(secondRangeFlow.getMatchInfoList(),
-                NxMatchFieldType.nx_tcp_dst_with_mask, "84", "65535");
+        FlowEntity secondRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(10).get(1);
+        assertTrue(secondRangeFlow.getMatchInfoList().contains(new NxMatchTcpDestinationPort(84, 65535)));
     }
 
     @Test
     public void addAcl__UdpSinglePortShouldNotCreateSynRule() throws Exception {
-        Uuid sgUuid = new Uuid("12345678-1234-1234-1234-123456789012");
+        AclServiceTestUtils.prepareElanTag(mockReadTx, ELAN_TAG);
+        Uuid sgUuid = new Uuid(SG_UUID);
         AclInterface ai = stubUdpAclInterface(sgUuid, "if_name", "1.1.1.1/32", 80, 80);
         assertEquals(true, testedService.applyAcl(ai));
+        AclServiceTestUtils.waitABit(asyncEventsWaiter);
         assertEquals(10, installFlowValueSaver.getNumOfInvocations());
-        FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(0);
-        AclServiceTestUtils.verifyMatchInfo(flow.getMatchInfoList(),
-                NxMatchFieldType.nx_udp_dst_with_mask, "80", "65535");
+        FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(1);
+        assertTrue(flow.getMatchInfoList().contains(new NxMatchUdpDestinationPort(80, 65535)));
         AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0), ActionLearn.class);
 
         // verify that even though tcpFinIdleTimeout is set to non-zero, it is not used for UDP
         AclServiceTestUtils.verifyActionLearn(flow.getInstructionInfoList().get(0),
-                new ActionLearn(
-                        0,
-                        0,
-                        AclConstants.PROTO_MATCH_PRIORITY,
-                        AclConstants.COOKIE_ACL_BASE,
-                        AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE,
-                        NwConstants.EGRESS_LEARN_TABLE,
-                        0,
-                        0,
+                new ActionLearn(0, 0, AclConstants.PROTO_MATCH_PRIORITY, AclConstants.COOKIE_ACL_BASE,
+                        AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE, NwConstants.EGRESS_LEARN_TABLE, 0, 0,
                         Collections.emptyList()));
     }
 
     @Test
     @Ignore
     public void removeAcl__SinglePort() throws Exception {
-        Uuid sgUuid = new Uuid("12345678-1234-1234-1234-123456789012");
+        Uuid sgUuid = new Uuid(SG_UUID);
         AclInterface ai = stubTcpAclInterface(sgUuid, "if_name", "1.1.1.1/32", 80, 80);
         assertEquals(true, testedService.removeAcl(ai));
+        AclServiceTestUtils.waitABit(asyncEventsWaiter);
         assertEquals(5, removeFlowValueSaver.getNumOfInvocations());
-        FlowEntity firstRangeFlow = (FlowEntity) removeFlowValueSaver.getInvocationParams(4).get(0);
+        FlowEntity firstRangeFlow = (FlowEntity) removeFlowValueSaver.getInvocationParams(4).get(1);
         assertTrue(firstRangeFlow.getMatchInfoList().contains(new MatchTcpFlags(2)));
-        AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(),
-                NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
+        assertTrue(firstRangeFlow.getMatchInfoList().contains(new NxMatchTcpDestinationPort(80, 65535)));
     }
 
-    private AclInterface stubUdpAclInterface(Uuid sgUuid, String ifName, String ipv4PrefixStr,
-            int tcpPortLower, int tcpPortUpper) {
+    private AclInterface stubUdpAclInterface(Uuid sgUuid, String ifName, String ipv4PrefixStr, int tcpPortLower,
+            int tcpPortUpper) {
         AclInterface ai = new AclInterface();
         ai.setPortSecurityEnabled(true);
         ai.setSecurityGroups(Collections.singletonList(sgUuid));
@@ -209,12 +244,12 @@ public class LearnEgressAclServiceImplTest {
         ai.setLPortTag(2);
         stubInterfaceAcl(ifName, ai);
 
-        stubAccessList(sgUuid, ipv4PrefixStr, tcpPortLower, tcpPortUpper, (short)NwConstants.IP_PROT_UDP);
+        stubAccessList(sgUuid, ipv4PrefixStr, tcpPortLower, tcpPortUpper, (short) NwConstants.IP_PROT_UDP);
         return ai;
     }
 
-    private AclInterface stubTcpAclInterface(Uuid sgUuid, String ifName, String ipv4PrefixStr,
-            int tcpPortLower, int tcpPortUpper) {
+    private AclInterface stubTcpAclInterface(Uuid sgUuid, String ifName, String ipv4PrefixStr, int tcpPortLower,
+            int tcpPortUpper) {
         AclInterface ai = new AclInterface();
         ai.setPortSecurityEnabled(true);
         ai.setDpId(BigInteger.ONE);
@@ -222,7 +257,7 @@ public class LearnEgressAclServiceImplTest {
         ai.setSecurityGroups(Collections.singletonList(sgUuid));
         stubInterfaceAcl(ifName, ai);
 
-        stubAccessList(sgUuid, ipv4PrefixStr, tcpPortLower, tcpPortUpper, (short)NwConstants.IP_PROT_TCP);
+        stubAccessList(sgUuid, ipv4PrefixStr, tcpPortLower, tcpPortUpper, (short) NwConstants.IP_PROT_TCP);
         return ai;
     }
 
@@ -241,14 +276,14 @@ public class LearnEgressAclServiceImplTest {
         ai.setLPortTag(2);
         stubInterfaceAcl(ifName, ai);
 
-        stubAccessList(sgUuid, null, -1, -1, (short)-1);
+        stubAccessList(sgUuid, null, -1, -1, (short) -1);
         return ai;
     }
 
     private void stubAccessList(Uuid sgUuid, String ipv4PrefixStr, int portLower, int portUpper, short protocol) {
         AclBuilder ab = new AclBuilder();
         ab.setAclName("AAA");
-        ab.setKey(new AclKey(sgUuid.getValue(),Ipv4Acl.class));
+        ab.setKey(new AclKey(sgUuid.getValue(), Ipv4Acl.class));
 
         AceIpBuilder aceIpBuilder = new AceIpBuilder();
         if (portLower != -1 && portUpper != -1) {
@@ -269,6 +304,8 @@ public class LearnEgressAclServiceImplTest {
         MatchesBuilder matches = new MatchesBuilder();
         matches.setAceType(aceIpBuilder.build());
         AceBuilder aceBuilder = new AceBuilder();
+        ActionsBuilder actions = new ActionsBuilder().setPacketHandling(new PermitBuilder().build());
+        aceBuilder.setActions(actions.build());
         aceBuilder.setMatches(matches.build());
         SecurityRuleAttrBuilder securityRuleAttrBuilder = new SecurityRuleAttrBuilder();
         securityRuleAttrBuilder.setDirection(DirectionEgress.class);
@@ -279,6 +316,17 @@ public class LearnEgressAclServiceImplTest {
 
         InstanceIdentifier<Acl> aclKey = AclServiceUtils.getAclInstanceIdentifier(sgUuid.getValue());
         when(mockReadTx.read(LogicalDatastoreType.CONFIGURATION, aclKey))
-            .thenReturn(Futures.immediateCheckedFuture(Optional.of(ab.build())));
+                .thenReturn(Futures.immediateCheckedFuture(Optional.of(ab.build())));
     }
+
+    private ListenableFuture<RpcResult<AllocateIdOutput>> getAclIdResult(Long id) {
+        AllocateIdOutputBuilder output = new AllocateIdOutputBuilder();
+        output.setIdValue(id);
+
+        RpcResultBuilder<AllocateIdOutput> allocateIdRpcBuilder = RpcResultBuilder.success();
+        allocateIdRpcBuilder.withResult(output.build());
+        ListenableFuture<RpcResult<AllocateIdOutput>> idResult = Futures.immediateFuture(allocateIdRpcBuilder.build());
+        return idResult;
+    }
+
 }

@@ -5,7 +5,7 @@
 Element Counters
 ==============================================================
 
-https://git.opendaylight.org/gerrit/#/q/spec-for-element-to-element-counters
+https://git.opendaylight.org/gerrit/#/q/element-counters
 
 This feature depends on the Netvirt statistics feature.
 

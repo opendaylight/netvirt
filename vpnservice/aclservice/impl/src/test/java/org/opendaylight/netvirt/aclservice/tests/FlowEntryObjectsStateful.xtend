@@ -12,6 +12,7 @@ import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop
 import org.opendaylight.genius.mdsalutil.FlowEntity
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions
+import org.opendaylight.genius.mdsalutil.matches.MatchArpSha
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType
@@ -20,17 +21,19 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6
 import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source
-import org.opendaylight.genius.mdsalutil.matches.MatchMetadata
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpDestinationPort
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpDestinationPort
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchUdpDestinationPort
 import org.opendaylight.genius.mdsalutil.MetaDataUtil
-import org.opendaylight.genius.mdsalutil.NxMatchFieldType
-import org.opendaylight.genius.mdsalutil.NxMatchInfoBuilder
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress
 
-import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
 import org.opendaylight.genius.mdsalutil.matches.MatchArpSha
 import org.opendaylight.genius.mdsalutil.NwConstants
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata
 
 class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
 
@@ -43,9 +46,12 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedIngressFlowsPort2
         + fixedConntrackIngressFlowsPort2
         + etherIngressFlowsPort2
+        + etherIngressFlowsPort2
+        + etherIngressFlowsPort2
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + etheregressFlowPort2
+        + remoteFlows
     }
 
     protected def tcpFlows() {
@@ -60,6 +66,9 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + tcpEgressFlowPort2
+        + tcpEgressFlowPort2
+        + tcpEgressFlowPort2
+        + remoteFlows
     }
 
     protected def udpFlows() {
@@ -71,9 +80,12 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedIngressFlowsPort2
         + fixedConntrackIngressFlowsPort2
         + udpIngressFlowsPort2
+        + udpIngressFlowsPort2
+        + udpIngressFlowsPort2
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + udpEgressFlowsPort2
+        + remoteFlows
     }
 
     protected def icmpFlows() {
@@ -88,6 +100,9 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + icmpEgressFlowsPort2
+        + icmpEgressFlowsPort2
+        + icmpEgressFlowsPort2
+        + remoteFlows
     }
 
     protected def dstRangeFlows() {
@@ -208,13 +223,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 matchInfoList = #[
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
                 priority = 50
                 tableId = 213 as short
@@ -230,13 +239,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 matchInfoList = #[
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            48L,
-                            48L
-                        ]
-                    ]
+                    new NxMatchCtState(48L, 48L)
                 ]
                 priority = 62015
                 tableId = 213 as short
@@ -248,7 +251,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "ETHERnull_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F3_10.0.0.1/32"
+                flowId = "ETHERnull_remoteACL_id_85cc3048-abc3-43cc-89b3-377341426ac5"
                         +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -258,48 +261,13 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     ])
                 ]
                 matchInfoList = #[
+                    new MatchMetadata(4bi, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID),
                     new MatchEthernetType(2048L),
-                    new MatchIpv4Source("10.0.0.1", "32"),
                     new MatchEthernetType(2048L),
-                    new MatchEthernetType(2048L),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
-                tableId = 243 as short
-            ],
-            new FlowEntity(123bi) => [
-                cookie = 110100480bi
-                flowId = "ETHERnull_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.2/32"
-                        +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
-                flowName = "ACL"
-                instructionInfoList = #[
-                    new InstructionApplyActions(#[
-                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
-                        new ActionNxResubmit(220 as short)
-                    ])
-                ]
-                matchInfoList = #[
-                    new MatchEthernetType(2048L),
-                    new MatchIpv4Source("10.0.0.2", "32"),
-                    new MatchEthernetType(2048L),
-                    new MatchEthernetType(2048L),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
-                ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -334,14 +302,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(33L, 33L)
                 ]
                 priority = 50
                 tableId = 243 as short
@@ -356,14 +318,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                           48L,
-                           48L
-                        ]
-                    ]
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(48L, 48L)
                 ]
                 priority = 62015
                 tableId = 243 as short
@@ -402,13 +358,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 matchInfoList = #[
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
                 priority = 50
                 tableId = 213 as short
@@ -424,13 +374,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 matchInfoList = #[
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            48L,
-                            48L
-                        ]
-                    ]
+                    new NxMatchCtState(48L, 48L)
                 ]
                 priority = 62015
                 tableId = 213 as short
@@ -467,14 +411,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(33L, 33L)
                 ]
                 priority = 50
                 tableId = 243 as short
@@ -489,14 +427,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            48L,
-                            48L
-                        ]
-                    ]
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(48L, 48L)
                 ]
                 priority = 62015
                 tableId = 243 as short
@@ -535,13 +467,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 matchInfoList = #[
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
                 priority = 50
                 tableId = 213 as short
@@ -557,13 +483,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 matchInfoList = #[
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            48L,
-                            48L
-                        ]
-                    ]
+                    new NxMatchCtState(48L, 48L)
                 ]
                 priority = 62015
                 tableId = 213 as short
@@ -600,14 +520,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(33L, 33L)
                 ]
                 priority = 50
                 tableId = 243 as short
@@ -622,14 +536,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            48L,
-                            48L
-                        ]
-                    ]
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(48L, 48L)
                 ]
                 priority = 62015
                 tableId = 243 as short
@@ -685,13 +593,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 matchInfoList = #[
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
                 priority = 50
                 tableId = 213 as short
@@ -707,13 +609,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 matchInfoList = #[
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            48L,
-                            48L
-                        ]
-                    ]
+                    new NxMatchCtState(48L, 48L)
                 ]
                 priority = 62015
                 tableId = 213 as short
@@ -766,14 +662,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(33L, 33L)
                 ]
                 priority = 50
                 tableId = 243 as short
@@ -788,14 +678,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            48L,
-                            48L
-                        ]
-                    ]
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(48L, 48L)
                 ]
                 priority = 62015
                 tableId = 243 as short
@@ -819,15 +703,9 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -849,15 +727,9 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -878,24 +750,12 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.nx_tcp_dst_with_mask
-                        matchValues = #[
-                            80L,
-                            65535L
-                        ]
-                    ],
+                    new NxMatchTcpDestinationPort(80, 65535),
                     new MatchIpProtocol(6 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -916,24 +776,12 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.nx_tcp_dst_with_mask
-                        matchValues = #[
-                            80L,
-                            65535L
-                        ]
-                    ],
+                    new NxMatchTcpDestinationPort(80, 65535),
                     new MatchIpProtocol(6 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -943,7 +791,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "TCP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F3_10.0.0.1/32"
+                flowId = "TCP_DESTINATION_80_65535_remoteACL_id_85cc3048-abc3-43cc-89b3-377341426ac5"
                         +"Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -953,63 +801,15 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     ])
                 ]
                 matchInfoList = #[
+                    new MatchMetadata(4bi, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID),
                     new MatchEthernetType(2048L),
-                    new MatchIpv4Destination("10.0.0.1", "32"),
                     new MatchEthernetType(2048L),
-                    new MatchEthernetType(2048L),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.nx_tcp_dst_with_mask
-                        matchValues = #[
-                            80L,
-                            65535L
-                        ]
-                    ],
+                    new NxMatchTcpDestinationPort(80, 65535),
                     new MatchIpProtocol(6 as short),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
-                tableId = 213 as short
-            ],
-            new FlowEntity(123bi) => [
-                cookie = 110100480bi
-                flowId = "TCP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.2/32Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
-                flowName = "ACL"
-                instructionInfoList = #[
-                    new InstructionApplyActions(#[
-                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
-                        new ActionNxResubmit(17 as short)
-                    ])
-                ]
-                matchInfoList = #[
-                    new MatchEthernetType(2048L),
-                    new MatchIpv4Destination("10.0.0.2", "32"),
-                    new MatchEthernetType(2048L),
-                    new MatchEthernetType(2048L),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.nx_tcp_dst_with_mask
-                        matchValues = #[
-                            80L,
-                            65535L
-                        ]
-                    ],
-                    new MatchIpProtocol(6 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
-                ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -1030,24 +830,12 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.nx_udp_dst_with_mask
-                        matchValues = #[
-                            80L,
-                            65535L
-                        ]
-                    ],
+                    new NxMatchUdpDestinationPort(80, 65535),
                     new MatchIpProtocol(17 as short),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -1057,7 +845,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "UDP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F3_10.0.0.1/32"
+                flowId = "UDP_DESTINATION_80_65535_remoteACL_id_85cc3048-abc3-43cc-89b3-377341426ac5"
                         +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -1067,63 +855,15 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     ])
                 ]
                 matchInfoList = #[
+                    new MatchMetadata(4bi, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID),
                     new MatchEthernetType(2048L),
-                    new MatchIpv4Source("10.0.0.1", "32"),
                     new MatchEthernetType(2048L),
-                    new MatchEthernetType(2048L),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.nx_udp_dst_with_mask
-                        matchValues = #[
-                            80L,
-                            65535L
-                        ]
-                    ],
+                    new NxMatchUdpDestinationPort(80, 65535),
                     new MatchIpProtocol(17 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
-                tableId = 243 as short
-            ],
-            new FlowEntity(123bi) => [
-                cookie = 110100480bi
-                flowId = "UDP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.2/32Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
-                flowName = "ACL"
-                instructionInfoList = #[
-                    new InstructionApplyActions(#[
-                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
-                        new ActionNxResubmit(220 as short)
-                    ])
-                ]
-                matchInfoList = #[
-                    new MatchEthernetType(2048L),
-                    new MatchIpv4Source("10.0.0.2", "32"),
-                    new MatchEthernetType(2048L),
-                    new MatchEthernetType(2048L),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.nx_udp_dst_with_mask
-                        matchValues = #[
-                            80L,
-                            65535L
-                        ]
-                    ],
-                    new MatchIpProtocol(17 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
-                ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -1144,24 +884,12 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.nx_udp_dst_with_mask
-                        matchValues = #[
-                            80L,
-                            65535L
-                        ]
-                    ],
+                    new NxMatchUdpDestinationPort(80, 65535),
                     new MatchIpProtocol(17 as short),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -1184,16 +912,10 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new MatchIcmpv4(2 as short, 3 as short),
                     new MatchIpProtocol(1 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -1216,16 +938,10 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new MatchIcmpv4(2 as short, 3 as short),
                     new MatchIpProtocol(1 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -1235,7 +951,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "ICMP_V4_DESTINATION_23__ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F3_10.0.0.1/32"
+                flowId = "ICMP_V4_DESTINATION_23__remoteACL_id_85cc3048-abc3-43cc-89b3-377341426ac5"
                         +"Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -1245,52 +961,15 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchEthernetType(2048L),
-                    new MatchIpv4Destination("10.0.0.1", "32"),
-                    new MatchEthernetType(2048L),
-                    new MatchEthernetType(2048L),
-                    new MatchIcmpv4(2 as short, 3 as short),
-                    new MatchIpProtocol(1 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
-                ]
-                priority = IdHelper.getFlowPriority(flowId)
-                tableId = 213 as short
-            ],
-            new FlowEntity(123bi) => [
-                cookie = 110100480bi
-                flowId = "ICMP_V4_DESTINATION_23__ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.2/32"
-                        +"Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
-                flowName = "ACL"
-                instructionInfoList = #[
-                    new InstructionApplyActions(#[
-                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
-                        new ActionNxResubmit(17 as short)
-                    ])
-                ]
-                matchInfoList = #[
-                    new MatchEthernetType(2048L),
-                    new MatchIpv4Destination("10.0.0.2", "32"),
+                    new MatchMetadata(4bi, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID),
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
                     new MatchIcmpv4(2 as short, 3 as short),
                     new MatchIpProtocol(1 as short),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -1311,24 +990,12 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.nx_udp_dst_with_mask
-                        matchValues = #[
-                            2000L,
-                            65532L
-                        ]
-                    ],
+                    new NxMatchUdpDestinationPort(2000, 65532),
                     new MatchIpProtocol(17 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -1349,24 +1016,12 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.nx_tcp_dst_with_mask
-                        matchValues = #[
-                            776L,
-                            65534L
-                        ]
-                    ],
+                    new NxMatchTcpDestinationPort(776, 65534),
                     new MatchIpProtocol(6 as short),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -1382,24 +1037,12 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.nx_tcp_dst_with_mask
-                        matchValues = #[
-                            512L,
-                            65280L
-                        ]
-                    ],
+                    new NxMatchTcpDestinationPort(512, 65280),
                     new MatchIpProtocol(6 as short),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -1415,24 +1058,12 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.nx_tcp_dst_with_mask
-                        matchValues = #[
-                            334L,
-                            65534L
-                        ]
-                    ],
+                    new NxMatchTcpDestinationPort(334, 65534),
                     new MatchIpProtocol(6 as short),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -1448,24 +1079,12 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.nx_tcp_dst_with_mask
-                        matchValues = #[
-                            333L,
-                            65535L
-                        ]
-                    ],
+                    new NxMatchTcpDestinationPort(333, 65535),
                     new MatchIpProtocol(6 as short),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -1481,24 +1100,12 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.nx_tcp_dst_with_mask
-                        matchValues = #[
-                            336L,
-                            65520L
-                        ]
-                    ],
+                    new NxMatchTcpDestinationPort(336, 65520),
                     new MatchIpProtocol(6 as short),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -1514,24 +1121,12 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.nx_tcp_dst_with_mask
-                        matchValues = #[
-                            352L,
-                            65504L
-                        ]
-                    ],
+                    new NxMatchTcpDestinationPort(352, 65504),
                     new MatchIpProtocol(6 as short),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -1547,24 +1142,12 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.nx_tcp_dst_with_mask
-                        matchValues = #[
-                            384L,
-                            65408L
-                        ]
-                    ],
+                    new NxMatchTcpDestinationPort(384, 65408),
                     new MatchIpProtocol(6 as short),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -1580,24 +1163,12 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.nx_tcp_dst_with_mask
-                        matchValues = #[
-                            768L,
-                            65528L
-                        ]
-                    ],
+                    new NxMatchTcpDestinationPort(768, 65528),
                     new MatchIpProtocol(6 as short),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -1619,16 +1190,10 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
                     new MatchIpProtocol(17 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -1651,15 +1216,9 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new MatchIpProtocol(6 as short),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
          ]
@@ -1683,16 +1242,10 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new MatchIcmpv4(2 as short, 3 as short),
                     new MatchIpProtocol(1 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ],
             new FlowEntity(123bi) => [
@@ -1710,16 +1263,10 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new MatchIcmpv4(2 as short, 3 as short),
                     new MatchIpProtocol(1 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 243 as short
             ]
         ]
@@ -1743,15 +1290,9 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchIcmpv4(2 as short, 3 as short),
                     new MatchIpProtocol(1 as short),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ],
             new FlowEntity(123bi) => [
@@ -1770,15 +1311,9 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchIcmpv4(2 as short, 3 as short),
                     new MatchIpProtocol(1 as short),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
-                priority = IdHelper.getFlowPriority(flowId)
+                priority = IdHelper.getId(flowId)
                 tableId = 213 as short
             ]
         ]
@@ -1801,7 +1336,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchIpProtocol(17 as short),
                     new MatchUdpDestinationPort(68 as short),
                     new MatchUdpSourcePort(67 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
                 tableId = 241 as short
@@ -1820,7 +1355,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchIpProtocol(17 as short),
                     new MatchUdpDestinationPort(546 as short),
                     new MatchUdpSourcePort(547 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
                 tableId = 241 as short
@@ -1838,7 +1373,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(58 as short),
                     new MatchIcmpv6(130 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
                 tableId = 241 as short
@@ -1856,7 +1391,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(58 as short),
                     new MatchIcmpv6(135 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
                 tableId = 241 as short
@@ -1874,7 +1409,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchEthernetType(34525L),
                     new MatchIpProtocol(58 as short),
                     new MatchIcmpv6(136 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
                 tableId = 241 as short
@@ -1890,7 +1425,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(2054L),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
                 tableId = 241 as short
@@ -1906,13 +1441,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 matchInfoList = #[
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchCtState(33L, 33L)
                 ]
                 priority = 50
                 tableId = 213 as short
@@ -1928,13 +1457,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 matchInfoList = #[
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            48L,
-                            48L
-                        ]
-                    ]
+                    new NxMatchCtState(48L, 48L)
                 ]
                 priority = 62015
                 tableId = 213 as short
@@ -2088,14 +1611,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            33L,
-                            33L
-                        ]
-                    ]
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(33L, 33L)
                 ]
                 priority = 50
                 tableId = 243 as short
@@ -2110,17 +1627,63 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            48L,
-                            48L
-                        ]
-                    ]
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(48L, 48L)
                 ]
                 priority = 62015
                 tableId = 243 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Ingress_Fixed_Conntrk_123_" + mac + "_10.0.0.1/32_Recirc"
+            flowName = "ACL"
+            instructionInfoList = #[
+                new InstructionApplyActions(#[
+                    new ActionNxConntrack(2, 0, 0, 5000, 242 as short)
+                ])
+            ]
+            matchInfoList = #[
+                new MatchEthernetType(2048L),
+                new MatchEthernetDestination(new MacAddress(mac)),
+            new MatchEthernetType(2048L),
+            new MatchIpv4Destination("10.0.0.1", "32")
+                ]
+                priority = 61010
+                tableId = 241 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Egress_Fixed_Conntrk_123_" + mac + "_10.0.0.1/32_Recirc"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 0, 0, 5000, 212 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetSource(new MacAddress(mac)),
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Source("10.0.0.1", "32")
+                ]
+                priority = 61010
+                tableId = 211 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Egress_ARP_123_987_" + mac
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(2054L),
+                    new MatchArpSha(new MacAddress(mac)),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 63010
+                tableId = 211 as short
             ]
         ]
     }

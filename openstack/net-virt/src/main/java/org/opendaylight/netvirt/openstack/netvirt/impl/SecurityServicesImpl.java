@@ -498,11 +498,11 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
 
     @Override
     public void syncSecurityRule(NeutronPort port, NeutronSecurityRule securityRule, Neutron_IPs vmIp, NodeId nodeId,
-            NeutronSecurityGroup securityGroup, boolean write) {
+            boolean write) {
         LOG.trace("syncSecurityGroup:" + securityRule + " Write:" + write);
         if (null != port && null != port.getSecurityGroups()) {
             if (nodeId != null) {
-                syncSecurityRules(port, securityRule, vmIp, nodeId, port.getMacAddress(), securityGroup, write);
+                syncSecurityRules(port, securityRule, vmIp, nodeId, port.getMacAddress(), write);
             } else {
                 return;
             }
@@ -510,7 +510,7 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
     }
 
     private void syncSecurityRules(NeutronPort port, NeutronSecurityRule securityRule, Neutron_IPs vmIp, NodeId nodeId,
-            String attachedMac, NeutronSecurityGroup securityGroup, boolean write) {
+            String attachedMac, boolean write) {
         NeutronNetwork neutronNetwork = neutronL3Adapter.getNetworkFromCleanupCache(port.getNetworkUUID());
         if (null == neutronNetwork) {
             neutronNetwork = neutronNetworkCache.getNetwork(port.getNetworkUUID());
@@ -533,10 +533,10 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
         if (NeutronSecurityRule.ETHERTYPE_IPV4.equals(securityRule.getSecurityRuleEthertype())) {
             if (NeutronSecurityRule.DIRECTION_INGRESS.equals(securityRule.getSecurityRuleDirection())) {
                 ingressAclProvider.programPortSecurityRule(dpId, segmentationId, attachedMac,
-                        securityRule, securityGroup, vmIp, write);
+                        securityRule, vmIp, write);
             } else if (NeutronSecurityRule.DIRECTION_EGRESS.equals(securityRule.getSecurityRuleDirection())) {
                 egressAclProvider.programPortSecurityRule(dpId, segmentationId, attachedMac,
-                        securityRule, securityGroup, vmIp, write);
+                        securityRule, vmIp, write);
             }
         }
     }

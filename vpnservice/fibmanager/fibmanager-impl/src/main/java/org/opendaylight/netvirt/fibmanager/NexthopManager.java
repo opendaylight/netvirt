@@ -463,7 +463,7 @@ public class NexthopManager implements AutoCloseable {
     }
 
     public AdjacencyResult getRemoteNextHopPointer(BigInteger remoteDpnId, long vpnId, String prefixIp,
-                                                   String nextHopIp) {
+            String nextHopIp) {
         String egressIfName = null;
         LOG.trace("getRemoteNextHopPointer: input [remoteDpnId {}, vpnId {}, prefixIp {}, nextHopIp {} ]", remoteDpnId,
             vpnId, prefixIp, nextHopIp);
@@ -485,7 +485,8 @@ public class NexthopManager implements AutoCloseable {
 
         LOG.trace("NextHop pointer for prefixIp {} vpnId {} dpnId {} is {}", prefixIp, vpnId, remoteDpnId,
             egressIfName);
-        return egressIfName != null ? new AdjacencyResult(egressIfName, egressIfType) : null;
+        return egressIfName != null ? new AdjacencyResult(egressIfName, egressIfType, nextHopIp,
+                prefixIp) : null;
     }
 
     public BigInteger getDpnForPrefix(long vpnId, String prefixIp) {
@@ -770,10 +771,15 @@ public class NexthopManager implements AutoCloseable {
     static class AdjacencyResult {
         private String interfaceName;
         private Class<? extends InterfaceType> interfaceType;
+        private String nextHopIp;
+        private String prefix;
 
-        AdjacencyResult(String interfaceName, Class<? extends InterfaceType> interfaceType) {
+        AdjacencyResult(String interfaceName, Class<? extends InterfaceType> interfaceType, String nextHopIp,
+                        String prefix) {
             this.interfaceName = interfaceName;
             this.interfaceType = interfaceType;
+            this.nextHopIp = nextHopIp;
+            this.prefix = prefix;
         }
 
         public String getInterfaceName() {
@@ -782,6 +788,14 @@ public class NexthopManager implements AutoCloseable {
 
         public Class<? extends InterfaceType> getInterfaceType() {
             return interfaceType;
+        }
+
+        public String getNextHopIp() {
+            return nextHopIp;
+        }
+
+        public String getPrefix() {
+            return prefix;
         }
 
         @Override

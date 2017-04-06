@@ -29,13 +29,22 @@ public class CountersUtils {
     public static final String DURATION_NANO_SECOND_COUNTER_NAME = "durationNanoSecondCount";
     public static final String DURATION_SECOND_COUNTER_NAME = "durationSecondCount";
     public static final String OF_DELIMITER = ":";
+    public static final String OF_PREFIX = "openflow:";
     public static final String PACKET_COUNTER_NAME = "packetCount";
     public static final String PACKETS_GROUP_NAME = "Packets";
     public static final String PACKETS_RECEIVED_COUNTER_NAME = "packetsReceivedCount";
     public static final String PACKETS_TRANSMITTED_COUNTER_NAME = "packetsTransmittedCount";
 
-    public static final long CREATE_RESULT_TIMEOUT = 5;
-    public static final long NODE_CONNECTOR_REPLIES_TIMOUT = 10;
+    public static final String ELEMENT_COUNTERS_IP_FILTER_GROUP_NAME = "ipFilterGroup";
+    public static final String ELEMENT_COUNTERS_TCP_FILTER_GROUP_NAME = "tcpFilterFroup";
+    public static final String ELEMENT_COUNTERS_UDP_FILTER_GROUP_NAME = "udpFilterFroup";
+    public static final String IP_FILTER_NAME = "ip";
+    public static final String TCP_SRC_PORT_FILTER_NAME = "tcpSrcPort";
+    public static final String TCP_DST_PORT_FILTER_NAME = "tcpDstPort";
+    public static final String UDP_SRC_PORT_FILTER_NAME = "udpSrcPort";
+    public static final String UDP_DST_PORT_FILTER_NAME = "udpDstPort";
+    public static final String TCP_FILTER_NAME = "tcp";
+    public static final String UDP_FILTER_NAME = "udp";
 
     private static final List<String> UNACCUMULATED_COUNTER_GROUPS = new ArrayList<String>(Arrays.asList("Duration"));
     protected static final Logger LOG = LoggerFactory.getLogger(CountersUtils.class);

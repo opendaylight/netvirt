@@ -29,6 +29,13 @@ module federation-plugin-rpc {
                              connected, a federated network that does not appear will be considered
                              disconnected";
             }
+            list federated-acls-in {
+                key self-acl-id;
+                uses federation-plugin-manager:federated-acls-mapping;
+                description "Contains all acls in this site that are still
+                             federated, a federated acl that does not appear will be considered
+                             non-federated";
+            }
         }
     }
 }

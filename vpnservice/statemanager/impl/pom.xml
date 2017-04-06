@@ -8,6 +8,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.opendaylight.netvirt</groupId>
@@ -16,10 +17,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <relativePath>../../commons/config-parent</relativePath>
   </parent>
 
-  <modelVersion>4.0.0</modelVersion>
   <artifactId>statemanager-impl</artifactId>
   <name>ODL :: netvirt :: ${project.artifactId}</name>
   <packaging>bundle</packaging>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -58,7 +59,20 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>vpnmanager-api</artifactId>
       <version>${vpnservices.version}</version>
     </dependency>
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+    </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.aries.blueprint</groupId>
+        <artifactId>blueprint-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 
   <!--
       Maven Site Configuration

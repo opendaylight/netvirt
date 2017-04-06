@@ -16,6 +16,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.liblldp.BitBufferHelper;
 import org.opendaylight.controller.liblldp.BufferException;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
@@ -45,6 +48,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6PktHandler.class);
     private long pktProccessedCounter = 0;
@@ -53,6 +57,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
     private final Ipv6ServiceUtils ipv6Utils;
     private final ExecutorService packetProcessor = Executors.newCachedThreadPool();
 
+    @Inject
     public Ipv6PktHandler(PacketProcessingService pktService) {
         this.pktService = pktService;
         ifMgr = IfMgr.getIfMgrInstance();
@@ -245,7 +250,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             naPacket.setFlowLabel(pdu.getFlowLabel());
             naPacket.setIpv6Length(32);
             naPacket.setNextHeader(pdu.getNextHeader());
-            naPacket.setOptionType((short)2);
+            naPacket.setOptionType(Ipv6Constants.ICMP_V6_OPTION_TARGET_LLA);
             naPacket.setTargetAddrLength((short)1);
             naPacket.setTargetAddress(pdu.getTargetIpAddress());
             naPacket.setTargetLlAddress(new MacAddress(port.getMacAddress()));
@@ -368,7 +373,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
                     bitOffset = bitOffset + 8;
                     rsPdu.setSourceAddrLength(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
                     bitOffset = bitOffset + 8;
-                    if (rsPdu.getOptionType() == 1) {
+                    if (rsPdu.getOptionType() == Ipv6Constants.ICMP_V6_OPTION_SOURCE_LLA) {
                         rsPdu.setSourceLlAddress(new MacAddress(
                                 ipv6Utils.bytesToHexString(BitBufferHelper.getBits(data, bitOffset, 48))));
                     }
@@ -381,6 +386,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
     }
 
     @Override
+    @PreDestroy
     public void close() throws Exception {
         packetProcessor.shutdown();
     }

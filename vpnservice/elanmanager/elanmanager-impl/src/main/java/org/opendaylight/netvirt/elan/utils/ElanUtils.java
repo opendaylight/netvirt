@@ -19,6 +19,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -109,7 +110,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.ExternalTunnelList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.external.tunnel.list.ExternalTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.external.tunnel.list.ExternalTunnelKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.CreateTerminatingServiceActionsInput;
@@ -185,6 +185,7 @@ public class ElanUtils {
 
     private static Map<String, ElanInstance> elanInstanceLocalCache = new ConcurrentHashMap<>();
     private static Map<String, ElanInterface> elanInterfaceLocalCache = new ConcurrentHashMap<>();
+    private static Map<String, Set<DpnInterfaces>> elanInstancToDpnsCache = new ConcurrentHashMap<>();
 
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
@@ -913,7 +914,7 @@ public class ElanUtils {
                     elanTag, // identifier of the Elan
                     macAddress, // MAC to be programmed in remote DPN
                     elanInstanceName, writeFlowGroupTx, ifName, elanInfo);
-            LOG.debug("Dmac flow entry created for elan Name:{}, logical port Name:{} and mac address:{} on"
+            LOG.debug("Remote Dmac flow entry created for elan Name:{}, logical port Name:{} and mac address:{} on"
                         + " dpn:{}", elanInstanceName, interfaceInfo.getPortName(), macAddress, elanDpn.getDpId());
         }
 
@@ -1436,7 +1437,7 @@ public class ElanUtils {
             long serviceTag) {
         List<Action> result = Collections.emptyList();
 
-        LOG.info("In getInternalItmEgressAction Action source {}, destination {}, elanTag {}", sourceDpnId,
+        LOG.trace("In getInternalItmEgressAction Action source {}, destination {}, serviceTag {}", sourceDpnId,
                 destinationDpnId, serviceTag);
         Class<? extends TunnelTypeBase> tunType = TunnelTypeVxlan.class;
         GetTunnelInterfaceNameInput input = new GetTunnelInterfaceNameInputBuilder()
@@ -1450,6 +1451,9 @@ public class ElanUtils {
                 LOG.info("Received tunnelInterfaceName from getTunnelInterfaceName RPC {}", tunnelIfaceName);
 
                 result = buildTunnelItmEgressActions(tunnelIfaceName, serviceTag);
+            } else {
+                LOG.trace("Tunnel interface doesn't exist between srcDpId {} dstDpId {}", sourceDpnId,
+                        destinationDpnId);
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error in RPC call getTunnelInterfaceName {}", e);
@@ -1502,12 +1506,6 @@ public class ElanUtils {
                 .setDpnId(destDpId).setServiceId(serviceId).setInstruction(mkInstructions).build();
 
         itmRpcService.createTerminatingServiceActions(input);
-    }
-
-    public static TunnelList buildInternalTunnel(DataBroker broker) {
-        InstanceIdentifier<TunnelList> tunnelListInstanceIdentifier = InstanceIdentifier.builder(TunnelList.class)
-                .build();
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, tunnelListInstanceIdentifier).orNull();
     }
 
     /**
@@ -2224,13 +2222,19 @@ public class ElanUtils {
                 NWUtil.toStringIpAddress(arp.getSenderProtocolAddress())));
     }
 
+    //TODO: remove the try-catch once ip parsing is fixed properly (riyaz)
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public Optional<IpAddress> getSourceIpAddress(Ethernet ethernet, byte[] data) {
         /*IPV6 is not yet present in genius, hence V6 case ignored*/
         Optional<IpAddress> srcIpAddress = Optional.absent();
-        if (NwConstants.ETHTYPE_IPV4 == ethernet.getEtherType()) {
-            srcIpAddress = getSourceIpV4Address(data);
-        } else if (NwConstants.ETHTYPE_ARP == ethernet.getEtherType()) {
-            srcIpAddress = getSrcIpAddrFromArp(data);
+        try {
+            if (NwConstants.ETHTYPE_IPV4 == ethernet.getEtherType()) {
+                srcIpAddress = getSourceIpV4Address(data);
+            } else if (NwConstants.ETHTYPE_ARP == ethernet.getEtherType()) {
+                srcIpAddress = getSrcIpAddrFromArp(data);
+            }
+        } catch (Exception e) {
+            LOG.error("Error in getting ip address from packet", e);
         }
         return srcIpAddress;
     }
@@ -2283,5 +2287,21 @@ public class ElanUtils {
 
     public static boolean isNotEmpty(Collection collection) {
         return (!isEmpty(collection));
+    }
+
+    public static void setElanInstancToDpnsCache(Map<String, Set<DpnInterfaces>> elanInstancToDpnsCache) {
+        ElanUtils.elanInstancToDpnsCache = elanInstancToDpnsCache;
+    }
+
+    public static Set<DpnInterfaces> getElanInvolvedDPNsFromCache(String elanName) {
+        return elanInstancToDpnsCache.get(elanName);
+    }
+
+    public static void addDPNInterfaceToElanInCache(String elanName, DpnInterfaces dpnInterfaces) {
+        elanInstancToDpnsCache.computeIfAbsent(elanName, key -> new HashSet<>()).add(dpnInterfaces);
+    }
+
+    public static void removeDPNInterfaceFromElanInCache(String elanName, DpnInterfaces dpnInterfaces) {
+        elanInstancToDpnsCache.computeIfAbsent(elanName, key -> new HashSet<DpnInterfaces>()).remove(dpnInterfaces);
     }
 }

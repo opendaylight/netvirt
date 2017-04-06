@@ -1,0 +1,3 @@
+<statistics-config xmlns="urn:opendaylight:netvirt:statistics:config">
+  <node-counter-result-timeout>5</node-counter-result-timeout>
+</statistics-config>

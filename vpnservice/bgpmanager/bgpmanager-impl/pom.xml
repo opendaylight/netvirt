@@ -74,13 +74,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <dependency>
             <groupId>org.apache.karaf.shell</groupId>
             <artifactId>org.apache.karaf.shell.console</artifactId>
-            <version>3.0.3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-            </exclusions>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
@@ -89,6 +83,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-graphite</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.truth</groupId>
+            <artifactId>truth</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
@@ -107,6 +106,21 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>maven-pmd-plugin</artifactId>
             <configuration>
                 <excludes>**/gen/**/*</excludes>
+            </configuration>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>maven-bundle-plugin</artifactId>
+            <extensions>true</extensions>
+            <configuration>
+                <instructions>
+                    <!-- This bundle works with Karaf 3 and 4.0 -->
+                    <Import-Package>
+                        org.apache.karaf.shell.commands;version="[3.0.0,4.1)",
+                        org.apache.karaf.shell.console;version="[3.0.0,4.1)",
+                        *
+                    </Import-Package>
+                </instructions>
             </configuration>
         </plugin>
     </plugins>

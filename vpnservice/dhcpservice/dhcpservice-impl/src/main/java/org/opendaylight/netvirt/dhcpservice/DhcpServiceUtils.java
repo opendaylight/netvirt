@@ -15,6 +15,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -37,6 +40,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -141,12 +145,17 @@ public class DhcpServiceUtils {
         }
     }
 
-    private static List<MatchInfo> getDhcpMatch(String vmMacAddress) {
+    public static List<MatchInfo> getDhcpMatch() {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(MatchIpProtocol.UDP);
         matches.add(new MatchUdpSourcePort(DhcpMConstants.DHCP_CLIENT_PORT));
         matches.add(new MatchUdpDestinationPort(DhcpMConstants.DHCP_SERVER_PORT));
+        return matches;
+    }
+
+    public static List<MatchInfo> getDhcpMatch(String vmMacAddress) {
+        List<MatchInfo> matches = getDhcpMatch();
         matches.add(new MatchEthernetSource(new MacAddress(vmMacAddress)));
         return matches;
     }
@@ -279,4 +288,31 @@ public class DhcpServiceUtils {
                 .setServiceType(ServiceTypeFlowBased.class)
                 .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
     }
+
+    static IpAddress convertIntToIp(int ipn) {
+        String[] array = IntStream.of(24, 16, 8, 0) //
+                .map(x -> (ipn >> x) & 0xFF).boxed() //
+                .map(x -> String.valueOf(x)) //
+                .toArray(x -> new String[x]);
+        return new IpAddress(String.join(".", array).toCharArray());
+    }
+
+    static IpAddress convertLongToIp(long ip) {
+        String[] array = LongStream.of(24, 16, 8, 0) //
+                .map(x -> (ip >> x) & 0xFF).boxed() //
+                .map(x -> String.valueOf(x)) //
+                .toArray(x -> new String[x]);
+        return new IpAddress(String.join(".", array).toCharArray());
+    }
+
+    static long convertIpToLong(IpAddress ipa) {
+        String[] splitIp = String.valueOf(ipa.getValue()).split("\\.");
+        long result = 0;
+        for (String part : splitIp) {
+            result <<= 8;
+            result |= Integer.parseInt(part);
+        }
+        return result;
+    }
+
 }

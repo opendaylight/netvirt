@@ -24,9 +24,13 @@
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService" />
   <odl:rpc-service id="packetProcessingService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService" />
+  <odl:rpc-service id="idManagerService"
+    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
 
   <odl:clustered-app-config id="dhcpServiceConfig"
-    binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig" default-config-file-name="netvirt-dhcpservice-config.xml">
+                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig"
+                            default-config-file-name="netvirt-dhcpservice-config.xml"
+                            update-strategy="none">
   </odl:clustered-app-config>
 
   <bean id="dhcpManager" class="org.opendaylight.netvirt.dhcpservice.DhcpManager"
@@ -37,6 +41,14 @@
     <argument ref="dataBroker" />
     <argument ref="dhcpExternalTunnelManager" />
     <argument ref="interfaceManager"/>
+  </bean>
+
+  <bean id="dhcpAllocationPoolManager" class="org.opendaylight.netvirt.dhcpservice.DhcpAllocationPoolManager"
+    init-method="init" destroy-method="close">
+    <argument ref="mdsalUtils" />
+    <argument ref="dataBroker" />
+    <argument ref="idManagerService" />
+    <argument ref="dhcpServiceConfig" />
   </bean>
 
   <bean id="dhcpExternalTunnelManager" class="org.opendaylight.netvirt.dhcpservice.DhcpExternalTunnelManager"
@@ -55,6 +67,7 @@
     <argument ref="packetProcessingService" />
     <argument ref="interfaceManager" />
     <argument ref="dhcpServiceConfig" />
+    <argument ref="dhcpAllocationPoolManager" />
   </bean>
   <odl:notification-listener ref="dhcpPktHandler" />
 

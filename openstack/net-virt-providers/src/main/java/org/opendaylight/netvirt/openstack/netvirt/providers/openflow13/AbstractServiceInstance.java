@@ -57,7 +57,7 @@ public abstract class AbstractServiceInstance {
     public static final String SERVICE_PROPERTY ="serviceProperty";
     private static final Logger LOG = LoggerFactory.getLogger(AbstractServiceInstance.class);
     public static final String OPENFLOW = "openflow:";
-    private DataBroker dataBroker = null;
+    protected DataBroker dataBroker = null;
     // OSGi Services that we are dependent on.
     private volatile PipelineOrchestrator orchestrator;
     private volatile Southbound southbound;
@@ -115,7 +115,7 @@ public abstract class AbstractServiceInstance {
         return builder;
     }
 
-    private static InstanceIdentifier<Flow> createFlowPath(FlowBuilder flowBuilder, NodeBuilder nodeBuilder) {
+    protected static InstanceIdentifier<Flow> createFlowPath(FlowBuilder flowBuilder, NodeBuilder nodeBuilder) {
         return InstanceIdentifier.builder(Nodes.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class,
                         nodeBuilder.getKey())
@@ -171,6 +171,8 @@ public abstract class AbstractServiceInstance {
 
     protected void removeFlow(FlowBuilder flowBuilder, NodeBuilder nodeBuilder) {
         if (NetvirtProvidersProvider.isMasterProviderInstance()) {
+            LOG.debug("removeFlow: flowBuilder: {}, nodeBuilder: {}",
+                    flowBuilder.build(), nodeBuilder.build());
             WriteTransaction modification = dataBroker.newWriteOnlyTransaction();
             modification.delete(LogicalDatastoreType.CONFIGURATION, createFlowPath(flowBuilder, nodeBuilder));
 

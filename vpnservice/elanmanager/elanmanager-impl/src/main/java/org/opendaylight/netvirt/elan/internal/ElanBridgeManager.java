@@ -19,6 +19,7 @@ import java.util.Random;
 import javax.inject.Inject;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.netvirt.elanmanager.api.IElanBridgeManager;
 import org.opendaylight.ovsdb.utils.config.ConfigProperties;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
@@ -32,16 +33,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This class provides functions for creating bridges via OVSDB, specifically the br-int bridge.
- * Note and TODO: br-ex is temporary. vpnservice does not require it but for the time being it is
- * left here because devstack expects it.
  */
-public class ElanBridgeManager {
+public class ElanBridgeManager implements IElanBridgeManager {
     private static final Logger LOG = LoggerFactory.getLogger(ElanBridgeManager.class);
 
     public static final String PROVIDER_MAPPINGS_KEY = "provider_mappings";
     private static final String INTEGRATION_BRIDGE = "br-int";
     private static final String INT_SIDE_PATCH_PORT_SUFFIX = "-patch";
     private static final String EX_SIDE_PATCH_PORT_SUFFIX = "-int-patch";
+    private static final String OTHER_CONFIG_PARAMETERS_DELIMITER = ",";
+    private static final String OTHER_CONFIG_KEY_VALUE_DELIMITER = ":";
     private static final int MAX_LINUX_INTERFACE_NAME_LENGTH = 15;
 
     private final MdsalUtils mdsalUtils;
@@ -254,11 +255,9 @@ public class ElanBridgeManager {
     }
 
     /**
-     * Extract OpenvSwitch other-config to key value map.
-     * @param node OVSDB node
-     * @param key key to extract from other-config
-     * @return Optional of key-value Map
+     * {@inheritDoc}.
      */
+    @Override
     public Map<String, String> getOpenvswitchOtherConfigMap(Node node, String key) {
         String providerMappings = southboundUtils.getOpenvswitchOtherConfig(node, key);
         return extractMultiKeyValueToMap(providerMappings);
@@ -402,9 +401,9 @@ public class ElanBridgeManager {
         }
 
         Map<String, String> valueMap = new HashMap<>();
-        Splitter splitter = Splitter.on(",");
+        Splitter splitter = Splitter.on(OTHER_CONFIG_PARAMETERS_DELIMITER);
         for (String keyValue : splitter.split(multiKeyValueStr)) {
-            String[] split = keyValue.split(":", 2);
+            String[] split = keyValue.split(OTHER_CONFIG_KEY_VALUE_DELIMITER, 2);
             if (split.length == 2) {
                 valueMap.put(split[0], split[1]);
             }
@@ -413,6 +412,10 @@ public class ElanBridgeManager {
         return valueMap;
     }
 
+    /**
+     * {@inheritDoc}.
+     */
+    @Override
     public Node getBridgeNode(BigInteger dpId) {
         List<Node> ovsdbNodes = southboundUtils.getOvsdbNodes();
         if (null == ovsdbNodes) {

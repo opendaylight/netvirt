@@ -14,8 +14,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.netvirt.sfc.classifier.processors.NetvirtSfcClassifierDataProcessor;
-import org.opendaylight.netvirt.sfc.classifier.processors.NetvirtSfcDataProcessorBase;
+import org.opendaylight.netvirt.sfc.classifier.service.ClassifierService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.classifier.rev150105.Classifiers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.classifier.rev150105.classifiers.Classifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -29,20 +28,20 @@ public class NetvirtSfcClassifierListener
     implements AutoCloseable {
 
     private final DataBroker dataBroker;
-    private final NetvirtSfcDataProcessorBase<Classifier> dataProcessor;
+    private final ClassifierService classifierService;
 
     @Inject
-    public NetvirtSfcClassifierListener(DataBroker dataBroker) {
+    public NetvirtSfcClassifierListener(final DataBroker dataBroker, final ClassifierService classifierService) {
         super(Classifier.class, NetvirtSfcClassifierListener.class);
 
         this.dataBroker = dataBroker;
-        dataProcessor = new NetvirtSfcClassifierDataProcessor();
+        this.classifierService = classifierService;
     }
 
     @Override
     @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
@@ -59,17 +58,17 @@ public class NetvirtSfcClassifierListener
 
     @Override
     protected void add(InstanceIdentifier<Classifier> key, Classifier classifier) {
-        dataProcessor.add(key, classifier);
+        classifierService.updateAll();
     }
 
     @Override
     protected void remove(InstanceIdentifier<Classifier> key, Classifier classifier) {
-        dataProcessor.remove(key, classifier);
+        classifierService.updateAll();
     }
 
     @Override
     protected void update(InstanceIdentifier<Classifier> key, Classifier classifierBefore,
             Classifier classifierAfter) {
-        dataProcessor.update(key, classifierBefore, classifierAfter);
+        classifierService.updateAll();
     }
 }

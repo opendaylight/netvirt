@@ -21,6 +21,7 @@
   <reference id="vpnManager"
              interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
 
+
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
   <odl:rpc-service id="odlInterfaceRpcService"
@@ -67,6 +68,8 @@
         init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="sNATDefaultRouteProgrammer" />
+    <argument ref="elanService" />
+    <argument ref="vpnManager"/>
   </bean>
 
   <bean id="naptManager"
@@ -110,6 +113,8 @@
     <argument ref="vpnManager" />
     <argument ref="elanService" />
     <argument ref="evpnDnatFlowProgrammer" />
+    <argument ref="neutronvpnManager" />
+    <argument ref="idManagerService" />
   </bean>
   <service ref="vpnFloatingIpHandler"
            interface="org.opendaylight.netvirt.natservice.internal.FloatingIPHandler" />
@@ -138,6 +143,7 @@
     <argument ref="fibManager" />
     <argument ref="vpnManager"/>
     <argument ref="evpnSnatFlowProgrammer"/>
+    <argument ref="neutronvpnManager" />
   </bean>
 
   <bean id="externalNetworksChangeListener"
@@ -195,6 +201,7 @@
     <argument ref="fibRpcService" />
     <argument ref="fibManager" />
     <argument ref="evpnNaptSwitchHA" />
+    <argument ref="neutronvpnManager" />
   </bean>
 
   <bean id="natNodeEventListener"
@@ -218,6 +225,7 @@
     <argument ref="naptSwitchHA" />
     <argument ref="idManagerService" />
     <argument ref="externalNetworkGroupInstaller" />
+    <argument ref="neutronvpnManager" />
   </bean>
 
   <bean id="routerToVpnListener"
@@ -274,6 +282,7 @@
     <argument ref="odlInterfaceRpcService" />
     <argument ref="floatingIPListener" />
     <argument ref="fibRpcService" />
+    <argument ref="neutronvpnManager" />
   </bean>
 
   <bean id="natRpcServiceImpl" class="org.opendaylight.netvirt.natservice.rpcservice.NatRpcServiceImpl">
