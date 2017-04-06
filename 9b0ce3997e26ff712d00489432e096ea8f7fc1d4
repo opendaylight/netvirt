@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_e85a4082",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitorStopTask.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-06T17:45:47Z",
+      "side": 1,
+      "message": "why is a sync write done from the DjC job itself and not using futures.add(tx.submit())?\nAlso, why does it need to be added to the returned futures if the sync wait already happened in this context?",
+      "revId": "9b0ce3997e26ff712d00489432e096ea8f7fc1d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
