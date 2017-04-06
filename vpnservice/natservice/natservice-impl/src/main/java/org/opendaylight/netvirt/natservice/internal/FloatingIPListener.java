@@ -8,13 +8,14 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
-import io.netty.util.concurrent.GlobalEventExecutor;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -58,29 +59,28 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<InternalToExternalPortMap, FloatingIPListener>
         implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(FloatingIPListener.class);
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final OdlInterfaceRpcService interfaceManager;
-    private FloatingIPHandler floatingIPHandler;
+    private final FloatingIPHandler floatingIPHandler;
 
-
+    @Inject
     public FloatingIPListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
-                              final OdlInterfaceRpcService interfaceManager, final BundleContext bundleContext) {
+                              final OdlInterfaceRpcService interfaceManager,
+                              final FloatingIPHandler floatingIPHandler) {
         super(InternalToExternalPortMap.class, FloatingIPListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.interfaceManager = interfaceManager;
-        GlobalEventExecutor.INSTANCE.execute(() -> {
-            final WaitingServiceTracker<FloatingIPHandler> tracker = WaitingServiceTracker.create(
-                    FloatingIPHandler.class, bundleContext);
-            floatingIPHandler = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
-            LOG.info("FloatingIPListener initialized. FloatingIPHandler={}", floatingIPHandler);
-        });
+        this.floatingIPHandler = floatingIPHandler;
     }
 
+    @Override
+    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
@@ -607,7 +607,8 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         return NatConstants.INVALID_ID;
     }
 
-    void updateOperationalDS(String routerId, String interfaceName, long label, String internalIp, String externalIp) {
+    static void updateOperationalDS(DataBroker dataBroker, String routerId, String interfaceName, long label,
+                                    String internalIp, String externalIp) {
 
         LOG.info("NAT Service : Updating operational DS for floating ip config : {} with label {}", internalIp, label);
         InstanceIdentifier<Ports> portsId = NatUtil.getPortsIdentifier(routerId, interfaceName);

@@ -26,6 +26,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -126,9 +130,9 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Routers, ExternalRoutersListener> {
     private static final Logger LOG = LoggerFactory.getLogger(ExternalRoutersListener.class);
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final ItmRpcService itmManager;
@@ -149,6 +153,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000022", 16);
 
+    @Inject
     public ExternalRoutersListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                                    final ItmRpcService itmManager,
                                    final OdlInterfaceRpcService interfaceManager,
@@ -186,6 +191,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     @Override
+    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
@@ -514,22 +520,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    @Override
-    public void close() {
-        if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                LOG.error("Error when cleaning up ExternalRoutersListener.", e);
-            }
-
-            listenerRegistration = null;
-        }
-        LOG.debug("ExternalRoutersListener Closed");
     }
 
     protected void installOutboundMissEntry(String routerName, BigInteger primarySwitchId) {

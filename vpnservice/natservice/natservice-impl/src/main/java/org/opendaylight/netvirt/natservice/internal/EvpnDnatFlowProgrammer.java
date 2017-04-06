@@ -19,6 +19,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -55,7 +57,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+@Singleton
 public class EvpnDnatFlowProgrammer {
     private static final Logger LOG = LoggerFactory.getLogger(EvpnDnatFlowProgrammer.class);
     private final DataBroker dataBroker;
@@ -64,23 +66,20 @@ public class EvpnDnatFlowProgrammer {
     private final IFibManager fibManager;
     private final FibRpcService fibService;
     private final IVpnManager vpnManager;
-    private final FloatingIPListener floatingIPListener;
+    private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
 
-    static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
-
+    @Inject
     public EvpnDnatFlowProgrammer(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                            final IBgpManager bgpManager,
                            final IFibManager fibManager,
                            final FibRpcService fibService,
-                           final IVpnManager vpnManager,
-                           final FloatingIPListener floatingIPListener) {
+                           final IVpnManager vpnManager) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.bgpManager = bgpManager;
         this.fibManager = fibManager;
         this.fibService = fibService;
         this.vpnManager = vpnManager;
-        this.floatingIPListener = floatingIPListener;
     }
 
     public void onAddFloatingIp(final BigInteger dpnId, final String routerName, final String vpnName,
@@ -106,7 +105,7 @@ public class EvpnDnatFlowProgrammer {
             LOG.error("NAT Service : Unable to retrieve L3VNI value for Floating IP {} ", externalIp);
             return;
         }
-        floatingIPListener.updateOperationalDS(routerName, interfaceName, NatConstants.DEFAULT_LABEL_VALUE,
+        FloatingIPListener.updateOperationalDS(dataBroker, routerName, interfaceName, NatConstants.DEFAULT_LABEL_VALUE,
                 internalIp, externalIp);
         //Inform to FIB
         NatEvpnUtil.addRoutesForVxLanProvType(dataBroker, bgpManager, fibManager, vpnName, rd, externalIp + "/32",

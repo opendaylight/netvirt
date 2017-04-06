@@ -8,6 +8,9 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import java.math.BigInteger;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -20,17 +23,20 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class NatNodeEventListener extends AsyncDataTreeChangeListenerBase<Node, NatNodeEventListener> implements
     AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NatNodeEventListener.class);
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
 
+    @Inject
     public NatNodeEventListener(final DataBroker dataBroker) {
         super(Node.class, NatNodeEventListener.class);
         this.dataBroker = dataBroker;
     }
 
+    @Override
+    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);

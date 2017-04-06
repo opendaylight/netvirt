@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -75,6 +77,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class VpnFloatingIpHandler implements FloatingIPHandler {
     private static final Logger LOG = LoggerFactory.getLogger(VpnFloatingIpHandler.class);
     private final DataBroker dataBroker;
@@ -82,7 +85,6 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     private final VpnRpcService vpnService;
     private final IBgpManager bgpManager;
     private final FibRpcService fibService;
-    private final FloatingIPListener floatingIPListener;
     private final IVpnManager vpnManager;
     private final IFibManager fibManager;
     private final OdlArputilService arpUtilService;
@@ -90,15 +92,14 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     private final EvpnDnatFlowProgrammer evpnDnatFlowProgrammer;
     private final INeutronVpnManager nvpnManager;
     private final IdManagerService idManager;
+    private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
+    private static final String FLOWID_PREFIX = "NAT.";
 
-    static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
-    static final String FLOWID_PREFIX = "NAT.";
-
+    @Inject
     public VpnFloatingIpHandler(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                                 final VpnRpcService vpnService,
                                 final IBgpManager bgpManager,
                                 final FibRpcService fibService,
-                                final FloatingIPListener floatingIPListener,
                                 final IFibManager fibManager,
                                 final OdlArputilService arputilService,
                                 final IVpnManager vpnManager,
@@ -111,7 +112,6 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         this.vpnService = vpnService;
         this.bgpManager = bgpManager;
         this.fibService = fibService;
-        this.floatingIPListener = floatingIPListener;
         this.fibManager = fibManager;
         this.arpUtilService = arputilService;
         this.vpnManager = vpnManager;
@@ -172,7 +172,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     GenerateVpnLabelOutput output = result.getResult();
                     long label = output.getLabel();
                     LOG.debug("Generated label {} for prefix {}", label, externalIp);
-                    floatingIPListener.updateOperationalDS(routerId, interfaceName, label, internalIp, externalIp);
+                    FloatingIPListener.updateOperationalDS(dataBroker, routerId, interfaceName, label, internalIp, externalIp);
                     //Inform BGP
                     long l3vni = 0;
                     if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {

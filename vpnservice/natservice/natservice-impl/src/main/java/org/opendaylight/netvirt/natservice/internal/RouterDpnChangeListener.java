@@ -11,6 +11,9 @@ import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -34,12 +37,12 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class RouterDpnChangeListener
         extends AsyncDataTreeChangeListenerBase<DpnVpninterfacesList, RouterDpnChangeListener>
         implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(RouterDpnChangeListener.class);
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer;
@@ -48,6 +51,7 @@ public class RouterDpnChangeListener
     private final INeutronVpnManager nvpnManager;
     private final ExternalNetworkGroupInstaller extNetGroupInstaller;
 
+    @Inject
     public RouterDpnChangeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                                    final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer,
                                    final NaptSwitchHA naptSwitchHA,
@@ -65,6 +69,7 @@ public class RouterDpnChangeListener
     }
 
     @Override
+    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);

@@ -14,6 +14,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -34,14 +36,16 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class SNATDefaultRouteProgrammer {
 
     private static final Logger LOG = LoggerFactory.getLogger(SNATDefaultRouteProgrammer.class);
-    private IMdsalApiManager mdsalManager;
+    private final IMdsalApiManager mdsalManager;
     private final DataBroker dataBroker;
     private final IdManagerService idManager;
 
-    public SNATDefaultRouteProgrammer(IMdsalApiManager mdsalManager, final DataBroker dataBroker,
+    @Inject
+    public SNATDefaultRouteProgrammer(final IMdsalApiManager mdsalManager, final DataBroker dataBroker,
             final IdManagerService idManager) {
         this.mdsalManager = mdsalManager;
         this.dataBroker = dataBroker;
