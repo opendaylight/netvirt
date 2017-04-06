@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_79baa9e2",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/fib-rpc.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-06T11:10:31Z",
+      "side": 1,
+      "message": "this field indicates whether the ip-address here is an External-Fixed-Ip (owned by Router), or a Floating-IP (used by Ports).",
+      "revId": "67ea2da9a435062c0a27403cbb6c4683095eead1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_39db011d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-06T11:10:31Z",
+      "side": 1,
+      "message": "also change this to SingleTransactionDataBroker.syncDelete()",
+      "revId": "67ea2da9a435062c0a27403cbb6c4683095eead1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_f9d059f9",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-06T11:10:31Z",
+      "side": 1,
+      "message": "use SingleTransactionDataBroker instead...",
+      "revId": "67ea2da9a435062c0a27403cbb6c4683095eead1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_d9cd955f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-06T11:10:31Z",
+      "side": 1,
+      "message": "ditto comment here..",
+      "revId": "67ea2da9a435062c0a27403cbb6c4683095eead1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_d9f47589",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-06T11:10:31Z",
+      "side": 1,
+      "message": "why we donot need nvpnManager.getEnforceOpenstackSemanticsConfig() check here, while it is used in VpnFloatingIpHandler?",
+      "revId": "67ea2da9a435062c0a27403cbb6c4683095eead1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_5909a594",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-06T11:10:31Z",
+      "side": 1,
+      "message": "comments in fib_rpc.yang applies here too..",
+      "revId": "67ea2da9a435062c0a27403cbb6c4683095eead1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
