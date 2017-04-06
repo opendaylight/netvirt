@@ -12,6 +12,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -47,18 +50,19 @@ import org.slf4j.LoggerFactory;
  * SI=2 and sets SI=3.
  *
  */
+@Singleton
 public class VpnToElanFallbackNodeListener extends AsyncDataTreeChangeListenerBase<Node, VpnToElanFallbackNodeListener>
                                            implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnToElanFallbackNodeListener.class);
     private static final String L3_TO_L2_DEFAULT_FLOW_REF = "L3VPN_to_Elan_Fallback_Default_Rule";
-
     private final DataBroker broker;
     private final IMdsalApiManager mdsalMgr;
 
     // TODO: Remove when included in ovsdb's SouthboundUtils
     public static final TopologyId FLOW_TOPOLOGY_ID = new TopologyId(new Uri("flow:1"));
 
+    @Inject
     public VpnToElanFallbackNodeListener(final DataBroker db, final IMdsalApiManager mdsalManager) {
         super(Node.class, VpnToElanFallbackNodeListener.class);
         this.broker = db;
@@ -66,11 +70,11 @@ public class VpnToElanFallbackNodeListener extends AsyncDataTreeChangeListenerBa
     }
 
     @Override
+    @PostConstruct
     public void init() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
-
 
     @Override
     protected InstanceIdentifier<Node> getWildCardPath() {

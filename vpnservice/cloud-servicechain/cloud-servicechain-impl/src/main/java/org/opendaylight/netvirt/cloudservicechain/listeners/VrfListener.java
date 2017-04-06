@@ -13,6 +13,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -29,25 +32,26 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Listens for VrfEntry creations or removal with the purpose of including the
  * new label in the LFIB (or removing it) pointing to the VpnPseudoPort.
  *
  */
+@Singleton
 public class VrfListener extends AsyncDataTreeChangeListenerBase<VrfEntry, VrfListener> implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(VrfListener.class);
-
     private final DataBroker broker;
     private final IMdsalApiManager mdsalMgr;
 
+    @Inject
     public VrfListener(DataBroker broker, IMdsalApiManager mdsalMgr) {
         this.broker = broker;
         this.mdsalMgr = mdsalMgr;
     }
 
     @Override
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
     }

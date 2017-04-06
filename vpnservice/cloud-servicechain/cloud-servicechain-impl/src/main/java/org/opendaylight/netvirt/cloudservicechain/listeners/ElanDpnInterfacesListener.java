@@ -11,6 +11,9 @@ import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -34,14 +37,15 @@ import org.slf4j.LoggerFactory;
  * to/from a DPN so that Elan2Scf and Scf2Elan flows are installed/removed
  * from that DPN
  */
+@Singleton
 public class ElanDpnInterfacesListener extends AsyncDataTreeChangeListenerBase<DpnInterfaces, ElanDpnInterfacesListener>
                                        implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanDpnInterfacesListener.class);
-
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
 
+    @Inject
     public ElanDpnInterfacesListener(final DataBroker db, final IMdsalApiManager mdsalMgr) {
         super(DpnInterfaces.class, ElanDpnInterfacesListener.class);
         this.broker = db;
@@ -49,8 +53,9 @@ public class ElanDpnInterfacesListener extends AsyncDataTreeChangeListenerBase<D
     }
 
     @Override
+    @PostConstruct
     public void init() {
-        LOG.info("{} start", getClass().getSimpleName());
+        LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
 
