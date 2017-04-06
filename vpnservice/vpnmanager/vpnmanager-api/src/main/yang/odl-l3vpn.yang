@@ -485,6 +485,7 @@ module odl-l3vpn {
             leaf port-fixedip { type string; }
             leaf port-name { type string; }
             leaf mac-address { type string; }
+            leaf creation-time { type string; }
         }
     }
 
