@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.aclservice.api.utils;
 
+import com.google.common.base.Preconditions;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ public final class AclInterfaceCacheUtil {
     static ConcurrentMap<String, AclInterface> cachedMap = new ConcurrentHashMap<>();
 
     public static void addAclInterfaceToCache(String interfaceId, AclInterface aclInterface) {
+        Preconditions.checkState(interfaceId.equals(aclInterface.getInterfaceId()));
         cachedMap.put(interfaceId, aclInterface);
     }
 
