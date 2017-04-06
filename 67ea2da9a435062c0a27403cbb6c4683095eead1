@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_b98371cb",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/fib-rpc.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-04-06T12:42:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_79baa9e2",
+      "revId": "67ea2da9a435062c0a27403cbb6c4683095eead1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_39db011d",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2017-04-06T11:10:31Z",
       "side": 1,
       "message": "also change this to SingleTransactionDataBroker.syncDelete()",
+      "revId": "67ea2da9a435062c0a27403cbb6c4683095eead1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_99bb0d72",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-04-06T12:42:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_39db011d",
       "revId": "67ea2da9a435062c0a27403cbb6c4683095eead1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_f9afb929",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-04-06T12:42:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_f9d059f9",
+      "revId": "67ea2da9a435062c0a27403cbb6c4683095eead1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_d9cd955f",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
         "patchSetId": 7
@@ -64,6 +118,24 @@
       "writtenOn": "2017-04-06T11:10:31Z",
       "side": 1,
       "message": "ditto comment here..",
+      "revId": "67ea2da9a435062c0a27403cbb6c4683095eead1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_d9ac7538",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibRpcServiceImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-04-06T12:42:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_d9cd955f",
       "revId": "67ea2da9a435062c0a27403cbb6c4683095eead1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_d436fce6",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-04-06T12:42:12Z",
+      "side": 1,
+      "message": "Right now for EVPN case the provided l3vni value has been used as tunnel_id for both Intra-DC and Inter-DC Communication. Do we required to carve-out new VNI from \"Opendaylight-VNI-Pool\" for Intra-DC if this semantics is enabled?\n\nThe same question is applicable for Non-Napt to Npat Switch in EVPN case.",
+      "parentUuid": "da01753e_d9f47589",
+      "revId": "67ea2da9a435062c0a27403cbb6c4683095eead1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_5909a594",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
         "patchSetId": 7
@@ -98,6 +188,24 @@
       "writtenOn": "2017-04-06T11:10:31Z",
       "side": 1,
       "message": "comments in fib_rpc.yang applies here too..",
+      "revId": "67ea2da9a435062c0a27403cbb6c4683095eead1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_197efdae",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-04-06T12:42:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_5909a594",
       "revId": "67ea2da9a435062c0a27403cbb6c4683095eead1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
