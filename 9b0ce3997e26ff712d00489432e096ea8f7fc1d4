@@ -16,6 +16,24 @@
       "revId": "9b0ce3997e26ff712d00489432e096ea8f7fc1d4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_ab05d2c3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitorStopTask.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-06T18:47:28Z",
+      "side": 1,
+      "message": "+1.. fixing now!",
+      "parentUuid": "da01753e_e85a4082",
+      "revId": "9b0ce3997e26ff712d00489432e096ea8f7fc1d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
