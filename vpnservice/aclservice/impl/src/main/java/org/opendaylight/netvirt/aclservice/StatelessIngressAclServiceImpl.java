@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.AceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
@@ -93,7 +94,7 @@ public class StatelessIngressAclServiceImpl extends AbstractIngressAclServiceImp
                     NxMatchTcpSourcePort.class);
             if (hasTcpMatch || protocol == null) {
                 String flowName = flow.getKey() + "Ingress" + lportTag + ace.getKey().getRuleName();
-                flowMatches.add(buildLPortTagMatch(lportTag));
+                AclServiceUtils.addLportTagMetadataMatch(lportTag, flowMatches, ServiceModeIngress.class);
                 programSynRules(dpId, flowName, flowMatches, addOrRemove, protocol, ace.getActions());
             }
         }
