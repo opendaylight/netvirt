@@ -28,6 +28,7 @@ import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +64,7 @@ public class LearnEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
             Map<String, List<MatchInfoBase>> flowMap, String flowName) {
 
         List<MatchInfoBase> flowMatches = flowMap.get(flowName);
-        flowMatches.add(buildLPortTagMatch(lportTag));
+        AclServiceUtils.addLportTagMetadataMatch(lportTag, flowMatches, ServiceModeEgress.class);
         List<ActionInfo> actionsInfos = new ArrayList<>();
 
         PacketHandling packetHandling = ace.getActions() != null ? ace.getActions().getPacketHandling() : null;
@@ -138,5 +139,13 @@ public class LearnEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
                 0,
                 0,
                 LearnCommonAclServiceImpl.getUdpLearnActionMatches()));
+    }
+
+    protected short getEgressAclFilterTable() {
+        return NwConstants.EGRESS_LEARN_ACL_FILTER_TABLE;
+    }
+
+    protected short getEgressAclRemoteAclTable() {
+        return NwConstants.EGRESS_LEARN_ACL_REMOTE_ACL_TABLE;
     }
 }
