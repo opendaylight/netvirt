@@ -801,12 +801,11 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(4bi, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID),
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
                     new NxMatchTcpDestinationPort(80, 65535),
                     new MatchIpProtocol(6 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchMetadata(1085217976614916bi, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID.or(MetaDataUtil.METADATA_MASK_LPORT_TAG)),
                     new NxMatchCtState(33L, 33L)
                 ]
                 priority = IdHelper.getId(flowId)
@@ -961,12 +960,11 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(4bi, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID),
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
                     new MatchIcmpv4(2 as short, 3 as short),
                     new MatchIpProtocol(1 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchMetadata(1085217976614916bi, MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID.or(MetaDataUtil.METADATA_MASK_LPORT_TAG)),
                     new NxMatchCtState(33L, 33L)
                 ]
                 priority = IdHelper.getId(flowId)
