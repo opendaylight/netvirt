@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_689f7060",
+        "filename": "vpnservice/sfc/classifier/impl/src/test/java/org/opendaylight/netvirt/sfc/classifier/providers/OpenFlow13ProviderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-04-06T16:04:26Z",
+      "side": 1,
+      "message": "This is confusing, and actually wrong - because you do not @RunWith(MockitoRunner.class) here, you don\u0027t really use Mockito (which is a Good Thing, you should not have to), so this field will just be null - the @Mock annotation does not do anything, if there is nothing active to act on it.  I was curious to understand why your test passed anyway, and dug a bit into it, to realize that the code under test here, in OpenFlow13Provider, does not actually seem to require a DataBroker?  So let\u0027s clean that up, see https://git.opendaylight.org/gerrit/#/c/54447/, then this make more sense - you\u0027ll be able to just remove this @Mock private DataBroker dataBroker completely.",
+      "revId": "6d07f05182e074a7327c888130929b2a27c19e22",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_28956840",
+        "filename": "vpnservice/sfc/classifier/impl/src/test/java/org/opendaylight/netvirt/sfc/classifier/providers/OpenFlow13ProviderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-04-06T16:04:26Z",
+      "side": 1,
+      "message": "just remove dataBroker here after https://git.opendaylight.org/gerrit/#/c/54447/ is merged",
+      "revId": "6d07f05182e074a7327c888130929b2a27c19e22",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
