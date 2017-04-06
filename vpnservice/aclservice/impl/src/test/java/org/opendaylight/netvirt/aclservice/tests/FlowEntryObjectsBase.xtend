@@ -1192,8 +1192,8 @@ class FlowEntryObjectsBase {
             flowId = "Acl_Filter_Ingress_" + ip + "/32_5000"
             flowName = "ACL"
             instructionInfoList = #[
-                new InstructionWriteMetadata(4bi, 16777214bi),
-                new InstructionGotoTable(213 as short)
+                new InstructionWriteMetadata(2bi, 16777214bi),
+                new InstructionGotoTable(243 as short)
             ]
             matchInfoList = #[
                 new MatchMetadata(83886080000bi, 1099494850560bi),
@@ -1201,7 +1201,7 @@ class FlowEntryObjectsBase {
                 new MatchIpv4Destination(ip, "32")
             ]
             priority = 50
-            tableId = 212 as short
+            tableId = 242 as short
         ]
     }
 
@@ -1211,8 +1211,8 @@ class FlowEntryObjectsBase {
             flowId = "Acl_Filter_Egress_" + ip + "/32_5000"
             flowName = "ACL"
             instructionInfoList = #[
-                new InstructionWriteMetadata(4bi, 16777214bi),
-                new InstructionGotoTable(243 as short)
+                new InstructionWriteMetadata(2bi, 16777214bi),
+                new InstructionGotoTable(213 as short)
             ]
             matchInfoList = #[
                 new MatchMetadata(83886080000bi, 1099494850560bi),
@@ -1220,7 +1220,7 @@ class FlowEntryObjectsBase {
                 new MatchIpv4Source(ip, "32")
             ]
             priority = 50
-            tableId = 242 as short
+            tableId = 212 as short
         ]
     }
 

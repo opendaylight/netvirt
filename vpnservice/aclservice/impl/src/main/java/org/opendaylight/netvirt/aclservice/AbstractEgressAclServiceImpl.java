@@ -251,11 +251,11 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     }
 
     protected short getEgressAclFilterTable() {
-        return NwConstants.EGRESS_ACL_FILTER_TABLE;
+        return NwConstants.INGRESS_ACL_FILTER_TABLE;
     }
 
     protected short getEgressAclRemoteAclTable() {
-        return NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE;
+        return NwConstants.INGRESS_ACL_REMOTE_ACL_TABLE;
     }
 
     @Override

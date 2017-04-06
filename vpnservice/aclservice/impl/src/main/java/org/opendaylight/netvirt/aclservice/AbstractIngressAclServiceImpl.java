@@ -253,11 +253,11 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
     }
 
     protected short getIngressAclFilterTable() {
-        return NwConstants.INGRESS_ACL_FILTER_TABLE;
+        return NwConstants.EGRESS_ACL_FILTER_TABLE;
     }
 
     protected short getIngressAclRemoteAclTable() {
-        return NwConstants.INGRESS_ACL_REMOTE_ACL_TABLE;
+        return NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE;
     }
 
     @Override
