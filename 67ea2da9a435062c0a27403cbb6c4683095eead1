@@ -177,6 +177,41 @@
     },
     {
       "key": {
+        "uuid": "da01753e_94a47458",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-06T14:07:50Z",
+      "side": 1,
+      "message": "For EVPN case we always uniformly use the L3VNI available for all intra-dc and inter-dc communication on VXLAN Tunnels for external traffic.\n\nWhen the external network is a VXLAN network and if it has its own VNI, then we should be honoring that VNI in the datapath.  This will have to be covered in the vni-forwarding patches by Chetan.  please talk to him.\n\nI donot remember what VNI we decided for Non-Napt to Napt communication for EVPN cases, please refer back our EVPN-RT5 Spec NAT Sections as those were well reviewed !",
+      "parentUuid": "da01753e_d436fce6",
+      "revId": "67ea2da9a435062c0a27403cbb6c4683095eead1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_f48860c8",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-06T14:07:50Z",
+      "side": 1,
+      "message": "Am bit confused why this check required? Lets talk this out again :) !",
+      "revId": "67ea2da9a435062c0a27403cbb6c4683095eead1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_5909a594",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
         "patchSetId": 7
