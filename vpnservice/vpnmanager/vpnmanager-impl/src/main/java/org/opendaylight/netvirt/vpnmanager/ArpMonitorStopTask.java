@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -46,18 +47,20 @@ public class ArpMonitorStopTask implements Callable<List<ListenableFuture<Void>>
         final List<ListenableFuture<Void>> futures = new ArrayList<>();
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         java.util.Optional<Long> monitorIdOptional = AlivenessMonitorUtils.getMonitorIdFromInterface(macEntry);
-        monitorIdOptional.ifPresent(aLong -> AlivenessMonitorUtils.stopArpMonitoring(alivenessManager, aLong));
-        removeMipAdjacency(macEntry.getIpAddress().getHostAddress(),
-                macEntry.getVpnName(), macEntry.getInterfaceName(), tx);
-        VpnUtil.removeLearntVpnVipToPort(dataBroker, macEntry.getVpnName(),
-                macEntry.getIpAddress().getHostAddress());
-        CheckedFuture<Void, TransactionCommitFailedException> txFutures = tx.submit();
-        try {
-            txFutures.get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error writing to datastore {}", e);
-        }
-        futures.add(txFutures);
+        monitorIdOptional.ifPresent(monitorId -> {
+            AlivenessMonitorUtils.stopArpMonitoring(alivenessManager, monitorId);
+            removeMipAdjacency(macEntry.getIpAddress().getHostAddress(),
+                    macEntry.getVpnName(), macEntry.getInterfaceName(), tx);
+            VpnUtil.removeLearntVpnVipToPort(dataBroker, macEntry.getVpnName(),
+                    macEntry.getIpAddress().getHostAddress());
+            CheckedFuture<Void, TransactionCommitFailedException> txFutures = tx.submit();
+            try {
+                txFutures.get();
+            } catch (InterruptedException | ExecutionException e) {
+                LOG.error("Error writing to datastore {}", e);
+            }
+            futures.add(txFutures);
+        });
         return futures;
     }
 
