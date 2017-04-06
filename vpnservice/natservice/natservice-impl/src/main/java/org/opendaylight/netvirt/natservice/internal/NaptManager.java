@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -72,6 +74,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class NaptManager {
     private static final Logger LOG = LoggerFactory.getLogger(NaptManager.class);
     private final DataBroker dataBroker;
@@ -81,6 +84,7 @@ public class NaptManager {
     private static boolean EXTSUBNET_FLAG = false;
     private static boolean NEXT_EXTIP_FLAG = false;
 
+    @Inject
     public NaptManager(final DataBroker dataBroker, final IdManagerService idManager) {
         this.dataBroker = dataBroker;
         this.idManager = idManager;

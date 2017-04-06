@@ -8,6 +8,8 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import java.math.BigInteger;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
@@ -35,6 +37,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class NaptFlowRemovedEventHandler implements SalFlowListener {
     private static final Logger LOG = LoggerFactory.getLogger(NaptFlowRemovedEventHandler.class);
     private final DataBroker dataBroker;
@@ -43,6 +46,7 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener {
     private final NaptPacketInHandler naptPacketInHandler;
     private final NaptManager naptManager;
 
+    @Inject
     public NaptFlowRemovedEventHandler(final DataBroker dataBroker,
                                        final IMdsalApiManager mdsalManager,
                                        final EventDispatcher eventDispatcher,

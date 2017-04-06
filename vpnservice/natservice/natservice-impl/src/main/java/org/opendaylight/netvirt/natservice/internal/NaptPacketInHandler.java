@@ -10,6 +10,8 @@ package org.opendaylight.netvirt.natservice.internal;
 import com.google.common.primitives.Ints;
 import java.math.BigInteger;
 import java.util.HashSet;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
@@ -23,13 +25,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class NaptPacketInHandler implements PacketProcessingListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(NaptPacketInHandler.class);
     private static final HashSet<String> INCOMING_PACKET_MAP = new HashSet<>();
     private final EventDispatcher naptEventdispatcher;
 
-    public NaptPacketInHandler(EventDispatcher eventDispatcher) {
+    @Inject
+    public NaptPacketInHandler(final EventDispatcher eventDispatcher) {
         this.naptEventdispatcher = eventDispatcher;
     }
 

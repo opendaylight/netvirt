@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.liblldp.PacketException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -71,6 +73,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class NaptEventHandler {
     private static final Logger LOG = LoggerFactory.getLogger(NaptEventHandler.class);
     private final DataBroker dataBroker;
@@ -80,6 +83,7 @@ public class NaptEventHandler {
     private final NaptManager naptManager;
     private IInterfaceManager interfaceManager;
 
+    @Inject
     public NaptEventHandler(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                             final NaptManager naptManager,
                             final PacketProcessingService pktService,

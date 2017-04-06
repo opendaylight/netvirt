@@ -13,6 +13,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -35,12 +38,14 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Networks, ExternalNetworkListener>
     implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ExternalNetworkListener.class);
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
 
+    @Inject
     public ExternalNetworkListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager) {
         super(Networks.class, ExternalNetworkListener.class);
         this.dataBroker = dataBroker;
@@ -48,6 +53,7 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
     }
 
     @Override
+    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
