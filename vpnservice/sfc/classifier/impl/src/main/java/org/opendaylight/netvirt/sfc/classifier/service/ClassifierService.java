@@ -50,7 +50,7 @@ public class ClassifierService {
         this.sfcProvider = sfcProvider;
         this.openFlow13Provider = openFlow13Provider;
         this.dataBroker = dataBroker;
-        classifierRenderers.add(new OpenflowRenderer(openFlow13Provider));
+        classifierRenderers.add(new OpenflowRenderer(openFlow13Provider, dataBroker));
         classifierRenderers.add(new GeniusRenderer(geniusProvider));
         classifierRenderers.add(operationalClassifier.getRenderer());
     }
