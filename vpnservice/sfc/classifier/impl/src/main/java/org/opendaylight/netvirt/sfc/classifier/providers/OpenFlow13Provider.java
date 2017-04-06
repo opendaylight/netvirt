@@ -13,9 +13,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -34,8 +32,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Singleton
 public class OpenFlow13Provider {
@@ -69,13 +65,6 @@ public class OpenFlow13Provider {
     private static final short NSH_MDTYPE_ONE = 0x01;
     private static final int DEFAULT_NETMASK = 32;
     private static AtomicLong flowIdInc = new AtomicLong();
-    private static final Logger LOG = LoggerFactory.getLogger(OpenFlow13Provider.class);
-    private final DataBroker dataBroker;
-
-    @Inject
-    public OpenFlow13Provider(final DataBroker dataBroker) {
-        this.dataBroker = dataBroker;
-    }
 
     public MatchBuilder getMatchBuilderFromAceMatches(Matches matches) {
         if (matches == null) {
@@ -107,10 +96,6 @@ public class OpenFlow13Provider {
             .build();
 
         tx.delete(LogicalDatastoreType.CONFIGURATION, iidFlow);
-    }
-
-    public WriteTransaction newWriteOnlyTransaction() {
-        return this.dataBroker.newWriteOnlyTransaction();
     }
 
     /*
