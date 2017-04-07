@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_ed6eca95",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-07T13:52:33Z",
+      "side": 1,
+      "message": "Is this part of the patch?",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 23
+      },
+      "revId": "174687b9aba2d0ec61fd4f3a3101d6a6481741e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_6d63fab1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/IVpnTunnelLocType.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-07T13:52:33Z",
+      "side": 1,
+      "message": "Is there a specific reason why ITMTunnelLocType is defined inside IVpnTunnelLocType?\nWithout this hierarchy the code can be simplified.\n\nFurthermore you can just pass the enum instance as a parameter instead of the int value, which will shorten all the equality checks that calls \"IVpnTunnelLocType.ITMTunnelLocType.Internal.getValue()\"\nfor example, to just \"x \u003d\u003d ITMTunnelLocType.Internal\"",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 1
+      },
+      "revId": "174687b9aba2d0ec61fd4f3a3101d6a6481741e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
