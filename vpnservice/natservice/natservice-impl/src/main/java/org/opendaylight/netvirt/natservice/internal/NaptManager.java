@@ -703,26 +703,33 @@ public class NaptManager {
                     updateCounter(segmentId, externalIp, false);
                 }
             }
+            // remove from ipmap DS
+            LOG.debug("NAPT Service : Removing Ipmap for router {} from datastore", segmentId);
+            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         }
-        // remove from ipmap DS
-        LOG.debug("NAPT Service : Removing Ipmap for router {} from datastore", segmentId);
-        MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
     }
 
     void removeIpPortMappingForRouterID(long segmentId) {
         InstanceIdentifier<IpPortMapping> idBuilder = InstanceIdentifier.builder(IntextIpPortMap.class)
             .child(IpPortMapping.class, new IpPortMappingKey(segmentId)).build();
-        // remove from IntExtIpPortmap DS
-        LOG.debug("NAPT Service : Removing IntExtIpPort map for router {} from datastore", segmentId);
-        MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, idBuilder);
+        Optional<IpPortMapping> ipPortMapping = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                idBuilder);
+        if (ipPortMapping.isPresent()) {
+            // remove from IntExtIpPortmap DS
+            LOG.debug("NAPT Service : Removing IntExtIpPort map for router {} from datastore", segmentId);
+            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, idBuilder);
+        }
     }
 
     void removeIntIpPortMappingForRouterID(long segmentId) {
         InstanceIdentifier<IntipPortMap> intIp = InstanceIdentifier.builder(SnatintIpPortMap.class)
             .child(IntipPortMap.class, new IntipPortMapKey(segmentId)).build();
-        // remove from SnatIntIpPortmap DS
-        LOG.debug("NAPT Service : Removing SnatIntIpPort from datastore : {}", intIp);
-        MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, intIp);
+        Optional<IntipPortMap> intIpPortMap = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, intIp);
+        if (intIpPortMap.isPresent()) {
+            // remove from SnatIntIpPortmap DS
+            LOG.debug("NAPT Service : Removing SnatIntIpPort from datastore : {}", intIp);
+            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, intIp);
+        }
     }
 
     void removePortFromPool(String internalIpPort, String externalIp) {
