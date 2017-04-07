@@ -67,6 +67,9 @@ public class QosNeutronNetworkChangeListener extends AsyncDataTreeChangeListener
 
     @Override
     protected void remove(InstanceIdentifier<Network> instanceIdentifier, Network network) {
+        if (QosNeutronUtils.hasBandwidthLimitRule(network)) {
+            QosAlertManager.removeFromQosAlertCache(network);
+        }
     }
 
     @Override
@@ -78,15 +81,32 @@ public class QosNeutronNetworkChangeListener extends AsyncDataTreeChangeListener
             QosNeutronUtils.addToQosNetworksCache(updateQos.getQosPolicyId(), update);
             QosNeutronUtils.handleNeutronNetworkQosUpdate(dataBroker, odlInterfaceRpcService,
                     neutronVpnManager, mdsalUtils, update, updateQos.getQosPolicyId());
+            if (QosNeutronUtils.hasBandwidthLimitRule(update)) {
+                QosAlertManager.addToQosAlertCache(update);
+            }
         } else if (originalQos != null && updateQos != null
                 && !originalQos.getQosPolicyId().equals(updateQos.getQosPolicyId())) {
+
             // qosservice policy update
+
             QosNeutronUtils.removeFromQosNetworksCache(originalQos.getQosPolicyId(), original);
             QosNeutronUtils.addToQosNetworksCache(updateQos.getQosPolicyId(), update);
             QosNeutronUtils.handleNeutronNetworkQosUpdate(dataBroker, odlInterfaceRpcService,
                     neutronVpnManager, mdsalUtils, update, updateQos.getQosPolicyId());
+
+            if (QosNeutronUtils.hasBandwidthLimitRule(original)
+                                             && !QosNeutronUtils.hasBandwidthLimitRule(update)) {
+                QosAlertManager.removeFromQosAlertCache(original);
+            } else if (!QosNeutronUtils.hasBandwidthLimitRule(original)
+                                              && QosNeutronUtils.hasBandwidthLimitRule(update)) {
+                QosAlertManager.addToQosAlertCache(update);
+            }
+
         } else if (originalQos != null && updateQos == null) {
             // qosservice policy delete
+            if (QosNeutronUtils.hasBandwidthLimitRule(original)) {
+                QosAlertManager.removeFromQosAlertCache(original);
+            }
             QosNeutronUtils.handleNeutronNetworkQosRemove(dataBroker, odlInterfaceRpcService,
                     neutronVpnManager, mdsalUtils, original, originalQos.getQosPolicyId());
             QosNeutronUtils.removeFromQosNetworksCache(originalQos.getQosPolicyId(), original);
@@ -100,6 +120,10 @@ public class QosNeutronNetworkChangeListener extends AsyncDataTreeChangeListener
             QosNeutronUtils.addToQosNetworksCache(networkQos.getQosPolicyId(), network);
             QosNeutronUtils.handleNeutronNetworkQosUpdate(dataBroker, odlInterfaceRpcService,
                     neutronVpnManager, mdsalUtils, network, networkQos.getQosPolicyId());
+            if (QosNeutronUtils.hasBandwidthLimitRule(network)) {
+                QosAlertManager.addToQosAlertCache(network);
+            }
+
         }
     }
 }
