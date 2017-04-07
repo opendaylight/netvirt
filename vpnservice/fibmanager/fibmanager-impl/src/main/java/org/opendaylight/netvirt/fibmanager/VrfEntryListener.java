@@ -78,6 +78,7 @@ import org.opendaylight.genius.utils.batching.SubTransactionImpl;
 import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnTunnelLocType;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
@@ -2238,6 +2239,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         FibHelper.sortIpAddress(routePaths);
         List<AdjacencyResult> adjacencyList = new ArrayList<>();
         List<String> prefixIpList = new ArrayList<>();
+        int tunnelType = IVpnTunnelLocType.ITMTunnelLocType.Invalid.getValue();
         LOG.trace("resolveAdjacency called with remotedDpnId {}, vpnId{}, VrfEntry {}",
             remoteDpnId, vpnId, vrfEntry);
         try {
@@ -2260,11 +2262,19 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 prefixIpList = Collections.singletonList(vrfEntry.getDestPrefix());
             }
 
+            if(RouteOrigin.value(vrfEntry.getDestPrefix()) == RouteOrigin.BGP) {
+                tunnelType = IVpnTunnelLocType.ITMTunnelLocType.External.getValue();
+            } else {
+                tunnelType = IVpnTunnelLocType.ITMTunnelLocType.Internal.getValue();
+            }
+
+            final int tempTunnelType = tunnelType;
+
             for (String prefixIp : prefixIpList) {
                 if (routePaths == null || routePaths.isEmpty()) {
                     LOG.trace("Processing Destination IP {} without NextHop IP", prefixIp);
                     AdjacencyResult adjacencyResult = nextHopManager.getRemoteNextHopPointer(remoteDpnId, vpnId,
-                          prefixIp, null);
+                          prefixIp, null, tempTunnelType);
                     addAdjacencyResultToList(adjacencyList, adjacencyResult);
                     continue;
                 }
@@ -2273,7 +2283,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             LOG.debug("NextHop IP for destination {} is {}", prefixIp,
                                     routePath.getNexthopAddress());
                             return nextHopManager.getRemoteNextHopPointer(remoteDpnId, vpnId,
-                                    prefixIp, routePath.getNexthopAddress());
+                                    prefixIp, routePath.getNexthopAddress(), tempTunnelType);
                         })
                         .filter(adjacencyResult -> adjacencyResult != null && !adjacencyList.contains(adjacencyResult))
                         .distinct()
