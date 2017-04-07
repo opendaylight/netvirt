@@ -26,13 +26,7 @@ public interface IFibManager {
                                     String localNextHopIp, String remoteNextHopIp);
 
     void populateExternalRoutesOnDpn(BigInteger localDpnId, long vpnId, String rd,
-                                     String localNextHopIp, String remoteNextHopIp);
-
-    void cleanUpInternalRoutesOnDpn(BigInteger dpnId, long vpnId, String rd,
-                                    String localNextHopIp, String remoteNextHopIp);
-
-    void populateInternalRoutesOnDpn(BigInteger localDpnId, long vpnId, String rd,
-                                     String localNextHopIp, String remoteNextHopIp);
+                                     String localNextHopIp, String remoteNextHopIp, String tunnelInterfaceName);
 
     void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd,
                           FutureCallback<List<Void>> callback);
@@ -62,7 +56,8 @@ public interface IFibManager {
                                 String rd,
                                 String destPrefix,
                                 String destTepIp,
-                                long label);
+                                long label,
+                                String tunnelInterfaceName);
 
     void addOrUpdateFibEntry(DataBroker broker, String rd, String macAddress, String prefix, List<String> nextHopList,
                              VrfEntry.EncapType encapType, long label, long l3vni, String gwMacAddress,

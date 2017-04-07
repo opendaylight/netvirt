@@ -214,7 +214,7 @@ public class EVPNVrfEntryProcessor {
         logger.debug("createremotefibentry: adding route {} for rd {} with transaction {}",
                 vrfEntry.getDestPrefix(), rd, tx);
         List<NexthopManager.AdjacencyResult> tunnelInterfaceList = vrfEntryListener
-                .resolveAdjacency(remoteDpnId, vpnId, vrfEntry, rd);
+                .resolveAdjacency(remoteDpnId, vpnId, vrfEntry, rd, null);
 
         if (tunnelInterfaceList.isEmpty()) {
             logger.error("Could not get interface for route-paths: {} in vpn {}",
