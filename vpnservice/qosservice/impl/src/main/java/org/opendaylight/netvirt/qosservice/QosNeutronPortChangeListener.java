@@ -69,11 +69,16 @@ public class QosNeutronPortChangeListener extends AsyncDataTreeChangeListenerBas
 
     @Override
     protected void add(InstanceIdentifier<Port> instanceIdentifier, Port port) {
-       //do nothing
+        if (QosNeutronUtils.portHasBandwidthLimitRule(neutronVpnManager, port)) {
+            QosAlertManager.addPortToQosAlertCache(port);
+        }
     }
 
     @Override
     protected void remove(InstanceIdentifier<Port> instanceIdentifier, Port port) {
+        if (QosNeutronUtils.portHasBandwidthLimitRule(neutronVpnManager, port)) {
+            QosAlertManager.removePortFromQosAlertCache(port);
+        }
         //Remove DSCP Flow when the port is removed
         //Qos Policy Deletion
         QosPortExtension removeQos = port.getAugmentation(QosPortExtension.class);
@@ -106,6 +111,7 @@ public class QosNeutronPortChangeListener extends AsyncDataTreeChangeListenerBas
                     update, updateQos.getQosPolicyId());
         } else if (originalQos != null && updateQos != null
                 && !originalQos.getQosPolicyId().equals(updateQos.getQosPolicyId())) {
+
             // qosservice policy update
             QosNeutronUtils.removeFromQosPortsCache(originalQos.getQosPolicyId(), original);
             QosNeutronUtils.addToQosPortsCache(updateQos.getQosPolicyId(), update);
@@ -117,6 +123,13 @@ public class QosNeutronPortChangeListener extends AsyncDataTreeChangeListenerBas
                     mdsalUtils, original, originalQos.getQosPolicyId());
             QosNeutronUtils.removeFromQosPortsCache(originalQos.getQosPolicyId(), original);
         }
+
+        if (QosNeutronUtils.portHasBandwidthLimitRule(neutronVpnManager, original)
+                                        && !QosNeutronUtils.portHasBandwidthLimitRule(neutronVpnManager, update)) {
+            QosAlertManager.removePortFromQosAlertCache(original);
+        } else if (!QosNeutronUtils.portHasBandwidthLimitRule(neutronVpnManager, original)
+                                          && QosNeutronUtils.portHasBandwidthLimitRule(neutronVpnManager,update)) {
+            QosAlertManager.addPortToQosAlertCache(update);
+        }
     }
 }
-
