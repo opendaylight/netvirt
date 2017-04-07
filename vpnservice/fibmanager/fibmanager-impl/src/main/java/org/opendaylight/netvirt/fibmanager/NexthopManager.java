@@ -48,6 +48,7 @@ import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldVlanVid;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
+import org.opendaylight.netvirt.vpnmanager.api.VpnTunnelLocType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -77,10 +78,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.Tun
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelsState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelListKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetInternalOrExternalInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetInternalOrExternalInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.IsDcgwPresentInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.IsDcgwPresentOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.service.rev130918.AddGroupInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.service.rev130918.AddGroupInputBuilder;
@@ -291,24 +296,80 @@ public class NexthopManager implements AutoCloseable {
         return null;
     }
 
-    protected String getTunnelInterfaceName(BigInteger srcDpId, org.opendaylight.yang.gen.v1.urn.ietf.params
-        .xml.ns.yang.ietf.inet.types.rev130715.IpAddress dstIp) {
+    protected String getTunnelInterfaceName(BigInteger srcDpId, VpnTunnelLocType.ITMTunnelLocType tunnelType,
+                                            org.opendaylight.yang.gen.v1.urn.ietf.params
+                                            .xml.ns.yang.ietf.inet.types.rev130715.IpAddress dstIp) {
         Class<? extends TunnelTypeBase> tunType = getReqTunType(getReqTransType().toUpperCase());
-        Future<RpcResult<GetInternalOrExternalInterfaceNameOutput>> result;
+        LOG.trace("getTunnelInterfaceName: tunnelType {} dpnid {} dstIp {}", tunnelType, srcDpId, dstIp);
         try {
-            result = itmManager.getInternalOrExternalInterfaceName(new GetInternalOrExternalInterfaceNameInputBuilder()
-                .setSourceDpid(srcDpId)
-                .setDestinationIp(dstIp)
-                .setTunnelType(tunType)
-                .build());
-            RpcResult<GetInternalOrExternalInterfaceNameOutput> rpcResult = result.get();
-            if (!rpcResult.isSuccessful()) {
-                LOG.warn("RPC Call to getTunnelInterfaceName returned with Errors {}", rpcResult.getErrors());
-            } else {
-                return rpcResult.getResult().getInterfaceName();
+            switch (tunnelType) {
+                case Invalid:
+                {
+                    LOG.error("getTunnelInterfaceName: Invalid Tunnel Type dpnid {} dstip {}", srcDpId, dstIp);
+                    break;
+                }
+                case Internal:
+                {
+                    Future<RpcResult<GetInternalOrExternalInterfaceNameOutput>> intResult;
+                    intResult = itmManager.getInternalOrExternalInterfaceName(
+                            new GetInternalOrExternalInterfaceNameInputBuilder()
+                                    .setSourceDpid(srcDpId)
+                                    .setDestinationIp(dstIp)
+                                    .setTunnelType(tunType)
+                                    .build());
+                    RpcResult<GetInternalOrExternalInterfaceNameOutput> intRpcResult = intResult.get();
+                    if (!intRpcResult.isSuccessful()) {
+                        LOG.warn("RPC Call to getTunnelInterfaceName Internal returned with Errors for "
+                                + "dpnid {} dstip {} errors {}", srcDpId, dstIp, intRpcResult.getErrors());
+                    } else {
+                        return intRpcResult.getResult().getInterfaceName();
+                    }
+                    break;
+                }
+                case External:
+                {
+                    Future<RpcResult<GetExternalTunnelInterfaceNameOutput>> extResult;
+                    Future<RpcResult<IsDcgwPresentOutput>> extDcGwResult;
+                    extDcGwResult = itmManager.isDcgwPresent(
+                            new IsDcgwPresentInputBuilder()
+                                    .setDcgwIp(dstIp.toString())
+                                    .build());
+                    RpcResult<IsDcgwPresentOutput> extDcGwRpcResult = extDcGwResult.get();
+                    if (!extDcGwRpcResult.isSuccessful()) {
+                        LOG.warn("RPC Call to getTunnelInterfaceName DCGW present returned with Errors for "
+                                + "dpnid {} dstip {} errors {}", srcDpId, dstIp, extDcGwRpcResult.getErrors());
+                        return null;
+                    }
+                    /* TODO - isDcgwPresent returns 1 for success and 2 for failure, this requires a genius change */
+                    if (extDcGwRpcResult.getResult().getRetVal() == 1) {
+                        extResult = itmManager.getExternalTunnelInterfaceName(
+                                new GetExternalTunnelInterfaceNameInputBuilder()
+                                        .setSourceNode(srcDpId.toString())
+                                        .setDestinationNode(dstIp.toString())
+                                        .setTunnelType(tunType).build());
+                        RpcResult<GetExternalTunnelInterfaceNameOutput> extRpcResult = extResult.get();
+                        if (!extRpcResult.isSuccessful()) {
+                            LOG.warn("RPC Call to getTunnelInterfaceName External returned with Errors for "
+                                    + "dpnid {} dstip {} errors {}", srcDpId, dstIp, extRpcResult.getErrors());
+                        } else {
+                            return extRpcResult.getResult().getInterfaceName();
+                        }
+                    }
+                    break;
+                }
+                case Hwvtep:
+                {
+                    LOG.error("getTunnelInterfaceName: Error Not handling hwtep for dpnId {} dstip {}", srcDpId, dstIp);
+                    break;
+                }
+                default:
+                {
+                    LOG.error("getTunnelInterfaceName: Error not handling this tunnelType {}", tunnelType.getValue());
+                    break;
+                }
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when getting tunnel interface Id for tunnel between {} and  {}", srcDpId, dstIp, e);
+            LOG.error("Exception when getting tunnel interface Id for tunnel between {} and  {}", srcDpId, dstIp, e);
         }
         return null;
     }
@@ -469,8 +530,30 @@ public class NexthopManager implements AutoCloseable {
         return null;
     }
 
+    public AdjacencyResult getInterfaceTypeForInterfaceName(final BigInteger remoteDpnId, final long vpnId,
+                                                      final VrfEntry vrfEntry, String tunnelInterfaceName) {
+        String interfaceName = tunnelInterfaceName;
+        Class<? extends InterfaceType> egressIfType;
+        ElanInstance elanInstance = getElanInstanceForPrefix(vpnId, vrfEntry.getDestPrefix());
+        if (elanInstance != null) {
+            egressIfType = getInterfaceType(elanInstance);
+        } else {
+            LOG.warn("Failed to determine network type for prefixIp {} using tunnel", vrfEntry.getDestPrefix());
+            egressIfType = Tunnel.class;
+        }
+        if (egressIfType != Tunnel.class) {
+            interfaceName = getExtPortRemoteNextHopPointer(remoteDpnId, elanInstance);
+        }
+
+        LOG.trace("getTunnelTypeForEgressName: for vpnId {} dpnId {} IntfName {}", vpnId, remoteDpnId,
+                interfaceName);
+        return interfaceName != null ? new AdjacencyResult(interfaceName, egressIfType, null,
+                vrfEntry.getDestPrefix()) : null;
+
+    }
+
     public AdjacencyResult getRemoteNextHopPointer(BigInteger remoteDpnId, long vpnId, String prefixIp,
-            String nextHopIp) {
+            String nextHopIp, VpnTunnelLocType.ITMTunnelLocType tunnelType) {
         String egressIfName = null;
         LOG.trace("getRemoteNextHopPointer: input [remoteDpnId {}, vpnId {}, prefixIp {}, nextHopIp {} ]", remoteDpnId,
             vpnId, prefixIp, nextHopIp);
@@ -485,9 +568,7 @@ public class NexthopManager implements AutoCloseable {
         }
 
         if (Tunnel.class.equals(egressIfType)) {
-            egressIfName = getTunnelRemoteNextHopPointer(remoteDpnId, nextHopIp);
-        } else {
-            egressIfName = getExtPortRemoteNextHopPointer(remoteDpnId, elanInstance);
+            egressIfName = getTunnelRemoteNextHopPointer(remoteDpnId, nextHopIp, tunnelType);
         }
 
         LOG.trace("NextHop pointer for prefixIp {} vpnId {} dpnId {} is {}", prefixIp, vpnId, remoteDpnId,
@@ -660,11 +741,12 @@ public class NexthopManager implements AutoCloseable {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private String getTunnelRemoteNextHopPointer(BigInteger remoteDpnId, String nextHopIp) {
+    private String getTunnelRemoteNextHopPointer(BigInteger remoteDpnId, String nextHopIp,
+                                                 VpnTunnelLocType.ITMTunnelLocType tunnelType) {
         if (nextHopIp != null && !nextHopIp.isEmpty()) {
             try {
                 // here use the config for tunnel type param
-                return getTunnelInterfaceName(remoteDpnId,
+                return getTunnelInterfaceName(remoteDpnId, tunnelType,
                     org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder
                         .getDefaultInstance(nextHopIp));
             } catch (Exception ex) {
@@ -832,7 +914,8 @@ public class NexthopManager implements AutoCloseable {
                     List<String> tepIpAddresses = FibUtil.getNextHopAddresses(dataBroker, rd, nextHopPrefixIp);
                     java.util.Optional<String> tepIp = tepIpAddresses.stream().findFirst();
                     AdjacencyResult adjacencyResult = getRemoteNextHopPointer(dpnId, vpnId,
-                            vrfEntry.getDestPrefix(), tepIp.get());
+                            vrfEntry.getDestPrefix(), tepIp.get(),
+                            VpnTunnelLocType.ITMTunnelLocType.Internal);
                     if (adjacencyResult == null) {
                         return;
                     }
@@ -913,15 +996,16 @@ public class NexthopManager implements AutoCloseable {
 
     private boolean isTunnelUp(String dcGwIp, BigInteger dpnId) {
         java.util.Optional<Object> tunnelStatus =
-                java.util.Optional.ofNullable(getTunnelRemoteNextHopPointer(dpnId, dcGwIp)).map(
-                    tunnelName -> {
-                        InstanceIdentifier<StateTunnelList> tunnelStateId =
+                java.util.Optional.ofNullable(getTunnelRemoteNextHopPointer(dpnId, dcGwIp,
+                        VpnTunnelLocType.ITMTunnelLocType.External))
+                        .map(tunnelName -> {
+                            InstanceIdentifier<StateTunnelList> tunnelStateId =
                                 InstanceIdentifier.builder(TunnelsState.class).child(
                                        StateTunnelList.class, new StateTunnelListKey(tunnelName)).build();
                         return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                                        tunnelStateId).transform(StateTunnelList::getOperState)
                                        .or(TunnelOperStatus.Down);
-                    });
+                        });
         return tunnelStatus.isPresent() ? ((tunnelStatus.get() == TunnelOperStatus.Up) ? true : false) : false;
     }
 
@@ -1038,7 +1122,8 @@ public class NexthopManager implements AutoCloseable {
         listAction.add(new ActionPushMpls().buildAction());
         listAction.add(new ActionRegMove(actionKey++, FibConstants.NXM_REG_MAPPING
                 .get(index), 0, 19).buildAction());
-        String tunnelInterfaceName = getTunnelInterfaceName(dpnId, new IpAddress(ipAddress.toCharArray()));
+        String tunnelInterfaceName = getTunnelInterfaceName(dpnId, VpnTunnelLocType
+                .ITMTunnelLocType.External, new IpAddress(ipAddress.toCharArray()));
         List<Action> egressActions = getEgressActions(tunnelInterfaceName, actionKey++);
         if (!egressActions.isEmpty()) {
             listAction.addAll(getEgressActions(tunnelInterfaceName, actionKey++));
