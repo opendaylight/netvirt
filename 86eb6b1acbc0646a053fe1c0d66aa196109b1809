@@ -22,6 +22,30 @@
       "revId": "86eb6b1acbc0646a053fe1c0d66aa196109b1809",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_b7ed358e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-07T11:06:35Z",
+      "side": 1,
+      "message": "CopyOnWriteArrayList is already thread safe.. Please see hrer:\nhttps://docs.oracle.com/javase/7/docs/api/java/util/concurrent/CopyOnWriteArrayList.html\n\nIf HWVTEP gets included also , it won\u0027t match with any of the nextHop for subnetRoute, so it won\u0027t cause any harm, but I agree we can check if its hwvtep if some node attribute indicates so and ignore storing it here.. Let me check.",
+      "parentUuid": "da01753e_77d8ed53",
+      "range": {
+        "startLine": 90,
+        "startChar": 8,
+        "endLine": 93,
+        "endChar": 9
+      },
+      "revId": "86eb6b1acbc0646a053fe1c0d66aa196109b1809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
