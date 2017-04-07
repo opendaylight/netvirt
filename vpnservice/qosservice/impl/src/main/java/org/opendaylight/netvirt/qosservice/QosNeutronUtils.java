@@ -51,6 +51,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.met
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetPortFromInterfaceInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetPortFromInterfaceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetPortFromInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
@@ -523,7 +526,7 @@ public class QosNeutronUtils {
         syncFlow(dataBroker, dpnId, NwConstants.DEL_FLOW, mdsalUtils, (short) 0, ifName, ipAddress);
     }
 
-    private static BigInteger getDpnForInterface(OdlInterfaceRpcService interfaceManagerRpcService, String ifName) {
+    public static BigInteger getDpnForInterface(OdlInterfaceRpcService interfaceManagerRpcService, String ifName) {
         BigInteger nodeId = BigInteger.ZERO;
         try {
             GetDpidFromInterfaceInput
@@ -708,6 +711,88 @@ public class QosNeutronUtils {
     public static String getQosFlowId(short tableId, BigInteger dpId, int lportTag) {
         return new StringBuffer().append(tableId).append(dpId).append(lportTag).toString();
     }
+
+    public static String getPortNumberForInterface(OdlInterfaceRpcService interfaceManagerRpcService, String ifName) {
+        GetPortFromInterfaceInput portNumberInput = new GetPortFromInterfaceInputBuilder().setIntfName(ifName).build();
+        Future<RpcResult<GetPortFromInterfaceOutput>> portNumberOutput =
+                interfaceManagerRpcService.getPortFromInterface(portNumberInput);
+        try {
+            RpcResult<GetPortFromInterfaceOutput> portResult = portNumberOutput.get();
+            if (portResult.isSuccessful()) {
+                return portResult.getResult().getPortno().toString();
+            }
+        } catch (NullPointerException | InterruptedException | ExecutionException e) {
+            LOG.warn("Exception when getting port for interface", e);
+        }
+        return null;
+    }
+
+    public static boolean portHasQosPolicy(INeutronVpnManager neutronVpnManager, Port port) {
+        Uuid qosUuid = null;
+        boolean isQosPolicy = false;
+
+        LOG.trace("checking qos policy for port: {}", port.getUuid());
+
+        if (port.getAugmentation(QosPortExtension.class) != null) {
+            qosUuid = port.getAugmentation(QosPortExtension.class).getQosPolicyId();
+        }
+        if (qosUuid != null) {
+            isQosPolicy = true;
+        }
+
+        LOG.trace("portHasQosPolicy for  port: {} return value {}", port.getUuid(), isQosPolicy);
+        return (isQosPolicy);
+    }
+
+    public static boolean portHasBandwidthLimitRule(INeutronVpnManager neutronVpnManager, Port port) {
+        Uuid qosUuid = null;
+        boolean bwLimitRule = false;
+
+        LOG.trace("checking bandwidth limit rule for  port: {}", port.getUuid());
+
+        if (port.getAugmentation(QosPortExtension.class) != null) {
+            qosUuid = port.getAugmentation(QosPortExtension.class).getQosPolicyId();
+        } else {
+            Network network = neutronVpnManager.getNeutronNetwork(port.getNetworkId());
+
+            if (network.getAugmentation(QosNetworkExtension.class) != null) {
+                qosUuid = network.getAugmentation(QosNetworkExtension.class).getQosPolicyId();
+            }
+        }
+
+        if (qosUuid != null) {
+            QosPolicy qosPolicy = qosPolicyMap.get(qosUuid);
+            if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
+                    && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
+                bwLimitRule = true;
+            }
+        }
+
+        LOG.trace("Bandwidth limit rule for  port: {} return value {}", port.getUuid(), bwLimitRule);
+        return (bwLimitRule);
+    }
+
+    public static boolean networkHasBandwidthLimitRule(Network network) {
+        boolean bwLimitRule = false;
+
+        LOG.trace("checking bandwidth limit rule for  network: {}", network.getUuid());
+
+        if (network.getAugmentation(QosNetworkExtension.class) != null) {
+            Uuid qosUuid = network.getAugmentation(QosNetworkExtension.class).getQosPolicyId();
+
+            if (qosUuid != null) {
+                QosPolicy qosPolicy = qosPolicyMap.get(qosUuid);
+                if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
+                        && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
+                    bwLimitRule = true;
+                }
+            }
+        }
+
+        LOG.trace("Bandwidth limit rule for  network: {} return value {}", network.getUuid(), bwLimitRule);
+        return (bwLimitRule);
+    }
+
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
