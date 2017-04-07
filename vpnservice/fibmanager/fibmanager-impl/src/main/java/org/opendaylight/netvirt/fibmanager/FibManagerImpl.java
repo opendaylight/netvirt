@@ -66,17 +66,9 @@ public class FibManagerImpl implements IFibManager {
     @Override
     public void populateExternalRoutesOnDpn(BigInteger localDpnId, long vpnId,
                                             String rd, String localNextHopIp,
-                                            String remoteNextHopIp) {
+                                            String remoteNextHopIp, String tunnelInterfaceName) {
         vrfEntryListener.populateExternalRoutesOnDpn(localDpnId, vpnId, rd,
-            localNextHopIp, remoteNextHopIp);
-    }
-
-    @Override
-    public void populateInternalRoutesOnDpn(BigInteger localDpnId, long vpnId,
-                                            String rd, String localNextHopIp,
-                                            String remoteNextHopIp) {
-        vrfEntryListener.populateInternalRoutesOnDpn(localDpnId, vpnId, rd,
-            localNextHopIp, remoteNextHopIp);
+            localNextHopIp, remoteNextHopIp, tunnelInterfaceName);
     }
 
     @Override
@@ -84,14 +76,6 @@ public class FibManagerImpl implements IFibManager {
                                            String rd, String localNextHopIp,
                                            String remoteNextHopIp) {
         vrfEntryListener.cleanUpExternalRoutesOnDpn(dpnId, vpnId, rd,
-            localNextHopIp, remoteNextHopIp);
-    }
-
-    @Override
-    public void cleanUpInternalRoutesOnDpn(BigInteger dpnId, long vpnId,
-                                           String rd, String localNextHopIp,
-                                           String remoteNextHopIp) {
-        vrfEntryListener.cleanUpInternalRoutesOnDpn(dpnId, vpnId, rd,
             localNextHopIp, remoteNextHopIp);
     }
 
@@ -148,8 +132,10 @@ public class FibManagerImpl implements IFibManager {
                                        String rd,
                                        String destPrefix,
                                        String destTepIp,
-                                       long label) {
-        vrfEntryListener.manageRemoteRouteOnDPN(action, dpnId, vpnId, rd, destPrefix, destTepIp, label);
+                                       long label,
+                                       String tunnelInterfaceName) {
+        vrfEntryListener.manageRemoteRouteOnDPN(action, dpnId, vpnId,
+                rd, destPrefix, destTepIp, label, tunnelInterfaceName);
     }
 
     @Override
