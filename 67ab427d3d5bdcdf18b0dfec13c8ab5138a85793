@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_10a6c610",
+        "filename": "vpnservice/sfc/classifier/impl/src/test/java/org/opendaylight/netvirt/sfc/classifier/providers/NetvirtProviderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-04-07T19:47:06Z",
+      "side": 1,
+      "message": "we typically recommand not to use PowerMock anymore when writing new tests.  Try to use Mockito instead - or, even better, do not mock at all.. for all DataBroker tests, why not just have class NetvirtProviderTest extends ConstantSchemaAbstractDataBrokerTest, and in setUp() use dataBroker \u003d getDataBroker(); ? Then you can use simple \"normal\" DataBroker API to pre-populate it with test data, and you get a test implementation of DataBroker which firews listeners and all like the real one...",
+      "revId": "67ab427d3d5bdcdf18b0dfec13c8ab5138a85793",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_30acaaed",
+        "filename": "vpnservice/sfc/classifier/impl/src/test/java/org/opendaylight/netvirt/sfc/classifier/providers/NetvirtProviderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-04-07T19:47:06Z",
+      "side": 1,
+      "message": "this is bad, because you\u0027re tying the test to the fact that the code under test is implemented with MDSALUtil, which is @Deprecated BTW. If for some reason you do not want to use the ConstantSchemaAbstractDataBrokerTest proposed above (why not?), then it would be better to instead of PowerMock at least use Mockito to Mock interaction with the @Mock dataBroker field.  As you are creating your NetvirtProvider with that, it will work - however it\u0027s internally implemented (as that, mocked, DataBroker would be passed through).  This is much better style than using PowerMock to hack static methods of one particular utility class.  Having said all this, personally I would encourage you not to use mocking at all here, and just adopt ConstantSchemaAbstractDataBrokerTest.",
+      "revId": "67ab427d3d5bdcdf18b0dfec13c8ab5138a85793",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
