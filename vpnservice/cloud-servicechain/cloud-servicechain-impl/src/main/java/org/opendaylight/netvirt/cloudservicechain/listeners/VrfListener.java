@@ -26,6 +26,7 @@ import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -119,8 +120,14 @@ public class VrfListener extends AsyncDataTreeChangeListenerBase<VrfEntry, VrfLi
     }
 
     private List<Long> getUniqueLabelList(VrfEntry original) {
-        return original.getRoutePaths().stream().map(routePath -> routePath.getLabel()).distinct()
-                .sorted().collect(Collectors.toList());
+        List<RoutePaths> vrfRoutePaths = original.getRoutePaths();
+        if (vrfRoutePaths == null || vrfRoutePaths.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return vrfRoutePaths.stream()
+                            .filter(rPath -> rPath.getLabel() != null).map(rPath -> rPath.getLabel())
+                            .distinct().sorted().collect(Collectors.toList());
     }
 
     @Override
