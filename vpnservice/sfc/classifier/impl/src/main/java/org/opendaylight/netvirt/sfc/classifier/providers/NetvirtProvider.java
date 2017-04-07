@@ -26,10 +26,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.NeutronNetwork;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class NetvirtProvider {
 
+    private static final Logger LOG = LoggerFactory.getLogger(NetvirtProvider.class);
     private final DataBroker dataBroker;
 
     @Inject
@@ -44,6 +47,8 @@ public class NetvirtProvider {
         NetworkMap networkMap =
                 MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, networkMapIdentifier).orNull();
         if (networkMap == null) {
+            LOG.warn("getLogicalInterfacesFromNeutronNetwork cant get NetworkMap for NW UUID [{}]",
+                    nw.getNetworkUuid());
             return Collections.emptyList();
         }
 
@@ -53,10 +58,14 @@ public class NetvirtProvider {
             InstanceIdentifier<Subnetmap> subnetId = getSubnetMapIdentifier(subnetUuid);
             Subnetmap subnet = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetId).orNull();
             if (subnet == null) {
+                LOG.warn("getLogicalInterfacesFromNeutronNetwork cant get Subnetmap for NW UUID [{}] Subnet UUID [{}]",
+                        nw.getNetworkUuid(), subnetUuid.getValue());
                 continue;
             }
 
-            if (subnet.getPortList().isEmpty()) {
+            if (subnet.getPortList() == null || subnet.getPortList().isEmpty()) {
+                LOG.warn("getLogicalInterfacesFromNeutronNetwork No ports on Subnet: NW UUID [{}] Subnet UUID [{}]",
+                        nw.getNetworkUuid(), subnetUuid.getValue());
                 continue;
             }
 
