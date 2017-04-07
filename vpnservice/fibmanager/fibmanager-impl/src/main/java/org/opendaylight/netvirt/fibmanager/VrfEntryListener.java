@@ -82,6 +82,7 @@ import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
+import org.opendaylight.netvirt.vpnmanager.api.VpnTunnelLocType;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
@@ -1246,6 +1247,53 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx);
     }
 
+    private void createRemoteFibEntryOnTunnelEvent(final BigInteger remoteDpnId, final long vpnId,
+                                                   final VrfTablesKey vrfTableKey, final VrfEntry vrfEntry,
+                                                   final String tunnelInterfaceName, WriteTransaction tx) {
+        Boolean wrTxPresent = true;
+        if (tx == null) {
+            wrTxPresent = false;
+            tx = dataBroker.newWriteOnlyTransaction();
+        }
+        String rd = vrfTableKey.getRouteDistinguisher();
+        String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnId);
+        LOG.debug("createremotefibentryOnTunnelEvent: adding route {} for rd {} on remoteDpnId {}",
+                vrfEntry.getDestPrefix(), rd, remoteDpnId, vrfEntry);
+
+        List<AdjacencyResult> adjacencyList = new ArrayList<>();
+        AdjacencyResult adjacencyResult = new AdjacencyResult(tunnelInterfaceName, null, null,
+                vrfEntry.getDestPrefix());
+        addAdjacencyResultToList(adjacencyList, adjacencyResult);
+
+        if (RouteOrigin.BGP.getValue().equals(vrfEntry.getOrigin())) {
+            programRemoteFibForBgpRoutes(remoteDpnId, vpnId, vrfEntry, tx, rd, adjacencyList);
+        } else {
+            List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
+            List<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getAllVpnExtraRoutes(dataBroker,
+                    vpnName, usedRds, vrfEntry.getDestPrefix());
+            if (!vpnExtraRoutes.isEmpty()) {
+                List<InstructionInfo> instructions = new ArrayList<>();
+                long groupId = nextHopManager.createNextHopGroups(vpnId, rd, remoteDpnId, vrfEntry,
+                        null, vpnExtraRoutes);
+                if (groupId == FibConstants.INVALID_GROUP_ID) {
+                    LOG.error("Unable to create Group for local prefix {} on rd {} on Node {}",
+                            vrfEntry.getDestPrefix(), rd, remoteDpnId.toString());
+                    return;
+                }
+                List<ActionInfo> actionInfos =
+                        Collections.singletonList(new ActionGroup(groupId));
+                instructions.add(new InstructionApplyActions(actionInfos));
+                makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx);
+            } else {
+                programRemoteFib(remoteDpnId, vpnId, vrfEntry, tx, rd, adjacencyList);
+            }
+        }
+        if (!wrTxPresent) {
+            tx.submit();
+        }
+        LOG.debug("Successfully added FIB entry for prefix {} in vpnId {}", vrfEntry.getDestPrefix(), vpnId);
+    }
+
     private void addRewriteDstMacAction(long vpnId, VrfEntry vrfEntry, List<ActionInfo> actionInfos) {
         if (vrfEntry.getMac() != null) {
             actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(),
@@ -1990,7 +2038,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     }
 
     public void populateExternalRoutesOnDpn(final BigInteger dpnId, final long vpnId, final String rd,
-                                            final String localNextHopIp, final String remoteNextHopIp) {
+                                            final String localNextHopIp, final String remoteNextHopIp,
+                                            final String tunnelInterfaceName) {
         LOG.trace("populateExternalRoutesOnDpn : dpn {}, vpn {}, rd {}, localNexthopIp {} , remoteNextHopIp {} ",
             dpnId, vpnId, rd, localNextHopIp, remoteNextHopIp);
         InstanceIdentifier<VrfTables> id = buildVrfId(rd);
@@ -2006,8 +2055,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         vrfTable.get().getVrfEntry().stream()
                             .filter(vrfEntry -> RouteOrigin.BGP == RouteOrigin.value(vrfEntry.getOrigin()))
                             .forEach(
-                                getConsumerForCreatingRemoteFib(dpnId, vpnId,
-                                        rd, remoteNextHopIp, vrfTable,
+                                getConsumerForCreatingRemoteFibOnTunnelEvent(dpnId, vpnId,
+                                        rd, remoteNextHopIp, vrfTable, tunnelInterfaceName,
                                         writeCfgTxn));
                         futures.add(writeCfgTxn.submit());
                     }
@@ -2053,7 +2102,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                        final String rd,
                                        final String destPrefix,
                                        final String destTepIp,
-                                       final long label) {
+                                       final long label,
+                                       final String tunnelInterfaceName) {
         final VpnInstanceOpDataEntry vpnInstance = getVpnInstance(rd);
 
         if (vpnInstance == null) {
@@ -2085,7 +2135,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
                     if (action == true) {
                         LOG.trace("manageRemoteRouteOnDPN updated(add)  vrfEntry :: {}", modVrfEntry);
-                        createRemoteFibEntry(localDpnId, vpnId, vrfTablesKey, modVrfEntry, writeTransaction);
+                        createRemoteFibEntryOnTunnelEvent(localDpnId, vpnId, vrfTablesKey,
+                                modVrfEntry, tunnelInterfaceName, writeTransaction);
                     } else {
                         LOG.trace("manageRemoteRouteOnDPN updated(remove)  vrfEntry :: {}", modVrfEntry);
                         List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnInstance.getVpnId(),
@@ -2273,6 +2324,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         FibHelper.sortIpAddress(routePaths);
         List<AdjacencyResult> adjacencyList = new ArrayList<>();
         List<String> prefixIpList = new ArrayList<>();
+        VpnTunnelLocType.ITMTunnelLocType tunnelType = VpnTunnelLocType.ITMTunnelLocType.Invalid;
         LOG.trace("resolveAdjacency called with remotedDpnId {}, vpnId{}, VrfEntry {}",
             remoteDpnId, vpnId, vrfEntry);
         try {
@@ -2295,11 +2347,19 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 prefixIpList = Collections.singletonList(vrfEntry.getDestPrefix());
             }
 
+            if (RouteOrigin.value(vrfEntry.getDestPrefix()) == RouteOrigin.BGP) {
+                tunnelType = VpnTunnelLocType.ITMTunnelLocType.External;
+            } else {
+                tunnelType = VpnTunnelLocType.ITMTunnelLocType.Internal;
+            }
+
+            VpnTunnelLocType.ITMTunnelLocType tempTunnelType = tunnelType;
+
             for (String prefixIp : prefixIpList) {
                 if (routePaths == null || routePaths.isEmpty()) {
                     LOG.trace("Processing Destination IP {} without NextHop IP", prefixIp);
                     AdjacencyResult adjacencyResult = nextHopManager.getRemoteNextHopPointer(remoteDpnId, vpnId,
-                          prefixIp, null);
+                          prefixIp, null, tempTunnelType);
                     addAdjacencyResultToList(adjacencyList, adjacencyResult);
                     continue;
                 }
@@ -2308,7 +2368,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             LOG.debug("NextHop IP for destination {} is {}", prefixIp,
                                     routePath.getNexthopAddress());
                             return nextHopManager.getRemoteNextHopPointer(remoteDpnId, vpnId,
-                                    prefixIp, routePath.getNexthopAddress());
+                                    prefixIp, routePath.getNexthopAddress(), tempTunnelType);
                         })
                         .filter(adjacencyResult -> adjacencyResult != null && !adjacencyList.contains(adjacencyResult))
                         .distinct()
@@ -2577,7 +2637,24 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 .ifPresent(routes -> {
                     LOG.trace("creating remote FIB entry for prefix {} rd {} on Dpn {}",
                             vrfEntry.getDestPrefix(), rd, dpnId);
-                    createRemoteFibEntry(dpnId, vpnId, vrfTable.get().getKey(), vrfEntry, writeCfgTxn);
+                    createRemoteFibEntry(dpnId, vpnId, vrfTable.get().getKey(), vrfEntry,
+                            writeCfgTxn);
+                });
+    }
+
+    private Consumer<? super VrfEntry> getConsumerForCreatingRemoteFibOnTunnelEvent(
+            final BigInteger dpnId, final long vpnId, final String rd,
+            final String remoteNextHopIp, final Optional<VrfTables> vrfTable, final String tunnelInterfaceName,
+            WriteTransaction writeCfgTxn) {
+        return vrfEntry -> vrfEntry.getRoutePaths().stream()
+                .filter(routes -> !routes.getNexthopAddress().isEmpty()
+                        && remoteNextHopIp.trim().equals(routes.getNexthopAddress().trim()))
+                .findFirst()
+                .ifPresent(routes -> {
+                    LOG.trace("creating remote FIB entry for prefix {} rd {} on Dpn {}",
+                            vrfEntry.getDestPrefix(), rd, dpnId);
+                    createRemoteFibEntryOnTunnelEvent(dpnId, vpnId, vrfTable.get().getKey(), vrfEntry,
+                            tunnelInterfaceName, writeCfgTxn);
                 });
     }
 
