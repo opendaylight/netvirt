@@ -46,6 +46,53 @@
       "revId": "86eb6b1acbc0646a053fe1c0d66aa196109b1809",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_52e5f7a6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-07T13:08:06Z",
+      "side": 1,
+      "message": "Yes you are right, I was under the assumption that is was not thread-safe. Good to verify that.",
+      "parentUuid": "da01753e_b7ed358e",
+      "range": {
+        "startLine": 90,
+        "startChar": 8,
+        "endLine": 93,
+        "endChar": 9
+      },
+      "revId": "86eb6b1acbc0646a053fe1c0d66aa196109b1809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_d29f2702",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-07T13:08:06Z",
+      "side": 1,
+      "message": "Not a good practice, would prefer asking vpnNodeListener if it contains the node instead of exposing its implementation details.",
+      "range": {
+        "startLine": 794,
+        "startChar": 16,
+        "endLine": 794,
+        "endChar": 60
+      },
+      "revId": "86eb6b1acbc0646a053fe1c0d66aa196109b1809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
