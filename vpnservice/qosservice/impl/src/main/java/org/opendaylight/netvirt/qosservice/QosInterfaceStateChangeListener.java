@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosNetworkExtension;
@@ -102,8 +103,12 @@ public class QosInterfaceStateChangeListener extends AsyncDataTreeChangeListener
                             if (networkQosUuid != null) {
                                 QosNeutronUtils.handleNeutronPortQosAdd(dataBroker, odlInterfaceRpcService, mdsalUtils,
                                         port, networkQosUuid);
+
                             }
                         }
+                    }
+                    if (QosNeutronUtils.portHasBandwidthLimitRule(neutronVpnManager, port)) {
+                        QosAlertManager.addPortToQosAlertCache(port);
                     }
                 });
             }
@@ -119,6 +124,12 @@ public class QosInterfaceStateChangeListener extends AsyncDataTreeChangeListener
 
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
+        if (!Tunnel.class.equals(intrf.getType())) {
+            LOG.trace("Qos Service : Received interface {} PORT DOWN event ", intrf.getName());
+            String lowerLayerIf = intrf.getLowerLayerIf().get(0);
+            LOG.trace("lowerLayerIf {}", lowerLayerIf);
+            QosAlertManager.removePortFromQosAlertCache(new NodeConnectorId(lowerLayerIf));
+        }
     }
 
     @Override
