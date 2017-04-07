@@ -1142,7 +1142,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 handleEnableSnat(original, routerId, primarySwitchId);
             }
         }
-
+        if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
+            LOG.error("NAT Service: Failed to get or allocate NAPT switch for router {}", routerName);
+            return;
+        }
         if (!Objects.equals(original.getExtGwMacAddress(), update.getExtGwMacAddress())) {
             handleRouterGwFlows(original, dpnId, NwConstants.DEL_FLOW);
             handleRouterGwFlows(update, dpnId, NwConstants.ADD_FLOW);
