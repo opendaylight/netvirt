@@ -31,6 +31,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.vpnmanager.api.VpnTunnelLocType;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -177,7 +178,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         boolean isTepDeletedOnDpn = false;
 
         LOG.trace("Handle tunnel event for srcDpn {} SrcTepIp {} DestTepIp {} ", srcDpnId, srcTepIp, destTepIp);
-        int tunTypeVal = getTunnelType(stateTunnelList);
+        VpnTunnelLocType.ITMTunnelLocType tunTypeVal = getTunnelType(stateTunnelList);
 
         LOG.trace("tunTypeVal is {}", tunTypeVal);
 
@@ -224,7 +225,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             }
 
             // Get the list of VpnInterfaces from Intf Mgr for a destDPN only for internal tunnel.
-            if (tunTypeVal == VpnConstants.ITMTunnelLocType.Internal.getValue()) {
+            if (tunTypeVal == VpnTunnelLocType.ITMTunnelLocType.Internal) {
                 remoteDpnId = new BigInteger(stateTunnelList.getDstInfo().getTepDeviceId());
                 try {
                     result = intfRpcService.getDpnInterfaceList(
@@ -305,12 +306,12 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                             prefix = adj.getIpAddress();
                             long label = adj.getLabel();
                             if ((tunnelAction == TunnelAction.TUNNEL_EP_ADD)
-                                && (tunTypeVal == VpnConstants.ITMTunnelLocType.Internal.getValue())) {
+                                && (tunTypeVal == VpnTunnelLocType.ITMTunnelLocType.Internal)) {
                                 fibManager.manageRemoteRouteOnDPN(true, srcDpnId, vpnId, rd, prefix, destTepIp, label);
                             }
 
                             if ((tunnelAction == TunnelAction.TUNNEL_EP_DELETE)
-                                && (tunTypeVal == VpnConstants.ITMTunnelLocType.Internal.getValue())) {
+                                && (tunTypeVal == VpnTunnelLocType.ITMTunnelLocType.Internal)) {
                                 fibManager.manageRemoteRouteOnDPN(false, srcDpnId, vpnId, rd, prefix, destTepIp, label);
                             }
                         }
@@ -323,10 +324,10 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                 Long vpnId = entry.getKey();
                 rd = entry.getValue();
                 if ((tunnelAction == TunnelAction.TUNNEL_EP_ADD)
-                    && (tunTypeVal == VpnConstants.ITMTunnelLocType.External.getValue())) {
+                    && (tunTypeVal == VpnTunnelLocType.ITMTunnelLocType.External)) {
                     fibManager.populateExternalRoutesOnDpn(srcDpnId, vpnId, rd, srcTepIp, destTepIp);
                 } else if ((tunnelAction == TunnelAction.TUNNEL_EP_DELETE)
-                    && (tunTypeVal == VpnConstants.ITMTunnelLocType.External.getValue())) {
+                    && (tunTypeVal == VpnTunnelLocType.ITMTunnelLocType.External)) {
                     fibManager.cleanUpExternalRoutesOnDpn(srcDpnId, vpnId, rd, srcTepIp, destTepIp);
                 }
             }
@@ -399,16 +400,16 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         }
     }
 
-    private int getTunnelType(StateTunnelList stateTunnelList) {
-        int tunTypeVal = 0;
+    private VpnTunnelLocType.ITMTunnelLocType getTunnelType(StateTunnelList stateTunnelList) {
+        VpnTunnelLocType.ITMTunnelLocType tunTypeVal;
         if (stateTunnelList.getDstInfo().getTepDeviceType() == TepTypeInternal.class) {
-            tunTypeVal = VpnConstants.ITMTunnelLocType.Internal.getValue();
+            tunTypeVal = VpnTunnelLocType.ITMTunnelLocType.Internal;
         } else if (stateTunnelList.getDstInfo().getTepDeviceType() == TepTypeExternal.class) {
-            tunTypeVal = VpnConstants.ITMTunnelLocType.External.getValue();
+            tunTypeVal = VpnTunnelLocType.ITMTunnelLocType.External;
         } else if (stateTunnelList.getDstInfo().getTepDeviceType() == TepTypeHwvtep.class) {
-            tunTypeVal = VpnConstants.ITMTunnelLocType.Hwvtep.getValue();
+            tunTypeVal = VpnTunnelLocType.ITMTunnelLocType.Hwvtep;
         } else {
-            tunTypeVal = VpnConstants.ITMTunnelLocType.Invalid.getValue();
+            tunTypeVal = VpnTunnelLocType.ITMTunnelLocType.Invalid;
         }
         return tunTypeVal;
     }
