@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_77d8ed53",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-07T08:48:56Z",
+      "side": 1,
+      "message": "Three things regarding this code.\n1. In case of using HWVTEP also, will it also be included in this list? I think its a Node as any other Node, and I\u0027m not sure we want to include it as well (I may be wrong here).\n2. This code is not thread safe, contains and add operations needs to be an atomic operation. I see that AsyncClusteredDataTreeChangeListenerBase is currently configured with one thread, which should be OK for now, but it is already deprecated and I don\u0027t want to rely on it staying single threaded.\n3. I prefer another data structure here, (concurrent) HashSet will be more appropriate, especially in scale environments.",
+      "range": {
+        "startLine": 90,
+        "startChar": 8,
+        "endLine": 93,
+        "endChar": 9
+      },
+      "revId": "86eb6b1acbc0646a053fe1c0d66aa196109b1809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
