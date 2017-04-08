@@ -68,7 +68,7 @@ public class NatOverVxlanUtil {
                 return BigInteger.valueOf(rpcResult.getResult().getIdValue());
             }
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("NAT Service : getVNI Exception {}", e);
+            LOG.error("NAT Service : Exception in get VNI for key {}", vniKey, e);
         }
         return BigInteger.valueOf(-1);
     }
@@ -84,7 +84,7 @@ public class NatOverVxlanUtil {
                         vniKey, rpcResult.getErrors());
             }
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("NAT Service : getVNI Exception {}", e);
+            LOG.error("NAT Service : Exception in release VNI for Key {}", vniKey, e);
         }
     }
 

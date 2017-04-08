@@ -641,6 +641,12 @@ public class NatTunnelInterfaceStateListener
             gwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
             //get l3Vni value for external VPN
             l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
+            if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
+                LOG.debug("NAT Service : L3VNI value is not configured in Internet VPN {} and RD {} "
+                        + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue to installing "
+                        + "NAT flows", vpnName, rd);
+                l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, externalVpnName, l3Vni).longValue();
+            }
             //Create writeTx Object
             writeTx = dataBroker.newWriteOnlyTransaction();
         }
@@ -761,6 +767,12 @@ public class NatTunnelInterfaceStateListener
             gwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
             //get l3Vni value for external VPN
             l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
+            if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
+                LOG.debug("NAT Service : L3VNI value is not configured in Internet VPN {} and RD {} "
+                        + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue to installing "
+                        + "NAT flows", vpnName, rd);
+                l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3Vni).longValue();
+            }
             //Create writeTx Object
             writeTx = dataBroker.newWriteOnlyTransaction();
         }
@@ -982,8 +994,10 @@ public class NatTunnelInterfaceStateListener
             //get l3Vni value for external VPN
             l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
             if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
-                LOG.error("NAT Service : Unable to retrieve L3VNI value for RD {}", rd);
-                return;
+                LOG.debug("NAT Service : L3VNI value is not configured in Internet VPN {} and RD {} "
+                        + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue to installing "
+                        + "NAT flows", vpnName, rd);
+                l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3Vni).longValue();
             }
         }
         List<Ports> interfaces = routerPorts.getPorts();

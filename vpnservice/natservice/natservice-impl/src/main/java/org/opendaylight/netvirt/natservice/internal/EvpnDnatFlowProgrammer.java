@@ -44,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
@@ -66,6 +67,7 @@ public class EvpnDnatFlowProgrammer {
     private final IFibManager fibManager;
     private final FibRpcService fibService;
     private final IVpnManager vpnManager;
+    private final IdManagerService idManager;
     private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
 
     @Inject
@@ -73,13 +75,15 @@ public class EvpnDnatFlowProgrammer {
                            final IBgpManager bgpManager,
                            final IFibManager fibManager,
                            final FibRpcService fibService,
-                           final IVpnManager vpnManager) {
+                           final IVpnManager vpnManager,
+                           final IdManagerService idManager) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.bgpManager = bgpManager;
         this.fibManager = fibManager;
         this.fibService = fibService;
         this.vpnManager = vpnManager;
+        this.idManager = idManager;
     }
 
     public void onAddFloatingIp(final BigInteger dpnId, final String routerName, final String vpnName,
@@ -100,15 +104,17 @@ public class EvpnDnatFlowProgrammer {
      *    (DC-GW is responding back to FIP VM) {DNAT Reverse traffic})
      *
      */
-        long l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
-        if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
-            LOG.error("NAT Service : Unable to retrieve L3VNI value for Floating IP {} ", externalIp);
-            return;
-        }
         long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
         if (vpnId == NatConstants.INVALID_ID) {
             LOG.warn("NAT Service : Invalid Vpn Id is found for Vpn Name {}", vpnName);
             return;
+        }
+        long l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
+        if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
+            LOG.debug("NAT Service : L3VNI value is not configured in Internet VPN {} and RD {} "
+                    + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with installing "
+                    + "DNAT flows for FloatingIp {}", vpnName, rd, externalIp);
+            l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3Vni).longValue();
         }
         FloatingIPListener.updateOperationalDS(dataBroker, routerName, interfaceName, NatConstants.DEFAULT_LABEL_VALUE,
                 internalIp, externalIp);
@@ -142,7 +148,7 @@ public class EvpnDnatFlowProgrammer {
                     Collections.singleton(externalIp),
                     floatingIpPortMacAddress, dpnId, networkId, writeTx, NwConstants.ADD_FLOW);
         }
-
+        final long finalL3Vni = l3Vni;
         Futures.addCallback(futureVxlan, new FutureCallback<RpcResult<Void>>() {
 
             @Override
@@ -165,7 +171,7 @@ public class EvpnDnatFlowProgrammer {
                  /* Install the Flow table INTERNAL_TUNNEL_TABLE (table=36)-> PDNAT_TABLE (table=25) for SNAT to DNAT
                   * reverse traffic for Non-FIP VM on DPN1 to FIP VM on DPN2
                   */
-                    makeTunnelTableEntry(dpnId, l3Vni, instructions);
+                    makeTunnelTableEntry(dpnId, finalL3Vni, instructions);
 
                  /* Install the flow L3_GW_MAC_TABLE (table=19)-> PDNAT_TABLE (table=25)
                   * (DNAT reverse traffic: If the traffic is Initiated from DC-GW to FIP VM (DNAT forward traffic))
@@ -220,15 +226,17 @@ public class EvpnDnatFlowProgrammer {
             LOG.error("NAT Service : Could not retrieve RD value from VPN Name {}  ", vpnName);
             return;
         }
-        long l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
-        if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
-            LOG.error("NAT Service : Could not retrieve L3VNI value from RD {} in ", rd);
-            return;
-        }
         long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
         if (vpnId == NatConstants.INVALID_ID) {
             LOG.warn("NAT Service : Invalid Vpn Id is found for Vpn Name {}", vpnName);
             return;
+        }
+        long l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
+        if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
+            LOG.debug("NAT Service : L3VNI value is not configured in Internet VPN {} and RD {} "
+                    + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with installing "
+                    + "DNAT flows for FloatingIp {}", vpnName, rd, externalIp);
+            l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3Vni).longValue();
         }
         //Remove Prefix from BGP
         NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32", vpnName, LOG);
@@ -238,6 +246,7 @@ public class EvpnDnatFlowProgrammer {
                 .setSourceDpid(dpnId).setIpAddress(externalIp + "/32").setServiceId(l3Vni).build();
         Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
         ListenableFuture<RpcResult<Void>> futureVxlan = JdkFutureAdapters.listenInPoolThread(future);
+        final long finalL3Vni = l3Vni;
         Futures.addCallback(futureVxlan, new FutureCallback<RpcResult<Void>>() {
 
             @Override
@@ -257,7 +266,7 @@ public class EvpnDnatFlowProgrammer {
                       */
                     if (!NatUtil.isFloatingIpPresentForDpn(dataBroker, dpnId, rd, vpnName, externalIp)) {
                         //Remove the flow for INTERNAL_TUNNEL_TABLE (table=36)-> PDNAT_TABLE (table=25)
-                        removeTunnelTableEntry(dpnId, l3Vni);
+                        removeTunnelTableEntry(dpnId, finalL3Vni);
                     }
                     //Remove the flow for L3_GW_MAC_TABLE (table=19)-> PDNAT_TABLE (table=25)
                     NatEvpnUtil.removeL3GwMacTableEntry(dpnId, vpnId, floatingIpPortMacAddress, mdsalManager);
