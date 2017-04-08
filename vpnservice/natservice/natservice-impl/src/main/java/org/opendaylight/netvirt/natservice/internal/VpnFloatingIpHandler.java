@@ -147,6 +147,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         if (provType == null) {
             return;
         }
+        NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager, idManager,
+                NatConstants.ODL_VNI_POOL_NAME);
         if (provType == ProviderTypes.VXLAN) {
             Uuid floatingIpInterface = NatEvpnUtil.getFloatingIpInterfaceIdFromFloatingIpId(dataBroker, floatingIpId);
             evpnDnatFlowProgrammer.onAddFloatingIp(dpnId, routerId, vpnName, internalIp, externalIp, networkId,
@@ -156,12 +158,6 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             }
             return;
         }
-
-        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
-            NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager,
-                    idManager, NatConstants.ODL_VNI_POOL_NAME);
-        }
-
         GenerateVpnLabelInput labelInput = new GenerateVpnLabelInputBuilder().setVpnName(vpnName)
             .setIpPrefix(externalIp).build();
         Future<RpcResult<GenerateVpnLabelOutput>> labelFuture = vpnService.generateVpnLabel(labelInput);
