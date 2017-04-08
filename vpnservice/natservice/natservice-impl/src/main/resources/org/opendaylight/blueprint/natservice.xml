@@ -49,7 +49,8 @@
 
   <odl:clustered-app-config id="natserviceConfig"
                             binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig"
-                            default-config-file-name="netvirt-natservice-config.xml">
+                            default-config-file-name="netvirt-natservice-config.xml"
+                            update-strategy="none">
   </odl:clustered-app-config>
 
   <service ref="natRpcServiceImpl"
