@@ -641,6 +641,12 @@ public class NatTunnelInterfaceStateListener
             gwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
             //get l3Vni value for external VPN
             l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
+            if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
+                LOG.debug("NAT Service : L3VNI value is not configured in Internet VPN {} and RD {} "
+                        + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue to installing "
+                        + "NAT flows", vpnName, rd);
+                l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, externalVpnName, routerId).longValue();
+            }
             //Create writeTx Object
             writeTx = dataBroker.newWriteOnlyTransaction();
         }
@@ -761,6 +767,12 @@ public class NatTunnelInterfaceStateListener
             gwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
             //get l3Vni value for external VPN
             l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
+            if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
+                LOG.debug("NAT Service : L3VNI value is not configured in Internet VPN {} and RD {} "
+                        + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue to installing "
+                        + "NAT flows", vpnName, rd);
+                l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
+            }
             //Create writeTx Object
             writeTx = dataBroker.newWriteOnlyTransaction();
         }
@@ -952,6 +964,11 @@ public class NatTunnelInterfaceStateListener
     private void hndlTepDelForDnatInEachRtr(RoutersList router, BigInteger tepDeletedDpnId) {
         //DNAT : Withdraw the routes from the BGP
         String routerName = router.getRouter();
+        long routerId = NatUtil.getVpnId(dataBroker, routerName);
+        if (routerId == NatConstants.INVALID_ID) {
+            LOG.warn("Unable to get RouterId from RouterName {}", routerName);
+            return;
+        }
         LOG.debug("NAT Service : DNAT -> Trying to clear routes to the Floating IP associated to the router {}",
             routerName);
 
@@ -982,8 +999,10 @@ public class NatTunnelInterfaceStateListener
             //get l3Vni value for external VPN
             l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
             if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
-                LOG.error("NAT Service : Unable to retrieve L3VNI value for RD {}", rd);
-                return;
+                LOG.debug("NAT Service : L3VNI value is not configured in Internet VPN {} and RD {} "
+                        + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue to installing "
+                        + "NAT flows", vpnName, rd);
+                l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
             }
         }
         List<Ports> interfaces = routerPorts.getPorts();
