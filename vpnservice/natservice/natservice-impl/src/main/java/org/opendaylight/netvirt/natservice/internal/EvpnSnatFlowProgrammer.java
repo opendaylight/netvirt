@@ -27,6 +27,7 @@ import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,16 +38,19 @@ public class EvpnSnatFlowProgrammer {
     private final IMdsalApiManager mdsalManager;
     private final IBgpManager bgpManager;
     private final IFibManager fibManager;
+    private final IdManagerService idManager;
     private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
 
     @Inject
     public EvpnSnatFlowProgrammer(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                            final IBgpManager bgpManager,
-                           final IFibManager fibManager) {
+                           final IFibManager fibManager,
+                           final IdManagerService idManager) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.bgpManager = bgpManager;
         this.fibManager = fibManager;
+        this.idManager = idManager;
     }
 
     public void evpnAdvToBgpAndInstallFibAndTsFlows(final BigInteger dpnId, final short tableId,
@@ -76,8 +80,10 @@ public class EvpnSnatFlowProgrammer {
         //get l3Vni value for external VPN
         long l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
         if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
-            LOG.error("NAT Service : Unable to retrieve L3VNI value for External IP {}", externalIp);
-            return;
+            LOG.info("NAT Service : L3VNI value is not configured in Internet VPN {} and RD {} "
+                    + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with installing "
+                    + "SNAT flows for External Fixed IP {}", vpnName, rd, externalIp);
+            l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3Vni).longValue();
         }
         /* As of now neither SNAT nor DNAT will use macaddress while advertising to FIB and BGP instead
          * use only gwMacAddress. Hence default value of macAddress is null
@@ -108,7 +114,7 @@ public class EvpnSnatFlowProgrammer {
     }
 
     public void evpnDelFibTsAndReverseTraffic(final BigInteger dpnId, final long routerId, final String externalIp,
-                                              final String vpnName) {
+                                              final String vpnName, final String routerName) {
      /*
       * 1) Remove the flow INTERNAL_TUNNEL_TABLE (table=36)-> INBOUND_NAPT_TABLE (table=44)
       *    (FIP VM on DPN1 is responding back to external fixed IP on DPN2) {DNAT to SNAT traffic on
@@ -127,9 +133,9 @@ public class EvpnSnatFlowProgrammer {
             LOG.error("NAT Service : Could not retrieve RD value from VPN Name {}  ", vpnName);
             return;
         }
-        long l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
-        if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
-            LOG.error("NAT Service : Could not retrieve L3VNI value from RD {} in ", rd);
+        long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
+        if (vpnId == NatConstants.INVALID_ID) {
+            LOG.warn("NAT Service : Invalid Vpn Id is found for Vpn Name {}", vpnName);
             return;
         }
         String gwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
@@ -137,9 +143,12 @@ public class EvpnSnatFlowProgrammer {
             LOG.error("NAT Service : Unable to Get External Gateway MAC address for External Router ID {} ", routerId);
             return;
         }
-        long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
-        if (vpnId == NatConstants.INVALID_ID) {
-            LOG.warn("NAT Service : Invalid Vpn Id is found for Vpn Name {}", vpnName);
+        long l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
+        if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
+            LOG.info("NAT Service : L3VNI value is not configured in Internet VPN {} and RD {} "
+                    + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with installing "
+                    + "SNAT flows for External Fixed IP {}", vpnName, rd, externalIp);
+            l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3Vni).longValue();
         }
         //remove INTERNAL_TUNNEL_TABLE (table=36)-> INBOUND_NAPT_TABLE (table=44) flow
         removeTunnelTableEntry(dpnId, l3Vni);
