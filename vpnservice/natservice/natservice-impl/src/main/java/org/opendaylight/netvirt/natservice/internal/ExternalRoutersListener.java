@@ -316,13 +316,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 primarySwitchId, routerName);
             return primarySwitchId;
         }
-
         // Validating and creating VNI pool during when NAPT switch is selected.
         // With Assumption this might be the first NAT service comes up.
-        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
-            NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager,
-                    idManager, NatConstants.ODL_VNI_POOL_NAME);
-        }
+        NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager,
+                idManager, NatConstants.ODL_VNI_POOL_NAME);
         primarySwitchId = naptSwitchSelector.selectNewNAPTSwitch(routerName);
         LOG.debug("NAT Service : Primary NAPT switch DPN ID {}", primarySwitchId);
         if (primarySwitchId == null || primarySwitchId.equals(BigInteger.ZERO)) {
@@ -1584,9 +1581,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 handleRouterGwFlows(router, primarySwitchId, NwConstants.DEL_FLOW);
                 List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
                 handleDisableSnat(router, networkUuid, externalIps, true, null, primarySwitchId);
-                if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
-                    NatOverVxlanUtil.releaseVNI(routerName, idManager);
-                }
+                NatOverVxlanUtil.releaseVNI(routerName, idManager);
             }
         }
     }
