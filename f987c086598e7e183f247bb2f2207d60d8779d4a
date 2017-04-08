@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_73f91c4d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-08T04:16:24Z",
+      "side": 1,
+      "message": "we should fix the root-cause and not the symptom..  So please see why vpnId() is not filled when the method is invoked from SubnetmapChangeListner.",
+      "revId": "f987c086598e7e183f247bb2f2207d60d8779d4a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
