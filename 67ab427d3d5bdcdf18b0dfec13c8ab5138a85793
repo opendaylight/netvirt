@@ -33,6 +33,24 @@
       "revId": "67ab427d3d5bdcdf18b0dfec13c8ab5138a85793",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_b66372b0",
+        "filename": "vpnservice/sfc/classifier/impl/src/test/java/org/opendaylight/netvirt/sfc/classifier/providers/NetvirtProviderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 2039
+      },
+      "writtenOn": "2017-04-08T12:18:13Z",
+      "side": 1,
+      "message": "Im using PowerMock since MDSALUtil has static methods and Mockito cant mock static methods. MDSALUtil is deprecated since its flagged to be moved to infrautils, and I was directly requested to use it even though it will be moved soon. I can switch over to ConstantSchemaAbstractDataBrokerTest no problem, but Im curious why its considered bad to Mock. Do you consider it bad in general, or just in this case where there is already something like ConstantSchemaAbstractDataBrokerTest available?",
+      "parentUuid": "da01753e_30acaaed",
+      "revId": "67ab427d3d5bdcdf18b0dfec13c8ab5138a85793",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
