@@ -244,6 +244,7 @@
     <argument ref="elanConfig" />
     <argument ref="elanBridgeManager" />
     <argument ref="elanService" />
+    <argument ref = "transportZoneNotificationUtil"/>
   </bean>
 
   <bean id="elanGroupListener"
@@ -254,7 +255,7 @@
     <argument ref="entityOwnershipService" />
   </bean>
 
-  <bean id="TransportZoneNotificationUtil"
+  <bean id="transportZoneNotificationUtil"
     class="org.opendaylight.netvirt.elan.utils.TransportZoneNotificationUtil">
     <argument ref="dataBroker" />
     <argument ref="interfaceManager" />
@@ -269,7 +270,7 @@
     <argument ref="dataBroker" />
     <argument ref="interfaceManager" />
     <argument ref="elanConfig" />
-    <argument ref="TransportZoneNotificationUtil" />
+    <argument ref="transportZoneNotificationUtil" />
   </bean>
 
   <bean id="VpnDpnToTransportZoneListener"
@@ -278,7 +279,7 @@
     <argument ref="dataBroker" />
     <argument ref="interfaceManager" />
     <argument ref="elanConfig" />
-    <argument ref="TransportZoneNotificationUtil" />
+    <argument ref="transportZoneNotificationUtil" />
   </bean>
 
   <bean id="l2gwService"
