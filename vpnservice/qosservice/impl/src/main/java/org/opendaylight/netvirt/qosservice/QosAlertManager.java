@@ -9,11 +9,14 @@
 package org.opendaylight.netvirt.qosservice;
 
 
+import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -21,18 +24,28 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetNodeConnectorStatisticsInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetNodeConnectorStatisticsOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.qosalert.config.rev170301.QosalertConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.qosalert.config.rev170301.QosalertConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.node.connector.statistics.and.port.number.map.NodeConnectorStatisticsAndPortNumberMap;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,6 +107,8 @@ public final class QosAlertManager implements Runnable {
 
     @PostConstruct
     public void init() {
+        qosAlertDpnPortNumberMap.clear();
+        QosAlertPortData.setAlertThreshold(threshold);
         statsPollThreadStart = true;
         startStatsPollThread();
         LOG.info("{} init done", getClass().getSimpleName());
@@ -151,6 +166,8 @@ public final class QosAlertManager implements Runnable {
         alertEnabled = config.isQosAlertEnabled().booleanValue();
         pollInterval = config.getQosAlertPollInterval();
 
+        QosAlertPortData.setAlertThreshold(threshold);
+
         if (thread != null) {
             thread.interrupt();
         } else {
@@ -162,6 +179,7 @@ public final class QosAlertManager implements Runnable {
     public void restoreDefaultConfig() {
         LOG.info("Restoring default configuration");
         getDefaultConfig();
+        QosAlertPortData.setAlertThreshold(threshold);
         if (thread != null) {
             thread.interrupt();
         } else {
@@ -202,11 +220,11 @@ public final class QosAlertManager implements Runnable {
 
         if (qosAlertDpnPortNumberMap.containsKey(dpnId)) {
             LOG.trace("Adding port {}  port number {} in DPN {}", port.getUuid(), portNumber, dpnId);
-            qosAlertDpnPortNumberMap.get(dpnId).put(portNumber, new QosAlertPortData(port));
+            qosAlertDpnPortNumberMap.get(dpnId).put(portNumber, new QosAlertPortData(port, neutronVpnManager));
         } else {
             LOG.trace("Adding DPN ID {} with port {} port number {}", dpnId, port.getUuid(), portNumber);
             ConcurrentHashMap<String, QosAlertPortData> portDataMap = new ConcurrentHashMap<>();
-            portDataMap.put(portNumber, new QosAlertPortData(port));
+            portDataMap.put(portNumber, new QosAlertPortData(port, neutronVpnManager));
             qosAlertDpnPortNumberMap.put(dpnId, portDataMap);
         }
     }
@@ -333,13 +351,41 @@ public final class QosAlertManager implements Runnable {
 
     private void pollDirectStatisticsForAllNodes() {
         LOG.trace("Polling direct statistics from nodes");
-        // TODO: Add all polling logic here. At this moment just print the port cache
+
         for (BigInteger dpn : qosAlertDpnPortNumberMap.keySet()) {
             LOG.trace("Polling DPN ID {}", dpn);
-            for (String portNumber : qosAlertDpnPortNumberMap.get(dpn).keySet()) {
-                LOG.trace("DPN ID {} PortNumber {} Port uuid {}",
-                        dpn, portNumber, qosAlertDpnPortNumberMap.get(dpn).get(portNumber).port.getUuid());
+            GetNodeConnectorStatisticsInputBuilder input = new GetNodeConnectorStatisticsInputBuilder()
+                    .setNode(new NodeRef(InstanceIdentifier.builder(Nodes.class)
+                            .child(Node.class, new NodeKey(new NodeId(IfmConstants.OF_URI_PREFIX + dpn))).build()))
+                    .setStoreStats(false);
+            Future<RpcResult<GetNodeConnectorStatisticsOutput>> rpcResultFuture =
+                    odlDirectStatisticsService.getNodeConnectorStatistics(input.build());
+
+            RpcResult<GetNodeConnectorStatisticsOutput> rpcResult = null;
+            try {
+                rpcResult = rpcResultFuture.get();
+            } catch (InterruptedException | ExecutionException e) {
+                LOG.error("Exception {} occurred with node {} Direct-Statistics get", e, dpn);
             }
+            if (Optional.fromNullable(rpcResult).isPresent() && rpcResult.isSuccessful()
+                    && Optional.fromNullable(rpcResult.getResult()).isPresent()) {
+
+                GetNodeConnectorStatisticsOutput nodeConnectorStatisticsOutput = rpcResult.getResult();
+
+                List<NodeConnectorStatisticsAndPortNumberMap> nodeConnectorStatisticsAndPortNumberMapList =
+                        nodeConnectorStatisticsOutput.getNodeConnectorStatisticsAndPortNumberMap();
+
+                for (NodeConnectorStatisticsAndPortNumberMap stats : nodeConnectorStatisticsAndPortNumberMapList) {
+                    QosAlertPortData portData = qosAlertDpnPortNumberMap.get(dpn)
+                                                                     .get(stats.getNodeConnectorId().getValue());
+                    if (portData != null) {
+                        portData.updatePortStatistics(stats);
+                    }
+                }
+            } else {
+                LOG.error("Direct-Statistics not available for node {}", dpn);
+            }
+
         }
     }
 
