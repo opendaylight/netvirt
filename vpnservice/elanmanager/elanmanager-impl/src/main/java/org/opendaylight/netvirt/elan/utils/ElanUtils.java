@@ -1321,9 +1321,9 @@ public class ElanUtils {
                 .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
     }
 
-    public static InstanceIdentifier<BoundServices> buildServiceId(String vpnInterfaceName, short serviceIndex) {
+    public static InstanceIdentifier<BoundServices> buildServiceId(String interfaceName, short serviceIndex) {
         return InstanceIdentifier.builder(ServiceBindings.class)
-                .child(ServicesInfo.class, new ServicesInfoKey(vpnInterfaceName, ServiceModeIngress.class))
+                .child(ServicesInfo.class, new ServicesInfoKey(interfaceName, ServiceModeIngress.class))
                 .child(BoundServices.class, new BoundServicesKey(serviceIndex)).build();
     }
 
