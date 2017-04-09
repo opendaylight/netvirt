@@ -16,11 +16,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 
 import javax.inject.Inject;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.itm.globals.ITMConstants;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanBridgeManager;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
@@ -32,7 +36,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.bridge.attributes.BridgeOtherConfigs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.bridge.attributes.BridgeOtherConfigsBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -315,8 +325,8 @@ public class ElanBridgeManager implements IElanBridgeManager {
      */
     @Override
     public Map<String, String> getOpenvswitchOtherConfigMap(Node node, String key) {
-        String providerMappings = southboundUtils.getOpenvswitchOtherConfig(node, key);
-        return extractMultiKeyValueToMap(providerMappings);
+        String otherConfigVal = southboundUtils.getOpenvswitchOtherConfig(node, key);
+        return getMultiValueMap(otherConfigVal);
     }
 
     /**
@@ -432,6 +442,27 @@ public class ElanBridgeManager implements IElanBridgeManager {
         return rv;
     }
 
+    @Override
+    public Optional<BigInteger> getDpIdFromManagerNodeId(String managerNodeId) {
+        InstanceIdentifier<Node> identifier = getIntegrationBridgeIdentifier(managerNodeId);
+        OvsdbBridgeAugmentation integrationBridgeAugmentation = interfaceManager.getOvsdbBridgeForNodeIid(identifier);
+        if (integrationBridgeAugmentation == null) {
+            LOG.debug("Failed to get OvsdbBridgeAugmentation for node {}", managerNodeId);
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(integrationBridgeAugmentation.getDatapathId())
+                .map(datapathId -> MDSALUtil.getDpnId(datapathId.getValue()));
+    }
+
+    private InstanceIdentifier<Node> getIntegrationBridgeIdentifier(String managerNodeId) {
+        NodeId brNodeId = new NodeId(
+                managerNodeId + "/" + ITMConstants.BRIDGE_URI_PREFIX + "/" + ITMConstants.DEFAULT_BRIDGE_NAME);
+        return InstanceIdentifier.create(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(IfmConstants.OVSDB_TOPOLOGY_ID))
+                .child(Node.class, new NodeKey(brNodeId));
+    }
+
     private String generateRandomMac() {
         byte[] macBytes = new byte[6];
         random.nextBytes(macBytes);
@@ -451,7 +482,8 @@ public class ElanBridgeManager implements IElanBridgeManager {
         return stringBuilder.toString();
     }
 
-    private static Map<String, String> extractMultiKeyValueToMap(String multiKeyValueStr) {
+    @Override
+    public Map<String, String> getMultiValueMap(String multiKeyValueStr) {
         if (Strings.isNullOrEmpty(multiKeyValueStr)) {
             return Collections.emptyMap();
         }
