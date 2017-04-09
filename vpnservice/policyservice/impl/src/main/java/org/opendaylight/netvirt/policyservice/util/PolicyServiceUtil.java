@@ -66,6 +66,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.po
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.UnderlayNetwork;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.UnderlayNetworkKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay.network.DpnToInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay.network.DpnToInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay.network.DpnToInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay.network.PolicyProfileBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay.network.dpn.to._interface.TunnelInterface;
@@ -83,7 +84,7 @@ import org.slf4j.LoggerFactory;
 public class PolicyServiceUtil {
     private static final Logger LOG = LoggerFactory.getLogger(PolicyServiceUtil.class);
 
-    private static final String LOCAL_IPS = "local_ips";
+    public static final String LOCAL_IPS = "local_ips";
 
     private final DataBroker dataBroker;
     private final IElanBridgeManager bridgeManager;
@@ -163,7 +164,7 @@ public class PolicyServiceUtil {
 
     public List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay
         .network.PolicyProfile> getUnderlayNetworkPolicyProfiles(String underlayNetwork) {
-        InstanceIdentifier<UnderlayNetwork> identifier = getUnderlyNetworkIdentifier(underlayNetwork);
+        InstanceIdentifier<UnderlayNetwork> identifier = getUnderlayNetworkIdentifier(underlayNetwork);
         try {
             Optional<UnderlayNetwork> optUnderlayNet = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.OPERATIONAL, identifier);
@@ -190,8 +191,8 @@ public class PolicyServiceUtil {
     public void updateTunnelInterfaceForUnderlayNetwork(String underlayNetwork, BigInteger srcDpId, BigInteger dstDpId,
             String tunnelInterfaceName, boolean isAdded) {
         coordinator.enqueueJob(underlayNetwork, () -> {
-            InstanceIdentifier<TunnelInterface> identifier = getUnderlyNetworkTunnelIdentifier(underlayNetwork, srcDpId,
-                    tunnelInterfaceName);
+            InstanceIdentifier<TunnelInterface> identifier = getUnderlayNetworkTunnelIdentifier(underlayNetwork,
+                    srcDpId, tunnelInterfaceName);
             WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
             if (isAdded) {
                 TunnelInterface tunnelInterface = new TunnelInterfaceBuilder().setInterfaceName(tunnelInterfaceName)
@@ -202,6 +203,26 @@ public class PolicyServiceUtil {
             } else {
                 tx.delete(LogicalDatastoreType.OPERATIONAL, identifier);
                 LOG.info("Remove tunnel {} from DPN {} on underlay network {}", tunnelInterfaceName, srcDpId,
+                        underlayNetwork);
+            }
+            return Collections.singletonList(tx.submit());
+        });
+    }
+
+    public void updateTunnelInterfacesForUnderlayNetwork(String underlayNetwork, BigInteger srcDpId,
+            List<TunnelInterface> tunnelInterfaces, boolean isAdded) {
+        coordinator.enqueueJob(underlayNetwork, () -> {
+            InstanceIdentifier<DpnToInterface> identifier = getUnderlayNetworkDpnIdentifier(underlayNetwork, srcDpId);
+            WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+            if (isAdded) {
+                DpnToInterface dpnToInterface = new DpnToInterfaceBuilder().setDpId(srcDpId)
+                        .setTunnelInterface(tunnelInterfaces).build();
+                tx.merge(LogicalDatastoreType.OPERATIONAL, identifier, dpnToInterface, true);
+                LOG.info("Add tunnel interfaces {} on DPN {} to underlay network {}", tunnelInterfaces, srcDpId,
+                        underlayNetwork);
+            } else {
+                tx.delete(LogicalDatastoreType.OPERATIONAL, identifier);
+                LOG.info("Remove tunnel interfaces {} from DPN {} on underlay network {}", tunnelInterfaces, srcDpId,
                         underlayNetwork);
             }
             return Collections.singletonList(tx.submit());
@@ -373,12 +394,31 @@ public class PolicyServiceUtil {
         }
     }
 
-    private InstanceIdentifier<UnderlayNetwork> getUnderlyNetworkIdentifier(String underlayNetwork) {
+    public Optional<DpnToInterface> getUnderlayNetworkDpnToInterfaces(String underlayNetwork, BigInteger dpId) {
+        InstanceIdentifier<DpnToInterface> identifier = getUnderlayNetworkDpnIdentifier(underlayNetwork, dpId);
+        try {
+            Optional<DpnToInterface> dpnToInterfaceOpt = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, identifier);
+            return dpnToInterfaceOpt;
+        } catch (ReadFailedException e) {
+            LOG.warn("Failed to get DPN {} for underlay network {}", dpId, underlayNetwork);
+            return Optional.absent();
+        }
+    }
+
+    private InstanceIdentifier<UnderlayNetwork> getUnderlayNetworkIdentifier(String underlayNetwork) {
         return InstanceIdentifier.create(UnderlayNetworks.class).child(UnderlayNetwork.class,
                 new UnderlayNetworkKey(underlayNetwork));
     }
 
-    private InstanceIdentifier<TunnelInterface> getUnderlyNetworkTunnelIdentifier(String underlayNetwork,
+    private InstanceIdentifier<DpnToInterface> getUnderlayNetworkDpnIdentifier(String underlayNetwork,
+            BigInteger dpId) {
+        return InstanceIdentifier.create(UnderlayNetworks.class)
+                .child(UnderlayNetwork.class, new UnderlayNetworkKey(underlayNetwork))
+                .child(DpnToInterface.class, new DpnToInterfaceKey(dpId));
+    }
+
+    private InstanceIdentifier<TunnelInterface> getUnderlayNetworkTunnelIdentifier(String underlayNetwork,
             BigInteger dpId, String tunnelInterface) {
         return InstanceIdentifier.create(UnderlayNetworks.class)
                 .child(UnderlayNetwork.class, new UnderlayNetworkKey(underlayNetwork))
