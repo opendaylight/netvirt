@@ -249,18 +249,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         } else if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(update.getDeviceOwner())) {
             handleFloatingIpPortUpdated(original, update);
         }
-    }
-
-    private void handleFloatingIpPortUpdated(Port original, Port update) {
-        if (((original == null) || (original.getDeviceId().equals(NeutronConstants.FLOATING_IP_DEVICE_ID_PENDING)))
-            && !update.getDeviceId().equals(NeutronConstants.FLOATING_IP_DEVICE_ID_PENDING)) {
-            // populate floating-ip uuid and floating-ip port attributes (uuid, mac and subnet id for the ONLY
-            // fixed IP) to be used by NAT, depopulated in NATService once mac is retrieved in the removal path
-            addToFloatingIpPortInfo(new Uuid(update.getDeviceId()), update.getUuid(), update.getFixedIps().get(0)
-                    .getSubnetId(), update.getMacAddress().getValue());
-            elanService.handleKnownL3DmacAddress(update.getMacAddress().getValue(), update.getNetworkId().getValue(),
-                    NwConstants.ADD_FLOW);
-        }
         // check for QoS updates
         QosPortExtension updateQos = update.getAugmentation(QosPortExtension.class);
         QosPortExtension originalQos = original.getAugmentation(QosPortExtension.class);
@@ -281,6 +269,18 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             NeutronQosUtils.handleNeutronPortQosRemove(dataBroker, odlInterfaceRpcService,
                     original, originalQos.getQosPolicyId());
             NeutronvpnUtils.removeFromQosPortsCache(originalQos.getQosPolicyId(), original);
+        }
+    }
+
+    private void handleFloatingIpPortUpdated(Port original, Port update) {
+        if (((original == null) || (original.getDeviceId().equals(NeutronConstants.FLOATING_IP_DEVICE_ID_PENDING)))
+            && !update.getDeviceId().equals(NeutronConstants.FLOATING_IP_DEVICE_ID_PENDING)) {
+            // populate floating-ip uuid and floating-ip port attributes (uuid, mac and subnet id for the ONLY
+            // fixed IP) to be used by NAT, depopulated in NATService once mac is retrieved in the removal path
+            addToFloatingIpPortInfo(new Uuid(update.getDeviceId()), update.getUuid(), update.getFixedIps().get(0)
+                    .getSubnetId(), update.getMacAddress().getValue());
+            elanService.handleKnownL3DmacAddress(update.getMacAddress().getValue(), update.getNetworkId().getValue(),
+                    NwConstants.ADD_FLOW);
         }
     }
 
