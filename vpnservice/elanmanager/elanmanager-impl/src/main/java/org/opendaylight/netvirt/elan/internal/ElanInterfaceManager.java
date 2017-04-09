@@ -1421,13 +1421,12 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         short elanServiceIndex = ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX);
         BoundServices serviceInfo = ElanUtils.getBoundServices(
                 String.format("%s.%s.%s", "elan", elanInstanceName, interfaceName), elanServiceIndex,
-                ElanConstants.ELAN_SERVICE_PRIORITY, NwConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
+                NwConstants.ELAN_SERVICE_INDEX, NwConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
         InstanceIdentifier<BoundServices> bindServiceId = ElanUtils.buildServiceId(interfaceName, elanServiceIndex);
         Optional<BoundServices> existingElanService = elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
                 bindServiceId);
         if (!existingElanService.isPresent()) {
-            tx.put(LogicalDatastoreType.CONFIGURATION,
-                ElanUtils.buildServiceId(interfaceName, elanServiceIndex), serviceInfo, true);
+            tx.put(LogicalDatastoreType.CONFIGURATION, bindServiceId, serviceInfo, true);
         }
     }
 
