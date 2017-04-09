@@ -10,4 +10,6 @@ package org.opendaylight.netvirt.qosservice;
 
 public class QosConstants {
     public static final int QOS_DEFAULT_FLOW_PRIORITY = 10;
+    public static String alertMsgFormat = "Packet drop threshold hit for qos policy {} with qos-id {} for port port-{}"
+        + " on network network-{} rx_received {} rx_dropped {}";
 }
