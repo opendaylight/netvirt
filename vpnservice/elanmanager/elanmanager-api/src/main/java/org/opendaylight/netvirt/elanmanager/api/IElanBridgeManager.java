@@ -34,4 +34,16 @@ public interface IElanBridgeManager {
      * @return key-value Map or empty map if key was not found
      */
     Map<String, String> getOpenvswitchOtherConfigMap(Node node, String key);
+
+    /**
+     * Extract multi key-value into Map.
+     *
+     * @param multiKeyValueStr
+     *            multi key-value formatted using colon key-value
+     *            separator and comma multi-value separator
+     * @return Map containing key value pairs or empty map if no key value pairs
+     *         where found
+     */
+    Map<String, String> getMultiValueMap(String multiKeyValueStr);
+
 }

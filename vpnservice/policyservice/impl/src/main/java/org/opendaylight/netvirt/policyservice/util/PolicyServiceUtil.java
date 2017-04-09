@@ -28,8 +28,11 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.itm.globals.ITMConstants;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanBridgeManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AclBase;
@@ -66,12 +69,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.po
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.UnderlayNetwork;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.UnderlayNetworkKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay.network.DpnToInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay.network.DpnToInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay.network.DpnToInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay.network.PolicyProfileBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay.network.dpn.to._interface.TunnelInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay.network.dpn.to._interface.TunnelInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay.network.dpn.to._interface.TunnelInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -83,7 +93,7 @@ import org.slf4j.LoggerFactory;
 public class PolicyServiceUtil {
     private static final Logger LOG = LoggerFactory.getLogger(PolicyServiceUtil.class);
 
-    private static final String LOCAL_IPS = "local_ips";
+    public static final String LOCAL_IPS = "local_ips";
 
     private final DataBroker dataBroker;
     private final IElanBridgeManager bridgeManager;
@@ -163,7 +173,7 @@ public class PolicyServiceUtil {
 
     public List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay
         .network.PolicyProfile> getUnderlayNetworkPolicyProfiles(String underlayNetwork) {
-        InstanceIdentifier<UnderlayNetwork> identifier = getUnderlyNetworkIdentifier(underlayNetwork);
+        InstanceIdentifier<UnderlayNetwork> identifier = getUnderlayNetworkIdentifier(underlayNetwork);
         try {
             Optional<UnderlayNetwork> optUnderlayNet = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.OPERATIONAL, identifier);
@@ -190,8 +200,8 @@ public class PolicyServiceUtil {
     public void updateTunnelInterfaceForUnderlayNetwork(String underlayNetwork, BigInteger srcDpId, BigInteger dstDpId,
             String tunnelInterfaceName, boolean isAdded) {
         coordinator.enqueueJob(underlayNetwork, () -> {
-            InstanceIdentifier<TunnelInterface> identifier = getUnderlyNetworkTunnelIdentifier(underlayNetwork, srcDpId,
-                    tunnelInterfaceName);
+            InstanceIdentifier<TunnelInterface> identifier = getUnderlayNetworkTunnelIdentifier(underlayNetwork,
+                    srcDpId, tunnelInterfaceName);
             WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
             if (isAdded) {
                 TunnelInterface tunnelInterface = new TunnelInterfaceBuilder().setInterfaceName(tunnelInterfaceName)
@@ -202,6 +212,26 @@ public class PolicyServiceUtil {
             } else {
                 tx.delete(LogicalDatastoreType.OPERATIONAL, identifier);
                 LOG.info("Remove tunnel {} from DPN {} on underlay network {}", tunnelInterfaceName, srcDpId,
+                        underlayNetwork);
+            }
+            return Collections.singletonList(tx.submit());
+        });
+    }
+
+    public void updateTunnelInterfacesForUnderlayNetwork(String underlayNetwork, BigInteger srcDpId,
+            List<TunnelInterface> tunnelInterfaces, boolean isAdded) {
+        coordinator.enqueueJob(underlayNetwork, () -> {
+            InstanceIdentifier<DpnToInterface> identifier = getUnderlayNetworkDpnIdentifier(underlayNetwork, srcDpId);
+            WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+            if (isAdded) {
+                DpnToInterface dpnToInterface = new DpnToInterfaceBuilder().setDpId(srcDpId)
+                        .setTunnelInterface(tunnelInterfaces).build();
+                tx.merge(LogicalDatastoreType.OPERATIONAL, identifier, dpnToInterface, true);
+                LOG.info("Add tunnel interfaces {} on DPN {} to underlay network {}", tunnelInterfaces, srcDpId,
+                        underlayNetwork);
+            } else {
+                tx.delete(LogicalDatastoreType.OPERATIONAL, identifier);
+                LOG.info("Remove tunnel interfaces {} from DPN {} on underlay network {}", tunnelInterfaces, srcDpId,
                         underlayNetwork);
             }
             return Collections.singletonList(tx.submit());
@@ -373,12 +403,43 @@ public class PolicyServiceUtil {
         }
     }
 
-    private InstanceIdentifier<UnderlayNetwork> getUnderlyNetworkIdentifier(String underlayNetwork) {
+    public Optional<DpnToInterface> getUnderlayNetworkDpnToInterfaces(String underlayNetwork, BigInteger dpId) {
+        InstanceIdentifier<DpnToInterface> identifier = getUnderlayNetworkDpnIdentifier(underlayNetwork, dpId);
+        try {
+            Optional<DpnToInterface> dpnToInterfaceOpt = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, identifier);
+            return dpnToInterfaceOpt;
+        } catch (ReadFailedException e) {
+            LOG.warn("Failed to get DPN {} for underlay network {}", dpId, underlayNetwork);
+            return Optional.absent();
+        }
+    }
+
+    public java.util.Optional<BigInteger> getNodeDpId(String managerNodeId) {
+        InstanceIdentifier<Node> identifier = getIntegrationBridgeIdentifier(managerNodeId);
+        OvsdbBridgeAugmentation integrationBridgeAugmentation = interfaceManager.getOvsdbBridgeForNodeIid(identifier);
+        if (integrationBridgeAugmentation == null) {
+            LOG.debug("Failed to get br-int augmentation for noe {}", managerNodeId);
+            return java.util.Optional.empty();
+        }
+
+        return java.util.Optional.ofNullable(integrationBridgeAugmentation.getDatapathId())
+                .map(datapathId -> MDSALUtil.getDpnId(datapathId.getValue()));
+    }
+
+    private InstanceIdentifier<UnderlayNetwork> getUnderlayNetworkIdentifier(String underlayNetwork) {
         return InstanceIdentifier.create(UnderlayNetworks.class).child(UnderlayNetwork.class,
                 new UnderlayNetworkKey(underlayNetwork));
     }
 
-    private InstanceIdentifier<TunnelInterface> getUnderlyNetworkTunnelIdentifier(String underlayNetwork,
+    private InstanceIdentifier<DpnToInterface> getUnderlayNetworkDpnIdentifier(String underlayNetwork,
+            BigInteger dpId) {
+        return InstanceIdentifier.create(UnderlayNetworks.class)
+                .child(UnderlayNetwork.class, new UnderlayNetworkKey(underlayNetwork))
+                .child(DpnToInterface.class, new DpnToInterfaceKey(dpId));
+    }
+
+    private InstanceIdentifier<TunnelInterface> getUnderlayNetworkTunnelIdentifier(String underlayNetwork,
             BigInteger dpId, String tunnelInterface) {
         return InstanceIdentifier.create(UnderlayNetworks.class)
                 .child(UnderlayNetwork.class, new UnderlayNetworkKey(underlayNetwork))
@@ -414,6 +475,14 @@ public class PolicyServiceUtil {
                         .underlay.network.PolicyProfile.class, new org.opendaylight.yang.gen.v1.urn.opendaylight
                         .netvirt.policy.rev170207.underlay.networks.underlay.network
                         .PolicyProfileKey(policyClassifier));
+    }
+
+    private InstanceIdentifier<Node> getIntegrationBridgeIdentifier(String managerNodeId) {
+        NodeId brNodeId = new NodeId(managerNodeId + "/" + ITMConstants.BRIDGE_URI_PREFIX + "/"
+                + ITMConstants.DEFAULT_BRIDGE_NAME);
+        return InstanceIdentifier.create(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(IfmConstants.OVSDB_TOPOLOGY_ID))
+                .child(Node.class, new NodeKey(brNodeId));
     }
 
     public List<BigInteger> getUnderlayNetworkDpns(String underlayNetwork) {

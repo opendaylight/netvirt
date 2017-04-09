@@ -259,8 +259,8 @@ public class ElanBridgeManager implements IElanBridgeManager {
      */
     @Override
     public Map<String, String> getOpenvswitchOtherConfigMap(Node node, String key) {
-        String providerMappings = southboundUtils.getOpenvswitchOtherConfig(node, key);
-        return extractMultiKeyValueToMap(providerMappings);
+        String otherConfigVal = southboundUtils.getOpenvswitchOtherConfig(node, key);
+        return getMultiValueMap(otherConfigVal);
     }
 
     /**
@@ -395,7 +395,8 @@ public class ElanBridgeManager implements IElanBridgeManager {
         return stringBuilder.toString();
     }
 
-    private static Map<String, String> extractMultiKeyValueToMap(String multiKeyValueStr) {
+    @Override
+    public Map<String, String> getMultiValueMap(String multiKeyValueStr) {
         if (Strings.isNullOrEmpty(multiKeyValueStr)) {
             return Collections.emptyMap();
         }

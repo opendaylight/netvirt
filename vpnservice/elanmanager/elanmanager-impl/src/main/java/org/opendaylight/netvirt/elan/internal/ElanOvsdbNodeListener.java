@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.elan.internal;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.netvirt.elan.utils.TransportZoneNotificationUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
@@ -32,6 +33,7 @@ public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node,
     private final IElanService elanProvider;
     private final boolean generateIntBridgeMac;
     private final boolean autoCreateBridge;
+    private final TransportZoneNotificationUtil tzUtil;
 
     /**
      * Constructor.
@@ -42,12 +44,13 @@ public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node,
      */
     public ElanOvsdbNodeListener(final DataBroker dataBroker, ElanConfig elanConfig,
                                  final ElanBridgeManager bridgeMgr,
-                                 final IElanService elanProvider) {
+                                 final IElanService elanProvider, final TransportZoneNotificationUtil tzUtil) {
         this.dataBroker = dataBroker;
         autoCreateBridge = elanConfig.isAutoCreateBridge();
         this.generateIntBridgeMac = elanConfig.isIntBridgeGenMac();
         this.bridgeMgr = bridgeMgr;
         this.elanProvider = elanProvider;
+        this.tzUtil = tzUtil;
     }
 
     @Override
@@ -77,6 +80,7 @@ public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node,
                 && !bridgeMgr.isBridgeOnOvsdbNode(update, bridgeMgr.getIntegrationBridgeName()))) {
             doNodeUpdate(update);
         }
+        tzUtil.handleOvsdbNodeUpdate(original, update);
         elanProvider.updateExternalElanNetworks(original, update);
     }
 

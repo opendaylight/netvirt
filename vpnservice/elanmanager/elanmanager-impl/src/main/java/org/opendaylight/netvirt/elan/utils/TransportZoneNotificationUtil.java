@@ -8,11 +8,15 @@
 package org.opendaylight.netvirt.elan.utils;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -118,7 +122,7 @@ public class TransportZoneNotificationUtil {
                     dpnId, zoneNamePrefix);
             for (String localIp : localIps.keySet()) {
                 String underlayNetworkName = localIps.get(localIp);
-                String zoneName = zoneNamePrefix + IP_NETWORK_ZONE_NAME_DELIMITER + underlayNetworkName;
+                String zoneName = createTzNameForUnderlayNetwork(zoneNamePrefix, underlayNetworkName);
                 updateTransportZone(zoneName, dpnId, localIp);
             }
         } else {
@@ -147,6 +151,28 @@ public class TransportZoneNotificationUtil {
         }
     }
 
+    public void handleOvsdbNodeUpdate(Node origNode, Node updatedNode) {
+        Map<String,
+                String> origLocalIpMap = java.util.Optional
+                        .ofNullable(elanBridgeManager.getOpenvswitchOtherConfigMap(origNode, LOCAL_IPS))
+                        .orElse(Collections.emptyMap());
+        Map<String,
+                String> updatedLocalIpMap = java.util.Optional
+                        .ofNullable(elanBridgeManager.getOpenvswitchOtherConfigMap(updatedNode, LOCAL_IPS))
+                        .orElse(Collections.emptyMap());
+        MapDifference<String, String> mapDiff = Maps.difference(origLocalIpMap, updatedLocalIpMap);
+        if (mapDiff.areEqual()) {
+            return;
+        }
+
+        Map<String, String> removedEntries = mapDiff.entriesOnlyOnLeft();
+        Map<String, String> newEntries = mapDiff.entriesOnlyOnRight();
+        for (Entry<String, String> newEntry : newEntries.entrySet()) {
+            String srcTepIp = newEntry.getKey();
+            String underlayNetwork = newEntry.getValue();
+            // TODO update all TZ associated with the old underlay network
+        }
+    }
 
     /**
      * Tries to add a vtep for a transport zone.
@@ -255,5 +281,9 @@ public class TransportZoneNotificationUtil {
         }
 
         return Optional.of(node);
+    }
+
+    private String createTzNameForUnderlayNetwork(String zoneNamePrefix, String underlayNetworkName) {
+        return zoneNamePrefix + IP_NETWORK_ZONE_NAME_DELIMITER + underlayNetworkName;
     }
 }
