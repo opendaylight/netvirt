@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.elan.internal;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.netvirt.elan.utils.TransportZoneNotificationUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
@@ -32,6 +33,7 @@ public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node,
     private final IElanService elanProvider;
     private final boolean generateIntBridgeMac;
     private final boolean autoCreateBridge;
+    private final TransportZoneNotificationUtil tzUtil;
 
     /**
      * Constructor.
@@ -42,12 +44,13 @@ public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node,
      */
     public ElanOvsdbNodeListener(final DataBroker dataBroker, ElanConfig elanConfig,
                                  final ElanBridgeManager bridgeMgr,
-                                 final IElanService elanProvider) {
+                                 final IElanService elanProvider, final TransportZoneNotificationUtil tzUtil) {
         this.dataBroker = dataBroker;
         autoCreateBridge = elanConfig.isAutoCreateBridge();
         this.generateIntBridgeMac = elanConfig.isIntBridgeGenMac();
         this.bridgeMgr = bridgeMgr;
         this.elanProvider = elanProvider;
+        this.tzUtil = tzUtil;
     }
 
     @Override
@@ -72,10 +75,14 @@ public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node,
     @Override
     protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
         LOG.debug("ElanOvsdbNodeListener.update, updated node detected. original: {} new: {}", original, update);
+        Boolean integrationBridgeExist = bridgeMgr.isBridgeOnOvsdbNode(update, bridgeMgr.getIntegrationBridgeName());
         // ignore updates where the bridge was deleted
         if (!(bridgeMgr.isBridgeOnOvsdbNode(original, bridgeMgr.getIntegrationBridgeName())
-                && !bridgeMgr.isBridgeOnOvsdbNode(update, bridgeMgr.getIntegrationBridgeName()))) {
+                && !integrationBridgeExist)) {
             doNodeUpdate(update);
+        }
+        if (integrationBridgeExist) {
+            tzUtil.handleOvsdbNodeUpdate(original, update, identifier.firstKeyOf(Node.class).getNodeId().getValue());
         }
         elanProvider.updateExternalElanNetworks(original, update);
     }
