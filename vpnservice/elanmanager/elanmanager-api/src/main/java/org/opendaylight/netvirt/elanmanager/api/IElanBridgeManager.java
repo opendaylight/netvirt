@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.elanmanager.api;
 
 import java.math.BigInteger;
 import java.util.Map;
+import java.util.Optional;
 
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 
@@ -34,4 +35,25 @@ public interface IElanBridgeManager {
      * @return key-value Map or empty map if key was not found
      */
     Map<String, String> getOpenvswitchOtherConfigMap(Node node, String key);
+
+    /**
+     * Extract multi key-value into Map.
+     *
+     * @param multiKeyValueStr
+     *            multi key-value formatted using colon key-value
+     *            separator and comma multi-value separator
+     * @return Map containing key value pairs or empty map if no key value pairs
+     *         where found
+     */
+    Map<String, String> getMultiValueMap(String multiKeyValueStr);
+
+    /**
+     * Get the integration bridge DPN id from the manager node UUID.
+     *
+     * @param managerNodeId
+     *            node-id of the OVSDB node managing br-int
+     * @return Optional containing the dp-id or empty Optional if not found
+     */
+    Optional<BigInteger> getDpIdFromManagerNodeId(String managerNodeId);
+
 }

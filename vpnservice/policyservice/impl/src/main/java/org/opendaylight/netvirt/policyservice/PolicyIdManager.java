@@ -93,10 +93,10 @@ public class PolicyIdManager {
         try {
             Future<RpcResult<Void>> result = idManager.createIdPool(createPoolInput);
             if ((result != null) && (result.get().isSuccessful())) {
-                LOG.info("Created IdPool for {}", PolicyServiceConstants.POLICY_CLASSIFIER_POOL_NAME);
+                LOG.info("Created IdPool for {}", poolName);
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Failed to create idPool for {}", PolicyServiceConstants.POLICY_CLASSIFIER_POOL_NAME, e);
+            LOG.error("Failed to create idPool for {}", poolName, e);
         }
     }
 
