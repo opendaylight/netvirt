@@ -793,6 +793,28 @@ public class QosNeutronUtils {
         return (bwLimitRule);
     }
 
+    public static QosPolicy getQosPolicy(INeutronVpnManager neutronVpnManager, Port port) {
+        Uuid qosUuid = null;
+        QosPolicy qosPolicy = null;
+
+        if (port.getAugmentation(QosPortExtension.class) != null) {
+            qosUuid = port.getAugmentation(QosPortExtension.class).getQosPolicyId();
+        } else {
+            Network network = neutronVpnManager.getNeutronNetwork(port.getNetworkId());
+
+            if (network.getAugmentation(QosNetworkExtension.class) != null) {
+                qosUuid = network.getAugmentation(QosNetworkExtension.class).getQosPolicyId();
+            }
+        }
+
+        if (qosUuid != null) {
+            qosPolicy = qosPolicyMap.get(qosUuid);
+        }
+
+        return (qosPolicy);
+    }
+
+
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
