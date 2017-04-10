@@ -2064,7 +2064,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void addPrefix(String rd, String macAddress, String pfx, List<String> nhList,
+    public void addPrefix(String rd, String macAddress, String pfx, List<String> nhList,
               VrfEntry.EncapType encapType, int lbl, long l3vni, long l2vni, String gatewayMac, int addressFamily) {
         for (String nh : nhList) {
             Ipv4Address nexthop = nh != null ? new Ipv4Address(nh) : null;
@@ -2092,7 +2092,7 @@ public class BgpConfigurationManager {
     }
 
     // TODO: add LayerType as arg - supports command
-    public synchronized void addVrf(String rd, List<String> irts, List<String> erts, LayerType layerType) {
+    public void addVrf(String rd, List<String> irts, List<String> erts, LayerType layerType) {
         InstanceIdentifier.InstanceIdentifierBuilder<Vrfs> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Vrfs.class, new VrfsKey(rd));
@@ -2175,7 +2175,7 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    public synchronized void delPrefix(String rd, String pfx, int afi) {
+    public void delPrefix(String rd, String pfx, int afi) {
         InstanceIdentifier.InstanceIdentifierBuilder<Networks> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Networks.class, new NetworksKey(pfx, rd));
@@ -2183,7 +2183,7 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    public synchronized void delVrf(String rd) {
+    public void delVrf(String rd) {
         InstanceIdentifier.InstanceIdentifierBuilder<Vrfs> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Vrfs.class, new VrfsKey(rd));
