@@ -1249,6 +1249,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         try {
             LOG.info("VPN WITHDRAW: Removing Fib Entry rd {} prefix {} nexthop {}", rd, prefix, tunnelIp);
             String vpnNamePrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
+            long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
             synchronized (vpnNamePrefixKey.intern()) {
                 Optional<Routes> optVpnExtraRoutes = VpnExtraRouteHelper
                         .getVpnExtraroutes(dataBroker, vpnName, rd, prefix);
@@ -1263,7 +1264,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 VpnUtil.getVpnToExtraroute(prefix, nhList));
                         LOG.debug("Removed vpn-to-extraroute with rd {} prefix {} nexthop {}", rd, prefix, nextHop);
                         fibManager.refreshVrfEntry(primaryRd, prefix);
-                        long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
                         Optional<Prefixes> prefixToInterface = VpnUtil.getPrefixToInterface(dataBroker, vpnId, nextHop);
                         if (prefixToInterface.isPresent()) {
                             VpnUtil.delete(dataBroker, LogicalDatastoreType.OPERATIONAL,
@@ -1272,6 +1272,18 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         }
                         LOG.info("VPN WITHDRAW: Removed Fib Entry rd {} prefix {} nexthop {}", rd, prefix, tunnelIp);
                         return;
+                    } else {
+                        List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, prefix);
+                        //In case of the extraroute completely removed from all the DPNs the cleanup of the
+                        //vpntoextraroute and prefixtointerface DS are carried out in fibmanager
+                        if (usedRds.size() > 1) {
+                            VpnUtil.delete(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                                    VpnExtraRouteHelper.getVpnToExtrarouteIdentifier(vpnName, rd));
+                            usedRds.remove(rd);
+                            VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                    VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix),
+                                    VpnUtil.getDestPrefixesBuilder(prefix, usedRds).build());
+                        }
                     }
                 }
                 fibManager.removeOrUpdateFibEntry(dataBroker, primaryRd, prefix, tunnelIp, writeConfigTxn);
