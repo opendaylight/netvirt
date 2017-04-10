@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "da01753e_0ce4e60b",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-10T18:20:50Z",
+      "side": 1,
+      "message": "I thought this was a valid condition? Or maybe this log could be more clear in the response from the API? I think null meant no bridge found and empty list meant to tunnels points found?",
+      "revId": "7200e0852d2795e9b1ff5a80236a76efc26de006",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_0cda2678",
         "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
         "patchSetId": 4
