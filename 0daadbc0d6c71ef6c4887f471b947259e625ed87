@@ -16,6 +16,24 @@
       "revId": "0daadbc0d6c71ef6c4887f471b947259e625ed87",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_0288341e",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1973,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-10T09:47:54Z",
+      "side": 1,
+      "message": "Hi Peri,\n\nYes almost 20-30 places where we do a BgpConfigurationManager instance lock. But the reason for the same is not known. Removing everything may end up in other issues. So idea is to remove locking on apis used by other modules as of now and analyse where the locking is realy required in BgpConfigurationManager and do it as separate review.Hope its fine",
+      "parentUuid": "da01753e_0215d4f0",
+      "revId": "0daadbc0d6c71ef6c4887f471b947259e625ed87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
