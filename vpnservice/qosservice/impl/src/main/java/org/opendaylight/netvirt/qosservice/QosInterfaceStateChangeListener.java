@@ -34,7 +34,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 @Singleton
 public class QosInterfaceStateChangeListener extends AsyncDataTreeChangeListenerBase<Interface,
         QosInterfaceStateChangeListener> implements
@@ -121,13 +120,47 @@ public class QosInterfaceStateChangeListener extends AsyncDataTreeChangeListener
                 .transform(uuid -> neutronVpnManager.getNeutronPort(uuid));
     }
 
+    private Optional<Port> getNeutronPortForRemove(Interface intrf) {
+        final String portName = intrf.getName();
+        Optional<Uuid> uuid = uuidUtil.newUuidIfValidPattern(portName);
+        if (uuid.isPresent()) {
+            Port port = neutronVpnManager.getNeutronPort(portName);
+            if (port != null) {
+                return uuid.transform(uuid1 -> neutronVpnManager.getNeutronPort(uuid1));
+            }
+            LOG.trace("Qos Service : interface {} clearing stale flow entries if any", portName);
+            QosNeutronUtils.removeStaleFlowEntry(dataBroker,mdsalUtils,odlInterfaceRpcService,intrf);
+        }
+        return Optional.absent();
+    }
+
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
         if (!Tunnel.class.equals(intrf.getType())) {
-            LOG.trace("Qos Service : Received interface {} PORT DOWN event ", intrf.getName());
-            String lowerLayerIf = intrf.getLowerLayerIf().get(0);
-            LOG.trace("lowerLayerIf {}", lowerLayerIf);
-            QosAlertManager.removeFromQosAlertCache(new NodeConnectorId(lowerLayerIf));
+            final String interfaceName = intrf.getName();
+            // Guava Optional asSet().forEach() emulates Java 8 Optional ifPresent()
+            getNeutronPortForRemove(intrf).asSet().forEach(port -> {
+                LOG.trace("Qos Service : Received interface {} PORT DOWN event ", interfaceName);
+
+                String lowerLayerIf = intrf.getLowerLayerIf().get(0);
+                LOG.trace("lowerLayerIf {}", lowerLayerIf);
+                QosAlertManager.removeFromQosAlertCache(new NodeConnectorId(lowerLayerIf));
+                QosPortExtension removeQos = port.getAugmentation(QosPortExtension.class);
+                if (removeQos != null) {
+                    QosNeutronUtils.handleNeutronPortRemove(dataBroker, odlInterfaceRpcService,
+                            mdsalUtils, port, removeQos.getQosPolicyId(), intrf);
+                    QosNeutronUtils.removeFromQosPortsCache(removeQos.getQosPolicyId(), port);
+                } else {
+                    Network network = neutronVpnManager.getNeutronNetwork(port.getNetworkId());
+                    if (network != null && network.getAugmentation(QosNetworkExtension.class) != null) {
+                        Uuid networkQosUuid = network.getAugmentation(QosNetworkExtension.class).getQosPolicyId();
+                        if (networkQosUuid != null) {
+                            QosNeutronUtils.handleNeutronPortRemove(dataBroker, odlInterfaceRpcService,
+                                    mdsalUtils, port, networkQosUuid, intrf);
+                        }
+                    }
+                }
+            });
         }
     }
 
