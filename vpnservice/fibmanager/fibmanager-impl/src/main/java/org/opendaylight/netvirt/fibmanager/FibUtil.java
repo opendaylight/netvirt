@@ -743,7 +743,7 @@ public class FibUtil {
         if (tunnelInfo.isPresent()) {
             List<TunnelEndPoints> nexthopIpList = tunnelInfo.get().getTunnelEndPoints();
             if (nexthopIpList != null && !nexthopIpList.isEmpty()) {
-                nextHopIp = nexthopIpList.get(0).getIpAddress().getValue().toString();
+                nextHopIp = String.valueOf(nexthopIpList.get(0).getIpAddress().getValue());
             }
         }
         return nextHopIp;
