@@ -318,7 +318,7 @@ public class OpenFlow13Provider {
         OpenFlow13Utils.addMatchTunIpv4Dst(match, localIpStr, DEFAULT_NETMASK);
 
         List<Action> actionList = new ArrayList<>();
-        actionList.add(OpenFlow13Utils.createActionResubmitTable(NwConstants.LPORT_DISPATCHER_TABLE,
+        actionList.add(OpenFlow13Utils.createActionResubmitTable(NwConstants.SFC_TRANSPORT_INGRESS_TABLE,
             actionList.size()));
 
         InstructionsBuilder isb = OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(actionList);
