@@ -2229,7 +2229,7 @@ public class ElanUtils {
         Optional<IpAddress> srcIpAddress = Optional.absent();
         try {
             if (NwConstants.ETHTYPE_IPV4 == ethernet.getEtherType()) {
-                srcIpAddress = getSourceIpV4Address(data);
+                srcIpAddress = getSrcIpAddrFromArp(data);
             } else if (NwConstants.ETHTYPE_ARP == ethernet.getEtherType()) {
                 srcIpAddress = getSrcIpAddrFromArp(data);
             }
