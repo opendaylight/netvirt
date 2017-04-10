@@ -23,7 +23,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.opendaylight.netvirt</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>vpnservice-features</artifactId>
       <classifier>features</classifier>
       <version>${project.version}</version>
@@ -31,7 +31,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.netvirt</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>utils.mdsal-utils</artifactId>
       <version>${ovsdb.version}</version>
     </dependency>

@@ -37,14 +37,14 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <version>${genius.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.netvirt</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>elanmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
-        <groupId>org.opendaylight.netvirt</groupId>
+        <groupId>${project.groupId}</groupId>
         <artifactId>neutronvpn-api</artifactId>
-        <version>${vpnservices.version}</version>
+        <version>${project.version}</version>
     </dependency>
     <dependency>
         <groupId>org.opendaylight.infrautils</groupId>
@@ -52,9 +52,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <version>${infrautils.version}</version>
     </dependency>
     <dependency>
-        <groupId>org.opendaylight.netvirt</groupId>
+        <groupId>${project.groupId}</groupId>
         <artifactId>aclservice-api</artifactId>
-        <version>${vpnservices.version}</version>
+        <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>

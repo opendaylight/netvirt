@@ -18,35 +18,22 @@
   <name>ODL :: netvirt :: ${project.artifactId}</name>
   <modelVersion>4.0.0</modelVersion>
   <properties>
-    <mdsal.version>1.5.0-SNAPSHOT</mdsal.version>
-    <openflowplugin.version>0.4.0-SNAPSHOT</openflowplugin.version>
-    <restconf.version>1.5.0-SNAPSHOT</restconf.version>
-    <yangtools.version>1.1.0-SNAPSHOT</yangtools.version>
-    <mdsal.model.version>0.10.0-SNAPSHOT</mdsal.model.version>
-    <vpnservices.version>0.4.0-SNAPSHOT</vpnservices.version>
-    <ovsdb.version>1.4.0-SNAPSHOT</ovsdb.version>
-    <liblldp.version>0.12.0-SNAPSHOT</liblldp.version>
-    <neutron.version>0.8.0-SNAPSHOT</neutron.version>
-    <genius.version>0.2.0-SNAPSHOT</genius.version>
-    <infrautils.version>1.1.0-SNAPSHOT</infrautils.version>
-    <arputil.version>${genius.version}</arputil.version>
-    <mdsalutil.version>${genius.version}</mdsalutil.version>
-    <vpnmanager.version>${vpnservices.version}</vpnmanager.version>
-    <interfacemgr.version>${genius.version}</interfacemgr.version>
-    <elanmgr.version>${vpnservices.version}</elanmgr.version>
-    <nexthopmgr.version>${vpnservices.version}</nexthopmgr.version>
-    <fibmanager.version>${vpnservices.version}</fibmanager.version>
-    <lockmanager.version>${genius.version}</lockmanager.version>
-    <idmanager.version>${genius.version}</idmanager.version>
-    <itm.version>${genius.version}</itm.version>
-    <neutronvpn.version>${vpnservices.version}</neutronvpn.version>
-    <statistics.plugin.version>${vpnservices.version}</statistics.plugin.version>
-    <cloud-servicechain.version>${vpnservices.version}</cloud-servicechain.version>
     <configfile.directory>etc/opendaylight/karaf</configfile.directory>
     <dlux.version>0.5.0-SNAPSHOT</dlux.version>
     <federation.version>0.2.0-SNAPSHOT</federation.version>
-    <sfc.version>0.5.0-SNAPSHOT</sfc.version>
+    <genius.version>0.2.0-SNAPSHOT</genius.version>
+    <infrautils.version>1.1.0-SNAPSHOT</infrautils.version>
     <legacy.utils.version>1.4.0-SNAPSHOT</legacy.utils.version>
+    <liblldp.version>0.12.0-SNAPSHOT</liblldp.version>
+    <model.bgp.version>2013.07.15.10-SNAPSHOT</model.bgp.version>
+    <mdsal.model.version>0.10.0-SNAPSHOT</mdsal.model.version>
+    <mdsal.version>1.5.0-SNAPSHOT</mdsal.version>
+    <neutron.version>0.8.0-SNAPSHOT</neutron.version>
+    <openflowplugin.version>0.4.0-SNAPSHOT</openflowplugin.version>
+    <ovsdb.version>1.4.0-SNAPSHOT</ovsdb.version>
+    <restconf.version>1.5.0-SNAPSHOT</restconf.version>
+    <sfc.version>0.5.0-SNAPSHOT</sfc.version>
+    <yangtools.version>1.1.0-SNAPSHOT</yangtools.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -93,14 +80,9 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.netvirt</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>utils.servicehelper</artifactId>
-      <version>${ovsdb.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.netvirt</groupId>
-      <artifactId>utils.mdsal-utils</artifactId>
-      <version>${ovsdb.version}</version>
+      <version>${legacy.utils.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.ovsdb</groupId>
@@ -153,31 +135,31 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>vpnmanager-impl</artifactId>
-      <version>${vpnmanager.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>vpnmanager-impl</artifactId>
-      <version>${vpnmanager.version}</version>
+      <version>${project.version}</version>
       <type>xml</type>
       <classifier>config</classifier>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>elanmanager-impl</artifactId>
-      <version>${elanmgr.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>elanmanager-impl</artifactId>
-      <version>${elanmgr.version}</version>
+      <version>${project.version}</version>
       <type>xml</type>
       <classifier>config</classifier>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>elanmanager-api</artifactId>
-      <version>${elanmgr.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
@@ -197,64 +179,64 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>vpnmanager-api</artifactId>
-      <version>${vpnmanager.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>bgpmanager-impl</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>bgpmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>model-bgp</artifactId>
-      <version>2013.07.15.10-SNAPSHOT</version>
+      <version>${model.bgp.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>statistics-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>statistics-impl</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>statistics-impl</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
       <type>xml</type>
       <classifier>config</classifier>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>fibmanager-impl</artifactId>
-      <version>${fibmanager.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>fibmanager-shell</artifactId>
-      <version>${fibmanager.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>fibmanager-api</artifactId>
-      <version>${fibmanager.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>dhcpservice-impl</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>dhcpservice-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -266,12 +248,12 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>natservice-impl</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>natservice-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -283,12 +265,12 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>qosservice-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>qosservice-impl</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -300,22 +282,22 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>aclservice-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>aclservice-impl</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>policyservice-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>policyservice-impl</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -327,49 +309,49 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>ipv6service-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>ipv6service-impl</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>neutronvpn-api</artifactId>
-      <version>${neutronvpn.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>neutronvpn-impl</artifactId>
-      <version>${neutronvpn.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>neutronvpn-shell</artifactId>
-      <version>${neutronvpn.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>neutronvpn-impl</artifactId>
-      <version>${neutronvpn.version}</version>
+      <version>${project.version}</version>
       <type>xml</type>
       <classifier>config</classifier>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>vpnmanager-shell</artifactId>
-      <version>${vpnmanager.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>federation-plugin-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>federation-plugin-impl</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.thrift</groupId>
@@ -391,17 +373,17 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>cloud-servicechain-api</artifactId>
-      <version>${cloud-servicechain.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>cloud-servicechain-impl</artifactId>
-      <version>${cloud-servicechain.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>statemanager-impl</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.infrautils</groupId>
@@ -432,7 +414,7 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>sfc.classifier-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -447,12 +429,12 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>sfc.classifier-impl</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>sfc.translator</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.sfc</groupId>
