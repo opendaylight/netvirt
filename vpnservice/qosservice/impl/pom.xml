@@ -33,12 +33,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <dependency>
             <groupId>org.opendaylight.ovsdb</groupId>
             <artifactId>utils.southbound-utils</artifactId>
-            <version>1.4.0-SNAPSHOT</version>
+            <version>${ovsdb.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.netvirt</groupId>
             <artifactId>neutronvpn-api</artifactId>
-            <version>0.4.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.truth</groupId>
@@ -48,7 +48,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>qosservice-api</artifactId>
-            <version>${vpnservices.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.infrautils</groupId>

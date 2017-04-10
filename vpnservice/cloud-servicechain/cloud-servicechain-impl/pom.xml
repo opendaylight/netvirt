@@ -18,16 +18,11 @@
  <name>ODL :: netvirt :: ${project.artifactId}</name>
  <packaging>bundle</packaging>
 
- <properties>
-  <powermock.version>1.6.4</powermock.version>
-  <mockitoall.version>1.10.19</mockitoall.version>
- </properties>
-
  <dependencies>
   <dependency>
    <groupId>${project.groupId}</groupId>
    <artifactId>cloud-servicechain-api</artifactId>
-   <version>${vpnservices.version}</version>
+   <version>${project.version}</version>
   </dependency>
   <dependency>
    <groupId>org.opendaylight.genius</groupId>
@@ -41,17 +36,17 @@
   <dependency>
    <groupId>org.opendaylight.netvirt</groupId>
    <artifactId>vpnmanager-api</artifactId>
-   <version>${vpnservices.version}</version>
+   <version>${project.version}</version>
   </dependency>
   <dependency>
    <groupId>org.opendaylight.netvirt</groupId>
    <artifactId>elanmanager-api</artifactId>
-   <version>${vpnservices.version}</version>
+   <version>${project.version}</version>
   </dependency>
   <dependency>
    <groupId>org.opendaylight.netvirt</groupId>
    <artifactId>fibmanager-api</artifactId>
-   <version>${vpnservices.version}</version>
+   <version>${project.version}</version>
   </dependency>
   <dependency>
    <groupId>org.opendaylight.genius</groupId>
@@ -66,25 +61,22 @@
   <dependency>
    <groupId>${project.groupId}</groupId>
    <artifactId>bgpmanager-api</artifactId>
-   <version>${vpnservices.version}</version>
+   <version>${project.version}</version>
   </dependency>
   <!-- Only for unit-test -->
   <dependency>
    <groupId>org.mockito</groupId>
    <artifactId>mockito-core</artifactId>
-   <version>${mockitoall.version}</version>
    <scope>test</scope>
   </dependency>
   <dependency>
    <groupId>org.powermock</groupId>
    <artifactId>powermock-api-mockito</artifactId>
-   <version>${powermock.version}</version>
    <scope>test</scope>
   </dependency>
   <dependency>
    <groupId>org.powermock</groupId>
    <artifactId>powermock-module-junit4</artifactId>
-   <version>${powermock.version}</version>
    <scope>test</scope>
   </dependency>
   <dependency>

@@ -23,7 +23,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>dhcpservice-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
@@ -42,7 +42,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>neutronvpn-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.karaf.shell</groupId>
@@ -66,7 +66,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>elanmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.genius</groupId>
@@ -76,7 +76,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <dependency>
       <groupId>org.opendaylight.ovsdb</groupId>
       <artifactId>hwvtepsouthbound-api</artifactId>
-      <version>${vpns.ovsdb.version}</version>
+      <version>${ovsdb.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.infrautils</groupId>
