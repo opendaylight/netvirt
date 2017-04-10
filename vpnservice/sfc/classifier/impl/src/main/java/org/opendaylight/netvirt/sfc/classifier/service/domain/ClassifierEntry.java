@@ -16,6 +16,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 
+/**
+ * A generic {@link ClassifierRenderableEntry} implementation that supports all
+ * the different render types.
+ */
 public final class ClassifierEntry implements ClassifierRenderableEntry {
 
     private enum EntryType {
@@ -141,27 +145,64 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
         }
     }
 
+    /**
+     * Build a {@code ClassifierEntry} supporting an ingress render type.
+     *
+     * @param interfaceKey the ingress interface.
+     * @return the {@code ClassifierEntry}.
+     */
     public static ClassifierEntry buildIngressEntry(InterfaceKey interfaceKey) {
         return new ClassifierEntry(EntryType.INGRESS_INTERFACE_ENTRY_TYPE, null, interfaceKey, null, null, null,
                 null, null);
     }
 
+    /**
+     * Build a {@code ClassifierEntry} supporting an node render type.
+     *
+     * @param node the classifier node identifier.
+     * @return the {@code ClassifierEntry}.
+     */
     public static ClassifierEntry buildNodeEntry(NodeId node) {
         return new ClassifierEntry(EntryType.NODE_ENTRY_TYPE, node, null, null, null, null,
                 null, null);
     }
 
+    /**
+     * Build a {@code ClassifierEntry} supporting a path render type.
+     *
+     * @param node the classifier node identifier.
+     * @param nsp the path identifier.
+     * @param destinationIp the ip address of the first service function.
+     * @return the {@code ClassifierEntry}.
+     */
     public static ClassifierEntry buildPathEntry(NodeId node, Long nsp, String destinationIp) {
         return new ClassifierEntry(EntryType.PATH_ENTRY_TYPE, node, null, null, null, nsp,
                 null, destinationIp);
     }
 
+    /**
+     * Build a {@code ClassifierEntry} supporting an match render type.
+     *
+     * @param node the classifier node identifier.
+     * @param connector the node connector for the ingress interface.
+     * @param matches the ACL matches.
+     * @param nsp the path identifier.
+     * @param nsi the initial path index.
+     * @param destinationIp the ip address of the first service function.
+     * @return the {@code ClassifierEntry}.
+     */
     public static ClassifierEntry buildMatchEntry(NodeId node, String connector, Matches matches, Long nsp, Short nsi,
             String destinationIp) {
         return new ClassifierEntry(EntryType.MATCH_ENTRY_TYPE, node, null, connector, matches, nsp,
                 nsi, destinationIp);
     }
 
+    /**
+     * Build a {@code ClassifierEntry} supporting an egress render type.
+     *
+     * @param interfaceKey the egress interface key.
+     * @return the {@code ClassifierEntry}.
+     */
     public static ClassifierEntry buildEgressEntry(InterfaceKey interfaceKey) {
         return new ClassifierEntry(EntryType.EGRESS_INTERFACE_ENTRY_TYPE, null, interfaceKey, null, null, null,
                 null, null);
