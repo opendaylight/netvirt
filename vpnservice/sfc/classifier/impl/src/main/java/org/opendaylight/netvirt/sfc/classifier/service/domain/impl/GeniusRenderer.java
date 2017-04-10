@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.sfc.classifier.service.domain.impl;
 
+import java.util.List;
 import org.opendaylight.netvirt.sfc.classifier.providers.GeniusProvider;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierEntryRenderer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
@@ -29,7 +30,12 @@ public class GeniusRenderer implements ClassifierEntryRenderer {
 
     @Override
     public void renderNode(NodeId nodeId) {
-        // noop
+        // Egress services must bind to egress ports. Since we dont
+        // know before-hand what the egress ports will be, we will
+        // bind on all port switches. If the packet doesnt have NSH,
+        // it will be returned to the the egress dispatcher table.
+        List<String> interfaceUuidStrList = geniusProvider.getInterfacesFromNode(nodeId);
+        interfaceUuidStrList.forEach(interfaceUuidStr -> geniusProvider.bindPortOnEgressClassifier(interfaceUuidStr));
     }
 
     @Override
@@ -44,7 +50,7 @@ public class GeniusRenderer implements ClassifierEntryRenderer {
 
     @Override
     public void renderEgress(InterfaceKey interfaceKey) {
-        geniusProvider.bindPortOnEgressClassifier(interfaceKey.getName());
+        // noop
     }
 
     @Override
