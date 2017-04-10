@@ -25,19 +25,14 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
   <properties>
     <controller.mdsal.version>1.5.0-SNAPSHOT</controller.mdsal.version>
+    <federation.version>0.2.0-SNAPSHOT</federation.version>
     <genius.version>0.2.0-SNAPSHOT</genius.version>
     <infrautils.version>1.1.0-SNAPSHOT</infrautils.version>
-    <liblldp.version>0.12.0-SNAPSHOT</liblldp.version>
-    <mdsal.model.version>0.10.0-SNAPSHOT</mdsal.model.version>
+    <legacy.utils.version>1.4.0-SNAPSHOT</legacy.utils.version>
     <model.bgp.version>2013.07.15.10-SNAPSHOT</model.bgp.version>
     <neutron.version>0.8.0-SNAPSHOT</neutron.version>
     <openflowplugin.version>0.4.0-SNAPSHOT</openflowplugin.version>
-    <vpns.mdsalutil.version>0.4.0-SNAPSHOT</vpns.mdsalutil.version>
-    <vpns.ovsdb.version>1.4.0-SNAPSHOT</vpns.ovsdb.version>
-    <vpnservices.version>0.4.0-SNAPSHOT</vpnservices.version>
-    <yangtools.version>1.1.0-SNAPSHOT</yangtools.version>
-    <federation.version>0.2.0-SNAPSHOT</federation.version>
-    <legacy.utils.version>1.4.0-SNAPSHOT</legacy.utils.version>
+    <ovsdb.version>1.4.0-SNAPSHOT</ovsdb.version>
   </properties>
 
   <dependencies>

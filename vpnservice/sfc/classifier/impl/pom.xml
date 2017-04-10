@@ -97,12 +97,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <dependency>
       <groupId>org.opendaylight.ovsdb</groupId>
       <artifactId>southbound-api</artifactId>
-      <version>${vpns.ovsdb.version}</version>
+      <version>${ovsdb.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.ovsdb</groupId>
       <artifactId>southbound-impl</artifactId>
-      <version>${vpns.ovsdb.version}</version>
+      <version>${ovsdb.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.sfc</groupId>

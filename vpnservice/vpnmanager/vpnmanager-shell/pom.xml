@@ -30,7 +30,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>vpnmanager-api</artifactId>
-            <version>${vpnservices.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
