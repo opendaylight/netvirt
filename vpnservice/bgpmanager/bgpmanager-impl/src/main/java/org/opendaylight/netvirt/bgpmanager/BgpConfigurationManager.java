@@ -1970,7 +1970,7 @@ public class BgpConfigurationManager {
         BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, iid);
     }
 
-    public synchronized void startConfig(String bgpHost, int thriftPort) {
+    public void startConfig(String bgpHost, int thriftPort) {
         InstanceIdentifier.InstanceIdentifierBuilder<ConfigServer> iib =
                 InstanceIdentifier.builder(Bgp.class).child(ConfigServer.class);
         InstanceIdentifier<ConfigServer> iid = iib.build();
@@ -1980,7 +1980,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void startBgp(long as, String routerId, int spt, boolean fbit) {
+    public void startBgp(long as, String routerId, int spt, boolean fbit) {
         IpAddress rid = (routerId == null) ? null : new IpAddress(routerId.toCharArray());
         Long staleTime = (long) spt;
         InstanceIdentifier.InstanceIdentifierBuilder<AsId> iib =
@@ -1993,7 +1993,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void addLogging(String fileName, String logLevel) {
+    public void addLogging(String fileName, String logLevel) {
         InstanceIdentifier.InstanceIdentifierBuilder<Logging> iib =
                 InstanceIdentifier.builder(Bgp.class).child(Logging.class);
         InstanceIdentifier<Logging> iid = iib.build();
@@ -2002,7 +2002,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void addGracefulRestart(int staleTime) {
+    public void addGracefulRestart(int staleTime) {
         InstanceIdentifier.InstanceIdentifierBuilder<GracefulRestart> iib =
                 InstanceIdentifier.builder(Bgp.class).child(GracefulRestart.class);
         InstanceIdentifier<GracefulRestart> iid = iib.build();
@@ -2011,7 +2011,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void addNeighbor(
+    public void addNeighbor(
             String nbrIp, long remoteAs, @Nullable final TcpMd5SignaturePasswordType md5Secret) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<Neighbors> iib =
@@ -2027,7 +2027,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     } // public addNeighbor(nbrIp, remoteAs, md5Secret)
 
-    public synchronized void addUpdateSource(String nbrIp, String srcIp) {
+    public void addUpdateSource(String nbrIp, String srcIp) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         Ipv4Address srcAddr = new Ipv4Address(srcIp);
         InstanceIdentifier.InstanceIdentifierBuilder<UpdateSource> iib =
@@ -2040,7 +2040,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void addEbgpMultihop(String nbrIp, int hops) {
+    public void addEbgpMultihop(String nbrIp, int hops) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<EbgpMultihop> iib =
                 InstanceIdentifier.builder(Bgp.class)
@@ -2052,7 +2052,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void addAddressFamily(String nbrIp, int afi, int safi) {
+    public void addAddressFamily(String nbrIp, int afi, int safi) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<AddressFamilies> iib =
                 InstanceIdentifier.builder(Bgp.class)
@@ -2064,7 +2064,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void addPrefix(String rd, String macAddress, String pfx, List<String> nhList,
+    public void addPrefix(String rd, String macAddress, String pfx, List<String> nhList,
               VrfEntry.EncapType encapType, int lbl, long l3vni, long l2vni, String gatewayMac, int addressFamily) {
         for (String nh : nhList) {
             Ipv4Address nexthop = nh != null ? new Ipv4Address(nh) : null;
@@ -2092,7 +2092,7 @@ public class BgpConfigurationManager {
     }
 
     // TODO: add LayerType as arg - supports command
-    public synchronized void addVrf(String rd, List<String> irts, List<String> erts, LayerType layerType) {
+    public void addVrf(String rd, List<String> irts, List<String> erts, LayerType layerType) {
         InstanceIdentifier.InstanceIdentifierBuilder<Vrfs> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Vrfs.class, new VrfsKey(rd));
@@ -2107,28 +2107,28 @@ public class BgpConfigurationManager {
         }
     }
 
-    public synchronized void stopConfig() {
+    public void stopConfig() {
         InstanceIdentifier.InstanceIdentifierBuilder<ConfigServer> iib =
                 InstanceIdentifier.builder(Bgp.class).child(ConfigServer.class);
         InstanceIdentifier<ConfigServer> iid = iib.build();
         delete(iid);
     }
 
-    public synchronized void stopBgp() {
+    public void stopBgp() {
         InstanceIdentifier.InstanceIdentifierBuilder<AsId> iib =
                 InstanceIdentifier.builder(Bgp.class).child(AsId.class);
         InstanceIdentifier<AsId> iid = iib.build();
         delete(iid);
     }
 
-    public synchronized void delLogging() {
+    public void delLogging() {
         InstanceIdentifier.InstanceIdentifierBuilder<Logging> iib =
                 InstanceIdentifier.builder(Bgp.class).child(Logging.class);
         InstanceIdentifier<Logging> iid = iib.build();
         delete(iid);
     }
 
-    public synchronized void delGracefulRestart() {
+    public void delGracefulRestart() {
         InstanceIdentifier.InstanceIdentifierBuilder<GracefulRestart> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(GracefulRestart.class);
@@ -2136,7 +2136,7 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    public synchronized void delNeighbor(String nbrIp) {
+    public void delNeighbor(String nbrIp) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<Neighbors> iib =
                 InstanceIdentifier.builder(Bgp.class)
@@ -2145,7 +2145,7 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    public synchronized void delUpdateSource(String nbrIp) {
+    public void delUpdateSource(String nbrIp) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<UpdateSource> iib =
                 InstanceIdentifier.builder(Bgp.class)
@@ -2155,7 +2155,7 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    public synchronized void delEbgpMultihop(String nbrIp) {
+    public void delEbgpMultihop(String nbrIp) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<EbgpMultihop> iib =
                 InstanceIdentifier.builder(Bgp.class)
@@ -2165,7 +2165,7 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    public synchronized void delAddressFamily(String nbrIp, int afi, int safi) {
+    public void delAddressFamily(String nbrIp, int afi, int safi) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<AddressFamilies> iib =
                 InstanceIdentifier.builder(Bgp.class)
@@ -2175,7 +2175,7 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    public synchronized void delPrefix(String rd, String pfx, int afi) {
+    public void delPrefix(String rd, String pfx, int afi) {
         InstanceIdentifier.InstanceIdentifierBuilder<Networks> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Networks.class, new NetworksKey(pfx, rd));
@@ -2183,7 +2183,7 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    public synchronized void delVrf(String rd) {
+    public void delVrf(String rd) {
         InstanceIdentifier.InstanceIdentifierBuilder<Vrfs> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Vrfs.class, new VrfsKey(rd));
@@ -2191,7 +2191,7 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    public synchronized void setMultipathStatus(af_afi afi, af_safi safi, boolean enable) {
+    public void setMultipathStatus(af_afi afi, af_safi safi, boolean enable) {
         long lafi = afi.getValue();
         long lsafi = safi.getValue();
 
@@ -2205,7 +2205,7 @@ public class BgpConfigurationManager {
         update(iib.build(), dto);
     }
 
-    public synchronized void multipaths(String rd, int maxpath) {
+    public void multipaths(String rd, int maxpath) {
         InstanceIdentifier.InstanceIdentifierBuilder<VrfMaxpath> iib =
                 InstanceIdentifier
                         .builder(Bgp.class)
