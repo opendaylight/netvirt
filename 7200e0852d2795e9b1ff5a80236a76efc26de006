@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_0cda2678",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2017-04-10T17:31:20Z",
+      "side": 1,
+      "message": "Here we are obtaining the OVSDB termination point UUID. But to do the service binding, in case of neutron ports we need the neutron port UUID which is the external id \u0027iface-id\u0027, and in case of tunnel ports we need the port name if I am not mistaken.",
+      "range": {
+        "startLine": 272,
+        "startChar": 0,
+        "endLine": 273,
+        "endChar": 89
+      },
+      "revId": "7200e0852d2795e9b1ff5a80236a76efc26de006",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_ec7c0275",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/service/domain/impl/GeniusRenderer.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2017-04-10T17:31:20Z",
+      "side": 1,
+      "message": "Ok, I know I told you otherwise privately and now you are going to kill me :P\n\ngetInterfacesFromNode should be used in the ConfigurationClassifierImpl::getAce, and for each interface a ClassifierEntry::buildEgressEntry should be added the returned list of entries.\n\nThat will, on update, call GeniusRenderer::renderEgress where you should bindPortOnEgress.\n\nThat way also when an interface moves from a node where we previously had a classifier to a node where there isn\u0027t one, GeniusRenderer::supressEgress will be called, where you should unbind for egress.\n\nSorry for the confusion, totally my bad.",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 118
+      },
+      "revId": "7200e0852d2795e9b1ff5a80236a76efc26de006",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
