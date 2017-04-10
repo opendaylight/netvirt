@@ -1087,6 +1087,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     if (!dpnId.equals(BigInteger.ZERO)) {
                         nextHopManager.setupLoadBalancingNextHop(vpnId, dpnId,
                                 vrfEntry.getDestPrefix(), /*listBucketInfo*/ null, /*remove*/ false);
+                        FibUtil.delete(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                                VpnExtraRouteHelper.getVpnToExtrarouteIdentifier(vpnName, rd));
+                        usedRds.remove(rd);
+                        FibUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, vrfEntry.getDestPrefix()),
+                                FibUtil.getDestPrefixesBuilder(vrfEntry.getDestPrefix(), usedRds).build(), FibUtil.DEFAULT_CALLBACK);
                         returnLocalDpnId.add(dpnId);
                     }
                 } else {
