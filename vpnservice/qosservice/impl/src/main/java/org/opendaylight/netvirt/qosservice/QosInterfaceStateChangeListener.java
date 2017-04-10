@@ -119,6 +119,28 @@ public class QosInterfaceStateChangeListener extends AsyncDataTreeChangeListener
 
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
+        if (!Tunnel.class.equals(intrf.getType())) {
+            final String interfaceName = intrf.getName();
+            // Guava Optional asSet().forEach() emulates Java 8 Optional ifPresent()
+            getNeutronPort(interfaceName).asSet().forEach(port -> {
+                LOG.trace("Qos Service : Received interface {} PORT DOWN event ", interfaceName);
+                QosPortExtension removeQos = port.getAugmentation(QosPortExtension.class);
+                if (removeQos != null) {
+                    QosNeutronUtils.handleNeutronPortRemove(dataBroker, odlInterfaceRpcService,
+                            mdsalUtils, port, removeQos.getQosPolicyId(), intrf);
+                    QosNeutronUtils.removeFromQosPortsCache(removeQos.getQosPolicyId(), port);
+                } else {
+                    Network network = neutronVpnManager.getNeutronNetwork(port.getNetworkId());
+                    if (network != null && network.getAugmentation(QosNetworkExtension.class) != null) {
+                        Uuid networkQosUuid = network.getAugmentation(QosNetworkExtension.class).getQosPolicyId();
+                        if (networkQosUuid != null) {
+                            QosNeutronUtils.handleNeutronPortRemove(dataBroker, odlInterfaceRpcService,
+                                    mdsalUtils, port, networkQosUuid, intrf);
+                        }
+                    }
+                }
+            });
+        }
     }
 
     @Override

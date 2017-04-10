@@ -62,6 +62,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
@@ -92,12 +93,14 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 public class QosNeutronUtils {
     private static final Logger LOG = LoggerFactory.getLogger(QosNeutronUtils.class);
     private static final String EXTERNAL_ID_INTERFACE_ID = "iface-id";
     public static ConcurrentHashMap<Uuid, QosPolicy> qosPolicyMap = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<Uuid, ConcurrentHashMap<Uuid, Port>> qosPortsMap = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<Uuid, ConcurrentHashMap<Uuid, Network>> qosNetworksMap = new ConcurrentHashMap<>();
+    private static String OF_URI_SEPARATOR = ":";
 
     public static void addToQosPolicyCache(QosPolicy qosPolicy) {
         qosPolicyMap.put(qosPolicy.getUuid(),qosPolicy);
@@ -284,6 +287,25 @@ public class QosNeutronUtils {
             return futures;
         });
     }
+
+    public static void handleNeutronPortRemove(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
+                                               IMdsalApiManager mdsalUtils, Port port, Uuid qosUuid, Interface intrf) {
+        LOG.trace("Handling Port removal and Qos associated: port: {} qos: {}", port.getUuid(), qosUuid);
+        QosPolicy qosPolicy = QosNeutronUtils.qosPolicyMap.get(qosUuid);
+
+        final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+            WriteTransaction wrtConfigTxn = db.newWriteOnlyTransaction();
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            if (qosPolicy != null && qosPolicy.getDscpmarkingRules() != null
+                    && !qosPolicy.getDscpmarkingRules().isEmpty()) {
+                unsetPortDscpMark(db, odlInterfaceRpcService, mdsalUtils, port, intrf);
+            }
+            futures.add(wrtConfigTxn.submit());
+            return futures;
+        });
+    }
+
 
     public static void handleNeutronNetworkQosUpdate(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
                                                      INeutronVpnManager neutronVpnManager,
@@ -523,6 +545,37 @@ public class QosNeutronUtils {
         syncFlow(dataBroker, dpnId, NwConstants.DEL_FLOW, mdsalUtils, (short) 0, ifName, ipAddress);
     }
 
+    public static void unsetPortDscpMark(DataBroker dataBroker, OdlInterfaceRpcService odlInterfaceRpcService,
+                                         IMdsalApiManager mdsalUtils, Port port, Interface intrf) {
+        LOG.trace("Removing dscp marking rule from Port {}", port);
+
+        BigInteger dpnId = getDpIdFromInterface(intrf);
+        String ifName = port.getUuid().getValue();
+
+        if (dpnId.equals(BigInteger.ZERO)) {
+            LOG.error("Unable to retrieve DPN Id for interface {}", ifName);
+            return;
+        }
+        IpAddress ipAddress = port.getFixedIps().get(0).getIpAddress();
+        unbindservice(dataBroker, ifName);
+        syncFlow(dataBroker, dpnId, NwConstants.DEL_FLOW, mdsalUtils, (short) 0, ifName, ipAddress, intrf);
+    }
+
+    private static String getDpnFromNodeConnectorId(NodeConnectorId portId) {
+        /*
+         * NodeConnectorId is of form 'openflow:dpnid:portnum'
+         */
+        String[] split = portId.getValue().split(OF_URI_SEPARATOR);
+        return split[1];
+    }
+
+    private static BigInteger getDpIdFromInterface(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf
+                                                           .interfaces.rev140508.interfaces.state.Interface ifState) {
+        String lowerLayerIf = ifState.getLowerLayerIf().get(0);
+        NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
+        return new BigInteger(getDpnFromNodeConnectorId(nodeConnectorId));
+    }
+
     private static BigInteger getDpnForInterface(OdlInterfaceRpcService interfaceManagerRpcService, String ifName) {
         BigInteger nodeId = BigInteger.ZERO;
         try {
@@ -604,11 +657,17 @@ public class QosNeutronUtils {
     private static void syncFlow(DataBroker db, BigInteger dpnId, int addOrRemove,
                                  IMdsalApiManager mdsalUtils, Short dscpValue,
                                  String ifName, IpAddress ipAddress) {
+        Interface ifState = getInterfaceStateFromOperDS(ifName, db);
+        syncFlow(db, dpnId, addOrRemove, mdsalUtils, dscpValue, ifName, ipAddress, ifState);
+    }
+
+    private static void syncFlow(DataBroker db, BigInteger dpnId, int addOrRemove,
+                                 IMdsalApiManager mdsalUtils, Short dscpValue,
+                                 String ifName, IpAddress ipAddress, Interface ifState) {
         List<MatchInfo> matches = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
 
-        Interface ifState = getInterfaceStateFromOperDS(ifName, db);
         if (ifState == null) {
             LOG.trace("Could not find the ifState for interface {}", ifName);
             return;
