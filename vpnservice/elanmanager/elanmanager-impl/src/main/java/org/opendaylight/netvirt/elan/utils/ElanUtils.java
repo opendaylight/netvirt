@@ -2201,8 +2201,10 @@ public class ElanUtils {
 
     public Optional<IpAddress> getSourceIpV4Address(byte[] data) {
         IPv4 ip = new IPv4();
+        LOG.info("ip is {} amd data is {}", ip, data);
         try {
             ip.deserialize(data, 0, data.length * NetUtils.NumBitsInAByte);
+            LOG.info("deserailize {}", ip.deserialize(data, 0, data.length * NetUtils.NumBitsInAByte));
         } catch (PacketException e) {
             LOG.error("ip.deserialize throws exception  {}", e);
             return Optional.absent();
@@ -2230,6 +2232,7 @@ public class ElanUtils {
         try {
             if (NwConstants.ETHTYPE_IPV4 == ethernet.getEtherType()) {
                 srcIpAddress = getSourceIpV4Address(data);
+                LOG.info("source ip address is {} and data is {}", srcIpAddress, data);
             } else if (NwConstants.ETHTYPE_ARP == ethernet.getEtherType()) {
                 srcIpAddress = getSrcIpAddrFromArp(data);
             }
