@@ -34,6 +34,24 @@
       "revId": "0daadbc0d6c71ef6c4887f471b947259e625ed87",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_82c1c430",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1973,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-10T10:05:43Z",
+      "side": 1,
+      "message": "Okay Vyshakh, I have raised another bug https://bugs.opendaylight.org/show_bug.cgi?id\u003d8195 to track this.",
+      "parentUuid": "da01753e_0288341e",
+      "revId": "0daadbc0d6c71ef6c4887f471b947259e625ed87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
