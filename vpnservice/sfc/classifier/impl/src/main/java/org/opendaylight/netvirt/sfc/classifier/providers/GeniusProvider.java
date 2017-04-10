@@ -48,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeVxlan;
@@ -65,45 +66,51 @@ public class GeniusProvider {
     private final IInterfaceManager interfaceMgr;
     private final OdlInterfaceRpcService interfaceManagerRpcService;
     private static final Logger LOG = LoggerFactory.getLogger(GeniusProvider.class);
-    private static final String OPTION_KEY_EXTS = "exts";
-    private static final String OPTION_VALUE_EXTS_GPE = "gpe";
+    public static final String OPTION_KEY_EXTS = "exts";
+    public static final String OPTION_VALUE_EXTS_GPE = "gpe";
 
     @Inject
     public GeniusProvider(final DataBroker dataBroker, final RpcProviderRegistry rpcProviderRegistry,
             final IInterfaceManager interfaceMgr) {
         this.dataBroker = dataBroker;
         this.interfaceMgr = interfaceMgr;
-        interfaceManagerRpcService = rpcProviderRegistry.getRpcService(OdlInterfaceRpcService.class);
+        this.interfaceManagerRpcService = rpcProviderRegistry.getRpcService(OdlInterfaceRpcService.class);
+    }
+
+    // Package local constructor used by UT for simplification
+    GeniusProvider(final DataBroker dataBroker, final OdlInterfaceRpcService interfaceManagerRpcService,
+            final IInterfaceManager interfaceMgr) {
+        this.dataBroker = dataBroker;
+        this.interfaceMgr = interfaceMgr;
+        this.interfaceManagerRpcService = interfaceManagerRpcService;
     }
 
     public void bindPortOnIngressClassifier(String interfaceName) {
         bindService(
+                getBindServiceId(NwConstants.SFC_CLASSIFIER_INDEX, interfaceName, true),
                 NwConstants.SFC_CLASSIFIER_INDEX,
                 NwConstants.SFC_CLASSIFIER_SERVICE_NAME,
                 NwConstants.SFC_SERVICE_INDEX,
                 NwConstants.INGRESS_SFC_CLASSIFIER_FILTER_TABLE,
-                OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_COOKIE,
-                true,
-                interfaceName);
+                OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_COOKIE);
     }
 
     public void bindPortOnEgressClassifier(String interfaceName) {
         bindService(
+                getBindServiceId(NwConstants.EGRESS_SFC_CLASSIFIER_SERVICE_INDEX, interfaceName, false),
                 NwConstants.EGRESS_SFC_CLASSIFIER_SERVICE_INDEX,
                 NwConstants.EGRESS_SFC_CLASSIFIER_SERVICE_NAME,
                 NwConstants.EGRESS_SFC_CLASSIFIER_SERVICE_INDEX,
                 NwConstants.EGRESS_SFC_CLASSIFIER_FILTER_TABLE,
-                OpenFlow13Provider.EGRESS_CLASSIFIER_FILTER_COOKIE,
-                false,
-                interfaceName);
+                OpenFlow13Provider.EGRESS_CLASSIFIER_FILTER_COOKIE);
     }
 
     public void unbindPortOnIngressClassifier(String interfaceName) {
-        unbindService(interfaceName, NwConstants.SFC_CLASSIFIER_INDEX, true);
+        unbindService(getBindServiceId(NwConstants.SFC_CLASSIFIER_INDEX, interfaceName, true));
     }
 
     public void unbindPortOnEgressClassifier(String interfaceName) {
-        unbindService(interfaceName, NwConstants.EGRESS_SFC_CLASSIFIER_SERVICE_INDEX, false);
+        unbindService(getBindServiceId(NwConstants.EGRESS_SFC_CLASSIFIER_SERVICE_INDEX, interfaceName, false));
     }
 
     public Optional<NodeId> getNodeIdFromLogicalInterface(String logicalInterface) {
@@ -186,7 +193,6 @@ public class GeniusProvider {
             return Optional.empty();
         }
 
-        Optional<DpnIdType> dpnid = Optional.empty();
         try {
             LOG.debug("getDpnIdFromInterfaceName: invoking rpc");
             RpcResult<GetDpidFromInterfaceOutput> output = interfaceManagerRpcService.getDpidFromInterface(input).get();
@@ -194,13 +200,19 @@ public class GeniusProvider {
                 LOG.error("getDpnIdFromInterfaceName({}) failed: {}", input, output);
                 return Optional.empty();
             }
-            dpnid = Optional.ofNullable(new DpnIdType(output.getResult().getDpid()));
+
+            BigInteger dpnId = output.getResult().getDpid();
+            if (dpnId == null) {
+                return Optional.empty();
+            }
             LOG.debug("getDpnIdFromInterfaceName({}) succeeded: {}", input, output);
+
+            return Optional.of(new DpnIdType(dpnId));
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("getDpnIdFromInterfaceName failed to retrieve target interface name: ", e);
         }
 
-        return dpnid;
+        return Optional.empty();
     }
 
     public Optional<String> getNodeConnectorIdFromInterfaceName(String interfaceName) {
@@ -214,7 +226,6 @@ public class GeniusProvider {
             return Optional.empty();
         }
 
-        Optional<String> nodeConnId = Optional.empty();
         try {
             LOG.debug("getNodeConnectorIdFromInterfaceName: invoking rpc");
             RpcResult<GetNodeconnectorIdFromInterfaceOutput> output =
@@ -223,13 +234,18 @@ public class GeniusProvider {
                 LOG.error("getNodeConnectorIdFromInterfaceName({}) failed: {}", input, output);
                 return Optional.empty();
             }
-            nodeConnId = Optional.ofNullable(output.getResult().getNodeconnectorId().getValue());
+            NodeConnectorId nodeConnId = output.getResult().getNodeconnectorId();
+            if (nodeConnId == null) {
+                return Optional.empty();
+            }
             LOG.debug("getNodeConnectorIdFromInterfaceName({}) succeeded: {}", input, output);
+
+            return Optional.ofNullable(nodeConnId.getValue());
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("getNodeConnectorIdFromInterfaceName failed to retrieve target interface name: ", e);
         }
 
-        return nodeConnId;
+        return Optional.empty();
     }
 
     public Optional<Long> getEgressVxlanPortForNode(BigInteger dpnId) {
@@ -294,16 +310,20 @@ public class GeniusProvider {
         return Collections.emptyList();
     }
 
-    private void bindService(short serviceId, String serviceName, int servicePriority,
-            short serviceDestTable, BigInteger serviceTableCookie,
-            boolean isIngress, String interfaceName) {
-
+    public InstanceIdentifier<BoundServices> getBindServiceId(short serviceId, String interfaceName,
+            boolean isIngress) {
         ServicesInfoKey servicesInfoKey = isIngress
                 ? new ServicesInfoKey(interfaceName, ServiceModeIngress.class) :
                   new ServicesInfoKey(interfaceName, ServiceModeEgress.class);
         InstanceIdentifier<BoundServices> id = InstanceIdentifier.builder(ServiceBindings.class)
                 .child(ServicesInfo.class, servicesInfoKey)
                 .child(BoundServices.class, new BoundServicesKey(serviceId)).build();
+
+        return id;
+    }
+
+    private void bindService(InstanceIdentifier<BoundServices> id, short serviceId, String serviceName,
+            int servicePriority, short serviceDestTable, BigInteger serviceTableCookie) {
 
         StypeOpenflow stypeOpenflow = new StypeOpenflowBuilder().setFlowCookie(serviceTableCookie)
                 .setFlowPriority(servicePriority)
@@ -313,23 +333,13 @@ public class GeniusProvider {
         BoundServices boundServices = new BoundServicesBuilder().setServiceName(serviceName)
                 .setServicePriority(serviceId).setServiceType(ServiceTypeFlowBased.class)
                 .addAugmentation(StypeOpenflow.class, stypeOpenflow).build();
-        LOG.info("Binding Service ID [{}] name [{}] priority [{}] table [{}] cookie [{}] interface [{}]",
-                serviceId, serviceName, servicePriority, serviceDestTable, serviceTableCookie, interfaceName);
+        LOG.info("Binding Service ID [{}] name [{}] priority [{}] table [{}] cookie [{}]",
+                serviceId, serviceName, servicePriority, serviceDestTable, serviceTableCookie);
 
         MDSALUtil.syncWrite(this.dataBroker, LogicalDatastoreType.CONFIGURATION, id, boundServices);
     }
 
-    private void unbindService(String interfaceName, short serviceId, boolean isIngress) {
-        ServicesInfoKey servicesInfoKey = isIngress
-                ? new ServicesInfoKey(interfaceName, ServiceModeIngress.class) :
-                  new ServicesInfoKey(interfaceName, ServiceModeEgress.class);
-
-        InstanceIdentifier<BoundServices> id = InstanceIdentifier.builder(ServiceBindings.class)
-                .child(ServicesInfo.class, servicesInfoKey)
-                .child(BoundServices.class, new BoundServicesKey(serviceId)).build();
-
-        LOG.info("Unbinding Service ID [{}] interface [{}]", serviceId, interfaceName);
-
+    private void unbindService(InstanceIdentifier<BoundServices> id) {
         MDSALUtil.syncDelete(this.dataBroker, LogicalDatastoreType.CONFIGURATION, id);
     }
 }
