@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_0215d4f0",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1973,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-10T09:22:35Z",
+      "side": 1,
+      "message": "There are still lot more places which locking on BgpConfigurationManager instance. Please do the required code study and remove it accordingly. Moreover it is not appropriate to do locking on this instance. If it is really required, please choose appropriate synchronizer for locking and make sure it doesn\u0027t have effect on thread liveness behavior (thread blocking/deadlock).",
+      "revId": "0daadbc0d6c71ef6c4887f471b947259e625ed87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
