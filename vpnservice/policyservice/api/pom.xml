@@ -24,7 +24,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>opendaylight-l2-types</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.netvirt</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>aclservice-api</artifactId>
       <version>${project.version}</version>
     </dependency>

@@ -22,9 +22,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <packaging>bundle</packaging>
   <dependencies>
     <dependency>
-      <groupId>org.opendaylight.netvirt</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>fibmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.karaf.shell</groupId>
@@ -32,9 +32,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.netvirt</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>fibmanager-impl</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 

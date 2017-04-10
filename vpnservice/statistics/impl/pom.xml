@@ -39,12 +39,12 @@ at http://www.eclipse.org/legal/epl-v10.html -->
       <version>${genius.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.netvirt</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>statistics-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.netvirt</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>vpnmanager-impl</artifactId>
       <version>${project.version}</version>
     </dependency>

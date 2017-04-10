@@ -88,52 +88,52 @@
             <version>0.13.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.netvirt</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>vpnmanager-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.netvirt</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>fibmanager-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.netvirt</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>neutronvpn-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.netvirt</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>dhcpservice-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.netvirt</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>natservice-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.netvirt</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>aclservice-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.netvirt</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>ipv6service-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.netvirt</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>elanmanager-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.netvirt</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>statistics-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.netvirt</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>cloud-servicechain-api</artifactId>
             <version>${project.version}</version>
         </dependency>
