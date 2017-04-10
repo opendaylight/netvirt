@@ -22,6 +22,30 @@
       "revId": "e8c239394bd0713ac9134f76004f034651094da2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_166fd993",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-10T12:27:33Z",
+      "side": 1,
+      "message": "I changed the rule:\nL3 FIB Table (21) ``match: dl_type\u003d0x806, vpn-id\u003dl3vpn-id, set vpn-id\u003dinternetvpn-id, resubmit(,21) \u003d\u003e\n\nI hope it clarifies.",
+      "parentUuid": "da01753e_42e532a7",
+      "range": {
+        "startLine": 210,
+        "startChar": 89,
+        "endLine": 210,
+        "endChar": 90
+      },
+      "revId": "e8c239394bd0713ac9134f76004f034651094da2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
