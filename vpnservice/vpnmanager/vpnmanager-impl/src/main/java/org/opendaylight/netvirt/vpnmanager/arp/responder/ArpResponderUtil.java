@@ -290,11 +290,12 @@ public class ArpResponderUtil {
             final String flowId, final String flowName,
             final int priority, final BigInteger cookie,
             List<MatchInfo> matches, List<Instruction> instructions) {
-
+        LOG.info("ARP: installFlow called for : {}" , flowName);
         final Flow flowEntity = MDSALUtil.buildFlowNew(
                 NwConstants.ARP_RESPONDER_TABLE, flowId, priority, flowName, 0,
                 0, cookie, matches, instructions);
         mdSalManager.addFlowToTx(dpnId, flowEntity, writeInvTxn);
+        LOG.info("ARP: Successfully installed flow for : {}" , flowName);
     }
 
     /**
