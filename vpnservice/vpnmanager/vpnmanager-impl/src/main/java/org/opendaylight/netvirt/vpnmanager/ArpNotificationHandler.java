@@ -87,13 +87,13 @@ public class ArpNotificationHandler implements OdlArputilListener {
         BigInteger metadata = notification.getMetadata();
         boolean isGarp = srcIP.equals(targetIP);
         if (!isGarp) {
-            LOG.trace("ArpNotification Non-Gratuitous Request Received from "
+            LOG.info("ArpNotification Non-Gratuitous Request Received from "
                       + "interface {} and IP {} having MAC {} target destination {}, ignoring..",
                     srcInterface, srcIP.getIpv4Address().getValue(),srcMac.getValue(),
                     targetIP.getIpv4Address().getValue());
             return;
         }
-        LOG.trace("ArpNotification Gratuitous Request Received from "
+        LOG.info("ArpNotification Gratuitous Request Received from "
                   + "interface {} and IP {} having MAC {} target destination {}, learning MAC",
                   srcInterface, srcIP.getIpv4Address().getValue(),srcMac.getValue(),
                   targetIP.getIpv4Address().getValue());
