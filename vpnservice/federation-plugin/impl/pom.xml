@@ -73,6 +73,16 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.aries.blueprint</groupId>
+        <artifactId>blueprint-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
   <!--
       Maven Site Configuration
 
@@ -88,19 +98,4 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <url>${nexus.site.url}/${project.artifactId}/</url>
     </site>
   </distributionManagement>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <configuration>
-          <propertyExpansion>checkstyle.violationSeverity=error</propertyExpansion>
-        </configuration>
-      </plugin>
-      <plugin>
-       <groupId>org.apache.aries.blueprint</groupId>
-       <artifactId>blueprint-maven-plugin</artifactId>
-     </plugin>
-    </plugins>
-  </build>
 </project>
