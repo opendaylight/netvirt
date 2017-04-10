@@ -275,7 +275,7 @@ public class OpenFlow13ProviderTest {
 
         assertEquals(1, flow.getInstructions().getInstruction().size());
         checkActionResubmit(flow.getInstructions().getInstruction().get(0).getInstruction(),
-                NwConstants.LPORT_DISPATCHER_TABLE);
+                NwConstants.SFC_TRANSPORT_INGRESS_TABLE);
     }
 
     @Test
