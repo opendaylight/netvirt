@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_22e9f880",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1584,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-04-10T11:01:31Z",
+      "side": 1,
+      "message": "Verified for GRE provider type. It was working as expected.",
+      "parentUuid": "da01753e_6113025d",
+      "revId": "18e85b4fdf995256c4ab24780a227ef0cefb8a66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
