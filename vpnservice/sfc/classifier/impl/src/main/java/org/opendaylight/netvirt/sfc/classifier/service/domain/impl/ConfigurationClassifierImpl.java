@@ -148,7 +148,12 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             });
             entries.add(ClassifierEntry.buildNodeEntry(nodeId));
             entries.add(ClassifierEntry.buildPathEntry(nodeIdListEntry.getKey(), nsp, destinationIp));
-            // TODO get the interfaces of node and add the corresponding egress entries
+            // Egress services must bind to egress ports. Since we dont know before-hand what
+            // the egress ports will be, we will bind on all switch ports. If the packet
+            // doesnt have NSH, it will be returned to the the egress dispatcher table.
+            List<String> interfaceUuidStrList = geniusProvider.getInterfacesFromNode(nodeId);
+            interfaceUuidStrList.forEach(interfaceUuidStr ->
+                entries.add(ClassifierEntry.buildEgressEntry(new InterfaceKey(interfaceUuidStr))));
         });
 
         return entries;

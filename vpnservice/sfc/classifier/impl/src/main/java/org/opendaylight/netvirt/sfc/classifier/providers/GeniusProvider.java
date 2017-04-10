@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.sfc.classifier.providers;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -225,6 +226,9 @@ public class GeniusProvider {
     public Optional<Long> getEgressVxlanPortForNode(BigInteger dpnId) {
         List<OvsdbTerminationPointAugmentation> tpList = interfaceMgr.getTunnelPortsOnBridge(dpnId);
         if (tpList == null) {
+            // Most likely the bridge doesnt exist for this dpnId
+            LOG.warn("getEgressVxlanPortForNode Tunnel Port TerminationPoint list not available for dpnId [{}]",
+                    dpnId);
             return Optional.empty();
         }
 
@@ -253,9 +257,24 @@ public class GeniusProvider {
             }
         }
 
-        LOG.warn("getEgressVxlanPortForNode nothing available for dpnId [{}]", dpnId);
+        LOG.warn("getEgressVxlanPortForNode no Vxgpe tunnel ports available for dpnId [{}]", dpnId);
 
         return Optional.empty();
+    }
+
+    public List<String> getInterfacesFromNode(NodeId nodeId) {
+        BigInteger dpnId = BigInteger.valueOf(Long.valueOf(nodeId.getValue().split(":")[1]));
+        List<OvsdbTerminationPointAugmentation> tpList = interfaceMgr.getPortsOnBridge(dpnId);
+        if (tpList == null) {
+            // Most likely the bridge doesnt exist for this dpnId
+            LOG.warn("getInterfacesFromNode TerminationPoint list not available for dpnId [{}]", dpnId);
+            return Collections.emptyList();
+        }
+
+        List<String> interfaceUuidStrList = new ArrayList<>();
+        tpList.forEach(tp -> interfaceUuidStrList.add(tp.getPortUuid().getValue()));
+
+        return interfaceUuidStrList;
     }
 
     private void bindService(short serviceId, String serviceName, int servicePriority,
