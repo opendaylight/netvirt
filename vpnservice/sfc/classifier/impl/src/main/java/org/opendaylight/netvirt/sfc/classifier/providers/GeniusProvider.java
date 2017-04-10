@@ -43,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeVxlan;
@@ -60,15 +61,15 @@ public class GeniusProvider {
     private final IInterfaceManager interfaceMgr;
     private final OdlInterfaceRpcService interfaceManagerRpcService;
     private static final Logger LOG = LoggerFactory.getLogger(GeniusProvider.class);
-    private static final String OPTION_KEY_EXTS = "exts";
-    private static final String OPTION_VALUE_EXTS_GPE = "gpe";
+    public static final String OPTION_KEY_EXTS = "exts";
+    public static final String OPTION_VALUE_EXTS_GPE = "gpe";
 
     @Inject
     public GeniusProvider(final DataBroker dataBroker, final RpcProviderRegistry rpcProviderRegistry,
             final IInterfaceManager interfaceMgr) {
         this.dataBroker = dataBroker;
         this.interfaceMgr = interfaceMgr;
-        interfaceManagerRpcService = rpcProviderRegistry.getRpcService(OdlInterfaceRpcService.class);
+        this.interfaceManagerRpcService = rpcProviderRegistry.getRpcService(OdlInterfaceRpcService.class);
     }
 
     public void bindPortOnIngressClassifier(String interfaceName) {
@@ -139,34 +140,6 @@ public class GeniusProvider {
         return Optional.ofNullable(ipList.get(0).getIpv4Address().getValue());
     }
 
-    // TODO Should better use the Genius InterfaceManager to avoid duplicate code
-    //      https://bugs.opendaylight.org/show_bug.cgi?id=8127
-    public List<IpAddress> getIpFromDpnId(DpnIdType dpnid) {
-        GetEndpointIpForDpnInputBuilder builder = new GetEndpointIpForDpnInputBuilder();
-        builder.setDpid(dpnid.getValue());
-        GetEndpointIpForDpnInput input = builder.build();
-
-        if (interfaceManagerRpcService == null) {
-            LOG.error("getIpFromDpnId({}) failed (service couldn't be retrieved)", input);
-        }
-
-        List<IpAddress> ipList = Collections.emptyList();
-        try {
-            LOG.debug("getIpFromDpnId: invoking rpc");
-            RpcResult<GetEndpointIpForDpnOutput> output = interfaceManagerRpcService.getEndpointIpForDpn(input).get();
-            if (!output.isSuccessful()) {
-                LOG.error("getIpFromDpnId({}) failed: {}", input, output);
-                return Collections.emptyList();
-            }
-            ipList = Optional.ofNullable(output.getResult().getLocalIps()).orElse(Collections.emptyList());
-            LOG.debug("getDpnIdFromInterfaceName({}) succeeded: {}", input, output);
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("getDpnIdFromInterfaceName failed to retrieve target interface name: ", e);
-        }
-
-        return ipList;
-    }
-
     public Optional<DpnIdType> getDpnIdFromInterfaceName(String interfaceName) {
         LOG.debug("getDpnIdFromInterfaceName: starting (logical interface={})", interfaceName);
         GetDpidFromInterfaceInputBuilder builder = new GetDpidFromInterfaceInputBuilder();
@@ -175,9 +148,9 @@ public class GeniusProvider {
 
         if (interfaceManagerRpcService == null) {
             LOG.error("getDpnIdFromInterfaceName({}) failed (service couldn't be retrieved)", input);
+            return Optional.empty();
         }
 
-        Optional<DpnIdType> dpnid = Optional.empty();
         try {
             LOG.debug("getDpnIdFromInterfaceName: invoking rpc");
             RpcResult<GetDpidFromInterfaceOutput> output = interfaceManagerRpcService.getDpidFromInterface(input).get();
@@ -185,13 +158,19 @@ public class GeniusProvider {
                 LOG.error("getDpnIdFromInterfaceName({}) failed: {}", input, output);
                 return Optional.empty();
             }
-            dpnid = Optional.ofNullable(new DpnIdType(output.getResult().getDpid()));
+
+            BigInteger dpnId = output.getResult().getDpid();
+            if (dpnId == null) {
+                return Optional.empty();
+            }
             LOG.debug("getDpnIdFromInterfaceName({}) succeeded: {}", input, output);
+
+            return Optional.of(new DpnIdType(dpnId));
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("getDpnIdFromInterfaceName failed to retrieve target interface name: ", e);
         }
 
-        return dpnid;
+        return Optional.empty();
     }
 
     public Optional<String> getNodeConnectorIdFromInterfaceName(String interfaceName) {
@@ -202,9 +181,9 @@ public class GeniusProvider {
 
         if (interfaceManagerRpcService == null) {
             LOG.error("getNodeConnectorIdFromInterfaceName({}) failed (service couldn't be retrieved)", input);
+            return Optional.empty();
         }
 
-        Optional<String> nodeConnId = Optional.empty();
         try {
             LOG.debug("getNodeConnectorIdFromInterfaceName: invoking rpc");
             RpcResult<GetNodeconnectorIdFromInterfaceOutput> output =
@@ -213,13 +192,18 @@ public class GeniusProvider {
                 LOG.error("getNodeConnectorIdFromInterfaceName({}) failed: {}", input, output);
                 return Optional.empty();
             }
-            nodeConnId = Optional.ofNullable(output.getResult().getNodeconnectorId().getValue());
+            NodeConnectorId nodeConnId = output.getResult().getNodeconnectorId();
+            if (nodeConnId == null) {
+                return Optional.empty();
+            }
             LOG.debug("getNodeConnectorIdFromInterfaceName({}) succeeded: {}", input, output);
+
+            return Optional.ofNullable(nodeConnId.getValue());
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("getNodeConnectorIdFromInterfaceName failed to retrieve target interface name: ", e);
         }
 
-        return nodeConnId;
+        return Optional.empty();
     }
 
     public Optional<Long> getEgressVxlanPortForNode(BigInteger dpnId) {
@@ -256,6 +240,35 @@ public class GeniusProvider {
         LOG.warn("getEgressVxlanPortForNode nothing available for dpnId [{}]", dpnId);
 
         return Optional.empty();
+    }
+
+    // TODO Should better use the Genius InterfaceManager to avoid duplicate code
+    //      https://bugs.opendaylight.org/show_bug.cgi?id=8127
+    private List<IpAddress> getIpFromDpnId(DpnIdType dpnid) {
+        GetEndpointIpForDpnInputBuilder builder = new GetEndpointIpForDpnInputBuilder();
+        builder.setDpid(dpnid.getValue());
+        GetEndpointIpForDpnInput input = builder.build();
+
+        if (interfaceManagerRpcService == null) {
+            LOG.error("getIpFromDpnId({}) failed (service couldn't be retrieved)", input);
+            return Collections.emptyList();
+        }
+
+        List<IpAddress> ipList = Collections.emptyList();
+        try {
+            LOG.debug("getIpFromDpnId: invoking rpc");
+            RpcResult<GetEndpointIpForDpnOutput> output = interfaceManagerRpcService.getEndpointIpForDpn(input).get();
+            if (!output.isSuccessful()) {
+                LOG.error("getIpFromDpnId({}) failed: {}", input, output);
+                return Collections.emptyList();
+            }
+            ipList = Optional.ofNullable(output.getResult().getLocalIps()).orElse(Collections.emptyList());
+            LOG.debug("getIpFromDpnId({}) succeeded: {}", input, output);
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("getIpFromDpnId failed to retrieve target interface name: ", e);
+        }
+
+        return ipList;
     }
 
     private void bindService(short serviceId, String serviceName, int servicePriority,

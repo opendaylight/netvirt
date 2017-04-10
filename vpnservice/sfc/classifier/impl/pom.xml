@@ -114,6 +114,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>sfc-provider</artifactId>
       <version>${sfc.version}</version>
     </dependency>
+
+    <!-- Dependencies with <scope>test -->
+    <dependency>
+      <groupId>org.opendaylight.yangtools</groupId>
+      <artifactId>testutils</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>sal-binding-broker-impl</artifactId>
