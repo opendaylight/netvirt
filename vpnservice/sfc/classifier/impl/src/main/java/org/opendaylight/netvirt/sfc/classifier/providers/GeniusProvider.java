@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.sfc.classifier.providers;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -225,6 +226,8 @@ public class GeniusProvider {
     public Optional<Long> getEgressVxlanPortForNode(BigInteger dpnId) {
         List<OvsdbTerminationPointAugmentation> tpList = interfaceMgr.getTunnelPortsOnBridge(dpnId);
         if (tpList == null) {
+            LOG.warn("getEgressVxlanPortForNode null Tunnel Port TerminationPoint list returned for dpnId [{}]",
+                    dpnId);
             return Optional.empty();
         }
 
@@ -256,6 +259,20 @@ public class GeniusProvider {
         LOG.warn("getEgressVxlanPortForNode nothing available for dpnId [{}]", dpnId);
 
         return Optional.empty();
+    }
+
+    public List<String> getInterfacesFromNode(NodeId nodeId) {
+        BigInteger dpnId = BigInteger.valueOf(Long.valueOf(nodeId.getValue().split(":")[1]));
+        List<OvsdbTerminationPointAugmentation> tpList = interfaceMgr.getPortsOnBridge(dpnId);
+        if (tpList == null) {
+            LOG.warn("getInterfacesFromNode null TerminationPoint list returned for dpnId [{}]", dpnId);
+            return Collections.emptyList();
+        }
+
+        List<String> interfaceUuidStrList = new ArrayList<>();
+        tpList.forEach(tp -> interfaceUuidStrList.add(tp.getInterfaceUuid().getValue()));
+
+        return interfaceUuidStrList;
     }
 
     private void bindService(short serviceId, String serviceName, int servicePriority,
