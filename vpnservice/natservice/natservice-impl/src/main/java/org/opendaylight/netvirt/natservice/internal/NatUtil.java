@@ -247,19 +247,19 @@ public class NatUtil {
         return vpnId;
     }
 
-    public static Long getVpnId(DataBroker broker, long routerId) {
+    public static Long getNetworkVpnIdFromRouterId(DataBroker broker, long routerId) {
         //Get the external network ID from the ExternalRouter model
         Uuid networkId = NatUtil.getNetworkIdFromRouterId(broker, routerId);
         if (networkId == null) {
             LOG.error("NAT Service : networkId is null");
-            return null;
+            return NatConstants.INVALID_ID;
         }
 
         //Get the VPN ID from the ExternalNetworks model
         Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(broker, networkId);
         if (vpnUuid == null) {
             LOG.error("NAT Service : vpnUuid is null");
-            return null;
+            return NatConstants.INVALID_ID;
         }
         Long vpnId = NatUtil.getVpnId(broker, vpnUuid.getValue());
         return vpnId;
@@ -1812,7 +1812,8 @@ public class NatUtil {
     }
 
     public static Boolean isFloatingIpPresentForDpn(DataBroker dataBroker, BigInteger dpnId, String rd,
-                                                           String vpnName, String externalIp) {
+                                                    String vpnName, String externalIp,
+                                                    Boolean isMoreThanOneFipCheckOnDpn) {
         InstanceIdentifier<VpnToDpnList> id = getVpnToDpnListIdentifier(rd, dpnId);
         Optional<VpnToDpnList> dpnInVpn = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         if (dpnInVpn.isPresent()) {
@@ -1820,10 +1821,19 @@ public class NatUtil {
                     vpnName, dpnId, rd, externalIp);
             List<IpAddresses> ipAddressList = dpnInVpn.get().getIpAddresses();
             if (ipAddressList.size() > 0) {
+                int floatingIpPresentCount = 0;
                 for (IpAddresses ipAddress: ipAddressList) {
                     if (!ipAddress.getIpAddress().equals(externalIp)
                             && IpAddresses.IpAddressSource.FloatingIP.equals(ipAddress.getIpAddressSource())) {
-                        return Boolean.TRUE;
+                        floatingIpPresentCount++;
+                        //Add tunnel table check
+                        if (isMoreThanOneFipCheckOnDpn && floatingIpPresentCount > 1) {
+                            return Boolean.TRUE;
+                        }
+                        //Remove tunnel table check
+                        if (!isMoreThanOneFipCheckOnDpn) {
+                            return Boolean.TRUE;
+                        }
                     }
                 }
             } else {
