@@ -43,9 +43,10 @@ public class BgpManagerTest extends AbstractDataBrokerTest {
         String prefix = "10.10.10.10/32";
         List<String> nexthop = Collections.singletonList("100.100.100.100");
         int label = 1234;
+        int afi = org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi.AFI_IP.getValue();
 
         bgpFibWriter.addFibEntryToDS(rd, null /*macAddress*/, prefix, nexthop,
-                VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/, RouteOrigin.LOCAL);
+                VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/, RouteOrigin.LOCAL, afi);
         //assertEquals(1, fibManager.getDataChgCount());
         assertEquals(1, 1);
     }
@@ -56,9 +57,11 @@ public class BgpManagerTest extends AbstractDataBrokerTest {
         String rd = "101";
         String prefix = "10.10.10.10/32";
         int label = 1234;
+        int afi = org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi.AFI_IP.getValue();
         try {
             bgpFibWriter.addFibEntryToDS(rd, null /*macAddress*/, prefix, null,
-                    VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/, RouteOrigin.CONNECTED);
+                    VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/,
+                    RouteOrigin.CONNECTED, afi);
             assertEquals(1,0); //The code is not launching NullPointerException
         } catch (NullPointerException e) {
             //The code must launch NullPointerException

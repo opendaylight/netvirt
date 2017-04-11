@@ -44,7 +44,7 @@ public class FibDSWriter {
 
     public synchronized void addFibEntryToDS(String rd, String macAddress, String prefix, List<String> nextHopList,
                                              VrfEntry.EncapType encapType, int label, long l3vni,
-                                             String gatewayMacAddress, RouteOrigin origin) {
+                                             String gatewayMacAddress, RouteOrigin origin, long afi) {
         if (rd == null || rd.isEmpty()) {
             LOG.error("Prefix {} not associated with vpn", prefix);
             return;
