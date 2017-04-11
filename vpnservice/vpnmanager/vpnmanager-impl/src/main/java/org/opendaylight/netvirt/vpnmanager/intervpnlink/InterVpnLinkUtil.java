@@ -417,6 +417,7 @@ public class InterVpnLinkUtil {
         LOG.debug("advertising IVpnLink route to BGP:  vpnRd={}, prefix={}, label={}, nexthops={}",
             vpnRd, destination, label, nexthopList);
         bgpManager.advertisePrefix(vpnRd, null /*macAddress*/, destination, nexthopList,
-                VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, 0 /*l2vni*/, null /*gatewayMacAddress*/);
+                VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, 0 /*l2vni*/,
+                null /*gatewayMacAddress*/);
     }
 }
