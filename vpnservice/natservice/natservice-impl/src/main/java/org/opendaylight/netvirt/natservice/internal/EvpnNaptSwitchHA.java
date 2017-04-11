@@ -42,8 +42,8 @@ public class EvpnNaptSwitchHA {
     public void evpnRemoveSnatFlowsInOldNaptSwitch(String routerName, long routerId, String vpnName,
                                                    BigInteger naptSwitch) {
         //Handling VXLAN Provider type flow removal from old NAPT switch
-        Long vpnId = NatUtil.getVpnId(dataBroker, routerId);
-        if (vpnId == null) {
+        Long vpnId = NatUtil.getNetworkVpnIdFromRouterId(dataBroker, routerId);
+        if (vpnId == null || vpnId == NatConstants.INVALID_ID) {
             LOG.error("NAT Service: Unable to retrieved vpnId for routerId {}", routerId);
             return;
         }

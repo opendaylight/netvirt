@@ -310,7 +310,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                  */
                     Boolean removeTunnelFlow = Boolean.TRUE;
                     if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
-                        if (NatUtil.isFloatingIpPresentForDpn(dataBroker, dpnId, rd, vpnName, externalIp)) {
+                        if (NatUtil.isFloatingIpPresentForDpn(dataBroker, dpnId, rd, vpnName, externalIp, false)) {
                             removeTunnelFlow = Boolean.FALSE;
                         }
                     }
