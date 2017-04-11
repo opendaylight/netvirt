@@ -7,12 +7,14 @@
  */
 package org.opendaylight.netvirt.vpnmanager.populator.intfc;
 
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.vpnmanager.populator.input.L3vpnInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 
 public interface VpnPopulator {
-    void populateFib(L3vpnInput input, WriteTransaction writeCfgTxn, WriteTransaction writeOperTxn);
+    void populateFib(DataBroker dataBroker, L3vpnInput input, WriteTransaction writeCfgTxn,
+            WriteTransaction writeOperTxn);
 
     Adjacency createOperationalAdjacency(L3vpnInput input);
 }
