@@ -16,7 +16,7 @@ import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.thrift.TException;
-import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
+import org.opendaylight.netvirt.bgpmanager.api.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;

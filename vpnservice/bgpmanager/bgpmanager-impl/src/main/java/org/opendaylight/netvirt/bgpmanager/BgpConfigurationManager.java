@@ -55,21 +55,8 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.utils.batching.DefaultBatchHandler;
 import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.AddressFamiliesReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.AsIdReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.BgpReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.ConfigServerReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.EbgpMultihopReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.GracefulRestartReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.LoggingReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.MultipathReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.NeighborsReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.NetworksReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.RouteCleanup;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.UpdateSourceReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.VrfMaxpathReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.VrfsReactor;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.bgpmanager.api.af_afi;
 import org.opendaylight.netvirt.bgpmanager.commands.ClearBgpCli;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarms;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpConstants;
@@ -79,7 +66,6 @@ import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpRouterException;
 import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpSyncHandle;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.Routes;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.Update;
-import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
@@ -1080,10 +1066,12 @@ public class BgpConfigurationManager {
                 String macaddress = val.getMacaddress();
                 EncapType encapType = val.getEncapType();
                 String routerMac = val.getRoutermac();
+                int afiInt = testValueAFI(pfxlen);
 
                 try {
                     br.addPrefix(rd, pfxlen, nh, lbl, l3vni, BgpUtil.convertToThriftProtocolType(protocolType),
-                            ethernetTag, esi, macaddress, BgpUtil.convertToThriftEncapType(encapType), routerMac);
+                            ethernetTag, esi, macaddress, BgpUtil.convertToThriftEncapType(encapType),
+                            routerMac, afiInt);
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
                 }
@@ -1112,17 +1100,36 @@ public class BgpConfigurationManager {
                 }
                 Long label = val.getLabel();
                 int lbl = (label == null) ? 0 : label.intValue();
+                int  afiInt = testValueAFI(pfxlen);
                 if (rd == null && lbl > 0) {
                     //LU prefix is being deleted.
                     rd = Integer.toString(lbl);
                 }
                 try {
-                    br.delPrefix(rd, pfxlen);
+                    br.delPrefix(rd, pfxlen, afiInt);
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} Delete received exception; {}", YANG_OBJ, DEL_WARN, e);
                 }
             }
         }
+
+        /**get the value AFI from a prefix as "x.x.x.x/x".
+         *
+         * @param pfxlen the prefix to get an afi
+         * @return the afi value as you are need
+         */
+        public  int  testValueAFI(String pfxlen) {
+            int afiNew = af_afi.AFI_IP.getValue();
+            try {
+                String ipOnly = pfxlen.substring(0, pfxlen.lastIndexOf("/"));
+                java.net.Inet6Address.getByName(ipOnly);
+                afiNew = af_afi.AFI_IPV6.getValue();
+            } catch (java.net.UnknownHostException e) {
+                //ce n'est pas de l'ipv6
+            }
+            return afiNew;
+        }
+
 
         @Override
         protected void update(final InstanceIdentifier<Networks> iid,
@@ -1607,41 +1614,45 @@ public class BgpConfigurationManager {
             return;
         }
         while (bsh.getState() != bsh.DONE) {
-            Routes routes = null;
-            try {
-                routes = bgpRouter.doRibSync(bsh);
-            } catch (TException | BgpRouterException e) {
-                LOG.error("Route sync aborted, exception when syncing", e);
-                return;
-            }
-            Iterator<Update> updates = routes.getUpdatesIterator();
-            while (updates.hasNext()) {
-                Update update = updates.next();
-                Map<String, Map<String, Long>> staleFibRdMap = BgpConfigurationManager.getStaledFibEntriesMap();
-                String rd = update.getRd();
-                String nexthop = update.getNexthop();
+            for (af_afi afi : af_afi.values()) {
+                Routes routes = null;
+                try {
+                    routes = bgpRouter.doRibSync(bsh, afi);
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("Route sync aborted, exception when syncing", e);
+                    return;
+                }
+                Iterator<Update> updates = routes.getUpdatesIterator();
+                while (updates.hasNext()) {
+                    Update update = updates.next();
+                    Map<String, Map<String, Long>> staleFibRdMap = BgpConfigurationManager.getStaledFibEntriesMap();
+                    String rd = update.getRd();
+                    String nexthop = update.getNexthop();
 
-                // TODO: decide correct label here
-                int label = update.getL3label();
+                    // TODO: decide correct label here
+                    int label = update.getL3label();
 
-                String prefix = update.getPrefix();
-                int plen = update.getPrefixlen();
+                    String prefix = update.getPrefix();
+                    int plen = update.getPrefixlen();
 
 
-                // TODO: protocol type will not be available in "update"
-                // use "rd" to query vrf table and obtain the protocol_type. Currently using PROTOCOL_EVPN as default.
-                onUpdatePushRoute(
-                        protocol_type.PROTOCOL_EVPN,
-                        rd,
-                        prefix,
-                        plen,
-                        nexthop,
-                        update.getEthtag(),
-                        update.getEsi(),
-                        update.getMacaddress(),
-                        label,
-                        update.getRoutermac()
-                );
+                    // TODO: protocol type will not be available in "update"
+                    // use "rd" to query vrf table and obtain the protocol_type.
+                    // Currently using PROTOCOL_EVPN as default.
+                    onUpdatePushRoute(
+                            protocol_type.PROTOCOL_EVPN,
+                            rd,
+                            prefix,
+                            plen,
+                            nexthop,
+                            update.getEthtag(),
+                            update.getEsi(),
+                            update.getMacaddress(),
+                            label,
+                            update.getRoutermac(),
+                            afi
+                    );
+                }
             }
         }
         try {
@@ -1671,7 +1682,8 @@ public class BgpConfigurationManager {
                                          String esi,
                                          String macaddress,
                                          int label,
-                                         String routermac)
+                                         String routermac,
+                                         af_afi afi)
             throws InterruptedException, ExecutionException, TimeoutException {
         boolean addroute = false;
         long l3vni = 0L;
@@ -1709,11 +1721,13 @@ public class BgpConfigurationManager {
             addroute = true;
         }
         if (addroute) {
-            LOG.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
+            LOG.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {} afi {}",
+                    rd, prefix, nextHop, label, afi);
             // TODO: modify addFibEntryToDS signature
             fibDSWriter.addFibEntryToDS(rd, macaddress, prefix + "/" + plen, Collections.singletonList(nextHop),
                     encapType, label, l3vni, routermac, RouteOrigin.BGP);
-            LOG.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
+            LOG.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {} afi {}",
+                    rd, prefix, nextHop, label, afi);
         }
     }
 
@@ -1897,6 +1911,8 @@ public class BgpConfigurationManager {
                     Long label = net.getLabel();
                     int lbl = (label == null) ? 0 : label.intValue();
                     int l3vni = (net.getL3vni() == null) ? 0 : net.getL3vni().intValue();
+                    Long afi = net.getAfi();
+                    int afint = (afi == null) ? (int) af_afi.AFI_IP.getValue() : afi.intValue();
                     if (rd == null && lbl > 0) {
                         //LU prefix is being deleted.
                         rd = Integer.toString(lbl);
@@ -1911,7 +1927,8 @@ public class BgpConfigurationManager {
 
                     try {
                         br.addPrefix(rd, pfxlen, nh, lbl, l3vni, BgpUtil.convertToThriftProtocolType(protocolType),
-                                ethernetTag, esi, macaddress, BgpUtil.convertToThriftEncapType(encapType), routerMac);
+                                ethernetTag, esi, macaddress, BgpUtil.convertToThriftEncapType(encapType),
+                                routerMac, afint);
                     } catch (Exception e) {
                         LOG.error("Replay:addPfx() received exception", e);
                     }
