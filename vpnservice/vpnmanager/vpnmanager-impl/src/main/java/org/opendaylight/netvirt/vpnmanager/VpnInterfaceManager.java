@@ -44,6 +44,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -466,7 +467,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         LOG.info("VPN ADVERTISE: Adding Fib Entry rd {} prefix {} nexthop {} label {}", rd,
                                 nextHop.getIpAddress(), nextHopIp, label);
                         bgpManager.advertisePrefix(rd, nextHop.getMacAddress(), nextHop.getIpAddress(), nextHopIp,
-                                encapType, (int)label, l3vni, 0 /*l2vni*/, gatewayMac);
+                                encapType, (int)label, l3vni, 0 /*l2vni*/,
+                                gatewayMac, af_afi.AFI_IP.getValue());
                         LOG.info("VPN ADVERTISE: Added Fib Entry rd {} prefix {} nexthop {} label {}", rd,
                                 nextHop.getIpAddress(), nextHopIp, label);
                     } catch (Exception e) {
@@ -510,7 +512,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 for (Adjacency nextHop : nextHops) {
                     try {
                         LOG.info("VPN WITHDRAW: Removing Fib Entry rd {} prefix {}", rd, nextHop.getIpAddress());
-                        bgpManager.withdrawPrefix(rd, nextHop.getIpAddress());
+                        bgpManager.withdrawPrefix(rd, nextHop.getIpAddress(), af_afi.AFI_IP.getValue());
                         LOG.info("VPN WITHDRAW: Removed Fib Entry rd {} prefix {}", rd, nextHop.getIpAddress());
                     } catch (Exception e) {
                         LOG.error("Failed to withdraw prefix {} in vpn {} with rd {} for interface {} ",
@@ -729,7 +731,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     if (!rd.equalsIgnoreCase(vpnInterface.getVpnInstanceName())) {
                         bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, nhList,
                                 VrfEntry.EncapType.Mplsgre, (int)label, 0 /*evi*/, 0 /*l2vni*/,
-                                null /*gatewayMacAddress*/);
+                                null /*gatewayMacAddress*/, af_afi.AFI_IP.getValue());
                     }
                 } catch (Exception ex) {
                     LOG.error("Exception when advertising prefix {} on rd {} as {}", prefix, rd, ex);
@@ -810,7 +812,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     // Withdraw prefix from BGP only for external vpn.
                     try {
                         if (!rd.equalsIgnoreCase(vpnInterface.getVpnInstanceName())) {
-                            bgpManager.withdrawPrefix(rd, prefix);
+                            bgpManager.withdrawPrefix(rd, prefix, af_afi.AFI_IP.getValue());
                         }
                     } catch (Exception ex) {
                         LOG.error("Exception when withdrawing prefix {} on rd {} as {}", prefix, rd, ex);
@@ -978,7 +980,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             // Advertize the prefix to BGP only if nexthop ip is available
             if (nextHopList != null && !nextHopList.isEmpty()) {
                 bgpManager.advertisePrefix(rd, macAddress, prefix, nextHopList, encapType, (int)label,
-                        l3vni, 0 /*l2vni*/, gwMacAddress);
+                        l3vni, 0 /*l2vni*/, gwMacAddress, af_afi.AFI_IP.getValue());
             } else {
                 LOG.warn("NextHopList is null/empty. Hence rd {} prefix {} is not advertised to BGP", rd, prefix);
             }
@@ -1274,7 +1276,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 }
                 fibManager.removeOrUpdateFibEntry(dataBroker, primaryRd, prefix, tunnelIp, writeConfigTxn);
                 if (rd != null && !rd.equalsIgnoreCase(vpnName)) {
-                    bgpManager.withdrawPrefix(rd, prefix); // TODO: Might be needed to include nextHop here
+                    // TODO: Might be needed to include nextHop here
+                    bgpManager.withdrawPrefix(rd, prefix, af_afi.AFI_IP.getValue());
                 }
             }
             LOG.info("VPN WITHDRAW: Removed Fib Entry rd {} prefix {}", rd, prefix);

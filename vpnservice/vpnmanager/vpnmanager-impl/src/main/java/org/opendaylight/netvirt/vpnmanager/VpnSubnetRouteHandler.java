@@ -672,15 +672,17 @@ public class VpnSubnetRouteHandler {
             //already exist
             long label = 0;
             long l3vni = 0;
+
             VrfEntry.EncapType encapType =  VpnUtil.getEncapType(VpnUtil.isL3VpnOverVxLan(l3vni));
             if (encapType.equals(VrfEntry.EncapType.Vxlan)) {
                 l3vni = subOpBuilder.getL3vni();
             } else {
                 label = subOpBuilder.getLabel();
             }
+            long afi = 0;
             bgpManager.advertisePrefix(subOpBuilder.getVrfId(), null /*macAddress*/, subOpBuilder.getSubnetCidr(),
                     Arrays.asList(nextHopIp), encapType,  label, l3vni,
-                    0 /*l2vni*/, null /*gatewayMacAddress*/);
+                    0 /*l2vni*/, null /*gatewayMacAddress*/, afi);
             subOpBuilder.setRouteAdvState(TaskState.Advertised);
         } catch (Exception e) {
             LOG.error("Fail: Subnet route not advertised for rd {} subnetIp {} with dpnid {}",
@@ -731,8 +733,9 @@ public class VpnSubnetRouteHandler {
         try {
             // BGP manager will handle withdraw and advertise internally if prefix
             // already exist
+            long afi = 0;
             bgpManager.advertisePrefix(rd, null /*macAddress*/, subnetIp, Collections.singletonList(nextHopIp),
-                    encapType, label, l3vni, 0 /*l2vni*/, null /*gatewayMacAddress*/);
+                    encapType, label, l3vni, 0 /*l2vni*/, null /*gatewayMacAddress*/, afi);
         } catch (Exception e) {
             LOG.error("Fail: Subnet route not advertised for rd {} subnetIp {} with dpnId {}", rd, subnetIp, e,
                     nhDpnId, e);
@@ -756,7 +759,8 @@ public class VpnSubnetRouteHandler {
         vpnInterfaceManager.deleteSubnetRouteFibEntryFromDS(rd, subnetIp, vpnName);
         if (isBgpVpn) {
             try {
-                bgpManager.withdrawPrefix(rd, subnetIp);
+                int afi = 0;
+                bgpManager.withdrawPrefix(rd, subnetIp, afi);
             } catch (Exception e) {
                 LOG.error("Fail: Subnet route not withdrawn for rd {} subnetIp {} due to exception {}",
                         rd, subnetIp, e);

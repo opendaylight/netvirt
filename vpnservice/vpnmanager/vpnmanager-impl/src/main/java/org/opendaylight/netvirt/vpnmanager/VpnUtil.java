@@ -48,6 +48,7 @@ import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.cache.DataStoreCache;
 import org.opendaylight.genius.utils.clustering.ClusteringUtils;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
@@ -592,7 +593,7 @@ public class VpnUtil {
     public static void withdrawRoutes(IBgpManager bgpManager, String rd, List<VrfEntry> vrfEntries) {
         vrfEntries.forEach(vrfEntry -> {
             try {
-                bgpManager.withdrawPrefix(rd, vrfEntry.getDestPrefix());
+                bgpManager.withdrawPrefix(rd, vrfEntry.getDestPrefix(), af_afi.AFI_IP.getValue());
             } catch (Exception e) {
                 LOG.error("Could not withdraw route to {} with route-paths {} in VpnRd {}",
                           vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths(), rd);
