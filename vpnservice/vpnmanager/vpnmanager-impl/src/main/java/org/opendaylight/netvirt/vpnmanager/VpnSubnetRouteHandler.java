@@ -678,9 +678,10 @@ public class VpnSubnetRouteHandler {
             } else {
                 label = subOpBuilder.getLabel();
             }
+            int afi = InterfaceUtils.getAFItranslatedfromPrefix(subOpBuilder.getSubnetCidr());
             bgpManager.advertisePrefix(subOpBuilder.getVrfId(), null /*macAddress*/, subOpBuilder.getSubnetCidr(),
                     Arrays.asList(nextHopIp), encapType,  label, l3vni,
-                    0 /*l2vni*/, null /*gatewayMacAddress*/);
+                    0 /*l2vni*/, null /*gatewayMacAddress*/, afi);
             subOpBuilder.setRouteAdvState(TaskState.Advertised);
         } catch (Exception e) {
             LOG.error("Fail: Subnet route not advertised for rd {} subnetIp {} with dpnid {}",
@@ -731,8 +732,9 @@ public class VpnSubnetRouteHandler {
         try {
             // BGP manager will handle withdraw and advertise internally if prefix
             // already exist
+            int afi = InterfaceUtils.getAFItranslatedfromPrefix(subnetIp);
             bgpManager.advertisePrefix(rd, null /*macAddress*/, subnetIp, Collections.singletonList(nextHopIp),
-                    encapType, label, l3vni, 0 /*l2vni*/, null /*gatewayMacAddress*/);
+                    encapType, label, l3vni, 0 /*l2vni*/, null /*gatewayMacAddress*/, afi);
         } catch (Exception e) {
             LOG.error("Fail: Subnet route not advertised for rd {} subnetIp {} with dpnId {}", rd, subnetIp, e,
                     nhDpnId, e);
@@ -756,7 +758,8 @@ public class VpnSubnetRouteHandler {
         vpnInterfaceManager.deleteSubnetRouteFibEntryFromDS(rd, subnetIp, vpnName);
         if (isBgpVpn) {
             try {
-                bgpManager.withdrawPrefix(rd, subnetIp);
+                long afiValue = 1L;//org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi.AFI_IP.getValue();
+                bgpManager.withdrawPrefix(rd, subnetIp, afiValue);
             } catch (Exception e) {
                 LOG.error("Fail: Subnet route not withdrawn for rd {} subnetIp {} due to exception {}",
                         rd, subnetIp, e);
