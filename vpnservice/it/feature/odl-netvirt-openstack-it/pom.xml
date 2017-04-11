@@ -14,13 +14,13 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>single-feature-parent</artifactId>
-        <version>1.8.0-SNAPSHOT</version>
+        <version>1.9.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>odl-netvirt-openstack-it</artifactId>
-    <version>0.4.0-SNAPSHOT</version>
+    <version>0.5.0-SNAPSHOT</version>
     <packaging>feature</packaging>
 
     <name>OpenDaylight :: NetVirt :: openStack IT</name>
@@ -36,7 +36,7 @@
         <dependency>
             <groupId>org.opendaylight.ovsdb</groupId>
             <artifactId>utils.ovsdb-it-utils</artifactId>
-            <version>1.4.0-SNAPSHOT</version>
+            <version>1.5.0-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.karaf.features</groupId>
