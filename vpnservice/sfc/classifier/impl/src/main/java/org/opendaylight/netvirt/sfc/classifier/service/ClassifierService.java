@@ -27,6 +27,7 @@ import org.opendaylight.netvirt.sfc.classifier.service.domain.impl.Configuration
 import org.opendaylight.netvirt.sfc.classifier.service.domain.impl.GeniusRenderer;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.impl.OpenflowRenderer;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.impl.OperationalClassifierImpl;
+import org.opendaylight.netvirt.sfc.classifier.utils.LastTaskExecutor;
 
 @Singleton
 public class ClassifierService {
@@ -36,7 +37,7 @@ public class ClassifierService {
     private final SfcProvider sfcProvider;
     private final OpenFlow13Provider openFlow13Provider;
     private final DataBroker dataBroker;
-    private final Executor executor = Executors.newSingleThreadExecutor();
+    private final Executor lastTaskExecutor;
     private final AtomicReference<Runnable> lastTask = new AtomicReference<>();
     private final OperationalClassifierImpl operationalClassifier = new OperationalClassifierImpl();
     private final List<ClassifierEntryRenderer> classifierRenderers = new ArrayList<>();
@@ -50,19 +51,14 @@ public class ClassifierService {
         this.sfcProvider = sfcProvider;
         this.openFlow13Provider = openFlow13Provider;
         this.dataBroker = dataBroker;
+        this.lastTaskExecutor = new LastTaskExecutor(Executors.newSingleThreadExecutor());
         classifierRenderers.add(new OpenflowRenderer(openFlow13Provider, geniusProvider, dataBroker));
         classifierRenderers.add(new GeniusRenderer(geniusProvider));
         classifierRenderers.add(operationalClassifier.getRenderer());
     }
 
     public void updateAll() {
-        lastTask.set(this::doUpdateAll);
-        executor.execute(() -> {
-            Runnable task = lastTask.getAndSet(null);
-            if (task != null) {
-                task.run();
-            }
-        });
+        lastTaskExecutor.execute(this::doUpdateAll);
     }
 
     private void doUpdateAll() {
