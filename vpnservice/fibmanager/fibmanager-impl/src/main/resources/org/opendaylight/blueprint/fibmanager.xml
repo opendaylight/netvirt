@@ -10,6 +10,8 @@
              interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager"/>
   <reference id="iElanService"
              interface="org.opendaylight.netvirt.elanmanager.api.IElanService"/>
+  <reference id="neutronVpnManager"
+             interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager"/>
   <reference id="iVpnLinkService"
              interface="org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService"
              availability="optional"/>
