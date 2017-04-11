@@ -204,7 +204,7 @@ public class NexthopManager implements AutoCloseable {
         return dpn;
     }
 
-    private String getNextHopKey(long vpnId, String ipAddress) {
+    private String getNextHopKey(long vpnId, String ipAddress, String macAddress) {
         return "nexthop." + vpnId + ipAddress;
     }
 
@@ -333,10 +333,11 @@ public class NexthopManager implements AutoCloseable {
 
 
     public long getLocalNextHopGroup(long vpnId,
-            String ipNextHopAddress) {
-        long groupId = createNextHopPointer(getNextHopKey(vpnId, ipNextHopAddress));
+            String ipNextHopAddress, String macAddress) {
+        long groupId = createNextHopPointer(getNextHopKey(vpnId, ipNextHopAddress, macAddress));
         if (groupId == FibConstants.INVALID_GROUP_ID) {
-            LOG.error("Unable to allocate groupId for vpnId {} , prefix {}", vpnId, ipNextHopAddress);
+            LOG.error("Unable to allocate groupId for vpnId {} , prefix {} , macAddress {}" ,
+                    vpnId, ipNextHopAddress, macAddress);
         }
         return groupId;
     }
@@ -346,7 +347,7 @@ public class NexthopManager implements AutoCloseable {
         String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, ipPrefixAddress);
         String ipAddress = (macAddress != null) ? ipPrefixAddress : ipNextHopAddress;
 
-        long groupId = createNextHopPointer(getNextHopKey(vpnId, ipAddress));
+        long groupId = createNextHopPointer(getNextHopKey(vpnId, ipAddress, macAddress));
         if (groupId == 0) {
             LOG.error("Unable to allocate groupId for vpnId {} , prefix {}", vpnId, ipAddress);
             return groupId;
@@ -393,7 +394,7 @@ public class NexthopManager implements AutoCloseable {
                     mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
                     try {
                         LOG.info("Sleeping for {} to wait for the group {} on dpn {} for key {} to get programmed.",
-                                waitTimeForSyncInstall, groupId, dpnId.toString(), getNextHopKey(vpnId, ipAddress));
+                                waitTimeForSyncInstall, groupId, dpnId.toString(), getNextHopKey(vpnId, ipAddress, macAddress));
                         Thread.sleep(waitTimeForSyncInstall);
                     } catch (InterruptedException error) {
                         LOG.warn("Error while waiting for group {} to install.", groupId);
@@ -532,7 +533,7 @@ public class NexthopManager implements AutoCloseable {
                     //update MD-SAL DS
                     removeVpnNexthopFromDS(vpnId, ipAddress);
                     //release groupId
-                    removeNextHopPointer(getNextHopKey(vpnId, ipAddress));
+                    removeNextHopPointer(getNextHopKey(vpnId, ipAddress, null));
                     LOG.debug("Local Next hop {} for {} {} on dpn {} successfully deleted",
                         nh.getEgressPointer(), vpnId, ipAddress, dpnId);
                 } else {
@@ -826,8 +827,8 @@ public class NexthopManager implements AutoCloseable {
     }
 
     long setupLoadBalancingNextHop(Long parentVpnId, BigInteger dpnId,
-            String destPrefix, List<BucketInfo> listBucketInfo, boolean addOrRemove) {
-        long groupId = createNextHopPointer(getNextHopKey(parentVpnId, destPrefix));
+            String destPrefix, List<BucketInfo> listBucketInfo, boolean addOrRemove, String macAddress) {
+        long groupId = createNextHopPointer(getNextHopKey(parentVpnId, destPrefix, macAddress));
         if (groupId == FibConstants.INVALID_GROUP_ID) {
             LOG.error("Unable to allocate/retrieve groupId for vpnId {} , prefix {}", parentVpnId, destPrefix);
             return groupId;
@@ -839,7 +840,7 @@ public class NexthopManager implements AutoCloseable {
             try {
                 LOG.info("Sleeping for {} to wait for the group {} on dpn {} for key {} to get programmed.",
                         waitTimeForSyncInstall, groupId, dpnId.toString(),
-                        getNextHopKey(parentVpnId, destPrefix));
+                        getNextHopKey(parentVpnId, destPrefix, null));
                 Thread.sleep(waitTimeForSyncInstall);
             } catch (InterruptedException e) {
                 LOG.warn("Error while waiting for group {} to install.", groupId);
@@ -851,7 +852,7 @@ public class NexthopManager implements AutoCloseable {
     }
 
     long createNextHopGroups(Long vpnId, String rd, BigInteger dpnId, VrfEntry vrfEntry,
-            Routes routes, List<Routes> vpnExtraRoutes) {
+            Routes routes, List<Routes> vpnExtraRoutes, String macAddress) {
         List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
         List<Routes> clonedVpnExtraRoutes  = new ArrayList<>(vpnExtraRoutes);
         if (clonedVpnExtraRoutes.contains(routes)) {
@@ -859,7 +860,7 @@ public class NexthopManager implements AutoCloseable {
             clonedVpnExtraRoutes.remove(routes);
         }
         listBucketInfo.addAll(getBucketsForRemoteNexthop(vpnId, dpnId, vrfEntry, rd, clonedVpnExtraRoutes));
-        return setupLoadBalancingNextHop(vpnId, dpnId, vrfEntry.getDestPrefix(), listBucketInfo, true);
+        return setupLoadBalancingNextHop(vpnId, dpnId, vrfEntry.getDestPrefix(), listBucketInfo, true, macAddress);
     }
 
     private List<BucketInfo> getBucketsForLocalNexthop(Long vpnId, BigInteger dpnId,
