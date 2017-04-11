@@ -30,6 +30,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>model-bgp</artifactId>
       <version>${model.bgp.version}</version>
     </dependency>
+      <dependency>
+          <groupId>org.apache.thrift</groupId>
+          <artifactId>libthrift</artifactId>
+          <version>RELEASE</version>
+      </dependency>
   </dependencies>
 
   <properties>

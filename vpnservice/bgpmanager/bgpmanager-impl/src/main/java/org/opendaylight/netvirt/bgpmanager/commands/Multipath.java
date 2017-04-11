@@ -15,7 +15,7 @@ import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.omg.CORBA.Object;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
-import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
+import org.opendaylight.netvirt.bgpmanager.api.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

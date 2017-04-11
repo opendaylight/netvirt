@@ -14,6 +14,7 @@ import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
+import org.opendaylight.netvirt.bgpmanager.api.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
@@ -97,7 +98,8 @@ public class Network extends OsgiCommandSupport {
                 }
                 LOGGER.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {}", rd, pfx, nh, label);
                 bm.addPrefix(rd, null /*maAddress*/, pfx, nh,
-                        VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/, staticOrigin);
+                        VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/,
+                        af_afi.AFI_IP.getValue(), staticOrigin);
                 LOGGER.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, pfx, nh, label);
                 break;
             case "del":
@@ -109,7 +111,7 @@ public class Network extends OsgiCommandSupport {
                     session.getConsole().println("note: some option(s) not needed; ignored");
                 }
                 LOGGER.info("REMOVE: Removing Fib entry rd {} prefix {}", rd, pfx);
-                bm.deletePrefix(rd, pfx);
+                bm.deletePrefix(rd, pfx, af_afi.AFI_IP.getValue());
                 LOGGER.info("REMOVE: Removed Fib entry rd {} prefix {}", rd, pfx);
                 break;
             default:

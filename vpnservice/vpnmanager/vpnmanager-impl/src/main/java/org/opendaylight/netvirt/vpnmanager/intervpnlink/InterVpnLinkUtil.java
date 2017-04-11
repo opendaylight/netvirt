@@ -27,6 +27,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.bgpmanager.api.af_afi;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -378,7 +379,7 @@ public class InterVpnLinkUtil {
                     dstVpnRd, newVrfEntry.getDestPrefix(), label.intValue(), nexthops);
                 bgpManager.advertisePrefix(dstVpnRd, null /*macAddress*/, newVrfEntry.getDestPrefix(), nexthops,
                         VrfEntry.EncapType.Mplsgre, label.intValue(), 0 /*l3vni*/, 0 /*l2vni*/,
-                        null /*gatewayMacAddress*/);
+                        null /*gatewayMacAddress*/, af_afi.AFI_IP.getValue());
             } catch (Exception exc) {
                 LOG.error("Could not advertise prefix {} with label {} to VPN rd={}",
                     newVrfEntry.getDestPrefix(), label.intValue(), dstVpnRd);
@@ -417,6 +418,7 @@ public class InterVpnLinkUtil {
         LOG.debug("advertising IVpnLink route to BGP:  vpnRd={}, prefix={}, label={}, nexthops={}",
             vpnRd, destination, label, nexthopList);
         bgpManager.advertisePrefix(vpnRd, null /*macAddress*/, destination, nexthopList,
-                VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, 0 /*l2vni*/, null /*gatewayMacAddress*/);
+                VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, 0 /*l2vni*/,
+                null /*gatewayMacAddress*/, af_afi.AFI_IP.getValue());
     }
 }
