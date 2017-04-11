@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_2f743398",
+        "filename": "vpnservice/sfc/classifier/impl/src/test/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProviderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-04-11T20:51:04Z",
+      "side": 1,
+      "message": "if you are using Mockito only for this, then you could even consider (I probably would have) just making the GeniusProvider have a (perhaps package local) 2nd constructor that takes a DataBroker and directly the OdlInterfaceRpcService, instead of this handstand via the the RpcProviderRegistry..",
+      "revId": "7bc4771fb221718249e1aa0ae6d986c03fa0f8c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_4f6ff7c5",
+        "filename": "vpnservice/sfc/classifier/impl/src/test/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProviderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-04-11T20:51:04Z",
+      "side": 1,
+      "message": "FYI some people are religious about having all @Test methods start with test...() \"by convention\" (you used to have to do this JUnit v3, and in v4 you don\u0027t have to anymore).  Personally I quite like it the way you\u0027ve done it, with the methods named simply like what you\u0027re testing, so this is just an FYI, not a -1.",
+      "revId": "7bc4771fb221718249e1aa0ae6d986c03fa0f8c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_8f68bfbb",
+        "filename": "vpnservice/sfc/classifier/impl/src/test/java/org/opendaylight/netvirt/sfc/classifier/providers/TestInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-04-11T20:51:04Z",
+      "side": 1,
+      "message": "general comment - you\u0027ll want to be careful about how much \"logic\" you have to put into such a stub.. if you find yourself considerably extending this class and replicating a lot of the behaviour that the original InterfacemgrProvider offers, then you could consider whether your test isn\u0027t almost turning into more of an integration instead of unit test, and if that is the case then perhaps write an end2end component test (see https://wiki.opendaylight.org/view/BestPractices/Component_Tests), which would allow you to use the \"real\" InterfacemgrProvider implementation.  For what you\u0027re doing in this change so far, what you\u0027re doing here to me seems right, so this is more of a comment FYI to keep at the back of your mind for future evolutions.",
+      "revId": "7bc4771fb221718249e1aa0ae6d986c03fa0f8c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_ef798b94",
+        "filename": "vpnservice/sfc/classifier/impl/src/test/java/org/opendaylight/netvirt/sfc/classifier/providers/TestOdlInterfaceRpcService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-04-11T20:51:04Z",
+      "side": 1,
+      "message": "you can probably remove some of these constants you\u0027ve copy/pasted over?",
+      "revId": "7bc4771fb221718249e1aa0ae6d986c03fa0f8c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
