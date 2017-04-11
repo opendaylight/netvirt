@@ -17,7 +17,6 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
-import org.opendaylight.netvirt.bgpmanager.api.af_afi;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -133,6 +132,8 @@ public abstract class L3vpnPopulator implements VpnPopulator {
                                   RouteOrigin origin, WriteTransaction writeConfigTxn) {
         try {
             List<String> nextHopList = Collections.singletonList(nextHopIp);
+            long afiValue = org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils
+                .getAFItranslatedfromPrefix(prefix);
             LOG.info("ADD: Adding Fib entry rd {} prefix {} nextHop {} label {} l3vni {} origin {}",
                      rd, prefix, nextHopIp, label, l3vni, origin.getValue());
             fibManager.addOrUpdateFibEntry(broker, primaryRd, macAddress, prefix, nextHopList,
@@ -142,7 +143,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
             // Advertise the prefix to BGP only if nexthop ip is available
             if (nextHopList != null && !nextHopList.isEmpty()) {
                 bgpManager.advertisePrefix(rd, macAddress, prefix, nextHopList, encapType, (int)label,
-                        l3vni, 0 /*l2vni*/, gatewayMac, af_afi.AFI_IP.getValue());
+                        l3vni, 0 /*l2vni*/, gatewayMac, afiValue);
             } else {
                 LOG.warn("NextHopList is null/empty. Hence rd {} prefix {} is not advertised to BGP", rd, prefix);
             }

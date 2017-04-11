@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
-import org.opendaylight.netvirt.bgpmanager.api.af_afi;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
@@ -230,8 +229,10 @@ public class VpnRpcServiceImpl implements VpnRpcService {
 
         Optional<InterVpnLinkDataComposite> optVpnLink = InterVpnLinkCache.getInterVpnLinkByEndpoint(nexthop);
         if (optVpnLink.isPresent()) {
+            int afiValue = org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils
+                    .getAFItranslatedfromPrefix(destination);
             fibManager.removeOrUpdateFibEntry(dataBroker,  vpnRd, destination, nexthop, null);
-            bgpManager.withdrawPrefix(vpnRd, destination, af_afi.AFI_IP.getValue());
+            bgpManager.withdrawPrefix(vpnRd, destination, afiValue);
         } else {
             vpnInterfaceMgr.delExtraRoute(vpnInstanceName, destination,
                     nexthop, vpnRd, null /* routerId */, null /* intfName */, null);

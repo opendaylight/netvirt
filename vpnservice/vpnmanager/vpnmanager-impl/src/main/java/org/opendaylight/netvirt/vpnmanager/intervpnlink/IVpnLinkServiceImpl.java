@@ -22,7 +22,6 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
-import org.opendaylight.netvirt.bgpmanager.api.af_afi;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -113,6 +112,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
             return;
         }
 
+        int afiValue = InterfaceUtils.getAFItranslatedfromPrefix(prefix);
         String dstVpnRd = VpnUtil.getVpnRd(dataBroker, dstVpnName);
         if (addOrRemove == NwConstants.ADD_FLOW) {
             LOG.debug("Leaking route (prefix={}, nexthop={}) from Vpn={} to Vpn={} (RD={})",
@@ -132,14 +132,14 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
             try {
                 bgpManager.advertisePrefix(dstVpnRd, null /*macAddress*/, prefix, ivlNexthops,
                                            VrfEntry.EncapType.Mplsgre, (int)leakedLabel, 0 /*l3vni*/, 0 /*l2vni*/,
-                                           null /*gwMacAddress*/, af_afi.AFI_IP.getValue());
+                                           null /*gwMacAddress*/, afiValue);
             } catch (Exception e) {
                 LOG.error("Exception while advertising prefix {} on vpnRd {} for intervpn link", prefix, dstVpnRd, e);
             }
         } else {
             LOG.debug("Removing leaked route to {} from VPN {}", prefix, dstVpnName);
             fibManager.removeFibEntry(dataBroker, dstVpnRd, prefix, null /*writeConfigTxn*/);
-            bgpManager.withdrawPrefix(dstVpnRd, prefix, af_afi.AFI_IP.getValue());
+            bgpManager.withdrawPrefix(dstVpnRd, prefix, afiValue);
         }
     }
 
@@ -185,9 +185,10 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
         LOG.debug("Advertising route in VPN={} [prefix={} label={}  nexthops={}] to DC-GW",
                   dstVpnRd, newVrfEntry.getDestPrefix(), label.intValue(), nexthops);
         try {
+            int afiValue = InterfaceUtils.getAFItranslatedfromPrefix(prefix);
             bgpManager.advertisePrefix(dstVpnRd, null /*macAddress*/, prefix, nexthops,
                                        VrfEntry.EncapType.Mplsgre, (int)label.intValue(), 0 /*l3vni*/, 0 /*l2vni*/,
-                                       null /*gwMacAddress*/, af_afi.AFI_IP.getValue());
+                                       null /*gwMacAddress*/, afiValue);
         } catch (Exception e) {
             LOG.error("Exception while advertising prefix {} on vpnRd {} for intervpn link", prefix, dstVpnRd, e);
         }
