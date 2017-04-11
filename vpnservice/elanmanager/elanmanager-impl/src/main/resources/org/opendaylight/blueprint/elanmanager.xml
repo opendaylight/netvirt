@@ -16,6 +16,8 @@
     interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
   <reference id="bgpManager"
     interface="org.opendaylight.netvirt.bgpmanager.api.IBgpManager" />
+  <reference id="vpnUtils"
+    interface="org.opendaylight.netvirt.vpnmanager.api.IVpnUtils" />
 
   <odl:rpc-service id="odlInterfaceRpcService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService" />
@@ -304,7 +306,7 @@
     <argument ref="dataBroker" />
     <argument ref="elanUtils" />
     <argument ref="idManagerService" />
-    <argument ref="blueprintBundleContext" />
+    <argument ref="vpnUtils" />
   </bean>
 
   <bean id="evpnUtils" class="org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils">
@@ -312,7 +314,7 @@
     <argument ref="bgpManager" />
     <argument ref="elanEvpnUtils" />
     <argument ref="interfaceManager" />
-    <argument ref="blueprintBundleContext" />
+    <argument ref="vpnUtils" />
   </bean>
 
   <bean id="evpnElanInstanceManager" class="org.opendaylight.netvirt.elan.evpn.listeners.EvpnElanInstanceManager"

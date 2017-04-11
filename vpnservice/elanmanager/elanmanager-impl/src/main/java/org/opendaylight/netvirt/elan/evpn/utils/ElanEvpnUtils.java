@@ -20,6 +20,7 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.DpnEndpoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
@@ -51,20 +52,14 @@ public class ElanEvpnUtils {
     private final DataBroker broker;
     private final ElanUtils elanUtils;
     private final IdManagerService idManager;
-    private IVpnManager vpnManager;
+    private final IVpnUtils vpnUtils;
 
     public ElanEvpnUtils(DataBroker broker, ElanUtils elanUtils, IdManagerService idManager,
-                         final BundleContext bundleContext) {
+                         final IVpnUtils vpnUtils) {
         this.broker = broker;
         this.elanUtils = elanUtils;
         this.idManager = idManager;
-
-        GlobalEventExecutor.INSTANCE.execute(() -> {
-            final WaitingServiceTracker<IVpnManager> tracker = WaitingServiceTracker.create(
-                IVpnManager.class, bundleContext);
-            vpnManager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
-            LOG.info("ElanEvpnUtils initialized. vpnManager={}", vpnManager);
-        });
+        this.vpnUtils = vpnUtils;
     }
 
     public static String getEndpointIpAddressForDPN(DataBroker broker, BigInteger dpnId) {
@@ -85,9 +80,9 @@ public class ElanEvpnUtils {
 
     public Optional<String> getGatewayMacAddressForInterface(String vpnName, String ifName, String ipAddress) {
         Optional<String> routerGwMac;
-        VpnPortipToPort gwPort = vpnManager.getNeutronPortFromVpnPortFixedIp(broker, vpnName, ipAddress);
+        VpnPortipToPort gwPort = vpnUtils.getNeutronPortFromVpnPortFixedIp(broker, vpnName, ipAddress);
         routerGwMac = Optional.of((gwPort != null && gwPort.isSubnetIp())
-                ? gwPort.getMacAddress() : vpnManager.getMacAddressForInterface(broker, ifName));
+                ? gwPort.getMacAddress() : vpnUtils.getMacAddressForInterface(broker, ifName));
         return routerGwMac;
     }
 

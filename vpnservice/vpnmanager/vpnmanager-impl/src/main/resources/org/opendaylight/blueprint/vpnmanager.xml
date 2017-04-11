@@ -42,6 +42,13 @@
   <odl:rpc-service id="alivenessManager"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService" />
 
+  <bean id="vpnUtils"
+        class="org.opendaylight.netvirt.vpnmanager.utilities.VpnUtils"
+        init-method="init">
+  </bean>
+  <service ref="vpnUtils"
+           interface="org.opendaylight.netvirt.vpnmanager.api.IVpnUtils" />
+
   <bean id="dpnInVpnChangeListener"
         class="org.opendaylight.netvirt.vpnmanager.DpnInVpnChangeListener">
     <argument ref="dataBroker" />
@@ -346,4 +353,5 @@
     <argument ref="dataBroker" />
     <argument ref="vpnSubnetRouteHandler" />
   </bean>
+
 </blueprint>

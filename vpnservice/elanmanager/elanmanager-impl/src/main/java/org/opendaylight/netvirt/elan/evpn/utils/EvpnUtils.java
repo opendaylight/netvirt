@@ -9,22 +9,18 @@ package org.opendaylight.netvirt.elan.evpn.utils;
 
 
 import com.google.common.base.Optional;
-import io.netty.util.concurrent.GlobalEventExecutor;
 import java.util.List;
-import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
-import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.EvpnAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.forwarding.tables.MacTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.VrfEntryBase;
-
-import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,22 +33,15 @@ public class EvpnUtils {
     private final DataBroker broker;
     private final ElanEvpnUtils elanEvpnUtils;
     private final IInterfaceManager interfaceManager;
-    private IVpnManager vpnManager;
+    private final IVpnUtils vpnUtils;
 
     public EvpnUtils(DataBroker broker, IBgpManager bgpManager, ElanEvpnUtils elanEvpnUtils,
-                     IInterfaceManager interfaceManager, BundleContext bundleContext) {
+                     IInterfaceManager interfaceManager, final IVpnUtils vpnUtils) {
         this.broker = broker;
         this.bgpManager = bgpManager;
         this.elanEvpnUtils = elanEvpnUtils;
         this.interfaceManager = interfaceManager;
-        this.vpnManager = vpnManager;
-
-        GlobalEventExecutor.INSTANCE.execute(() -> {
-            final WaitingServiceTracker<IVpnManager> tracker = WaitingServiceTracker.create(
-                IVpnManager.class, bundleContext);
-            vpnManager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
-            LOG.info("ElanEvpnUtils initialized. vpnManager={}", vpnManager);
-        });
+        this.vpnUtils = vpnUtils;
     }
 
     public boolean isEvpnPresent(ElanInstance elanOriginal, ElanInstance elanUpdated) {
@@ -131,7 +120,7 @@ public class EvpnUtils {
         for (MacEntry macEntry : macEntries) {
             String evpnInstanceName = getEvpnNameFromElan(elanInstance);
             if (evpnInstanceName != null) {
-                String rd = vpnManager.getVpnRd(broker, evpnInstanceName);
+                String rd = vpnUtils.getVpnRd(broker, evpnInstanceName);
                 String prefix = macEntry.getIpPrefix().toString();
                 LOG.info("Withdrawing routes with rd {}, prefix {}", rd, prefix);
                 bgpManager.withdrawPrefix(rd, prefix);
@@ -155,11 +144,11 @@ public class EvpnUtils {
             String macAddress = macEntry.getMacAddress().toString();
             String prefix = macEntry.getIpPrefix().toString();
             String evpnName = getEvpnNameFromElan(elanInstance);
-            VpnInstance vpnInstance = vpnManager.getVpnInstance(broker, evpnName);
+            VpnInstance vpnInstance = vpnUtils.getVpnInstance(broker, evpnName);
             String evpnInstanceName = getEvpnNameFromElan(elanInstance);
             String rd = null;
             if (evpnInstanceName != null) {
-                rd = vpnManager.getVpnRd(broker, evpnInstanceName);
+                rd = vpnUtils.getVpnRd(broker, evpnInstanceName);
             }
             String interfaceName = macEntry.getInterface();
             InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);

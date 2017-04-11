@@ -79,13 +79,4 @@ public interface IVpnManager {
     void onSubnetDeletedFromVpn(Subnetmap subnetmap, boolean isBgpVpn);
 
     List<MatchInfoBase> getEgressMatchesForVpn(String vpnName);
-
-    VpnInstance getVpnInstance(DataBroker broker, String vpnInstanceName);
-
-    String getVpnRd(DataBroker broker, String vpnName);
-
-    VpnPortipToPort getNeutronPortFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp);
-
-    String getMacAddressForInterface(DataBroker dataBroker, String interfaceName);
-
 }
