@@ -637,7 +637,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         for (Adjacency nextHop : aug.getAdjacency()) {
             RouteOrigin origin = nextHop.isPrimaryAdjacency() ? RouteOrigin.LOCAL : RouteOrigin.STATIC;
             input.setNextHop(nextHop).setRd(nextHop.getVrfId()).setRouteOrigin(origin);
-            registeredPopulator.populateFib(input, writeConfigTxn, writeOperTxn);
+            registeredPopulator.populateFib(dataBroker, input, writeConfigTxn, writeOperTxn);
         }
     }
 
@@ -1730,7 +1730,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             L3vpnInput input = new L3vpnInput().setNextHop(operationalAdj).setNextHopIp(nextHop).setL3vni(l3vni)
                     .setPrimaryRd(primaryRd).setVpnName(vpnName).setDpnId(dpnId)
                     .setEncapType(encapType).setRd(rd).setRouteOrigin(origin);
-            L3vpnRegistry.getRegisteredPopulator(encapType).populateFib(input, writeConfigTxn, null);
+            L3vpnRegistry.getRegisteredPopulator(encapType).populateFib(dataBroker, input, writeConfigTxn, null);
         }
         if (!writeConfigTxnPresent) {
             writeConfigTxn.submit();
