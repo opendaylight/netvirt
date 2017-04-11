@@ -57,7 +57,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
 
     @Override
     public void populateFib(L3vpnInput input, WriteTransaction writeCfgTxn,
-                            WriteTransaction writeOperTxn) {}
+            WriteTransaction writeOperTxn) {}
 
     public void addSubnetRouteFibEntry(L3vpnInput input) {
         String rd = input.getRd();
