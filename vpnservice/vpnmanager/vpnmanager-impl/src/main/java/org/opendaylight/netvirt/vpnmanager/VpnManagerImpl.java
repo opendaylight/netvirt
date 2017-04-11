@@ -329,20 +329,4 @@ public class VpnManagerImpl implements IVpnManager {
     public void onSubnetDeletedFromVpn(Subnetmap subnetmap, boolean isBgpVpn) {
         vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmap, isBgpVpn);
     }
-
-    public VpnInstance getVpnInstance(DataBroker broker, String vpnInstanceName) {
-        return VpnUtil.getVpnInstance(broker, vpnInstanceName);
-    }
-
-    public String getVpnRd(DataBroker broker, String vpnName) {
-        return VpnUtil.getVpnRd(broker, vpnName);
-    }
-
-    public VpnPortipToPort getNeutronPortFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp) {
-        return VpnUtil.getNeutronPortFromVpnPortFixedIp(broker, vpnName, fixedIp);
-    }
-
-    public String getMacAddressForInterface(DataBroker dataBroker, String interfaceName) {
-        return InterfaceUtils.getMacAddressForInterface(dataBroker, interfaceName).get();
-    }
 }

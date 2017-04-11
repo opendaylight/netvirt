@@ -94,7 +94,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-vpnmanager-config.xml">mvn:org.opendaylight.netvirt/vpnmanager-impl/{{VERSION}}/xml/config</configfile>
   </feature>
 
-  <feature name='odl-netvirt-openstack' version='${project.version}' description='OpenDaylight :: NetVirt :: OpenStack'>
+  <!--<feature name='odl-netvirt-openstack' version='${project.version}' description='OpenDaylight :: NetVirt :: OpenStack'>
     <feature version="${neutron.version}">odl-neutron-service</feature>
     <feature version="${project.version}">odl-netvirt-impl</feature>
     <feature version="${restconf.version}">odl-restconf</feature>
@@ -120,6 +120,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.netvirt/sfc.classifier-api/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/sfc.classifier-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/sfc.translator/{{VERSION}}</bundle>
-  </feature>
+  </feature>-->
 
 </features>
