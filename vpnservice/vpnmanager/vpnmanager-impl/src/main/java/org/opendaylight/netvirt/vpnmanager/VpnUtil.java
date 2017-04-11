@@ -1557,12 +1557,12 @@ public class VpnUtil {
         }
         List<String> availableRds = getVpnRdsFromVpnInstanceConfig(dataBroker, vpnName);
         if (availableRds.isEmpty()) {
-            LOG.debug("Internal vpn. Returning vpn name {} as rd", vpnName);
-            usedRds.add(vpnName);
+            LOG.debug("Internal vpn. Returning DpnId {} as rd", dpnId.toString());
+            usedRds.add(dpnId.toString());
             syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix),
                     getDestPrefixesBuilder(prefix, usedRds).build());
-            return java.util.Optional.ofNullable(vpnName);
+            return java.util.Optional.ofNullable(dpnId.toString());
         }
         LOG.trace(
                 "Removing used rds {} from available rds {} vpnid {} . prefix is {} , vpname- {}, dpnId- {}, adj - {}",
