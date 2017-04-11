@@ -55,6 +55,29 @@ public class BgpUtil {
 
     private static BlockingQueue<ActionableResource> bgpResourcesBufferQ = new LinkedBlockingQueue<>();
 
+    /** get a translation from prefix ipv6 to afi<br>.
+    * with example prefix "ffff::1/128", afi is 2 because is an IPv6 value
+    * @param argPrefix ip address as ipv4 or ipv6
+    * @return afi 1 for ipv4 2 for ipv2
+    */
+    public static int getAFItranslatedfromPrefix(String argPrefix) {
+        int retValue = 1;//default afiValue is 1 (= ipv4)
+        try {
+            if (argPrefix == null) {
+                return retValue;
+            }
+            String ipValue =  argPrefix;
+            if (argPrefix.lastIndexOf("/") > 0) { /*then the prefix includes mask definition*/
+                ipValue =  argPrefix.substring(0, argPrefix.lastIndexOf("/"));
+            }
+            java.net.Inet6Address.getByName(ipValue);
+        } catch (java.net.UnknownHostException e) {
+            /*if exception is catched then the prefix is not an IPv6*/
+            retValue = 1;//default afiValue is 1 (= ipv4)
+        }
+        return retValue;
+    }
+
     // return number of pending Write Transactions with BGP-Util (no read)
     public static int getGetPendingWrTransaction() {
         return pendingWrTransaction.get();

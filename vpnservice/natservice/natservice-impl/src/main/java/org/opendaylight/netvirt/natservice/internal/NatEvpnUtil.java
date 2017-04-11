@@ -29,6 +29,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -183,7 +184,8 @@ public class NatEvpnUtil {
             /* Publish to Bgp only if its an INTERNET VPN */
             if ((rd != null) && (!rd.equalsIgnoreCase(vpnName))) {
                 bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),
-                        VrfEntry.EncapType.Vxlan, NatConstants.DEFAULT_LABEL_VALUE, l3Vni, 0 /*l2vni*/, gwMacAddress);
+                        VrfEntry.EncapType.Vxlan, NatConstants.DEFAULT_LABEL_VALUE, l3Vni, 0 /*l2vni*/,
+                        gwMacAddress, af_afi.AFI_IP.getValue());
             }
             LOG.info("NAT Service : ADD: Added Fib entry rd {} prefix {} nextHop {} l3Vni {}", rd, prefix,
                         nextHopIp, l3Vni);
