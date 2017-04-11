@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_9bb0098d",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-11T13:01:41Z",
+      "side": 1,
+      "message": "AFAIK dl_type\u003d0x806 corresponds to ARP, did you want to match on IPv6 packets here (i.e., dl_type\u003d0x86dd)",
+      "range": {
+        "startLine": 210,
+        "startChar": 29,
+        "endLine": 210,
+        "endChar": 42
+      },
+      "revId": "f7d2b8dba3ceed8b7c5df9f185c04c8516e9ab10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
