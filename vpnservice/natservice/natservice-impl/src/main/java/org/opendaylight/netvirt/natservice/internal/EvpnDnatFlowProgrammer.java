@@ -173,11 +173,13 @@ public class EvpnDnatFlowProgrammer {
                     customInstructions.add(new InstructionGotoTable(NwConstants.PDNAT_TABLE).buildInstruction(0));
                     actionsInfos.add(new ActionNxResubmit(NwConstants.PDNAT_TABLE));
                     instructions.add(new InstructionApplyActions(actionsInfos).buildInstruction(0));
-                 /* Install the Flow table INTERNAL_TUNNEL_TABLE (table=36)-> PDNAT_TABLE (table=25) for SNAT to DNAT
-                  * reverse traffic for Non-FIP VM on DPN1 to FIP VM on DPN2
+                 /* If more than one floatingIp is available in vpn-to-dpn-list for given dpn id, do not call for
+                  * installing INTERNAL_TUNNEL_TABLE (table=36) -> PDNAT_TABLE (table=25) flow entry with same tunnel_id
+                  * again and again.
                   */
-                    makeTunnelTableEntry(dpnId, finalL3Vni, instructions);
-
+                    if (!NatUtil.isFloatingIpPresentForDpn(dataBroker, dpnId, rd, vpnName, externalIp, true)) {
+                        makeTunnelTableEntry(dpnId, finalL3Vni, instructions);
+                    }
                  /* Install the flow L3_GW_MAC_TABLE (table=19)-> PDNAT_TABLE (table=25)
                   * (DNAT reverse traffic: If the traffic is Initiated from DC-GW to FIP VM (DNAT forward traffic))
                   */
@@ -275,7 +277,7 @@ public class EvpnDnatFlowProgrammer {
                       *  If exist any floating IP then do not remove
                       *  INTERNAL_TUNNEL_TABLE (table=36) -> PDNAT_TABLE (table=25) flow entry.
                       */
-                    if (!NatUtil.isFloatingIpPresentForDpn(dataBroker, dpnId, rd, vpnName, externalIp)) {
+                    if (!NatUtil.isFloatingIpPresentForDpn(dataBroker, dpnId, rd, vpnName, externalIp, false)) {
                         //Remove the flow for INTERNAL_TUNNEL_TABLE (table=36)-> PDNAT_TABLE (table=25)
                         removeTunnelTableEntry(dpnId, finalL3Vni);
                     }

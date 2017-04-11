@@ -306,7 +306,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                  */
                     Boolean removeTunnelFlow = Boolean.TRUE;
                     if (elanService.isOpenStackVniSemanticsEnforced()) {
-                        if (NatUtil.isFloatingIpPresentForDpn(dataBroker, dpnId, rd, vpnName, externalIp)) {
+                        if (NatUtil.isFloatingIpPresentForDpn(dataBroker, dpnId, rd, vpnName, externalIp, false)) {
                             removeTunnelFlow = Boolean.FALSE;
                         }
                     }
