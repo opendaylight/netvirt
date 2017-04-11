@@ -50,6 +50,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.bgpmanager.api.af_afi;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -690,7 +691,8 @@ public class NatUtil {
             if ((rd != null) && (!rd.equalsIgnoreCase(vpnName))) {
             /* Publish to Bgp only if its an INTERNET VPN */
                 bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),
-                        VrfEntry.EncapType.Mplsgre, (int) label, 0 /*l3vni*/, 0 /*l2vni*/, null /*gatewayMac*/);
+                        VrfEntry.EncapType.Mplsgre, (int) label, 0 /*l3vni*/, 0 /*l2vni*/,
+                        null /*gatewayMac*/, af_afi.AFI_IP.getValue());
             }
             LOG.info("NAT Service : ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd,
                     prefix, nextHopIp, label);
@@ -790,7 +792,7 @@ public class NatUtil {
             LOG.info("REMOVE: Removing Fib entry rd {} prefix {}", rd, prefix);
             fibManager.removeFibEntry(broker, rd, prefix, null);
             if (rd != null && !rd.equalsIgnoreCase(vpnName)) {
-                bgpManager.withdrawPrefix(rd, prefix);
+                bgpManager.withdrawPrefix(rd, prefix, af_afi.AFI_IP.getValue());
             }
             LOG.info("REMOVE: Removed Fib entry rd {} prefix {}", rd, prefix);
         } catch (Exception e) {

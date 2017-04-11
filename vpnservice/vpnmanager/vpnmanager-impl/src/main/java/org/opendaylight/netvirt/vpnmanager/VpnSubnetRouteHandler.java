@@ -22,6 +22,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.bgpmanager.api.af_afi;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.VpnOpDataSyncer.VpnOpDataType;
 import org.opendaylight.netvirt.vpnmanager.populator.input.L3vpnInput;
@@ -672,6 +673,7 @@ public class VpnSubnetRouteHandler {
             //already exist
             long label = 0;
             long l3vni = 0;
+
             VrfEntry.EncapType encapType =  VpnUtil.getEncapType(VpnUtil.isL3VpnOverVxLan(l3vni));
             if (encapType.equals(VrfEntry.EncapType.Vxlan)) {
                 l3vni = subOpBuilder.getL3vni();
@@ -680,7 +682,7 @@ public class VpnSubnetRouteHandler {
             }
             bgpManager.advertisePrefix(subOpBuilder.getVrfId(), null /*macAddress*/, subOpBuilder.getSubnetCidr(),
                     Arrays.asList(nextHopIp), encapType,  label, l3vni,
-                    0 /*l2vni*/, null /*gatewayMacAddress*/);
+                    0 /*l2vni*/, null /*gatewayMacAddress*/, af_afi.AFI_IP.getValue());
             subOpBuilder.setRouteAdvState(TaskState.Advertised);
         } catch (Exception e) {
             LOG.error("Fail: Subnet route not advertised for rd {} subnetIp {} with dpnid {}",
@@ -732,7 +734,8 @@ public class VpnSubnetRouteHandler {
             // BGP manager will handle withdraw and advertise internally if prefix
             // already exist
             bgpManager.advertisePrefix(rd, null /*macAddress*/, subnetIp, Collections.singletonList(nextHopIp),
-                    encapType, label, l3vni, 0 /*l2vni*/, null /*gatewayMacAddress*/);
+                    encapType, label, l3vni, 0 /*l2vni*/, null /*gatewayMacAddress*/,
+                    af_afi.AFI_IP.getValue());
         } catch (Exception e) {
             LOG.error("Fail: Subnet route not advertised for rd {} subnetIp {} with dpnId {}", rd, subnetIp, e,
                     nhDpnId, e);
@@ -756,7 +759,7 @@ public class VpnSubnetRouteHandler {
         vpnInterfaceManager.deleteSubnetRouteFibEntryFromDS(rd, subnetIp, vpnName);
         if (isBgpVpn) {
             try {
-                bgpManager.withdrawPrefix(rd, subnetIp);
+                bgpManager.withdrawPrefix(rd, subnetIp, af_afi.AFI_IP.getValue());
             } catch (Exception e) {
                 LOG.error("Fail: Subnet route not withdrawn for rd {} subnetIp {} due to exception {}",
                         rd, subnetIp, e);
