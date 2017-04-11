@@ -720,14 +720,14 @@ public class VpnSubnetRouteHandler {
                 .setSubnetIp(subnetIp).setNextHopIp(nextHopIp).setL3vni(l3vni).setLabel(label).setElanTag(elanTag)
                 .setDpnId(nhDpnId).setEncapType(encapType).setNetworkName(networkName).setPrimaryRd(rd);
         if (!isBgpVpn) {
-            vpnPopulator.populateFib(input, null /*writeCfgTxn*/, null /*writeOperTxn*/);
+            vpnPopulator.populateFib(dataBroker, input, null /*writeCfgTxn*/, null /*writeOperTxn*/);
             return true;
         }
         Preconditions.checkNotNull(nextHopIp, "NextHopIp cannot be null or empty!");
         VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, VpnUtil
                 .getPrefixToInterfaceIdentifier(VpnUtil.getVpnId(dataBroker, vpnName), subnetIp), VpnUtil
                 .getPrefixToInterface(nhDpnId, subnetId.getValue(), subnetIp, subnetId, true /*isNatPrefix*/));
-        vpnPopulator.populateFib(input, null /*writeCfgTxn*/, null /*writeOperTxn*/);
+        vpnPopulator.populateFib(dataBroker, input, null /*writeCfgTxn*/, null /*writeOperTxn*/);
         try {
             // BGP manager will handle withdraw and advertise internally if prefix
             // already exist
