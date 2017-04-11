@@ -155,6 +155,7 @@ public class ExternalNetworksChangeListener
             }
             List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker,routerId);
             if (natMode == NatMode.Controller) {
+
                 externalRouterListener.handleDisableSnatInternetVpn(routerUuid.getValue(), networkUuid, externalIps,
                         false, original.getVpnid().getValue());
             }

@@ -580,7 +580,7 @@ public class NatTunnelInterfaceStateListener
         Long vpnId;
         if (vpnName == null) {
             LOG.debug("NAT Service : SNAT -> Internal VPN associated to router {}", routerId);
-            vpnId = NatUtil.getVpnId(dataBroker, routerId);
+            vpnId = NatUtil.getNetworkVpnIdFromRouterId(dataBroker, routerId);
             if (vpnId == null || vpnId == NatConstants.INVALID_ID) {
                 LOG.error("Invalid External VPN-ID returned for routerName {}", routerName);
                 return false;
