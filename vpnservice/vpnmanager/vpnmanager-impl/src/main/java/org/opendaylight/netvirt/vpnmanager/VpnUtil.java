@@ -1557,12 +1557,12 @@ public class VpnUtil {
         }
         List<String> availableRds = getVpnRdsFromVpnInstanceConfig(dataBroker, vpnName);
         if (availableRds.isEmpty()) {
-            LOG.debug("Internal vpn. Returning vpn name {} as rd", vpnName);
-            usedRds.add(vpnName);
+            LOG.debug("Internal vpn. Returning DpnId {} as rd", dpnId.toString());
+            usedRds.add(dpnId.toString());
             syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix),
                     getDestPrefixesBuilder(prefix, usedRds).build());
-            return java.util.Optional.ofNullable(vpnName);
+            return java.util.Optional.ofNullable(dpnId.toString());
         }
         LOG.trace(
                 "Removing used rds {} from available rds {} vpnid {} . prefix is {} , vpname- {}, dpnId- {}, adj - {}",
@@ -1700,5 +1700,18 @@ public class VpnUtil {
             }
         }
         return null;
+    }
+
+    public static boolean isDpnIdRd(DataBroker databroker, String rd, String vpnName) {
+        final VpnInstanceOpDataEntry vpnInstance = VpnUtil.getVpnInstanceOpData(databroker, vpnName);
+        List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
+        if (vpnToDpnList != null) {
+            for (final VpnToDpnList curDpn : vpnToDpnList) {
+                if (curDpn.getDpnId().toString().equals(rd)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
