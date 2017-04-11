@@ -114,7 +114,7 @@ public class EvpnSnatFlowProgrammer {
     }
 
     public void evpnDelFibTsAndReverseTraffic(final BigInteger dpnId, final long routerId, final String externalIp,
-                                              final String vpnName) {
+                                              final String vpnName, String extGwMacAddress) {
      /*
       * 1) Remove the flow INTERNAL_TUNNEL_TABLE (table=36)-> INBOUND_NAPT_TABLE (table=44)
       *    (FIP VM on DPN1 is responding back to external fixed IP on DPN2) {DNAT to SNAT traffic on
@@ -135,12 +135,7 @@ public class EvpnSnatFlowProgrammer {
         }
         long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
         if (vpnId == NatConstants.INVALID_ID) {
-            LOG.warn("NAT Service : Invalid Vpn Id is found for Vpn Name {}", vpnName);
-            return;
-        }
-        String gwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
-        if (gwMacAddress == null) {
-            LOG.error("NAT Service : Unable to Get External Gateway MAC address for External Router ID {} ", routerId);
+            LOG.error("NAT Service : Invalid Vpn Id is found for Vpn Name {}", vpnName);
             return;
         }
         long l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
@@ -155,7 +150,11 @@ public class EvpnSnatFlowProgrammer {
         //remove L3_GW_MAC_TABLE (table=19)-> INBOUND_NAPT_TABLE (table=44) flow
         NatUtil.removePreDnatToSnatTableEntry(mdsalManager, dpnId);
         //remove PDNAT_TABLE (table=25)-> INBOUND_NAPT_TABLE (table=44) flow
-        NatEvpnUtil.removeL3GwMacTableEntry(dpnId, vpnId, gwMacAddress, mdsalManager);
+        if (extGwMacAddress == null) {
+            LOG.error("NAT Service : Unable to Get External Gateway MAC address for External Router ID {} ", routerId);
+            return;
+        }
+        NatEvpnUtil.removeL3GwMacTableEntry(dpnId, vpnId, extGwMacAddress, mdsalManager);
     }
 
     public void makeTunnelTableEntry(BigInteger dpnId, long l3Vni, List<Instruction> customInstructions,
