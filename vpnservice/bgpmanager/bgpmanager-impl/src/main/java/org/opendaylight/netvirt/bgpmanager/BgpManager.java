@@ -116,7 +116,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
         fibDSWriter.addFibEntryToDS(rd, macAddress, prefix, nextHopList,
                 encapType, vpnLabel, l3vni, gatewayMac, origin);
         bcm.addPrefix(rd, macAddress, prefix, nextHopList,
-                encapType, vpnLabel, l3vni, 0 /*l2vni*/, gatewayMac, 1 /* TODO FIX afi */);
+                encapType, vpnLabel, l3vni, 0 /*l2vni*/, gatewayMac);
     }
 
     @Override
@@ -129,7 +129,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     @Override
     public void deletePrefix(String rd, String prefix) {
         fibDSWriter.removeFibEntryFromDS(rd, prefix);
-        bcm.delPrefix(rd, prefix, 1 /* TODO FIX afi */);
+        bcm.delPrefix(rd, prefix);
     }
 
     @Override
@@ -137,24 +137,26 @@ public class BgpManager implements AutoCloseable, IBgpManager {
                                 VrfEntry.EncapType encapType, long vpnLabel, long l3vni, long l2vni,
                                 String gatewayMac) throws Exception {
         bcm.addPrefix(rd, macAddress, prefix, nextHopList,
-                encapType, vpnLabel, l3vni, l2vni, gatewayMac, 1 /* TODO FIX afi */);
+                encapType, vpnLabel, l3vni, l2vni, gatewayMac);
     }
 
     @Override
     public void advertisePrefix(String rd, String macAddress, String prefix, String nextHop,
                                 VrfEntry.EncapType encapType, long vpnLabel, long l3vni, long l2vni,
                                 String gatewayMac) throws Exception {
-        LOG.info("ADVERTISE: Adding Prefix rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, vpnLabel);
+        LOG.info("ADVERTISE: Adding Prefix rd {} prefix {} nexthop {} label {} afi {}",
+                rd, prefix, nextHop, vpnLabel);
         bcm.addPrefix(rd, macAddress, prefix, Collections.singletonList(nextHop), encapType,
-                vpnLabel, l3vni, l2vni, gatewayMac, 1 /* TODO FIX afi */);
-        LOG.info("ADVERTISE: Added Prefix rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, vpnLabel);
+                vpnLabel, l3vni, l2vni, gatewayMac);
+        LOG.info("ADVERTISE: Added Prefix rd {} prefix {} nexthop {} label {} afi {}",
+                rd, prefix, nextHop, vpnLabel);
     }
 
     @Override
     public void withdrawPrefix(String rd, String prefix) {
-        LOG.info("WITHDRAW: Removing Prefix rd {} prefix {}", rd, prefix);
-        bcm.delPrefix(rd, prefix, 1 /* TODO FIX afi */);
-        LOG.info("WITHDRAW: Removed Prefix rd {} prefix {}", rd, prefix);
+        LOG.info("WITHDRAW: Removing Prefix rd {} prefix {} afi {}", rd, prefix);
+        bcm.delPrefix(rd, prefix);
+        LOG.info("WITHDRAW: Removed Prefix rd {} prefix {} afi {}", rd, prefix);
     }
 
     public void setQbgpLog(String fileName, String debugLevel) {
