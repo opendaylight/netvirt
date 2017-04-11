@@ -822,7 +822,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             vpnExtraRoutes.stream().forEach(extraRoute -> {
                 Prefixes localNextHopInfoLocal = FibUtil.getPrefixToInterface(dataBroker,
                         vpnId, extraRoute.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX);
-                BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfoLocal, vrfEntry.getDestPrefix(),
+                BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfoLocal, localNextHopInfoLocal.getIpAddress(),
                         vpnId, rd, vrfEntry, vpnId, extraRoute, vpnExtraRoutes);
                 returnLocalDpnId.add(dpnId);
             });
@@ -890,6 +890,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             long groupId;
             long localGroupId;
             final BigInteger dpnId = localNextHopInfo.getDpnId();
+
             if (Boolean.TRUE.equals(localNextHopInfo.isNatPrefix())) {
                 LOG.debug("NAT Prefix {} with vpnId {} rd {}. Skip local dpn {} FIB processing",
                         vrfEntry.getDestPrefix(), vpnId, rd, dpnId);
@@ -897,10 +898,14 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
             String jobKey = FibUtil.getCreateLocalNextHopJobKey(vpnId, dpnId, vrfEntry.getDestPrefix());
             if (routes != null) {
+                String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker,
+                        localNextHopInfo.getVpnInterfaceName(), vrfEntry.getDestPrefix());
                 groupId = nextHopManager.createNextHopGroups(parentVpnId, rd, dpnId, vrfEntry, routes,
-                        vpnExtraRoutes);
+                        vpnExtraRoutes, macAddress);
+                String macAddress1 = FibUtil.getMacAddressFromPrefix(dataBroker,
+                        localNextHopInfo.getVpnInterfaceName(), localNextHopIP);
                 localGroupId = nextHopManager.getLocalNextHopGroup(parentVpnId,
-                        routes.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX);
+                        routes.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX, macAddress1);
             } else {
                 groupId = nextHopManager.createLocalNextHop(parentVpnId, dpnId,
                         localNextHopInfo.getVpnInterfaceName(), localNextHopIP, vrfEntry.getDestPrefix(),
@@ -1066,6 +1071,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
         String localNextHopIP = vrfEntry.getDestPrefix();
         String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnId);
+        String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, localNextHopInfo.getVpnInterfaceName(),
+                localNextHopInfo.getIpAddress());
 
         if (localNextHopInfo == null) {
             List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
@@ -1086,7 +1093,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     BigInteger dpnId = localNextHopInfo.getDpnId();
                     if (!dpnId.equals(BigInteger.ZERO)) {
                         nextHopManager.setupLoadBalancingNextHop(vpnId, dpnId,
-                                vrfEntry.getDestPrefix(), /*listBucketInfo*/ null, /*remove*/ false);
+                                vrfEntry.getDestPrefix(), macAddress, /*listBucketInfo*/ null, /*remove*/ false);
                         returnLocalDpnId.add(dpnId);
                     }
                 } else {
@@ -1199,8 +1206,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     vpnName, usedRds, vrfEntry.getDestPrefix());
             if (!vpnExtraRoutes.isEmpty()) {
                 List<InstructionInfo> instructions = new ArrayList<>();
+                Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
+                String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker,
+                        localNextHopInfo.getVpnInterfaceName(), localNextHopInfo.getIpAddress());
                 long groupId = nextHopManager.createNextHopGroups(vpnId, rd, remoteDpnId, vrfEntry,
-                        null, vpnExtraRoutes);
+                        null, vpnExtraRoutes, macAddress);
                 if (groupId == FibConstants.INVALID_GROUP_ID) {
                     LOG.error("Unable to create Group for local prefix {} on rd {} on Node {}",
                             vrfEntry.getDestPrefix(), rd, remoteDpnId.toString());
@@ -1724,11 +1734,15 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         LOG.debug("deleting remote route: prefix={}, vpnId={} localDpnId {} remoteDpnId {}",
                 vrfEntry.getDestPrefix(), vpnId, localDpnId, remoteDpnId);
         String rd = vrfTableKey.getRouteDistinguisher();
+        Prefixes prefixLocalNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
+        String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker,
+                prefixLocalNextHopInfo.getVpnInterfaceName(), prefixLocalNextHopInfo.getIpAddress());
 
         if (localDpnId != null && localDpnId != BigInteger.ZERO) {
             // localDpnId is not known when clean up happens for last vm for a vpn on a dpn
             if (extraRouteOptional.isPresent()) {
-                nextHopManager.setupLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix(), null , false);
+                nextHopManager.setupLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix(), macAddress ,
+                        null, false);
             }
             deleteFibEntry(remoteDpnId, vpnId, vrfEntry, rd, tx);
             return;
@@ -1737,7 +1751,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         // below two reads are kept as is, until best way is found to identify dpnID
         VpnNexthop localNextHopInfo = nextHopManager.getVpnNexthop(vpnId, vrfEntry.getDestPrefix());
         if (extraRouteOptional.isPresent()) {
-            nextHopManager.setupLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix(), null , false);
+            nextHopManager.setupLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix(), macAddress , null,
+                    false);
         } else {
             checkDpnDeleteFibEntry(localNextHopInfo, remoteDpnId, vpnId, vrfEntry, rd, tx);
         }
