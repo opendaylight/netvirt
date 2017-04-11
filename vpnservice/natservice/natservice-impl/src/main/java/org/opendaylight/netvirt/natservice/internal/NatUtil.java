@@ -247,7 +247,7 @@ public class NatUtil {
         return vpnId;
     }
 
-    public static Long getVpnId(DataBroker broker, long routerId) {
+    public static Long getNetworkVpnIdFromRouterId(DataBroker broker, long routerId) {
         //Get the external network ID from the ExternalRouter model
         Uuid networkId = NatUtil.getNetworkIdFromRouterId(broker, routerId);
         if (networkId == null) {
