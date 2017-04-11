@@ -55,10 +55,12 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
         String primaryRd = input.getPrimaryRd();
         Adjacency nextHop = input.getNextHop();
         LOG.info("populateFib : Found Interface Adjacency with prefix {} rd {}", nextHop.getIpAddress(), primaryRd);
+           // TODO FIX afi
+        long afiValue = 1;
         if (!rd.equalsIgnoreCase(input.getVpnName()) && !rd.equals(input.getNetworkName())) {
             Objects.requireNonNull(input.getRouteOrigin(), "RouteOrigin is mandatory");
             addPrefixToBGP(rd, primaryRd, nextHop.getMacAddress(), nextHop.getIpAddress(), input.getNextHopIp(),
-                    input.getEncapType(), 0 /*label*/, input.getL3vni(), input.getGatewayMac(),
+                    input.getEncapType(), 0 /*label*/, input.getL3vni(), input.getGatewayMac(), afiValue,
                     input.getRouteOrigin(), writeConfigTxn);
         } else {
             LOG.error("Internal VPN for L3 Over VxLAN is not supported. Aborting.");
