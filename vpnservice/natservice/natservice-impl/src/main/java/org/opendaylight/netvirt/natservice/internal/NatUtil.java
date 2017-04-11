@@ -247,7 +247,7 @@ public class NatUtil {
         return vpnId;
     }
 
-    public static Long getVpnId(DataBroker broker, long routerId) {
+    public static Long getNetworkVpnIdFromRouterId(DataBroker broker, long routerId) {
         //Get the external network ID from the ExternalRouter model
         Uuid networkId = NatUtil.getNetworkIdFromRouterId(broker, routerId);
         if (networkId == null) {
@@ -1812,7 +1812,8 @@ public class NatUtil {
     }
 
     public static Boolean isFloatingIpPresentForDpn(DataBroker dataBroker, BigInteger dpnId, String rd,
-                                                           String vpnName, String externalIp) {
+                                                    String vpnName, String externalIp,
+                                                    Boolean tunnelTableCreateFlag) {
         InstanceIdentifier<VpnToDpnList> id = getVpnToDpnListIdentifier(rd, dpnId);
         Optional<VpnToDpnList> dpnInVpn = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         if (dpnInVpn.isPresent()) {
@@ -1820,10 +1821,19 @@ public class NatUtil {
                     vpnName, dpnId, rd, externalIp);
             List<IpAddresses> ipAddressList = dpnInVpn.get().getIpAddresses();
             if (ipAddressList.size() > 0) {
+                int floatingIpPresentCount = 0;
                 for (IpAddresses ipAddress: ipAddressList) {
                     if (!ipAddress.getIpAddress().equals(externalIp)
                             && IpAddresses.IpAddressSource.FloatingIP.equals(ipAddress.getIpAddressSource())) {
-                        return Boolean.TRUE;
+                        floatingIpPresentCount++;
+                        //Add tunnel table check
+                        if (tunnelTableCreateFlag && floatingIpPresentCount > 1) {
+                            return Boolean.TRUE;
+                        }
+                        //Remove tunnel table check
+                        if (!tunnelTableCreateFlag) {
+                            return Boolean.TRUE;
+                        }
                     }
                 }
             } else {
