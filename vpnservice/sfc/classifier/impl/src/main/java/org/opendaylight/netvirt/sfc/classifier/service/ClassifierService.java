@@ -11,11 +11,11 @@ package org.opendaylight.netvirt.sfc.classifier.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.infrautils.utils.concurrent.MoreExecutors;
 import org.opendaylight.netvirt.sfc.classifier.providers.GeniusProvider;
 import org.opendaylight.netvirt.sfc.classifier.providers.NetvirtProvider;
 import org.opendaylight.netvirt.sfc.classifier.providers.OpenFlow13Provider;
@@ -27,6 +27,9 @@ import org.opendaylight.netvirt.sfc.classifier.service.domain.impl.Configuration
 import org.opendaylight.netvirt.sfc.classifier.service.domain.impl.GeniusRenderer;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.impl.OpenflowRenderer;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.impl.OperationalClassifierImpl;
+import org.opendaylight.netvirt.sfc.classifier.utils.LastTaskExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class ClassifierService {
@@ -34,12 +37,12 @@ public class ClassifierService {
     private final NetvirtProvider netvirtProvider;
     private final GeniusProvider geniusProvider;
     private final SfcProvider sfcProvider;
-    private final OpenFlow13Provider openFlow13Provider;
     private final DataBroker dataBroker;
-    private final Executor executor = Executors.newSingleThreadExecutor();
+    private final Executor lastTaskExecutor;
     private final AtomicReference<Runnable> lastTask = new AtomicReference<>();
     private final OperationalClassifierImpl operationalClassifier = new OperationalClassifierImpl();
     private final List<ClassifierEntryRenderer> classifierRenderers = new ArrayList<>();
+    private static final Logger LOG = LoggerFactory.getLogger(ClassifierService.class);
 
     @Inject
     public ClassifierService(final NetvirtProvider netvirtProvider, final GeniusProvider geniusProvider,
@@ -48,21 +51,16 @@ public class ClassifierService {
         this.netvirtProvider = netvirtProvider;
         this.geniusProvider = geniusProvider;
         this.sfcProvider = sfcProvider;
-        this.openFlow13Provider = openFlow13Provider;
         this.dataBroker = dataBroker;
+        this.lastTaskExecutor = new LastTaskExecutor(
+                MoreExecutors.newSingleThreadExecutor(getClass().getSimpleName(), LOG));
         classifierRenderers.add(new OpenflowRenderer(openFlow13Provider, geniusProvider, dataBroker));
         classifierRenderers.add(new GeniusRenderer(geniusProvider));
         classifierRenderers.add(operationalClassifier.getRenderer());
     }
 
     public void updateAll() {
-        lastTask.set(this::doUpdateAll);
-        executor.execute(() -> {
-            Runnable task = lastTask.getAndSet(null);
-            if (task != null) {
-                task.run();
-            }
-        });
+        lastTaskExecutor.execute(this::doUpdateAll);
     }
 
     private void doUpdateAll() {
