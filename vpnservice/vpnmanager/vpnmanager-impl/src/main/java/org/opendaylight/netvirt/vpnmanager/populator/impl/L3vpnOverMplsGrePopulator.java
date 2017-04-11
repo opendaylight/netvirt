@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -67,7 +68,11 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnInterfaceManager.getVpnsImportingMyRoute(vpnName);
         long vpnId = VpnUtil.getVpnId(broker, vpnName);
         String nextHopIpAddress = nextHop.getIpAddress(); // it is a valid case for nextHopIpAddress to be null
-        if (!rd.equalsIgnoreCase(vpnName) && !rd.equals(input.getNetworkName())) {
+        // Not advertising the prefix to BGP for InternalVpn (where rd is vpnName), transparentInternetVpn (where rd is Network name)
+        //and internalVpnForExtraRoute (where rd is DpnId)
+        if (!rd.equalsIgnoreCase(vpnName) && !rd.equals(input.getNetworkName())
+                && !rd.equals(input.getDpnId().toString())) {
+            // the DpnId is set as rd in case of extra routes present in router based VPN
             vpnInterfaceManager.addToLabelMapper(label, input.getDpnId(), nextHopIpAddress,
                     Arrays.asList(nextHopIp), vpnId, input.getInterfaceName(), null,false,
                     primaryRd, writeOperTxn);
