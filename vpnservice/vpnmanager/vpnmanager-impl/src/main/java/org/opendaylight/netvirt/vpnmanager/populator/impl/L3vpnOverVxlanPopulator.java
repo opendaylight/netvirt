@@ -44,7 +44,7 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
     }
 
     @Override
-    public void populateFib(L3vpnInput input, WriteTransaction writeConfigTxn,
+    public void populateFib(DataBroker dataBroker, L3vpnInput input, WriteTransaction writeConfigTxn,
                             WriteTransaction writeOperTxn) {
         if (input.getRouteOrigin() == RouteOrigin.CONNECTED) {
             LOG.info("populateFib : Found SubnetRoute for subnet {} rd {}", input.getSubnetIp(), input.getPrimaryRd());
