@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_3bc47e91",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1563,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-11T09:02:07Z",
+      "side": 1,
+      "message": "get dpnId.toString() into a local variable and use it.",
+      "revId": "df46b00f2609006603cf5efc79790e0ea7c0c64e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_5bbb420e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1564,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-11T09:02:07Z",
+      "side": 1,
+      "message": "Does it work for bgp vpn created with single rd ?\nIn this case new route has to be advertised to bgp which replaces the old one.",
+      "revId": "df46b00f2609006603cf5efc79790e0ea7c0c64e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_1b489a2c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1731,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-11T09:02:07Z",
+      "side": 1,
+      "message": "change the method name to isRdSetAsDpId",
+      "revId": "df46b00f2609006603cf5efc79790e0ea7c0c64e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_5b5222de",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1734,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-11T09:02:07Z",
+      "side": 1,
+      "message": "use Optional.ofNullable and stream().filter(...).findFirst()",
+      "revId": "df46b00f2609006603cf5efc79790e0ea7c0c64e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_1b6ffa93",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-11T09:02:07Z",
+      "side": 1,
+      "message": "add comment why this check is required.",
+      "revId": "df46b00f2609006603cf5efc79790e0ea7c0c64e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
