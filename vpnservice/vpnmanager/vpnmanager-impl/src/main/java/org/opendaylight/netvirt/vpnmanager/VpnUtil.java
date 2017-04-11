@@ -1559,25 +1559,24 @@ public class VpnUtil {
             return rdToAllocate;
         }
         List<String> availableRds = getVpnRdsFromVpnInstanceConfig(dataBroker, vpnName);
+        String rd;
         if (availableRds.isEmpty()) {
-            LOG.debug("Internal vpn. Returning vpn name {} as rd", vpnName);
-            usedRds.add(vpnName);
-            syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                    VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix),
-                    getDestPrefixesBuilder(prefix, usedRds).build());
-            return java.util.Optional.ofNullable(vpnName);
+            rd = dpnId.toString();
+            LOG.debug("Internal vpn {} Returning DpnId {} as rd", vpnName, rd);
+            usedRds.add(rd);
+        } else {
+            LOG.trace(
+                    "Removing used rds {} from available rds {} vpnid {} . prefix is {} , vpname- {}, dpnId- {}, adj - {}",
+                    usedRds, availableRds, vpnId, prefix, vpnName, dpnId);
+            availableRds.removeAll(usedRds);
+            if (availableRds.isEmpty()) {
+                LOG.error("No rd available from VpnInstance to allocate for prefix {}", prefix);
+                return java.util.Optional.empty();
+            }
+            // If rd is not allocated for this prefix or if extra route is behind different OVS, select a new rd.
+            rd = availableRds.get(0);
+            usedRds.add(rd);
         }
-        LOG.trace(
-                "Removing used rds {} from available rds {} vpnid {} . prefix is {} , vpname- {}, dpnId- {}, adj - {}",
-                usedRds, availableRds, vpnId, prefix, vpnName, dpnId);
-        availableRds.removeAll(usedRds);
-        if (availableRds.isEmpty()) {
-            LOG.error("No rd available from VpnInstance to allocate for prefix {}", prefix);
-            return java.util.Optional.empty();
-        }
-        // If rd is not allocated for this prefix or if extra route is behind different OVS, select a new rd.
-        String rd = availableRds.get(0);
-        usedRds.add(rd);
         syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix),
                 getDestPrefixesBuilder(prefix, usedRds).build());
@@ -1720,11 +1719,12 @@ public class VpnUtil {
         LOG.debug("getNeutronNetwork for {}", networkId.getValue());
         InstanceIdentifier<Network> inst = InstanceIdentifier.create(Neutron.class).child(
                 org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks.class).child(
-                Network.class, new NetworkKey(networkId));
+                        Network.class, new NetworkKey(networkId));
         Optional<Network> net = read(broker, LogicalDatastoreType.CONFIGURATION, inst);
         if (net.isPresent()) {
             network = net.get();
         }
         return network;
     }
+
 }
