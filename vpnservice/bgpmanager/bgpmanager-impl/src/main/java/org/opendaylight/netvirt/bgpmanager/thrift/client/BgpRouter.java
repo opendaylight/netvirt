@@ -202,6 +202,8 @@ public class BgpRouter {
             case PFX:
                 // order of args is different in addPrefix(), hence the
                 // seeming out-of-order-ness of string indices
+                afi = af_afi.findByValue(org.opendaylight.netvirt.bgpmanager.BgpUtil
+                        .getAFItranslatedfromPrefix(op.strs[1]));
                 result = bop.add
                         ? bgpClient.pushRoute(
                                 op.thriftProtocolType,
