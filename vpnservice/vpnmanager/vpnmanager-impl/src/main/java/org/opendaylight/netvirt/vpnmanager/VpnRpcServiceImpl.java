@@ -230,8 +230,10 @@ public class VpnRpcServiceImpl implements VpnRpcService {
 
         Optional<InterVpnLinkDataComposite> optVpnLink = InterVpnLinkCache.getInterVpnLinkByEndpoint(nexthop);
         if (optVpnLink.isPresent()) {
+            int afiValue = org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils
+                    .getAFItranslatedfromPrefix(destination);
             fibManager.removeOrUpdateFibEntry(dataBroker,  vpnRd, destination, nexthop, null);
-            bgpManager.withdrawPrefix(vpnRd, destination, af_afi.AFI_IP.getValue());
+            bgpManager.withdrawPrefix(vpnRd, destination, afiValue);
         } else {
             vpnInterfaceMgr.delExtraRoute(vpnInstanceName, destination,
                     nexthop, vpnRd, null /* routerId */, null /* intfName */, null);

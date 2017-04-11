@@ -679,7 +679,7 @@ public class VpnSubnetRouteHandler {
             } else {
                 label = subOpBuilder.getLabel();
             }
-            long afi = 0;
+            int afi = InterfaceUtils.getAFItranslatedfromPrefix(subOpBuilder.getSubnetCidr());
             bgpManager.advertisePrefix(subOpBuilder.getVrfId(), null /*macAddress*/, subOpBuilder.getSubnetCidr(),
                     Arrays.asList(nextHopIp), encapType,  label, l3vni,
                     0 /*l2vni*/, null /*gatewayMacAddress*/, afi);
@@ -733,7 +733,7 @@ public class VpnSubnetRouteHandler {
         try {
             // BGP manager will handle withdraw and advertise internally if prefix
             // already exist
-            long afi = 0;
+            int afi = InterfaceUtils.getAFItranslatedfromPrefix(subnetIp);
             bgpManager.advertisePrefix(rd, null /*macAddress*/, subnetIp, Collections.singletonList(nextHopIp),
                     encapType, label, l3vni, 0 /*l2vni*/, null /*gatewayMacAddress*/, afi);
         } catch (Exception e) {
@@ -759,8 +759,8 @@ public class VpnSubnetRouteHandler {
         vpnInterfaceManager.deleteSubnetRouteFibEntryFromDS(rd, subnetIp, vpnName);
         if (isBgpVpn) {
             try {
-                int afi = 0;
-                bgpManager.withdrawPrefix(rd, subnetIp, afi);
+                int afiValue = InterfaceUtils.getAFItranslatedfromPrefix(subnetIp);
+                bgpManager.withdrawPrefix(rd, subnetIp, afiValue);
             } catch (Exception e) {
                 LOG.error("Fail: Subnet route not withdrawn for rd {} subnetIp {} due to exception {}",
                         rd, subnetIp, e);
