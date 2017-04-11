@@ -672,6 +672,7 @@ public class VpnSubnetRouteHandler {
             //already exist
             long label = 0;
             long l3vni = 0;
+
             VrfEntry.EncapType encapType =  VpnUtil.getEncapType(VpnUtil.isL3VpnOverVxLan(l3vni));
             if (encapType.equals(VrfEntry.EncapType.Vxlan)) {
                 l3vni = subOpBuilder.getL3vni();
