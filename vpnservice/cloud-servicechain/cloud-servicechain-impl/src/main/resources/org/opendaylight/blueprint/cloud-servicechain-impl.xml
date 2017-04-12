@@ -6,7 +6,7 @@
     <reference id="dataBroker" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
                odl:type="pingpong" />
     <reference id="iMdsalApiManager" interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
-    <reference id="iVpnManager" interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
+    <reference id="iVpnFootprintService" interface="org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService" />
     <reference id="iInterfaceManager" interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
 
     <service ref="cloudServiceChainProvider" odl:type="default"
