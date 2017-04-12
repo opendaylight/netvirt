@@ -162,11 +162,6 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
-    public long getArpCacheTimeoutMillis() {
-        return ArpConstants.ARP_CACHE_TIMEOUT_MILLIS;
-    }
-
-    @Override
     public void setupSubnetMacIntoVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
         BigInteger dpnId, WriteTransaction writeTx, int addOrRemove) {
         if (vpnName == null) {
