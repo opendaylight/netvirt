@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -23,6 +23,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
@@ -43,9 +44,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VpnFootprintService {
-
-    // TODO: Should this class have its own interface instead of being under IVpnManager's umbrella?
+public class VpnFootprintService implements IVpnFootprintService {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnFootprintService.class);
 
@@ -65,6 +64,7 @@ public class VpnFootprintService {
         this.notificationPublishService = notificationPublishService;
     }
 
+    @Override
     public void updateVpnToDpnMapping(BigInteger dpId, String vpnName, String interfaceName, boolean add) {
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
         if (dpId == null) {
@@ -195,7 +195,7 @@ public class VpnFootprintService {
         }
     }
 
-    void publishAddNotification(final BigInteger dpnId, final String vpnName, final String rd) {
+    private void publishAddNotification(final BigInteger dpnId, final String vpnName, final String rd) {
         LOG.debug("Sending notification for add dpn {} in vpn {} event ", dpnId, vpnName);
         AddEventData data = new AddEventDataBuilder().setVpnName(vpnName).setRd(rd).setDpnId(dpnId).build();
         AddDpnEvent event = new AddDpnEventBuilder().setAddEventData(data).build();
@@ -213,7 +213,7 @@ public class VpnFootprintService {
         });
     }
 
-    void publishRemoveNotification(final BigInteger dpnId, final String vpnName, final String rd) {
+    private void publishRemoveNotification(final BigInteger dpnId, final String vpnName, final String rd) {
         LOG.debug("Sending notification for remove dpn {} in vpn {} event ", dpnId, vpnName);
         RemoveEventData data = new RemoveEventDataBuilder().setVpnName(vpnName).setRd(rd).setDpnId(dpnId).build();
         RemoveDpnEvent event = new RemoveDpnEventBuilder().setRemoveEventData(data).build();
