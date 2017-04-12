@@ -60,6 +60,8 @@
     <argument ref="notificationPublishService" />
     <argument ref="vpnOpDataSyncer" />
   </bean>
+  <service ref="vpnFootprintService"
+           interface="org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService" />
 
   <bean id="vpnInterfaceManager"
         class="org.opendaylight.netvirt.vpnmanager.VpnInterfaceManager"
