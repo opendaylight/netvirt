@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanBridgeManager;
-import org.opendaylight.ovsdb.utils.config.ConfigProperties;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
@@ -84,7 +83,7 @@ public class ElanBridgeManager implements IElanBridgeManager {
      * @return true if the ovsdb.userspace.enabled variable is set to true
      */
     public boolean isUserSpaceEnabled() {
-        final String enabledPropertyStr = ConfigProperties.getProperty(this.getClass(), "ovsdb.userspace.enabled");
+        final String enabledPropertyStr = System.getProperty("ovsdb.userspace.enabled", "no");
         return enabledPropertyStr != null && enabledPropertyStr.equalsIgnoreCase("yes");
     }
 
