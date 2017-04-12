@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.elan.utils;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -29,8 +30,6 @@ import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
-import org.opendaylight.controller.liblldp.NetUtils;
-import org.opendaylight.controller.liblldp.PacketException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -2199,46 +2198,6 @@ public class ElanUtils {
         return staticMacEntries;
     }
 
-    public Optional<IpAddress> getSourceIpV4Address(byte[] data) {
-        IPv4 ip = new IPv4();
-        try {
-            ip.deserialize(data, 0, data.length * NetUtils.NumBitsInAByte);
-        } catch (PacketException e) {
-            LOG.error("ip.deserialize throws exception  {}", e);
-            return Optional.absent();
-        }
-        return Optional.of(IpAddressBuilder.getDefaultInstance(Integer.toString(ip.getSourceAddress())));
-    }
-
-    public Optional<IpAddress> getSrcIpAddrFromArp(byte[] data) {
-        ARP arp = new ARP();
-        try {
-            arp.deserialize(data, 0, data.length * NetUtils.NumBitsInAByte);
-        } catch (PacketException e) {
-            LOG.error("ip.deserialize throws exception  {}", e);
-            return Optional.absent();
-        }
-        return Optional.of(IpAddressBuilder.getDefaultInstance(
-                NWUtil.toStringIpAddress(arp.getSenderProtocolAddress())));
-    }
-
-    //TODO: remove the try-catch once ip parsing is fixed properly (riyaz)
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public Optional<IpAddress> getSourceIpAddress(Ethernet ethernet, byte[] data) {
-        /*IPV6 is not yet present in genius, hence V6 case ignored*/
-        Optional<IpAddress> srcIpAddress = Optional.absent();
-        try {
-            if (NwConstants.ETHTYPE_IPV4 == ethernet.getEtherType()) {
-                srcIpAddress = getSourceIpV4Address(data);
-            } else if (NwConstants.ETHTYPE_ARP == ethernet.getEtherType()) {
-                srcIpAddress = getSrcIpAddrFromArp(data);
-            }
-        } catch (Exception e) {
-            LOG.error("Error in getting ip address from packet", e);
-        }
-        return srcIpAddress;
-    }
-
     public static InstanceIdentifier<StaticMacEntries> getStaticMacEntriesCfgDataPathIdentifier(String interfaceName,
                                                                                                 String macAddress) {
         return InstanceIdentifier.builder(ElanInterfaces.class)
@@ -2303,5 +2262,25 @@ public class ElanUtils {
 
     public static void removeDPNInterfaceFromElanInCache(String elanName, DpnInterfaces dpnInterfaces) {
         elanInstancToDpnsCache.computeIfAbsent(elanName, key -> new HashSet<DpnInterfaces>()).remove(dpnInterfaces);
+    }
+
+    public Optional<IpAddress> getSourceIpAddress(Ethernet ethernet) {
+        Optional<IpAddress> srcIpAddress = Optional.absent();
+        if (ethernet.getPayload() == null) {
+            return srcIpAddress;
+        }
+        byte[] ipAddrBytes = null;
+        if (ethernet.getPayload() instanceof IPv4) {
+            IPv4 ipv4 = (IPv4) ethernet.getPayload();
+            ipAddrBytes = Ints.toByteArray(ipv4.getSourceAddress());
+        } else if (ethernet.getPayload() instanceof ARP) {
+            ipAddrBytes = ((ARP) ethernet.getPayload()).getSenderProtocolAddress();
+        }
+        if (ipAddrBytes != null) {
+            String ipAddr = NWUtil.toStringIpAddress(ipAddrBytes);
+            return Optional.of(IpAddressBuilder.getDefaultInstance(ipAddr));
+        }
+
+        return srcIpAddress;
     }
 }
