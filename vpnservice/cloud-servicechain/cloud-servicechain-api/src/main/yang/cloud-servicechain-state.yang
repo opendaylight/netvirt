@@ -2,7 +2,6 @@ module cloud-service-chain-state {
     namespace "urn:opendaylight:netvirt:cloud-servicechain:state";
     prefix "cloud-service-chain-state";
 
-    import config { prefix config; revision-date 2013-04-05; }
     import yang-ext {prefix ext; revision-date "2013-07-09";}
     import elan {prefix elan; revision-date "2015-06-02";}
 
