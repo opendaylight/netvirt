@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.fibmanager;
 
-import static org.opendaylight.netvirt.fibmanager.FibConstants.COOKIE_TUNNEL;
 import static org.opendaylight.netvirt.fibmanager.FibConstants.DEFAULT_FIB_FLOW_PRIORITY;
 import static org.opendaylight.netvirt.fibmanager.FibConstants.FLOWID_PREFIX;
 
@@ -25,19 +24,14 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.actions.ActionPopMpls;
-import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
-import org.opendaylight.genius.mdsalutil.matches.MatchMplsLabel;
-import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
@@ -117,8 +111,6 @@ public class FibRpcServiceImpl implements FibRpcService {
         LOG.info("Delete custom FIB entry - {} on dpn {} for VPN {} ", ipAddress, dpnId, vpnName);
         LOG.info("REMOVE: Removing Custom Fib Entry rd {} prefix {} label {}", vpnRd, ipAddress, input.getServiceId());
         removeLocalFibEntry(dpnId, vpnId, ipAddress);
-        //removeLFibTableEntry(dpnId, serviceId);
-        //removeTunnelTableEntry(dpnId, serviceId);
         removeFromVpnDpnAssociation(vpnId, dpnId, ipAddress, vpnName);
         LOG.info("REMOVE: Removed Custom Fib Entry rd {} prefix {} label {}", vpnRd, ipAddress, input.getServiceId());
 
@@ -173,57 +165,6 @@ public class FibRpcServiceImpl implements FibRpcService {
         LOG.debug("FIB entry for route {} on dpn {} removed successfully", ipAddress, dpnId);
     }
 
-    private void removeLFibTableEntry(BigInteger dpnId, long serviceId) {
-        List<MatchInfo> matches = new ArrayList<>();
-        matches.add(MatchEthernetType.MPLS_UNICAST);
-        matches.add(new MatchMplsLabel(serviceId));
-
-        String flowRef = getFlowRef(dpnId, NwConstants.L3_LFIB_TABLE, serviceId, "");
-
-        LOG.debug("removing LFib entry with flow ref {}", flowRef);
-
-        Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_LFIB_TABLE, flowRef,
-            DEFAULT_FIB_FLOW_PRIORITY, flowRef, 0, 0,
-            NwConstants.COOKIE_VM_LFIB_TABLE, matches, null);
-
-        mdsalManager.removeFlow(dpnId, flowEntity);
-
-        LOG.debug("LFIB Entry for dpID : {} label : {} removed successfully {}", dpnId, serviceId);
-    }
-
-    private void removeTunnelTableEntry(BigInteger dpnId, long serviceId) {
-        LOG.info("remove terminatingServiceActions called with DpnId = {} and label = {}", dpnId, serviceId);
-        List<MatchInfo> mkMatches = new ArrayList<>();
-        // Matching metadata
-        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(serviceId)));
-        Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
-            getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""),
-            5, String.format("%s:%d", "TST Flow Entry ", serviceId), 0, 0,
-            COOKIE_TUNNEL.add(BigInteger.valueOf(serviceId)), mkMatches, null);
-        mdsalManager.removeFlow(dpnId, flowEntity);
-        LOG.debug("Terminating service Entry for dpID {} : label : {} removed successfully {}", dpnId, serviceId);
-    }
-
-    private void makeTunnelTableEntry(BigInteger dpnId, long serviceId, List<Instruction> customInstructions) {
-        List<MatchInfo> mkMatches = new ArrayList<>();
-
-        LOG.info("create terminatingServiceAction on DpnId = {} and serviceId = {} and actions = {}", dpnId, serviceId);
-
-        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(serviceId)));
-
-        Flow terminatingServiceTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
-            getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""), 5,
-            String.format("%s:%d", "TST Flow Entry ", serviceId),
-            0, 0, COOKIE_TUNNEL.add(BigInteger.valueOf(serviceId)), mkMatches, customInstructions);
-
-        mdsalManager.installFlow(dpnId, terminatingServiceTableFlowEntity);
-    }
-
-    private long getIpAddress(byte[] rawIpAddress) {
-        return (((rawIpAddress[0] & 0xFF) << (3 * 8)) + ((rawIpAddress[1] & 0xFF) << (2 * 8))
-            + ((rawIpAddress[2] & 0xFF) << (1 * 8)) + (rawIpAddress[3] & 0xFF)) & 0xffffffffL;
-    }
-
     private void makeLocalFibEntry(long vpnId, BigInteger dpnId, String ipPrefix,
                                    List<Instruction> customInstructions) {
         String[] values = ipPrefix.split("/");
@@ -257,30 +198,6 @@ public class FibRpcServiceImpl implements FibRpcService {
         mdsalManager.installFlow(dpnId, flowEntity);
 
         LOG.debug("FIB entry for route {} on dpn {} installed successfully - flow {}", ipAddress, dpnId, flowEntity);
-    }
-
-    private void makeLFibTableEntry(BigInteger dpId, long serviceId, List<Instruction> customInstructions) {
-        List<MatchInfo> matches = new ArrayList<>();
-        matches.add(MatchEthernetType.MPLS_UNICAST);
-        matches.add(new MatchMplsLabel(serviceId));
-
-        List<Instruction> instructions = new ArrayList<>();
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionPopMpls());
-        Instruction writeInstruction = new InstructionApplyActions(actionsInfos).buildInstruction(0);
-        instructions.add(writeInstruction);
-        instructions.addAll(customInstructions);
-
-        // Install the flow entry in L3_LFIB_TABLE
-        String flowRef = getFlowRef(dpId, NwConstants.L3_LFIB_TABLE, serviceId, "");
-
-        Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_LFIB_TABLE, flowRef,
-            DEFAULT_FIB_FLOW_PRIORITY, flowRef, 0, 0,
-            NwConstants.COOKIE_VM_LFIB_TABLE, matches, instructions);
-
-        mdsalManager.installFlow(dpId, flowEntity);
-
-        LOG.debug("LFIB Entry for dpID {} : label : {} modified successfully {}", dpId, serviceId);
     }
 
     private String getFlowRef(BigInteger dpnId, short tableId, long id, String ipAddress) {
@@ -357,10 +274,26 @@ public class FibRpcServiceImpl implements FibRpcService {
                             }
                             fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd, null);
                         } else {
-                            delete(dataBroker, LogicalDatastoreType.OPERATIONAL, id, dpnId, ipAddr, vpnName);
+                            try {
+                                SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                                        id.child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911
+                                                .vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list
+                                                .IpAddresses.class, new IpAddressesKey(ipAddr)));
+                            } catch (TransactionCommitFailedException e) {
+                                LOG.error("Failed to delete IpAddress {} from VpnToDpnList for Dpn {} for Vpn {}: {}",
+                                                ipAddr, dpnId, vpnName, e);
+                            }
                         }
                     } else {
-                        delete(dataBroker, LogicalDatastoreType.OPERATIONAL, id, dpnId, ipAddr, vpnName);
+                        try {
+                            SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                                    id.child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
+                                            .instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list
+                                            .IpAddresses.class, new IpAddressesKey(ipAddr)));
+                        } catch (TransactionCommitFailedException e) {
+                            LOG.error("Failed to delete IpAddress {} from VpnToDpnList for Dpn {} for Vpn {}: {}",
+                                    ipAddr, dpnId, vpnName, e);
+                        }
                     }
                 }
             }
@@ -392,20 +325,6 @@ public class FibRpcServiceImpl implements FibRpcService {
 
     static VpnInstanceOpDataEntry getVpnInstanceOpData(String rd, long vpnId, String vpnName) {
         return new VpnInstanceOpDataEntryBuilder().setVrfId(rd).setVpnId(vpnId).setVpnInstanceName(vpnName).build();
-    }
-
-    static void delete(DataBroker broker, LogicalDatastoreType datastoreType,
-                                              InstanceIdentifier<VpnToDpnList> id, BigInteger dpnId, String ipAddr,
-                                              String vpnName) {
-        try {
-            SingleTransactionDataBroker.syncDelete(broker,datastoreType,id.child(
-                    org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op
-                            .data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses.class,
-                    new IpAddressesKey(ipAddr)));
-        } catch (TransactionCommitFailedException e) {
-            LOG.error("Failed to delete Ip Address {} from Vpn-to-Dpn list for Dpn : {} for Vpn: {}",
-                    ipAddr, dpnId, vpnName, e);
-        }
     }
 
     static long getVpnId(DataBroker broker, String vpnName) {
