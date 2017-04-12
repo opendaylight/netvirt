@@ -121,7 +121,7 @@ public class HwvtepPhysicalSwitchListener
     protected void removed(InstanceIdentifier<PhysicalSwitchAugmentation> identifier,
             PhysicalSwitchAugmentation phySwitchDeleted) {
         NodeId nodeId = getNodeId(identifier);
-        String psName = phySwitchDeleted.getHwvtepNodeName().getValue();
+        String psName = getPsName(identifier);
         LOG.info("Received physical switch {} removed event for node {}", psName, nodeId.getValue());
 
         L2GatewayDevice l2GwDevice = L2GatewayCacheUtils.getL2DeviceFromCache(psName);
@@ -180,8 +180,7 @@ public class HwvtepPhysicalSwitchListener
         NodeId nodeId = getNodeId(identifier);
         LOG.trace("Received PhysicalSwitch Update Event for node {}: PhysicalSwitch Before: {}, "
                 + "PhysicalSwitch After: {}", nodeId.getValue(), phySwitchBefore, phySwitchAfter);
-        String psName = phySwitchAfter.getHwvtepNodeName() != null
-                ? phySwitchAfter.getHwvtepNodeName().getValue() : null;
+        String psName = getPsName(identifier);
         if (psName == null) {
             LOG.error("Could not find the physical switch name for node {}", nodeId.getValue());
             return;
@@ -203,21 +202,16 @@ public class HwvtepPhysicalSwitchListener
     @Override
     protected void added(InstanceIdentifier<PhysicalSwitchAugmentation> identifier,
                          final PhysicalSwitchAugmentation phySwitchAdded) {
-        LOG.trace("L2gw node added {}", (phySwitchAdded.getHwvtepNodeName() != null
-                ? phySwitchAdded.getHwvtepNodeName() : "Node name doesn't exist"));
+        final String psName = getPsName(identifier);
+        LOG.trace("L2gw node added {}", psName);
         String globalNodeId = getManagedByNodeId(identifier);
         final InstanceIdentifier<Node> globalNodeIid = getManagedByNodeIid(identifier);
         final InstanceIdentifier<Node> wildCard = globalNodeIid.firstIdentifierOf(Topology.class).child(Node.class);
         NodeId nodeId = getNodeId(identifier);
-        if (phySwitchAdded.getHwvtepNodeName() == null || HwvtepHAUtil.isEmpty(phySwitchAdded.getTunnelIps())) {
-            if (phySwitchAdded.getHwvtepNodeName() == null) {
-                LOG.error("Could not find the physical switch name for node {}", nodeId.getValue());
-            } else {
-                LOG.error("Could not find the /tunnel ips for node {}", nodeId.getValue());
-            }
+        if (HwvtepHAUtil.isEmpty(phySwitchAdded.getTunnelIps())) {
+            LOG.error("Could not find the /tunnel ips for node {}", nodeId.getValue());
             return;
         }
-        final String psName = phySwitchAdded.getHwvtepNodeName().getValue();
         LOG.trace("Received physical switch {} added event received for node {}", psName, nodeId.getValue());
         ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction();
         ListenableFuture<Optional<Node>> ft = tx.read(OPERATIONAL, globalNodeIid);
@@ -365,4 +359,12 @@ public class HwvtepPhysicalSwitchListener
         return null;
     }
 
+    private String getPsName(InstanceIdentifier<PhysicalSwitchAugmentation> identifier) {
+        String psNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
+        if (psNodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
+            return psNodeId.substring(psNodeId.indexOf(HwvtepHAUtil.PHYSICALSWITCH) + HwvtepHAUtil.PHYSICALSWITCH
+                    .length());
+        }
+        return null;
+    }
 }
