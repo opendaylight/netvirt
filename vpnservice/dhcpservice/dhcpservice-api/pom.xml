@@ -28,10 +28,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>yang-ext</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.mdsal.model</groupId>
-      <artifactId>iana-if-type-2014-05-08</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.opendaylight.genius</groupId>
       <artifactId>mdsalutil-api</artifactId>
       <version>${genius.version}</version>

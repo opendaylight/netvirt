@@ -37,11 +37,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <version>${model.bgp.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>fibmanager-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.thrift</groupId>
             <artifactId>libthrift</artifactId>
             <version>0.9.1</version>
@@ -50,11 +45,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <groupId>${project.groupId}</groupId>
             <artifactId>vpnmanager-api</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.genius</groupId>
-            <artifactId>itm-api</artifactId>
-            <version>${genius.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
