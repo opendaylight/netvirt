@@ -36,7 +36,7 @@ import org.opendaylight.netvirt.cloudservicechain.jobs.AddVpnPseudoPortDataJob;
 import org.opendaylight.netvirt.cloudservicechain.jobs.RemoveVpnPseudoPortDataJob;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnPseudoPortCache;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
-import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
@@ -61,15 +61,15 @@ public class VPNServiceChainHandler implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(VPNServiceChainHandler.class);
     private final IMdsalApiManager mdsalManager;
     private final DataBroker dataBroker;
-    private final IVpnManager vpnManager;
+    private final IVpnFootprintService vpnFootprintService;
     private final IInterfaceManager interfaceManager;
 
     @Inject
     public VPNServiceChainHandler(final DataBroker db, final IMdsalApiManager mdsalManager,
-                                  final IVpnManager vpnManager, final IInterfaceManager ifaceMgr) {
+                                  final IVpnFootprintService vpnFootprintService, final IInterfaceManager ifaceMgr) {
         this.dataBroker = db;
         this.mdsalManager = mdsalManager;
-        this.vpnManager = vpnManager;
+        this.vpnFootprintService = vpnFootprintService;
         this.interfaceManager = ifaceMgr;
     }
 
@@ -247,8 +247,8 @@ public class VPNServiceChainHandler implements AutoCloseable {
             // the Fib table programmed there
             String intfName = VpnServiceChainUtils.buildVpnPseudoPortIfName(dpnId, scfTag, servChainTag,
                                                                             vpnPseudoLportTag);
-            vpnManager.updateVpnFootprint(BigInteger.valueOf(dpnId), vpnName, intfName,
-                                          (addOrRemove == NwConstants.ADD_FLOW));
+            vpnFootprintService.updateVpnToDpnMapping(BigInteger.valueOf(dpnId), vpnName, intfName,
+                (addOrRemove == NwConstants.ADD_FLOW));
         }
         LOG.info("L3VPN: Service Chaining programScfToVpnPipeline [End]");
     }
