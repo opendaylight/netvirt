@@ -48,31 +48,11 @@
    <artifactId>fibmanager-api</artifactId>
    <version>${project.version}</version>
   </dependency>
-  <dependency>
-   <groupId>org.opendaylight.genius</groupId>
-   <artifactId>idmanager-api</artifactId>
-   <version>${genius.version}</version>
-  </dependency>
    <dependency>
     <groupId>org.opendaylight.genius</groupId>
     <artifactId>interfacemanager-api</artifactId>
     <version>${genius.version}</version>
    </dependency>
-  <dependency>
-   <groupId>${project.groupId}</groupId>
-   <artifactId>bgpmanager-api</artifactId>
-   <version>${project.version}</version>
-  </dependency>
-  <dependency>
-   <groupId>org.powermock</groupId>
-   <artifactId>powermock-api-mockito</artifactId>
-   <scope>test</scope>
-  </dependency>
-  <dependency>
-   <groupId>org.powermock</groupId>
-   <artifactId>powermock-module-junit4</artifactId>
-   <scope>test</scope>
-  </dependency>
   <dependency>
    <groupId>javax.inject</groupId>
    <artifactId>javax.inject</artifactId>
