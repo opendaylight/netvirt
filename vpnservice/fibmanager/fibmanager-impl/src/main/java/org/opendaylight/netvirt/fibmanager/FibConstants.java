@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.fibmanager;
 
-import java.math.BigInteger;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,7 +15,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev14
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg1;
 
 public class FibConstants {
-    static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
     static final int DEFAULT_PREFIX_LENGTH = 32;
     static final String PREFIX_SEPARATOR = "/";
