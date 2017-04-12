@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_c7346be0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/IVpnUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-04-12T14:09:41Z",
+      "side": 1,
+      "message": "I wouldn\u0027t pass the DataBroker to these 4 methods, the implementation can just get its own",
+      "revId": "212af57457f2fd57fdaa40686f1be583c58cc074",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
