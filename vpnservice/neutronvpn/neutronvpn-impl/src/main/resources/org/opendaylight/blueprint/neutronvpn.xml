@@ -14,8 +14,6 @@
              interface="org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService" />
   <reference id="notificationPublishService"
              interface="org.opendaylight.controller.md.sal.binding.api.NotificationPublishService" />
-  <reference id="iVpnManager"
-           interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
   <reference id="iCentralizedSwitchProvider"
            interface="org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider" />
   <reference id="iInterfaceManager"

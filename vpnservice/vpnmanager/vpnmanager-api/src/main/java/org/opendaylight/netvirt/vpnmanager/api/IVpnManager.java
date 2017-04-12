@@ -36,8 +36,6 @@ public interface IVpnManager {
 
     boolean isVPNConfigured();
 
-    long getArpCacheTimeoutMillis();
-
     /**
      * Retrieves the list of DPNs where the specified VPN has footprint.
      *
