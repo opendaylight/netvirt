@@ -94,11 +94,6 @@
       <version>${ovsdb.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.ovsdb</groupId>
-      <artifactId>utils.config</artifactId>
-      <version>${ovsdb.version}</version>
-    </dependency>
-    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>vpnmanager-api</artifactId>
       <version>${project.version}</version>
@@ -168,7 +163,6 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Embed-Dependency>utils.config;type=!pom;inline=false</Embed-Dependency>
             <Embed-Transitive>true</Embed-Transitive>
             <!-- This bundle works with Karaf 3 and 4.0 -->
             <Import-Package>
