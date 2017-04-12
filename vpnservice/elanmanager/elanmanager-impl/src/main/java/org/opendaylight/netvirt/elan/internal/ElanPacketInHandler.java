@@ -98,7 +98,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                 MacEntry oldMacEntry = elanUtils.getMacEntryForElanInstance(elanName, physAddress).orNull();
                 boolean isVlanOrFlatProviderIface = interfaceManager.isExternalInterface(interfaceName);
 
-                Optional<IpAddress> srcIpAddress = elanUtils.getSourceIpAddress(res, data);
+                Optional<IpAddress> srcIpAddress = elanUtils.getSourceIpAddress(res);
                 MacEntry newMacEntry = null;
                 BigInteger timeStamp = new BigInteger(String.valueOf(System.currentTimeMillis()));
                 if (!srcIpAddress.isPresent()) {
