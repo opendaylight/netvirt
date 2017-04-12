@@ -28,7 +28,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <federation.version>0.2.0-SNAPSHOT</federation.version>
     <genius.version>0.2.0-SNAPSHOT</genius.version>
     <infrautils.version>1.1.0-SNAPSHOT</infrautils.version>
-    <legacy.utils.version>1.4.0-SNAPSHOT</legacy.utils.version>
     <model.bgp.version>2013.07.15.10-SNAPSHOT</model.bgp.version>
     <neutron.version>0.8.0-SNAPSHOT</neutron.version>
     <openflowplugin.version>0.4.0-SNAPSHOT</openflowplugin.version>
