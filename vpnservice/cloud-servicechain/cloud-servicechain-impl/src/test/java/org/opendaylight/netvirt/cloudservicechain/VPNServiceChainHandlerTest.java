@@ -18,12 +18,10 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
-
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -51,7 +49,7 @@ import org.opendaylight.netvirt.cloudservicechain.matchers.FlowMatcher;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
-import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
@@ -101,7 +99,7 @@ public class VPNServiceChainHandlerTest {
     @Mock ReadOnlyTransaction readTx;
     @Mock WriteTransaction writeTx;
     @Mock IMdsalApiManager mdsalMgr;
-    @Mock IVpnManager vpnManager;
+    @Mock IVpnFootprintService vpnFootprintService;
     @Mock IInterfaceManager ifaceMgr;
 
     @BeforeClass
@@ -121,7 +119,7 @@ public class VPNServiceChainHandlerTest {
         when(writeTx.submit()).thenReturn(chkdFuture);
 
         // SUT
-        vpnsch = new VPNServiceChainHandler(broker, mdsalMgr, vpnManager, ifaceMgr);
+        vpnsch = new VPNServiceChainHandler(broker, mdsalMgr, vpnFootprintService, ifaceMgr);
     }
 
     @After
@@ -325,7 +323,7 @@ public class VPNServiceChainHandlerTest {
         // Verifying VpnToDpn update
         String vpnPseudoPortIfaceName =
             VpnServiceChainUtils.buildVpnPseudoPortIfName(DPN_ID.longValue(), SCF_TAG, SERV_CHAIN_TAG, LPORT_TAG);
-        verify(vpnManager).updateVpnFootprint(eq(DPN_ID), eq(VPN_NAME), eq(vpnPseudoPortIfaceName), eq(Boolean.TRUE));
+        verify(vpnFootprintService).updateVpnToDpnMapping(eq(DPN_ID), eq(VPN_NAME), eq(vpnPseudoPortIfaceName), eq(Boolean.TRUE));
     }
 
 
