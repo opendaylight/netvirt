@@ -90,9 +90,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.G
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.service.rev130918.AddGroupInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.service.rev130918.AddGroupInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.service.rev130918.AddGroupOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.service.rev130918.SalGroupService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.Buckets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.buckets.Bucket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeFlat;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVlan;
@@ -134,10 +142,10 @@ public class NexthopManager implements AutoCloseable {
     private final ItmRpcService itmManager;
     private final IdManagerService idManager;
     private final IElanService elanService;
+    private final SalGroupService salGroupService;
     private static final String NEXTHOP_ID_POOL_NAME = "nextHopPointerPool";
     private static final long FIXED_DELAY_IN_MILLISECONDS = 4000;
     private L3VPNTransportTypes configuredTransportTypeL3VPN = L3VPNTransportTypes.Invalid;
-    private Long waitTimeForSyncInstall;
 
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
         new FutureCallback<Void>() {
@@ -170,14 +178,15 @@ public class NexthopManager implements AutoCloseable {
                           final IdManagerService idManager,
                           final OdlInterfaceRpcService interfaceManager,
                           final ItmRpcService itmManager,
-                          final IElanService elanService) {
+                          final IElanService elanService,
+                          final SalGroupService salGroupService) {
         this.dataBroker = dataBroker;
         this.mdsalApiManager = mdsalApiManager;
         this.idManager = idManager;
         this.interfaceManager = interfaceManager;
         this.itmManager = itmManager;
         this.elanService = elanService;
-        waitTimeForSyncInstall = Long.getLong("wait.time.sync.install", 1500L);
+        this.salGroupService = salGroupService;
         createIdPool();
     }
 
@@ -388,17 +397,11 @@ public class NexthopManager implements AutoCloseable {
                             listBucketInfo);
                     LOG.trace("Install LNH Group: id {}, mac address {}, interface {} for prefix {}", groupId,
                             encMacAddress, ifName, ipAddress);
-
                     // install Group
                     mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
-                    try {
-                        LOG.info("Sleeping for {} to wait for the group {} on dpn {} for key {} to get programmed.",
-                                waitTimeForSyncInstall, groupId, dpnId.toString(), getNextHopKey(vpnId, ipAddress));
-                        Thread.sleep(waitTimeForSyncInstall);
-                    } catch (InterruptedException error) {
-                        LOG.warn("Error while waiting for group {} to install.", groupId);
-                        LOG.debug("{}", error);
-                    }
+                    //Try to install group directly on the DPN bypassing the FRM, in order to avoid waiting for the
+                    // group to get installed before programming the flows
+                    installGroupOnDpn(groupId, dpnId, ipAddress, listBucketInfo, getNextHopKey(vpnId, ipAddress));
                     // update MD-SAL DS
                     addVpnNexthopToDS(dpnId, vpnId, ipAddress, groupId);
 
@@ -416,6 +419,31 @@ public class NexthopManager implements AutoCloseable {
             return Collections.emptyList();
         });
         return groupId;
+    }
+
+    private void installGroupOnDpn(long groupId, BigInteger dpnId, String groupName, List<BucketInfo> bucketsInfo,
+                                     String nextHopKey) {
+        NodeRef nodeRef = FibUtil.buildNodeRef(dpnId);
+        Buckets buckets = FibUtil.buildBuckets(bucketsInfo);
+        GroupRef groupRef = new GroupRef(FibUtil.buildGroupInstanceIdentifier(groupId, dpnId));
+        AddGroupInput input = new AddGroupInputBuilder().setNode(nodeRef).setGroupId(new GroupId(groupId))
+                .setBuckets(buckets).setGroupRef(groupRef).setGroupType(GroupTypes.GroupAll)
+                .setGroupName(groupName).build();
+        Future<RpcResult<AddGroupOutput>> groupStats = salGroupService.addGroup(input);
+        RpcResult<AddGroupOutput> rpcResult = null;
+        try {
+            rpcResult = groupStats.get();
+            if (Optional.fromNullable(rpcResult).isPresent() && rpcResult.isSuccessful()
+                    && Optional.fromNullable(rpcResult.getResult()).isPresent()) {
+                LOG.debug("Group {} with key {} has been successfully installed directly on dpn {}.", groupId,
+                        nextHopKey, dpnId);
+            } else {
+                LOG.error("Unable to install group {} with key {} directly on dpn {} due to {}.", groupId, nextHopKey,
+                        dpnId, rpcResult.getErrors());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error while installing group {} directly on dpn {}", groupId, dpnId);
+        }
     }
 
     protected void addVpnNexthopToDS(BigInteger dpnId, long vpnId, String ipPrefix, long egressPointer) {
@@ -836,14 +864,9 @@ public class NexthopManager implements AutoCloseable {
                 dpnId, groupId, destPrefix, GroupTypes.GroupSelect, listBucketInfo);
         if (addOrRemove == true) {
             mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
-            try {
-                LOG.info("Sleeping for {} to wait for the group {} on dpn {} for key {} to get programmed.",
-                        waitTimeForSyncInstall, groupId, dpnId.toString(),
-                        getNextHopKey(parentVpnId, destPrefix));
-                Thread.sleep(waitTimeForSyncInstall);
-            } catch (InterruptedException e) {
-                LOG.warn("Error while waiting for group {} to install.", groupId);
-            }
+            //Try to install group directly on the DPN bypassing the FRM, in order to avoid waiting for the group to
+            // get installed before programming the flows
+            installGroupOnDpn(groupId, dpnId, destPrefix, listBucketInfo, getNextHopKey(parentVpnId, destPrefix));
         } else {
             mdsalApiManager.removeGroup(groupEntity);
         }
