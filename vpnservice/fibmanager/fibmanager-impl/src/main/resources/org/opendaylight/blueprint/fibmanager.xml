@@ -20,6 +20,8 @@
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService"/>
   <odl:rpc-service id="odlInterfaceRpcService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService"/>
+  <odl:rpc-service id="salGroupService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.group.service.rev130918.SalGroupService" />
 
   <odl:rpc-implementation ref="fibRpcServiceImpl"/>
 
