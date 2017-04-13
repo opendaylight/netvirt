@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_aeb93c30",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 648,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-13T07:24:05Z",
+      "side": 1,
+      "message": "My question is why are you sending DEFAULT_L3VNI_VALUE as the 3rd parameter to the above method.\n\nThe next question is the method on the other side is expecting router-vpn-id, but why are we sending DEFAULT_L3VNI_VALUE..\n\nIf the method returns the same DEFAULT_L3VNI_VALUE what are the implications?",
+      "parentUuid": "da01753e_d31d4d75",
+      "revId": "aeefc9d888f8a9a25a420e1bd45eb0c1baa6485d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_13ed15c4",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
         "patchSetId": 6
