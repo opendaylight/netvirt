@@ -90,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_69c46e92",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 648,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-04-13T10:07:31Z",
+      "side": 1,
+      "message": "Done the changes.\n\nIf VNI value is unable to get or allocate from ODL VNI Pool, router-id will be\nused as tunnel-id for external network provider type as VXLAN",
+      "parentUuid": "da01753e_aeb93c30",
+      "revId": "aeefc9d888f8a9a25a420e1bd45eb0c1baa6485d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_13ed15c4",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
         "patchSetId": 6
