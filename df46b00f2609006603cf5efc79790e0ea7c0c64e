@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_957c5222",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1563,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-04-13T09:52:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_3bc47e91",
+      "revId": "df46b00f2609006603cf5efc79790e0ea7c0c64e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_5bbb420e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 4
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_30d774c3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1564,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-04-13T09:52:11Z",
+      "side": 1,
+      "message": "This would be taken care after Manu\u0027s changes.",
+      "parentUuid": "da01753e_5bbb420e",
+      "revId": "df46b00f2609006603cf5efc79790e0ea7c0c64e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_1b489a2c",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 4
@@ -47,6 +83,24 @@
       "writtenOn": "2017-04-11T09:02:07Z",
       "side": 1,
       "message": "change the method name to isRdSetAsDpId",
+      "revId": "df46b00f2609006603cf5efc79790e0ea7c0c64e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_7579ee2e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1731,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-04-13T09:52:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_1b489a2c",
       "revId": "df46b00f2609006603cf5efc79790e0ea7c0c64e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -81,6 +135,24 @@
       "writtenOn": "2017-04-11T09:02:07Z",
       "side": 1,
       "message": "add comment why this check is required.",
+      "revId": "df46b00f2609006603cf5efc79790e0ea7c0c64e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_b5aa366e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-04-13T09:52:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_1b6ffa93",
       "revId": "df46b00f2609006603cf5efc79790e0ea7c0c64e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
