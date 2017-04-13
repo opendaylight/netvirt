@@ -1696,11 +1696,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
         String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
         List<String> nextHopIpList = Collections.singletonList(nextHop);
-        if (primaryRd != null) {
-            /* Label mapper is required only for BGP VPN and not for Internal VPN */
-            addToLabelMapper((long) label, dpnId, destination, nextHopIpList, VpnUtil.getVpnId(dataBroker, routerID),
-                intfName, null, false, primaryRd, null);
-        }
 
         // TODO: This is a limitation to be stated in docs. When configuring static route to go to
         // another VPN, there can only be one nexthop or, at least, the nexthop to the interVpnLink should be in
