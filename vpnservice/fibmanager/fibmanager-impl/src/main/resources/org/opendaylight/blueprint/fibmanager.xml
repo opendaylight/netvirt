@@ -20,6 +20,8 @@
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService"/>
   <odl:rpc-service id="odlInterfaceRpcService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService"/>
+  <odl:rpc-service id="opendaylightDirectStatisticsService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService" />
 
   <odl:rpc-implementation ref="fibRpcServiceImpl"/>
 

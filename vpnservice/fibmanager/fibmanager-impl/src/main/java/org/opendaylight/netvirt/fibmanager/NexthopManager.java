@@ -66,6 +66,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.acti
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PushVlanActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.SetFieldCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetGroupStatisticsInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetGroupStatisticsInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetGroupStatisticsOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -90,6 +94,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.G
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.buckets.Bucket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
@@ -134,10 +139,12 @@ public class NexthopManager implements AutoCloseable {
     private final ItmRpcService itmManager;
     private final IdManagerService idManager;
     private final IElanService elanService;
+    private final OpendaylightDirectStatisticsService odlDirectStatsService;
     private static final String NEXTHOP_ID_POOL_NAME = "nextHopPointerPool";
     private static final long FIXED_DELAY_IN_MILLISECONDS = 4000;
     private L3VPNTransportTypes configuredTransportTypeL3VPN = L3VPNTransportTypes.Invalid;
     private Long waitTimeForSyncInstall;
+    private int retryCountForSyncInstall;
 
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
         new FutureCallback<Void>() {
@@ -170,14 +177,17 @@ public class NexthopManager implements AutoCloseable {
                           final IdManagerService idManager,
                           final OdlInterfaceRpcService interfaceManager,
                           final ItmRpcService itmManager,
-                          final IElanService elanService) {
+                          final IElanService elanService,
+                          final OpendaylightDirectStatisticsService odlDirectStatsService) {
         this.dataBroker = dataBroker;
         this.mdsalApiManager = mdsalApiManager;
         this.idManager = idManager;
         this.interfaceManager = interfaceManager;
         this.itmManager = itmManager;
         this.elanService = elanService;
-        waitTimeForSyncInstall = Long.getLong("wait.time.sync.install", 1500L);
+        this.odlDirectStatsService = odlDirectStatsService;
+        waitTimeForSyncInstall = Long.getLong("wait.time.sync.install", 300L);
+        retryCountForSyncInstall = 5;
         createIdPool();
     }
 
@@ -391,14 +401,7 @@ public class NexthopManager implements AutoCloseable {
 
                     // install Group
                     mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
-                    try {
-                        LOG.info("Sleeping for {} to wait for the group {} on dpn {} for key {} to get programmed.",
-                                waitTimeForSyncInstall, groupId, dpnId.toString(), getNextHopKey(vpnId, ipAddress));
-                        Thread.sleep(waitTimeForSyncInstall);
-                    } catch (InterruptedException error) {
-                        LOG.warn("Error while waiting for group {} to install.", groupId);
-                        LOG.debug("{}", error);
-                    }
+                    waitForGroupInstall(groupId, dpnId, getNextHopKey(vpnId, ipAddress));
                     // update MD-SAL DS
                     addVpnNexthopToDS(dpnId, vpnId, ipAddress, groupId);
 
@@ -416,6 +419,31 @@ public class NexthopManager implements AutoCloseable {
             return Collections.emptyList();
         });
         return groupId;
+    }
+
+    private void waitForGroupInstall(long groupId, BigInteger dpnId, String nextHopKey) {
+        GetGroupStatisticsInput input = new GetGroupStatisticsInputBuilder().setGroupId(new GroupId(groupId))
+                .setNode(FibUtil.buildNodeRef(dpnId)).setStoreStats(false).build();
+        for (int i = 1; i <= retryCountForSyncInstall ; i++) {
+            Future<RpcResult<GetGroupStatisticsOutput>> groupStats = odlDirectStatsService.getGroupStatistics(input);
+            RpcResult<GetGroupStatisticsOutput> rpcResult = null;
+            try {
+                rpcResult = groupStats.get();
+                if (Optional.fromNullable(rpcResult).isPresent() && rpcResult.isSuccessful()
+                        && Optional.fromNullable(rpcResult.getResult()).isPresent()) {
+                    LOG.debug("Group {} with key {} has been successfully installed on dpn {}. Terminating wait.",
+                            groupId, nextHopKey, dpnId);
+                    break;
+                } else {
+                    LOG.info("Sleeping for {} to wait for the group {} on dpn {} for key {} to get programmed."
+                            + " Retry count is {}", waitTimeForSyncInstall, groupId, dpnId.toString(),
+                            nextHopKey, i);
+                    Thread.sleep(waitTimeForSyncInstall);
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                LOG.error("Error while waiting for group {} to install on dpn {}", groupId, dpnId);
+            }
+        }
     }
 
     protected void addVpnNexthopToDS(BigInteger dpnId, long vpnId, String ipPrefix, long egressPointer) {
@@ -836,14 +864,7 @@ public class NexthopManager implements AutoCloseable {
                 dpnId, groupId, destPrefix, GroupTypes.GroupSelect, listBucketInfo);
         if (addOrRemove == true) {
             mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
-            try {
-                LOG.info("Sleeping for {} to wait for the group {} on dpn {} for key {} to get programmed.",
-                        waitTimeForSyncInstall, groupId, dpnId.toString(),
-                        getNextHopKey(parentVpnId, destPrefix));
-                Thread.sleep(waitTimeForSyncInstall);
-            } catch (InterruptedException e) {
-                LOG.warn("Error while waiting for group {} to install.", groupId);
-            }
+            waitForGroupInstall(groupId, dpnId, getNextHopKey(parentVpnId, destPrefix));
         } else {
             mdsalApiManager.removeGroup(groupEntity);
         }
