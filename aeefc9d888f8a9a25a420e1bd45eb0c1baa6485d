@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_93d8e51e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnNaptSwitchHA.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-13T05:48:00Z",
+      "side": 1,
+      "message": "see the comment in next tunnelchangelistener file.",
+      "revId": "aeefc9d888f8a9a25a420e1bd45eb0c1baa6485d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_33e819b4",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 648,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-13T05:48:00Z",
+      "side": 1,
+      "message": "why is the l3Vni sent here... We should be sending the router-vpn-Id here..",
+      "revId": "aeefc9d888f8a9a25a420e1bd45eb0c1baa6485d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_13ed15c4",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 774,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-13T05:48:00Z",
+      "side": 1,
+      "message": "ditto comment here..",
+      "revId": "aeefc9d888f8a9a25a420e1bd45eb0c1baa6485d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_b3db691a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1000,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-13T05:48:00Z",
+      "side": 1,
+      "message": "ditto here too.. Fix all places in entire NAT service.",
+      "revId": "aeefc9d888f8a9a25a420e1bd45eb0c1baa6485d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
