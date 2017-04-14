@@ -1,4 +1,3 @@
-
 module neutronvpn {
 
     namespace "urn:opendaylight:netvirt:neutronvpn";
@@ -173,7 +172,7 @@ module neutronvpn {
                 description "The UUID of the tenant that will own the subnet.";
             }
 
-            leaf router-id {
+            leaf-list router_ids {
               type    yang:uuid;
               description "UUID of router ";
             }
