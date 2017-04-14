@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_237d5eb2",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-14T14:46:12Z",
+      "side": 1,
+      "message": "nit: Please try to wrap the sentences to some 80 (or 100 chars).",
+      "revId": "fdcefbb2b849576fe88f6780acc20f221a56fa31",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_2caef385",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-14T14:46:12Z",
+      "side": 1,
+      "message": "nit: Please remove the space (when you resubmit the patch)",
+      "revId": "fdcefbb2b849576fe88f6780acc20f221a56fa31",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_0ca96f7b",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-14T14:46:12Z",
+      "side": 1,
+      "message": "nit: space",
+      "revId": "fdcefbb2b849576fe88f6780acc20f221a56fa31",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_43822295",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-14T14:46:12Z",
+      "side": 1,
+      "message": "Incase you want to include any integration tests for this usecase, please update this section.",
+      "revId": "fdcefbb2b849576fe88f6780acc20f221a56fa31",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
