@@ -27,7 +27,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <controller.mdsal.version>1.6.0-SNAPSHOT</controller.mdsal.version>
     <genius.version>0.3.0-SNAPSHOT</genius.version>
     <mdsal.model.version>0.11.0-SNAPSHOT</mdsal.model.version>
-    <model.bgp.version>2013.07.15.11.0-SNAPSHOT</model.bgp.version>
+    <model.bgp.version>2013.07.15.11-SNAPSHOT</model.bgp.version>
     <neutron.version>0.9.0-SNAPSHOT</neutron.version>
     <yangtools.version>1.2.0-SNAPSHOT</yangtools.version>
   </properties>
