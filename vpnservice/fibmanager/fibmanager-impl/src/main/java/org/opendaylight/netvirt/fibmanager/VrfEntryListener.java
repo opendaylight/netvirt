@@ -121,6 +121,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.PrefixesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -1492,14 +1493,26 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
             //remove adjacency corr to prefix
             if (numAdj > 1) {
-                LOG.info("cleanUpOpDataForFib: remove adjacency for prefix: {} {}", vpnId,
-                        vrfEntry.getDestPrefix());
-                writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                        FibUtil.getAdjacencyIdentifier(ifName, vrfEntry.getDestPrefix()));
-            } else {
-                //this is last adjacency (or) no more adjacency left for this vpn interface, so
+                boolean isPrimaryAdj = false;
+                List<Adjacency> adjacencyList = optAdjacencies.get().getAdjacency();
+                for (Adjacency adj : adjacencyList) {
+                    if (adj.getIpAddress().equals(vrfEntry.getDestPrefix())) {
+                        isPrimaryAdj = adj.isPrimaryAdjacency();
+                        break;
+                    }
+                }
+                //We should only delete secondary adjacencies, as primary adjacency is used to
+                //cleanup prefix-to-interface in the subscriber vpnInterfaceOpListener
+                if (!isPrimaryAdj) {
+                    LOG.info("cleanUpOpDataForFib: remove adjacency for prefix: {} {}", vpnId,
+                            vrfEntry.getDestPrefix());
+                    writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                            FibUtil.getAdjacencyIdentifier(ifName, vrfEntry.getDestPrefix()));
+                }
+            }
+            if ((numAdj - 1) == 0) { //there are no adjacencies left for this vpn interface, clean up
                 //clean up the vpn interface from DpnToVpn list
-                LOG.info("Clean up vpn interface {} from dpn {} to vpn {} list.", ifName, prefixInfo.getDpnId(), rd);
+                LOG.trace("Clean up vpn interface {} from dpn {} to vpn {} list.", ifName, prefixInfo.getDpnId(), rd);
                 writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, FibUtil.getVpnInterfaceIdentifier(ifName));
             }
             List<ListenableFuture<Void>> futures = new ArrayList<>();
