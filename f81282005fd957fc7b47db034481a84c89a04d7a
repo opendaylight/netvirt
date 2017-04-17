@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_e67d1f70",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-04-17T13:31:22Z",
+      "side": 1,
+      "message": "you can rename it as maxRetryCountForSyncInstall;",
+      "revId": "f81282005fd957fc7b47db034481a84c89a04d7a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
