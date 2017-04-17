@@ -16,4 +16,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <reference id="rpcProviderRegistry"
     interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry" />
 
+  <reference id="iInterfaceManager"
+    interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
+
 </blueprint>

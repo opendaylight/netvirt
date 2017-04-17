@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -38,6 +41,7 @@ import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase<Bgpvpn, NeutronBgpvpnChangeListener>
         implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronBgpvpnChangeListener.class);
@@ -46,6 +50,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
     private final IdManagerService idManager;
     private final String adminRDValue;
 
+    @Inject
     public NeutronBgpvpnChangeListener(final DataBroker dataBroker, final NeutronvpnManager neutronvpnManager,
                                        final IdManagerService idManager) {
         super(Bgpvpn.class, NeutronBgpvpnChangeListener.class);
@@ -56,8 +61,10 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
         adminRDValue = bundleContext.getProperty(NeutronConstants.RD_PROPERTY_KEY);
     }
 
-    public void start() {
-        LOG.info("{} start", getClass().getSimpleName());
+    @Override
+    @PostConstruct
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
         createIdPool();
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }

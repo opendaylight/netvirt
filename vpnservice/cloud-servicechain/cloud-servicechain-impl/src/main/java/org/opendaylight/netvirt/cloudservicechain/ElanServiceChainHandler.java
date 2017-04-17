@@ -12,6 +12,8 @@ import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -35,14 +37,14 @@ import org.slf4j.LoggerFactory;
  * Elan Pseudo Ports when participating in ServiceChains.
  *
  */
+@Singleton
 public class ElanServiceChainHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanServiceChainHandler.class);
-
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
 
-
+    @Inject
     public ElanServiceChainHandler(final DataBroker db, final IMdsalApiManager mdsalMgr) {
         this.broker = db;
         this.mdsalManager = mdsalMgr;

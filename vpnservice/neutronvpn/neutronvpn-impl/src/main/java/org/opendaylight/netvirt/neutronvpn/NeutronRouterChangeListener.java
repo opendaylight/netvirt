@@ -11,6 +11,9 @@ import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -27,6 +30,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase<Router, NeutronRouterChangeListener>
         implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronRouterChangeListener.class);
@@ -35,6 +39,7 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
     private final NeutronvpnNatManager nvpnNatManager;
     private final NeutronSubnetGwMacResolver gwMacResolver;
 
+    @Inject
     public NeutronRouterChangeListener(final DataBroker dataBroker, final NeutronvpnManager neutronvpnManager,
                                        final NeutronvpnNatManager neutronvpnNatManager,
                                        NeutronSubnetGwMacResolver gwMacResolver) {
@@ -45,8 +50,10 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
         this.gwMacResolver = gwMacResolver;
     }
 
-    public void start() {
-        LOG.info("{} start", getClass().getSimpleName());
+    @Override
+    @PostConstruct
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 

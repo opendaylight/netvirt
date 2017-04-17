@@ -11,6 +11,9 @@ package org.opendaylight.netvirt.natservice.internal;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -24,6 +27,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class SubnetGwMacChangeListener
     extends AsyncDataTreeChangeListenerBase<LearntVpnVipToPort, SubnetGwMacChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(SubnetGwMacChangeListener.class);
@@ -32,6 +36,7 @@ public class SubnetGwMacChangeListener
     private final INeutronVpnManager nvpnManager;
     private final ExternalNetworkGroupInstaller extNetworkInstaller;
 
+    @Inject
     public SubnetGwMacChangeListener(final DataBroker broker, final INeutronVpnManager nvpnManager,
                                      final ExternalNetworkGroupInstaller extNetworkInstaller) {
         super(LearntVpnVipToPort.class, SubnetGwMacChangeListener.class);
@@ -40,7 +45,8 @@ public class SubnetGwMacChangeListener
         this.extNetworkInstaller = extNetworkInstaller;
     }
 
-    public void start() {
+    @PostConstruct
+    public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
 

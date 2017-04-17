@@ -24,6 +24,10 @@ public class L3vpnInput {
     private BigInteger dpnId;
     private VrfEntry.EncapType encapType;
     private RouteOrigin routeOrigin;
+    private String subnetIp;
+    private Long label;
+    private Long elanTag;
+    private String networkName;
 
     public String getRd() {
         return rd;
@@ -67,6 +71,22 @@ public class L3vpnInput {
 
     public RouteOrigin getRouteOrigin() {
         return routeOrigin;
+    }
+
+    public String getNetworkName() {
+        return networkName;
+    }
+
+    public Long getElanTag() {
+        return elanTag;
+    }
+
+    public Long getLabel() {
+        return label;
+    }
+
+    public String getSubnetIp() {
+        return subnetIp;
     }
 
     public L3vpnInput setPrimaryRd(String primaryRd) {
@@ -124,4 +144,23 @@ public class L3vpnInput {
         return this;
     }
 
+    public L3vpnInput setSubnetIp(String subnetIp) {
+        this.subnetIp = subnetIp;
+        return this;
+    }
+
+    public L3vpnInput setLabel(Long label) {
+        this.label = label;
+        return this;
+    }
+
+    public L3vpnInput setElanTag(Long elanTag) {
+        this.elanTag = elanTag;
+        return this;
+    }
+
+    public L3vpnInput setNetworkName(String networkName) {
+        this.networkName = networkName;
+        return this;
+    }
 }

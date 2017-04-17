@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -32,19 +34,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ExternalNetworkGroupInstaller {
     private static final Logger LOG = LoggerFactory.getLogger(ExternalNetworkGroupInstaller.class);
     private static final long FIXED_DELAY_IN_MILLISECONDS = 4000;
-
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
     private final IElanService elanService;
     private final IdManagerService idManager;
     private final OdlInterfaceRpcService interfaceManager;
 
+    @Inject
     public ExternalNetworkGroupInstaller(final DataBroker broker, final IMdsalApiManager mdsalManager,
-            final IElanService elanService, final IdManagerService idManager,
-            final OdlInterfaceRpcService interfaceManager) {
+                                     final IElanService elanService, final IdManagerService idManager,
+                                     final OdlInterfaceRpcService interfaceManager) {
         this.broker = broker;
         this.mdsalManager = mdsalManager;
         this.elanService = elanService;

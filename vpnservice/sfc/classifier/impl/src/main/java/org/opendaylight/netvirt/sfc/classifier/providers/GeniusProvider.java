@@ -18,6 +18,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.sfc.sff.logical.rev160620.DpnIdType;
@@ -25,6 +26,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpnInterfaceListInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpnInterfaceListInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpnInterfaceListOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEndpointIpForDpnInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEndpointIpForDpnInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEndpointIpForDpnOutput;
@@ -33,6 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetNodeconnectorIdFromInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceTypeFlowBased;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflow;
@@ -43,6 +48,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeVxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.Options;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -52,12 +61,17 @@ import org.slf4j.LoggerFactory;
 public class GeniusProvider {
 
     private final DataBroker dataBroker;
+    private final IInterfaceManager interfaceMgr;
     private final OdlInterfaceRpcService interfaceManagerRpcService;
     private static final Logger LOG = LoggerFactory.getLogger(GeniusProvider.class);
+    private static final String OPTION_KEY_EXTS = "exts";
+    private static final String OPTION_VALUE_EXTS_GPE = "gpe";
 
     @Inject
-    public GeniusProvider(final DataBroker dataBroker, RpcProviderRegistry rpcProviderRegistry) {
+    public GeniusProvider(final DataBroker dataBroker, final RpcProviderRegistry rpcProviderRegistry,
+            final IInterfaceManager interfaceMgr) {
         this.dataBroker = dataBroker;
+        this.interfaceMgr = interfaceMgr;
         interfaceManagerRpcService = rpcProviderRegistry.getRpcService(OdlInterfaceRpcService.class);
     }
 
@@ -68,6 +82,7 @@ public class GeniusProvider {
                 NwConstants.SFC_SERVICE_INDEX,
                 NwConstants.INGRESS_SFC_CLASSIFIER_FILTER_TABLE,
                 OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_COOKIE,
+                true,
                 interfaceName);
     }
 
@@ -78,15 +93,16 @@ public class GeniusProvider {
                 NwConstants.EGRESS_SFC_CLASSIFIER_SERVICE_INDEX,
                 NwConstants.EGRESS_SFC_CLASSIFIER_FILTER_TABLE,
                 OpenFlow13Provider.EGRESS_CLASSIFIER_FILTER_COOKIE,
+                false,
                 interfaceName);
     }
 
     public void unbindPortOnIngressClassifier(String interfaceName) {
-        unbindService(interfaceName, NwConstants.SFC_CLASSIFIER_INDEX);
+        unbindService(interfaceName, NwConstants.SFC_CLASSIFIER_INDEX, true);
     }
 
     public void unbindPortOnEgressClassifier(String interfaceName) {
-        unbindService(interfaceName, NwConstants.EGRESS_SFC_CLASSIFIER_SERVICE_INDEX);
+        unbindService(interfaceName, NwConstants.EGRESS_SFC_CLASSIFIER_SERVICE_INDEX, false);
     }
 
     public Optional<NodeId> getNodeIdFromLogicalInterface(String logicalInterface) {
@@ -129,6 +145,8 @@ public class GeniusProvider {
         return Optional.ofNullable(ipList.get(0).getIpv4Address().getValue());
     }
 
+    // TODO Should better use the Genius InterfaceManager to avoid duplicate code
+    //      https://bugs.opendaylight.org/show_bug.cgi?id=8127
     public List<IpAddress> getIpFromDpnId(DpnIdType dpnid) {
         GetEndpointIpForDpnInputBuilder builder = new GetEndpointIpForDpnInputBuilder();
         builder.setDpid(dpnid.getValue());
@@ -210,11 +228,77 @@ public class GeniusProvider {
         return nodeConnId;
     }
 
-    private void bindService(short serviceId, String serviceName, int servicePriority,
-            short serviceDestTable, BigInteger serviceTableCookie, String interfaceName) {
+    public Optional<Long> getEgressVxlanPortForNode(BigInteger dpnId) {
+        List<OvsdbTerminationPointAugmentation> tpList = interfaceMgr.getTunnelPortsOnBridge(dpnId);
+        if (tpList == null) {
+            // Most likely the bridge doesnt exist for this dpnId
+            LOG.warn("getEgressVxlanPortForNode Tunnel Port TerminationPoint list not available for dpnId [{}]",
+                    dpnId);
+            return Optional.empty();
+        }
 
+        for (OvsdbTerminationPointAugmentation tp : tpList) {
+            if (tp == null) {
+                // Technically we should never have a list with NULL entries, but
+                // in a preliminary version of interfaceMgr.getTunnelPortsOnBridge()
+                // we were getting a list where all termination point entries were
+                // null. Leaving this check for now for protection.
+                LOG.error("getEgressVxlanPortForNode received a NULL termination point from tpList on dpnId [{}]",
+                        dpnId);
+                continue;
+            }
+
+            Class<? extends InterfaceTypeBase> ifType = tp.getInterfaceType();
+            if (ifType.equals(InterfaceTypeVxlan.class)) {
+                List<Options> tpOptions = tp.getOptions();
+                for (Options tpOption : tpOptions) {
+                    // From the VXLAN Tunnels, we want the one with the GPE option set
+                    if (tpOption.getKey().getOption().equals(OPTION_KEY_EXTS)) {
+                        if (tpOption.getValue().equals(OPTION_VALUE_EXTS_GPE)) {
+                            return Optional.ofNullable(tp.getOfport());
+                        }
+                    }
+                }
+            }
+        }
+
+        LOG.warn("getEgressVxlanPortForNode no Vxgpe tunnel ports available for dpnId [{}]", dpnId);
+
+        return Optional.empty();
+    }
+
+    public List<String> getInterfacesFromNode(NodeId nodeId) {
+        // getPortsOnBridge() only returns Tunnel ports, so instead using getDpnInterfaceList.
+        GetDpnInterfaceListInputBuilder inputBuilder = new GetDpnInterfaceListInputBuilder();
+        inputBuilder.setDpid(BigInteger.valueOf(Long.valueOf(nodeId.getValue().split(":")[1])));
+        GetDpnInterfaceListInput input = inputBuilder.build();
+
+        try {
+            LOG.debug("getInterfacesFromNode: invoking rpc");
+            RpcResult<GetDpnInterfaceListOutput> output =
+                    interfaceManagerRpcService.getDpnInterfaceList(input).get();
+            if (!output.isSuccessful()) {
+                LOG.error("getInterfacesFromNode({}) failed: {}", input, output);
+                return Collections.emptyList();
+            }
+            LOG.debug("getInterfacesFromNode({}) succeeded: {}", input, output);
+            return output.getResult().getInterfacesList();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("getInterfacesFromNode failed to retrieve target interface name: ", e);
+        }
+
+        return Collections.emptyList();
+    }
+
+    private void bindService(short serviceId, String serviceName, int servicePriority,
+            short serviceDestTable, BigInteger serviceTableCookie,
+            boolean isIngress, String interfaceName) {
+
+        ServicesInfoKey servicesInfoKey = isIngress
+                ? new ServicesInfoKey(interfaceName, ServiceModeIngress.class) :
+                  new ServicesInfoKey(interfaceName, ServiceModeEgress.class);
         InstanceIdentifier<BoundServices> id = InstanceIdentifier.builder(ServiceBindings.class)
-                .child(ServicesInfo.class, new ServicesInfoKey(interfaceName, ServiceModeIngress.class))
+                .child(ServicesInfo.class, servicesInfoKey)
                 .child(BoundServices.class, new BoundServicesKey(serviceId)).build();
 
         StypeOpenflow stypeOpenflow = new StypeOpenflowBuilder().setFlowCookie(serviceTableCookie)
@@ -225,16 +309,19 @@ public class GeniusProvider {
         BoundServices boundServices = new BoundServicesBuilder().setServiceName(serviceName)
                 .setServicePriority(serviceId).setServiceType(ServiceTypeFlowBased.class)
                 .addAugmentation(StypeOpenflow.class, stypeOpenflow).build();
-
         LOG.info("Binding Service ID [{}] name [{}] priority [{}] table [{}] cookie [{}] interface [{}]",
                 serviceId, serviceName, servicePriority, serviceDestTable, serviceTableCookie, interfaceName);
 
         MDSALUtil.syncWrite(this.dataBroker, LogicalDatastoreType.CONFIGURATION, id, boundServices);
     }
 
-    private void unbindService(String interfaceName, short serviceId) {
+    private void unbindService(String interfaceName, short serviceId, boolean isIngress) {
+        ServicesInfoKey servicesInfoKey = isIngress
+                ? new ServicesInfoKey(interfaceName, ServiceModeIngress.class) :
+                  new ServicesInfoKey(interfaceName, ServiceModeEgress.class);
+
         InstanceIdentifier<BoundServices> id = InstanceIdentifier.builder(ServiceBindings.class)
-                .child(ServicesInfo.class, new ServicesInfoKey(interfaceName, ServiceModeIngress.class))
+                .child(ServicesInfo.class, servicesInfoKey)
                 .child(BoundServices.class, new BoundServicesKey(serviceId)).build();
 
         LOG.info("Unbinding Service ID [{}] interface [{}]", serviceId, interfaceName);

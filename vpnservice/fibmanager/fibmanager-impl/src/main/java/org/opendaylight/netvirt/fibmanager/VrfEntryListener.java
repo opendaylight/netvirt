@@ -29,6 +29,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -141,6 +144,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdenti
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, VrfEntryListener>
     implements AutoCloseable, ResourceHandler {
 
@@ -167,6 +171,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private static BlockingQueue<ActionableResource> vrfEntryBufferQ = new LinkedBlockingQueue<>();
     private final ResourceBatchingManager resourceBatchingManager;
 
+    @Inject
     public VrfEntryListener(final DataBroker dataBroker, final IMdsalApiManager mdsalApiManager,
                             final NexthopManager nexthopManager, final OdlInterfaceRpcService interfaceManager,
                             final IdManagerService idManager, final IVpnLinkService ivpnLinkService) {
@@ -185,8 +190,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         transactionObjects = new ArrayList<>();
     }
 
-    public void start() {
-        LOG.info("{} start", getClass().getSimpleName());
+    @Override
+    @PostConstruct
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
@@ -310,8 +317,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 return;
             }
             //Update the used rds and vpntoextraroute containers only for the deleted nextHops.
-            List<String> nextHopsRemoved = FibUtil.getNextHopListFromRoutePaths(original);
-            nextHopsRemoved.removeAll(FibUtil.getNextHopListFromRoutePaths(update));
+            List<String> nextHopsRemoved = FibHelper.getNextHopListFromRoutePaths(original);
+            nextHopsRemoved.removeAll(FibHelper.getNextHopListFromRoutePaths(update));
             WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
             nextHopsRemoved.parallelStream()
                     .forEach(nextHopRemoved -> FibUtil.updateUsedRdAndVpnToExtraRoute(
@@ -501,7 +508,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         final VrfTablesKey vrfTableKey = vrfEntryIid.firstKeyOf(VrfTables.class);
 
         String prefix = vrfEntry.getDestPrefix();
-        List<String> nextHopsList = FibUtil.getNextHopListFromRoutePaths(vrfEntry);
+        List<String> nextHopsList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
         // Label is used only for logging in subsequent method calls.
         //TODO : This label is not needed here. Can be removed. Hence using a default value.
         Long label = FibUtil.getLabelFromRoutePaths(vrfEntry).orElse(0L);
@@ -556,7 +563,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             tx = dataBroker.newWriteOnlyTransaction();
         }
         FibUtil.getLabelFromRoutePaths(vrfEntry).ifPresent(label -> {
-            List<String> nextHopAddressList = FibUtil.getNextHopListFromRoutePaths(vrfEntry);
+            List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
             synchronized (label.toString().intern()) {
                 LabelRouteInfo lri = getLabelRouteInfo(label);
                 if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopAddressList, lri)) {
@@ -660,7 +667,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             new InstructionGotoTable(NwConstants.L3_INTERFACE_TABLE));
 
                     FibUtil.getLabelFromRoutePaths(vrfEntry).ifPresent(interVpnRoutePathLabel -> {
-                        List<String> interVpnNextHopList = FibUtil.getNextHopListFromRoutePaths(vrfEntry);
+                        List<String> interVpnNextHopList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
                         LOG.debug("Installing flow: VrfEntry=[prefix={} label={} nexthop={}] dpn {} for "
                                 + "InterVpnLink {} in LFIB",
                                 vrfEntry.getDestPrefix(), interVpnRoutePathLabel, interVpnNextHopList,
@@ -825,7 +832,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     java.util.Optional<Long> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
                     if (optionalLabel.isPresent()) {
                         Long label = optionalLabel.get();
-                        List<String> nextHopAddressList = FibUtil.getNextHopListFromRoutePaths(vrfEntry);
+                        List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
                         synchronized (label.toString().intern()) {
                             LabelRouteInfo lri = getLabelRouteInfo(label);
                             if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopAddressList, lri)) {
@@ -912,7 +919,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 new InstructionApplyActions(
                     Arrays.asList(new ActionPopMpls(), new ActionGroup(groupId))));
             java.util.Optional<Long> optLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
-            List<String> nextHopAddressList = FibUtil.getNextHopListFromRoutePaths(vrfEntry);
+            List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
             if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
                 LOG.debug("Installing tunnel table entry on dpn {} for interface {} with label {}",
                     dpnId, localNextHopInfo.getVpnInterfaceName(), optLabel);
@@ -1092,7 +1099,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 java.util.Optional<Long> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
                 if (optionalLabel.isPresent()) {
                     Long label = optionalLabel.get();
-                    List<String> nextHopAddressList = FibUtil.getNextHopListFromRoutePaths(vrfEntry);
+                    List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
                     LabelRouteInfo lri = getLabelRouteInfo(label);
                     if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopAddressList, lri)) {
                         PrefixesBuilder prefixBuilder = new PrefixesBuilder();
@@ -1361,7 +1368,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 java.util.Optional<Long> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
                 if (optionalLabel.isPresent()) {
                     Long label = optionalLabel.get();
-                    List<String> nextHopAddressList = FibUtil.getNextHopListFromRoutePaths(vrfEntry);
+                    List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
                     LabelRouteInfo lri = getLabelRouteInfo(label);
                     if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopAddressList, lri)) {
                         PrefixesBuilder prefixBuilder = new PrefixesBuilder();
@@ -1426,7 +1433,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             //TODO(KIRAN) : Move the below block when addressing iRT/eRT for L3VPN Over VxLan
             if (vrfEntry.getEncapType().equals(VrfEntry.EncapType.Mplsgre)) {
                 FibUtil.getLabelFromRoutePaths(vrfEntry).ifPresent(label -> {
-                    List<String> nextHopAddressList = FibUtil.getNextHopListFromRoutePaths(vrfEntry);
+                    List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
                     synchronized (label.toString().intern()) {
                         LabelRouteInfo lri = getLabelRouteInfo(label);
                         if (lri != null && lri.getPrefix().equals(vrfEntry.getDestPrefix())
@@ -1513,7 +1520,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         long elanTag = 0L;
         SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
         final java.util.Optional<Long> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
-        List<String> nextHopAddressList = FibUtil.getNextHopListFromRoutePaths(vrfEntry);
+        List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
         String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnInstance.getVpnId());
         if (subnetRoute != null) {
             elanTag = subnetRoute.getElantag();
@@ -1952,7 +1959,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.SELF_IMPORTED) {
                             java.util.Optional<Long> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
                             if (optionalLabel.isPresent()) {
-                                List<String> nextHopList = FibUtil.getNextHopListFromRoutePaths(vrfEntry);
+                                List<String> nextHopList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
                                 LabelRouteInfo lri = getLabelRouteInfo(optionalLabel.get());
                                 if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopList, lri)) {
                                     if (lri.getDpnId().equals(dpnId)) {

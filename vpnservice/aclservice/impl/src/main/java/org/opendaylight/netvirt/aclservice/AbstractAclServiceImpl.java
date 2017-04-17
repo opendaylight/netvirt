@@ -151,14 +151,16 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         List<AllowedAddressPairs> deletedAllowedAddressPairs =
                 AclServiceUtils.getUpdatedAllowedAddressPairs(portBefore.getAllowedAddressPairs(),
                         portAfter.getAllowedAddressPairs());
-        if (addedAllowedAddressPairs != null && !addedAllowedAddressPairs.isEmpty()) {
-            programAclWithAllowedAddress(dpId, addedAllowedAddressPairs, portAfter.getLPortTag(),
-                    portAfter.getSecurityGroups(), Action.UPDATE, NwConstants.ADD_FLOW, portAfter.getInterfaceId());
-        }
         if (deletedAllowedAddressPairs != null && !deletedAllowedAddressPairs.isEmpty()) {
             programAclWithAllowedAddress(dpId, deletedAllowedAddressPairs, portAfter.getLPortTag(),
                     portAfter.getSecurityGroups(), Action.UPDATE, NwConstants.DEL_FLOW, portAfter.getInterfaceId());
         }
+        if (addedAllowedAddressPairs != null && !addedAllowedAddressPairs.isEmpty()) {
+            programAclWithAllowedAddress(dpId, addedAllowedAddressPairs, portAfter.getLPortTag(),
+                    portAfter.getSecurityGroups(), Action.UPDATE, NwConstants.ADD_FLOW, portAfter.getInterfaceId());
+        }
+        updateArpForAllowedAddressPairs(dpId, portAfter.getLPortTag(), deletedAllowedAddressPairs,
+                portAfter.getAllowedAddressPairs());
 
         updateAclInterfaceInCache(portBefore);
         // Have to delete and add all rules because there can be following scenario: Interface1 with SG1, Interface2
@@ -287,6 +289,17 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      */
     protected abstract void programGeneralFixedRules(BigInteger dpid, String dhcpMacAddress,
             List<AllowedAddressPairs> allowedAddresses, int lportTag, Action action, int addOrRemove);
+
+    /**
+     * Update arp for allowed address pairs.
+     *
+     * @param dpId the dp id
+     * @param lportTag the lport tag
+     * @param deletedAAP the deleted allowed address pairs
+     * @param addedAAP the added allowed address pairs
+     */
+    protected abstract void updateArpForAllowedAddressPairs(BigInteger dpId, int lportTag,
+            List<AllowedAddressPairs> deletedAAP, List<AllowedAddressPairs> addedAAP);
 
     /**
      * Program the default specific rules.

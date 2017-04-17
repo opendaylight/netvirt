@@ -6,11 +6,11 @@
   <reference id="dataBroker"
              interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
              odl:type="default"/>
-  <reference id="mdsalUtils"
+  <reference id="iMdsalApiManager"
              interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager"/>
-  <reference id="elanService"
+  <reference id="iElanService"
              interface="org.opendaylight.netvirt.elanmanager.api.IElanService"/>
-  <reference id="interVpnLinkService"
+  <reference id="iVpnLinkService"
              interface="org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService"
              availability="optional"/>
 
@@ -23,39 +23,8 @@
 
   <odl:rpc-implementation ref="fibRpcServiceImpl"/>
 
-  <bean id="fibManagerImpl" class="org.opendaylight.netvirt.fibmanager.FibManagerImpl" init-method="start">
-    <argument ref="dataBroker"/>
-    <argument ref="nexthopManager"/>
-    <argument ref="vfrEntryListener"/>
-    <argument ref="blueprintBundleContext"/>
-  </bean>
   <service ref="fibManagerImpl"
            interface="org.opendaylight.netvirt.fibmanager.api.IFibManager"/>
-
-  <bean id="nexthopManager" class="org.opendaylight.netvirt.fibmanager.NexthopManager">
-    <argument ref="dataBroker"/>
-    <argument ref="mdsalUtils"/>
-    <argument ref="idManagerService"/>
-    <argument ref="odlInterfaceRpcService"/>
-    <argument ref="itmRpcService"/>
-    <argument ref="elanService"/>
-  </bean>
-
-  <bean id="vfrEntryListener" class="org.opendaylight.netvirt.fibmanager.VrfEntryListener"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker"/>
-    <argument ref="mdsalUtils"/>
-    <argument ref="nexthopManager"/>
-    <argument ref="odlInterfaceRpcService"/>
-    <argument ref="idManagerService"/>
-    <argument ref="interVpnLinkService"/>
-  </bean>
-
-  <bean id="fibRpcServiceImpl" class="org.opendaylight.netvirt.fibmanager.FibRpcServiceImpl">
-    <argument ref="dataBroker"/>
-    <argument ref="mdsalUtils"/>
-    <argument ref="fibManagerImpl"/>
-  </bean>
   <service ref="fibRpcServiceImpl"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService"/>
 

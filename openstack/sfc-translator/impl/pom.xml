@@ -14,7 +14,7 @@
   <parent>
     <groupId>org.opendaylight.controller</groupId>
     <artifactId>config-parent</artifactId>
-    <version>0.6.0-SNAPSHOT</version>
+    <version>0.7.0-SNAPSHOT</version>
     <relativePath/>
   </parent>
 
@@ -22,7 +22,7 @@
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>openstack.sfc-translator-impl</artifactId>
   <name>ODL :: netvirt :: ${project.artifactId}</name>
-  <version>1.4.0-SNAPSHOT</version>
+  <version>1.5.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
   <description>
@@ -43,8 +43,8 @@
   </developers>
 
   <properties>
-    <neutron.model.version>0.8.0-SNAPSHOT</neutron.model.version>
-    <sfc.version>0.5.0-SNAPSHOT</sfc.version>
+    <neutron.model.version>0.9.0-SNAPSHOT</neutron.model.version>
+    <sfc.version>0.6.0-SNAPSHOT</sfc.version>
   </properties>
 
   <dependencies>

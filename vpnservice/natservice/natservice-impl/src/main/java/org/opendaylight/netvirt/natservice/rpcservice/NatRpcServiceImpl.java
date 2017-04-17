@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.natservice.internal.NatConstants;
@@ -50,13 +52,15 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class NatRpcServiceImpl implements OdlNatRpcService {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatRpcServiceImpl.class);
     private final DataBroker dataBroker;
     private final INeutronVpnManager nvpnManager;
 
-    public NatRpcServiceImpl(final DataBroker dataBroker, INeutronVpnManager nvpnManager) {
+    @Inject
+    public NatRpcServiceImpl(final DataBroker dataBroker, final INeutronVpnManager nvpnManager) {
         this.dataBroker = dataBroker;
         this.nvpnManager = nvpnManager;
     }

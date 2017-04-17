@@ -17,10 +17,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.arputil.api.ArpConstants;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider;
-import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -38,25 +42,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class NeutronSubnetGwMacResolver {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronSubnetGwMacResolver.class);
     private static final long L3_INSTALL_DELAY_MILLIS = 5000;
-
     private final DataBroker broker;
-    private final IVpnManager vpnManager;
     private final OdlArputilService arpUtilService;
     private final IElanService elanService;
     private final ICentralizedSwitchProvider cswitchProvider;
-
     private final ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("Gw-Mac-Res").build();
     private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(threadFactory);
     private ScheduledFuture<?> arpFuture;
 
-    public NeutronSubnetGwMacResolver(final DataBroker broker, final IVpnManager vpnManager,
+    @Inject
+    public NeutronSubnetGwMacResolver(final DataBroker broker,
             final OdlArputilService arputilService, final IElanService elanService,
             final ICentralizedSwitchProvider cswitchProvider) {
         this.broker = broker;
-        this.vpnManager = vpnManager;
         this.arpUtilService = arputilService;
         this.elanService = elanService;
         this.cswitchProvider = cswitchProvider;
@@ -64,8 +66,9 @@ public class NeutronSubnetGwMacResolver {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void start() {
-        LOG.info("{} start", getClass().getSimpleName());
+    @PostConstruct
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
 
         arpFuture = executorService.scheduleAtFixedRate(() -> {
             try {
@@ -73,10 +76,11 @@ public class NeutronSubnetGwMacResolver {
             } catch (Throwable t) {
                 LOG.warn("Failed to send ARP request to GW ips", t);
             }
-        }, 0, vpnManager.getArpCacheTimeoutMillis(), TimeUnit.MILLISECONDS);
+        }, 0, ArpConstants.ARP_CACHE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
 
     }
 
+    @PreDestroy
     public void close() {
         arpFuture.cancel(true);
     }

@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.cloudservicechain.listeners;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
@@ -17,6 +20,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 /**
  * Listens to changes in the Vpn to VpnPseudoPort relationship with the only
  * purpose of updating the VpnPseudoPorts caches in all blades.
@@ -29,10 +33,12 @@ public class VpnPseudoPortListener
     private static final Logger LOG = LoggerFactory.getLogger(VpnPseudoPortListener.class);
     private final DataBroker dataBroker;
 
+    @Inject
     public VpnPseudoPortListener(final DataBroker dataBroker) {
         this.dataBroker = dataBroker;
     }
 
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }

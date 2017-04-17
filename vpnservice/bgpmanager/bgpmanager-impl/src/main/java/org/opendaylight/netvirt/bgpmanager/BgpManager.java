@@ -134,7 +134,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
 
     @Override
     public void advertisePrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
-                                VrfEntry.EncapType encapType, int vpnLabel, long l3vni, long l2vni,
+                                VrfEntry.EncapType encapType, long vpnLabel, long l3vni, long l2vni,
                                 String gatewayMac) throws Exception {
         bcm.addPrefix(rd, macAddress, prefix, nextHopList,
                 encapType, vpnLabel, l3vni, l2vni, gatewayMac, 1 /* TODO FIX afi */);
@@ -142,7 +142,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
 
     @Override
     public void advertisePrefix(String rd, String macAddress, String prefix, String nextHop,
-                                VrfEntry.EncapType encapType, int vpnLabel, long l3vni, long l2vni,
+                                VrfEntry.EncapType encapType, long vpnLabel, long l3vni, long l2vni,
                                 String gatewayMac) throws Exception {
         LOG.info("ADVERTISE: Adding Prefix rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, vpnLabel);
         bcm.addPrefix(rd, macAddress, prefix, Collections.singletonList(nextHop), encapType,

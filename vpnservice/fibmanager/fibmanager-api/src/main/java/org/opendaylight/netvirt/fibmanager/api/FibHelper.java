@@ -12,9 +12,15 @@ import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
@@ -24,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePathsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePathsKey;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 
@@ -102,5 +109,37 @@ public class FibHelper {
     public static void sortIpAddress(List<RoutePaths> routePathList) {
         Optional.ofNullable(routePathList).ifPresent(
             routePaths -> routePaths.sort(comparing(RoutePaths::getNexthopAddress)));
+    }
+
+    public static InstanceIdentifier<RoutePaths> getRoutePathsIdentifier(String rd, String prefix, String nh) {
+        return InstanceIdentifier.builder(FibEntries.class)
+                .child(VrfTables.class,new VrfTablesKey(rd)).child(VrfEntry.class,new VrfEntryKey(prefix))
+                .child(RoutePaths.class, new RoutePathsKey(nh)).build();
+    }
+
+    public static List<String> getNextHopListFromRoutePaths(final VrfEntry vrfEntry) {
+        List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
+        if (routePaths == null || routePaths.isEmpty()) {
+            return Collections.EMPTY_LIST;
+        }
+        return routePaths.stream()
+                .map(routePath -> routePath.getNexthopAddress())
+                .collect(Collectors.toList());
+    }
+
+    public static com.google.common.base.Optional<VrfEntry> getVrfEntry(DataBroker broker, String rd, String ipPrefix) {
+        InstanceIdentifier<VrfEntry> vrfEntryId = InstanceIdentifier.builder(FibEntries.class)
+            .child(VrfTables.class, new VrfTablesKey(rd))
+            .child(VrfEntry.class, new VrfEntryKey(ipPrefix)).build();
+        return read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+    }
+
+    private static <T extends DataObject> com.google.common.base.Optional<T> read(DataBroker broker,
+            LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
+        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
+            return tx.read(datastoreType, path).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

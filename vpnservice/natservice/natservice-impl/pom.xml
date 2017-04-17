@@ -11,7 +11,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <parent>
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>config-parent</artifactId>
-    <version>0.4.0-SNAPSHOT</version>
+    <version>0.5.0-SNAPSHOT</version>
     <relativePath>../../commons/config-parent</relativePath>
   </parent>
 
@@ -19,15 +19,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <artifactId>natservice-impl</artifactId>
   <name>ODL :: netvirt :: ${project.artifactId}</name>
   <packaging>bundle</packaging>
-  <properties>
-    <powermock.version>1.6.4</powermock.version>
-    <mockitoall.version>1.10.19</mockitoall.version>
-</properties>
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>natservice-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.genius</groupId>
@@ -47,17 +43,17 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>bgpmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>vpnmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>fibmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.genius</groupId>
@@ -72,12 +68,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>neutronvpn-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>elanmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.openflowplugin.model</groupId>
@@ -92,23 +88,14 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <groupId>commons-net</groupId>
         <artifactId>commons-net</artifactId>
     </dependency>
-  <!--  Only for unit-test -->
-   <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-core</artifactId>
-        <version>${mockitoall.version}</version>
-        <scope>test</scope>
-    </dependency>
     <dependency>
         <groupId>org.powermock</groupId>
         <artifactId>powermock-api-mockito</artifactId>
-        <version>${powermock.version}</version>
         <scope>test</scope>
     </dependency>
     <dependency>
         <groupId>org.powermock</groupId>
         <artifactId>powermock-module-junit4</artifactId>
-        <version>${powermock.version}</version>
         <scope>test</scope>
     </dependency>
     <dependency>
@@ -116,6 +103,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>counters-api</artifactId>
       <version>${infrautils.version}</version>
     </dependency>
+      <dependency>
+        <groupId>javax.inject</groupId>
+        <artifactId>javax.inject</artifactId>
+      </dependency>
   </dependencies>
 
   <build>
@@ -134,6 +125,32 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             </Import-Package>
           </instructions>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.aries.blueprint</groupId>
+        <artifactId>blueprint-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-artifacts</id>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>${project.build.directory}/classes/initial/netvirt-natservice-config.xml</file>
+                  <type>xml</type>
+                  <classifier>config</classifier>
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

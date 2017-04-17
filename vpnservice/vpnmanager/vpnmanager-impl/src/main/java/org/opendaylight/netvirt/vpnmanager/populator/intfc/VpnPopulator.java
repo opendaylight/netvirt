@@ -7,19 +7,12 @@
  */
 package org.opendaylight.netvirt.vpnmanager.populator.intfc;
 
-import java.math.BigInteger;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.vpnmanager.populator.input.L3vpnInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 
 public interface VpnPopulator {
     void populateFib(L3vpnInput input, WriteTransaction writeCfgTxn, WriteTransaction writeOperTxn);
-
-    void addSubnetRouteFibEntry(String rd, String vpnName, String prefix, String nextHop, int label,
-                                long elantag, BigInteger dpnId, WriteTransaction writeTxn,
-                                VrfEntry.EncapType encapType);
-
 
     Adjacency createOperationalAdjacency(L3vpnInput input);
 }

@@ -131,7 +131,7 @@ public final class OpenFlow13Utils {
     }
 
     public static void addMatchInPort(MatchBuilder match, NodeId nodeId, long inPort) {
-        match.setInPort(new NodeConnectorId(nodeId + ":" + inPort));
+        match.setInPort(new NodeConnectorId(nodeId.getValue() + ":" + inPort));
     }
 
     public static void addMatchNshNsc1(MatchBuilder match, long nsc) {

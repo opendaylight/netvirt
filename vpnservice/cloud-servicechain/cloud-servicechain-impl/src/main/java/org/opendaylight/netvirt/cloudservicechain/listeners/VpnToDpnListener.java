@@ -11,6 +11,8 @@ import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -25,17 +27,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Rem
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+@Singleton
 public class VpnToDpnListener implements OdlL3vpnListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnToDpnListener.class);
-
     private final DataBroker broker;
     private final IMdsalApiManager mdsalMgr;
     private final VPNServiceChainHandler vpnScHandler;
 
+    @Inject
     public VpnToDpnListener(final DataBroker db, final IMdsalApiManager mdsalManager,
-                            VPNServiceChainHandler vpnServiceChainHandler) {
+                            final VPNServiceChainHandler vpnServiceChainHandler) {
         this.broker = db;
         this.mdsalMgr = mdsalManager;
         this.vpnScHandler = vpnServiceChainHandler;

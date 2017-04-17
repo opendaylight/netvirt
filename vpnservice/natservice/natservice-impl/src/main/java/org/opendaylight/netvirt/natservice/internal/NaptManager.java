@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -72,6 +74,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class NaptManager {
     private static final Logger LOG = LoggerFactory.getLogger(NaptManager.class);
     private final DataBroker dataBroker;
@@ -81,6 +84,7 @@ public class NaptManager {
     private static boolean EXTSUBNET_FLAG = false;
     private static boolean NEXT_EXTIP_FLAG = false;
 
+    @Inject
     public NaptManager(final DataBroker dataBroker, final IdManagerService idManager) {
         this.dataBroker = dataBroker;
         this.idManager = idManager;
@@ -699,26 +703,33 @@ public class NaptManager {
                     updateCounter(segmentId, externalIp, false);
                 }
             }
+            // remove from ipmap DS
+            LOG.debug("NAPT Service : Removing Ipmap for router {} from datastore", segmentId);
+            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         }
-        // remove from ipmap DS
-        LOG.debug("NAPT Service : Removing Ipmap for router {} from datastore", segmentId);
-        MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
     }
 
     void removeIpPortMappingForRouterID(long segmentId) {
         InstanceIdentifier<IpPortMapping> idBuilder = InstanceIdentifier.builder(IntextIpPortMap.class)
             .child(IpPortMapping.class, new IpPortMappingKey(segmentId)).build();
-        // remove from IntExtIpPortmap DS
-        LOG.debug("NAPT Service : Removing IntExtIpPort map for router {} from datastore", segmentId);
-        MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, idBuilder);
+        Optional<IpPortMapping> ipPortMapping = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                idBuilder);
+        if (ipPortMapping.isPresent()) {
+            // remove from IntExtIpPortmap DS
+            LOG.debug("NAPT Service : Removing IntExtIpPort map for router {} from datastore", segmentId);
+            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, idBuilder);
+        }
     }
 
     void removeIntIpPortMappingForRouterID(long segmentId) {
         InstanceIdentifier<IntipPortMap> intIp = InstanceIdentifier.builder(SnatintIpPortMap.class)
             .child(IntipPortMap.class, new IntipPortMapKey(segmentId)).build();
-        // remove from SnatIntIpPortmap DS
-        LOG.debug("NAPT Service : Removing SnatIntIpPort from datastore : {}", intIp);
-        MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, intIp);
+        Optional<IntipPortMap> intIpPortMap = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, intIp);
+        if (intIpPortMap.isPresent()) {
+            // remove from SnatIntIpPortmap DS
+            LOG.debug("NAPT Service : Removing SnatIntIpPort from datastore : {}", intIp);
+            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, intIp);
+        }
     }
 
     void removePortFromPool(String internalIpPort, String externalIp) {

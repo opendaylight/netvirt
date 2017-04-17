@@ -10,6 +10,8 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import java.math.BigInteger;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -18,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class EvpnNaptSwitchHA {
 
     private static final Logger LOG = LoggerFactory.getLogger(EvpnNaptSwitchHA.class);
@@ -26,6 +29,7 @@ public class EvpnNaptSwitchHA {
     private final IdManagerService idManager;
     private final EvpnSnatFlowProgrammer evpnSnatFlowProgrammer;
 
+    @Inject
     public EvpnNaptSwitchHA(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                         final EvpnSnatFlowProgrammer evpnSnatFlowProgrammer,
                         final IdManagerService idManager) {

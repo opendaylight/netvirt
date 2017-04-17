@@ -9,19 +9,25 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class EventDispatcher implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(EventDispatcher.class);
     private final BlockingQueue<NAPTEntryEvent> eventQueue;
     private final NaptEventHandler naptEventHandler;
 
-    public EventDispatcher(NaptEventHandler naptEventHandler) {
+    @Inject
+    public EventDispatcher(final NaptEventHandler naptEventHandler) {
         this.naptEventHandler = naptEventHandler;
         this.eventQueue = new ArrayBlockingQueue<>(NatConstants.EVENT_QUEUE_LENGTH);
     }
 
+    @PostConstruct
     public void init() {
         new Thread(this).start();
     }

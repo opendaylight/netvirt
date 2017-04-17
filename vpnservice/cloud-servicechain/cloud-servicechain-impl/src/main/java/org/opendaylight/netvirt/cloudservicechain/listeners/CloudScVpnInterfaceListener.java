@@ -8,6 +8,9 @@
 package org.opendaylight.netvirt.cloudservicechain.listeners;
 
 import com.google.common.base.Optional;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -19,15 +22,16 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class CloudScVpnInterfaceListener
     extends AsyncDataTreeChangeListenerBase<VpnInterface, CloudScVpnInterfaceListener>
     implements AutoCloseable {
 
     static final Logger LOG = LoggerFactory.getLogger(CloudScVpnInterfaceListener.class);
-
     private final DataBroker dataBroker;
     private final VPNServiceChainHandler vpnScHandler;
 
+    @Inject
     public CloudScVpnInterfaceListener(final DataBroker dataBroker, final VPNServiceChainHandler vpnScHandler) {
         super(VpnInterface.class, CloudScVpnInterfaceListener.class);
 
@@ -35,8 +39,10 @@ public class CloudScVpnInterfaceListener
         this.vpnScHandler = vpnScHandler;
     }
 
-    public void start() {
-        LOG.info("{} start", getClass().getSimpleName());
+    @Override
+    @PostConstruct
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 

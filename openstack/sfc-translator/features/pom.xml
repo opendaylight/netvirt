@@ -12,12 +12,12 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>odlparent-lite</artifactId>
-        <version>1.8.0-SNAPSHOT</version>
+        <version>1.9.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>openstack.sfc-translator-features-aggregator</artifactId>
-    <version>1.4.0-SNAPSHOT</version>
+    <version>1.5.0-SNAPSHOT</version>
     <name>ODL :: netvirt :: ${project.artifactId}</name>
     <packaging>pom</packaging>
 

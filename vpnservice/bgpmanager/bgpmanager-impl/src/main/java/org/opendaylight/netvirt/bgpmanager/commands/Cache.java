@@ -19,8 +19,10 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsId;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.GracefulRestart;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Logging;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Multipath;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Networks;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.VrfMaxpath;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Vrfs;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.EbgpMultihop;
@@ -63,6 +65,7 @@ public class Cache extends OsgiCommandSupport {
     private static final String NHSTR = "Nexthop";
     private static final String LBSTR = "Label";
     private static final String RDSTR = "RD";
+    private static final String MPSTR = "Maxpath";
 
     private Object usage() {
         session.getConsole().println("usage: bgp-cache [" + LST + " vrfs | networks] [" + OFL + " file-name]");
@@ -205,6 +208,28 @@ public class Cache extends OsgiCommandSupport {
                     int label = net.getLabel().intValue();
                     ps.printf("\t%s\n\t\t%-7s  %s\n\t\t%-7s  %s\n\t\t%-7s  %d\n",
                             pfxlen, RDSTR, rd, NHSTR, nh, LBSTR, label);
+                }
+            }
+        }
+
+        List<Multipath> mp = config.getMultipath();
+        List<VrfMaxpath> vrfm = config.getVrfMaxpath();
+        if (mp != null) {
+            ps.printf("\nMultipath\n");
+            for (Multipath multipath : mp) {
+                int afi = multipath.getAfi().intValue();
+                int safi = multipath.getSafi().intValue();
+                Boolean enabled = multipath.isMultipathEnabled();
+                if (enabled) {
+                    ps.printf("\t%-16s  %s\n\n", AFSTR, afi == 1 && safi == 5 ? "vpnv4" : "Unknown");
+                    if (vrfm != null) {
+                        ps.printf("\t%-16s  %s\n", RDSTR, MPSTR);
+                        for (VrfMaxpath vrfMaxpath : vrfm) {
+                            String rd = vrfMaxpath.getRd();
+                            int maxpath = vrfMaxpath.getMaxpaths();
+                            ps.printf("\t%-16s  %d\n", rd, maxpath);
+                        }
+                    }
                 }
             }
         }

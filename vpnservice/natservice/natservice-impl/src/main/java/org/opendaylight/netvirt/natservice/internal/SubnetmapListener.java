@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -17,11 +20,13 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap, SubnetmapListener> {
     private static final Logger LOG = LoggerFactory.getLogger(SubnetmapListener.class);
     private final DataBroker dataBroker;
     private final ExternalNetworkGroupInstaller externalNetworkGroupInstaller;
 
+    @Inject
     public SubnetmapListener(final DataBroker dataBroker,
                              final ExternalNetworkGroupInstaller externalNetworkGroupInstaller) {
         super(Subnetmap.class, SubnetmapListener.class);
@@ -29,6 +34,8 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
         this.externalNetworkGroupInstaller = externalNetworkGroupInstaller;
     }
 
+    @Override
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }

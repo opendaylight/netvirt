@@ -9,7 +9,7 @@
   <parent>
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>config-parent</artifactId>
-    <version>0.4.0-SNAPSHOT</version>
+    <version>0.5.0-SNAPSHOT</version>
     <relativePath>../../commons/config-parent</relativePath>
   </parent>
 
@@ -22,7 +22,7 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>elanmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.genius</groupId>
@@ -47,7 +47,7 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>neutronvpn-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
@@ -56,7 +56,7 @@
     <dependency>
       <groupId>org.opendaylight.ovsdb</groupId>
       <artifactId>hwvtepsouthbound-api</artifactId>
-      <version>${vpns.ovsdb.version}</version>
+      <version>${ovsdb.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.neutron</groupId>
@@ -76,32 +76,27 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>dhcpservice-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.ovsdb</groupId>
       <artifactId>southbound-api</artifactId>
-      <version>${vpns.ovsdb.version}</version>
+      <version>${ovsdb.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.ovsdb</groupId>
       <artifactId>utils.mdsal-utils</artifactId>
-      <version>${vpns.ovsdb.version}</version>
+      <version>${ovsdb.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.ovsdb</groupId>
       <artifactId>utils.southbound-utils</artifactId>
-      <version>${vpns.ovsdb.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.ovsdb</groupId>
-      <artifactId>utils.config</artifactId>
-      <version>${vpns.ovsdb.version}</version>
+      <version>${ovsdb.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>vpnmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
 
     <!-- Only for unit-test -->
@@ -168,7 +163,6 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Embed-Dependency>utils.config;type=!pom;inline=false</Embed-Dependency>
             <Embed-Transitive>true</Embed-Transitive>
             <!-- This bundle works with Karaf 3 and 4.0 -->
             <Import-Package>
