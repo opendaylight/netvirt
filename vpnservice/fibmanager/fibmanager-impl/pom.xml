@@ -12,7 +12,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <parent>
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>config-parent</artifactId>
-    <version>0.4.0-SNAPSHOT</version>
+    <version>0.5.0-SNAPSHOT</version>
     <relativePath>../../commons/config-parent</relativePath>
   </parent>
 
@@ -22,14 +22,14 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <packaging>bundle</packaging>
   <dependencies>
     <dependency>
-      <groupId>org.opendaylight.netvirt</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>fibmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.netvirt</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>bgpmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.genius</groupId>
@@ -42,14 +42,14 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>${genius.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.netvirt</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>elanmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.netvirt</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>vpnmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.genius</groupId>
@@ -66,7 +66,20 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>model-flow-service</artifactId>
       <version>${openflowplugin.version}</version>
     </dependency>
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+    </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.aries.blueprint</groupId>
+        <artifactId>blueprint-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 
   <!--
       Maven Site Configuration

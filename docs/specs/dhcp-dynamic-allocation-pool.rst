@@ -41,6 +41,17 @@ be managed through the Genius ID Manager service that will support the allocatio
 addresses (ids), persistent mapping across controller restarts and more. Neutron IP allocations will
 be added to the relevant pools to avoid allocation of the same addresses.
 
+The allocation pool DHCP server will support:
+
+* DHCP methods: Discover, Request, Release, Decline and Inform (future)
+* Allocation of a dynamic or specific (future) available IP address from the pool
+* (future) Static IP address allocations
+* (future) IP Address Lease Time + Rebinding and Renewal Time
+* Classless Static Routes for each pool
+* Domain names (future) and DNS for each pool
+* (future) Probe an address before allocation
+* (future) Relay agents
+
 Pipeline changes
 ----------------
 This new rule in table 60 will be responsible for forwarding dhcp packets to the controller:
@@ -56,8 +67,7 @@ New YANG model to support the configuration of the DHCP allocation pools and all
 network and subnet.
 
 * Allocation-Pool: configuration of allocation pool parameters like range, gateway and dns servers.
-* Allocation-Instance: records of IP address allocation per MAC address. Records represent dynamic
-  or static allocations, and Neutron pre-allocated addresses.
+* Allocation-Instance: configuration of static IP address allocation and Neutron pre-allocated addresses, per MAC address.
 
 .. code-block:: none
    :caption: dhcp_allocation_pool.yang
@@ -109,10 +119,19 @@ network and subnet.
                     description "default gateway for dhcp allocation";
                     type inet:ip-address;
                 }
-                list dns-servers {
+                leaf-list dns-servers {
                     description "dns server list";
-                    leaf dns-server {
-                        description "dns server entry";
+                    type inet:ip-address;
+                }
+                list static-routes {
+                    description "static routes list for dhcp allocation";
+                    key "destination";
+                    leaf destination {
+                        description "destination in CIDR format";
+                        type inet:ip-prefix;
+                    }
+                    leaf nexthop {
+                        description "router ip address";
                         type inet:ip-address;
                     }
                 }
@@ -207,15 +226,17 @@ Dynamic allocation pool
           {
             "subnet": "10.1.1.0/24",
             "dns-servers": [
-              {
-                "dns-server": "8.8.8.8"
-              }
+              "8.8.8.8"
             ],
             "gateway": "10.1.1.1",
-            "network-id": "d211a14b-e5e9-33af-89f3-9e43a270e0c8",
             "allocate-from": "10.1.1.2",
             "allocate-to": "10.1.1.200"
-          }
+            "static-routes": [
+              {
+                "destination": "5.8.19.24/16",
+                "nexthop": "10.1.1.254"
+              }
+            ]
   ]}]}}
 
 Static address allocation

@@ -12,6 +12,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -28,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class EvpnSnatFlowProgrammer {
     private static final Logger LOG = LoggerFactory.getLogger(EvpnSnatFlowProgrammer.class);
     private final DataBroker dataBroker;
@@ -36,6 +39,7 @@ public class EvpnSnatFlowProgrammer {
     private final IFibManager fibManager;
     private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
 
+    @Inject
     public EvpnSnatFlowProgrammer(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                            final IBgpManager bgpManager,
                            final IFibManager fibManager) {

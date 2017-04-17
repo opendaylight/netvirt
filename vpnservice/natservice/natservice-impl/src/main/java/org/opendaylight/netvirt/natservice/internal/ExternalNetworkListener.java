@@ -13,6 +13,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -29,25 +32,35 @@ import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig.NatMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Networks, ExternalNetworkListener>
     implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ExternalNetworkListener.class);
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
+    private NatMode natMode = NatMode.Controller;
 
-    public ExternalNetworkListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager) {
+    @Inject
+    public ExternalNetworkListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
+            final NatserviceConfig config) {
         super(Networks.class, ExternalNetworkListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
+        if (config != null) {
+            this.natMode = config.getNatMode();
+        }
     }
 
     @Override
+    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
@@ -67,13 +80,17 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
     protected void add(final InstanceIdentifier<Networks> identifier,
                        final Networks nw) {
         LOG.trace("NAT Service : External Network add mapping method - key: " + identifier + ", value=" + nw);
-        processExternalNwAdd(identifier, nw);
+        if (natMode == NatMode.Controller) {
+            processExternalNwAdd(identifier, nw);
+        }
     }
 
     @Override
     protected void remove(InstanceIdentifier<Networks> identifier, Networks nw) {
         LOG.trace("NAT Service : External Network remove mapping method - key: " + identifier + ", value=" + nw);
-        processExternalNwDel(identifier, nw);
+        if (natMode == NatMode.Controller) {
+            processExternalNwDel(identifier, nw);
+        }
     }
 
     @Override
@@ -90,10 +107,15 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
                 if (oldRtrs.contains(rtr)) {
                     oldRtrs.remove(rtr);
                 } else {
-                    // new router case
-                    //Routers added need to have the corresponding default Fib entry added to the switches in the router
-                    String routerId = rtr.getValue();
-                    addOrDelDefFibRouteToSNAT(routerId, true);
+                    if (natMode == NatMode.Conntrack) {
+                        return;
+                    } else {
+                        // new router case
+                        //Routers added need to have the corresponding default Fib entry added to the switches in
+                        //the router
+                        String routerId = rtr.getValue();
+                        addOrDelDefFibRouteToSNAT(routerId, true);
+                    }
 
                 }
             }

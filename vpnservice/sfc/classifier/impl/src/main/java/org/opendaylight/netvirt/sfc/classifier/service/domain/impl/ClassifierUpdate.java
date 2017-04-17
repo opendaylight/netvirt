@@ -35,8 +35,10 @@ public class ClassifierUpdate implements Runnable {
     public void run() {
         Set<ClassifierRenderableEntry> configurationEntries = configurationClassifier.getAllEntries();
         Set<ClassifierRenderableEntry> operationalEntries = operationalClassifier.getAllEntries();
-        Set<ClassifierRenderableEntry> entriesToAdd = Sets.difference(configurationEntries, operationalEntries);
-        Set<ClassifierRenderableEntry> entriesToRemove = Sets.difference(operationalEntries, configurationEntries);
+        Set<ClassifierRenderableEntry> entriesToAdd =
+                Sets.difference(configurationEntries, operationalEntries).immutableCopy();
+        Set<ClassifierRenderableEntry> entriesToRemove =
+                Sets.difference(operationalEntries, configurationEntries).immutableCopy();
 
         LOG.trace("Configuration entries: {}", configurationEntries);
         LOG.trace("Operational entries: {}", operationalEntries);

@@ -15,8 +15,10 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -163,6 +165,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
@@ -1067,8 +1072,9 @@ public class VpnUtil {
             InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
             LearntVpnVipToPortBuilder builder =
                     new LearntVpnVipToPortBuilder().setKey(new LearntVpnVipToPortKey(fixedIp, vpnName)).setVpnName(
-                            vpnName).setPortFixedip(fixedIp).setPortName(portName).setMacAddress(
-                            macAddress.toLowerCase());
+                            vpnName).setPortFixedip(fixedIp).setPortName(portName)
+                            .setMacAddress(macAddress.toLowerCase())
+                            .setCreationTime(new SimpleDateFormat("MM/dd/yyyy h:mm:ss a").format(new Date()));
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, id, builder.build());
             LOG.debug("ARP learned for fixedIp: {}, vpn {}, interface {}, mac {}, isSubnetIp {} added to "
                     + "VpnPortipToPort DS", fixedIp, vpnName, portName, macAddress);
@@ -1697,5 +1703,28 @@ public class VpnUtil {
             }
         }
         return null;
+    }
+
+    static boolean isExternalSubnetVpn(String vpnName, String subnetId) {
+        return vpnName.equals(subnetId);
+    }
+
+    static Boolean getIsExternal(Network network) {
+        return network.getAugmentation(NetworkL3Extension.class) != null
+                && network.getAugmentation(NetworkL3Extension.class).isExternal();
+    }
+
+    @SuppressWarnings("checkstyle:linelength")
+    static Network getNeutronNetwork(DataBroker broker, Uuid networkId) {
+        Network network = null;
+        LOG.debug("getNeutronNetwork for {}", networkId.getValue());
+        InstanceIdentifier<Network> inst = InstanceIdentifier.create(Neutron.class).child(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks.class).child(
+                Network.class, new NetworkKey(networkId));
+        Optional<Network> net = read(broker, LogicalDatastoreType.CONFIGURATION, inst);
+        if (net.isPresent()) {
+            network = net.get();
+        }
+        return network;
     }
 }

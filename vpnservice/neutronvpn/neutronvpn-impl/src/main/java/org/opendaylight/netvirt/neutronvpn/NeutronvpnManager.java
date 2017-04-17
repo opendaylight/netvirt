@@ -21,6 +21,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -128,6 +131,7 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, EventListener {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronvpnManager.class);
     private final DataBroker dataBroker;
@@ -138,6 +142,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     private final IElanService elanService;
     private final NeutronvpnConfig neutronvpnConfig;
 
+    @Inject
     public NeutronvpnManager(
             final DataBroker dataBroker, final NotificationPublishService notiPublishService,
             final NeutronvpnNatManager vpnNatMgr, final VpnRpcService vpnRpcSrv, final IElanService elanService,
@@ -153,6 +158,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     }
 
     @Override
+    @PreDestroy
     public void close() throws Exception {
         LOG.info("{} close", getClass().getSimpleName());
     }

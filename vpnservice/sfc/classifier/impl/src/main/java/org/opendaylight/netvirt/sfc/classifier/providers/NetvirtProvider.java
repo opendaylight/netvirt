@@ -25,15 +25,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.NeutronNetwork;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class NetvirtProvider {
 
+    private static final Logger LOG = LoggerFactory.getLogger(NetvirtProvider.class);
     private final DataBroker dataBroker;
 
     @Inject
@@ -48,6 +47,8 @@ public class NetvirtProvider {
         NetworkMap networkMap =
                 MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, networkMapIdentifier).orNull();
         if (networkMap == null) {
+            LOG.warn("getLogicalInterfacesFromNeutronNetwork cant get NetworkMap for NW UUID [{}]",
+                    nw.getNetworkUuid());
             return Collections.emptyList();
         }
 
@@ -57,15 +58,18 @@ public class NetvirtProvider {
             InstanceIdentifier<Subnetmap> subnetId = getSubnetMapIdentifier(subnetUuid);
             Subnetmap subnet = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetId).orNull();
             if (subnet == null) {
+                LOG.warn("getLogicalInterfacesFromNeutronNetwork cant get Subnetmap for NW UUID [{}] Subnet UUID [{}]",
+                        nw.getNetworkUuid(), subnetUuid.getValue());
                 continue;
             }
 
-            for (Uuid subnetPortUuid : subnet.getPortList()) {
-                Optional<String> portId = getNeutronPort(subnetPortUuid);
-                if (portId.isPresent()) {
-                    interfaces.add(portId.get());
-                }
+            if (subnet.getPortList() == null || subnet.getPortList().isEmpty()) {
+                LOG.warn("getLogicalInterfacesFromNeutronNetwork No ports on Subnet: NW UUID [{}] Subnet UUID [{}]",
+                        nw.getNetworkUuid(), subnetUuid.getValue());
+                continue;
             }
+
+            subnet.getPortList().forEach(portId -> interfaces.add(portId.getValue()));
         }
 
         return interfaces;
@@ -75,24 +79,13 @@ public class NetvirtProvider {
     // Internal Util methods
     //
 
-    private InstanceIdentifier<NetworkMap> getNetworkMapIdentifier(Uuid nwUuidStr) {
+    private InstanceIdentifier<NetworkMap> getNetworkMapIdentifier(Uuid nwUuid) {
         return InstanceIdentifier.builder(NetworkMaps.class)
-                .child(NetworkMap.class,new NetworkMapKey(nwUuidStr)).build();
+                .child(NetworkMap.class,new NetworkMapKey(nwUuid)).build();
     }
 
-    private InstanceIdentifier<Subnetmap> getSubnetMapIdentifier(Uuid subnetUuidStr) {
+    private InstanceIdentifier<Subnetmap> getSubnetMapIdentifier(Uuid subnetUuid) {
         return InstanceIdentifier.builder(Subnetmaps.class)
-                .child(Subnetmap.class, new SubnetmapKey(subnetUuidStr)).build();
+                .child(Subnetmap.class, new SubnetmapKey(subnetUuid)).build();
     }
-
-    // Returns the Port UUID string, which is the same as a Genius Logical Interface name
-    private Optional<String> getNeutronPort(Uuid portUuid) {
-        InstanceIdentifier<Port> instId = InstanceIdentifier.create(Neutron.class).child(Ports.class)
-                .child(Port.class, new PortKey(portUuid));
-        Port port = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, instId).orNull();
-
-        return port == null
-                ? Optional.empty() : Optional.of(port.getUuid().getValue());
-    }
-
 }

@@ -46,6 +46,7 @@ import org.opendaylight.netvirt.natservice.internal.NatUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -90,7 +91,8 @@ public class ExternalNetworksChangeListenerTest {
             Mockito.mock(NaptManager.class),
             Mockito.mock(IBgpManager.class),
             Mockito.mock(VpnRpcService.class),
-            Mockito.mock(FibRpcService.class));
+            Mockito.mock(FibRpcService.class),
+            Mockito.mock(NatserviceConfig.class));
 
         PowerMockito.mockStatic(MDSALUtil.class);
     }

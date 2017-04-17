@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.liblldp.PacketException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -55,9 +57,11 @@ import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.mdsalutil.packet.TCP;
 import org.opendaylight.genius.mdsalutil.packet.UDP;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInputBuilder;
@@ -71,6 +75,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class NaptEventHandler {
     private static final Logger LOG = LoggerFactory.getLogger(NaptEventHandler.class);
     private final DataBroker dataBroker;
@@ -78,19 +83,26 @@ public class NaptEventHandler {
     private final PacketProcessingService pktService;
     private final OdlInterfaceRpcService interfaceManagerRpc;
     private final NaptManager naptManager;
+    private final INeutronVpnManager nvpnManager;
+    private final IdManagerService idManager;
     private IInterfaceManager interfaceManager;
 
+    @Inject
     public NaptEventHandler(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                             final NaptManager naptManager,
                             final PacketProcessingService pktService,
                             final OdlInterfaceRpcService interfaceManagerRpc,
-                            final IInterfaceManager interfaceManager) {
+                            final IInterfaceManager interfaceManager,
+                            final INeutronVpnManager nvpnManager,
+                            final IdManagerService idManager) {
         this.dataBroker = dataBroker;
         NaptEventHandler.mdsalManager = mdsalManager;
         this.naptManager = naptManager;
         this.pktService = pktService;
         this.interfaceManagerRpc = interfaceManagerRpc;
         this.interfaceManager = interfaceManager;
+        this.nvpnManager = nvpnManager;
+        this.idManager = idManager;
     }
 
     // TODO Clean up the exception handling
@@ -259,7 +271,10 @@ public class NaptEventHandler {
                     }
                 }
                 if (pktOut != null) {
-                    sendNaptPacketOut(pktOut, infInfo, actionInfos, routerId);
+                    String routerName = NatUtil.getRouterName(dataBroker, routerId);
+                    long tunId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker,
+                            nvpnManager, idManager, routerId, routerName);
+                    sendNaptPacketOut(pktOut, infInfo, actionInfos, tunId);
                 } else {
                     LOG.warn("NAT Service : Unable to send Packet Out");
                 }
@@ -459,10 +474,10 @@ public class NaptEventHandler {
         return null;
     }
 
-    private void sendNaptPacketOut(byte[] pktOut, InterfaceInfo infInfo, List<ActionInfo> actionInfos, Long routerId) {
+    private void sendNaptPacketOut(byte[] pktOut, InterfaceInfo infInfo, List<ActionInfo> actionInfos, Long tunId) {
         LOG.trace("NAT Service: Sending packet out DpId {}, interfaceInfo {}", infInfo.getDpId(), infInfo);
         // set inPort, and action as OFPP_TABLE so that it starts from table 0 (lowest table as per spec)
-        actionInfos.add(new ActionSetFieldTunnelId(2, BigInteger.valueOf(routerId)));
+        actionInfos.add(new ActionSetFieldTunnelId(2, BigInteger.valueOf(tunId)));
         actionInfos.add(new ActionOutput(3, new Uri("0xfffffff9")));
         NodeConnectorRef inPort = MDSALUtil.getNodeConnRef(infInfo.getDpId(), String.valueOf(infInfo.getPortNo()));
         LOG.debug("NAT Service : inPort for packetout is being set to {}", String.valueOf(infInfo.getPortNo()));

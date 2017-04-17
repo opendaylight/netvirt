@@ -114,6 +114,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
         AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
         if (aclInterface == null) {
             aclInterface = new AclInterface();
+            aclInterface.setInterfaceId(interfaceId);
             AclInterfaceCacheUtil.addAclInterfaceToCache(interfaceId, aclInterface);
         }
         aclInterface.setDpId(AclServiceUtils.getDpIdFromIterfaceState(dataObjectModification));

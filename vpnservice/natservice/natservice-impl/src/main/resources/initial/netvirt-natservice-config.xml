@@ -1,0 +1,3 @@
+<natservice-config xmlns="urn:opendaylight:netvirt:natservice:config">
+  <nat-mode>controller</nat-mode>
+</natservice-config>

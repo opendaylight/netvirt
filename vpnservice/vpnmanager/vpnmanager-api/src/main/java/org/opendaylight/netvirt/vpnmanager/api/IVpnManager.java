@@ -36,8 +36,6 @@ public interface IVpnManager {
 
     boolean isVPNConfigured();
 
-    long getArpCacheTimeoutMillis();
-
     /**
      * Retrieves the list of DPNs where the specified VPN has footprint.
      *
@@ -45,17 +43,6 @@ public interface IVpnManager {
      * @return The list of DPNs
      */
     List<BigInteger> getDpnsOnVpn(String vpnInstanceName);
-
-    /**
-     * Updates the footprint that a VPN has on a given DPN by adding/removing
-     * the specified interface.
-     *
-     * @param dpId DPN where the VPN interface belongs to
-     * @param vpnName Name of the VPN whose footprint is being modified
-     * @param interfaceName Name of the VPN interface to be added/removed to/from the specified DPN
-     * @param add true for addition, false for removal
-     */
-    void updateVpnFootprint(BigInteger dpId, String vpnName, String interfaceName, boolean add);
 
     void setupSubnetMacIntoVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
             BigInteger dpnId, WriteTransaction writeTx, int addOrRemove);

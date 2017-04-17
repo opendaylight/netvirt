@@ -7,20 +7,22 @@
  */
 package org.opendaylight.netvirt.cloudservicechain;
 
-
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.netvirt.cloudservicechain.api.ICloudServiceChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class CloudServiceChainProvider implements ICloudServiceChain {
 
     private static final Logger LOG = LoggerFactory.getLogger(CloudServiceChainProvider.class);
-
     private final VPNServiceChainHandler vpnServiceChainHandler;
     private final ElanServiceChainHandler elanServiceChainHandler;
 
-    public CloudServiceChainProvider(VPNServiceChainHandler vpnServiceChainHandler,
-                                     ElanServiceChainHandler elanServiceChainHandler) {
+    @Inject
+    public CloudServiceChainProvider(final VPNServiceChainHandler vpnServiceChainHandler,
+                                     final ElanServiceChainHandler elanServiceChainHandler) {
         this.vpnServiceChainHandler = vpnServiceChainHandler;
         this.elanServiceChainHandler = elanServiceChainHandler;
     }

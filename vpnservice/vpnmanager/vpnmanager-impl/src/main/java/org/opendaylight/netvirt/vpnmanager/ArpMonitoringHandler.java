@@ -14,6 +14,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlreadyRegisteredException;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.arputil.api.ArpConstants;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -118,8 +119,8 @@ public class ArpMonitoringHandler
                 }
                 MacAddress srcMacAddress = MacAddress.getDefaultInstance(value.getMacAddress());
                 String vpnName =  value.getVpnName();
-                String interfaceName =  value.getPortName();
-                MacEntry macEntry = new MacEntry(vpnName, srcMacAddress, srcInetAddr, interfaceName);
+                MacEntry macEntry = new MacEntry(vpnName, srcMacAddress, srcInetAddr, value.getPortName(),
+                        value.getCreationTime());
                 DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
                 coordinator.enqueueJob(buildJobKey(srcInetAddr.toString(), vpnName),
                         new ArpMonitorStartTask(macEntry, arpMonitorProfileId, dataBroker, alivenessManager,
@@ -139,10 +140,18 @@ public class ArpMonitoringHandler
                     LOG.warn("The mac address received is null for LearntVpnVipToPort {}, ignoring the DTCN", value);
                     return;
                 }
-                MacAddress srcMacAddress = MacAddress.getDefaultInstance(value.getMacAddress());
                 String vpnName =  value.getVpnName();
+                String learntIp = srcInetAddr.getHostAddress();
+                LearntVpnVipToPort vpnVipToPort = VpnUtil.getLearntVpnVipToPort(dataBroker, vpnName, learntIp);
+                if (vpnVipToPort != null && !vpnVipToPort.getCreationTime().equals(value.getCreationTime())) {
+                    LOG.warn("The MIP {} over vpn {} has been learnt again and processed. "
+                            + "Ignoring this remove event.", learntIp, vpnName);
+                    return;
+                }
+                MacAddress srcMacAddress = MacAddress.getDefaultInstance(value.getMacAddress());
                 String interfaceName =  value.getPortName();
-                MacEntry macEntry = new MacEntry(vpnName, srcMacAddress, srcInetAddr, interfaceName);
+                MacEntry macEntry = new MacEntry(vpnName, srcMacAddress, srcInetAddr, interfaceName,
+                        value.getCreationTime());
                 DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
                 coordinator.enqueueJob(buildJobKey(srcInetAddr.toString(), vpnName),
                         new ArpMonitorStopTask(macEntry, dataBroker, alivenessManager));

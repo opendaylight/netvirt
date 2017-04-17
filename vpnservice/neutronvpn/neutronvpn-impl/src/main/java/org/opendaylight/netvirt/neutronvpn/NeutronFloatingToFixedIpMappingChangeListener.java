@@ -12,6 +12,9 @@ import static org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils.buildfloatingI
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -36,18 +39,22 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTreeChangeListenerBase<Floatingip,
         NeutronFloatingToFixedIpMappingChangeListener> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronFloatingToFixedIpMappingChangeListener.class);
     private final DataBroker dataBroker;
 
+    @Inject
     public NeutronFloatingToFixedIpMappingChangeListener(final DataBroker dataBroker) {
         super(Floatingip.class, NeutronFloatingToFixedIpMappingChangeListener.class);
         this.dataBroker = dataBroker;
     }
 
-    public void start() {
-        LOG.info("{} start", getClass().getSimpleName());
+    @Override
+    @PostConstruct
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 

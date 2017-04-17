@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -46,6 +49,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class InterfaceStateEventListener
     extends AsyncDataTreeChangeListenerBase<Interface, InterfaceStateEventListener>
     implements AutoCloseable {
@@ -59,6 +63,7 @@ public class InterfaceStateEventListener
     private final NeutronvpnService neutronVpnService;
     private static final String NAT_FLOW = "NATFLOW";
 
+    @Inject
     public InterfaceStateEventListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                                        final FloatingIPListener floatingIPListener,
                                        final NaptManager naptManager,
@@ -72,6 +77,7 @@ public class InterfaceStateEventListener
     }
 
     @Override
+    @PostConstruct
     public void init() {
         LOG.info("NAT Service : {} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);

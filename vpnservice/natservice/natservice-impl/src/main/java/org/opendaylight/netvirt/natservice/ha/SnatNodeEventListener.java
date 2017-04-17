@@ -12,6 +12,7 @@ import java.math.BigInteger;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -29,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * CentralizedSwitchChangeListener adds/removes the switches to scheduler pool when a switch is
  * added/removed.
  */
-
+@Singleton
 public class SnatNodeEventListener  extends AsyncDataTreeChangeListenerBase<FlowCapableNode, SnatNodeEventListener>
     implements AutoCloseable {
     private final CentralizedSwitchScheduler  centralizedSwitchScheduler;
