@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_26556750",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-17T18:14:48Z",
+      "side": 1,
+      "message": "can we please fix this commit message appropriately since the implementation changed.",
+      "revId": "9354a76e1af50371a7837655c3c8d9d54ec3f4f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_e65b5f85",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-17T18:14:48Z",
+      "side": 1,
+      "message": "can we temporarily place this as info until we run a csit on this review, so that we can see if this is getting executed right?",
+      "revId": "9354a76e1af50371a7837655c3c8d9d54ec3f4f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
