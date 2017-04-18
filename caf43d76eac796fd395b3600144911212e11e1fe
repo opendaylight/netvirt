@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_1c14f442",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-18T07:25:29Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be ERROR.",
+      "revId": "caf43d76eac796fd395b3600144911212e11e1fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_fc0e5031",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-18T07:25:29Z",
+      "side": 1,
+      "message": "ditto here..",
+      "revId": "caf43d76eac796fd395b3600144911212e11e1fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_bc0de839",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatOverVxlanUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-18T07:25:29Z",
+      "side": 1,
+      "message": "shouldn\u0027t this be ERROR?",
+      "revId": "caf43d76eac796fd395b3600144911212e11e1fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
