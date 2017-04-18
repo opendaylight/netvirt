@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_77ac3aa1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetOpDpnChangeListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-04-18T12:20:32Z",
+      "side": 1,
+      "message": "DataStoreJobCoordinator is deprecated - as it\u0027s a new class it will be better to use the new one from infrautils",
+      "revId": "c196c4314a280af1b13028abf60fe7d91736f23c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_3713d2b9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetOpDpnChangeListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-04-18T12:20:32Z",
+      "side": 1,
+      "message": "Is it an error?",
+      "revId": "c196c4314a280af1b13028abf60fe7d91736f23c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_17168ea7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetOpDpnChangeListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-04-18T12:20:32Z",
+      "side": 1,
+      "message": "Move method to Utils",
+      "revId": "c196c4314a280af1b13028abf60fe7d91736f23c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
