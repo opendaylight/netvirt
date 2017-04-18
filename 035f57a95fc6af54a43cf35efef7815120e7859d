@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_0355ba4f",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-04-18T12:14:26Z",
+      "side": 1,
+      "message": "it would be better to precise here: that it\u0027s VPN port, not neutron-port. \n\nBecause neutron-port can have N IPv4 and M IPv6 addresses in the same time. \nIt depends from number of  neutron-subnets, which we have in neutron-network, where we create a port.",
+      "revId": "035f57a95fc6af54a43cf35efef7815120e7859d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_e34fd6bc",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-04-18T12:14:26Z",
+      "side": 1,
+      "message": "it is not possible to associate one VPN interface to two different routers., but L3VPN instance is the same for both",
+      "revId": "035f57a95fc6af54a43cf35efef7815120e7859d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_234a7eac",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-04-18T12:14:26Z",
+      "side": 1,
+      "message": "single VPN ---\u003e single L3VPN instance",
+      "revId": "035f57a95fc6af54a43cf35efef7815120e7859d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
