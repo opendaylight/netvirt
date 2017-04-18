@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_7d137966",
+        "filename": "vpnservice/features/vpnservice-features/src/main/features/features.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-18T16:46:13Z",
+      "side": 1,
+      "message": "We only include the sfc-models and sfc-provider in the pom\u0027s. Does the renderer need to be included? Guess not since the impl only uses what is in the model and provider and nothing in the renderer.",
+      "revId": "470780afa983c4b7852bb3ea160e02fafc5d42d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
