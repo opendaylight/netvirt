@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_bcd5e8ba",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2198,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-04-18T10:58:33Z",
+      "side": 1,
+      "message": "Invalid DPN is 0 and not \"-1\"?\nBecause in ElanConstants we have a constant for INVALID_DPN with value -1.",
+      "revId": "7cd66bca9a9395d8430713bff33a9d7b9479fd42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_d79a4762",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2277,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-04-18T10:58:33Z",
+      "side": 1,
+      "message": "Remove method - I don\u0027t think it\u0027s used anywhere.\n\nIf not removed - should remove TODO and change method name to \"deleteVpnInterfaceFromDs\"",
+      "revId": "7cd66bca9a9395d8430713bff33a9d7b9479fd42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_d7452771",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2339,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-04-18T10:58:33Z",
+      "side": 1,
+      "message": "Will be better to move this method to NeutronvpnUtils",
+      "revId": "7cd66bca9a9395d8430713bff33a9d7b9479fd42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
