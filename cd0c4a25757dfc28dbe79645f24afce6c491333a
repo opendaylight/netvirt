@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_bc804847",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1733,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-18T08:03:15Z",
+      "side": 1,
+      "message": "you can get the specific DPN using VpnUtil.getVpnToDpnListIdentifier() rather than reading the oper data for all DPNs",
+      "range": {
+        "startLine": 1733,
+        "startChar": 51,
+        "endLine": 1733,
+        "endChar": 79
+      },
+      "revId": "cd0c4a25757dfc28dbe79645f24afce6c491333a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
