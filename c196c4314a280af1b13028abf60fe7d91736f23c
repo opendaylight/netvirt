@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_9a72a3e1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetOpDpnChangeListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-18T14:59:34Z",
+      "side": 1,
+      "message": "Receiving add event on part of operation data without the config data existing sounds like an error to me.",
+      "parentUuid": "da01753e_3713d2b9",
+      "revId": "c196c4314a280af1b13028abf60fe7d91736f23c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_17168ea7",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetOpDpnChangeListener.java",
         "patchSetId": 11
@@ -47,6 +65,24 @@
       "writtenOn": "2017-04-18T12:20:32Z",
       "side": 1,
       "message": "Move method to Utils",
+      "revId": "c196c4314a280af1b13028abf60fe7d91736f23c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_9a59035e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetOpDpnChangeListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-18T14:59:34Z",
+      "side": 1,
+      "message": "Moved",
+      "parentUuid": "da01753e_17168ea7",
       "revId": "c196c4314a280af1b13028abf60fe7d91736f23c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
