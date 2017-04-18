@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_b741823b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2198,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-18T11:31:18Z",
+      "side": 1,
+      "message": "Good question!\nI git grepped the codebase, seems that BigInteger.ZERO has like ~100 hits, most of them are checking for invalid DPN.\n\nElanConstants.INVALID_DPN has only 1 hit.",
+      "parentUuid": "da01753e_bcd5e8ba",
+      "revId": "7cd66bca9a9395d8430713bff33a9d7b9479fd42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_d79a4762",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 10
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_77a6fa11",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2277,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-18T11:31:18Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "da01753e_d79a4762",
+      "revId": "7cd66bca9a9395d8430713bff33a9d7b9479fd42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_d7452771",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 10
@@ -47,6 +83,24 @@
       "writtenOn": "2017-04-18T10:58:33Z",
       "side": 1,
       "message": "Will be better to move this method to NeutronvpnUtils",
+      "revId": "7cd66bca9a9395d8430713bff33a9d7b9479fd42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_57a936de",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2339,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-18T11:31:18Z",
+      "side": 1,
+      "message": "Moved",
+      "parentUuid": "da01753e_d7452771",
       "revId": "7cd66bca9a9395d8430713bff33a9d7b9479fd42",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
