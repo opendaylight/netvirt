@@ -500,9 +500,24 @@ public class QosNeutronUtils {
 
         //1. OF rules
         syncFlow(db, dpnId, NwConstants.ADD_FLOW, mdsalUtils, dscpValue, ifName, ipAddress);
-        // /bind qos service to interface
-        bindservice(db, ifName);
+        if (!QosNeutronUtils.isQosServiceAlreadyBound(ifName,db)) {
+            // bind qos service to interface
+            bindservice(db, ifName);
+        }
     }
+
+    private static boolean isQosServiceAlreadyBound(String interfaceName, DataBroker dataBroker) {
+        Optional<BoundServices> boundServicesInstance = MDSALUtil.read(dataBroker,
+                LogicalDatastoreType.CONFIGURATION,
+                QosNeutronUtils.buildServiceId(interfaceName,
+                        ServiceIndex.getIndex(NwConstants.QOS_SERVICE_NAME, NwConstants.QOS_SERVICE_INDEX)));
+        if (boundServicesInstance.isPresent()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
     public static void unsetPortDscpMark(DataBroker dataBroker, OdlInterfaceRpcService odlInterfaceRpcService,
                                          IMdsalApiManager mdsalUtils, Port port) {
@@ -683,6 +698,7 @@ public class QosNeutronUtils {
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 QosNeutronUtils.buildServiceId(ifName, qosServiceIndex),
                 serviceInfo);
+        LOG.info("Binding Qos Service Completed");
     }
 
     public static void unbindservice(DataBroker dataBroker, String ifName) {
