@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_badde772",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-18T14:13:20Z",
+      "side": 1,
+      "message": "agreed. done.",
+      "parentUuid": "da01753e_0355ba4f",
+      "revId": "035f57a95fc6af54a43cf35efef7815120e7859d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_e34fd6bc",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_7acb7fa5",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-18T14:13:20Z",
+      "side": 1,
+      "message": "agreed.\nthanks.\nadded VPN instance, and defined VPN interface",
+      "parentUuid": "da01753e_e34fd6bc",
+      "revId": "035f57a95fc6af54a43cf35efef7815120e7859d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_234a7eac",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2017-04-18T12:14:26Z",
       "side": 1,
       "message": "single VPN ---\u003e single L3VPN instance",
+      "revId": "035f57a95fc6af54a43cf35efef7815120e7859d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_bac4c792",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-18T14:13:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_234a7eac",
       "revId": "035f57a95fc6af54a43cf35efef7815120e7859d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
