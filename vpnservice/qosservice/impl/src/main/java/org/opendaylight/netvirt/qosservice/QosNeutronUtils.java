@@ -14,6 +14,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -98,6 +99,7 @@ public class QosNeutronUtils {
     public static ConcurrentHashMap<Uuid, QosPolicy> qosPolicyMap = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<Uuid, ConcurrentHashMap<Uuid, Port>> qosPortsMap = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<Uuid, ConcurrentHashMap<Uuid, Network>> qosNetworksMap = new ConcurrentHashMap<>();
+    public static CopyOnWriteArraySet<Uuid> qosServiceConfiguredPorts = new CopyOnWriteArraySet<>();
 
     public static void addToQosPolicyCache(QosPolicy qosPolicy) {
         qosPolicyMap.put(qosPolicy.getUuid(),qosPolicy);
@@ -500,9 +502,14 @@ public class QosNeutronUtils {
 
         //1. OF rules
         syncFlow(db, dpnId, NwConstants.ADD_FLOW, mdsalUtils, dscpValue, ifName, ipAddress);
-        // /bind qos service to interface
-        bindservice(db, ifName);
+        if (qosServiceConfiguredPorts.add(port.getUuid())) {
+            // bind qos service to interface
+            bindservice(db, ifName);
+        }
     }
+
+
+
 
     public static void unsetPortDscpMark(DataBroker dataBroker, OdlInterfaceRpcService odlInterfaceRpcService,
                                          IMdsalApiManager mdsalUtils, Port port) {
@@ -521,6 +528,7 @@ public class QosNeutronUtils {
         unbindservice(dataBroker, ifName);
         // 1. OF
         syncFlow(dataBroker, dpnId, NwConstants.DEL_FLOW, mdsalUtils, (short) 0, ifName, ipAddress);
+        qosServiceConfiguredPorts.remove(port.getUuid());
     }
 
     private static BigInteger getDpnForInterface(OdlInterfaceRpcService interfaceManagerRpcService, String ifName) {
