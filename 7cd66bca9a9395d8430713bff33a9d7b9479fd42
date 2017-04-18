@@ -142,6 +142,23 @@
     },
     {
       "key": {
+        "uuid": "da01753e_f7202bb2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2363,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-04-18T12:20:32Z",
+      "side": 1,
+      "message": "Is this an error? Could there be a check for an interface that is not external?",
+      "revId": "7cd66bca9a9395d8430713bff33a9d7b9479fd42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_77f43af2",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetOpDpnChangeListener.java",
         "patchSetId": 10
