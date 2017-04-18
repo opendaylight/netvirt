@@ -2,6 +2,75 @@
   "comments": [
     {
       "key": {
+        "uuid": "da01753e_f70e6b31",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1564,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-04-18T09:39:06Z",
+      "side": 1,
+      "message": "Internal vpn {} , vpnName",
+      "range": {
+        "startLine": 1564,
+        "startChar": 23,
+        "endLine": 1564,
+        "endChar": 35
+      },
+      "revId": "cd0c4a25757dfc28dbe79645f24afce6c491333a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_7751db0d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1581,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-04-18T09:39:06Z",
+      "side": 1,
+      "message": "Move this to else block.",
+      "range": {
+        "startLine": 1571,
+        "startChar": 8,
+        "endLine": 1581,
+        "endChar": 24
+      },
+      "revId": "cd0c4a25757dfc28dbe79645f24afce6c491333a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_d7588734",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1585,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-04-18T09:39:06Z",
+      "side": 1,
+      "message": "use a common syncUpdate and return for both the if and else block",
+      "range": {
+        "startLine": 1582,
+        "startChar": 8,
+        "endLine": 1585,
+        "endChar": 49
+      },
+      "revId": "cd0c4a25757dfc28dbe79645f24afce6c491333a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_bc804847",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 10
@@ -18,6 +87,29 @@
         "startChar": 51,
         "endLine": 1733,
         "endChar": 79
+      },
+      "revId": "cd0c4a25757dfc28dbe79645f24afce6c491333a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_f7aaebd0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-04-18T09:39:06Z",
+      "side": 1,
+      "message": "Cant we just do a !rd.equals(input.getDpnId()) instead of reading the VpnToDpnList here?\nIf you check VpnInterfaceManager.addNewAdjacencytoVpnInterface(), the addExtraroute calls populate fib with the input that contains the dpnId. So I think we can directly use that here, and avoid a DS read.",
+      "range": {
+        "startLine": 73,
+        "startChar": 19,
+        "endLine": 73,
+        "endChar": 66
       },
       "revId": "cd0c4a25757dfc28dbe79645f24afce6c491333a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
