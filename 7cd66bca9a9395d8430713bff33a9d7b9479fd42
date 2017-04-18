@@ -89,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_57ebf6af",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2302,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-18T12:52:18Z",
+      "side": 1,
+      "message": "This method already been removed.",
+      "parentUuid": "da01753e_771c3b78",
+      "revId": "7cd66bca9a9395d8430713bff33a9d7b9479fd42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_d7452771",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 10
@@ -142,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_172faef7",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2339,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-18T12:52:18Z",
+      "side": 1,
+      "message": "changed to use getSubnetIdFromNetworkId. Removed getAllSubnets...",
+      "parentUuid": "da01753e_f7078b1b",
+      "revId": "7cd66bca9a9395d8430713bff33a9d7b9479fd42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_f7202bb2",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 10
@@ -159,6 +195,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_9759de5d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2363,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-18T12:52:18Z",
+      "side": 1,
+      "message": "I think that this is an error.\nIf you are using this method you are explicitly requesting removal of an *EXTERNAL* vpn interface. if we can\u0027t find the name in the elan model, we can\u0027t remove the vpn interface and we are left with garbage in the datastore.",
+      "parentUuid": "da01753e_f7202bb2",
+      "revId": "7cd66bca9a9395d8430713bff33a9d7b9479fd42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_77f43af2",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetOpDpnChangeListener.java",
         "patchSetId": 10
@@ -170,6 +224,24 @@
       "writtenOn": "2017-04-18T11:37:54Z",
       "side": 1,
       "message": "return?",
+      "revId": "7cd66bca9a9395d8430713bff33a9d7b9479fd42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_17996e1f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetOpDpnChangeListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-18T12:52:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_77f43af2",
       "revId": "7cd66bca9a9395d8430713bff33a9d7b9479fd42",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -199,6 +271,30 @@
     },
     {
       "key": {
+        "uuid": "da01753e_d78ec6cf",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetOpDpnChangeListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-18T12:52:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_97d8be80",
+      "range": {
+        "startLine": 111,
+        "startChar": 19,
+        "endLine": 111,
+        "endChar": 35
+      },
+      "revId": "7cd66bca9a9395d8430713bff33a9d7b9479fd42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_976d5e9c",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 10
@@ -210,6 +306,24 @@
       "writtenOn": "2017-04-18T11:37:54Z",
       "side": 1,
       "message": "can\u0027t you use subnetmap.getRouterInterfaceFixedIp() w/o accessing neutron models?",
+      "revId": "7cd66bca9a9395d8430713bff33a9d7b9479fd42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_17f20e6f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1456,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-18T12:52:18Z",
+      "side": 1,
+      "message": "I\u0027m using getSubnetmap method.\n\nThis is part of a refactor from the \"old\" revision of this review.\nI think that this refactor is nice to have,  but I can revert this change if you insist.",
+      "parentUuid": "da01753e_976d5e9c",
       "revId": "7cd66bca9a9395d8430713bff33a9d7b9479fd42",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
