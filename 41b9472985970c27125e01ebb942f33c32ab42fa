@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_a119418a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-18T07:16:41Z",
+      "side": 1,
+      "message": "fit to 120 chars.",
+      "revId": "41b9472985970c27125e01ebb942f33c32ab42fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_4154d520",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-18T07:16:41Z",
+      "side": 1,
+      "message": "the macAddress is not used in teh key, so why is the inclusion of parameter here...",
+      "revId": "41b9472985970c27125e01ebb942f33c32ab42fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_a132e10d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-18T07:16:41Z",
+      "side": 1,
+      "message": "why is null passed here?",
+      "revId": "41b9472985970c27125e01ebb942f33c32ab42fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_81351df9",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 844,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-18T07:16:41Z",
+      "side": 1,
+      "message": "agan why null passed here?",
+      "revId": "41b9472985970c27125e01ebb942f33c32ab42fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
