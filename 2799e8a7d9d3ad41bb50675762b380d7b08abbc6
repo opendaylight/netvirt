@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_f1fcb240",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/service/ClassifierService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-04-19T10:34:44Z",
+      "side": 1,
+      "message": "the Executors.newSingleThreadExecutor() suffers from that problem of \"loosing\" exceptions (the thing where we see problems only on the console of a logged in user, not the log files) ... would you like to change this to use the new org.opendaylight.infrautils.utils.concurrent.ThreadFactoryProvider ? We actually perhaps could even have a ready made Executors.newSingleThreadExecutor() in org.opendaylight.infrautils.utils.concurrent for this? Perhaps you would like to contribute it?",
+      "revId": "2799e8a7d9d3ad41bb50675762b380d7b08abbc6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
