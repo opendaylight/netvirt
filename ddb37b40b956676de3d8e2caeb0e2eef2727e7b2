@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_f6b4a336",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-19T18:05:15Z",
+      "side": 1,
+      "message": "why is this a WARN.. we should make this ERROR.",
+      "revId": "ddb37b40b956676de3d8e2caeb0e2eef2727e7b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_565f6fe5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2354,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-19T18:05:15Z",
+      "side": 1,
+      "message": "why we need tempTunnelType.. can\u0027t we use tunnelType everywhere below?",
+      "revId": "ddb37b40b956676de3d8e2caeb0e2eef2727e7b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
