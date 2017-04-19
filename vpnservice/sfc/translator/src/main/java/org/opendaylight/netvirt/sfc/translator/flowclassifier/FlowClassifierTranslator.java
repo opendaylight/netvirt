@@ -113,12 +113,16 @@ public class FlowClassifierTranslator {
         }
         if (flowClassifier.getSourcePortRangeMin() != null) {
             sourcePortRangeBuilder.setLowerPort(new PortNumber(flowClassifier.getSourcePortRangeMin()));
+            // set source port range only if lower port is specified as it is a mandatory parameter in acl model
+            aceIpBuilder.setSourcePortRange(sourcePortRangeBuilder.build());
         }
         if (flowClassifier.getSourcePortRangeMax() != null) {
             sourcePortRangeBuilder.setUpperPort(new PortNumber(flowClassifier.getSourcePortRangeMax()));
         }
         if (flowClassifier.getDestinationPortRangeMin() != null) {
             destinationPortRange.setLowerPort(new PortNumber(flowClassifier.getDestinationPortRangeMin()));
+            // set destination port range only if lower port is specified as it is a mandatory parameter in acl model
+            aceIpBuilder.setDestinationPortRange(destinationPortRange.build());
         }
         if (flowClassifier.getDestinationPortRangeMax() != null) {
             destinationPortRange.setUpperPort(new PortNumber(flowClassifier.getDestinationPortRangeMax()));
@@ -132,9 +136,6 @@ public class FlowClassifierTranslator {
         if (flowClassifier.getL7Parameter() != null) {
             //It's currently not supported.
         }
-
-        aceIpBuilder.setSourcePortRange(sourcePortRangeBuilder.build());
-        aceIpBuilder.setDestinationPortRange(destinationPortRange.build());
 
         MatchesBuilder matchesBuilder = new MatchesBuilder();
         matchesBuilder.setAceType(aceIpBuilder.build());
