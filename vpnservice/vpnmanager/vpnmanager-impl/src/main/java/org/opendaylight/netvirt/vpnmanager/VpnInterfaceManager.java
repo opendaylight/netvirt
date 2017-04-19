@@ -597,35 +597,36 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 LOG.trace("Adding prefix {} and nextHopList {} as extra-route for vpn", nextHop.getIpAddress(),
                     nextHop.getNextHopIpList(), vpnName);
                 String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
+
                 String vpnPrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
                 synchronized (vpnPrefixKey.intern()) {
                     java.util.Optional<String> rdToAllocate = VpnUtil
-                            .allocateRdForExtraRouteAndUpdateUsedRdsMap(dataBroker,
-                            vpnId, Optional.absent(), prefix, vpnName, dpnId, writeOperTxn);
+                            .allocateRdForExtraRouteAndUpdateUsedRdsMap(dataBroker, vpnId, Optional.absent(),
+                            prefix, vpnName, nextHop.getNextHopIpList().get(0), dpnId, writeOperTxn);
                     if (rdToAllocate.isPresent()) {
                         rd = rdToAllocate.get();
                         LOG.info("The rd {} is allocated for the extraroute {}", rd, prefix);
-                        VpnUtil.syncUpdate(
-                                dataBroker,
-                                LogicalDatastoreType.OPERATIONAL,
-                                VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName,
-                                        rd, nextHop.getIpAddress()),
-                                VpnUtil.getVpnToExtraroute(nextHop.getIpAddress(), nextHop.getNextHopIpList()));
                     } else {
                         LOG.error("No rds to allocate extraroute {}", prefix);
-                        return;
+                        continue;
                     }
                 }
             }
+            RouteOrigin origin = nextHop.isPrimaryAdjacency() ? RouteOrigin.LOCAL : RouteOrigin.STATIC;
             L3vpnInput input = new L3vpnInput().setNextHop(nextHop).setRd(rd).setVpnName(vpnName)
                     .setInterfaceName(interfaceName).setNextHopIp(nextHopIp).setPrimaryRd(primaryRd)
-                    .setRouteOrigin(nextHop.isPrimaryAdjacency() ? RouteOrigin.LOCAL : RouteOrigin.STATIC);
+                    .setRouteOrigin(origin);
             Adjacency operationalAdjacency = null;
             try {
                 operationalAdjacency = registeredPopulator.createOperationalAdjacency(input);
             } catch (NullPointerException e) {
                 LOG.error(e.getMessage());
                 return;
+            }
+            if (!nextHop.isPrimaryAdjacency()) {
+                addExtraRoute(vpnName, nextHop.getIpAddress(), nextHop.getNextHopIpList().get(0), rd,
+                        vpnName, operationalAdjacency.getLabel().intValue(), l3vni, origin,
+                        interfaceName, operationalAdjacency, encapType, writeConfigTxn);
             }
             value.add(operationalAdjacency);
         }
@@ -1261,12 +1262,15 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
                                 VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, rd, prefix),
                                 VpnUtil.getVpnToExtraroute(prefix, nhList));
+                        writeConfigTxn.delete(
+                                LogicalDatastoreType.CONFIGURATION, VpnExtraRouteHelper.getUsedRdsIdentifier(
+                                VpnUtil.getVpnId(dataBroker, vpnName), prefix, nextHop));
                         LOG.debug("Removed vpn-to-extraroute with rd {} prefix {} nexthop {}", rd, prefix, nextHop);
                         fibManager.refreshVrfEntry(primaryRd, prefix);
                         long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
                         Optional<Prefixes> prefixToInterface = VpnUtil.getPrefixToInterface(dataBroker, vpnId, nextHop);
                         if (prefixToInterface.isPresent()) {
-                            VpnUtil.delete(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                            writeConfigTxn.delete(LogicalDatastoreType.OPERATIONAL,
                                     VpnUtil.getAdjacencyIdentifier(prefixToInterface.get().getVpnInterfaceName(),
                                             prefix));
                         }
@@ -1611,12 +1615,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 String vpnPrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
                 synchronized (vpnPrefixKey.intern()) {
                     java.util.Optional<String> rdToAllocate = VpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(
-                            dataBroker, vpnId, Optional.absent(), prefix, vpnName, dpnId,writeOperTxn);
+                            dataBroker, vpnId, Optional.absent(), prefix, vpnName, nh, dpnId, writeOperTxn);
                     if (rdToAllocate.isPresent()) {
                         input.setRd(rdToAllocate.get());
                         operationalAdjacency = populator.createOperationalAdjacency(input);
                         int label = operationalAdjacency.getLabel().intValue();
-                        addExtraRoute(vpnName, adj.getIpAddress(), nh,rdToAllocate.get(),
+                        addExtraRoute(vpnName, adj.getIpAddress(), nh, rdToAllocate.get(),
                                 currVpnIntf.getVpnInstanceName(), (int) label, l3vni, origin,
                                 currVpnIntf.getName(), operationalAdjacency, encapType, writeConfigTxn);
                     } else {
@@ -1632,7 +1636,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             java.util.Optional.ofNullable(vpn.getVrfId()).ifPresent(vpnRd -> {
                                 java.util.Optional.ofNullable(VpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(
                                     dataBroker, vpn.getVpnId(), Optional.fromNullable(vpnId), prefix,
-                                    VpnUtil.getVpnName(dataBroker, vpn.getVpnId()), dpnId,
+                                    VpnUtil.getVpnName(dataBroker, vpn.getVpnId()), nh, dpnId,
                                     writeOperTxn)).ifPresent(rdsToAllocate -> {
                                         addExtraRoute(VpnUtil.getVpnName(dataBroker, vpn.getVpnId()),
                                             adj.getIpAddress(), nh, rdsToAllocate.get(),
@@ -1732,7 +1736,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     }
 
     protected void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
-                                 int label, long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj,
+                                 int label, Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj,
                                  VrfEntry.EncapType encapType, WriteTransaction writeConfigTxn) {
 
         Boolean writeConfigTxnPresent = true;

@@ -107,7 +107,8 @@ public class InterfaceStateChangeListener
                                     LOG.error("InterfaceStateChange - Exception encountered while submitting"
                                             + " operational future for addVpnInterface {} : {}",
                                             vpnInterface.getName(), e);
-                                    return null;
+                                    futures.add(operFuture);
+                                    return futures;
                                 }
                                 futures.add(writeConfigTxn.submit());
                                 futures.add(writeInvTxn.submit());
@@ -118,7 +119,7 @@ public class InterfaceStateChangeListener
                         }
 
                         return futures;
-                    });
+                    }, VpnConstants.JOB_MAX_RETRIES);
             }
         } catch (Exception e) {
             LOG.error("Exception caught in Interface {} Operational State Up event", intrf.getName(), e);

@@ -144,8 +144,10 @@ module odl-fib {
                 leaf dest-prefix {
                     type string;
                 }
-                leaf-list rds {
-                   type string;
+                list rds {
+                    key nexthop;
+                    leaf nexthop {type string;}
+                    leaf rd {type string;}
                 }
             }
         }
