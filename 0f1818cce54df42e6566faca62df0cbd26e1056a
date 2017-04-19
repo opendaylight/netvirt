@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_2356ebd2",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-19T15:42:09Z",
+      "side": 1,
+      "message": "TODO : add 2 tunnels per compute node to indicate that tunnel is based on vpn interface instances ( one for IPv4 and one for IPv6)",
+      "range": {
+        "startLine": 47,
+        "startChar": 38,
+        "endLine": 47,
+        "endChar": 39
+      },
+      "revId": "0f1818cce54df42e6566faca62df0cbd26e1056a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_a3101b02",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-19T15:42:09Z",
+      "side": 1,
+      "message": "TODO: add changes for associateNetwork",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 157,
+        "endChar": 0
+      },
+      "revId": "0f1818cce54df42e6566faca62df0cbd26e1056a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_03680786",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-19T15:42:09Z",
+      "side": 1,
+      "message": "TODO: the call to BGP Manager should be changed to associateRoutertoVpn ( or associateNetwork )",
+      "range": {
+        "startLine": 177,
+        "startChar": 0,
+        "endLine": 177,
+        "endChar": 0
+      },
+      "revId": "0f1818cce54df42e6566faca62df0cbd26e1056a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_635f53e6",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-19T15:42:09Z",
+      "side": 1,
+      "message": "TODO: pipeline should not be changed.\nhowever, it could be good to see all the 4 rules.( 2 for IPv4 and 2 for IPv6)",
+      "revId": "0f1818cce54df42e6566faca62df0cbd26e1056a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_a3593b00",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-19T15:42:09Z",
+      "side": 1,
+      "message": "TODO: complete with a full proposal of yang changes",
+      "range": {
+        "startLine": 212,
+        "startChar": 0,
+        "endLine": 212,
+        "endChar": 0
+      },
+      "revId": "0f1818cce54df42e6566faca62df0cbd26e1056a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
