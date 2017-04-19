@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_630633d0",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1816,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-04-19T15:36:29Z",
+      "side": 1,
+      "message": "just a nit, but we use lowercase for variables (isMore instead of IsMore)",
+      "range": {
+        "startLine": 1816,
+        "startChar": 60,
+        "endLine": 1816,
+        "endChar": 86
+      },
+      "revId": "171201b20bf556248d34d830399e8938325f5083",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
