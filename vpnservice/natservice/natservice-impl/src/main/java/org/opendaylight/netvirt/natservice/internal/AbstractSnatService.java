@@ -96,11 +96,18 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     public boolean handleSnatAllSwitch(Routers routers, BigInteger primarySwitchId,  int addOrRemove) {
         LOG.debug("AbstractSnatService : Handle Snat in all switches");
         String routerName = routers.getRouterName();
-        installRouterGwFlows(routers, primarySwitchId, NwConstants.ADD_FLOW);
+        installRouterGwFlows(routers, primarySwitchId, addOrRemove);
         List<BigInteger> switches = naptSwitchSelector.getDpnsForVpn(routerName);
+        /*
+         * Primary switch handled separately since the pseudo port created may
+         * not be present in the switch list on delete.
+         */
+        handleSnat(routers, primarySwitchId, primarySwitchId, addOrRemove);
         if (switches != null) {
             for (BigInteger dpnId : switches) {
-                handleSnat(routers, primarySwitchId, dpnId, addOrRemove);
+                if (primarySwitchId != dpnId) {
+                    handleSnat(routers, primarySwitchId, dpnId, addOrRemove);
+                }
             }
         }
         return true;
