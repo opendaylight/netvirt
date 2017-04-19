@@ -55,6 +55,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.extraroute.rds.DestPrefixesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.extraroute.rds.DestPrefixesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.extraroute.rds.dest.prefixes.RdsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.extraroute.rds.dest.prefixes.RdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
@@ -683,7 +685,7 @@ public class FibUtil {
     }
 
     public static void updateUsedRdAndVpnToExtraRoute(WriteTransaction writeOperTxn, DataBroker broker,
-                                                      String nextHopToRemove, String primaryRd, String prefix) {
+                                                      String tunnelIpRemoved, String primaryRd, String prefix) {
         Optional<VpnInstanceOpDataEntry> optVpnInstance = getVpnInstanceOpData(broker, primaryRd);
         if (!optVpnInstance.isPresent()) {
             return;
@@ -709,7 +711,7 @@ public class FibUtil {
                         return false;
                     }
                     Prefixes prefixToInterface = getPrefixToInterface(broker, vpnId, getIpPrefix(pair.getLeft()));
-                    return prefixToInterface != null ? nextHopToRemove
+                    return prefixToInterface != null ? tunnelIpRemoved
                             .equals(getEndpointIpAddressForDPN(broker, prefixToInterface.getDpnId())) : false;
                 })
                 .map(pair -> pair.getRight()).findFirst();
@@ -720,18 +722,16 @@ public class FibUtil {
         if (!optRoutes.isPresent()) {
             return;
         }
-        Prefixes prefixToInterface = getPrefixToInterface(broker, vpnId,
-                getIpPrefix(optRoutes.get().getNexthopIpList().get(0)));
+        String nextHopRemoved = optRoutes.get().getNexthopIpList().get(0);
+        Prefixes prefixToInterface = getPrefixToInterface(broker, vpnId, getIpPrefix(nextHopRemoved));
         if (prefixToInterface != null) {
             writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
                     getAdjacencyIdentifier(prefixToInterface.getVpnInterfaceName(), prefix));
         }
         writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
                 VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, rdToRemove.get(), prefix));
-        usedRds.remove(rdToRemove.get());
-        writeOperTxn.put(LogicalDatastoreType.CONFIGURATION,
-                VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix),
-                getDestPrefixesBuilder(prefix, usedRds).build());
+        writeOperTxn.delete(LogicalDatastoreType.CONFIGURATION,
+                VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix, nextHopRemoved));
     }
 
     private static String getEndpointIpAddressForDPN(DataBroker broker, BigInteger dpnId) {
@@ -747,10 +747,6 @@ public class FibUtil {
             }
         }
         return nextHopIp;
-    }
-
-    public static DestPrefixesBuilder getDestPrefixesBuilder(String destPrefix, List<String> rd) {
-        return new DestPrefixesBuilder().setKey(new DestPrefixesKey(destPrefix)).setDestPrefix(destPrefix).setRds(rd);
     }
 
     public static String getIpPrefix(String prefix) {
