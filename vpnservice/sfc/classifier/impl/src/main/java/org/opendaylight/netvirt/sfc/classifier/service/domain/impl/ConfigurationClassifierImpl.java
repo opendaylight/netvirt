@@ -67,19 +67,19 @@ public class ConfigurationClassifierImpl implements ClassifierState {
                 .map(AccessListEntries::getAce)
                 .filter(Objects::nonNull)
                 .flatMap(List::stream)
-                .map(this::getEntries)
+                .map(this::getAceEntries)
                 .flatMap(Set::stream)
                 .collect(Collectors.toSet());
     }
 
-    public List<Acl> readAcls() {
+    private List<Acl> readAcls() {
         InstanceIdentifier<AccessLists> aclsIID = InstanceIdentifier.builder(AccessLists.class).build();
         AccessLists acls = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, aclsIID).orNull();
         LOG.trace("Acls read from datastore: {}", acls);
         return Optional.ofNullable(acls).map(AccessLists::getAcl).orElse(Collections.emptyList());
     }
 
-    public Set<ClassifierRenderableEntry> getEntries(Ace ace) {
+    private Set<ClassifierRenderableEntry> getAceEntries(Ace ace) {
 
         LOG.trace("Get entries for Ace {}", ace);
 
@@ -118,44 +118,45 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             return Collections.emptySet();
         }
 
-        Map<NodeId, List<InterfaceKey>> nodeToInterfaces = Optional.ofNullable(matches.getAugmentation(NeutronNetwork
-                .class))
-                .map(netvirtProvider::getLogicalInterfacesFromNeutronNetwork)
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(iface -> new AbstractMap.SimpleEntry<>(
-                        new InterfaceKey(iface),
-                        geniusProvider.getNodeIdFromLogicalInterface(iface).orElse(null)))
-                .filter(entry -> Objects.nonNull(entry.getValue()))
-                .collect(Collectors.groupingBy(
-                        AbstractMap.Entry::getValue,
-                        Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
+        Map<NodeId, List<InterfaceKey>> nodeToInterfaces =
+                Optional.ofNullable(matches.getAugmentation(NeutronNetwork.class))
+                        .map(netvirtProvider::getLogicalInterfacesFromNeutronNetwork)
+                        .orElse(Collections.emptyList())
+                        .stream()
+                        .map(iface -> new AbstractMap.SimpleEntry<>(
+                                new InterfaceKey(iface),
+                                geniusProvider.getNodeIdFromLogicalInterface(iface).orElse(null)))
+                        .filter(entry -> Objects.nonNull(entry.getValue()))
+                        .collect(Collectors.groupingBy(
+                                AbstractMap.Entry::getValue,
+                                Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
 
         LOG.trace("Got classifier nodes and interfaces: {}", nodeToInterfaces);
 
         Set<ClassifierRenderableEntry> entries = new HashSet<>();
-        nodeToInterfaces.entrySet().forEach(nodeIdListEntry -> {
-            NodeId nodeId = nodeIdListEntry.getKey();
-            nodeIdListEntry.getValue().forEach(interfaceKey -> {
+        nodeToInterfaces.forEach((nodeId, interfaces) -> {
+            interfaces.forEach(interfaceKey -> {
                 entries.add(ClassifierEntry.buildIngressEntry(interfaceKey));
-                entries.add(ClassifierEntry.buildMatchEntry(
-                        nodeId,
-                        geniusProvider.getNodeConnectorIdFromInterfaceName(interfaceKey.getName()).get(),
-                        matches,
-                        nsp,
-                        nsi,
-                        destinationIp));
+                geniusProvider.getNodeConnectorIdFromInterfaceName(interfaceKey.getName()).ifPresent(
+                    connector -> entries.add(ClassifierEntry.buildMatchEntry(
+                            nodeId,
+                            connector,
+                            matches,
+                            nsp,
+                            nsi,
+                            destinationIp)));
             });
             entries.add(ClassifierEntry.buildNodeEntry(nodeId));
-            entries.add(ClassifierEntry.buildPathEntry(nodeIdListEntry.getKey(), nsp, destinationIp));
+            entries.add(ClassifierEntry.buildPathEntry(nodeId, nsp, destinationIp));
             // Egress services must bind to egress ports. Since we dont know before-hand what
             // the egress ports will be, we will bind on all switch ports. If the packet
             // doesnt have NSH, it will be returned to the the egress dispatcher table.
             List<String> interfaceUuidStrList = geniusProvider.getInterfacesFromNode(nodeId);
             interfaceUuidStrList.forEach(interfaceUuidStr ->
-                entries.add(ClassifierEntry.buildEgressEntry(new InterfaceKey(interfaceUuidStr))));
+                    entries.add(ClassifierEntry.buildEgressEntry(new InterfaceKey(interfaceUuidStr))));
         });
 
         return entries;
     }
+
 }
