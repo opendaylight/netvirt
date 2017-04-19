@@ -144,8 +144,13 @@ module odl-fib {
                 leaf dest-prefix {
                     type string;
                 }
-                leaf-list rds {
-                   type string;
+                list allocated-rds {
+                    key nexthop;
+                    leaf nexthop {
+                        type string;
+                        description "Ip address of the VM which is the nexthop for the extra route";
+                    }
+                    leaf rd {type string;}
                 }
             }
         }
