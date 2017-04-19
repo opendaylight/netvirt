@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_0bbae3bf",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-19T04:38:51Z",
+      "side": 1,
+      "message": "this is incorrect.. The MAC Address fetched from adjacency for an extra-route can be different from the MAC-Address of the ipNextHopAddress which represents the primary adjacency.",
+      "revId": "82f7bfee00b3b464be9d840f16c5c47c80056711",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_6bb1efe0",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-19T04:38:51Z",
+      "side": 1,
+      "message": "incorrect - can be ipAddress (or) ipNextHopAddress based on MAC-Address presence.",
+      "revId": "82f7bfee00b3b464be9d840f16c5c47c80056711",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
