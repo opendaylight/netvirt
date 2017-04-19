@@ -19,6 +19,7 @@ public class VpnConstants {
     public static final long VPN_IDPOOL_HIGH = 130000L;
     public static final short DEFAULT_FLOW_PRIORITY = 10;
     public static final int DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY = 1;
+    public static final int JOB_MAX_RETRIES = 6;
     public static final int VPN_ID_LENGTH = 24;
     public static final long INVALID_ID = -1;
     public static final String SEPARATOR = ".";
