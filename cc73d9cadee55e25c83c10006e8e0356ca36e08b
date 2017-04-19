@@ -140,6 +140,24 @@
       "revId": "cc73d9cadee55e25c83c10006e8e0356ca36e08b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_ece5f5a8",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1816,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-04-19T12:17:19Z",
+      "side": 1,
+      "message": "Have changed the boolean flag name as \"IsMoreThanOneFipCheckOnDpn\"",
+      "parentUuid": "da01753e_0cbaf9bf",
+      "revId": "cc73d9cadee55e25c83c10006e8e0356ca36e08b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
