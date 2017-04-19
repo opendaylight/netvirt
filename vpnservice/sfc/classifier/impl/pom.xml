@@ -110,6 +110,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-library</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
