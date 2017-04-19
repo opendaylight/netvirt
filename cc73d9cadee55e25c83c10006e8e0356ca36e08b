@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_26327e10",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-04-19T10:13:05Z",
+      "side": 1,
+      "message": "Can make comment shorter, it repeats some of the comment above it (Lines 165-166).\nWhat do you think about something like that:\nIF no floating IP present yet will install the Flow table INTERNAL_TUNNEL_TABLE (table\u003d36)-\u003e PDNAT_TABLE (table\u003d25) for SNAT to DNAT reverse traffic for Non-FIP VM on DPN1 to FIP VM on DPN2.",
+      "revId": "cc73d9cadee55e25c83c10006e8e0356ca36e08b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_2619de88",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnNaptSwitchHA.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-04-19T10:13:05Z",
+      "side": 1,
+      "message": "It will be better to always return INVALID_ID from NatUtil.getNetworkVpnIdFromRouterId instead of returning null.",
+      "revId": "cc73d9cadee55e25c83c10006e8e0356ca36e08b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_d1ec0ef6",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1816,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-04-19T10:13:05Z",
+      "side": 1,
+      "message": "The use of this method is changed here and it\u0027s difficult to read and understand it as the name of it implies that it checks if the floating IP is present for the DPN - without any reference to other floating IPs.\nAs it\u0027s a Util method others might try to use it and it might be confusing - it was confusing to me :)\n\nMaybe having 2 different methods (one that checks that floating is present and other that it\u0027s present but not the only one).\nOr at least changing the tunnelTableCreateFlat variable name to something like shouldCheckFipIsNotOnlyOneOnDpn (long but clearer).\n\nWhat do you think?",
+      "revId": "cc73d9cadee55e25c83c10006e8e0356ca36e08b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
