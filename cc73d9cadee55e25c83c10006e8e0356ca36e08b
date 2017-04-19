@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_8c1b891b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-04-19T11:50:07Z",
+      "side": 1,
+      "message": "Hi Yair,\nThanks for reviewing the code and providing comments.\n\nComment section part: Done\n\nFor EVPN use case: Internet VPN l3vni value will be used as a tunnel_id in table36-\u003etable25 flow. Hence if we associate multiple FIPs on single DPN, the same tunnel_id (l3vni) value will be used in programming table36-\u003etable25 flow. In order to avoid re-programming of this flow multiple times on same DPN, We added this specific check.\n\nIf there is no FIP is present on particular DPN, we never invoked EvpnDnatFlowProgrammer class itself. So it won\u0027t program table36-\u003etable25 flow.\n\nPlease let me know your input.\n\nThanks,\nKarthikeyan.",
+      "parentUuid": "da01753e_26327e10",
+      "revId": "cc73d9cadee55e25c83c10006e8e0356ca36e08b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_2619de88",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnNaptSwitchHA.java",
         "patchSetId": 4
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_ec9fb55d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnNaptSwitchHA.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-04-19T11:50:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_2619de88",
+      "revId": "cc73d9cadee55e25c83c10006e8e0356ca36e08b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_d1ec0ef6",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 4
@@ -47,6 +83,24 @@
       "writtenOn": "2017-04-19T10:13:05Z",
       "side": 1,
       "message": "The use of this method is changed here and it\u0027s difficult to read and understand it as the name of it implies that it checks if the floating IP is present for the DPN - without any reference to other floating IPs.\nAs it\u0027s a Util method others might try to use it and it might be confusing - it was confusing to me :)\n\nMaybe having 2 different methods (one that checks that floating is present and other that it\u0027s present but not the only one).\nOr at least changing the tunnelTableCreateFlat variable name to something like shouldCheckFipIsNotOnlyOneOnDpn (long but clearer).\n\nWhat do you think?",
+      "revId": "cc73d9cadee55e25c83c10006e8e0356ca36e08b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_4c5b612e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1816,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-04-19T11:50:07Z",
+      "side": 1,
+      "message": "Hi Yair,\n\n If we introduce new util method for checking more than one FIP is presented in vpn-to-dpn list for table36-\u003etable25 flow installation, we need to replicate the same reading logic in new method also. Instead of that we introduced flag called tunnelTableCreateFlag (true -\u003e Tunnel Table creation, false -\u003e Tunnel Table removal) to check whether isFloatingIpPresentForDpn() is called for add or remove.\n\nPlease let me know your input.\n\nThanks,\nKarthikeyan.",
+      "parentUuid": "da01753e_d1ec0ef6",
       "revId": "cc73d9cadee55e25c83c10006e8e0356ca36e08b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
