@@ -190,6 +190,30 @@
     },
     {
       "key": {
+        "uuid": "da01753e_96ac37a2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1733,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-19T18:29:22Z",
+      "side": 1,
+      "message": "That was a usefule method.. why was that removed?",
+      "parentUuid": "da01753e_17732f81",
+      "range": {
+        "startLine": 1733,
+        "startChar": 51,
+        "endLine": 1733,
+        "endChar": 79
+      },
+      "revId": "cd0c4a25757dfc28dbe79645f24afce6c491333a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_f7aaebd0",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
         "patchSetId": 10
@@ -231,6 +255,23 @@
         "endLine": 73,
         "endChar": 66
       },
+      "revId": "cd0c4a25757dfc28dbe79645f24afce6c491333a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_56a2cfae",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-19T18:29:22Z",
+      "side": 1,
+      "message": "this location for this comment is incorrect..\n\nPlease move the comment before the if condition and expand the comment explainging it covers:\nInternalVpn, transparentInternetVpn and internalVpnForExtraRoute",
       "revId": "cd0c4a25757dfc28dbe79645f24afce6c491333a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
