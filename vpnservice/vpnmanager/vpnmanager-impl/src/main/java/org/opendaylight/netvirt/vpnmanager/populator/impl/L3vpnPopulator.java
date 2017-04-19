@@ -99,7 +99,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
         if (input.getEncapType().equals(VrfEntryBase.EncapType.Mplsgre)) {
             long vpnId = VpnUtil.getVpnId(broker, vpnName);
             vpnInterfaceManager.addToLabelMapper((long) label, dpnId, prefix, Collections.singletonList(nextHop),
-                    vpnId, null, elantag, true, rd, null);
+                    vpnId, null, elantag, true, rd);
             List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnInterfaceManager.getVpnsImportingMyRoute(vpnName);
             if (vpnsToImportRoute.size() > 0) {
                 VrfEntry importingVrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop,
