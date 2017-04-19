@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "da01753e_66ff6668",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-19T19:25:31Z",
+      "side": 1,
+      "message": "if you already know the tunnel is internal you can invoke getTunnelInterfaceName instead to reduce the number of DS access in genius",
+      "range": {
+        "startLine": 332,
+        "startChar": 43,
+        "endLine": 332,
+        "endChar": 77
+      },
+      "revId": "ddb37b40b956676de3d8e2caeb0e2eef2727e7b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_7686f314",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-19T19:25:31Z",
+      "side": 1,
+      "message": "could you explain why does this extra DS read needed and how does it help to solve the bug?",
+      "revId": "ddb37b40b956676de3d8e2caeb0e2eef2727e7b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_f6b4a336",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 5
@@ -13,6 +53,75 @@
       "writtenOn": "2017-04-19T18:05:15Z",
       "side": 1,
       "message": "why is this a WARN.. we should make this ERROR.",
+      "revId": "ddb37b40b956676de3d8e2caeb0e2eef2727e7b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_f6a82379",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1261,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-19T19:25:31Z",
+      "side": 1,
+      "message": "unused arg",
+      "range": {
+        "startLine": 1261,
+        "startChar": 59,
+        "endLine": 1261,
+        "endChar": 67
+      },
+      "revId": "ddb37b40b956676de3d8e2caeb0e2eef2727e7b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_56b76fd8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1264,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-19T19:25:31Z",
+      "side": 1,
+      "message": "you need to pass non-null interfaceType to AdjacencyResult\n\nIn addition, I think that generating the AdjacencyResult this way is problematic. How can you be sure that the underlay network type for this vrf-entry is tunnel-based? My main concern here is of overriding RNH entries of vlan networks",
+      "range": {
+        "startLine": 1264,
+        "startChar": 83,
+        "endLine": 1264,
+        "endChar": 87
+      },
+      "revId": "ddb37b40b956676de3d8e2caeb0e2eef2727e7b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_966ef7ff",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1294,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-19T19:25:31Z",
+      "side": 1,
+      "message": "this part looks exactly like createRemoteFibEntry. Is it any different? If not, please extract this to method for sustainability reasons.",
+      "range": {
+        "startLine": 1268,
+        "startChar": 0,
+        "endLine": 1294,
+        "endChar": 109
+      },
       "revId": "ddb37b40b956676de3d8e2caeb0e2eef2727e7b2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
