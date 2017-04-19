@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_ec1df567",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-19T11:05:38Z",
+      "side": 1,
+      "message": "how often are these updates? Does adding the read cause a performance hit?",
+      "revId": "d538d88f79d30099c0a3f10e41a69c8be57fee01",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
