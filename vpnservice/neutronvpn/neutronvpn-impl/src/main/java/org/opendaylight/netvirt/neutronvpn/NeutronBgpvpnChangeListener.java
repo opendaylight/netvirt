@@ -128,15 +128,15 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                     LOG.error("AS specific part of RD should not be same as that defined by DC Admin");
                     return;
                 }
-                Uuid router = null;
+                List <Uuid> routersList = null;
                 if (input.getRouters() != null && !input.getRouters().isEmpty()) {
-                    // currently only one router
-                    router = input.getRouters().get(0);
+                    // try to take all routers
+                    routersList = input.getRouters();
                 }
                 if (rd != null) {
                     try {
                         nvpnManager.createVpn(input.getUuid(), input.getName(), input.getTenantId(), rd,
-                                importRouteTargets, exportRouteTargets, router, input.getNetworks(),
+                                importRouteTargets, exportRouteTargets, routersList, input.getNetworks(),
                                 vpnInstanceType, 0 /*l3vni*/);
                     } catch (Exception e) {
                         LOG.error("Creation of BGPVPN {} failed with error message {}. ", input.getUuid(),
@@ -224,18 +224,20 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
     protected void handleRoutersUpdate(Uuid vpnId, List<Uuid> oldRouters, List<Uuid> newRouters) {
         if (newRouters != null && !newRouters.isEmpty()) {
             if (oldRouters != null && !oldRouters.isEmpty()) {
-                if (oldRouters.size() > 1 || newRouters.size() > 1) {
+                if (oldRouters.size() > 2 || newRouters.size() > 2) {
                     VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, vpnId);
-                    if (vpnMap.getRouterId() != null) {
-                        LOG.warn("Only Single Router association to a given bgpvpn is allowed. Kindly de-associate"
-                            + " router " + vpnMap.getRouterId().getValue()
-                            + " from vpn " + vpnId + " before proceeding with associate");
+                    if (vpnMap.getRouterIds().size() > 2) {
+                        LOG.debug("Only Two Router association to a given bgpvpn is allowed (with IPv6 and IPv4 subnets). Kindly de-associate");
                     }
                 }
-            } else if (validateRouteInfo(newRouters.get(0))) {
-                nvpnManager.associateRouterToVpn(vpnId, newRouters.get(0));
+            } else{
+                for (Uuid RouterId : newRouters){
+                    if (validateRouteInfo(RouterId)) {
+                        nvpnManager.associateRouterToVpn(vpnId, RouterId);
+                    }
+                }
             }
-        } else if (oldRouters != null && !oldRouters.isEmpty()) {
+        } else if (oldRouters != null && !oldRouters.isEmpty()) { // TODO: adapt to the dualstack case
                 /* dissociate old router */
             Uuid oldRouter = oldRouters.get(0);
             nvpnManager.dissociateRouterFromVpn(vpnId, oldRouter);
