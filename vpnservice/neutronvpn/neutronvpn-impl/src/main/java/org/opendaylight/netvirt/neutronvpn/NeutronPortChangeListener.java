@@ -266,6 +266,10 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                             routerPort.getUuid(), ipValue, routerPort.getMacAddress().getValue());
                     nvpnManager.addSubnetToVpn(vpnId, portIP.getSubnetId());
                     nvpnNatManager.handleSubnetsForExternalRouter(routerId, dataBroker);
+                    WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                    String portInterfaceName = createOfPortInterface(routerPort, wrtConfigTxn);
+                    createElanInterface(routerPort, portInterfaceName, wrtConfigTxn);
+                    wrtConfigTxn.submit();
                     PhysAddress mac = new PhysAddress(routerPort.getMacAddress().getValue());
                     LOG.trace("NeutronPortChangeListener Add Subnet Gateway IP {} MAC {} Interface {} VPN {}",
                             ipValue, routerPort.getMacAddress(),
@@ -298,6 +302,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 nvpnManager.removeSubnetFromVpn(vpnId, portIP.getSubnetId());
                 nvpnManager.updateSubnetNodeWithFixedIp(portIP.getSubnetId(), null,
                         null, null, null);
+                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                deleteElanInterface(routerPort.getUuid().getValue(), wrtConfigTxn);
+                wrtConfigTxn.submit();
                 nvpnNatManager.handleSubnetsForExternalRouter(routerId, dataBroker);
                 String ipValue = String.valueOf(portIP.getIpAddress().getValue());
                 NeutronvpnUtils.removeVpnPortFixedIpToPort(dataBroker, vpnId.getValue(),
@@ -543,6 +550,12 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 .setName(name).setStaticMacEntries(staticMacEntries).setKey(new ElanInterfaceKey(name)).build();
         wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, id, elanInterface);
         LOG.debug("Creating new ELan Interface {}", elanInterface);
+    }
+
+    private void deleteElanInterface(String name, WriteTransaction wrtConfigTxn) {
+        InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
+                .class, new ElanInterfaceKey(name)).build();
+        wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, id);
     }
 
     // TODO Clean up the exception handling
