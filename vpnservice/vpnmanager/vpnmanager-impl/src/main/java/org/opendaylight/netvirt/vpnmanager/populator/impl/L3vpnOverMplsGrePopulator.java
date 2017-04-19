@@ -76,7 +76,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
             // the DpnId is set as rd in case of extra routes present in router based VPN
             vpnInterfaceManager.addToLabelMapper(label, input.getDpnId(), nextHopIpAddress,
                     Arrays.asList(nextHopIp), vpnId, input.getInterfaceName(), null,false,
-                    primaryRd, writeOperTxn);
+                    primaryRd);
             Objects.requireNonNull(input.getRouteOrigin(), "RouteOrigin is mandatory");
             addPrefixToBGP(rd, primaryRd, null /*macAddress*/, nextHopIpAddress, nextHopIp, encapType,
                     label, 0 /*l3vni*/, input.getGatewayMac(), input.getRouteOrigin(), writeConfigTxn);
