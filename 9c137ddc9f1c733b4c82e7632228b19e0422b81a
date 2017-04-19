@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_b63cdbc0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 2209,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-19T17:37:50Z",
+      "side": 1,
+      "message": "what is the effect of creating this externalvpninterface? \n\nOther than binding this external Interface and putting an entry to vpnInterfacesOperational datastore, I donot see anymore of it as adjacencies are set to Null for this type of interface..\n\nCan you let me know why you need the ExternalVpnInterfaces in operational datastoer?",
+      "revId": "9c137ddc9f1c733b4c82e7632228b19e0422b81a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_9621d7a1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetOpDpnChangeListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-19T17:37:50Z",
+      "side": 1,
+      "message": "why the flat/vlan network check is missing here?",
+      "revId": "9c137ddc9f1c733b4c82e7632228b19e0422b81a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_23826b94",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetOpDpnChangeListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-19T17:37:50Z",
+      "side": 1,
+      "message": "this kind of reverse coupling looks to complicate things ...\n\nWe are listening on an OPERATIONAL datastore that is looking southbound but using that to build up a Neutron Config that is fed Northbound...  \n\nFrom the flow, it looks like you want to enable ExternalVpnInterface creation on every DPN where the Router VPN is available.  \n\nIdeally you need a Network Driven engine here wherein if that Network is flat/vlan AND is available on a DPN, you are creating\nan externalVpnInterface.  And if the network disappears from the DPN, you are removing the externalVpnInterface.\n\nHave you thought about alternatives to this approach?",
+      "revId": "9c137ddc9f1c733b4c82e7632228b19e0422b81a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
