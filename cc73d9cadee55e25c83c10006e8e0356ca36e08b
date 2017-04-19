@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_4cb401d1",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-04-19T11:57:37Z",
+      "side": 1,
+      "message": "Looks great to me :)",
+      "parentUuid": "da01753e_8c1b891b",
+      "revId": "cc73d9cadee55e25c83c10006e8e0356ca36e08b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_2619de88",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnNaptSwitchHA.java",
         "patchSetId": 4
@@ -101,6 +119,24 @@
       "side": 1,
       "message": "Hi Yair,\n\n If we introduce new util method for checking more than one FIP is presented in vpn-to-dpn list for table36-\u003etable25 flow installation, we need to replicate the same reading logic in new method also. Instead of that we introduced flag called tunnelTableCreateFlag (true -\u003e Tunnel Table creation, false -\u003e Tunnel Table removal) to check whether isFloatingIpPresentForDpn() is called for add or remove.\n\nPlease let me know your input.\n\nThanks,\nKarthikeyan.",
       "parentUuid": "da01753e_d1ec0ef6",
+      "revId": "cc73d9cadee55e25c83c10006e8e0356ca36e08b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_0cbaf9bf",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1816,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-04-19T11:57:37Z",
+      "side": 1,
+      "message": "Alright, I still think the name of the new boolean variable is problematic as this method can be used in the future for other cases and not just tunnel table creation/removal.\nAnd it will be more understandable in the future to have a boolean that says - checkIfOnlyFipOnDpn (or something like that).\n\nWhat do you think?",
+      "parentUuid": "da01753e_4c5b612e",
       "revId": "cc73d9cadee55e25c83c10006e8e0356ca36e08b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
