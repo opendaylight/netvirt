@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_2056e1d2",
+        "filename": "vpnservice/sfc/classifier/impl/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-04-19T13:37:21Z",
+      "side": 1,
+      "message": "instead of this library, perhaps you\u0027d like to consider using guava-testlib instead? One advantage of it is that we maintain its version in oldparent, and will keep upgrading it  for you over time",
+      "revId": "0c568bad81fb47782d50f535523244666dea2b9c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_00511dd8",
+        "filename": "vpnservice/sfc/classifier/impl/src/test/java/org/opendaylight/netvirt/sfc/classifier/service/domain/ClassifierEntryTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-04-19T13:37:21Z",
+      "side": 1,
+      "message": "you could use Guava\u0027s testlib EqualsTester instead here?  FYI you can find examples of where I\u0027ve done this in yangtools and genius, see here: https://github.com/search?q\u003dorg%3Aopendaylight+EqualsTester\u0026type\u003dCode",
+      "revId": "0c568bad81fb47782d50f535523244666dea2b9c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
