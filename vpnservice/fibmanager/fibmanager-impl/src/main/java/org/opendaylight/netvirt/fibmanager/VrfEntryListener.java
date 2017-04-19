@@ -897,10 +897,19 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
             String jobKey = FibUtil.getCreateLocalNextHopJobKey(vpnId, dpnId, vrfEntry.getDestPrefix());
             if (routes != null) {
-                groupId = nextHopManager.createNextHopGroups(parentVpnId, rd, dpnId, vrfEntry, routes,
-                        vpnExtraRoutes);
-                localGroupId = nextHopManager.getLocalNextHopGroup(parentVpnId,
-                        routes.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX);
+                String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker,
+                        localNextHopInfo.getVpnInterfaceName(), vrfEntry.getDestPrefix());
+                if (macAddress == null) {
+                    groupId = nextHopManager.createNextHopGroups(parentVpnId, rd, dpnId, vrfEntry, routes,
+                            vpnExtraRoutes);
+                    localGroupId = nextHopManager.getLocalNextHopGroup(parentVpnId,
+                            routes.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX);
+                } else {
+                    groupId = nextHopManager.createLocalNextHop(parentVpnId, dpnId,
+                            localNextHopInfo.getVpnInterfaceName(), routes.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX, vrfEntry.getDestPrefix(),
+                            vrfEntry.getGatewayMacAddress(), jobKey);
+                    localGroupId = groupId;
+                }
             } else {
                 groupId = nextHopManager.createLocalNextHop(parentVpnId, dpnId,
                         localNextHopInfo.getVpnInterfaceName(), localNextHopIP, vrfEntry.getDestPrefix(),
