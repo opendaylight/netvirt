@@ -325,36 +325,38 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     private void handleNeutronPortCreated(final Port port) {
         final String portName = port.getUuid().getValue();
         final Uuid portId = port.getUuid();
-        final Uuid subnetId = port.getFixedIps().get(0).getSubnetId();
-        final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        portDataStoreCoordinator.enqueueJob("PORT- " + portName, () -> {
-            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
+        final List <FixedIps> subnetIdList = port.getFixedIps(); // do not check that neutron network includes only 2 subnets (IPv4 and IPv6)
+        for (FixedIps FixedIp: subnetIdList) {
+            final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+            portDataStoreCoordinator.enqueueJob("PORT- " + portName, () -> {
+                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
 
-            // add direct port to subnetMaps config DS
-            if (!NeutronUtils.isPortVnicTypeNormal(port)) {
-                nvpnManager.updateSubnetmapNodeWithPorts(subnetId, null, portId);
-                LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created", portName);
+                // add direct port to subnetMaps config DS
+                if (!NeutronUtils.isPortVnicTypeNormal(port)) {
+                    nvpnManager.updateSubnetmapNodeWithPorts(FixedIp.getSubnetId(), null, portId);
+                    LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created", portName);
+                    futures.add(wrtConfigTxn.submit());
+                    return futures;
+                }
+                LOG.info("Of-port-interface creation for port {}", portName);
+                // Create of-port interface for this neutron port
+                String portInterfaceName = createOfPortInterface(port, wrtConfigTxn);
+                LOG.debug("Creating ELAN Interface for port {}", portName);
+                createElanInterface(port, portInterfaceName, wrtConfigTxn);
+
+                Subnetmap subnetMap = nvpnManager.updateSubnetmapNodeWithPorts(FixedIp.getSubnetId(), portId, null); // create new object subnetMap
+                Uuid vpnId = (subnetMap != null) ? subnetMap.getVpnId() : null;
+                Uuid routerId = (subnetMap != null) ? subnetMap.getRouterId() : null;
+                if (vpnId != null) {
+                    // create new vpn-interface object on this neutron port
+                    LOG.debug("Adding VPN Interface for port {}", portName);
+                    nvpnManager.createVpnInterface(vpnId, routerId, port, wrtConfigTxn);
+                }
                 futures.add(wrtConfigTxn.submit());
                 return futures;
-            }
-            LOG.info("Of-port-interface creation for port {}", portName);
-            // Create of-port interface for this neutron port
-            String portInterfaceName = createOfPortInterface(port, wrtConfigTxn);
-            LOG.debug("Creating ELAN Interface for port {}", portName);
-            createElanInterface(port, portInterfaceName, wrtConfigTxn);
-
-            Subnetmap subnetMap = nvpnManager.updateSubnetmapNodeWithPorts(subnetId, portId, null);
-            Uuid vpnId = (subnetMap != null) ? subnetMap.getVpnId() : null;
-            Uuid routerId = (subnetMap != null) ? subnetMap.getRouterId() : null;
-            if (vpnId != null) {
-                // create vpn-interface on this neutron port
-                LOG.debug("Adding VPN Interface for port {}", portName);
-                nvpnManager.createVpnInterface(vpnId, routerId, port, wrtConfigTxn);
-            }
-            futures.add(wrtConfigTxn.submit());
-            return futures;
-        });
+            });
+        }
     }
 
     private void handleNeutronPortDeleted(final Port port) {
