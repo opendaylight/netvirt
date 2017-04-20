@@ -7,18 +7,6 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -40,6 +28,19 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 @Singleton
 public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase<Bgpvpn, NeutronBgpvpnChangeListener>
@@ -175,6 +176,9 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
     protected void update(InstanceIdentifier<Bgpvpn> identifier, Bgpvpn original, Bgpvpn update) {
         LOG.trace("Update Bgpvpn : key: {}, value={}", identifier, update);
         if (isBgpvpnTypeL3(update.getType())) {
+            final List<String> originalRds = original.getRouteDistinguishers();
+            List<String> updateRds = update.getRouteDistinguishers();
+            handleVpnInstanceUpdate(original.getUuid().getValue(), originalRds, updateRds);
             List<Uuid> oldNetworks = original.getNetworks();
             List<Uuid> newNetworks = update.getNetworks();
             Uuid vpnId = update.getUuid();
@@ -183,6 +187,23 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
             List<Uuid> newRouters = update.getRouters();
             handleRoutersUpdate(vpnId, oldRouters, newRouters);
         }
+    }
+
+    protected void handleVpnInstanceUpdate(String vpnInstanceId,final List<String> originalRds, List<String> updateRDs) {
+        if(updateRDs == null || updateRDs.isEmpty()) {
+            return;
+        }
+        Iterator<String> updateRdsIter = updateRDs.iterator();
+
+        while (updateRdsIter.hasNext()) {
+            String rd = updateRdsIter.next();
+            //If the existing rd is not present in the updateRds. Add the entry to the updateRds
+            if(!originalRds.contains(rd)) {
+                originalRds.add(rd);
+            }
+        }
+        LOG.debug("update the VpnInstance:{} with the List of RDs: {}", vpnInstanceId, originalRds);
+        nvpnManager.updateVpnInstanceWithRDs(vpnInstanceId, originalRds);
     }
 
     protected void handleNetworksUpdate(Uuid vpnId, List<Uuid> oldNetworks, List<Uuid> newNetworks) {
