@@ -826,7 +826,6 @@ public class VpnUtil {
         delete(broker, datastoreType, path, DEFAULT_CALLBACK);
     }
 
-
     public static <T extends DataObject> void delete(DataBroker broker, LogicalDatastoreType datastoreType,
         InstanceIdentifier<T> path, FutureCallback<Void> callback) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();

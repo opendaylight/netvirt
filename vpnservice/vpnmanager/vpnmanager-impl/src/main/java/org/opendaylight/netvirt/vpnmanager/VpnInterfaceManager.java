@@ -98,6 +98,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neu
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnTargets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTarget;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
@@ -2040,5 +2041,51 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             }
             return true;
         }
+    }
+
+    public static void updateVpnInterfacesForUnProcessAdjancencies(DataBroker dataBroker,
+                                                                   VpnInterfaceManager vpnInterfaceManager,
+                                                                   String vpnName) {
+        String primaryRd = VpnUtil.getVpnRd(dataBroker, vpnName);
+        VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, primaryRd);
+        if (vpnInstanceOpData == null) {
+            return;
+        }
+        WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+        WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+        List<VpnToDpnList> vpnToDpnLists = vpnInstanceOpData.getVpnToDpnList();
+        if (vpnToDpnLists == null || vpnToDpnLists.isEmpty()) {
+            return;
+        }
+        LOG.debug("Update the VpnInterfaces for Unprocessed Adjancencies for vpnName:{}", vpnName);
+        vpnToDpnLists.forEach(vpnToDpnList -> {
+            vpnToDpnList.getVpnInterfaces().forEach(vpnInterface -> {
+                InstanceIdentifier<VpnInterface> existingVpnInterfaceId =
+                        VpnUtil.getVpnInterfaceIdentifier(vpnInterface.getInterfaceName());
+                Optional<VpnInterface> vpnInterfaceOptional = VpnUtil.read(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, existingVpnInterfaceId);
+                if (!vpnInterfaceOptional.isPresent()) {
+                    return;
+                }
+                List<Adjacency> configVpnAdjacencies = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker,
+                        vpnInterface.getInterfaceName());
+                if (configVpnAdjacencies == null) {
+                    LOG.debug("There is no VpnInterface present under config DS for vpnInterface:{}", vpnInterface);
+                    return;
+                }
+                List<Adjacency> operationVpnAdjacencies = vpnInterfaceOptional.get()
+                        .getAugmentation(Adjacencies.class).getAdjacency();
+                configVpnAdjacencies.stream().filter(adjacency ->
+                        !operationVpnAdjacencies.contains(adjacency.getIpAddress())).forEach(adjacency -> {
+                    LOG.debug("Processing the vpnInterface{} for the Ajacency:{}", vpnInterface, adjacency);
+                    vpnInterfaceManager.addNewAdjToVpnInterface(existingVpnInterfaceId, adjacency,
+                            vpnInterfaceOptional.get().getDpnId(), writeConfigTxn, writeOperTxn);
+                });
+            });
+        });
+
+        ListenableFuture<Void> operFuture = writeOperTxn.submit();
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        futures.add(writeConfigTxn.submit());
     }
 }
