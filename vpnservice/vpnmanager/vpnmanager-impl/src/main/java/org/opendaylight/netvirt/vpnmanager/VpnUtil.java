@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -835,6 +836,49 @@ public class VpnUtil {
         delete(broker, datastoreType, path, DEFAULT_CALLBACK);
     }
 
+    public static void updateVpnInterfacesForUnProcessAdjancencies(DataBroker dataBroker,
+                                                   VpnInterfaceManager vpnInterfaceManager, String vpnName) {
+        InstanceIdentifier<VpnInterfaces> vpnInterfacesId = InstanceIdentifier.builder(VpnInterfaces.class).build();
+        Optional<VpnInterfaces> existingConfigVpnInterfaces = read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+            vpnInterfacesId);
+        WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+        WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+        if(!existingConfigVpnInterfaces.isPresent()) {
+           return;
+        }
+        List<VpnInterface> vpnInterfaces = existingConfigVpnInterfaces.get().getVpnInterface();
+        vpnInterfaces.stream().filter(vpnInterface -> {return vpnInterface.getVpnInstanceName().equals(vpnName);})
+            .forEach(vpnInterface -> {
+                InstanceIdentifier<VpnInterface> existingVpnInterfaceId =
+                    getVpnInterfaceIdentifier(vpnInterface.getName());
+            Optional<VpnInterface> vpnInterfaceOperDS = read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                existingVpnInterfaceId);
+            List<Adjacency> configVpnadjacencies = vpnInterface.getAugmentation(Adjacencies.class).getAdjacency();
+            if(vpnInterfaceOperDS.isPresent()) {
+                VpnInterface vpnInterfaceOperationDS = vpnInterfaceOperDS.get();
+                List<Adjacency> operationVPNadjacencies = vpnInterfaceOperationDS.getAugmentation(Adjacencies.class)
+                .getAdjacency();
+                if(configVpnadjacencies.isEmpty()) {
+                    return;
+                } else {
+                    Iterator<Adjacency> iter = configVpnadjacencies.iterator();
+                    while (iter.hasNext()) {
+                        Adjacency adjacency = iter.next();
+                        if(!operationVPNadjacencies.contains(adjacency.getIpAddress())){
+                            LOG.debug("Processing the vpnInterface:{} for the Ajacency:{}", vpnInterface, adjacency);
+                            vpnInterfaceManager.addNewAdjToVpnInterface(existingVpnInterfaceId,  adjacency,
+                                vpnInterfaceOperationDS.getDpnId(), writeConfigTxn, writeOperTxn);
+                        }
+                    }
+
+                }
+            }
+            });
+        ListenableFuture<Void> operFuture = writeOperTxn.submit();
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        futures.add(writeConfigTxn.submit());
+
+    }
 
     public static <T extends DataObject> void delete(DataBroker broker, LogicalDatastoreType datastoreType,
         InstanceIdentifier<T> path, FutureCallback<Void> callback) {
@@ -1499,6 +1543,10 @@ public class VpnUtil {
      * @return the primary rd of the VPN
      */
     public static String getPrimaryRd(DataBroker dataBroker, String vpnName) {
+        String rd = getVpnRd(dataBroker, vpnName);
+        if(rd != null) {
+            return rd;
+        }
         InstanceIdentifier<VpnInstance> id  = getVpnInstanceIdentifier(vpnName);
         Optional<VpnInstance> vpnInstance = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         if (vpnInstance.isPresent()) {
