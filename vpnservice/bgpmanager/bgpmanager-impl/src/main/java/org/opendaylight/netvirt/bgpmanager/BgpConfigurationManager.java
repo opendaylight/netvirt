@@ -39,8 +39,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
-
-
 import org.apache.thrift.TException;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
@@ -55,20 +53,6 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.utils.batching.DefaultBatchHandler;
 import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.AddressFamiliesReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.AsIdReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.BgpReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.ConfigServerReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.EbgpMultihopReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.GracefulRestartReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.LoggingReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.MultipathReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.NeighborsReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.NetworksReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.RouteCleanup;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.UpdateSourceReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.VrfMaxpathReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.VrfsReactor;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.commands.ClearBgpCli;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarms;
@@ -342,7 +326,7 @@ public class BgpConfigurationManager {
 
     private String getProperty(String var, String def) {
         String property = bundleContext.getProperty(var);
-        return (property == null ? def : property);
+        return property == null ? def : property;
     }
 
     boolean ignoreClusterDcnEventForFollower() {
@@ -1069,9 +1053,9 @@ public class BgpConfigurationManager {
                     return;
                 }
                 Long label = val.getLabel();
-                int lbl = (label == null) ? qbgpConstants.LBL_NO_LABEL
+                int lbl = label == null ? qbgpConstants.LBL_NO_LABEL
                         : label.intValue();
-                int l3vni = (val.getL3vni() == null) ? qbgpConstants.LBL_NO_LABEL
+                int l3vni = val.getL3vni() == null ? qbgpConstants.LBL_NO_LABEL
                         : val.getL3vni().intValue();
 
                 BgpControlPlaneType protocolType = val.getBgpControlPlaneType();
@@ -1111,7 +1095,7 @@ public class BgpConfigurationManager {
                     return;
                 }
                 Long label = val.getLabel();
-                int lbl = (label == null) ? 0 : label.intValue();
+                int lbl = label == null ? 0 : label.intValue();
                 if (rd == null && lbl > 0) {
                     //LU prefix is being deleted.
                     rd = Integer.toString(lbl);
@@ -1770,7 +1754,7 @@ public class BgpConfigurationManager {
             return cHostStartup;
         }
         ConfigServer ts = config.getConfigServer();
-        return (ts == null ? cHostStartup : ts.getHost().getValue());
+        return ts == null ? cHostStartup : ts.getHost().getValue();
     }
 
     public static int getConfigPort() {
@@ -1778,8 +1762,8 @@ public class BgpConfigurationManager {
             return Integer.parseInt(cPortStartup);
         }
         ConfigServer ts = config.getConfigServer();
-        return (ts == null ? Integer.parseInt(cPortStartup) :
-                ts.getPort().intValue());
+        return ts == null ? Integer.parseInt(cPortStartup) :
+                ts.getPort().intValue();
     }
 
     public static Bgp getConfig() {
@@ -1833,7 +1817,7 @@ public class BgpConfigurationManager {
             IpAddress routerId = asId.getRouterId();
             Long spt = asId.getStalepathTime();
             Boolean afb = asId.isAnnounceFbit();
-            String rid = (routerId == null) ? "" : new String(routerId.getValue());
+            String rid = routerId == null ? "" : new String(routerId.getValue());
             int stalepathTime = (int) getStalePathtime(RESTART_DEFAULT_GR, config.getAsId());
             boolean announceFbit = true;
             try {
@@ -1895,8 +1879,8 @@ public class BgpConfigurationManager {
                     String pfxlen = net.getPrefixLen();
                     String nh = net.getNexthop().getValue();
                     Long label = net.getLabel();
-                    int lbl = (label == null) ? 0 : label.intValue();
-                    int l3vni = (net.getL3vni() == null) ? 0 : net.getL3vni().intValue();
+                    int lbl = label == null ? 0 : label.intValue();
+                    int l3vni = net.getL3vni() == null ? 0 : net.getL3vni().intValue();
                     if (rd == null && lbl > 0) {
                         //LU prefix is being deleted.
                         rd = Integer.toString(lbl);
@@ -1981,7 +1965,7 @@ public class BgpConfigurationManager {
     }
 
     public void startBgp(long as, String routerId, int spt, boolean fbit) {
-        IpAddress rid = (routerId == null) ? null : new IpAddress(routerId.toCharArray());
+        IpAddress rid = routerId == null ? null : new IpAddress(routerId.toCharArray());
         Long staleTime = (long) spt;
         InstanceIdentifier.InstanceIdentifierBuilder<AsId> iib =
                 InstanceIdentifier.builder(Bgp.class).child(AsId.class);
@@ -2269,7 +2253,7 @@ public class BgpConfigurationManager {
              * to complete (or)wait for max timeout value of STALE_FIB_WAIT Seconds.
              */
             int retry = STALE_FIB_WAIT;
-            while ((BgpUtil.getGetPendingWrTransaction() != 0) && (retry > 0)) {
+            while (BgpUtil.getGetPendingWrTransaction() != 0 && retry > 0) {
                 Thread.sleep(1000);
                 retry--;
                 if (retry == 0) {
@@ -2330,7 +2314,7 @@ public class BgpConfigurationManager {
              */
             int retry = STALE_FIB_WAIT;
             String rd;
-            while ((BgpUtil.getGetPendingWrTransaction() != 0) && (retry > 0)) {
+            while (BgpUtil.getGetPendingWrTransaction() != 0 && retry > 0) {
                 Thread.sleep(1000);
                 retry--;
                 if (retry == 0) {

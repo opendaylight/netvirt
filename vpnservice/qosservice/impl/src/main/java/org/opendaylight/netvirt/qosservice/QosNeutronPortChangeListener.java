@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.qosservice;
 
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
