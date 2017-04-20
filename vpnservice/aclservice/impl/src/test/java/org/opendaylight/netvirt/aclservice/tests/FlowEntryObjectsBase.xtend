@@ -1215,13 +1215,9 @@ class FlowEntryObjectsBase {
     protected def remoteFlows() {
         remoteIngressFlowsPort1
         + remoteIngressFlowsPort1
-        + remoteIngressFlowsPort1
-        + remoteEgressFlowsPort1
         + remoteEgressFlowsPort1
         + remoteEgressFlowsPort1
         + remoteIngressFlowsPort2
-        + remoteIngressFlowsPort2
-        + remoteEgressFlowsPort2
         + remoteEgressFlowsPort2
     }
 

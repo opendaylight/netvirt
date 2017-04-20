@@ -119,6 +119,23 @@ public class AclDataUtil {
     }
 
     /**
+     * Gets the set of ACL interfaces per ACL (in a map) which has remote ACL.
+     *
+     * @return the set of ACL interfaces per ACL (in a map) which has remote ACL.
+     */
+    public Map<String, Set<AclInterface>> getAllRemoteAclInterfaces() {
+        Map<String, Set<AclInterface>> mapOfAclWithInterfaces = new HashMap<>();
+        for (Uuid remoteAcl : remoteAclIdMap.keySet()) {
+            Map<String, Set<AclInterface>> map = getRemoteAclInterfaces(remoteAcl);
+            if (map != null) {
+                mapOfAclWithInterfaces.putAll(map);
+            }
+        }
+
+        return mapOfAclWithInterfaces;
+    }
+
+    /**
      * Adds the acl flow priority to the cache.
      *
      * @param aclName the acl name
