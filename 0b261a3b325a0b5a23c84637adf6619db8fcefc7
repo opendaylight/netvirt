@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_8e19ae7b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-20T17:10:15Z",
+      "side": 1,
+      "message": "getInterfaceTypeForInterfaceName() would be a better method name.",
+      "revId": "0b261a3b325a0b5a23c84637adf6619db8fcefc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_8e47ee4a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1176,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-20T17:10:15Z",
+      "side": 1,
+      "message": "this also can be named as applyRemoteFlowsOnTunnelEvent()",
+      "revId": "0b261a3b325a0b5a23c84637adf6619db8fcefc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_0e0e5e34",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1285,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-20T17:10:15Z",
+      "side": 1,
+      "message": "some copy paste mistake :) ?\n\nOne LOG.ERROR statement is sufficient.",
+      "revId": "0b261a3b325a0b5a23c84637adf6619db8fcefc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
