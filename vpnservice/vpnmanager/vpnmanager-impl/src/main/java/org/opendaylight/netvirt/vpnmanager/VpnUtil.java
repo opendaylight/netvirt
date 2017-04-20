@@ -1489,6 +1489,11 @@ public class VpnUtil {
      * @return the primary rd of the VPN
      */
     public static String getPrimaryRd(DataBroker dataBroker, String vpnName) {
+        // Retrieves the VPN Route Distinguisher by its Vpn instance name
+        String rd = getVpnRd(dataBroker, vpnName);
+        if (rd != null) {
+            return rd;
+        }
         InstanceIdentifier<VpnInstance> id  = getVpnInstanceIdentifier(vpnName);
         Optional<VpnInstance> vpnInstance = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         if (vpnInstance.isPresent()) {
