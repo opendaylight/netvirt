@@ -34,6 +34,24 @@
       "revId": "f62714ee80acd9259ae5f05a5b6a1d3b15e2f764",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_d978a7f4",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1282,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-20T10:38:07Z",
+      "side": 1,
+      "message": "I understand the code is invoked only after tep addition but there are scenarios when teps are not added immediately after the compute node was spawned. \nConsider the following use case:\n1.\tCreate tenant 2 vlan networks\n2.\tCreate a router and associate it to both vlan networks.\n3.\tSpawn VMs and associate them to the vlan networks.\n\nAt this point no tep will be created when working with auto-tunnels feature enabled since no vxlan networks were defined yet.\nFor each spawned VM you will have RNH FIB flows similar to the following:\ntable\u003d21, n_packets\u003d0, n_bytes\u003d0, priority\u003d42,ip,metadata\u003d0x30d40/0xfffffe,nw_dst\u003d50.0.0.2 actions\u003dset_field:fa:16:3e:be:74:c5-\u003eeth_dst,load:0xc00-\u003eNXM_NX_REG6[],resubmit(,220)\n\n4.\tCreate tenant vxlan network\n5.\tAssociate it to the router instance defined in step 2\n6.\tSpawn VMs and associate them to the vxlan network\n\nTeps will be created while VMs are spawned by the auto-tunnels feature. When the tep-up event triggers rewriting of the existing FIB entries. the already processed vrf-entries created for VMs defined in step 3 can be overridden by createRemoteFibEntryOnTunnelEvent and the RNH would change to tunnel-based destination like the following:\ntable\u003d21, n_packets\u003d0, n_bytes\u003d0, priority\u003d42,ip,metadata\u003d0x30d40/0xfffffe,nw_dst\u003d50.0.0.2 actions\u003dset_field:0x186ab-\u003etun_id,set_field:fa:16:3e:be:74:c5-\u003eeth_dst,load:0x1100-\u003eNXM_NX_REG6[],resubmit(,220)\n\nSince the current patch does not attempt to resolve the network type and assumes all vrf-entries use tunnel-based underlays",
+      "parentUuid": "da01753e_6e1c4f14",
+      "revId": "f62714ee80acd9259ae5f05a5b6a1d3b15e2f764",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
