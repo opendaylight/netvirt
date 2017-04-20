@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_4e598b35",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1282,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-04-20T07:59:00Z",
+      "side": 1,
+      "message": "I still think there can be an issue here with vlan networks.\nSuppose you already have a vrf entry associated with VM in tenant vlan network.\nThe remote nexthop flow in the fib table would be something like:\n cookie\u003d0x8000003, duration\u003d27.693s, table\u003d21, n_packets\u003d0, n_bytes\u003d0, priority\u003d42,ip,metadata\u003d0x30d40/0xfffffe,nw_dst\u003d50.0.0.2 actions\u003dset_field:fa:16:3e:be:74:c5-\u003eeth_dst,load:0xc00-\u003eNXM_NX_REG6[],resubmit(,220)\n\nWhere 0xc is the lport-tag of the vlan provider port:\ntable\u003d0, n_packets\u003d179, n_bytes\u003d18302, priority\u003d10,in_port\u003d1,dl_vlan\u003d1236 actions\u003dpop_vlan,write_metadata:0xc0000000001/0xffffff0000000001,goto_table:17\n\nLater on, when tunnel comes up this code will be invoked and the entry would be overridden by remote nexthop to the tunnel. Something like:\ntable\u003d21, n_packets\u003d0, n_bytes\u003d0, priority\u003d42,ip,metadata\u003d0x30d40/0xfffffe,nw_dst\u003d50.0.0.2 actions\u003dset_field:0x186ab-\u003etun_id,set_field:fa:16:3e:be:74:c5-\u003eeth_dst,load:0x1100-\u003eNXM_NX_REG6[],resubmit(,220)\n\nWhere 0x11 is the lport-tag of the tunnel interface:\ntable\u003d0, n_packets\u003d1438, n_bytes\u003d105788, priority\u003d5,in_port\u003d5 actions\u003dwrite_metadata:0x110000000001/0xfffff0000000001,goto_table:36\n\nThis is because resolveAdjacency is skipped in this scenario and the network type is not determined. Am I missing something? Is there a check in this workflow that takes care of updating only vrf-entries of tunnel-underlay networks?",
+      "revId": "f62714ee80acd9259ae5f05a5b6a1d3b15e2f764",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
