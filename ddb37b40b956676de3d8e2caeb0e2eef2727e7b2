@@ -84,6 +84,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_4bdfbd3b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-20T05:57:33Z",
+      "side": 1,
+      "message": "This response is not correctly stated.   \n\nToday without this fix we rely on ITM to figure out whether to fetch the interface from External Tunnel List (or) Internal Tunnel list.   If an external tunnel is not available on time from ITM when a call is made, it goes to Internal Tunnel List search which is a wide-open loop when you have a mesh of tunnels at scale.\n\nBy apriori supplying the tunnelList to ITM to be used from the application, we completely eliminate the unnecessary internal Tunnel Search for an unavailable external tunnel.  In addition for an Internal tunnel, we completely eliminate the unnecessary external Tunnel Search.\n\nOn top of this, there is more investigation required in ITM to make sure the tunnels are available at the time when services query for egress actions, particularly after a cluster reboot.",
+      "parentUuid": "da01753e_88cfeb7e",
+      "revId": "ddb37b40b956676de3d8e2caeb0e2eef2727e7b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_f6b4a336",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 5
@@ -177,6 +195,30 @@
       "writtenOn": "2017-04-19T19:25:31Z",
       "side": 1,
       "message": "you need to pass non-null interfaceType to AdjacencyResult\n\nIn addition, I think that generating the AdjacencyResult this way is problematic. How can you be sure that the underlay network type for this vrf-entry is tunnel-based? My main concern here is of overriding RNH entries of vlan networks",
+      "range": {
+        "startLine": 1264,
+        "startChar": 83,
+        "endLine": 1264,
+        "endChar": 87
+      },
+      "revId": "ddb37b40b956676de3d8e2caeb0e2eef2727e7b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_2be23903",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1264,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-20T05:57:33Z",
+      "side": 1,
+      "message": "Hari,\nCan you please address this concern?\n\nVivek",
+      "parentUuid": "da01753e_56b76fd8",
       "range": {
         "startLine": 1264,
         "startChar": 83,
