@@ -240,7 +240,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
 
         String flowNameAdded = "Acl_Filter_Egress_" + new String(ip.getIpAddress().getValue()) + "_" + elanTag;
 
-        Map<String, Set<AclInterface>> mapAclWithPortSet = aclDataUtil.getRemoteAclInterfaces(acl);
+        Map<String, Set<AclInterface>> mapAclWithPortSet = aclDataUtil.getAllRemoteAclInterfaces();
         Set<BigInteger> dpns = collectDpns(mapAclWithPortSet);
         for (BigInteger dpId : dpns) {
             LOG.debug("writing rule for ip {} and rlanId {} in egress acl remote table {}", getIpPrefixOrAddress(ip),
