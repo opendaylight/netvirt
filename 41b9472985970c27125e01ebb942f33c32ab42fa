@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_971b9e1b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-04-20T11:15:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_a119418a",
+      "revId": "41b9472985970c27125e01ebb942f33c32ab42fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_4154d520",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-04-18T07:16:41Z",
       "side": 1,
       "message": "the macAddress is not used in teh key, so why is the inclusion of parameter here...",
+      "revId": "41b9472985970c27125e01ebb942f33c32ab42fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_f76caa9e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-04-20T11:15:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_4154d520",
       "revId": "41b9472985970c27125e01ebb942f33c32ab42fa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_b720624a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-04-20T11:15:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_a132e10d",
+      "revId": "41b9472985970c27125e01ebb942f33c32ab42fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_81351df9",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 4
@@ -64,6 +118,24 @@
       "writtenOn": "2017-04-18T07:16:41Z",
       "side": 1,
       "message": "agan why null passed here?",
+      "revId": "41b9472985970c27125e01ebb942f33c32ab42fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_5713f60c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 844,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-04-20T11:15:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_81351df9",
       "revId": "41b9472985970c27125e01ebb942f33c32ab42fa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
