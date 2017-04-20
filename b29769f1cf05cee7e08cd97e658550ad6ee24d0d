@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "da01753e_4b005d67",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-20T13:13:52Z",
+      "side": 1,
+      "message": "extra-routes never contain a macaddress..\n\nThe primary problem is discovered routes must not be loadbalanced similar to extra-routes.\n\nAt the same time, extra-routes being loadbalanced should not have groupId overlapping with normal legacy nexthop groups.",
+      "revId": "b29769f1cf05cee7e08cd97e658550ad6ee24d0d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_2b035974",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-20T13:13:52Z",
+      "side": 1,
+      "message": "fix this statement too.",
+      "revId": "b29769f1cf05cee7e08cd97e658550ad6ee24d0d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_0833fb14",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 10
