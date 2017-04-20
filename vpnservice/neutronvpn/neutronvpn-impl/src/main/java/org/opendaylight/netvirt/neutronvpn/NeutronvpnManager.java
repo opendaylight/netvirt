@@ -404,6 +404,29 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
+    public void updateVpnInstanceWithRDs(String vpnInstanceId, final List<String> rds) {
+        boolean isLockAcquired = false;
+        InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
+            .child(VpnInstance.class, new VpnInstanceKey(vpnInstanceId)).build();
+        try {
+            Optional<VpnInstance> vpnInstanceConfig = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                vpnIdentifier);
+            VpnInstance vpnInstance = vpnInstanceConfig.get();
+            VpnInstanceBuilder updateVpnInstanceBuilder = new VpnInstanceBuilder(vpnInstance);
+            Ipv4FamilyBuilder ipv4FamilyBuilder = new Ipv4FamilyBuilder(vpnInstance.getIpv4Family());
+            updateVpnInstanceBuilder.setIpv4Family(ipv4FamilyBuilder.setRouteDistinguisher(rds).build());
+            LOG.debug("Updating Config vpn-instance: {} with the list of RDs: {}", vpnInstanceId,rds);
+            isLockAcquired = NeutronvpnUtils.lock(vpnInstanceId);
+            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier, updateVpnInstanceBuilder.build());
+        }  catch (Exception e) {
+            LOG.error("Update VPN Instance node failed for node: {}", vpnInstanceId);
+        } finally {
+            if(isLockAcquired) {
+                NeutronvpnUtils.unlock(vpnInstanceId);
+            }
+        }
+    }
+
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void updateVpnInstanceNode(String vpnName, List<String> rd, List<String> irt, List<String> ert,
