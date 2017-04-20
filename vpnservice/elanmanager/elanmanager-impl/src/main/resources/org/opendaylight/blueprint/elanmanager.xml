@@ -23,6 +23,8 @@
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService" />
   <odl:rpc-service id="idManagerService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
+  <odl:rpc-service id="vppAdapterRpcService"
+    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.groupbasedpolicy.vpp_adapter.rev161201.VppAdapterService" />
 
   <odl:clustered-app-config id="elanConfig"
     binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig"
@@ -50,6 +52,20 @@
     <argument ref="mdsalUtils" />
     <argument ref="interfaceManager" />
     <argument ref="elanForwardingEntriesHandler" />
+  </bean>
+
+  <bean id="elanInterfaceVppRenderer"
+    class="org.opendaylight.netvirt.elan.internal.ElanInterfaceVppRenderer"
+    init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="vppAdapterRpcService" />
+  </bean>
+
+  <bean id="elanInterfaceConfigVppListener"
+    class="org.opendaylight.netvirt.elan.internal.ElanInterfaceConfigVppListener"
+    init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="elanInterfaceVppRenderer" />
   </bean>
 
   <bean id="elanInstanceManager"
