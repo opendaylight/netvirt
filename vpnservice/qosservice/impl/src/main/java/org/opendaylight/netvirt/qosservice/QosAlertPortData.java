@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.qosservice;
 
-
 import java.math.BigInteger;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
@@ -18,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class QosAlertPortData {
-    private Port port;
+    private final Port port;
     private static INeutronVpnManager neutronVpnManager;
     private BigInteger rxPackets;
     private BigInteger rxDroppedPackets;
