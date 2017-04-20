@@ -202,11 +202,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>${ovsdb.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>ovsdb-ui-bundle</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.opendaylight.ovsdb</groupId>
       <artifactId>southbound-features</artifactId>
       <version>${ovsdb.version}</version>

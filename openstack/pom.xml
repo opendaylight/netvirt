@@ -49,7 +49,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <module>features</module>
     <module>karaf</module>
     <module>netvirt-artifacts</module>
-    <module>ovsdb-ui</module>
     <module>utils</module>
     <module>net-virt</module>
     <module>net-virt-it</module>
