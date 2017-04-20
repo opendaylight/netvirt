@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_3f0ef334",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-04-20T13:14:25Z",
+      "side": 1,
+      "message": "see my other suggestion - I think that if you do that, you won\u0027t need this function and we can always syncUpdate, simplifying the logic here",
+      "range": {
+        "startLine": 50,
+        "startChar": 26,
+        "endLine": 50,
+        "endChar": 42
+      },
+      "revId": "c6ad2b0c5e4493cb6d0c90ff5315a7de21668f29",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_d407ce1a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-04-20T13:14:25Z",
+      "side": 1,
+      "message": "You could do this initial write as part of handleNeutronPortCreated, instead of doing another DS write whenever a port is created",
+      "range": {
+        "startLine": 136,
+        "startChar": 8,
+        "endLine": 136,
+        "endChar": 90
+      },
+      "revId": "c6ad2b0c5e4493cb6d0c90ff5315a7de21668f29",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
