@@ -181,6 +181,13 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
     protected void update(InstanceIdentifier<Bgpvpn> identifier, Bgpvpn original, Bgpvpn update) {
         LOG.trace("Update Bgpvpn : key: {}, value={}", identifier, update);
         if (isBgpvpnTypeL3(update.getType())) {
+            try {
+                handleVpnInstanceUpdate(original.getUuid().getValue(), original.getRouteDistinguishers(),
+                        update.getRouteDistinguishers());
+            } catch (UnsupportedOperationException e) {
+                LOG.error("Error while processing Update Bgpvpn.", e);
+                return;
+            }
             List<Uuid> oldNetworks = original.getNetworks();
             List<Uuid> newNetworks = update.getNetworks();
             Uuid vpnId = update.getUuid();
@@ -189,6 +196,30 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
             List<Uuid> newRouters = update.getRouters();
             handleRoutersUpdate(vpnId, oldRouters, newRouters);
         }
+    }
+
+    protected void handleVpnInstanceUpdate(String vpnInstanceName,final List<String> originalRds,
+                                           List<String> updateRDs) throws UnsupportedOperationException {
+        if (updateRDs == null || updateRDs.isEmpty()) {
+            return;
+        }
+        int oldRdsCount = originalRds.size();
+        Iterator<String> originalRdsInter = originalRds.iterator();
+
+        while (originalRdsInter.hasNext()) {
+            String rd = originalRdsInter.next();
+            //If the existing rd is not present in the updateRds list, not allow to process the updateRDs.
+            if (!updateRDs.contains(rd)) {
+                LOG.error("The existing RD:{} not present in the updatedRDsList:{}", rd, updateRDs);
+                throw new UnsupportedOperationException("The existing RD not present in the updatedRDsList");
+            }
+        }
+        if (updateRDs.size() == oldRdsCount) {
+            LOG.debug("There is no update in the List of Route Distinguisher for the VpnInstance:{}", vpnInstanceName);
+            return;
+        }
+        LOG.debug("update the VpnInstance:{} with the List of RDs: {}", vpnInstanceName, updateRDs);
+        nvpnManager.updateVpnInstanceWithRDs(vpnInstanceName, updateRDs);
     }
 
     protected void handleNetworksUpdate(Uuid vpnId, List<Uuid> oldNetworks, List<Uuid> newNetworks) {
