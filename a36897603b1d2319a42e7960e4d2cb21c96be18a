@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_d94c2773",
+        "filename": "vpnservice/features/odl-netvirt-sfc/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-04-20T09:28:21Z",
+      "side": 1,
+      "message": "can we use project.version here?",
+      "range": {
+        "startLine": 32,
+        "startChar": 21,
+        "endLine": 32,
+        "endChar": 35
+      },
+      "revId": "a36897603b1d2319a42e7960e4d2cb21c96be18a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_793d3bbb",
+        "filename": "vpnservice/features/odl-netvirt-sfc/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-04-20T09:28:21Z",
+      "side": 1,
+      "message": "can we use project.version here?",
+      "range": {
+        "startLine": 39,
+        "startChar": 21,
+        "endLine": 39,
+        "endChar": 35
+      },
+      "revId": "a36897603b1d2319a42e7960e4d2cb21c96be18a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
