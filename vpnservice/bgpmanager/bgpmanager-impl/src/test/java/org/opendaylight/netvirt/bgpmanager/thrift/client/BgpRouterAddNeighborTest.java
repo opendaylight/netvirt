@@ -12,8 +12,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
-
-
 import com.google.common.truth.Expect;
 import org.apache.thrift.TException;
 import org.junit.Before;

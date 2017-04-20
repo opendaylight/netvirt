@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.bgpmanager.commands;
 
-
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
@@ -49,7 +48,7 @@ public class Multipath extends OsgiCommandSupport {
     @Argument(name = "enable|disable|setmaxpath",
             description = "The desired operation",
             required = true, multiValued = false)
-    private String multipathEnable = null;
+    private final String multipathEnable = null;
 
     @Override
     protected Object doExecute() throws Exception {
