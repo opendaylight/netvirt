@@ -175,6 +175,8 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
     protected void update(InstanceIdentifier<Bgpvpn> identifier, Bgpvpn original, Bgpvpn update) {
         LOG.trace("Update Bgpvpn : key: {}, value={}", identifier, update);
         if (isBgpvpnTypeL3(update.getType())) {
+            handleVpnInstanceUpdate(original.getUuid().getValue(), original.getRouteDistinguishers(),
+                update.getRouteDistinguishers());
             List<Uuid> oldNetworks = original.getNetworks();
             List<Uuid> newNetworks = update.getNetworks();
             Uuid vpnId = update.getUuid();
@@ -183,6 +185,29 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
             List<Uuid> newRouters = update.getRouters();
             handleRoutersUpdate(vpnId, oldRouters, newRouters);
         }
+    }
+
+    protected void handleVpnInstanceUpdate(String vpnInstanceName,final List<String> originalRds,
+                                           List<String> updateRDs) {
+        if (updateRDs == null || updateRDs.isEmpty()) {
+            return;
+        }
+        int oldRdsCount = originalRds.size();
+        Iterator<String> updateRdsIter = updateRDs.iterator();
+
+        while (updateRdsIter.hasNext()) {
+            String rd = updateRdsIter.next();
+            //If the existing rd is not present in the updateRds. Add the entry to the updateRds
+            if (!originalRds.contains(rd)) {
+                originalRds.add(rd);
+            }
+        }
+        if (oldRdsCount == originalRds.size()) {
+            LOG.debug("There is no update in the List of Route Distinguisher for the VpnInstance:{}", vpnInstanceName);
+            return;
+        }
+        LOG.debug("update the VpnInstance:{} with the List of RDs: {}", vpnInstanceName, originalRds);
+        nvpnManager.updateVpnInstanceWithRDs(vpnInstanceName, originalRds);
     }
 
     protected void handleNetworksUpdate(Uuid vpnId, List<Uuid> oldNetworks, List<Uuid> newNetworks) {

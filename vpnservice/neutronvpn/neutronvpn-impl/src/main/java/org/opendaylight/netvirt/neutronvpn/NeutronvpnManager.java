@@ -404,6 +404,24 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
+    public void updateVpnInstanceWithRDs(String vpnInstanceId, final List<String> rds) {
+        InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
+            .child(VpnInstance.class, new VpnInstanceKey(vpnInstanceId)).build();
+        Optional<VpnInstance> vpnInstanceConfig =
+            NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier);
+        if (!vpnInstanceConfig.isPresent()) {
+            LOG.debug("No VpnInstance present under config vpnInstance:{}", vpnInstanceId);
+            return;
+        }
+        VpnInstance vpnInstance = vpnInstanceConfig.get();
+        VpnInstanceBuilder updateVpnInstanceBuilder = new VpnInstanceBuilder(vpnInstance);
+        Ipv4FamilyBuilder ipv4FamilyBuilder = new Ipv4FamilyBuilder(vpnInstance.getIpv4Family());
+        updateVpnInstanceBuilder.setIpv4Family(ipv4FamilyBuilder.setRouteDistinguisher(rds).build());
+        LOG.debug("Updating Config vpn-instance: {} with the list of RDs: {}", vpnInstanceId,rds);
+        MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier,
+            updateVpnInstanceBuilder.build());
+    }
+
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void updateVpnInstanceNode(String vpnName, List<String> rd, List<String> irt, List<String> ert,
