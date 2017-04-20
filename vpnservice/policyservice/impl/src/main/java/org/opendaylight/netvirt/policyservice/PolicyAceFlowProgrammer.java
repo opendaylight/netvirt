@@ -8,9 +8,7 @@
 
 package org.opendaylight.netvirt.policyservice;
 
-
 import com.google.common.base.Optional;
-
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
@@ -18,10 +16,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
@@ -83,13 +79,13 @@ public class PolicyAceFlowProgrammer {
             return;
         }
 
-        List<InstructionInfo> instructions = (addOrRemove == NwConstants.ADD_FLOW)
+        List<InstructionInfo> instructions = addOrRemove == NwConstants.ADD_FLOW
                 ? getPolicyClassifierInstructions(policyClassifierOpt.get()) : null;
         programAceFlows(ace, instructions, dpId, addOrRemove);
     }
 
     public void programAceFlows(Ace ace, String policyClassifierName, List<BigInteger> dpIds, int addOrRemove) {
-        List<InstructionInfo> instructions = (addOrRemove == NwConstants.ADD_FLOW)
+        List<InstructionInfo> instructions = addOrRemove == NwConstants.ADD_FLOW
                 ? getPolicyClassifierInstructions(policyClassifierName) : null;
         dpIds.forEach(dpId -> {
             programAceFlows(ace, instructions, dpId, addOrRemove);
