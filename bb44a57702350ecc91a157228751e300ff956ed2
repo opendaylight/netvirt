@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_bfee63b2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetOpDpnChangeListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-20T13:59:46Z",
+      "side": 1,
+      "message": "you should just check if getRouterId() !\u003d null here..",
+      "revId": "bb44a57702350ecc91a157228751e300ff956ed2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
