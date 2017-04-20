@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.qosservice;
 
-
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
