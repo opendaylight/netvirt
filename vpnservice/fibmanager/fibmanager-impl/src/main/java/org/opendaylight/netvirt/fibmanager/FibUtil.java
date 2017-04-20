@@ -27,8 +27,19 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -39,6 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -891,5 +903,46 @@ public class FibUtil {
             bucketsBuilder.setBucket(bucketList);
         }
         return bucketsBuilder.build();
+    }
+
+    // as per ipv6-l3vpn-internet.rst spec, implement following rule:
+    // | L3 FIB Table (21) ``match: dl_type=0x806, vpn-id=l3vpn-id, set vpn-id=internetvpn-id, resubmit(,21) =>
+    public static void addIPV6InternetfallbackRule(String initial_vpn, String fallback_vpn, IMdsalApiManager mdsalManager) {
+        // resubmit to T21
+        List<ActionInfo> actionsInfo = new ArrayList<>();
+        actionsInfo.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
+        List<InstructionInfo> mkInstruct = new ArrayList<InstructionInfo>();
+        mkInstruct.add(new InstructionApplyActions(actionsInfo));
+        List<MatchInfo> mkMatch = new ArrayList<>();
+        FlowEntity doubleResubmitTable;
+        int instructionKey = 0;
+        int priority = 0; // set to 0 to be least prioritary, no DEFAULT_FIB_FLOW_PRIORITY
+        // TODO: vpnTag has a relationship with fallback_vpn. c'est probablement le vpnId
+        long vpnTag = Long.valueOf(fallback_vpn);
+        mkInstruct.add((InstructionInfo) MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnTag),
+                                                                   MetaDataUtil.METADATA_MASK_VRFID,
+                                                                   ++instructionKey));
+        //org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction result;
+        List<Instruction> result = new ArrayList<>(); 
+        result.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.L3_FIB_TABLE, ++instructionKey));
+        // TODO: vpnId is the vpnID from "initial_vpn"
+        mkMatch.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnTag), MetaDataUtil.METADATA_MASK_VRFID));
+        mkMatch.add(MatchEthernetType.IPV6);
+
+        //private String getTableMissFlowRef(BigInteger dpnId, short tableId, int tableMiss) {
+//        String TableFlowRef =  FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR
+//                + tableMiss + FLOWID_PREFIX;
+        //short tableId = NwConstants.L3_LFIB_TABLE;
+        String tableMissFlowRef =  "L3." + vpnTag/*dpnId*/ + /*L3_FIB_TABLE is 21 int value*/NwConstants.L3_FIB_TABLE/*NwConstants.FLOWID_SEPARATOR = tableId*/ + NwConstants.FLOWID_SEPARATOR/*"."*/
+                + NwConstants.L3_LFIB_TABLE + "L3."/*NwConstants.FLOWID_PREFIX*/;
+       
+       
+        BigInteger COOKIE_ELAN_BASE_SMAC = new BigInteger("8500000", 16);
+        
+        FlowEntity ResubmitTable= MDSALUtil.buildFlowEntity(BigInteger.valueOf(vpnTag)/*dpId*/, NwConstants.L3_FIB_TABLE,
+        		tableMissFlowRef, priority, "L3 FIB resubmit table", 0, 0,
+                                         COOKIE_ELAN_BASE_SMAC, mkMatch, mkInstruct);
+        mdsalManager.installFlow(ResubmitTable);
+
     }
 }

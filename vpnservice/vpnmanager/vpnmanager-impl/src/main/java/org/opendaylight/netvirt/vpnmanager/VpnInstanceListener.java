@@ -13,6 +13,8 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import jline.internal.Log;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +42,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.fibmanager.FibUtil;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.LayerType;
@@ -47,6 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget.VrfRTType;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.ExternalTunnelList;
@@ -438,9 +442,89 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                         opVpnTargetList.add(vpnTargetBuilder.build());
                     }
                 }
+                
+                
+                
+                
+                
+                
+                
+                // case 1 :
+                // a new vpn is declared and contains 2 RTs. one is the vpninternet.
+                // for each vpnTargetList, if getVrfRTValue is different from primaryRD, then a fallback rule should be added in OVS
+                // here, we assume getVrfRTValue matches an already present VPN ( strcmp( primaryRD, getVRFRTValue()) are equal).
+                // if the 2 vpns are existing, call the following routine here
+                // primaryRDname is the vpnname for primaryRD
+                // secondaryRDname is the vpnname for 2nd vpnname is getVRFRTValue()
+                ///////addIPv6InternetfallbackRule (primaryRDname, secondaryRDName);
+                
+                //TODO NoelNoel modification pour ajouter les RD au autre vpn
+                
+                boolean useRDName = true;
+                
+                
+                if (value.getIpv6Family() !=null && value.getIpv6Family().getVpnTargets().getVpnTarget().stream().filter
+		                		(
+		                				vpnTarget -> vpnTarget.getVrfRTType().compareTo(VrfRTType.ImportExtcommunity) >-1
+		                		).count()>1/*there is more than one export RT*/
+                	)
+                {
+                	/*get all export RT different from primaryRD of the new vpn*/
+                	java.util.stream.Stream<VpnTarget> streamVpnTargetExport = value.getIpv6Family().getVpnTargets().getVpnTarget().stream().filter
+            		(vpnTarget -> vpnTarget.getVrfRTType().compareTo(VrfRTType.ImportExtcommunity) > -1)
+            		.filter(vpnTarget -> vpnTarget.getVrfRTValue().compareTo(primaryRd)!=0);
+                	
+                	if(streamVpnTargetExport.count()>0)
+                	{
+                		String secondaryRd = streamVpnTargetExport.findFirst().orElse(null).getVrfRTValue();
+                		if (useRDName)
+                        {
+                			FibUtil.addIPV6InternetfallbackRule(vpnInstanceName, secondaryRd, mdsalManager);
+                        }else
+                        {
+                			FibUtil.addIPV6InternetfallbackRule(primaryRd, secondaryRd, mdsalManager);                        	
+                        }
+                	}
+                }
+                
             }
             VpnTargetsBuilder vpnTargetsBuilder = new VpnTargetsBuilder().setVpnTarget(opVpnTargetList);
             builder.setVpnTargets(vpnTargetsBuilder.build());
+        // case 2 :
+        // a new vpn is declared and contains 1 RTs. the fact is that vpn is referenced
+        // by an other vpn.
+        // addIPv6InternetfallbackRule (primaryRDname, secondaryRDName);
+            
+            if (value.getIpv6Family() !=null && 
+                value.getIpv6Family().getVpnTargets().getVpnTarget().stream().anyMatch(vpnTarget -> vpnTarget.getKey().getVrfRTValue().compareTo(primaryRd)==0))
+            {/*there is at least another vpn with the own RD of this vpn*/
+               
+	        	for( VpnInstance vpn : VpnUtil.getAllVpnInstances(dataBroker))
+	        	{
+	        		if (vpn.getIpv6Family().getVpnTargets().getVpnTarget().stream().anyMatch(
+	        				rd -> { return (rd.getVrfRTType().compareTo(VrfRTType.ImportExtcommunity)>-1 && rd.getVrfRTValue().indexOf(primaryRd)>-1); }
+	        				)/*in the import RT there is the RD of new vpn*/)
+	                {
+	        			for (VpnTarget vpnTarget : vpn.getIpv6Family().getVpnTargets().getVpnTarget())
+	        			{
+	        				if (vpnTarget.getVrfRTType().compareTo(VrfRTType.ImportExtcommunity)>-1)
+	        				{/*this is another vpn with the primaryRd in its import table*/
+	        					FibUtil.addIPV6InternetfallbackRule(vpnTarget.getVrfRTValue()/*primaryRdName*/, vpnInstanceName/*secondaryRd*/, mdsalManager);
+	        					break;
+	        				}
+	        			}
+	                }
+	        	}
+            }
+            
+            
+            
+            
+            
+            
+        
+        
+        
         }
         if (writeOperTxn != null) {
             writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL,
