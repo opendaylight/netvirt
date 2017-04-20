@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.qosservice;
 
-
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -148,6 +147,7 @@ public class QosPolicyChangeListener extends AsyncDataTreeChangeListenerBase<Qos
         }
     }
 
+    @Override
     protected void add(InstanceIdentifier<QosPolicy> identifier, QosPolicy input) {
         LOG.trace("Adding  QosPolicy : key: {}, value={}", identifier, input);
         QosNeutronUtils.addToQosPolicyCache(input);
@@ -212,6 +212,7 @@ public class QosPolicyChangeListener extends AsyncDataTreeChangeListenerBase<Qos
 
     }
 
+    @Override
     protected void remove(InstanceIdentifier<QosPolicy> identifier, QosPolicy input) {
         LOG.trace("Removing QosPolicy : key: {}, value={}", identifier, input);
         QosNeutronUtils.removeFromQosPolicyCache(input);
@@ -279,6 +280,7 @@ public class QosPolicyChangeListener extends AsyncDataTreeChangeListenerBase<Qos
         }
     }
 
+    @Override
     protected void update(InstanceIdentifier<QosPolicy> identifier, QosPolicy original, QosPolicy update) {
         LOG.trace("Updating QosPolicy : key: {}, original value={}, update value={}", identifier, original, update);
         QosNeutronUtils.addToQosPolicyCache(update);
@@ -347,7 +349,7 @@ public class QosPolicyChangeListener extends AsyncDataTreeChangeListenerBase<Qos
 
     private void supportedQoSRuleTypes() {
         QosRuleTypesBuilder qrtBuilder = new QosRuleTypesBuilder();
-        List<RuleTypes> value = new ArrayList<RuleTypes>();
+        List<RuleTypes> value = new ArrayList<>();
 
         value.add(getRuleTypes("bandwidth_limit_rules"));
         value.add(getRuleTypes("dscp_marking_rules"));
