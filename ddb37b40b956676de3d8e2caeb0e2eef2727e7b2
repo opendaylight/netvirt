@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "da01753e_28b99fe9",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2017-04-20T05:34:26Z",
+      "side": 1,
+      "message": "the getTunnelInterfaceName call takes srcdpnid and dstdpnid we have only srcdpnid. We did think about this",
+      "parentUuid": "da01753e_66ff6668",
+      "range": {
+        "startLine": 332,
+        "startChar": 43,
+        "endLine": 332,
+        "endChar": 77
+      },
+      "revId": "ddb37b40b956676de3d8e2caeb0e2eef2727e7b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_7686f314",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 5
@@ -36,6 +60,24 @@
       "writtenOn": "2017-04-19T19:25:31Z",
       "side": 1,
       "message": "could you explain why does this extra DS read needed and how does it help to solve the bug?",
+      "revId": "ddb37b40b956676de3d8e2caeb0e2eef2727e7b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_88cfeb7e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2017-04-20T05:34:26Z",
+      "side": 1,
+      "message": "This whole changes will only refactor the code and will improve the execution, it does not solve the big. The extra call is to figure out if the vxlan is to dcgw or TOR",
+      "parentUuid": "da01753e_7686f314",
       "revId": "ddb37b40b956676de3d8e2caeb0e2eef2727e7b2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_68ca876f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2017-04-20T05:34:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_f6b4a336",
+      "revId": "ddb37b40b956676de3d8e2caeb0e2eef2727e7b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_f6a82379",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 5
@@ -70,6 +130,30 @@
       "writtenOn": "2017-04-19T19:25:31Z",
       "side": 1,
       "message": "unused arg",
+      "range": {
+        "startLine": 1261,
+        "startChar": 59,
+        "endLine": 1261,
+        "endChar": 67
+      },
+      "revId": "ddb37b40b956676de3d8e2caeb0e2eef2727e7b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_a8c46f5f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1261,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2017-04-20T05:34:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_f6a82379",
       "range": {
         "startLine": 1261,
         "startChar": 59,
@@ -128,6 +212,30 @@
     },
     {
       "key": {
+        "uuid": "da01753e_48e983b7",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1294,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2017-04-20T05:34:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_966ef7ff",
+      "range": {
+        "startLine": 1268,
+        "startChar": 0,
+        "endLine": 1294,
+        "endChar": 109
+      },
+      "revId": "ddb37b40b956676de3d8e2caeb0e2eef2727e7b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_565f6fe5",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 5
@@ -139,6 +247,24 @@
       "writtenOn": "2017-04-19T18:05:15Z",
       "side": 1,
       "message": "why we need tempTunnelType.. can\u0027t we use tunnelType everywhere below?",
+      "revId": "ddb37b40b956676de3d8e2caeb0e2eef2727e7b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_6821e7b3",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2354,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2017-04-20T05:34:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_565f6fe5",
       "revId": "ddb37b40b956676de3d8e2caeb0e2eef2727e7b2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
