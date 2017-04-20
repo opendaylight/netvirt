@@ -139,4 +139,14 @@ public class LearnEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
                 0,
                 LearnCommonAclServiceImpl.getUdpLearnActionMatches()));
     }
+
+    @Override
+    protected short getEgressAclFilterTable() {
+        return NwConstants.EGRESS_LEARN_ACL_FILTER_TABLE;
+    }
+
+    @Override
+    protected short getEgressAclRemoteAclTable() {
+        return NwConstants.EGRESS_LEARN_ACL_REMOTE_ACL_TABLE;
+    }
 }

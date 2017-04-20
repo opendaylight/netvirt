@@ -241,8 +241,9 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
         instructions.add(new InstructionGotoTable(getIngressAclFilterTable()));
 
         String flowNameAdded = "Acl_Filter_Ingress_" + new String(ip.getIpAddress().getValue()) + "_" + elanTag;
+        LOG.warn((addOrRemove == 0 ? "ADD" : "REMOVE") + flowNameAdded);
 
-        Map<String, Set<AclInterface>> mapAclWithPortSet = aclDataUtil.getRemoteAclInterfaces(acl);
+        Map<String, Set<AclInterface>> mapAclWithPortSet = aclDataUtil.getAllRemoteAclInterfaces();
         Set<BigInteger> dpns = collectDpns(mapAclWithPortSet);
         for (BigInteger dpId : dpns) {
             LOG.debug("writing rule for ip {} and rlanId {} in ingress acl remote table {}", getIpPrefixOrAddress(ip),
