@@ -22,6 +22,7 @@ public class ShowFibCommand extends OsgiCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
+        session.getConsole().println("########### change from Noel at 13/04/2017 12:15  ###########");
         for (String p : fibManager.printFibEntries()) {
             session.getConsole().println(p);
         }
