@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_2ee24703",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 2209,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-20T10:20:45Z",
+      "side": 1,
+      "message": "Yes, the main use is for binding.\nWe are still missing an ARP responder flow for PNFs in vlan tenant networks, but that will be part of a separate patch. ODL should be able to learn PNFs after the binding.\n\nI\u0027m reusing createExternalVpnInterface method, which is used when creating ExternalVpnInterfaces for external networks. I don\u0027t see any reason not to use it as I don\u0027t see any difference between the networks types (External or Tenant).\n\nIf ExternalVpnInterfaces in operational DS is not needed in both networks types we can clean that part in a subsequent patch.",
+      "parentUuid": "da01753e_b63cdbc0",
+      "revId": "9c137ddc9f1c733b4c82e7632228b19e0422b81a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_9621d7a1",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetOpDpnChangeListener.java",
         "patchSetId": 14
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_6bac4136",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetOpDpnChangeListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-20T10:20:45Z",
+      "side": 1,
+      "message": "Because I forgot it :)\nAdded, thanks.",
+      "parentUuid": "da01753e_9621d7a1",
+      "revId": "9c137ddc9f1c733b4c82e7632228b19e0422b81a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_23826b94",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetOpDpnChangeListener.java",
         "patchSetId": 14
@@ -47,6 +83,24 @@
       "writtenOn": "2017-04-19T17:37:50Z",
       "side": 1,
       "message": "this kind of reverse coupling looks to complicate things ...\n\nWe are listening on an OPERATIONAL datastore that is looking southbound but using that to build up a Neutron Config that is fed Northbound...  \n\nFrom the flow, it looks like you want to enable ExternalVpnInterface creation on every DPN where the Router VPN is available.  \n\nIdeally you need a Network Driven engine here wherein if that Network is flat/vlan AND is available on a DPN, you are creating\nan externalVpnInterface.  And if the network disappears from the DPN, you are removing the externalVpnInterface.\n\nHave you thought about alternatives to this approach?",
+      "revId": "9c137ddc9f1c733b4c82e7632228b19e0422b81a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_0e14a39e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetOpDpnChangeListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-04-20T10:20:45Z",
+      "side": 1,
+      "message": "Yes, my basic requirement is to create/delete an ExternalVpnInterface for each DPN which is \"part\" of a router vpn, because of the possible scale of (DPNs X Tenant-networks).\n\nFirst, I tried your approach, as it indeed seems more reasonable to code this feature that way, listening on neutron port changes, but that way required some unpleasant loops over some models. After reiterating couple of ideas we came to this solution, which IMHO looks like an elegant solution.",
+      "parentUuid": "da01753e_23826b94",
       "revId": "9c137ddc9f1c733b4c82e7632228b19e0422b81a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
