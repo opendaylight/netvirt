@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -835,7 +836,6 @@ public class VpnUtil {
         delete(broker, datastoreType, path, DEFAULT_CALLBACK);
     }
 
-
     public static <T extends DataObject> void delete(DataBroker broker, LogicalDatastoreType datastoreType,
         InstanceIdentifier<T> path, FutureCallback<Void> callback) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
@@ -1499,6 +1499,10 @@ public class VpnUtil {
      * @return the primary rd of the VPN
      */
     public static String getPrimaryRd(DataBroker dataBroker, String vpnName) {
+        String rd = getVpnRd(dataBroker, vpnName);
+        if (rd != null) {
+            return rd;
+        }
         InstanceIdentifier<VpnInstance> id  = getVpnInstanceIdentifier(vpnName);
         Optional<VpnInstance> vpnInstance = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         if (vpnInstance.isPresent()) {
