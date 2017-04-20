@@ -138,8 +138,6 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
     protected def aapFlows() {
         icmpFlows()
         + aapRemoteFlowsPort1
-        // TODO: Temporarily adding duplicate flows to make TC pass. It needs to be removed later.
-        + aapRemoteFlowsPort1
         + aapFlowsPort2
     }
 
