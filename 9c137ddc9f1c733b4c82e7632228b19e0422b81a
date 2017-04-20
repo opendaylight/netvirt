@@ -104,6 +104,24 @@
       "revId": "9c137ddc9f1c733b4c82e7632228b19e0422b81a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_1fd20f5c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetOpDpnChangeListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-20T13:59:46Z",
+      "side": 1,
+      "message": "we could have approached this problem by enhancing the dpn-to-vpn in VPN to hold:\n\n[\n{\n  dpn: \u003cdpn-id\u003e\n  networks : [\n    network-id:\u003cnetwork\u003e\n    vpn-interfaces: list\u003cvpn-interfaces\u003e\n  ]\n}\n]\n\nIn future, we could have taken advantage of network presence.\n\nThe external-vpn-interfaces will be always created in configuration, but it will get into binding-to-dpn + move-into-operational only when another vpn-interface is detected on that same network on a dpn.  In that way we truly retain VPN Engine to manage all the vpn-interface business, rather than spilling the subnet-route-engine couple into the vpnEngine..\n\nPlease request you to think thru this one..",
+      "parentUuid": "da01753e_0e14a39e",
+      "revId": "9c137ddc9f1c733b4c82e7632228b19e0422b81a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
