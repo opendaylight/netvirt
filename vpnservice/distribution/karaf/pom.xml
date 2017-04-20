@@ -52,12 +52,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
 
   <build>
     <plugins>
-      <!-- DO NOT deploy the karaf artifact -->
+      <!-- Temporarily deploy the karaf artifact -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
         <configuration>
-          <skip>true</skip>
+          <skip>false</skip>
         </configuration>
       </plugin>
     </plugins>
