@@ -175,6 +175,9 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
     protected void update(InstanceIdentifier<Bgpvpn> identifier, Bgpvpn original, Bgpvpn update) {
         LOG.trace("Update Bgpvpn : key: {}, value={}", identifier, update);
         if (isBgpvpnTypeL3(update.getType())) {
+            final List<String> originalRds = original.getRouteDistinguishers();
+            List<String> updateRds = update.getRouteDistinguishers();
+            handleVpnInstanceUpdate(original.getUuid().getValue(), originalRds, updateRds);
             List<Uuid> oldNetworks = original.getNetworks();
             List<Uuid> newNetworks = update.getNetworks();
             Uuid vpnId = update.getUuid();
@@ -183,6 +186,24 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
             List<Uuid> newRouters = update.getRouters();
             handleRoutersUpdate(vpnId, oldRouters, newRouters);
         }
+    }
+
+    protected void handleVpnInstanceUpdate(String vpnInstanceId,final List<String> originalRds, List<String> updateRDs)
+    {
+        if(updateRDs == null || updateRDs.isEmpty()) {
+            return;
+        }
+        Iterator<String> updateRdsIter = updateRDs.iterator();
+
+        while (updateRdsIter.hasNext()) {
+            String rd = updateRdsIter.next();
+            //If the existing rd is not present in the updateRds. Add the entry to the updateRds
+            if(!originalRds.contains(rd)) {
+                originalRds.add(rd);
+            }
+        }
+        LOG.debug("update the VpnInstance:{} with the List of RDs: {}", vpnInstanceId, originalRds);
+        nvpnManager.updateVpnInstanceWithRDs(vpnInstanceId, originalRds);
     }
 
     protected void handleNetworksUpdate(Uuid vpnId, List<Uuid> oldNetworks, List<Uuid> newNetworks) {
