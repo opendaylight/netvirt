@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.qosservice;
 
-
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
@@ -296,10 +295,10 @@ public class QosNeutronUtils {
                                                      Network network, Uuid qosUuid) {
         LOG.trace("Handling Network QoS update: net: {} qosservice: {}", network.getUuid(), qosUuid);
         QosPolicy qosPolicy = QosNeutronUtils.qosPolicyMap.get(qosUuid);
-        if (qosPolicy == null || ((qosPolicy.getBandwidthLimitRules() == null
+        if (qosPolicy == null || (qosPolicy.getBandwidthLimitRules() == null
                 || qosPolicy.getBandwidthLimitRules().isEmpty())
                 && (qosPolicy.getDscpmarkingRules() == null
-                || qosPolicy.getDscpmarkingRules().isEmpty()))) {
+                || qosPolicy.getDscpmarkingRules().isEmpty())) {
             return;
         }
         List<Uuid> subnetIds = QosNeutronUtils.getSubnetIdsFromNetworkId(db, network.getUuid());

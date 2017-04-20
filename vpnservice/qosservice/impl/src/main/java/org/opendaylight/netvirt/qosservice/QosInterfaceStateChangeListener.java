@@ -6,10 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-
 package org.opendaylight.netvirt.qosservice;
-
-
 
 import com.google.common.base.Optional;
 import javax.annotation.PostConstruct;
