@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.qosservice;
 
-
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import javax.annotation.PostConstruct;
@@ -108,7 +107,7 @@ public final class QosAlertManager implements Runnable {
     }
 
     private void startStatsPollThread() {
-        if (statsPollThreadStart && alertEnabled && (thread == null)) {
+        if (statsPollThreadStart && alertEnabled && thread == null) {
             thread = new Thread(this);
             thread.setDaemon(true);
             thread.start();
