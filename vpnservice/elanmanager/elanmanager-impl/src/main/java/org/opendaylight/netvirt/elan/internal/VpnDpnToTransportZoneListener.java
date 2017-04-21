@@ -14,7 +14,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.elan.utils.TransportZoneNotificationUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
@@ -31,8 +31,8 @@ public class VpnDpnToTransportZoneListener
     private Boolean useTransportZone;
 
     public VpnDpnToTransportZoneListener(final DataBroker dbx, final IInterfaceManager interfaceManager,
-            final ElanConfig elanConfig, final TransportZoneNotificationUtil tznu) {
-        useTransportZone = elanConfig.isAutoConfigTransportZones();
+                                         final NetvirtConfig config, final TransportZoneNotificationUtil tznu) {
+        useTransportZone = config.isAutoConfigTransportZones();
         transportZoneNotificationUtil = tznu;
         this.dbx = dbx;
     }

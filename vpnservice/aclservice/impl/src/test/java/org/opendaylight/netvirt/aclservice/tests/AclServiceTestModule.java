@@ -33,8 +33,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.aclservice.rev160806.AclserviceConfig.SecurityGroupMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
@@ -58,7 +58,7 @@ public class AclServiceTestModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(DataBroker.class).toInstance(DataBrokerTestModule.dataBroker());
-        bind(AclserviceConfig.class).toInstance(aclServiceConfig());
+        bind(NetvirtConfig.class).toInstance(aclServiceConfig());
 
         bind(AclClusterUtil.class).toInstance(() -> true);
 
@@ -75,8 +75,8 @@ public class AclServiceTestModule extends AbstractModule {
         bind(JobCoordinatorEventsWaiter.class).to(TestableJobCoordinatorEventsWaiter.class);
     }
 
-    private AclserviceConfig aclServiceConfig() {
-        AclserviceConfig aclServiceConfig = mock(AclserviceConfig.class);
+    private NetvirtConfig aclServiceConfig() {
+        NetvirtConfig aclServiceConfig = mock(NetvirtConfig.class);
         Mockito.when(aclServiceConfig.getSecurityGroupMode()).thenReturn(securityGroupMode);
         return aclServiceConfig;
     }
