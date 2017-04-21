@@ -47,9 +47,9 @@
   <service ref="vpnFloatingIpHandler"
            interface="org.opendaylight.netvirt.natservice.internal.FloatingIPHandler" />
 
-  <odl:clustered-app-config id="natserviceConfig"
-                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig"
-                            default-config-file-name="netvirt-natservice-config.xml"
+  <odl:clustered-app-config id="netvirtConfig"
+                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig"
+                            default-config-file-name="netvirt-config.xml"
                             update-strategy="none">
   </odl:clustered-app-config>
 

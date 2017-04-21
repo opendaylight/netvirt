@@ -1,6 +1,6 @@
 module dhcpservice-api {
     yang-version 1;
-    namespace "urn:opendaylight:params:xml:ns:yang:dhcpservice:api";
+    namespace "urn:opendaylight:netvirt:dhcpservice:api";
     prefix "dhcpservice-api";
 
     revision "2015-07-10" {
