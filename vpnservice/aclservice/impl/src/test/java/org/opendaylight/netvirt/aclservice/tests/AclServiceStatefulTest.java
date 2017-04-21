@@ -11,7 +11,7 @@ import org.junit.Rule;
 import org.junit.rules.MethodRule;
 import org.opendaylight.genius.datastoreutils.testutils.TestableDataTreeChangeListenerModule;
 import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.aclservice.rev160806.AclserviceConfig.SecurityGroupMode;
 
 
 public class AclServiceStatefulTest extends AclServiceTestBase {

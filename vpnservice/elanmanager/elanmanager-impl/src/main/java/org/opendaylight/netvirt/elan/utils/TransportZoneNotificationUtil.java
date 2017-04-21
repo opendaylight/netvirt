@@ -8,12 +8,10 @@
 package org.opendaylight.netvirt.elan.utils;
 
 import com.google.common.base.Optional;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -38,7 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.SubnetsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.Vteps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.VtepsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
@@ -59,15 +57,15 @@ public class TransportZoneNotificationUtil {
     private final MdsalUtils mdsalUtils;
     private final SouthboundUtils southBoundUtils;
     private final IElanService elanService;
-    private final ElanConfig elanConfig;
+    private final NetvirtConfig config;
     private final ElanBridgeManager elanBridgeManager;
 
     public TransportZoneNotificationUtil(final DataBroker dbx, final IInterfaceManager interfaceManager,
-            final IElanService elanService, final ElanConfig elanConfig, final ElanBridgeManager elanBridgeManager) {
+            final IElanService elanService, final NetvirtConfig config, final ElanBridgeManager elanBridgeManager) {
         this.dataBroker = dbx;
         this.mdsalUtils = new MdsalUtils(dbx);
         this.elanService = elanService;
-        this.elanConfig = elanConfig;
+        this.config = config;
         this.elanBridgeManager = elanBridgeManager;
         southBoundUtils = new SouthboundUtils(mdsalUtils);
     }
@@ -166,7 +164,7 @@ public class TransportZoneNotificationUtil {
             if (nodeIp.isPresent()) {
                 VtepsBuilder vtepsBuilder =
                         new VtepsBuilder().setDpnId(dpnId).setIpAddress(nodeIp.get()).setPortname(TUNNEL_PORT)
-                        .setOptionOfTunnel(elanConfig.isUseOfTunnels());
+                        .setOptionOfTunnel(config.getElanmanagerConfig().isUseOfTunnels());
                 subnets.getVteps().add(vtepsBuilder.build());
                 return true;
             }

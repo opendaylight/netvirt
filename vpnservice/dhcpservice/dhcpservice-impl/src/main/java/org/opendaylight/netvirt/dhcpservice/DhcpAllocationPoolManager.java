@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.dhcpservice;
 
 import com.google.common.base.Optional;
-
 import java.math.BigInteger;
 import java.util.EventListener;
 import java.util.List;
@@ -16,7 +15,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -37,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp_allocation_pool.rev161214.DhcpAllocationPool;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp_allocation_pool.rev161214.dhcp_allocation_pool.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp_allocation_pool.rev161214.dhcp_allocation_pool.NetworkKey;
@@ -47,7 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -62,11 +60,11 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalUtil;
     private final IdManagerService idManager;
-    private final DhcpserviceConfig config;
+    private final NetvirtConfig config;
 
     @Inject
     public DhcpAllocationPoolManager(final IMdsalApiManager mdsalApiManager, final DataBroker dataBroker,
-            final IdManagerService idManager, final DhcpserviceConfig config) {
+            final IdManagerService idManager, final NetvirtConfig config) {
         this.mdsalUtil = mdsalApiManager;
         this.dataBroker = dataBroker;
         this.idManager = idManager;
@@ -75,7 +73,7 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
 
     @PostConstruct
     public void init() {
-        if (config.isDhcpDynamicAllocationPoolEnabled()) {
+        if (config.getDhcpserviceConfig().isDhcpDynamicAllocationPoolEnabled()) {
             dhcpAllocationPoolListener = new DhcpAllocationPoolListener(this, dataBroker);
             LOG.info("DHCP Allocation Pool Service initialized");
         }

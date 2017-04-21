@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.net.util.SubnetUtils;
@@ -47,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp_allocation_pool.rev161214.dhcp_allocation_pool.network.AllocationPool;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
@@ -58,7 +58,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.SendToController;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +72,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
     private final PacketProcessingService pktService;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final IInterfaceManager interfaceManager;
-    private final DhcpserviceConfig config;
+    private final NetvirtConfig config;
     private final DhcpAllocationPoolManager dhcpAllocationPoolMgr;
 
     @Inject
@@ -82,7 +81,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
                           final OdlInterfaceRpcService interfaceManagerRpc,
                           final PacketProcessingService pktService,
                           final IInterfaceManager interfaceManager,
-                          final DhcpserviceConfig config,
+                          final NetvirtConfig config,
                           final DhcpAllocationPoolManager dhcpAllocationPoolMgr) {
         this.interfaceManagerRpc = interfaceManagerRpc;
         this.pktService = pktService;
@@ -96,7 +95,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
     //TODO: Handle this in a separate thread
     @Override
     public void onPacketReceived(PacketReceived packet) {
-        if (!config.isControllerDhcpEnabled()) {
+        if (!config.getDhcpserviceConfig().isControllerDhcpEnabled()) {
             return;
         }
         Class<? extends PacketInReason> pktInReason = packet.getPacketInReason();
@@ -155,7 +154,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
         DhcpInfo dhcpInfo = null;
         if (port != null) {
             dhcpInfo = handleDhcpNeutronPacket(msgType, port);
-        } else if (config.isDhcpDynamicAllocationPoolEnabled()) {
+        } else if (config.getDhcpserviceConfig().isDhcpDynamicAllocationPoolEnabled()) {
             dhcpInfo = handleDhcpAllocationPoolPacket(msgType, dhcpPkt, interfaceName, macAddress);
         }
         DHCP reply = null;

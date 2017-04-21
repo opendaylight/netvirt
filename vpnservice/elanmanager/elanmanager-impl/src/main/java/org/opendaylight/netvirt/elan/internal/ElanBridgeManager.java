@@ -24,7 +24,7 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanBridgeManager;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeNetdev;
@@ -64,18 +64,18 @@ public class ElanBridgeManager implements IElanBridgeManager {
     /**
      * Construct a new ElanBridgeManager.
      * @param dataBroker DataBroker
-     * @param elanConfig the elan configuration
+     * @param config the elan configuration
      * @param interfaceManager InterfaceManager
      */
     @Inject
-    public ElanBridgeManager(DataBroker dataBroker, ElanConfig elanConfig, IInterfaceManager interfaceManager) {
+    public ElanBridgeManager(DataBroker dataBroker, NetvirtConfig config, IInterfaceManager interfaceManager) {
         //TODO: ClusterAware!!!??
         this.mdsalUtils = new MdsalUtils(dataBroker);
         this.interfaceManager = interfaceManager;
         this.southboundUtils = new SouthboundUtils(mdsalUtils);
         this.random = new Random(System.currentTimeMillis());
-        this.maxBackoff = elanConfig.getControllerMaxBackoff();
-        this.inactivityProbe = elanConfig.getControllerInactivityProbe();
+        this.maxBackoff = config.getElanmanagerConfig().getControllerMaxBackoff();
+        this.inactivityProbe = config.getElanmanagerConfig().getControllerInactivityProbe();
     }
 
     /**

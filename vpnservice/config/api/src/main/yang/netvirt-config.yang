@@ -1,0 +1,46 @@
+module netvirt-config {
+    yang-version 1;
+    namespace "urn:opendaylight:netvirt:config";
+    prefix "netvirt-config";
+
+    import aclservice-config { prefix acl; revision-date 2016-08-06; }
+    import dhcpservice-config { prefix dhcp; revision-date 2015-07-10; }
+    import elanmanager-config { prefix elan; revision-date 2015-07-10; }
+    import natservice-config { prefix nat; revision-date 2017-02-06; }
+    import neutronvpn-config { prefix neutron; revision-date 2016-08-06; }
+    import qosservice-config { prefix qos; revision-date 2017-03-01; }
+    import statistics-config { prefix stats; revision-date 2017-03-26; }
+    import vpnmanager-config { prefix vpn; revision-date 2016-11-30; }
+
+    description "Configuration definition for the NetVirt project";
+
+    revision "2017-04-10" { description "Initial revision"; }
+
+    container netvirt-config {
+        config true;
+        container aclservice-config {
+            uses acl:aclservice-config;
+        }
+        container dhcpservice-config {
+            uses dhcp:dhcpservice-config;
+        }
+        container elanmanager-config {
+            uses elan:elanmanager-config;
+        }
+        container natservice-config {
+            uses nat:natservice-config;
+        }
+        container neutronvpn-config {
+            uses neutron:neutronvpn-config;
+        }
+        container qosservice-config {
+            uses qos:qosservice-config;
+        }
+        container statistics-config {
+                uses stats:statistics-config;
+        }
+        container vpnmanager-config {
+            uses vpn:vpnmanager-config;
+        }
+    }
+}
