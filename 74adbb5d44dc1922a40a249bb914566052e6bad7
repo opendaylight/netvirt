@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_6273bbe7",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanExtnTepListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-21T11:31:46Z",
+      "side": 1,
+      "message": "change the class name",
+      "revId": "74adbb5d44dc1922a40a249bb914566052e6bad7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_22409355",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanExtnTepListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-21T11:31:46Z",
+      "side": 1,
+      "message": "Are you calling this method to adding/removing bucket for external tep ? But right now the remote bc group is updated only for pariticipating DPNs, external ports and L2GW devices.",
+      "revId": "74adbb5d44dc1922a40a249bb914566052e6bad7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
