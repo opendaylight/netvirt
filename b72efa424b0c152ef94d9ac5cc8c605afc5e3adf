@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_fd38eea1",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/commands/Network.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-21T12:04:47Z",
+      "side": 1,
+      "message": "If there is an error in afi, we are logging the error in Commands.isValid(), so this looks redundant.",
+      "revId": "b72efa424b0c152ef94d9ac5cc8c605afc5e3adf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_1d469223",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/commands/Network.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-21T12:04:47Z",
+      "side": 1,
+      "message": "nit: s/maAddress/macAddress",
+      "range": {
+        "startLine": 108,
+        "startChar": 40,
+        "endLine": 108,
+        "endChar": 49
+      },
+      "revId": "b72efa424b0c152ef94d9ac5cc8c605afc5e3adf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_bd5666d0",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/commands/Network.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-21T12:04:47Z",
+      "side": 1,
+      "message": "same.",
+      "revId": "b72efa424b0c152ef94d9ac5cc8c605afc5e3adf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
