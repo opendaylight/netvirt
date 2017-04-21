@@ -36,7 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg4;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -46,18 +46,16 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanNodeListener.class);
     private static final int LEARN_MATCH_REG4_VALUE = 1;
-
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
     private final int tempSmacLearnTimeout;
     private final boolean puntLldpToController;
 
-
-    public ElanNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanConfig elanConfig) {
+    public ElanNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager, NetvirtConfig config) {
         this.broker = dataBroker;
         this.mdsalManager = mdsalManager;
-        this.tempSmacLearnTimeout = elanConfig.getTempSmacLearnTimeout();
-        this.puntLldpToController = elanConfig.isPuntLldpToController();
+        this.tempSmacLearnTimeout = config.getElanmanagerConfig().getTempSmacLearnTimeout();
+        this.puntLldpToController = config.getElanmanagerConfig().isPuntLldpToController();
     }
 
     @Override

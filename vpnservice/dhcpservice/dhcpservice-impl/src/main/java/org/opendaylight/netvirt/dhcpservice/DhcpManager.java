@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.dhcpservice;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -31,10 +30,10 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +43,7 @@ public class DhcpManager {
     private static final Logger LOG = LoggerFactory.getLogger(DhcpManager.class);
     private final IMdsalApiManager mdsalUtil;
     private final INeutronVpnManager neutronVpnService;
-    private final DhcpserviceConfig config;
+    private final NetvirtConfig config;
     private final DataBroker broker;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final IInterfaceManager interfaceManager;
@@ -57,7 +56,7 @@ public class DhcpManager {
     @Inject
     public DhcpManager(final IMdsalApiManager mdsalApiManager,
             final INeutronVpnManager neutronVpnManager,
-            final DhcpserviceConfig config, final DataBroker dataBroker,
+            final NetvirtConfig config, final DataBroker dataBroker,
             final DhcpExternalTunnelManager dhcpExternalTunnelManager, final IInterfaceManager interfaceManager) {
         this.mdsalUtil = mdsalApiManager;
         this.neutronVpnService = neutronVpnManager;
@@ -71,7 +70,7 @@ public class DhcpManager {
 
     @PostConstruct
     public void init() {
-        if (config.isControllerDhcpEnabled()) {
+        if (config.getDhcpserviceConfig().isControllerDhcpEnabled()) {
             dhcpInterfaceEventListener =
                     new DhcpInterfaceEventListener(this, broker, dhcpExternalTunnelManager, interfaceManager);
             dhcpInterfaceConfigListener = new DhcpInterfaceConfigListener(broker, dhcpExternalTunnelManager, this);
@@ -152,7 +151,7 @@ public class DhcpManager {
 
     public void setupDefaultDhcpFlows(BigInteger dpId) {
         setupTableMissForDhcpTable(dpId);
-        if (config.isDhcpDynamicAllocationPoolEnabled()) {
+        if (config.getDhcpserviceConfig().isDhcpDynamicAllocationPoolEnabled()) {
             setupDhcpAllocationPoolFlow(dpId);
         }
     }

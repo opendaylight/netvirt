@@ -83,13 +83,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.G
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.natservice.rev170206.NatserviceConfig.NatMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig.NatMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalIpsCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.IntextIpPortMap;
@@ -175,8 +175,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                    final EvpnSnatFlowProgrammer evpnSnatFlowProgrammer,
                                    final INeutronVpnManager nvpnManager,
                                    final CentralizedSwitchScheduler centralizedSwitchScheduler,
-                                   final NatserviceConfig config,
-                                   final IElanService elanManager) {
+                                   final IElanService elanManager,
+                                   final NetvirtConfig config) {
         super(Routers.class, ExternalRoutersListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
@@ -198,7 +198,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         this.elanManager = elanManager;
         this.centralizedSwitchScheduler = centralizedSwitchScheduler;
         if (config != null) {
-            this.natMode = config.getNatMode();
+            this.natMode = config.getNatserviceConfig().getNatMode();
         }
     }
 

@@ -16,8 +16,8 @@ import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig.NatMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.natservice.rev170206.NatserviceConfig.NatMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
             final NaptManager naptManager,
             final NAPTSwitchSelector naptSwitchSelector,
             final IVpnManager vpnManager,
-            final NatserviceConfig config) {
+            final NetvirtConfig config) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.itmManager = itmManager;
@@ -54,7 +54,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         this.naptSwitchSelector = naptSwitchSelector;
         this.vpnManager = vpnManager;
         if (config != null) {
-            this.natMode = config.getNatMode();
+            this.natMode = config.getNatserviceConfig().getNatMode();
         }
     }
 
