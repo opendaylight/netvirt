@@ -1,0 +1,26 @@
+module vpnmanager-config {
+    yang-version 1;
+    namespace "urn:opendaylight:netvirt:config:vpn";
+    prefix "vpn-config";
+
+    description
+        "Configuration for vpnmanager";
+
+    revision "2016-11-30" {
+        description
+                "Initial revision";
+    }
+
+    grouping vpnmanager-config {
+        leaf arp-cache-size {
+            description "arp cache size";
+            type uint64;
+            default 10000;
+        }
+        leaf arp-learn-timeout {
+            description "arp learning timeout value (unit - ms)";
+            type uint32;
+            default 2000;
+        }
+    }
+}

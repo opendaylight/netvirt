@@ -175,65 +175,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <!-- finalname="etc/opendaylight/datastore/initial/config/netvirt-aclservice-config.xml" -->
+            <!-- finalname="etc/opendaylight/datastore/initial/config/netvirt-config.xml" -->
             <groupId>${project.groupId}</groupId>
-            <artifactId>aclservice-impl</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>config</classifier>
-        </dependency>
-        <dependency>
-            <!-- finalname="etc/opendaylight/datastore/initial/config/netvirt-dhcpservice-config.xml" -->
-            <groupId>${project.groupId}</groupId>
-            <artifactId>dhcpservice-impl</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>config</classifier>
-        </dependency>
-        <dependency>
-            <!-- finalname="etc/opendaylight/datastore/initial/config/netvirt-elanmanager-config.xml" -->
-            <groupId>${project.groupId}</groupId>
-            <artifactId>elanmanager-impl</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>config</classifier>
-        </dependency>
-        <dependency>
-            <!-- finalname="etc/opendaylight/datastore/initial/config/netvirt-natservice-config.xml" -->
-            <groupId>${project.groupId}</groupId>
-            <artifactId>natservice-impl</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>config</classifier>
-        </dependency>
-        <dependency>
-            <!-- finalname="etc/opendaylight/datastore/initial/config/netvirt-neutronvpn-config.xml" -->
-            <groupId>${project.groupId}</groupId>
-            <artifactId>neutronvpn-impl</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>config</classifier>
-        </dependency>
-        <dependency>
-            <!-- finalname="etc/opendaylight/datastore/initial/config/netvirt-qosalert-config.xml" -->
-            <groupId>${project.groupId}</groupId>
-            <artifactId>qosservice-impl</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>config</classifier>
-        </dependency>
-        <dependency>
-            <!-- finalname="etc/opendaylight/datastore/initial/config/netvirt-statistics-config.xml" -->
-            <groupId>${project.groupId}</groupId>
-            <artifactId>statistics-impl</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>config</classifier>
-        </dependency>
-        <dependency>
-            <!-- finalname="etc/opendaylight/datastore/initial/config/netvirt-vpnmanager-config.xml" -->
-            <groupId>${project.groupId}</groupId>
-            <artifactId>vpnmanager-impl</artifactId>
+            <artifactId>config-impl</artifactId>
             <version>${project.version}</version>
             <type>xml</type>
             <classifier>config</classifier>
