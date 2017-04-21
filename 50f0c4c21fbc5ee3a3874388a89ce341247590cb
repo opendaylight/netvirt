@@ -16,6 +16,24 @@
       "revId": "50f0c4c21fbc5ee3a3874388a89ce341247590cb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_c2c9c779",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 908,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-04-21T10:30:42Z",
+      "side": 1,
+      "message": "Now check has been addded to create loadbalancing group only when there are multiple nexthops.",
+      "parentUuid": "da01753e_1f284f85",
+      "revId": "50f0c4c21fbc5ee3a3874388a89ce341247590cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
