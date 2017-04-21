@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_84c4ef5f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1270,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-04-21T05:35:18Z",
+      "side": 1,
+      "message": "Please put these new functions createRemoteFibEntryOnTunnelEvent / applyRemoteFlowsOnTunnelEvent / getConsumerForCreatingRemoteFibOnTunnelEvent at the bottom of the file.",
+      "revId": "1d6845ff6ad25edd74be4e8f1a1a65c0f1c36c43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
