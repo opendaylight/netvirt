@@ -21,6 +21,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   <modelVersion>4.0.0</modelVersion>
   <modules>
     <module>commons</module>
+    <module>config</module>
     <module>model-bgp</module>
     <module>vpnmanager</module>
     <module>elanmanager</module>

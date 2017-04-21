@@ -15,7 +15,6 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -124,7 +123,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInterface;
@@ -194,7 +193,7 @@ public class ElanUtils {
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
     private final IInterfaceManager interfaceManager;
-    private final ElanConfig elanConfig;
+    private final NetvirtConfig config;
 
     public static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
         @Override
@@ -211,7 +210,7 @@ public class ElanUtils {
     @Inject
     public ElanUtils(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanInstanceManager elanInstanceManager,
                      OdlInterfaceRpcService interfaceManagerRpcService, ItmRpcService itmRpcService,
-                     ElanInterfaceManager elanInterfaceManager, ElanConfig elanConfig,
+                     ElanInterfaceManager elanInterfaceManager, NetvirtConfig config,
                      EntityOwnershipService entityOwnershipService, IInterfaceManager interfaceManager) {
         this.broker = dataBroker;
         this.mdsalManager = mdsalManager;
@@ -219,7 +218,7 @@ public class ElanUtils {
         this.interfaceManagerRpcService = interfaceManagerRpcService;
         this.itmRpcService = itmRpcService;
         this.interfaceManager = interfaceManager;
-        this.elanConfig = elanConfig;
+        this.config = config;
 
         elanL2GatewayMulticastUtils =
                 new ElanL2GatewayMulticastUtils(broker, elanInstanceManager, elanInterfaceManager, this);
@@ -247,7 +246,7 @@ public class ElanUtils {
     }
 
     public final Boolean isOpenStackVniSemanticsEnforced() {
-        return elanConfig.isOpenstackVniSemanticsEnforced();
+        return config.getElanmanagerConfig().isOpenstackVniSemanticsEnforced();
     }
 
     public static void addElanInstanceIntoCache(String elanInstanceName, ElanInstance elanInstance) {

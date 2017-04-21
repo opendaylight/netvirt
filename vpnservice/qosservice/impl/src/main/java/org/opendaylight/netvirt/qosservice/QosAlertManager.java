@@ -19,13 +19,14 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.qosalert.config.rev170301.QosalertConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.qosalert.config.rev170301.QosalertConfigBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfigBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.netvirt.config.QosserviceConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.netvirt.config.QosserviceConfigBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 @Singleton
 public final class QosAlertManager implements Runnable {
@@ -33,7 +34,7 @@ public final class QosAlertManager implements Runnable {
     private short threshold;
     private boolean alertEnabled;
     private int pollInterval;
-    private final QosalertConfig defaultConfig;
+    private final NetvirtConfig config;
     private boolean statsPollThreadStart;
     private final DataBroker dataBroker;
     private final OpendaylightDirectStatisticsService odlDirectStatisticsService;
@@ -60,15 +61,16 @@ public final class QosAlertManager implements Runnable {
 
     @Inject
     public QosAlertManager(final DataBroker dataBroker, OpendaylightDirectStatisticsService odlDirectStatisticsService,
-                            QosalertConfig defaultConfig) {
+                            NetvirtConfig config) {
         LOG.info("{} created",  getClass().getSimpleName());
         this.dataBroker = dataBroker;
         this.odlDirectStatisticsService = odlDirectStatisticsService;
-        this.defaultConfig = defaultConfig;
+        this.config = config;
         thread = null;
         LOG.info("QosAlert default config poll alertEnabled:{} threshold:{} pollInterval:{}",
-                defaultConfig.isQosAlertEnabled(), defaultConfig.getQosDropPacketThreshold(),
-                defaultConfig.getQosAlertPollInterval());
+            config.getQosserviceConfig().isQosAlertEnabled(),
+            config.getQosserviceConfig().getQosDropPacketThreshold(),
+            config.getQosserviceConfig().getQosAlertPollInterval());
         getDefaultConfig();
     }
 
@@ -116,20 +118,20 @@ public final class QosAlertManager implements Runnable {
     }
 
     private void getDefaultConfig() {
-        alertEnabled = defaultConfig.isQosAlertEnabled();
-        threshold = defaultConfig.getQosDropPacketThreshold();
-        pollInterval = defaultConfig.getQosAlertPollInterval();
+        alertEnabled = config.getQosserviceConfig().isQosAlertEnabled();
+        threshold = config.getQosserviceConfig().getQosDropPacketThreshold();
+        pollInterval = config.getQosserviceConfig().getQosAlertPollInterval();
     }
 
-    public void setQosalertConfig(QosalertConfig config) {
-
+    public void setQosalertConfig(NetvirtConfig config) {
         LOG.info("New QoS alert config threshold:{} polling alertEnabled:{} interval:{}",
-                config.getQosDropPacketThreshold(), config.isQosAlertEnabled(),
-                config.getQosAlertPollInterval());
+            config.getQosserviceConfig().getQosDropPacketThreshold(),
+            config.getQosserviceConfig().isQosAlertEnabled(),
+            config.getQosserviceConfig().getQosAlertPollInterval());
 
-        threshold = config.getQosDropPacketThreshold().shortValue();
-        alertEnabled = config.isQosAlertEnabled().booleanValue();
-        pollInterval = config.getQosAlertPollInterval();
+        threshold = config.getQosserviceConfig().getQosDropPacketThreshold();
+        alertEnabled = config.getQosserviceConfig().isQosAlertEnabled();
+        pollInterval = config.getQosserviceConfig().getQosAlertPollInterval();
 
         if (thread != null) {
             thread.interrupt();
@@ -177,15 +179,15 @@ public final class QosAlertManager implements Runnable {
 
     private void writeConfigDataStore() {
 
-        InstanceIdentifier<QosalertConfig> path = InstanceIdentifier.builder(QosalertConfig.class).build();
+        InstanceIdentifier<NetvirtConfig> path = InstanceIdentifier.builder(NetvirtConfig.class).build();
 
-        QosalertConfig qosAlertConfig = new QosalertConfigBuilder()
+        QosserviceConfig qosservice = new QosserviceConfigBuilder()
                 .setQosDropPacketThreshold(threshold)
                 .setQosAlertEnabled(alertEnabled)
                 .setQosAlertPollInterval(pollInterval)
                 .build();
-
-        asyncWrite(LogicalDatastoreType.CONFIGURATION, path, qosAlertConfig, dataBroker, DEFAULT_FUTURE_CALLBACK);
+        NetvirtConfig netvirtConfig = new NetvirtConfigBuilder().setQosserviceConfig(qosservice).build();
+        asyncWrite(LogicalDatastoreType.CONFIGURATION, path, netvirtConfig, dataBroker, DEFAULT_FUTURE_CALLBACK);
     }
 
     private void pollDirectStatisticsForAllNodes() {

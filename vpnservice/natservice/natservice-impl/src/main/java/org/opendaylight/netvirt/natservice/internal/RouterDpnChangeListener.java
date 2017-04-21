@@ -28,11 +28,11 @@ import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.natservice.rev170206.NatserviceConfig.NatMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig.NatMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -64,8 +64,8 @@ public class RouterDpnChangeListener
                                    final ExternalNetworkGroupInstaller extNetGroupInstaller,
                                    final INeutronVpnManager nvpnManager,
                                    final SnatServiceManager natServiceManager,
-                                   final NatserviceConfig config,
-                                   final IElanService elanManager) {
+                                   final IElanService elanManager,
+                                   final NetvirtConfig config) {
         super(DpnVpninterfacesList.class, RouterDpnChangeListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
@@ -77,7 +77,7 @@ public class RouterDpnChangeListener
         this.elanManager = elanManager;
         this.natServiceManager = natServiceManager;
         if (config != null) {
-            this.natMode = config.getNatMode();
+            this.natMode = config.getNatserviceConfig().getNatMode();
         }
     }
 

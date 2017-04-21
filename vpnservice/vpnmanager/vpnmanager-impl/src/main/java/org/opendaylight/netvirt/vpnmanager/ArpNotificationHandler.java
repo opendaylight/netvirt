@@ -36,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.Ar
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.MacChanged;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
@@ -43,7 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,18 +56,18 @@ public class ArpNotificationHandler implements OdlArputilListener {
     DataBroker dataBroker;
     IdManagerService idManager;
     IInterfaceManager interfaceManager;
-    private final VpnConfig config;
+    private final NetvirtConfig config;
 
 
     public ArpNotificationHandler(DataBroker dataBroker, IdManagerService idManager,
-                                  IInterfaceManager interfaceManager, VpnConfig vpnConfig) {
+                                  IInterfaceManager interfaceManager, NetvirtConfig config) {
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.interfaceManager = interfaceManager;
-        this.config = vpnConfig;
+        this.config = config;
 
-        long duration = config.getArpLearnTimeout() * 10;
-        long cacheSize = config.getArpCacheSize().longValue();
+        long duration = config.getVpnmanagerConfig().getArpLearnTimeout() * 10;
+        long cacheSize = config.getVpnmanagerConfig().getArpCacheSize().longValue();
         migrateArpCache =
                 CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(duration,
                         TimeUnit.MILLISECONDS).build();
@@ -294,7 +294,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
     }
 
     private void putVpnIpToMigrateArpCache(String vpnName, String ipToQuery, PhysAddress srcMac) {
-        long cacheSize = config.getArpCacheSize().longValue();
+        long cacheSize = config.getVpnmanagerConfig().getArpCacheSize().longValue();
         if (migrateArpCache.size() >= cacheSize) {
             LOG.debug("ARP_MIGRATE_CACHE: max size {} reached, assuming cache eviction we still put IP {}"
                     + " vpnName {} with MAC {}", cacheSize, ipToQuery, vpnName, srcMac);
@@ -315,7 +315,8 @@ public class ArpNotificationHandler implements OdlArputilListener {
                     ipToQuery, vpnName);
             return false;
         }
-        if (System.currentTimeMillis() > prevTimeStampCached.longValue() + config.getArpLearnTimeout()) {
+        if (System.currentTimeMillis() > prevTimeStampCached.longValue()
+            + config.getVpnmanagerConfig().getArpLearnTimeout()) {
             LOG.debug("ARP_MIGRATE_CACHE: older than timeout value - remove from dirty cache IP {} vpnName {}",
                     ipToQuery, vpnName);
             migrateArpCache.invalidate(keyPair);

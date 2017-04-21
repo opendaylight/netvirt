@@ -12,7 +12,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
@@ -36,16 +36,16 @@ public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node,
     /**
      * Constructor.
      * @param dataBroker the DataBroker
-     * @param elanConfig the elan configuration
+     * @param config the elan configuration
      * @param bridgeMgr bridge manager
      * @param elanProvider elan provider
      */
-    public ElanOvsdbNodeListener(final DataBroker dataBroker, ElanConfig elanConfig,
+    public ElanOvsdbNodeListener(final DataBroker dataBroker, NetvirtConfig config,
                                  final ElanBridgeManager bridgeMgr,
                                  final IElanService elanProvider) {
         this.dataBroker = dataBroker;
-        autoCreateBridge = elanConfig.isAutoCreateBridge();
-        this.generateIntBridgeMac = elanConfig.isIntBridgeGenMac();
+        autoCreateBridge = config.getElanmanagerConfig().isAutoCreateBridge();
+        this.generateIntBridgeMac = config.getElanmanagerConfig().isIntBridgeGenMac();
         this.bridgeMgr = bridgeMgr;
         this.elanProvider = elanProvider;
     }
