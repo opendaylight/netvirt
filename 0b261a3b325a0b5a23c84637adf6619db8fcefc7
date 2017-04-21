@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_a4e81311",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2017-04-21T05:00:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_8e19ae7b",
+      "revId": "0b261a3b325a0b5a23c84637adf6619db8fcefc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_eec83a24",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2017-04-20T18:33:49Z",
       "side": 1,
       "message": "if the method will be used only from tep add workflow there is no point doing the extra read from the elan models at this point.",
+      "revId": "0b261a3b325a0b5a23c84637adf6619db8fcefc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_64c58b8d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2017-04-21T05:00:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_eec83a24",
       "revId": "0b261a3b325a0b5a23c84637adf6619db8fcefc7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_84e34f32",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1176,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2017-04-21T05:00:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_8e47ee4a",
+      "revId": "0b261a3b325a0b5a23c84637adf6619db8fcefc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_0e0e5e34",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 7
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_e4d17b58",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1285,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2017-04-21T05:00:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_0e0e5e34",
+      "revId": "0b261a3b325a0b5a23c84637adf6619db8fcefc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_0e9e5e56",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 7
@@ -81,6 +153,24 @@
       "writtenOn": "2017-04-20T18:33:49Z",
       "side": 1,
       "message": "since this method is applicable only for tunnel state changes you need to bail out if the interface type is not tunnel",
+      "revId": "0b261a3b325a0b5a23c84637adf6619db8fcefc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_6473cb80",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1290,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2017-04-21T05:00:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_0e9e5e56",
       "revId": "0b261a3b325a0b5a23c84637adf6619db8fcefc7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
