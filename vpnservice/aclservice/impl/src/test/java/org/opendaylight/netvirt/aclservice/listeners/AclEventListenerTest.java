@@ -33,7 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
@@ -61,7 +61,7 @@ public class AclEventListenerTest {
         aclInterfaceMock = mock(AclInterface.class);
         aclServiceManager = mock(AclServiceManager.class);
         idManagerMock = mock(IdManagerService.class);
-        aclSeviceUtils = new AclServiceUtils(aclDataUtil, mock(AclserviceConfig.class), idManagerMock);
+        aclSeviceUtils = new AclServiceUtils(aclDataUtil, mock(NetvirtConfig.class), idManagerMock);
         doReturn(Futures.immediateFuture(null)).when(idManagerMock).releaseId(any(ReleaseIdInput.class));
         AclClusterUtil aclClusterUtil = () -> true;
         aclEventListener = new AclEventListener(aclServiceManager, aclClusterUtil, mock(DataBroker.class), aclDataUtil,

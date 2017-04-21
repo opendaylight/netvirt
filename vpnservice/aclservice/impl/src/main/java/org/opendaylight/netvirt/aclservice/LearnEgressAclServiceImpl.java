@@ -103,8 +103,8 @@ public class LearnEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
 
     private void addOtherProtocolsLearnActions(List<ActionInfo> actionsInfos, int priority) {
         actionsInfos.add(new ActionLearn(
-                this.aclServiceUtils.getConfig().getSecurityGroupDefaultIdleTimeout(),
-                this.aclServiceUtils.getConfig().getSecurityGroupDefaultHardTimeout(),
+                this.aclServiceUtils.getConfig().getAclserviceConfig().getSecurityGroupDefaultIdleTimeout(),
+                this.aclServiceUtils.getConfig().getAclserviceConfig().getSecurityGroupDefaultHardTimeout(),
                 priority,
                 AclConstants.COOKIE_ACL_BASE,
                 AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE,
@@ -116,21 +116,21 @@ public class LearnEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
 
     private void addTcpLearnActions(List<ActionInfo> actionsInfos, int priority) {
         actionsInfos.add(new ActionLearn(
-                this.aclServiceUtils.getConfig().getSecurityGroupTcpIdleTimeout(),
-                this.aclServiceUtils.getConfig().getSecurityGroupTcpHardTimeout(),
+                this.aclServiceUtils.getConfig().getAclserviceConfig().getSecurityGroupTcpIdleTimeout(),
+                this.aclServiceUtils.getConfig().getAclserviceConfig().getSecurityGroupTcpHardTimeout(),
                 priority,
                 AclConstants.COOKIE_ACL_BASE,
                 AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE,
                 NwConstants.EGRESS_LEARN_TABLE,
-                this.aclServiceUtils.getConfig().getSecurityGroupTcpFinIdleTimeout(),
-                this.aclServiceUtils.getConfig().getSecurityGroupTcpFinHardTimeout(),
+                this.aclServiceUtils.getConfig().getAclserviceConfig().getSecurityGroupTcpFinIdleTimeout(),
+                this.aclServiceUtils.getConfig().getAclserviceConfig().getSecurityGroupTcpFinHardTimeout(),
                 LearnCommonAclServiceImpl.getTcpLearnActionMatches()));
     }
 
     private void addUdpLearnActions(List<ActionInfo> actionsInfos, int priority) {
         actionsInfos.add(new ActionLearn(
-                this.aclServiceUtils.getConfig().getSecurityGroupUdpIdleTimeout(),
-                this.aclServiceUtils.getConfig().getSecurityGroupUdpHardTimeout(),
+                this.aclServiceUtils.getConfig().getAclserviceConfig().getSecurityGroupUdpIdleTimeout(),
+                this.aclServiceUtils.getConfig().getAclserviceConfig().getSecurityGroupUdpHardTimeout(),
                 priority,
                 AclConstants.COOKIE_ACL_BASE,
                 AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE,

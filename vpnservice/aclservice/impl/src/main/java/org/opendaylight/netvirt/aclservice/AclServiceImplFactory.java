@@ -14,9 +14,8 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.inject.AbstractLifecycle;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.aclservice.rev160806.AclserviceConfig.SecurityGroupMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,21 +32,16 @@ public class AclServiceImplFactory extends AbstractLifecycle {
     private final AclServiceUtils aclServiceUtils;
 
     @Inject
-    public AclServiceImplFactory(DataBroker dataBroker, IMdsalApiManager mdsalManager, AclserviceConfig config,
+    public AclServiceImplFactory(DataBroker dataBroker, IMdsalApiManager mdsalManager, NetvirtConfig config,
             AclDataUtil aclDataUtil, AclServiceUtils aclServiceUtils) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.aclDataUtil = aclDataUtil;
         this.aclServiceUtils = aclServiceUtils;
         if (config != null) {
-            this.securityGroupMode = config.getSecurityGroupMode();
+            this.securityGroupMode = config.getAclserviceConfig().getSecurityGroupMode();
         }
-        LOG.info("AclserviceConfig: {}", config);
-    }
-
-    protected InstanceIdentifier<AclserviceConfig> getWildCardPath() {
-        return InstanceIdentifier
-                .create(AclserviceConfig.class);
+        LOG.info("Config: {}", config);
     }
 
     @Override
