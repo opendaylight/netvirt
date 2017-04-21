@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_5de3fa04",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpAlarms.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-21T12:16:04Z",
+      "side": 1,
+      "message": "Its good to see that you are using MACROS instead of variable names for the new changes. Can you please update the existing code to use MACRO\u0027s (i.e., BGP_VPNV6_FILE, BGP_VPNV6_SUMMARY_FILE) even for IPv4 use-case, so that it will be consistent across the code.",
+      "revId": "dff1d94d10015c81e2297a78e2bb6d1d60211170",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
