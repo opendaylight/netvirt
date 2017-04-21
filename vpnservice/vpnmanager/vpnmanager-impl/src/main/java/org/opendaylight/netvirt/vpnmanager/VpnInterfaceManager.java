@@ -7,12 +7,15 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import static org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils.buildStateInterfaceId;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.math.BigInteger;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,11 +36,9 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -58,6 +59,7 @@ import org.opendaylight.netvirt.vpnmanager.populator.intfc.VpnPopulator;
 import org.opendaylight.netvirt.vpnmanager.populator.registry.L3vpnRegistry;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -109,7 +111,7 @@ import org.opendaylight.yangtools.yang.common.RpcError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInterface, VpnInterfaceManager>
+public class VpnInterfaceManager extends LdhDataTreeChangeListenerBase<VpnInterface, VpnInterfaceManager>
     implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnInterfaceManager.class);
@@ -190,9 +192,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
     @Override
     public void add(final InstanceIdentifier<VpnInterface> identifier, final VpnInterface vpnInterface) {
-        if (canHandleNewVpnInterface(identifier, vpnInterface)) {
-            addVpnInterface(identifier, vpnInterface, null, null);
-        }
+        LOG.error("LDH: vpn Interface add triggered. vpnInterface: {}", vpnInterface.getName());
+        addVpnInterface(identifier, vpnInterface, null, null);
     }
 
     private boolean canHandleNewVpnInterface(final InstanceIdentifier<VpnInterface> identifier,
@@ -209,22 +210,50 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     private void addVpnInterface(final InstanceIdentifier<VpnInterface> identifier, final VpnInterface vpnInterface,
         final List<Adjacency> oldAdjs, final List<Adjacency> newAdjs) {
         LOG.trace("VPN Interface add event - key: {}, value: {}", identifier, vpnInterface);
-        LOG.info("VPN Interface add event - intfName {}", vpnInterface.getName());
+        LOG.error("LDH: VPN Interface add event - intfName {}", vpnInterface.getName());
         final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
         final String interfaceName = key.getName();
 
         Interface interfaceState = InterfaceUtils.getInterfaceStateFromOperDS(dataBroker, interfaceName);
+
+        if ((interfaceState == null) && (Boolean.FALSE.equals(vpnInterface.isIsRouterInterface()))) {
+            InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces
+                    .rev140508.interfaces.state.Interface>
+                    ifStateId = buildStateInterfaceId(interfaceName);
+            //Interface ID Operational DS lookup
+            List<DependencyData> dependencyDataList = new ArrayList<>();
+            DependencyData dependencyData = null;
+            dependencyData = new DependencyData(ifStateId, true/*expectData*/, LogicalDatastoreType.OPERATIONAL,
+                    ifStateId);
+            dependencyDataList.add(dependencyData);
+            LOG.error("LDH: dependency list add, Interface State is not valid for interface: {} ", interfaceName);
+
+            DeferedEventBuilder deferedEventBuilder = new DeferedEventBuilder();
+            deferedEventBuilder.setKey(identifier).setOldData(null).setNewData(vpnInterface)
+                    .setEventType(DeferedEvent.EventType.ADD)
+                    .setWaitBetweenDependencyCheckTime(VpnConstants.DEFER_EVENT_MIN_WAIT_TIME_IN_MILLISECONDS)
+                    .setDependentIIDs(dependencyDataList)
+                    .setRetryCount(VpnConstants.DEFER_EVENT_SOUTHBOUND_INTF_WAIT_RETRY_COUNT)
+                    .setDeferTimerBased(false)
+                    .setDb(dataBroker);
+            DeferedEvent deferedEvent = deferedEventBuilder.build();
+            getListenerDependencyHelperQueue().offer(deferedEvent);
+            return;
+        }
+
         if (interfaceState != null) {
             final BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(interfaceState);
             final int ifIndex = interfaceState.getIfIndex();
+            final boolean ifState = ((interfaceState.getOperStatus() == Interface.OperStatus.Up)
+                                     && (interfaceState.getAdminStatus() == Interface.AdminStatus.Up));
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
                 () -> {
                     WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
                     WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
                     WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
-                    processVpnInterfaceUp(dpnId, vpnInterface, ifIndex, false, writeConfigTxn, writeOperTxn,
-                            writeInvTxn, interfaceState);
+                    processVpnInterfaceUp(dpnId, vpnInterface, ifIndex, ifState, writeConfigTxn, writeOperTxn,
+                            writeInvTxn, interfaceState, identifier, vpnInterface);
                     if (oldAdjs != null && !oldAdjs.equals(newAdjs)) {
                         LOG.trace("Adjacency changed upon VPNInterface {} Update for swapping VPN case",
                                 interfaceName);
@@ -276,18 +305,69 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             WriteTransaction writeConfigTxn,
             WriteTransaction writeOperTxn,
             WriteTransaction writeInvTxn,
-            Interface interfaceState) {
+            Interface interfaceState,
+            final InstanceIdentifier<VpnInterface> vpnInterfaceIid,
+            final VpnInterface newData) {
 
         final String interfaceName = vpnInterface.getName();
+
+        List<DependencyData> dependencyDataList = new ArrayList<>();
+        DependencyData dependencyData = null;
+        long vpnId = VpnUtil.getVpnId(dataBroker, vpnInterface.getVpnInstanceName());
+
+        {
+            // irrespective of Interface Status, require vpn Operational DataStore to be present.
+            String vpnName = vpnInterface.getVpnInstanceName();
+            if (vpnId == VpnConstants.INVALID_ID) {
+                InstanceIdentifier<VpnInstance> vpnIid = VpnUtil.getVpnInstanceIdentifier(vpnName);
+                //vpn-id configuration DS lookup
+                dependencyData = new DependencyData(vpnIid, true/*expectData*/, LogicalDatastoreType.CONFIGURATION,
+                        vpnIid);
+                dependencyDataList.add(dependencyData);
+                LOG.error("VpnInstance to VPNId mapping not available for VpnName {} processing vpninterface {}, "
+                        + " bailing out now. interfaceState: {}", vpnName, interfaceName, isInterfaceUp);
+                LOG.error("LDH: dependency list add, vpnId is invalid for interface: {} interfaceState: {}",
+                        interfaceName, isInterfaceUp);
+            } else {
+                //vpn-id operational DS lookup
+                Optional<VpnInstanceOpDataEntry> vpnOpValue = null;
+                String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnName);
+                if ((vpnRd != null) && (!vpnRd.isEmpty())) {
+                    vpnOpValue = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                            VpnUtil.getVpnInstanceOpDataIdentifier(vpnRd));
+                } else {
+                    vpnOpValue = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                            VpnUtil.getVpnInstanceOpDataIdentifier(vpnName));
+                }
+                if (vpnOpValue == null || !vpnOpValue.isPresent()) {
+                    InstanceIdentifier<VpnInstanceOpDataEntry> vpnOpIid = VpnUtil.getVpnInstanceOpDataIdentifier(vpnRd);
+                    dependencyData = new DependencyData(vpnOpIid, true/*expectData*/,
+                            LogicalDatastoreType.OPERATIONAL, vpnOpIid);
+                    dependencyDataList.add(dependencyData);
+                    LOG.error("LDH: dependency list add, vpnId null in OP-DS for interface: {}, interfaceState: {}",
+                            interfaceName, isInterfaceUp);
+                }
+            }
+            if (dependencyDataList.size() > 0) {
+                LOG.error("LDH: defer event processVpnIterfaceUP/add: for interface: {}, #num of dependents:{}",
+                        interfaceName, dependencyDataList.size());
+                DeferedEventBuilder deferedEventBuilder = new DeferedEventBuilder();
+                deferedEventBuilder.setKey(vpnInterfaceIid).setOldData(null).setNewData(newData)
+                        .setEventType(DeferedEvent.EventType.ADD)
+                        .setWaitBetweenDependencyCheckTime(VpnConstants.DEFER_EVENT_MIN_WAIT_TIME_IN_MILLISECONDS)
+                        .setDependentIIDs(dependencyDataList)
+                        .setRetryCount(VpnConstants.DEFER_EVENT_WAIT_RETRY_COUNT)
+                        .setDeferTimerBased(false)
+                        .setDb(dataBroker);
+                DeferedEvent deferedEvent = deferedEventBuilder.build();
+                getListenerDependencyHelperQueue().offer(deferedEvent);
+                return;
+            }
+        }
+
         if (!isInterfaceUp) {
             final String vpnName = vpnInterface.getVpnInstanceName();
             LOG.info("Binding vpn service to interface {} ", interfaceName);
-            long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-            if (vpnId == VpnConstants.INVALID_ID) {
-                LOG.error("VpnInstance to VPNId mapping not available for VpnName {} processing vpninterface {}"
-                        + ", bailing out now.", vpnName, interfaceName);
-                return;
-            }
 
             boolean waitForVpnInterfaceOpRemoval = false;
             VpnInterface opVpnInterface = VpnUtil.getOperationalVpnInterface(dataBroker, vpnInterface.getName());
