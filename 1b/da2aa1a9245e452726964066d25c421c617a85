@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Vivekanandan Narasimhan <n.vivekanandan@ericsson.com>
+Submitted-by: Vivekanandan Narasimhan <n.vivekanandan@ericsson.com>
+Submitted-at: Fri, 21 Apr 2017 09:00:46 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/55753
+Project: netvirt
+Branch: refs/heads/stable/carbon
