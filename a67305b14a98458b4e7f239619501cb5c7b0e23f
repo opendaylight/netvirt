@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_7d96be4d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-21T12:20:52Z",
+      "side": 1,
+      "message": "nit: instead of declaring a variable, can we directly use the value of 1, since afiValue is not used further in this API (i.e., bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),\n                    VrfEntry.EncapType.Mplsgre, (int) label, 0 /*l3vni*/, 0 /*l2vni*/, null /*gatewayMac*/, 1 /* afiValue */);)",
+      "revId": "a67305b14a98458b4e7f239619501cb5c7b0e23f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_bda026a0",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-21T12:20:52Z",
+      "side": 1,
+      "message": "nit: same",
+      "revId": "a67305b14a98458b4e7f239619501cb5c7b0e23f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
