@@ -21,8 +21,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.acl.live.statistics
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.acl.live.statistics.rev161129.GetAclPortStatisticsOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.acl.live.statistics.rev161129.GetAclPortStatisticsOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.acl.live.statistics.rev161129.acl.stats.output.AclPortStats;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.aclservice.rev160806.AclserviceConfig.SecurityGroupMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig;
 import org.opendaylight.yangtools.yang.common.RpcError.ErrorType;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
@@ -38,7 +38,7 @@ public class AclLiveStatisticsRpcServiceImpl implements AclLiveStatisticsService
 
     private static final Logger LOG = LoggerFactory.getLogger(AclLiveStatisticsRpcServiceImpl.class);
 
-    private final AclserviceConfig config;
+    private final NetvirtConfig config;
     private final DataBroker dataBroker;
     private final OpendaylightDirectStatisticsService odlDirectStatsService;
     private final SecurityGroupMode securityGroupMode;
@@ -51,8 +51,8 @@ public class AclLiveStatisticsRpcServiceImpl implements AclLiveStatisticsService
      * @param odlDirectStatsService the odl direct stats service
      */
     @Inject
-    public AclLiveStatisticsRpcServiceImpl(final AclserviceConfig config, final DataBroker dataBroker,
-            final OpendaylightDirectStatisticsService odlDirectStatsService) {
+    public AclLiveStatisticsRpcServiceImpl(final NetvirtConfig config, final DataBroker dataBroker,
+                                           final OpendaylightDirectStatisticsService odlDirectStatsService) {
         this.config = config;
         this.dataBroker = dataBroker;
         this.odlDirectStatsService = odlDirectStatsService;

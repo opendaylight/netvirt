@@ -1,0 +1,38 @@
+<netvirt-config xmlns="urn:opendaylight:netvirt:config">
+    <!-- aclservice -->
+    <security-group-mode>stateful</security-group-mode>
+    <default-behavior>deny</default-behavior>
+
+    <!-- dhcpservice -->
+    <controller-dhcp-enabled>false</controller-dhcp-enabled>
+    <dhcp-dynamic-allocation-pool-enabled>false</dhcp-dynamic-allocation-pool-enabled>
+
+    <!-- elanmanager -->
+    <auto-create-bridge>true</auto-create-bridge>
+    <int-bridge-gen-mac>true</int-bridge-gen-mac>
+    <temp-smac-learn-timeout>10</temp-smac-learn-timeout>
+    <punt-lldp-to-controller>false</punt-lldp-to-controller>
+    <!-- <controller-max-backoff>5000</controller-max-backoff> -->
+    <!-- <controller-inactivity-probe>5000</controller-inactivity-probe> -->
+    <auto-config-transport-zones>true</auto-config-transport-zones>
+    <use-of-tunnels>false</use-of-tunnels>
+    <openstack-vni-semantics-enforced>false</openstack-vni-semantics-enforced>
+
+    <!-- natservice -->
+    <nat-mode>controller</nat-mode>
+
+    <!-- neutronvpn -->
+    <opendaylight-vni-ranges>70000:99999</opendaylight-vni-ranges>
+
+    <!-- qosservice -->
+    <qos-alert-enabled>false</qos-alert-enabled>
+    <qos-drop-packet-threshold>5</qos-drop-packet-threshold>
+    <qos-alert-poll-interval>2</qos-alert-poll-interval>
+
+    <!-- statistics -->
+    <node-counter-result-timeout>5</node-counter-result-timeout>
+
+    <!-- vpnmanager -->
+    <arp-cache-size>10000</arp-cache-size>
+    <arp-learn-timeout>2000</arp-learn-timeout>
+</netvirt-config>
