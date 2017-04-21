@@ -1,0 +1,4 @@
+<netvirt-config xmlns="urn:opendaylight:netvirt:config">
+  <controller-dhcp-enabled>false</controller-dhcp-enabled>
+  <dhcp-dynamic-allocation-pool-enabled>false</dhcp-dynamic-allocation-pool-enabled>
+</netvirt-config>

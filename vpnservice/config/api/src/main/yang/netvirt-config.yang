@@ -1,0 +1,17 @@
+module netvirt-config {
+    yang-version 1;
+    namespace "urn:opendaylight:netvirt:config";
+    prefix "netvirt-config";
+
+    import aclservice-config { prefix acl; revision-date 2016-08-06; }
+    import dhcpservice-config { prefix dhcp; revision-date 2015-07-10; }
+
+    description "Configuration definition for the NetVirt project";
+
+    revision "2017-04-10" { description "Initial revision"; }
+
+    container netvirt-config {
+        uses acl:aclservice-config;
+        uses dhcp:dhcpservice-config;
+    }
+}
