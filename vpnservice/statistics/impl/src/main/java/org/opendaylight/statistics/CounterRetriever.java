@@ -41,7 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.config.rev170326.StatisticsConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.node.connector.statistics.and.port.number.map.NodeConnectorStatisticsAndPortNumberMap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -57,9 +57,9 @@ public class CounterRetriever {
 
     @Inject
     public CounterRetriever(final RpcProviderRegistry rpcProviderRegistry,
-            final StatisticsConfig statisticsConfig, final OpendaylightDirectStatisticsService odlDirectStatsService) {
+                            final NetvirtConfig config, final OpendaylightDirectStatisticsService odlDirectStatsService) {
         this.odlDirectStatsService = odlDirectStatsService;
-        this.nodeResultTimeout = statisticsConfig.getNodeCounterResultTimeout();
+        this.nodeResultTimeout = config.getNodeCounterResultTimeout();
     }
 
     @PreDestroy
