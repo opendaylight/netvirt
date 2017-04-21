@@ -61,7 +61,8 @@ public class InterfaceStateChangeListener
     @Override
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
+
+    protected void add(final InstanceIdentifier<Interface> identifier, final Interface intrf) {
         LOG.info("VPN Interface add event - intfName {} from InterfaceStateChangeListener",
                 intrf.getName());
         try {
@@ -89,6 +90,8 @@ public class InterfaceStateChangeListener
                             LOG.debug("Config Interface Name {}", configInterface.getName());
                             final VpnInterface vpnInterface =
                                     VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
+                            final InstanceIdentifier<VpnInterface> vpnIntfIID =
+                                    VpnUtil.getVpnInterfaceIdentifier(interfaceName);
                             if (vpnInterface != null) {
                                 LOG.debug("VPN Interface Name {}", vpnInterface);
                                 BigInteger intfDpnId = BigInteger.ZERO;
@@ -110,7 +113,7 @@ public class InterfaceStateChangeListener
                                 LOG.info("VPN Interface add event - intfName {} onto vpnName {} running oper-driven",
                                         vpnInterface.getName(), vpnInterface.getVpnInstanceName());
                                 vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex, false,
-                                        writeConfigTxn, writeOperTxn, writeInvTxn, intrf);
+                                        writeConfigTxn, writeOperTxn, writeInvTxn, intrf, vpnIntfIID, vpnInterface);
                                 ListenableFuture<Void> operFuture = writeOperTxn.submit();
                                 try {
                                     operFuture.get();
@@ -200,8 +203,8 @@ public class InterfaceStateChangeListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
-    protected void update(InstanceIdentifier<Interface> identifier,
-        Interface original, Interface update) {
+    protected void update(final InstanceIdentifier<Interface> identifier,
+        final Interface original, final Interface update) {
         final String interfaceName = update.getName();
         LOG.info("VPN Interface update event - intfName {} from InterfaceStateChangeListener",
                 update.getName());
@@ -228,6 +231,8 @@ public class InterfaceStateChangeListener
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
                         final VpnInterface vpnInterface =
                                 VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
+                        final InstanceIdentifier<VpnInterface> vpnIntfIID =
+                                VpnUtil.getVpnInterfaceIdentifier(interfaceName);
                         if (vpnInterface != null) {
                             final int ifIndex = update.getIfIndex();
                             final BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(update);
@@ -242,7 +247,8 @@ public class InterfaceStateChangeListener
                                     return futures;
                                 }
                                 vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex,
-                                        true, writeConfigTxn, writeOperTxn, writeInvTxn, update);
+                                        true, writeConfigTxn, writeOperTxn, writeInvTxn, update,
+                                        vpnIntfIID, vpnInterface);
                             } else if (update.getOperStatus().equals(Interface.OperStatus.Down)) {
                                 LOG.info("VPN Interface update event - intfName {} onto vpnName {} running oper-driven"
                                         + " DOWN", vpnInterface.getName(), vpnInterface.getVpnInstanceName());

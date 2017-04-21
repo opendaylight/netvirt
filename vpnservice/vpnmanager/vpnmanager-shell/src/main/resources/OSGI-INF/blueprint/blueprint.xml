@@ -24,5 +24,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             </action>
         </command>
     </command-bundle>
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
+        <command>
+            <action class="org.opendaylight.netvirt.vpnmanager.shell.LdhCommandHelper">
+            </action>
+        </command>
+    </command-bundle>
 
 </blueprint>
