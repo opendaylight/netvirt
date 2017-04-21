@@ -61,7 +61,7 @@ public class InterfaceStateChangeListener
     @Override
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
+    protected void add(final InstanceIdentifier<Interface> identifier, final Interface intrf) {
         try {
             if (intrf != null && (intrf.getType() != null) && !intrf.getType().equals(Tunnel.class)) {
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
@@ -86,6 +86,8 @@ public class InterfaceStateChangeListener
                             LOG.debug("Config Interface Name {}", configInterface.getName());
                             final VpnInterface vpnInterface =
                                     VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
+                            final InstanceIdentifier<VpnInterface> vpnIntfIID =
+                                    VpnUtil.getVpnInterfaceIdentifier(interfaceName);
                             if (vpnInterface != null) {
                                 LOG.debug("VPN Interface Name {}", vpnInterface);
                                 BigInteger intfDpnId = BigInteger.ZERO;
@@ -104,7 +106,7 @@ public class InterfaceStateChangeListener
                                     return futures;
                                 }
                                 vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex, false,
-                                        writeConfigTxn, writeOperTxn, writeInvTxn, intrf);
+                                        writeConfigTxn, writeOperTxn, writeInvTxn, intrf, vpnIntfIID, vpnInterface);
                                 ListenableFuture<Void> operFuture = writeOperTxn.submit();
                                 try {
                                     operFuture.get();
@@ -188,8 +190,8 @@ public class InterfaceStateChangeListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
-    protected void update(InstanceIdentifier<Interface> identifier,
-        Interface original, Interface update) {
+    protected void update(final InstanceIdentifier<Interface> identifier,
+        final Interface original, final Interface update) {
         final String interfaceName = update.getName();
         LOG.info("Detected interface update event for interface {}", interfaceName);
         LOG.trace("Detected interface update event for interface {} - Old: {}, New: {}",
@@ -218,6 +220,8 @@ public class InterfaceStateChangeListener
 
                         final VpnInterface vpnInterface =
                                 VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
+                        final InstanceIdentifier<VpnInterface> vpnIntfIID =
+                                VpnUtil.getVpnInterfaceIdentifier(interfaceName);
                         if (vpnInterface != null) {
                             final int ifIndex = update.getIfIndex();
                             final BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(update);
@@ -228,7 +232,8 @@ public class InterfaceStateChangeListener
                                     return futures;
                                 }
                                 vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex,
-                                        true, writeConfigTxn, writeOperTxn, writeInvTxn, update);
+                                        true, writeConfigTxn, writeOperTxn, writeInvTxn, update,
+                                        vpnIntfIID, vpnInterface);
                             } else if (update.getOperStatus().equals(Interface.OperStatus.Down)) {
                                 vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, true,
                                         false, writeConfigTxn, writeOperTxn, writeInvTxn, update);
