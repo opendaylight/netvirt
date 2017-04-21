@@ -33,6 +33,8 @@ public class VpnConstants {
     public static final int INVALID_LABEL = 0;
     public static final String VPN_OP_INSTANCE_CACHE_NAME = "VpnOpInstanceCache";
     public static final String ARP_MONITORING_ENTITY = "arpmonitoring";
+    public static final long DEFER_EVENT_MIN_WAIT_TIME_IN_MILLISECONDS = 1000;
+    public static final int DEFER_EVENT_WAIT_RETRY_COUNT= 60;
 
     // An IdPool for Pseudo LPort tags, that is, lportTags that are no related to an interface.
     // These lportTags must be higher than 170000 to avoid collision with interface LportTags and
