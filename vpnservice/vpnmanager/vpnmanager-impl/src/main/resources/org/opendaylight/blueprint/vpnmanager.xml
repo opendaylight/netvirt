@@ -130,9 +130,9 @@
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener" />
   <odl:notification-listener ref="subnetRoutePacketInHandler" />
 
-  <odl:clustered-app-config id="vpnConfig"
-                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig"
-                            default-config-file-name="netvirt-vpnmanager-config.xml"
+  <odl:clustered-app-config id="netvirtConfig"
+                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig"
+                            default-config-file-name="netvirt-config.xml"
                             update-strategy="none">
   </odl:clustered-app-config>
 
@@ -141,7 +141,7 @@
     <argument ref="dataBroker" />
     <argument ref="idManagerService" />
     <argument ref="interfaceManager"/>
-    <argument ref="vpnConfig"/>
+    <argument ref="netvirtConfig"/>
   </bean>
   <service ref="arpNotificationHandler" odl:type="default"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilListener" />
