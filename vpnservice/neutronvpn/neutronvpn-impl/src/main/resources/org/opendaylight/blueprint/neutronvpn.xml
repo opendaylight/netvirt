@@ -28,9 +28,9 @@
   <odl:rpc-service id="odlArputilService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService" />
 
-  <odl:clustered-app-config id="neutronvpnConfig"
-                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.config.rev160806.NeutronvpnConfig"
-                            default-config-file-name="netvirt-neutronvpn-config.xml"
+  <odl:clustered-app-config id="netvirtConfig"
+                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig"
+                            default-config-file-name="netvirt-config.xml"
                             update-strategy="none">
   </odl:clustered-app-config>
 

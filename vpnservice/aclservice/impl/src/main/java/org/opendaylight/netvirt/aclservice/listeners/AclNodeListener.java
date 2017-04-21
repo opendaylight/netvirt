@@ -12,11 +12,9 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -45,10 +43,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.Fl
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.DefaultBehavior;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
-
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.aclservice.rev160806.AclserviceConfig.DefaultBehavior;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.aclservice.rev160806.AclserviceConfig.SecurityGroupMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg5;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -65,14 +62,14 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
     private static final Logger LOG = LoggerFactory.getLogger(AclNodeListener.class);
 
     private final IMdsalApiManager mdsalManager;
-    private final AclserviceConfig config;
+    private final NetvirtConfig config;
     private final DataBroker dataBroker;
     private final AclServiceUtils aclServiceUtils;
 
     private SecurityGroupMode securityGroupMode = null;
 
     @Inject
-    public AclNodeListener(final IMdsalApiManager mdsalManager, DataBroker dataBroker, AclserviceConfig config,
+    public AclNodeListener(final IMdsalApiManager mdsalManager, DataBroker dataBroker, NetvirtConfig config,
             AclServiceUtils aclServiceUtils) {
         super(FlowCapableNode.class, AclNodeListener.class);
 
@@ -91,7 +88,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         }
         this.aclServiceUtils.createRemoteAclIdPool();
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
-        LOG.info("AclserviceConfig: {}", this.config);
+        LOG.info("NetvirtConfig: {}", this.config);
     }
 
     @Override

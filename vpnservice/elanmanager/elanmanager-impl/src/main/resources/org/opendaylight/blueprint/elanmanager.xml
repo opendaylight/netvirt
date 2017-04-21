@@ -24,16 +24,16 @@
   <odl:rpc-service id="idManagerService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
 
-  <odl:clustered-app-config id="elanConfig"
-    binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig"
-    default-config-file-name="netvirt-elanmanager-config.xml"
+  <odl:clustered-app-config id="netvirtConfig"
+    binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig"
+    default-config-file-name="netvirt-config.xml"
     update-strategy="none">
   </odl:clustered-app-config>
 
   <bean id="elanBridgeManager"
     class="org.opendaylight.netvirt.elan.internal.ElanBridgeManager">
     <argument ref="dataBroker" />
-    <argument ref="elanConfig" />
+    <argument ref="netvirtConfig" />
     <argument ref="interfaceManager" />
   </bean>
 
@@ -66,7 +66,7 @@
     init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />
-    <argument ref="elanConfig" />
+    <argument ref="netvirtConfig" />
   </bean>
 
   <bean id="elanPacketInHandler"
@@ -95,7 +95,7 @@
     <argument ref="elanInterfaceManager" />
     <argument ref="entityOwnershipService" />
     <argument ref="interfaceManager" />
-    <argument ref="elanConfig" />
+    <argument ref="netvirtConfig" />
   </bean>
 
   <bean id="elanStatisticsImpl"
@@ -241,7 +241,7 @@
     class="org.opendaylight.netvirt.elan.internal.ElanOvsdbNodeListener"
     init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
-    <argument ref="elanConfig" />
+    <argument ref="netvirtConfig" />
     <argument ref="elanBridgeManager" />
     <argument ref="elanService" />
   </bean>
@@ -259,7 +259,7 @@
     <argument ref="dataBroker" />
     <argument ref="interfaceManager" />
     <argument ref="elanService" />
-    <argument ref="elanConfig" />
+    <argument ref="netvirtConfig" />
     <argument ref="elanBridgeManager" />
   </bean>
 
@@ -268,7 +268,7 @@
     init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="interfaceManager" />
-    <argument ref="elanConfig" />
+    <argument ref="netvirtConfig" />
     <argument ref="TransportZoneNotificationUtil" />
   </bean>
 
@@ -277,7 +277,7 @@
     init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="interfaceManager" />
-    <argument ref="elanConfig" />
+    <argument ref="netvirtConfig" />
     <argument ref="TransportZoneNotificationUtil" />
   </bean>
 
