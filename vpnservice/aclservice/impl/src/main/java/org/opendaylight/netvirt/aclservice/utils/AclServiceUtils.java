@@ -41,6 +41,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
+import org.opendaylight.netvirt.aclservice.utils.AclConstants.PacketHandlingType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
@@ -84,11 +85,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -108,15 +109,15 @@ import org.slf4j.LoggerFactory;
 public final class AclServiceUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceUtils.class);
-    public static final AclserviceConfig.DefaultBehavior DEFAULT_DENY = AclserviceConfig.DefaultBehavior.Deny;
-    public static final AclserviceConfig.DefaultBehavior DEFAULT_ALLOW = AclserviceConfig.DefaultBehavior.Allow;
+    public static final NetvirtConfig.DefaultBehavior DEFAULT_DENY = NetvirtConfig.DefaultBehavior.Deny;
+    public static final NetvirtConfig.DefaultBehavior DEFAULT_ALLOW = NetvirtConfig.DefaultBehavior.Allow;
 
     private final AclDataUtil aclDataUtil;
-    private final AclserviceConfig config;
+    private final NetvirtConfig config;
     private final IdManagerService idManager;
 
     @Inject
-    public AclServiceUtils(AclDataUtil aclDataUtil, AclserviceConfig config, IdManagerService idManager) {
+    public AclServiceUtils(AclDataUtil aclDataUtil, NetvirtConfig config, IdManagerService idManager) {
         super();
         this.aclDataUtil = aclDataUtil;
         this.config = config;
@@ -592,7 +593,7 @@ public final class AclServiceUtils {
         return updatedFlowMatchesMap;
     }
 
-    public AclserviceConfig getConfig() {
+    public NetvirtConfig getConfig() {
         return config;
     }
 
@@ -829,22 +830,22 @@ public final class AclServiceUtils {
      *
      * @param poolName the pool name
      */
-    public void createIdPool(String poolName, AclConstants.PacketHandlingType packetHandlingType) {
+    public void createIdPool(String poolName, PacketHandlingType packetHandlingType) {
         CreateIdPoolInput createPool = null;
 
         // If the default behavior is Deny, then ACLs with Allow packetHandling must have lower priority than
         // ACLs with Deny packetHandling - otherwise the Deny ACLs are redundant, and vice versa
         if ((config.getDefaultBehavior() == DEFAULT_DENY
-                && packetHandlingType == AclConstants.PacketHandlingType.PERMIT)
+                && packetHandlingType == PacketHandlingType.PERMIT)
                 || (config.getDefaultBehavior() == DEFAULT_ALLOW
-                    && packetHandlingType == AclConstants.PacketHandlingType.DENY)) {
+                    && packetHandlingType == PacketHandlingType.DENY)) {
             createPool = new CreateIdPoolInputBuilder()
                     .setPoolName(poolName).setLow(AclConstants.ACL_FLOW_PRIORITY_LOW_POOL_START)
                     .setHigh(AclConstants.ACL_FLOW_PRIORITY_LOW_POOL_END).build();
         } else if ((config.getDefaultBehavior() == DEFAULT_DENY
-                && packetHandlingType == AclConstants.PacketHandlingType.DENY)
+                && packetHandlingType == PacketHandlingType.DENY)
                 || (config.getDefaultBehavior() == DEFAULT_ALLOW
-                    && packetHandlingType == AclConstants.PacketHandlingType.PERMIT)) {
+                    && packetHandlingType == PacketHandlingType.PERMIT)) {
             createPool = new CreateIdPoolInputBuilder()
                     .setPoolName(poolName).setLow(AclConstants.ACL_FLOW_PRIORITY_HIGH_POOL_START)
                     .setHigh(AclConstants.ACL_FLOW_PRIORITY_HIGH_POOL_END).build();

@@ -24,9 +24,9 @@
   <odl:rpc-service id="idManagerService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
 
-  <odl:clustered-app-config id="dhcpserviceConfig"
-                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig"
-                            default-config-file-name="netvirt-dhcpservice-config.xml"
+  <odl:clustered-app-config id="netvirtConfig"
+                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.config.rev170410.NetvirtConfig"
+                            default-config-file-name="netvirt-config.xml"
                             update-strategy="none">
   </odl:clustered-app-config>
 
