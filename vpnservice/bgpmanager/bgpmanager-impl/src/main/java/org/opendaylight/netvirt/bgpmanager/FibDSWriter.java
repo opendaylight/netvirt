@@ -23,6 +23,9 @@ import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.macvrfentries.MacVrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.macvrfentries.MacVrfEntryBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.macvrfentries.MacVrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
@@ -71,6 +74,33 @@ public class FibDSWriter {
         BgpUtil.update(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build());
     }
 
+    public void addMacEntryToDS(String rd, String macAddress, List<String> nextHopList,
+                                             VrfEntry.EncapType encapType, long l2vni,
+                                             String gatewayMacAddress, RouteOrigin origin) {
+        if (rd == null || rd.isEmpty()) {
+            LOG.error("Mac {} not associated with vpn", macAddress);
+            return;
+        }
+
+        Preconditions.checkNotNull(nextHopList, "NextHopList can't be null");
+        for (String nextHop : nextHopList) {
+            if (nextHop == null || nextHop.isEmpty()) {
+                LOG.error("nextHop list contains null element for macVrf");
+                return;
+            }
+        }
+
+        InstanceIdentifier<MacVrfEntry> macEntryId =
+                InstanceIdentifier.builder(FibEntries.class)
+                        .child(VrfTables.class, new VrfTablesKey(rd))
+                        .child(MacVrfEntry.class, new MacVrfEntryKey(macAddress)).build();
+
+        MacVrfEntryBuilder macEntryBuilder = new MacVrfEntryBuilder().setOrigin(origin.getValue());
+        buildVpnEncapSpecificInfo(macEntryBuilder, encapType, l2vni, macAddress,
+                gatewayMacAddress, nextHopList);
+        BgpUtil.update(dataBroker, LogicalDatastoreType.CONFIGURATION, macEntryId, macEntryBuilder.build());
+    }
+
     private static void buildVpnEncapSpecificInfo(VrfEntryBuilder builder,
             VrfEntry.EncapType encapType, long label, long l3vni, String macAddress,
             String gatewayMac, List<String> nextHopList) {
@@ -88,6 +118,20 @@ public class FibDSWriter {
         builder.setRoutePaths(routePaths);
     }
 
+    private static void buildVpnEncapSpecificInfo(MacVrfEntryBuilder builder,
+                                                  VrfEntry.EncapType encapType, long l2vni, String macAddress,
+                                                  String gatewayMac, List<String> nextHopList) {
+        builder.setEncapType(encapType);
+        builder.setGatewayMacAddress(gatewayMac);
+        builder.setL2vni(l2vni);
+        List<RoutePaths> routePaths = nextHopList.stream()
+                .filter(nextHop -> nextHop != null && !nextHop.isEmpty())
+                .map(nextHop -> {
+                    return FibHelper.buildRoutePath(nextHop, null);
+                }).collect(Collectors.toList());
+        builder.setRoutePaths(routePaths);
+    }
+
     public synchronized void removeFibEntryFromDS(String rd, String prefix) {
 
         if (rd == null || rd.isEmpty()) {
@@ -101,6 +145,22 @@ public class FibDSWriter {
                         VrfEntry.class, new VrfEntryKey(prefix));
         InstanceIdentifier<VrfEntry> vrfEntryId = idBuilder.build();
         BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+
+    }
+
+    public void removeMacEntryFromDS(String rd, String macAddress) {
+
+        if (rd == null || rd.isEmpty()) {
+            LOG.error("Mac {} not associated with vpn", macAddress);
+            return;
+        }
+        LOG.debug("Removing Mac fib entry with Mac {} from vrf table for rd {}", macAddress, rd);
+
+        InstanceIdentifierBuilder<MacVrfEntry> idBuilder =
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).child(
+                        MacVrfEntry.class, new MacVrfEntryKey(macAddress));
+        InstanceIdentifier<MacVrfEntry> macEntryId = idBuilder.build();
+        BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, macEntryId);
 
     }
 
