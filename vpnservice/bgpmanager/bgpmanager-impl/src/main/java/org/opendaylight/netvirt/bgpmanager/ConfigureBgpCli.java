@@ -18,7 +18,7 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.thrift.TException;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
-
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.TcpMd5SignaturePasswordType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
@@ -31,6 +31,8 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigureBgpCli.class);
 
     private static BgpManager bgpManager;
+    private static BgpConfigurationManager bgpConfigurationManager;
+
 
     private static final long AS_MIN = 0;
     private static final long AS_MAX = 4294967295L;//2^32-1
@@ -40,12 +42,14 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
     }
 
     @Option(name = "-op", aliases = {"--operation", "--op"}, description = "[start-bgp-server, stop-bgp-server, "
-            + "add-neighbor, delete-neighbor, graceful-restart, enable-log ]",
+            + "add-neighbor, delete-neighbor, add-route, delete-route,graceful-restart, enable-log ]",
             required = false, multiValued = false)
     String op;
 
     //exec configure-bgp  add-neighbor --ip <neighbor-ip> --as-num <as-num> --address-family <af> --use-source-ip
     // <sip> --ebgp-multihops <em> --next-hop <nh>
+    //exec configure-bgp --op add-route/delete-route --rd <rd> --prefix <prefix> --nexthop <nexthop>
+    // --mac <mac> --l2vni <l2vni> --l3vni <l3vni>
 
     @Option(name = "--as-num", description = "as number of the bgp neighbor", required = false, multiValued = false)
     String asNumber = null;
@@ -74,6 +78,30 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
             required = false, multiValued = false)
     String routerId = null;
 
+    @Option(name = "--rd", description = "rd of the route",
+            required = false, multiValued = false)
+    String rd = null;
+
+    @Option(name = "--prefix", description = "prefix of the route",
+            required = false, multiValued = false)
+    String prefix = null;
+
+    @Option(name = "--nexthop", description = "nexthop of the route",
+            required = false, multiValued = false)
+    String nexthop = null;
+
+    @Option(name = "--mac", description = "mac of the route",
+            required = false, multiValued = false)
+    String mac = null;
+
+    @Option(name = "--l2vni", description = "l2vni of the route",
+            required = false, multiValued = false)
+    int l2vni = 0;
+
+    @Option(name = "--l3vni", description = "l3vni",
+            required = false, multiValued = false)
+    int l3vni = 0;
+
     @Option(name = "--stalepath-time", description = "the time delay after bgp restart stalepaths are cleaned",
             required = false, multiValued = false)
     String stalePathTime = null;
@@ -99,7 +127,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
                 usage();
                 session.getConsole().println(
                         "exec configure-bgp -op [start-bgp-server | stop-bgp-server | add-neighbor | delete-neighbor|"
-                                + " graceful-restart| enable-log ]");
+                                + " add-route | delete-route | graceful-restart| enable-log ]");
             }
             switch (op) {
                 case "start-bgp-server":
@@ -113,6 +141,12 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
                     break;
                 case "delete-neighbor":
                     deleteNeighbor();
+                    break;
+                case "add-route":
+                    addRoute();
+                    break;
+                case "delete-route":
+                    deleteRoute();
                     break;
                 case "graceful-restart":
                     configureGR();
@@ -340,6 +374,16 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
         if (sourceIp != null) {
             bgpManager.addUpdateSource(ip, sourceIp);
         }
+    }
+
+    protected void addRoute() throws Exception {
+        bgpConfigurationManager.onUpdatePushRoute(protocol_type.PROTOCOL_EVPN, rd, prefix,
+                0, nexthop, 0, null, mac, l3vni, l2vni, null);
+    }
+
+    protected void deleteRoute() throws Exception {
+        bgpConfigurationManager.onUpdateWithdrawRoute(protocol_type.PROTOCOL_EVPN, rd, prefix,
+                0, nexthop, mac);
     }
 
     private boolean validateIp(String inputIp) {
