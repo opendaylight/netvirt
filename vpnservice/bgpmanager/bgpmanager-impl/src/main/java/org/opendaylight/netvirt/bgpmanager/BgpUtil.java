@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
@@ -34,7 +35,17 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.encap_type;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.BgpControlPlaneType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.EncapType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTeps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTepsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTepsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.EvpnRdToNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetwork;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetworkKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -162,5 +173,71 @@ public class BgpUtil {
         return InstanceIdentifier.builder(VpnInstanceOpData.class)
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd)).build();
     }
+
+    static String getElanfromRd(DataBroker broker, String rd)  {
+        InstanceIdentifier<EvpnRdToNetwork> id = getVpnEvpnRdToNetworkIdentifier(rd);
+        Optional<EvpnRdToNetwork> evpnRdToNetworkOpData = MDSALUtil.read(broker,
+                LogicalDatastoreType.OPERATIONAL, id);
+        if (evpnRdToNetworkOpData.isPresent()) {
+            return evpnRdToNetworkOpData.get().getNetworkId();
+        }
+        return null;
+    }
+
+    public static InstanceIdentifier<EvpnRdToNetwork> getVpnEvpnRdToNetworkIdentifier(String rd) {
+        return InstanceIdentifier.builder(EvpnRdToNetworks.class)
+                .child(EvpnRdToNetwork.class, new EvpnRdToNetworkKey(rd)).build();
+    }
+
+    public static void addTepToElanInstance(DataBroker broker, String rd, String tepIp) {
+        if (broker == null || rd == null || tepIp == null) {
+            LOG.error("addTepToElanInstance : Null parameters returning");
+        }
+        String elanName = getElanfromRd(broker, rd);
+        if (elanName == null) {
+            LOG.error("Elan null while processing RT2");
+            return;
+        }
+        LOG.debug("Adding tepIp {} to elan {}", tepIp, elanName);
+        WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+        InstanceIdentifier<ExternalTeps> externalTepsId = getExternalTepsIdentifier(elanName, tepIp);
+        ExternalTepsBuilder externalTepsBuilder = new ExternalTepsBuilder();
+        Optional<ExternalTeps> optionalTep = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                externalTepsId);
+        if (!optionalTep.isPresent()) {
+            wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, externalTepsId, externalTepsBuilder.build());
+            wrtConfigTxn.submit();
+            LOG.debug("Added the tep {} to ELanInstance", tepIp);
+        }
+    }
+
+    public static void deleteTepFromElanInstance(DataBroker broker, String rd, String tepIp) {
+        if (broker == null || rd == null || tepIp == null) {
+            LOG.error("deleteTepFromElanInstance : Null parameters returning");
+        }
+        String elanName = getElanfromRd(broker, rd);
+        if (elanName == null) {
+            LOG.error("Elan null while processing RT2 withdraw");
+            return;
+        }
+        LOG.debug("Deleting tepIp {} from elan {}", tepIp, elanName);
+        WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+        InstanceIdentifier<ExternalTeps> externalTepsId = getExternalTepsIdentifier(elanName, tepIp);
+        Optional<ExternalTeps> optionalTep = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                externalTepsId);
+        if (optionalTep.isPresent()) {
+            wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, externalTepsId);
+            wrtConfigTxn.submit();
+            LOG.debug("Deleted the tep {} from ELanInstance", tepIp);
+        }
+    }
+
+    public static InstanceIdentifier<ExternalTeps> getExternalTepsIdentifier(String elanInstanceName, String tepIp) {
+        IpAddress tepAdress = (tepIp == null) ? null : new IpAddress(tepIp.toCharArray());
+        return InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class,
+                new ElanInstanceKey(elanInstanceName)).child(ExternalTeps.class,
+                new ExternalTepsKey(tepAdress)).build();
+    }
+
 }
 
