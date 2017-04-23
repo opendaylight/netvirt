@@ -28,6 +28,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -117,6 +118,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.A
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.extensions.rev160617.OperationalPortStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.extensions.rev160617.service.provider.features.attributes.Features;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.extensions.rev160617.service.provider.features.attributes.features.Feature;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.extensions.rev160617.service.provider.features.attributes.features.FeatureBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.extensions.rev160617.service.provider.features.attributes.features.FeatureKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
@@ -165,12 +171,26 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         this.vpnManager = vpnManager;
         neutronEvpnManager = new NeutronEvpnManager(dataBroker, this);
         neutronEvpnUtils = new NeutronEvpnUtils(dataBroker, vpnManager);
+
+        configureFeatures();
     }
 
     @Override
     @PreDestroy
     public void close() throws Exception {
         LOG.info("{} close", getClass().getSimpleName());
+    }
+
+    private void configureFeatures() {
+        InstanceIdentifier<Feature> iid = InstanceIdentifier.builder(
+                        Neutron.class).child(Features.class).child(
+                        Feature.class, new FeatureKey(OperationalPortStatus.class)).build();
+        Feature feature = new FeatureBuilder().setKey(new FeatureKey(OperationalPortStatus.class)).build();
+        try {
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, iid, feature);
+        } catch (TransactionCommitFailedException e) {
+            LOG.warn("Error configuring feature " + feature, e);
+        }
     }
 
     public String getOpenDaylightVniRangesConfig() {
