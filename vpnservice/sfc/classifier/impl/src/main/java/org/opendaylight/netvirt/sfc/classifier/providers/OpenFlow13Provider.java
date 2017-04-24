@@ -46,6 +46,7 @@ public class OpenFlow13Provider {
     public static final int INGRESS_CLASSIFIER_FILTER_NSH_PRIORITY = 510;
     public static final int INGRESS_CLASSIFIER_FILTER_NONSH_PRIORITY = 500;
     public static final int INGRESS_CLASSIFIER_ACL_PRIORITY = 500;
+    public static final int INGRESS_CLASSIFIER_ACL_NOMATCH_PRIORITY = 10;
     public static final int EGRESS_CLASSIFIER_FILTER_NSH_PRIORITY = 260;
     public static final int EGRESS_CLASSIFIER_FILTER_NONSH_PRIORITY = 250;
     public static final int EGRESS_CLASSIFIER_NEXTHOP_C1C2_PRIORITY = 250;
@@ -192,7 +193,28 @@ public class OpenFlow13Provider {
         return OpenFlow13Utils.createFlowBuilder(NwConstants.INGRESS_SFC_CLASSIFIER_ACL_TABLE,
             INGRESS_CLASSIFIER_ACL_PRIORITY, INGRESS_CLASSIFIER_ACL_COOKIE, INGRESS_CLASSIFIER_ACL_FLOW_NAME,
             flowIdStr, match, isb).build();
+    }
 
+    /*
+     * Ingress Classifier ACL NoMatch flow:
+     *     If there are no ACL classification matches, then resubmit back to
+     *     the Ingress Dispatcher to let other services handle the packet.
+     */
+    public Flow createIngressClassifierAclNoMatchFlow(NodeId nodeId) {
+        // This is a MatchAny flow
+        MatchBuilder match = new MatchBuilder();
+
+        List<Action> actionList = new ArrayList<>();
+        actionList.add(OpenFlow13Utils.createActionResubmitTable(NwConstants.LPORT_DISPATCHER_TABLE,
+                actionList.size()));
+
+        InstructionsBuilder isb = OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(actionList);
+
+        String flowIdStr = INGRESS_CLASSIFIER_ACL_FLOW_NAME + "_" + nodeId.getValue();
+
+        return OpenFlow13Utils.createFlowBuilder(NwConstants.INGRESS_SFC_CLASSIFIER_ACL_TABLE,
+                INGRESS_CLASSIFIER_ACL_NOMATCH_PRIORITY, INGRESS_CLASSIFIER_ACL_COOKIE,
+                INGRESS_CLASSIFIER_ACL_FLOW_NAME, flowIdStr, match, isb).build();
     }
 
     //
