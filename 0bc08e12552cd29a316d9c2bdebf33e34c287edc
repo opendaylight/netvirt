@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_e2168254",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-24T12:37:54Z",
+      "side": 1,
+      "message": "I know this was already hear, but the comment doesn\u0027t add value.",
+      "revId": "0bc08e12552cd29a316d9c2bdebf33e34c287edc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
