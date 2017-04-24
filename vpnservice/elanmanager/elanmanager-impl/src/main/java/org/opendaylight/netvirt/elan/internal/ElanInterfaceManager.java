@@ -96,6 +96,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.forwarding.tables.MacTableKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTeps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.Elan;
@@ -871,6 +872,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             getNextAvailableBucketId(listBucketInfo.size())));
         listBucketInfo.addAll(getRemoteBCGroupBucketsOfElanL2GwDevices(elanInfo, dpnId,
             getNextAvailableBucketId(listBucketInfo.size())));
+        listBucketInfo.addAll(getRemoteBCGroupBucketsOfElanExternalTeps(elanInfo, dpnId,
+                getNextAvailableBucketId(listBucketInfo.size())));
         return listBucketInfo;
     }
 
@@ -1756,6 +1759,29 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             }
             List<Action> listActionInfo = elanUtils.buildTunnelItmEgressActions(interfaceName,
                     ElanUtils.getVxlanSegmentationId(elanInfo));
+            listBucketInfo.add(MDSALUtil.buildBucket(listActionInfo, MDSALUtil.GROUP_WEIGHT, bucketId,
+                    MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
+            bucketId++;
+        }
+        return listBucketInfo;
+    }
+
+    public List<Bucket> getRemoteBCGroupBucketsOfElanExternalTeps(ElanInstance elanInfo, BigInteger dpnId,
+                                                                  int bucketId) {
+        List<Bucket> listBucketInfo = new ArrayList<>();
+        List<ExternalTeps> teps = elanInfo.getExternalTeps();
+        if (teps == null || teps.isEmpty()) {
+            return listBucketInfo;
+        }
+        for (ExternalTeps tep : teps) {
+            String interfaceName = elanL2GatewayUtils.getExternalTunnelInterfaceName(String.valueOf(dpnId),
+                    tep.getTepIp().toString());
+            if (interfaceName == null) {
+                //TODO add log
+                continue;
+            }
+            List<Action> listActionInfo = elanUtils.buildTunnelItmEgressActions(interfaceName,
+                    elanInfo.getSegmentationId());
             listBucketInfo.add(MDSALUtil.buildBucket(listActionInfo, MDSALUtil.GROUP_WEIGHT, bucketId,
                     MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
             bucketId++;
