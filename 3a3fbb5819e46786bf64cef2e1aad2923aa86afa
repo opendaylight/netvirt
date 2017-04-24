@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_1c004f66",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 2192,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-24T08:14:51Z",
+      "side": 1,
+      "message": "broker is not used in this method.",
+      "revId": "3a3fbb5819e46786bf64cef2e1aad2923aa86afa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_9cc55f3e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 2197,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-24T08:14:51Z",
+      "side": 1,
+      "message": "can you use java.util.Optional.ofNullable with ifPresent, map functions to validate interfaceName is part of tunnel logical group ?",
+      "revId": "3a3fbb5819e46786bf64cef2e1aad2923aa86afa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_bce143d2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-04-24T08:14:51Z",
+      "side": 1,
+      "message": "This method logic is duplicated across modules. Can you expose this as a rpc from itm-api like boolean isTunnelInLogicalGroup(interfaceName)?",
+      "revId": "3a3fbb5819e46786bf64cef2e1aad2923aa86afa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
