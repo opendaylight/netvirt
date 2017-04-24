@@ -313,4 +313,14 @@
     <property name="bgpManager" ref="bgpManager"/>
   </bean>
 
+  <bean id="elanEvpnUtils"
+        class="org.opendaylight.netvirt.elan.evpn.utils.ElanEvpnUtils"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="elanUtils" />
+    <argument ref="idManagerService" />
+    <property name="vpnManager" ref="vpnManager"/>
+  </bean>
+
+
 </blueprint>
