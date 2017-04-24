@@ -58,7 +58,7 @@ module elan-config {
         }
         leaf openstack-vni-semantics-enforced {
             type boolean;
-            default false;
+            default true;
         }
     }
 }
