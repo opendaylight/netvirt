@@ -78,6 +78,7 @@
     <argument ref="dataBroker" />
     <argument ref="interfaceManager" />
     <argument ref="elanUtils" />
+    <argument ref="evpnUtils" />
   </bean>
   <odl:notification-listener ref="elanPacketInHandler" />
 
@@ -86,8 +87,16 @@
     <argument ref="dataBroker" />
     <argument ref="interfaceManager" />
     <argument ref="elanUtils" />
+    <argument ref="evpnUtils" />
   </bean>
   <odl:notification-listener ref="elanSmacFlowEventListener" />
+
+  <bean id="elanExtnTepListener"
+        class="org.opendaylight.netvirt.elan.internal.ElanExtnTepListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="elanInterfaceManager" />
+  </bean>
 
   <bean id="elanUtils" class="org.opendaylight.netvirt.elan.utils.ElanUtils"
     destroy-method="close">
