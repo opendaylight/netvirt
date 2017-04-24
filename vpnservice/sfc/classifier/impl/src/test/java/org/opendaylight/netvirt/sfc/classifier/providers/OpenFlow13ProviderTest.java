@@ -164,6 +164,23 @@ public class OpenFlow13ProviderTest {
     }
 
     @Test
+    public void createIngressClassifierAclNoMatchFlow() {
+        Flow flow = openflowProvider.createIngressClassifierAclNoMatchFlow(nodeId);
+
+        assertEquals(flow.getTableId().shortValue(), NwConstants.INGRESS_SFC_CLASSIFIER_ACL_TABLE);
+        assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_NOMATCH_PRIORITY);
+        assertEquals(flow.getId().getValue(),
+                OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_FLOW_NAME + "_" + nodeId.getValue());
+        assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_COOKIE);
+
+        checkMatchEmpty(flow.getMatch());
+
+        assertEquals(1, flow.getInstructions().getInstruction().size());
+        checkActionResubmit(flow.getInstructions().getInstruction().get(0).getInstruction(),
+                NwConstants.LPORT_DISPATCHER_TABLE);
+    }
+
+    @Test
     public void createEgressClassifierFilterVxgpeNshFlow() {
         Flow flow = openflowProvider.createEgressClassifierFilterVxgpeNshFlow(nodeId);
 
