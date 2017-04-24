@@ -59,6 +59,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.ElanException;
+import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanForwardingEntriesHandler;
@@ -96,6 +97,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.forwarding.tables.MacTableKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTeps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.Elan;
@@ -128,6 +130,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private final ElanForwardingEntriesHandler elanForwardingEntriesHandler;
     private ElanL2GatewayUtils elanL2GatewayUtils;
     private ElanUtils elanUtils;
+    private final EvpnUtils evpnUtils;
 
     private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
 
@@ -137,15 +140,19 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceManager.class);
 
     @Inject
-    public ElanInterfaceManager(final DataBroker dataBroker, final IdManagerService managerService,
-                                final IMdsalApiManager mdsalApiManager, IInterfaceManager interfaceManager,
-                                final ElanForwardingEntriesHandler elanForwardingEntriesHandler) {
+    public ElanInterfaceManager(final DataBroker dataBroker,
+                                final IdManagerService managerService,
+                                final IMdsalApiManager mdsalApiManager,
+                                IInterfaceManager interfaceManager,
+                                final ElanForwardingEntriesHandler elanForwardingEntriesHandler,
+                                final EvpnUtils evpnUtils) {
         super(ElanInterface.class, ElanInterfaceManager.class);
         this.broker = dataBroker;
         this.idManager = managerService;
         this.mdsalManager = mdsalApiManager;
         this.interfaceManager = interfaceManager;
         this.elanForwardingEntriesHandler = elanForwardingEntriesHandler;
+        this.evpnUtils = evpnUtils;
     }
 
     /**
@@ -189,6 +196,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         InterfaceRemoveWorkerOnElan configWorker = new InterfaceRemoveWorkerOnElan(elanInstanceName, elanInfo,
                 interfaceName, interfaceInfo, false, this);
         coordinator.enqueueJob(elanInstanceName, configWorker, ElanConstants.JOB_MAX_RETRIES);
+        evpnUtils.withdrawPrefix(elanInfo, del);
     }
 
     public void removeElanInterface(List<ListenableFuture<Void>> futures, ElanInstance elanInfo, String interfaceName,
@@ -549,6 +557,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         InterfaceAddWorkerOnElan addWorker = new InterfaceAddWorkerOnElan(elanInstanceName, elanInterfaceAdded,
                 interfaceInfo, elanInstance, this);
         coordinator.enqueueJob(elanInstanceName, addWorker, ElanConstants.JOB_MAX_RETRIES);
+        evpnUtils.advertisePrefix(elanInstance, elanInterfaceAdded, interfaceInfo.getDpId());
     }
 
     List<ListenableFuture<Void>> handleunprocessedElanInterfaces(ElanInstance elanInstance) throws ElanException {
@@ -871,6 +880,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             getNextAvailableBucketId(listBucketInfo.size())));
         listBucketInfo.addAll(getRemoteBCGroupBucketsOfElanL2GwDevices(elanInfo, dpnId,
             getNextAvailableBucketId(listBucketInfo.size())));
+        listBucketInfo.addAll(getRemoteBCGroupBucketsOfElanExternalTeps(elanInfo, dpnId,
+                getNextAvailableBucketId(listBucketInfo.size())));
         return listBucketInfo;
     }
 
@@ -1756,6 +1767,29 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             }
             List<Action> listActionInfo = elanUtils.buildTunnelItmEgressActions(interfaceName,
                     ElanUtils.getVxlanSegmentationId(elanInfo));
+            listBucketInfo.add(MDSALUtil.buildBucket(listActionInfo, MDSALUtil.GROUP_WEIGHT, bucketId,
+                    MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
+            bucketId++;
+        }
+        return listBucketInfo;
+    }
+
+    public List<Bucket> getRemoteBCGroupBucketsOfElanExternalTeps(ElanInstance elanInfo, BigInteger dpnId,
+                                                                  int bucketId) {
+        List<Bucket> listBucketInfo = new ArrayList<>();
+        List<ExternalTeps> teps = elanInfo.getExternalTeps();
+        if (teps == null || teps.isEmpty()) {
+            return listBucketInfo;
+        }
+        for (ExternalTeps tep : teps) {
+            String interfaceName = elanL2GatewayUtils.getExternalTunnelInterfaceName(String.valueOf(dpnId),
+                    tep.getTepIp().toString());
+            if (interfaceName == null) {
+                //TODO add log
+                continue;
+            }
+            List<Action> listActionInfo = elanUtils.buildTunnelItmEgressActions(interfaceName,
+                    elanInfo.getSegmentationId());
             listBucketInfo.add(MDSALUtil.buildBucket(listActionInfo, MDSALUtil.GROUP_WEIGHT, bucketId,
                     MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
             bucketId++;
