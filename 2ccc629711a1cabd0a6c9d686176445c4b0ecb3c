@@ -1,0 +1,364 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_67ff44ab",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2471,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-24T09:27:20Z",
+      "side": 1,
+      "message": "i tried adding threadsafe annotation but its applicable only to class and not a method. So not adding it",
+      "parentUuid": "da01753e_597829c4",
+      "revId": "2ccc629711a1cabd0a6c9d686176445c4b0ecb3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_87e86811",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2472,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-24T09:27:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_79a6cd54",
+      "revId": "2ccc629711a1cabd0a6c9d686176445c4b0ecb3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_67e3c433",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2490,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-24T09:27:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_59b1498e",
+      "revId": "2ccc629711a1cabd0a6c9d686176445c4b0ecb3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_c7d1d058",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2501,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-24T09:27:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_d9641924",
+      "revId": "2ccc629711a1cabd0a6c9d686176445c4b0ecb3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_a7d48c47",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2503,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-24T09:27:20Z",
+      "side": 1,
+      "message": "i have modified it but after modifying the code is difficult to read. So moving it back to original get(rd) form. Hope its fine :-)",
+      "parentUuid": "da01753e_99abb11c",
+      "revId": "2ccc629711a1cabd0a6c9d686176445c4b0ecb3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_fca3cb4c",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-24T09:27:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_f95e3d75",
+      "revId": "2ccc629711a1cabd0a6c9d686176445c4b0ecb3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_3c8553ad",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-24T09:27:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_5955c94e",
+      "revId": "2ccc629711a1cabd0a6c9d686176445c4b0ecb3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_9c943fe3",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-24T09:27:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_994f31bd",
+      "revId": "2ccc629711a1cabd0a6c9d686176445c4b0ecb3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_7c8fdbcc",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-24T09:27:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_3950c55d",
+      "revId": "2ccc629711a1cabd0a6c9d686176445c4b0ecb3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_dcbd276a",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-24T09:27:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_794a4dad",
+      "revId": "2ccc629711a1cabd0a6c9d686176445c4b0ecb3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_7ca6bb54",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-24T09:27:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_b9cb151d",
+      "revId": "2ccc629711a1cabd0a6c9d686176445c4b0ecb3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_dc640724",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-24T09:27:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_d9eff985",
+      "revId": "2ccc629711a1cabd0a6c9d686176445c4b0ecb3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_bc678324",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-24T09:27:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_f9d59db9",
+      "revId": "2ccc629711a1cabd0a6c9d686176445c4b0ecb3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_1c6faffe",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-24T09:27:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_19d341d7",
+      "revId": "2ccc629711a1cabd0a6c9d686176445c4b0ecb3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_fc710be1",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-24T09:27:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_59dca9e4",
+      "revId": "2ccc629711a1cabd0a6c9d686176445c4b0ecb3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_5c7817c4",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-24T09:27:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_79e1ad99",
+      "revId": "2ccc629711a1cabd0a6c9d686176445c4b0ecb3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_7ce19b99",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-24T09:27:20Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "da01753e_9921f1fd",
+      "revId": "2ccc629711a1cabd0a6c9d686176445c4b0ecb3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_9cfd5f3d",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-24T09:27:20Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "da01753e_f9875dd5",
+      "revId": "2ccc629711a1cabd0a6c9d686176445c4b0ecb3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_7cf87b49",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-24T09:27:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_b97dd5e9",
+      "revId": "2ccc629711a1cabd0a6c9d686176445c4b0ecb3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_bc994321",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-24T09:27:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_198501d0",
+      "revId": "2ccc629711a1cabd0a6c9d686176445c4b0ecb3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

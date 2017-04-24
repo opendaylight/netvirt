@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_3cd713c1",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/server/BgpThriftService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-04-24T09:27:20Z",
+      "side": 0,
+      "message": "Was a patch issue. Thanks for pointing. fixed it",
+      "parentUuid": "da01753e_195ce17d",
+      "revId": "e65a906cb2acb6bb26b7a8d94e1bc8ecac536762",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
