@@ -323,4 +323,26 @@
     <property name="bgpManager" ref="bgpManager"/>
   </bean>
 
+  <bean id="evpnMacVrfUtils"
+        class="org.opendaylight.netvirt.elan.evpn.utils.EvpnMacVrfUtils">
+    <argument ref="dataBroker" />
+    <argument ref="elanUtils" />
+    <argument ref="idManagerService" />
+  </bean>
+
+  <bean id="elanEvpnFlowUtils"
+        class="org.opendaylight.netvirt.elan.evpn.utils.ElanEvpnFlowUtils">
+    <argument ref="mdsalUtils" />
+    <argument ref="elanUtils" />
+  </bean>
+
+  <bean id="macVrfEntryListener" class="org.opendaylight.netvirt.elan.evpn.listeners.MacVrfEntryListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="elanUtils" />
+    <argument ref="mdsalUtils" />
+    <argument ref="evpnMacVrfUtils" />
+    <argument ref="elanEvpnFlowUtils" />
+  </bean>
+
 </blueprint>
