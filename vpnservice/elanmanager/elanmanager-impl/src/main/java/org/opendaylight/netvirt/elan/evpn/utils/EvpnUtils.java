@@ -12,6 +12,8 @@ import com.google.common.base.Optional;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.function.BiPredicate;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -21,14 +23,16 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetDpnEndpointIpsInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetDpnEndpointIpsOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.EvpnAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.VrfEntryBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +103,7 @@ public class EvpnUtils {
     }
 
     public String getEndpointIpAddressForDPN(BigInteger dpnId) {
-        /*
+
         Future<RpcResult<GetDpnEndpointIpsOutput>> result = itmRpcService.getDpnEndpointIps(
                 new GetDpnEndpointIpsInputBuilder()
                         .setSourceDpid(dpnId)
@@ -121,8 +125,6 @@ public class EvpnUtils {
 
         List<IpAddress> nexthopIpList = rpcResult.getResult().getNexthopipList();
         return nexthopIpList.get(0).getIpv4Address().toString();
-        */
-        return null;
     }
 
     public Optional<String> getGatewayMacAddressForInterface(String vpnName, String ifName, String ipAddress) {
@@ -145,6 +147,7 @@ public class EvpnUtils {
     public String getEVpnRd(ElanInstance elanInfo) {
         String evpnName = getEvpnNameFromElan(elanInfo);
         if (evpnName == null) {
+            LOG.error("getEVpnRd : evpnName is NULL for elanInfo {}", elanInfo);
             return null;
         }
         return vpnManager.getVpnRd(broker, evpnName);
@@ -160,6 +163,7 @@ public class EvpnUtils {
     private void advertisePrefix(ElanInstance elanInfo, String rd,
                                  String macAddress, String prefix, String interfaceName, BigInteger dpnId) {
         if (rd == null) {
+            LOG.error("advertisePrefix : rd is NULL for elanInfo {}, macAddress {}", elanInfo, macAddress);
             return;
         }
         String nextHop = getEndpointIpAddressForDPN(dpnId);
@@ -189,17 +193,11 @@ public class EvpnUtils {
         }
     }
 
-    public void advertisePrefix(ElanInstance elanInstance, ElanInterface elanInterface, BigInteger dpnId) {
-        String rd = getEVpnRd(elanInstance);
-        List<StaticMacEntries> staticMacs = elanInterface.getStaticMacEntries();
-        if (staticMacs == null || staticMacs.isEmpty()) {
-            LOG.trace("Could not get static macs for interface {}", elanInterface.getName());
-            return;
-        }
-        staticMacs.forEach((staticMac) -> {
-            advertisePrefix(elanInstance, rd, staticMac.getMacAddress().getValue(),
-                    staticMac.getIpPrefix().getIpv4Address().getValue(), elanInterface.getName(), dpnId);
-        });
+    public void advertisePrefix(ElanInstance elanInfo, MacEntry macEntry) {
+        InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(macEntry.getInterface());
+        advertisePrefix(elanInfo, macEntry.getMacAddress().getValue(),
+                macEntry.getIpPrefix().getIpv4Address().getValue(),
+                interfaceInfo.getInterfaceName(), interfaceInfo.getDpId());
     }
 
     public void withdrawEvpnRT2Routes(EvpnAugmentation evpnAugmentation, String elanName) {
@@ -220,21 +218,6 @@ public class EvpnUtils {
         }
     }
 
-    public void withdrawPrefix(ElanInstance elanInfo, ElanInterface elanInterface) {
-        String rd = getEVpnRd(elanInfo);
-        if (rd == null) {
-            return;
-        }
-        List<StaticMacEntries> staticMacs = elanInterface.getStaticMacEntries();
-        if (staticMacs == null || staticMacs.isEmpty()) {
-            LOG.trace("Could not get static macs for interface {}", elanInterface.getName());
-            return;
-        }
-        staticMacs.forEach((staticMac) -> {
-            bgpManager.withdrawPrefix(rd, staticMac.getIpPrefix().getIpv4Address().getValue());
-        });
-    }
-
     public void withdrawPrefix(ElanInstance elanInfo, String prefix) {
         String rd = getEVpnRd(elanInfo);
         if (rd == null) {
@@ -242,4 +225,9 @@ public class EvpnUtils {
         }
         bgpManager.withdrawPrefix(rd, prefix);
     }
+
+    public void withdrawPrefix(ElanInstance elanInfo, MacEntry macEntry) {
+        withdrawPrefix(elanInfo, macEntry.getIpPrefix().getIpv4Address().getValue());
+    }
+
 }
