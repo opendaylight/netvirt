@@ -1065,8 +1065,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     }
 
     // Install DMAC entry on dst DPN
-    public void installDMacAddressTables(ElanInstance elanInfo, InterfaceInfo interfaceInfo, BigInteger dstDpId)
-            throws ElanException {
+    public void installDMacAddressTables(ElanInstance elanInfo, InterfaceInfo interfaceInfo, BigInteger dstDpId,
+            List<ListenableFuture<Void>> futures) throws ElanException {
         String interfaceName = interfaceInfo.getInterfaceName();
         ElanInterfaceMac elanInterfaceMac = elanUtils.getElanInterfaceMacByInterfaceName(interfaceName);
         if (elanInterfaceMac != null && elanInterfaceMac.getMacEntry() != null) {
@@ -1083,7 +1083,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                             writeFlowTx);
                 }
             }
-            writeFlowTx.submit();
+            futures.add(ElanUtils.waitForTransactionToComplete(writeFlowTx));
         }
     }
 
@@ -1582,6 +1582,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         return interfaceInfo.getAdminState() == InterfaceInfo.InterfaceAdminState.ENABLED;
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void handleInternalTunnelStateEvent(BigInteger srcDpId, BigInteger dstDpId) throws ElanException {
         ElanDpnInterfaces dpnInterfaceLists = elanUtils.getElanDpnInterfacesList();
         LOG.trace("processing tunnel state event for srcDpId {} dstDpId {}"
@@ -1624,22 +1625,28 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 dataStoreCoordinator.enqueueJob(elanName, () -> {
                     // update Remote BC Group
                     LOG.trace("procesing elan remote bc group for tunnel event {}", elanInfo);
-                    setupElanBroadcastGroups(elanInfo, srcDpId);
-
+                    List<ListenableFuture<Void>> elanFutures = new ArrayList<>();
+                    try {
+                        setupElanBroadcastGroups(elanInfo, srcDpId);
+                    } catch (RuntimeException e) {
+                        LOG.error("Error while adding remote bc group for {} on dpId {} ", elanName, srcDpId);
+                        ElanUtils.addToListenableFutureIfTxException(e, elanFutures);
+                    }
                     Set<String> interfaceLists = new HashSet<>();
                     interfaceLists.addAll(finalDstDpnIf.getInterfaces());
                     for (String ifName : interfaceLists) {
                         dataStoreCoordinator.enqueueJob(ifName, () -> {
                             LOG.info("Processing tunnel up event for elan {} and interface {}", elanName, ifName);
                             InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(ifName);
+                            List<ListenableFuture<Void>> elanInterfacefutures = new ArrayList<>();
                             if (isOperational(interfaceInfo)) {
-                                installDMacAddressTables(elanInfo, interfaceInfo, srcDpId);
+                                installDMacAddressTables(elanInfo, interfaceInfo, srcDpId, elanInterfacefutures);
                             }
-                            return null;
-                        });
+                            return elanInterfacefutures;
+                        }, ElanConstants.JOB_MAX_RETRIES);
                     }
-                    return null;
-                });
+                    return elanFutures;
+                }, ElanConstants.JOB_MAX_RETRIES);
             }
 
         }
