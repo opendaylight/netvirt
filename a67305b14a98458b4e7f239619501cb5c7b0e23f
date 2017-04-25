@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_81168ba5",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-25T18:52:05Z",
+      "side": 1,
+      "message": "a separate review is under progress in https://git.opendaylight.org/gerrit/#/c/54792/7.\n\nreason for this is that the gerrit IDs are not consistent with compilation.\nthis explains jenkins failure, also.\n\nabout your remark. i agree.",
+      "parentUuid": "da01753e_7d96be4d",
+      "revId": "a67305b14a98458b4e7f239619501cb5c7b0e23f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_bda026a0",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 2
