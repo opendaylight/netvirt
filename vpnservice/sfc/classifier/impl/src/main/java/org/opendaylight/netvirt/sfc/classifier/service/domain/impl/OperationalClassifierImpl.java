@@ -42,13 +42,14 @@ public class OperationalClassifierImpl implements ClassifierState {
             }
 
             @Override
-            public void renderPath(NodeId nodeId, Long nsp, String ip) {
-                entries.add(ClassifierEntry.buildPathEntry(nodeId, nsp, ip));
+            public void renderPath(NodeId nodeId, Long nsp, String nodeIp) {
+                entries.add(ClassifierEntry.buildPathEntry(nodeId, nsp, nodeIp));
             }
 
             @Override
-            public void renderMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi, String ip) {
-                entries.add(ClassifierEntry.buildMatchEntry(nodeId, connector, matches, nsp, nsi, ip));
+            public void renderMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi,
+                    String destIp) {
+                entries.add(ClassifierEntry.buildMatchEntry(nodeId, connector, matches, nsp, nsi, destIp));
             }
 
             @Override
@@ -67,14 +68,14 @@ public class OperationalClassifierImpl implements ClassifierState {
             }
 
             @Override
-            public void suppressPath(NodeId nodeId, Long nsp, String ip) {
-                entries.remove(ClassifierEntry.buildPathEntry(nodeId, nsp, ip));
+            public void suppressPath(NodeId nodeId, Long nsp, String nodeIp) {
+                entries.remove(ClassifierEntry.buildPathEntry(nodeId, nsp, nodeIp));
             }
 
             @Override
             public void suppressMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi,
-                                      String ip) {
-                entries.remove(ClassifierEntry.buildMatchEntry(nodeId, connector, matches, nsp, nsi, ip));
+                                      String destIp) {
+                entries.remove(ClassifierEntry.buildMatchEntry(nodeId, connector, matches, nsp, nsi, destIp));
             }
 
             @Override
