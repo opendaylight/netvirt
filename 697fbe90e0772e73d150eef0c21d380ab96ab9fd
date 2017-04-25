@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_210d1f3f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-25T20:07:04Z",
+      "side": 1,
+      "message": "about remark 2: ( despite it has not been done)\nI agree that vpnservice/bgpmanager/bgpmanager-api/src/main/java/org/opendaylight/netvirt/bgpmanager/api/IBGPManager.api file could host enumerate.",
+      "parentUuid": "da01753e_21407fa4",
+      "revId": "697fbe90e0772e73d150eef0c21d380ab96ab9fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_6621fdfa",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 7
