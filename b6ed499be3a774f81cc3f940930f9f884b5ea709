@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_21c35e8a",
+        "filename": "vpnservice/config/impl/src/main/resources/initial/netvirt-config.xml",
+        "patchSetId": 11
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-04-25T21:41:26Z",
+      "side": 1,
+      "message": "Is this what you mean by reducing duplication? I had a different version without -config in the tags here, but then changed it because the java code would also not have the Config in the name of the class. Seemed better to have it. It is always inside NetvirtConfig so I guess you could cope it there.",
+      "revId": "b6ed499be3a774f81cc3f940930f9f884b5ea709",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
