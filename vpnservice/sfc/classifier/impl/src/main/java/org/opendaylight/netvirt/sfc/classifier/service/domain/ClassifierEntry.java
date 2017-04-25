@@ -34,9 +34,10 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
     private final Long nsp;
     private final Short nsi;
     private final String destinationIp;
+    private final String nodeIp;
 
     private ClassifierEntry(EntryType entryType, NodeId node, InterfaceKey interfaceKey, String connector,
-                            Matches matches, Long nsp, Short nsi, String destinationIp) {
+                            Matches matches, Long nsp, Short nsi, String destinationIp, String nodeIp) {
 
         this.entryType = entryType;
         this.node = node;
@@ -46,6 +47,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
         this.nsp = nsp;
         this.nsi = nsi;
         this.destinationIp = destinationIp;
+        this.nodeIp = nodeIp;
     }
 
     @Override
@@ -58,7 +60,8 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 matches,
                 nsp,
                 nsi,
-                destinationIp);
+                destinationIp,
+                nodeIp);
     }
 
     @Override
@@ -80,7 +83,8 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 && Objects.equals(matches, other.matches)
                 && Objects.equals(nsp, other.nsp)
                 && Objects.equals(nsi, other.nsi)
-                && Objects.equals(destinationIp, other.destinationIp);
+                && Objects.equals(destinationIp, other.destinationIp)
+                && Objects.equals(nodeIp, other.nodeIp);
     }
 
     @Override
@@ -94,6 +98,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 .add("nsp", nsp)
                 .add("nsi", nsi)
                 .add("destinationIp", destinationIp)
+                .add("nodeIp", nodeIp)
                 .toString();
     }
 
@@ -107,7 +112,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 classifierEntryRenderer.renderIngress(interfaceKey);
                 break;
             case PATH_ENTRY_TYPE:
-                classifierEntryRenderer.renderPath(node, nsp, destinationIp);
+                classifierEntryRenderer.renderPath(node, nsp, nodeIp);
                 break;
             case MATCH_ENTRY_TYPE:
                 classifierEntryRenderer.renderMatch(node, connector, matches, nsp, nsi, destinationIp);
@@ -143,27 +148,27 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
 
     public static ClassifierEntry buildIngressEntry(InterfaceKey interfaceKey) {
         return new ClassifierEntry(EntryType.INGRESS_INTERFACE_ENTRY_TYPE, null, interfaceKey, null, null, null,
-                null, null);
+                null, null, null);
     }
 
     public static ClassifierEntry buildNodeEntry(NodeId node) {
         return new ClassifierEntry(EntryType.NODE_ENTRY_TYPE, node, null, null, null, null,
-                null, null);
+                null, null, null);
     }
 
-    public static ClassifierEntry buildPathEntry(NodeId node, Long nsp, String destinationIp) {
+    public static ClassifierEntry buildPathEntry(NodeId node, Long nsp, String nodeIp) {
         return new ClassifierEntry(EntryType.PATH_ENTRY_TYPE, node, null, null, null, nsp,
-                null, destinationIp);
+                null, null, nodeIp);
     }
 
     public static ClassifierEntry buildMatchEntry(NodeId node, String connector, Matches matches, Long nsp, Short nsi,
             String destinationIp) {
         return new ClassifierEntry(EntryType.MATCH_ENTRY_TYPE, node, null, connector, matches, nsp,
-                nsi, destinationIp);
+                nsi, destinationIp, null);
     }
 
     public static ClassifierEntry buildEgressEntry(InterfaceKey interfaceKey) {
         return new ClassifierEntry(EntryType.EGRESS_INTERFACE_ENTRY_TYPE, null, interfaceKey, null, null, null,
-                null, null);
+                null, null, null);
     }
 }

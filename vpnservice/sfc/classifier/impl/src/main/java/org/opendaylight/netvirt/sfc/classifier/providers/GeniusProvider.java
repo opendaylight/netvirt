@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.sfc.classifier.providers;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -154,9 +155,10 @@ public class GeniusProvider {
 
         if (interfaceManagerRpcService == null) {
             LOG.error("getIpFromDpnId({}) failed (service couldn't be retrieved)", input);
+            return Collections.emptyList();
         }
 
-        List<IpAddress> ipList = Collections.emptyList();
+        List<IpAddress> ipList = new ArrayList<>();
         try {
             LOG.debug("getIpFromDpnId: invoking rpc");
             RpcResult<GetEndpointIpForDpnOutput> output = interfaceManagerRpcService.getEndpointIpForDpn(input).get();
@@ -181,6 +183,7 @@ public class GeniusProvider {
 
         if (interfaceManagerRpcService == null) {
             LOG.error("getDpnIdFromInterfaceName({}) failed (service couldn't be retrieved)", input);
+            return Optional.empty();
         }
 
         Optional<DpnIdType> dpnid = Optional.empty();
@@ -208,6 +211,7 @@ public class GeniusProvider {
 
         if (interfaceManagerRpcService == null) {
             LOG.error("getNodeConnectorIdFromInterfaceName({}) failed (service couldn't be retrieved)", input);
+            return Optional.empty();
         }
 
         Optional<String> nodeConnId = Optional.empty();
