@@ -164,33 +164,16 @@ public class OpenFlow13ProviderTest {
     }
 
     @Test
-    public void createEgressClassifierFilterVxgpeNshFlow() {
-        Flow flow = openflowProvider.createEgressClassifierFilterVxgpeNshFlow(nodeId);
+    public void createEgressClassifierFilterNshFlow() {
+        Flow flow = openflowProvider.createEgressClassifierFilterNshFlow(nodeId);
 
         assertEquals(flow.getTableId().shortValue(), NwConstants.EGRESS_SFC_CLASSIFIER_FILTER_TABLE);
         assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.EGRESS_CLASSIFIER_FILTER_NSH_PRIORITY);
         assertEquals(flow.getId().getValue(),
-                OpenFlow13Provider.EGRESS_CLASSIFIER_FILTER_VXGPENSH_FLOW_NAME + nodeId.getValue());
+                OpenFlow13Provider.EGRESS_CLASSIFIER_FILTER_NSH_FLOW_NAME + nodeId.getValue());
         assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.EGRESS_CLASSIFIER_FILTER_COOKIE);
 
-        checkMatchVxgpeNsh(flow.getMatch());
-
-        assertEquals(1, flow.getInstructions().getInstruction().size());
-        checkActionGotoTable(flow.getInstructions().getInstruction().get(0).getInstruction(),
-                NwConstants.EGRESS_SFC_CLASSIFIER_NEXTHOP_TABLE);
-    }
-
-    @Test
-    public void createEgressClassifierFilterEthNshFlow() {
-        Flow flow = openflowProvider.createEgressClassifierFilterEthNshFlow(nodeId);
-
-        assertEquals(flow.getTableId().shortValue(), NwConstants.EGRESS_SFC_CLASSIFIER_FILTER_TABLE);
-        assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.EGRESS_CLASSIFIER_FILTER_NSH_PRIORITY);
-        assertEquals(flow.getId().getValue(),
-                OpenFlow13Provider.EGRESS_CLASSIFIER_FILTER_ETHNSH_FLOW_NAME + nodeId.getValue());
-        assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.EGRESS_CLASSIFIER_FILTER_COOKIE);
-
-        checkMatchEthNsh(flow.getMatch());
+        checkMatchNshMdType1(flow.getMatch());
 
         assertEquals(1, flow.getInstructions().getInstruction().size());
         checkActionGotoTable(flow.getInstructions().getInstruction().get(0).getInstruction(),
@@ -338,6 +321,24 @@ public class OpenFlow13ProviderTest {
 
             if (nxAugMatch.getNxmNxEncapEthType() != null) {
                 assertEquals(nxAugMatch.getNxmNxEncapEthType().getValue().intValue(), OpenFlow13Utils.ETHERTYPE_NSH);
+            }
+        }
+    }
+
+    private void checkMatchNshMdType1(Match match) {
+        GeneralAugMatchNodesNodeTableFlow genAug =
+                match.getAugmentation(GeneralAugMatchNodesNodeTableFlow.class);
+
+        assertNotNull(genAug);
+
+        List<ExtensionList> extensions = genAug.getExtensionList();
+        for (ExtensionList extensionList : extensions) {
+            Extension extension = extensionList.getExtension();
+            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.getAugmentation(NxAugMatchNodesNodeTableFlow.class);
+
+            if (nxAugMatch.getNxmNxNshMdtype() != null) {
+                assertEquals(nxAugMatch.getNxmNxNshMdtype().getValue().shortValue(),
+                        OpenFlow13Provider.NSH_MDTYPE_ONE);
             }
         }
     }

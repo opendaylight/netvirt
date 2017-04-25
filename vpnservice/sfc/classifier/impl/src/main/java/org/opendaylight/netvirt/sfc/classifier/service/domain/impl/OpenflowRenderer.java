@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.sfc.classifier.service.domain.impl;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 public class OpenflowRenderer implements ClassifierEntryRenderer {
 
-    public static final String OF_URI_SEPARATOR = ":";
     private static final Logger LOG = LoggerFactory.getLogger(OpenflowRenderer.class);
 
     private final OpenFlow13Provider openFlow13Provider;
@@ -52,8 +50,7 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
         flows.add(this.openFlow13Provider.createIngressClassifierFilterEthNshFlow(nodeId));
         flows.add(this.openFlow13Provider.createIngressClassifierFilterNoNshFlow(nodeId));
 
-        flows.add(this.openFlow13Provider.createEgressClassifierFilterVxgpeNshFlow(nodeId));
-        flows.add(this.openFlow13Provider.createEgressClassifierFilterEthNshFlow(nodeId));
+        flows.add(this.openFlow13Provider.createEgressClassifierFilterNshFlow(nodeId));
         flows.add(this.openFlow13Provider.createEgressClassifierFilterNoNshFlow(nodeId));
 
         flows.add(this.openFlow13Provider.createEgressClassifierNextHopC1C2Flow(nodeId));
@@ -65,16 +62,17 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
     }
 
     @Override
-    public void renderPath(NodeId nodeId, Long nsp, String ip) {
-        List<Flow> flows = new ArrayList<>();
-        Optional<Long> egressPort = geniusProvider.getEgressVxlanPortForNode(getDpnIdFromNodeId(nodeId));
+    public void renderPath(NodeId nodeId, Long nsp, String nodeIp) {
+        Optional<Long> egressPort = geniusProvider.getEgressVxlanPortForNode(
+                OpenFlow13Provider.getDpnIdFromNodeId(nodeId));
         if (!egressPort.isPresent()) {
             LOG.error("OpenflowRenderer: cant get egressPort for nodeId [{}]", nodeId.getValue());
             return;
         }
+        List<Flow> flows = new ArrayList<>();
         flows.add(this.openFlow13Provider.createEgressClassifierTransportEgressRemoteFlow(
                 nodeId, nsp, egressPort.get()));
-        flows.add(this.openFlow13Provider.createEgressClassifierTransportEgressLocalFlow(nodeId, nsp, ip));
+        flows.add(this.openFlow13Provider.createEgressClassifierTransportEgressLocalFlow(nodeId, nsp, nodeIp));
 
         WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
         flows.forEach((flow) -> this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx));
@@ -82,10 +80,10 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
     }
 
     @Override
-    public void renderMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi, String ip) {
-        Long port = getPortNoFromNodeConnector(connector);
+    public void renderMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi, String destIp) {
+        Long port = OpenFlow13Provider.getPortNoFromNodeConnector(connector);
         Flow flow = this.openFlow13Provider.createIngressClassifierAclFlow(
-                nodeId, this.openFlow13Provider.getMatchBuilderFromAceMatches(matches), port, ip, nsp, nsi);
+                nodeId, this.openFlow13Provider.getMatchBuilderFromAceMatches(matches), port, destIp, nsp, nsi);
 
         WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
         this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx);
@@ -109,8 +107,7 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
         flows.add(this.openFlow13Provider.createIngressClassifierFilterEthNshFlow(nodeId));
         flows.add(this.openFlow13Provider.createIngressClassifierFilterNoNshFlow(nodeId));
 
-        flows.add(this.openFlow13Provider.createEgressClassifierFilterVxgpeNshFlow(nodeId));
-        flows.add(this.openFlow13Provider.createEgressClassifierFilterEthNshFlow(nodeId));
+        flows.add(this.openFlow13Provider.createEgressClassifierFilterNshFlow(nodeId));
         flows.add(this.openFlow13Provider.createEgressClassifierFilterNoNshFlow(nodeId));
 
         flows.add(this.openFlow13Provider.createEgressClassifierNextHopC1C2Flow(nodeId));
@@ -122,16 +119,17 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
     }
 
     @Override
-    public void suppressPath(NodeId nodeId, Long nsp, String ip) {
-        List<Flow> flows = new ArrayList<>();
-        flows.add(this.openFlow13Provider.createEgressClassifierTransportEgressLocalFlow(nodeId, nsp, ip));
-        Optional<Long> egressPort = geniusProvider.getEgressVxlanPortForNode(getDpnIdFromNodeId(nodeId));
+    public void suppressPath(NodeId nodeId, Long nsp, String nodeIp) {
+        Optional<Long> egressPort = geniusProvider.getEgressVxlanPortForNode(
+                OpenFlow13Provider.getDpnIdFromNodeId(nodeId));
         if (!egressPort.isPresent()) {
             LOG.error("OpenflowRenderer: cant get egressPort for nodeId [{}]", nodeId.getValue());
             return;
         }
+        List<Flow> flows = new ArrayList<>();
         flows.add(this.openFlow13Provider.createEgressClassifierTransportEgressRemoteFlow(
                 nodeId, nsp, egressPort.get()));
+        flows.add(this.openFlow13Provider.createEgressClassifierTransportEgressLocalFlow(nodeId, nsp, nodeIp));
 
         WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
         flows.forEach((flow) -> this.openFlow13Provider.appendFlowForDelete(nodeId, flow, tx));
@@ -139,10 +137,10 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
     }
 
     @Override
-    public void suppressMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi, String ip) {
-        Long port = getPortNoFromNodeConnector(connector);
+    public void suppressMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi, String destIp) {
+        Long port = OpenFlow13Provider.getPortNoFromNodeConnector(connector);
         Flow flow = this.openFlow13Provider.createIngressClassifierAclFlow(
-                nodeId, this.openFlow13Provider.getMatchBuilderFromAceMatches(matches), port, ip, nsp, nsi);
+                nodeId, this.openFlow13Provider.getMatchBuilderFromAceMatches(matches), port, destIp, nsp, nsi);
 
         WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
         this.openFlow13Provider.appendFlowForDelete(nodeId, flow, tx);
@@ -154,17 +152,4 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
         // noop
     }
 
-    private static Long getPortNoFromNodeConnector(String connector) {
-        /*
-         * NodeConnectorId is of the form 'openflow:dpnid:portnum'
-         */
-        return Long.valueOf(connector.split(OF_URI_SEPARATOR)[2]);
-    }
-
-    private static BigInteger getDpnIdFromNodeId(NodeId nodeId) {
-        /*
-         * NodeId is of the form 'openflow:dpnid'
-         */
-        return BigInteger.valueOf(Long.valueOf(nodeId.getValue().split(OF_URI_SEPARATOR)[1]));
-    }
 }
