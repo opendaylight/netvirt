@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_2627f513",
+        "filename": "vpnservice/natservice/natservice-impl/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-25T16:09:51Z",
+      "side": 1,
+      "message": "we must not be referring to impl from other modules..\n\nWhy was this necessary?",
+      "revId": "697fbe90e0772e73d150eef0c21d380ab96ab9fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_0622b100",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-25T16:09:51Z",
+      "side": 1,
+      "message": "ok if this value is required to be referenced here, this enumerator must be made available in bgpmanager-api module and not in bgpmanager-impl module.\n\ncan you please sort this out?",
+      "revId": "697fbe90e0772e73d150eef0c21d380ab96ab9fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_6621fdfa",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-25T16:09:51Z",
+      "side": 1,
+      "message": "ditto comment as previous file here.",
+      "revId": "697fbe90e0772e73d150eef0c21d380ab96ab9fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_a67ac5ee",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-25T16:09:51Z",
+      "side": 1,
+      "message": "ditto comment as natservice pom.xml comment here too.. Can\u0027t directly reference impls..",
+      "revId": "697fbe90e0772e73d150eef0c21d380ab96ab9fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_e684cdd5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-25T16:09:51Z",
+      "side": 1,
+      "message": "why is this set to 0 here.. this must be set to 1 right to reflect IPV4 atleast?",
+      "revId": "697fbe90e0772e73d150eef0c21d380ab96ab9fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
