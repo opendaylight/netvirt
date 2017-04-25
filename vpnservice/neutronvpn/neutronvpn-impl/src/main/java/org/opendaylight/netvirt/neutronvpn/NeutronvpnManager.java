@@ -1642,6 +1642,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         }
                     }
                     if (NeutronvpnUtils.getIsExternal(network)) {
+                        // nvpnManager.addExternalNetworkToVpn(network, vpn);
                         nvpnNatManager.addExternalNetworkToVpn(network, vpn);
                     }
                 }
@@ -1681,6 +1682,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         }
                     }
                     if (NeutronvpnUtils.getIsExternal(network)) {
+                        // nvpnManager.removeExternalNetworkToVpn(network, vpn);
                         nvpnNatManager.removeExternalNetworkFromVpn(network);
                     }
                 }

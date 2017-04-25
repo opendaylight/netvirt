@@ -75,6 +75,7 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
         // Create internal VPN
         nvpnManager.createL3InternalVpn(input.getUuid(), null, null, null, null, null, input.getUuid(), null);
         nvpnNatManager.handleExternalNetworkForRouter(null, input);
+        // nvpnManager.handleExternalNetworkForRouter(null, input);
         gwMacResolver.sendArpRequestsToExtGateways(input);
     }
 
@@ -92,6 +93,7 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
             Uuid extNetId = input.getExternalGatewayInfo().getExternalNetworkId();
             List<ExternalFixedIps> externalFixedIps = input.getExternalGatewayInfo().getExternalFixedIps();
             nvpnNatManager.removeExternalNetworkFromRouter(extNetId, input, externalFixedIps);
+	    // nvpnManager.removeExternalNetworkForRouter(extNetId, input, externalFixedIps);
         }
         NeutronvpnUtils.removeFromRouterCache(input);
     }
@@ -120,6 +122,7 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
         }
 
         nvpnNatManager.handleExternalNetworkForRouter(original, update);
+	// nvpnManager.handleExternalNetworkForRouter(original, update);
         gwMacResolver.sendArpRequestsToExtGateways(update);
     }
 

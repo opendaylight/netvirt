@@ -82,6 +82,8 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         }
         NeutronvpnUtils.addToSubnetCache(input);
         handleNeutronSubnetCreated(input, network);
+        // input.router id ?
+        // handleNeutronRouterSubnetCreated (input, network, routerid)
         externalSubnetHandler.handleExternalSubnetAdded(network, subnetId, null);
     }
 
@@ -97,6 +99,8 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
                     subnetId.getValue(), network);
             return;
         }
+        // input.router id ?
+        // handleNeutronRouterSubnetDeleted (input, network, routerid)
         handleNeutronSubnetDeleted(subnetId, networkId);
         externalSubnetHandler.handleExternalSubnetRemoved(network, subnetId);
         NeutronvpnUtils.removeFromSubnetCache(input);
@@ -106,6 +110,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
     protected void update(InstanceIdentifier<Subnet> identifier, Subnet original, Subnet update) {
         LOG.trace("Updating Subnet : key: {}, original value={}, update value={}", identifier, original, update);
         NeutronvpnUtils.addToSubnetCache(update);
+	// subnetwork changed ?
     }
 
     private void handleNeutronSubnetCreated(Subnet subnet, Network network) {
