@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "da01753e_21407fa4",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatEvpnUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-25T18:55:14Z",
+      "side": 1,
+      "message": "remark 1 :\nin https://git.opendaylight.org/gerrit/#/c/54797/ ( official delivery), we decided to pass 1 value ( hard set), because the change was related to L3VPN IPv6 ( out of scope for EVPN IPv6).\n\nremark 2 :\nabout Viveks proposal, do you mean modifying yang data model to provide new enumerate value ?\nCurrently, afaik, AFI value used is the one inherited from bgpmanager.",
+      "parentUuid": "da01753e_0622b100",
+      "revId": "697fbe90e0772e73d150eef0c21d380ab96ab9fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_6621fdfa",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 7
@@ -47,6 +65,24 @@
       "writtenOn": "2017-04-25T16:09:51Z",
       "side": 1,
       "message": "ditto comment as previous file here.",
+      "revId": "697fbe90e0772e73d150eef0c21d380ab96ab9fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_013bbb38",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-25T18:55:14Z",
+      "side": 1,
+      "message": "as it is NAT feature, we have considered the value passed as parameter was always 1 ( AFI_IPV4)\n(see original https://git.opendaylight.org/gerrit/#/c/54797/ ).",
+      "parentUuid": "da01753e_6621fdfa",
       "revId": "697fbe90e0772e73d150eef0c21d380ab96ab9fd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -81,6 +117,70 @@
       "writtenOn": "2017-04-25T16:09:51Z",
       "side": 1,
       "message": "why is this set to 0 here.. this must be set to 1 right to reflect IPV4 atleast?",
+      "revId": "697fbe90e0772e73d150eef0c21d380ab96ab9fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_4147834b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-25T18:55:14Z",
+      "side": 1,
+      "message": "note 1 : afi value can be either set to 1 ( IPv4 ) or 2 ( IPv6). the code source provided did not provide such default value of 0. \nI suppose you made modifications for compilation.\nnote 2 :  An update has been done in https://git.opendaylight.org/gerrit/#/c/54799/.\nFor that, you should use following line:\nint afi \u003d InterfaceUtils.getAFItranslatedfromPrefix(subOpBuilder.getSubnetCidr())",
+      "parentUuid": "da01753e_e684cdd5",
+      "revId": "697fbe90e0772e73d150eef0c21d380ab96ab9fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_61f3a79e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 736,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-25T18:55:14Z",
+      "side": 1,
+      "message": "same as per previous comment.\nfollowing line should be added:\nint afi \u003d InterfaceUtils.getAFItranslatedfromPrefix(subnetIp);",
+      "range": {
+        "startLine": 736,
+        "startChar": 24,
+        "endLine": 736,
+        "endChar": 25
+      },
+      "revId": "697fbe90e0772e73d150eef0c21d380ab96ab9fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_41ee63b5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 762,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-25T18:55:14Z",
+      "side": 1,
+      "message": "same as per previous commment\nfollowing should be used:\n\nlong afiValue \u003d InterfaceUtils.getAFItranslatedfromPrefix(subnetIp);",
+      "range": {
+        "startLine": 762,
+        "startChar": 27,
+        "endLine": 762,
+        "endChar": 28
+      },
       "revId": "697fbe90e0772e73d150eef0c21d380ab96ab9fd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
