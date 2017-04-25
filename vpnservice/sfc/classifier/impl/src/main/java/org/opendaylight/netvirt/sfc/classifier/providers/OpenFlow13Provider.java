@@ -58,8 +58,7 @@ public class OpenFlow13Provider {
     public static final String INGRESS_CLASSIFIER_FILTER_ETHNSH_FLOW_NAME = "nvsfc_ingr_class_filter_eth";
     public static final String INGRESS_CLASSIFIER_FILTER_NONSH_FLOW_NAME = "nvsfc_ingr_class_filter_nonsh";
     public static final String INGRESS_CLASSIFIER_ACL_FLOW_NAME = "nvsfc_ingr_class_acl";
-    public static final String EGRESS_CLASSIFIER_FILTER_VXGPENSH_FLOW_NAME = "nvsfc_egr_class_filter_vxgpe";
-    public static final String EGRESS_CLASSIFIER_FILTER_ETHNSH_FLOW_NAME = "nvsfc_egr_class_filter_eth";
+    public static final String EGRESS_CLASSIFIER_FILTER_NSH_FLOW_NAME = "nvsfc_egr_class_filter_nsh";
     public static final String EGRESS_CLASSIFIER_FILTER_NONSH_FLOW_NAME = "nvsfc_egr_class_filter_nonsh";
     public static final String EGRESS_CLASSIFIER_NEXTHOP_C1C2_FLOW_NAME = "nvsfc_egr_class_nexthop_c1c2";
     public static final String EGRESS_CLASSIFIER_NEXTHOP_NOC1C2_FLOW_NAME = "nvsfc_egr_class_nexthop_noc1c2";
@@ -68,6 +67,7 @@ public class OpenFlow13Provider {
     public static final short NSH_MDTYPE_ONE = 0x01;
     public static final long DEFAULT_NSH_CONTEXT_VALUE = 0L;
     private static final int DEFAULT_NETMASK = 32;
+    public static final String OF_URI_SEPARATOR = ":";
 
     public MatchBuilder getMatchBuilderFromAceMatches(Matches matches) {
         if (matches == null) {
@@ -200,39 +200,25 @@ public class OpenFlow13Provider {
     //
 
     /*
-     * Egress Classifier Filter Vxgpe NSH flow:
+     * Egress Classifier Filter NSH flow:
      *     Only allows NSH packets to proceed in the egress classifier
-     *     Match on NSP, Goto table Egress Classifier NextHop on match
+     *     Match on NSH MdType=1, Goto table Egress Classifier NextHop on match
+     * Since we need to check if the packet has passed through the classifier and has been
+     * encapsulated with NSH. We cant check for Vxgpe+NSH or Eth+NSH yet, since the outer
+     * encapsulation wont be added until the packet egresses, so instead check for NSH MD-type,
+     * which was set in the classification flow.
      */
-    public Flow createEgressClassifierFilterVxgpeNshFlow(NodeId nodeId) {
+    public Flow createEgressClassifierFilterNshFlow(NodeId nodeId) {
         MatchBuilder match = new MatchBuilder();
-        OpenFlow13Utils.addMatchVxgpeNsh(match);
+        OpenFlow13Utils.addMatchNshMdtype(match, NSH_MDTYPE_ONE);
 
         InstructionsBuilder isb = OpenFlow13Utils.appendGotoTableInstruction(new InstructionsBuilder(),
             NwConstants.EGRESS_SFC_CLASSIFIER_NEXTHOP_TABLE);
-        String flowIdStr = EGRESS_CLASSIFIER_FILTER_VXGPENSH_FLOW_NAME + nodeId.getValue();
+        String flowIdStr = EGRESS_CLASSIFIER_FILTER_NSH_FLOW_NAME + nodeId.getValue();
 
         return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_FILTER_TABLE,
             EGRESS_CLASSIFIER_FILTER_NSH_PRIORITY, EGRESS_CLASSIFIER_FILTER_COOKIE,
-            EGRESS_CLASSIFIER_FILTER_VXGPENSH_FLOW_NAME, flowIdStr, match, isb).build();
-    }
-
-    /*
-     * Egress Classifier Filter Eth NSH flow:
-     *     Only allows NSH packets to proceed in the egress classifier
-     *     Match on NSP, Goto table Egress Classifier NextHop on match
-     */
-    public Flow createEgressClassifierFilterEthNshFlow(NodeId nodeId) {
-        MatchBuilder match = new MatchBuilder();
-        OpenFlow13Utils.addMatchEthNsh(match);
-
-        InstructionsBuilder isb = OpenFlow13Utils.appendGotoTableInstruction(new InstructionsBuilder(),
-            NwConstants.EGRESS_SFC_CLASSIFIER_NEXTHOP_TABLE);
-        String flowIdStr = EGRESS_CLASSIFIER_FILTER_ETHNSH_FLOW_NAME + nodeId.getValue();
-
-        return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_FILTER_TABLE,
-            EGRESS_CLASSIFIER_FILTER_NSH_PRIORITY, EGRESS_CLASSIFIER_FILTER_COOKIE,
-            EGRESS_CLASSIFIER_FILTER_ETHNSH_FLOW_NAME, flowIdStr, match, isb).build();
+            EGRESS_CLASSIFIER_FILTER_NSH_FLOW_NAME, flowIdStr, match, isb).build();
     }
 
     /*
@@ -342,4 +328,19 @@ public class OpenFlow13Provider {
             EGRESS_CLASSIFIER_EGRESS_REMOTE_PRIORITY, EGRESS_CLASSIFIER_TPORTEGRESS_COOKIE,
             EGRESS_CLASSIFIER_TPORTEGRESS_FLOW_NAME, flowIdStr, match, isb).build();
     }
+
+    public static Long getPortNoFromNodeConnector(String connector) {
+        /*
+         * NodeConnectorId is of the form 'openflow:dpnid:portnum'
+         */
+        return Long.valueOf(connector.split(OF_URI_SEPARATOR)[2]);
+    }
+
+    public static BigInteger getDpnIdFromNodeId(NodeId nodeId) {
+        /*
+         * NodeId is of the form 'openflow:dpnid'
+         */
+        return BigInteger.valueOf(Long.valueOf(nodeId.getValue().split(OF_URI_SEPARATOR)[1]));
+    }
+
 }
