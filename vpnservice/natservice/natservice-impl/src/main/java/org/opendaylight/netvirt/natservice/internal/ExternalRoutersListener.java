@@ -99,6 +99,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.RouterIdName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.ExternalCounters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.external.counters.ExternalIpCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.ip.mapping.IpMap;
@@ -228,8 +229,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             if (bgpVpnUuid != null) {
                 return;
             }
+            Optional<List<ExternalIps>> externalIps = Optional.of(routers.getExternalIps());
             // Allocate Primary Napt Switch for this router
-            if (routers.isEnableSnat()) {
+            if (routers.isEnableSnat() && externalIps.isPresent() && !externalIps.get().isEmpty()) {
                 boolean result = centralizedSwitchScheduler.scheduleCentralizedSwitch(routerName);
             }
             //snatServiceManger.notify(routers, null, Action.ADD);
@@ -1129,16 +1131,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             LOG.error("NAT Service : Update external router event - Invalid routerId for routerName {}", routerName);
             return;
         }
-        /* Get Primary Napt Switch for existing router from "router-to-napt-switch" DS.
-         * if dpnId value is null or zero then go for electing new Napt switch for existing router.
-         */
-        BigInteger dpnId = getPrimaryNaptSwitch(routerName, routerId);
-        if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
-            LOG.error("NAT Service: Failed to get or allocate NAPT switch for router {} during Update()", routerName);
-            return;
-        }
-        Uuid networkId = original.getNetworkId();
-
         // Check if its update on SNAT flag
         boolean originalSNATEnabled = original.isEnableSnat();
         boolean updatedSNATEnabled = update.isEnableSnat();
@@ -1154,7 +1146,24 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     centralizedSwitchScheduler.scheduleCentralizedSwitch(routerName);
                 }
             }
+            Optional<List<ExternalIps>> originalExternalIp = Optional.of(original.getExternalIps());
+            Optional<List<ExternalIps>> updateExternalIp = Optional.of(update.getExternalIps());
+            if (!originalExternalIp.equals(updateExternalIp)) {
+                if (!originalExternalIp.isPresent() || originalExternalIp.get().isEmpty()) {
+                    centralizedSwitchScheduler.scheduleCentralizedSwitch(routerName);
+                }
+            }
         } else {
+            /* Get Primary Napt Switch for existing router from "router-to-napt-switch" DS.
+             * if dpnId value is null or zero then go for electing new Napt switch for existing router.
+             */
+            BigInteger dpnId = getPrimaryNaptSwitch(routerName, routerId);
+            if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
+                LOG.error("NAT Service: Failed to get or allocate NAPT switch for router {} during Update()",
+                        routerName);
+                return;
+            }
+            Uuid networkId = original.getNetworkId();
             if (originalSNATEnabled != updatedSNATEnabled) {
                 if (originalSNATEnabled) {
                     //SNAT disabled for the router
