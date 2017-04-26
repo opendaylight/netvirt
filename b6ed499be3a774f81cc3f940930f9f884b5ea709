@@ -16,6 +16,24 @@
       "revId": "b6ed499be3a774f81cc3f940930f9f884b5ea709",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_01829ac7",
+        "filename": "vpnservice/config/impl/src/main/resources/initial/netvirt-config.xml",
+        "patchSetId": 11
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-04-26T04:51:58Z",
+      "side": 1,
+      "message": "Yeah, I noticed that too. Having -config makes code more readable, but from user perspective it seems to be redundant as file and namespace already have \u0027config\u0027. Let us keep it in then. Users tend to be more touchy about ambiguous names than redundantly explained ones.",
+      "parentUuid": "da01753e_21c35e8a",
+      "revId": "b6ed499be3a774f81cc3f940930f9f884b5ea709",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
