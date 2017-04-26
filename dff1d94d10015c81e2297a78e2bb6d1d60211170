@@ -16,6 +16,24 @@
       "revId": "dff1d94d10015c81e2297a78e2bb6d1d60211170",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_a4891c77",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpAlarms.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-26T06:17:35Z",
+      "side": 1,
+      "message": "I made some changes to handle consistency.",
+      "parentUuid": "da01753e_5de3fa04",
+      "revId": "dff1d94d10015c81e2297a78e2bb6d1d60211170",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
