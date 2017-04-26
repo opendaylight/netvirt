@@ -80,6 +80,22 @@ public class VpnSubnetRouteHandler {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
+    public void onSubnetIPv6AddedToExternalVpn(Subnetmap subnetmap, boolean isBgpVpn, Long elanTag) {
+    // this function does approximately the same as onSubnetAddedToVpn
+    // Create and add SubnetOpDataEntry object for this subnet to the SubnetOpData container
+    // elect new dpnID for subnet handling - neighbor discovery
+    }
+
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public void onSubnetIPv6DeletedFromExternalVpn(Subnetmap subnetmap, boolean isBgpVpn) {
+    // this function does approximately the same as onSubnetDeletedFromVpn
+    // Create and add SubnetOpDataEntry object for this subnet to the SubnetOpData container
+    // elect new dpnID for subnet handling - neighbor discovery
+    }
+
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void onSubnetAddedToVpn(Subnetmap subnetmap, boolean isBgpVpn, Long elanTag) {
         Uuid subnetId = subnetmap.getId();
         String subnetIp = subnetmap.getSubnetIp();

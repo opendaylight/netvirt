@@ -48,7 +48,8 @@ public class NeutronvpnManagerImpl implements INeutronVpnManager {
 
     @Override
     public void addSubnetToVpn(Uuid vpnId, Uuid subnet) {
-        nvManager.addSubnetToVpn(vpnId, subnet);
+        // do we have to extend the API with externalvpnId ?
+        nvManager.addSubnetToVpn(vpnId, null, subnet);
     }
 
     @Override

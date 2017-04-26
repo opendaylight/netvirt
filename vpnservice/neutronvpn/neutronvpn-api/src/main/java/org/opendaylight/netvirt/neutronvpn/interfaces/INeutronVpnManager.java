@@ -18,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 
 public interface INeutronVpnManager {
 
+    // should we change the API ?
     void addSubnetToVpn(Uuid vpnId, Uuid subnet);
 
     void removeSubnetFromVpn(Uuid vpnId, Uuid subnet);

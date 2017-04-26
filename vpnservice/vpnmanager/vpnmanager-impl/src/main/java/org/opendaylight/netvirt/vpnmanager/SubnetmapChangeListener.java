@@ -83,6 +83,14 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             // in SubnetRouteHandler
             vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, isBgpVpn , elanTag);
         }
+        if (subnetmap.getVpnExternalId() != null) {
+            Uuid externalvpnId = subnetmap.getVpnExternalId();
+            boolean isBgpVpn = !externalvpnId.equals(subnetmap.getRouterId());
+            // Vpnid Uuid toto = IPv6NetworkHasExternalVpn(subnetmap)
+	    // if (toto) update subnetmap->vpnid
+	    // -> overwrite vpn-id (if not already set)
+            // call vpnSubnetRouteHandler.onSubnetIPv6AddedToExternalVpn(subnetmap, isBgpVpn, elanTag);
+        }
     }
 
     @Override
@@ -100,8 +108,11 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
                     identifier, subnetmapOriginal, subnetmapUpdate);
         Uuid vpnIdNew = subnetmapUpdate.getVpnId();
         Uuid vpnIdOld = subnetmapOriginal.getVpnId();
+        Uuid externalvpnIdNew = subnetmapUpdate.getVpnExternalId();
+        Uuid externalvpnIdOld = subnetmapOriginal.getVpnExternalId();
         Uuid subnetId = subnetmapUpdate.getId();
         String elanInstanceName = subnetmapUpdate.getNetworkId().getValue();
+        Boolean workdone1 = false, workdone2 = false;
         // SubnetRoute for ExternalSubnets is handled in ExternalSubnetVpnInstanceListener.
         // Here we must handle only InternalVpnSubnetRoute and BGPVPNBasedSubnetRoute
         Network network = VpnUtil.getNeutronNetwork(dataBroker, subnetmapUpdate.getNetworkId());
@@ -118,22 +129,45 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         if (vpnIdNew != null && vpnIdOld == null) {
             boolean isBgpVpn = !vpnIdNew.equals(subnetmapUpdate.getRouterId());
             vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmapUpdate, isBgpVpn, elanTag);
-            return;
+            workdone1 = true;
         }
         // subnet removed from VPN case
-        if (vpnIdOld != null && vpnIdNew == null) {
+        else if (vpnIdOld != null && vpnIdNew == null) {
             Boolean isBgpVpn = vpnIdOld.equals(subnetmapOriginal.getRouterId()) ? false : true;
             vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmapOriginal, isBgpVpn);
-            return;
+            workdone1 = true;
         }
         // subnet updated in VPN case
-        if (vpnIdOld != null && vpnIdNew != null && (!vpnIdNew.equals(vpnIdOld))) {
+        else if (vpnIdOld != null && vpnIdNew != null && (!vpnIdNew.equals(vpnIdOld))) {
             boolean isBeingAssociated = vpnIdNew.equals(subnetmapUpdate.getRouterId()) ? false : true;
             vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetmapUpdate, !isBeingAssociated /* oldVpnType */,
                     isBeingAssociated /* newVpnType */, elanTag);
+            workdone1 = true;
+        }
+        // subnet added to VPN case
+        if (externalvpnIdNew != null && externalvpnIdOld == null) {
+            boolean isBgpVpn = !externalvpnIdNew.equals(subnetmapUpdate.getRouterId());
+            // call vpnSubnetRouteHandler.onSubnetIPv6AddedToExternalVpn(subnetmap, isBgpVpn, elanTag);
+            workdone2 = true;
+        }
+        // subnet removed from VPN case
+        else if (externalvpnIdOld != null && externalvpnIdNew == null) {
+            Boolean isBgpVpn = externalvpnIdOld.equals(subnetmapOriginal.getRouterId()) ? false : true;
+            vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmapOriginal, isBgpVpn);
+            // call vpnSubnetRouteHandler.onSubnetIPv6DeletedToExternalVpn(subnetmap, isBgpVpn, elanTag);
+            workdone2 = true;
+        }
+        // subnet updated in VPN case
+        else if (externalvpnIdOld != null && externalvpnIdNew != null && (!externalvpnIdNew.equals(externalvpnIdOld))) {
+            boolean isBeingAssociated = externalvpnIdNew.equals(subnetmapUpdate.getRouterId()) ? false : true;
+            // call vpnSubnetRouteHandler.onSubnetIPv6AddedToExternalVpn(subnetmap, isBgpVpn, elanTag);
+            workdone2 = true;
+        }
+        if (workdone2 == true && workdone1 == true) {
             return;
         }
         // port added/removed to/from subnet case
+        // change is related to port list. process it anyway
         List<Uuid> oldPortList;
         List<Uuid> newPortList;
         newPortList = subnetmapUpdate.getPortList() != null ? subnetmapUpdate.getPortList() : new ArrayList<>();

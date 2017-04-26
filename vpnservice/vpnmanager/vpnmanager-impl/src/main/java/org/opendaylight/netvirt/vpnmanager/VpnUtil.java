@@ -1215,6 +1215,12 @@ public class VpnUtil {
                             macAddresses.add(subnet.getRouterIntfMacAddress());
                         }
                     }
+                    if (subnet.getVpnExternalId() != null && subnet.getVpnExternalId().equals(Uuid.getDefaultInstance(vpnName))) {
+                        String routerIntfMacAddress = subnet.getRouterIntfMacAddress();
+                        if (routerIntfMacAddress != null && !routerIntfMacAddress.isEmpty()) {
+                            macAddresses.add(subnet.getRouterIntfMacAddress());
+                        }
+                    }
                 }
             }
         }
@@ -1710,6 +1716,19 @@ public class VpnUtil {
     static Boolean getIsExternal(Network network) {
         return network.getAugmentation(NetworkL3Extension.class) != null
                 && network.getAugmentation(NetworkL3Extension.class).isExternal();
+    }
+
+    /**
+     * returns vpn-id if found
+     * if more than one found, just return the first one
+     */
+    static Uuid IPv6NetworkHasExternalVpn(Subnetmap subnetmap) {
+	// check subnetmap is not an external network
+	// search router-id
+	// search for external network
+	// search for vpn-id associated to external network
+	// returns the first vpn-id
+        return null;
     }
 
     @SuppressWarnings("checkstyle:linelength")
