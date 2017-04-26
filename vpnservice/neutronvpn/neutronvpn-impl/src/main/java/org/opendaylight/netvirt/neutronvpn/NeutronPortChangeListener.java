@@ -263,15 +263,18 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             if (existingVpnId == null) {
                 for (FixedIps portIP : routerPort.getFixedIps()) {
                     Uuid vpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerId, true);
+                    Uuid externalvpnId = null;
                     if (vpnId == null) {
                         vpnId = routerId;
                     }
+                    // look for vpn associated to external network
+                    // if one, valorise externalvpnId;
                     // NOTE:  Please donot change the order of calls to updateSubnetNodeWithFixedIP
                     // and addSubnetToVpn here
                     String ipValue = String.valueOf(portIP.getIpAddress().getValue());
                     nvpnManager.updateSubnetNodeWithFixedIp(portIP.getSubnetId(), routerId,
                             routerPort.getUuid(), ipValue, routerPort.getMacAddress().getValue());
-                    nvpnManager.addSubnetToVpn(vpnId, portIP.getSubnetId());
+                    nvpnManager.addSubnetToVpn(vpnId, externalvpnId, portIP.getSubnetId());
                     nvpnNatManager.handleSubnetsForExternalRouter(routerId, dataBroker);
                     WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                     String portInterfaceName = createOfPortInterface(routerPort, wrtConfigTxn);
@@ -282,7 +285,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                             ipValue, routerPort.getMacAddress(),
                             routerPort.getUuid().getValue(), vpnId.getValue());
                     // ping responder for router interfaces
-                    nvpnManager.createVpnInterface(vpnId, routerId, routerPort, null);
+                    nvpnManager.createVpnInterface(vpnId, externalvpnId, routerId, routerPort, null);
                 }
             } else {
                 LOG.error("Neutron network {} corresponding to router interface port {} for neutron router {} already"
@@ -365,7 +368,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             if (vpnId != null) {
                 // create vpn-interface on this neutron port
                 LOG.debug("Adding VPN Interface for port {}", portName);
-                nvpnManager.createVpnInterface(vpnId, routerId, port, wrtConfigTxn);
+                // to check if externalvpnid must be changed
+                nvpnManager.createVpnInterface(vpnId, null, routerId, port, wrtConfigTxn);
             }
             futures.add(wrtConfigTxn.submit());
             return futures;
@@ -423,6 +427,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         portDataStoreCoordinator.enqueueJob("PORT- " + portupdate.getUuid().getValue(), () -> {
             WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
             Uuid vpnIdNew = null;
+            Uuid externalvpnIdNew = null;
             final Uuid subnetIdOr = portupdate.getFixedIps().get(0).getSubnetId();
             final Uuid subnetIdUp = portupdate.getFixedIps().get(0).getSubnetId();
             // check if subnet UUID has changed upon change in fixedIP
@@ -446,7 +451,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 nvpnManager.deleteVpnInterface(vpnIdNew, null, portupdate, wrtConfigTxn);
                 // create vpn-interface on this neutron port
                 LOG.debug("Adding VPN Interface for port {}", portupdate.getUuid().getValue());
-                nvpnManager.createVpnInterface(vpnIdNew, null, portupdate, wrtConfigTxn);
+                // a check should be done to know if external vpn is present
+                nvpnManager.createVpnInterface(vpnIdNew, externalvpnIdNew, null, portupdate, wrtConfigTxn);
             }
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(wrtConfigTxn.submit());

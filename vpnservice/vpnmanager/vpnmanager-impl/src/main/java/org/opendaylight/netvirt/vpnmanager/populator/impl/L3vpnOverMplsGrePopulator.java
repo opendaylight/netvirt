@@ -54,6 +54,8 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
     public void populateFib(L3vpnInput input, WriteTransaction writeConfigTxn, WriteTransaction writeOperTxn) {
         if (input.getRouteOrigin() == RouteOrigin.CONNECTED) {
             LOG.info("populateFib : Found SubnetRoute for subnet {} rd {}", input.getSubnetIp(), input.getPrimaryRd());
+            // new subnet
+	    // 
             addSubnetRouteFibEntry(input);
             return;
         }
@@ -64,6 +66,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         String rd = input.getRd();
         String nextHopIp = input.getNextHopIp();
         VrfEntry.EncapType encapType = input.getEncapType();
+	// new VM
         LOG.info("populateFib : Found Interface Adjacency with prefix {} rd {}", nextHop.getIpAddress(), primaryRd);
         List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnInterfaceManager.getVpnsImportingMyRoute(vpnName);
         long vpnId = VpnUtil.getVpnId(broker, vpnName);

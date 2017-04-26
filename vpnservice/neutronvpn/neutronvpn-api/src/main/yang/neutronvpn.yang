@@ -55,6 +55,11 @@ module neutronvpn {
                 description "VPN to which this subnet belongs";
             }
 
+            leaf vpn-external-id {
+                type    yang:uuid;
+                description "External VPN to which this subnet belongs";
+            }
+
             leaf-list port-list {
                 type yang:uuid;
             }

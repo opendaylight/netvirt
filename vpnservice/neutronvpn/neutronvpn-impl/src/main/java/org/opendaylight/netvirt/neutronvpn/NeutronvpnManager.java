@@ -656,7 +656,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
-    protected void createVpnInterface(Uuid vpnId, Uuid routerId, Port port,
+    protected void createVpnInterface(Uuid vpnId, Uuid externalvpnId, Uuid routerId, Port port,
                                       WriteTransaction wrtConfigTxn) {
         String infName = port.getUuid().getValue();
         List<Adjacency> adjList = new ArrayList<>();
@@ -683,11 +683,15 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             if (rtr != null && rtr.getRoutes() != null) {
                 List<Routes> routeList = rtr.getRoutes();
                 List<Adjacency> erAdjList = getAdjacencyforExtraRoute(vpnId, routeList, ipValue);
+                // should return the same list. hence do not keep it.
+		getAdjacencyforExtraRoute(externalvpnId, routeList, ipValue);
                 if (erAdjList != null && !erAdjList.isEmpty()) {
                     adjList.addAll(erAdjList);
                 }
             }
             NeutronvpnUtils.createVpnPortFixedIpToPort(dataBroker, vpnId.getValue(), ipValue, infName, port
+                            .getMacAddress().getValue(), isRouterInterface, wrtConfigTxn);
+            NeutronvpnUtils.createVpnPortFixedIpToPort(dataBroker, externalvpnId.getValue(), ipValue, infName, port
                             .getMacAddress().getValue(), isRouterInterface, wrtConfigTxn);
         }
         // create vpn-interface on this neutron port
@@ -1170,7 +1174,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         removeVpn(subnetId);
     }
 
-    protected void addSubnetToVpn(final Uuid vpnId, Uuid subnet) {
+    protected void addSubnetToVpn(final Uuid vpnId, Uuid externalvpnId, Uuid subnet) {
         LOG.debug("Adding subnet {} to vpn {}", subnet.getValue(), vpnId.getValue());
         Subnetmap sn = updateSubnetNode(subnet, null, vpnId);
         if (sn == null) {
@@ -1199,7 +1203,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 portDataStoreCoordinator.enqueueJob("PORT-" + portId.getValue(), () -> {
                     WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    createVpnInterface(vpnId, routerId, NeutronvpnUtils.getNeutronPort(dataBroker, portId),
+                    createVpnInterface(vpnId, externalvpnId, routerId, NeutronvpnUtils.getNeutronPort(dataBroker, portId),
                             wrtConfigTxn);
                     futures.add(wrtConfigTxn.submit());
                     return futures;
@@ -1622,7 +1626,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         List<Uuid> routerSubnets = NeutronvpnUtils.getNeutronRouterSubnetIds(dataBroker, routerId);
         LOG.debug("Adding subnets to internal vpn {}", vpnId.getValue());
         for (Uuid subnet : routerSubnets) {
-            addSubnetToVpn(vpnId, subnet);
+            addSubnetToVpn(vpnId, null, subnet);
         }
     }
 
@@ -1688,7 +1692,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                             // check if subnet added as router interface to some router
                             Uuid subnetVpnId = NeutronvpnUtils.getVpnForSubnet(dataBroker, subnet);
                             if (subnetVpnId == null) {
-                                addSubnetToVpn(vpn, subnet);
+                                addSubnetToVpn(vpn, null, subnet);
                                 passedNwList.add(nw);
                             } else {
                                 failedNwList.add(String.format("subnet %s already added as router interface bound to "
@@ -1697,6 +1701,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         }
                     }
                     if (NeutronvpnUtils.getIsExternal(network)) {
+                        // nvpnManager.AddExternalNetworkToVpn or make an equivalent of ExternalNetworkListener
                         nvpnNatManager.addExternalNetworkToVpn(network, vpn);
                     }
                 }
@@ -1736,6 +1741,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         }
                     }
                     if (NeutronvpnUtils.getIsExternal(network)) {
+                        // nvpnManager.AddExternalNetworkToVpn or make an equivalent of ExternalNetworkListener
                         nvpnNatManager.removeExternalNetworkFromVpn(network);
                     }
                 }
