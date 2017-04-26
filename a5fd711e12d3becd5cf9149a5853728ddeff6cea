@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_f0859e07",
+        "filename": "vpnservice/sfc/classifier/impl/src/test/java/org/opendaylight/netvirt/sfc/classifier/service/domain/impl/ConfigurationClassifierImplTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-04-26T16:39:01Z",
+      "side": 1,
+      "message": "personally I belive we should not be mocking the persistence framework when we write tests, see https://wiki.opendaylight.org/view/BestPractices/Tests#DataBroker",
+      "revId": "a5fd711e12d3becd5cf9149a5853728ddeff6cea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
