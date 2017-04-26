@@ -109,7 +109,7 @@ A new yang file shall be created for qos-alert configuration as specified below:
 Configuration impact
 ---------------------
 Following new parameters shall be made available as configuration. Initial or default configuration
-is specified in ``netvirt-qosalert-config.xml``
+is specified in ``netvirt-qosservice-config.xml``
 
 ======== =============================  ====================================================
   Sl No.  configuration                 Description
