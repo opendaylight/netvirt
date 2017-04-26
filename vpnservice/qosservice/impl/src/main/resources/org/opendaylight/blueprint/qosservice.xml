@@ -23,7 +23,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
     <odl:clustered-app-config id="qosalertConfig"
                               binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.qosalert.config.rev170301.QosalertConfig"
-                              default-config-file-name="netvirt-qosalert-config.xml"
+                              default-config-file-name="netvirt-qosservice-config.xml"
                               update-strategy="none">
     </odl:clustered-app-config>
 
@@ -50,5 +50,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         </command>
 
     </command-bundle>
+
+    <bean id="qosAlertGenerator" class="org.opendaylight.netvirt.qosservice.QosAlertGenerator">
+      <cm:managed-properties persistent-id="org.opendaylight.netvirt.qosservice"
+                           update-strategy="component-managed" update-method="update"/>
+    </bean>
 
 </blueprint>
