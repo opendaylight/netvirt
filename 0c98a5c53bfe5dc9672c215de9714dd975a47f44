@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_70508ed4",
+        "filename": "vpnservice/bgpmanager/bgpmanager-api/pom.xml",
+        "patchSetId": 12
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-26T16:16:53Z",
+      "side": 1,
+      "message": "I discussed with ODL community on IRC ( thanks Michael).\nHe informed me it was possible to simplify the libthrift dependency.\n\nBecause the libthrift dependency is mentioned also in bgpmanager-impl, and bgpmanager-impl has a dependency on bgpmanager-api, it could be possible to remove the dependency from bgpmanager-impl.\n\nIt makes more sense. otherwise this does not explain why pom.xml from natservice has not been refreshed with libthrift dependency.",
+      "range": {
+        "startLine": 37,
+        "startChar": 18,
+        "endLine": 37,
+        "endChar": 19
+      },
+      "revId": "0c98a5c53bfe5dc9672c215de9714dd975a47f44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
