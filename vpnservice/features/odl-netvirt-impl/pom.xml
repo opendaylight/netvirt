@@ -215,11 +215,19 @@
             <classifier>config</classifier>
         </dependency>
         <dependency>
-            <!-- finalname="etc/opendaylight/datastore/initial/config/netvirt-qosalert-config.xml" -->
+            <!-- finalname="etc/opendaylight/datastore/initial/config/netvirt-qosservice-config.xml" -->
             <groupId>${project.groupId}</groupId>
             <artifactId>qosservice-impl</artifactId>
             <version>${project.version}</version>
             <type>xml</type>
+            <classifier>config</classifier>
+        </dependency>
+        <dependency>
+            <!-- finalname="etc/org.opendaylight.netvirt.qosservice.cfg" -->
+            <groupId>${project.groupId}</groupId>
+            <artifactId>qosservice-impl</artifactId>
+            <version>${project.version}</version>
+            <type>cfg</type>
             <classifier>config</classifier>
         </dependency>
         <dependency>
