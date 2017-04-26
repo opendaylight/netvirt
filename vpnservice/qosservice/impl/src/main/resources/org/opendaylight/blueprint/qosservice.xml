@@ -51,4 +51,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
     </command-bundle>
 
+    <bean id="qosAlertGenerator" class="org.opendaylight.netvirt.qosservice.QosAlertGenerator">
+      <cm:managed-properties persistent-id="org.opendaylight.netvirt.qosalert"
+                           update-strategy="component-managed" update-method="update"/>
+    </bean>
+
 </blueprint>

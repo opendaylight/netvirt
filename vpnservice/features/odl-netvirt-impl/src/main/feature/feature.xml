@@ -27,6 +27,9 @@
         <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-qosalert-config.xml">
             mvn:org.opendaylight.netvirt/qosservice-impl/${project.version}/xml/config
         </configfile>
+        <configfile finalname="etc/org.opendaylight.netvirt.qosalert.cfg">
+            mvn:org.opendaylight.netvirt/qosservice-impl/{{VERSION}}/cfg/config
+        </configfile>
         <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-statistics-config.xml">
             mvn:org.opendaylight.netvirt/statistics-impl/${project.version}/xml/config
         </configfile>
