@@ -22,6 +22,30 @@
       "revId": "0c98a5c53bfe5dc9672c215de9714dd975a47f44",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_eabc86de",
+        "filename": "vpnservice/bgpmanager/bgpmanager-api/pom.xml",
+        "patchSetId": 12
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-04-27T03:23:38Z",
+      "side": 1,
+      "message": "Why was this not required earlier.. NATService was using Bgp for a long time, not just on this patch..\n\nNeeds to be furhter investigated.",
+      "parentUuid": "da01753e_70508ed4",
+      "range": {
+        "startLine": 37,
+        "startChar": 18,
+        "endLine": 37,
+        "endChar": 19
+      },
+      "revId": "0c98a5c53bfe5dc9672c215de9714dd975a47f44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
