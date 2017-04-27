@@ -16,6 +16,24 @@
       "revId": "2799e8a7d9d3ad41bb50675762b380d7b08abbc6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_837197e2",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/service/ClassifierService.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2017-04-27T10:09:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_f1fcb240",
+      "revId": "2799e8a7d9d3ad41bb50675762b380d7b08abbc6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
