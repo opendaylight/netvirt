@@ -10,4 +10,5 @@ package org.opendaylight.netvirt.qosservice;
 
 public class QosConstants {
     public static final int QOS_DEFAULT_FLOW_PRIORITY = 10;
+    public static final String QOS_ALERT_OWNER_ENTITY_TYPE = "netvirt-qosalert-owner-entity";
 }
