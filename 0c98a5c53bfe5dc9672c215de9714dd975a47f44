@@ -46,6 +46,30 @@
       "revId": "0c98a5c53bfe5dc9672c215de9714dd975a47f44",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_6a6ff62b",
+        "filename": "vpnservice/bgpmanager/bgpmanager-api/pom.xml",
+        "patchSetId": 12
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-27T06:07:52Z",
+      "side": 1,
+      "message": "- BGP manager impl has a dependency with thrift for a long time, since it uses pushRoute, etc...\n- BGP manager api has a new dependency with thrift since it uses AFI_IP.getValue() ( this is an enumerate from qbgp.thrift).\n\nAlso I understood that pom describes dependencies, and because natservice has bgpmanager-api as dependency, then nat service does not need to explicitly mention thrift dependency.",
+      "parentUuid": "da01753e_eabc86de",
+      "range": {
+        "startLine": 37,
+        "startChar": 18,
+        "endLine": 37,
+        "endChar": 19
+      },
+      "revId": "0c98a5c53bfe5dc9672c215de9714dd975a47f44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
