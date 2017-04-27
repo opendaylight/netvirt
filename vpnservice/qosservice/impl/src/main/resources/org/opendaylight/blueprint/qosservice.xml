@@ -18,6 +18,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
                interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
     <reference id="iNeutronVpnManager"
                interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" />
+    <reference id="entityOwnershipService"
+               interface="org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService" />
+
     <odl:rpc-service id="odlInterfaceRpcService"
                  interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService" />
 

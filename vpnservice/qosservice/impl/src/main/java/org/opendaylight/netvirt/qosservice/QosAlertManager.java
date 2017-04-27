@@ -123,6 +123,16 @@ public final class QosAlertManager implements Runnable {
         LOG.info("{} close done", getClass().getSimpleName());
     }
 
+    public void setQosAlertOwner(boolean isOwner) {
+        LOG.trace("qos alert set owner : {}", isOwner);
+        statsPollThreadStart = isOwner;
+        if (thread != null) {
+            thread.interrupt();
+        } else {
+            startStatsPollThread();
+        }
+    }
+
     @Override
     public void run() {
         LOG.info("Qos alert poll thread started");
