@@ -320,9 +320,9 @@ by Genius.
   cookie=0xf005ball00000101 table=100, n_packets=11, n_bytes=918,
       priority=550,nsp=42 actions=resubmit(,GENIUS_INGRESS_DISPATCHER_TABLE)
 
-    // Pkt does NOT have NSH, send to table 101 for further processing
+    // Pkt does NOT have NSH, send to GENIUS_INGRESS_DISPATCHER_TABLE
   cookie=0xf005ball00000102 table=100, n_packets=11, n_bytes=918,
-      priority=5 actions=goto_table:101
+      priority=5 actions=goto_table:GENIUS_INGRESS_DISPATCHER_TABLE
 
     // ACL match: if TCP port=80
     // Action: encapsulate NSH and set NSH NSP, NSI, C1, C2, first SFF
@@ -348,13 +348,13 @@ The following flows are an approximation of what the Egress Classifier
 service pipeline will look like. Notice there are 3 tables defined as
 follows:
 
-- table 110: Egress Classifier Filter table.
+- table 221: Egress Classifier Filter table.
    - Only allows NSH packets to proceed in the egress classifier
 
-- table 111: Egress Classifier NextHop table.
+- table 222: Egress Classifier NextHop table.
    - Set C1/C2 accordingly
 
-- table 112: Egress Classifier TransportEgress table.
+- table 223: Egress Classifier TransportEgress table.
    - Final egress processing and egress packets
    - Determines if the packet should go to a local or remote SFF
 
@@ -363,40 +363,40 @@ by Genius.
 
 .. code-block:: none
 
-    // If pkt has NSH, goto table 111 for more processing
-  cookie=0x14 table=110, n_packets=11, n_bytes=918,
-      priority=250,nsp=42
-      actions=goto_table:111
+    // If pkt has NSH, goto table 222 for more processing
+  cookie=0x14 table=221, n_packets=11, n_bytes=918,
+      priority=260,md_type=1
+      actions=goto_table:222
 
     // Pkt does not have NSH, send back to Egress Dispatcher
   cookie=0x14 table=110, n_packets=0, n_bytes=0,
-      priority=5
+      priority=250
       actions=resubmit(,GENIUS_EGRESS_DISPATCHER_TABLE)
 
 
     // Pkt has NSH, if NSH C1/C2 = 0, Set C1/C2 and overwrite TunIpv4Dst
-    // with SFF IP (Reg0) and send to table 112 for egress
-  cookie=0x14 table=111, n_packets=11, n_bytes=918,
+    // with SFF IP (Reg0) and send to table 223 for egress
+  cookie=0x14 table=222, n_packets=11, n_bytes=918,
       priority=260,nshc1=0,nshc2=0
       actions=load:NXM_NX_TUN_IPV4_DST[]->NXM_NX_NSH_C1[],
               load:NXM_NX_TUN_ID[]->NXM_NX_NSH_C2[],
               load:NXM_NX_REG0[]->NXM_NX_TUN_IPV4_DST[]
-              goto_table:112
+              goto_table:223
 
     // Pkt has NSH, but NSH C1/C2 aleady set,
-    // send to table 112 for egress
-  cookie=0x14 table=111, n_packets=11, n_bytes=918,
+    // send to table 223 for egress
+  cookie=0x14 table=222, n_packets=11, n_bytes=918,
       priority=250
-      actions=goto_table:112
+      actions=goto_table:223
 
 
     // Checks if the first SFF (IP stored in reg0) is on this node,
     // if so resubmit to SFC SFF service
-  cookie=0x14 table=112, n_packets=0, n_bytes=0,
+  cookie=0x14 table=223, n_packets=0, n_bytes=0,
       priority=260,nsp=42,reg0=0x0a00010b
-      actions=resubmit(SFC_SFF_PORT, GENIUS_INGRESS_DISPATCHER_TABLE)
+      actions=resubmit(, SFF_TRANSPORT_INGRESS_TABLE)
 
-  cookie=0x14 table=112, n_packets=0, n_bytes=0,
+  cookie=0x14 table=223, n_packets=0, n_bytes=0,
       priority=250,nsp=42
       actions=outport:6
 
