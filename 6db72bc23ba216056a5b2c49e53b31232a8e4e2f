@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_de0b448c",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-27T14:10:00Z",
+      "side": 1,
+      "message": "afi parameter should be kept here",
+      "range": {
+        "startLine": 219,
+        "startChar": 0,
+        "endLine": 219,
+        "endChar": 32
+      },
+      "revId": "6db72bc23ba216056a5b2c49e53b31232a8e4e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_bef00092",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-27T14:10:00Z",
+      "side": 1,
+      "message": "afi parameter should be kept here",
+      "range": {
+        "startLine": 227,
+        "startChar": 37,
+        "endLine": 227,
+        "endChar": 39
+      },
+      "revId": "6db72bc23ba216056a5b2c49e53b31232a8e4e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_7e4178a8",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/gen/BgpConfigurator.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-27T14:10:00Z",
+      "side": 1,
+      "message": "it is generated file\nthis file should not be reverted",
+      "range": {
+        "startLine": 15,
+        "startChar": 25,
+        "endLine": 15,
+        "endChar": 33
+      },
+      "revId": "6db72bc23ba216056a5b2c49e53b31232a8e4e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_9eed3cba",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/gen/BgpConfigurator.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-27T14:10:00Z",
+      "side": 1,
+      "message": "this file should not be reverted",
+      "range": {
+        "startLine": 123,
+        "startChar": 0,
+        "endLine": 123,
+        "endChar": 0
+      },
+      "revId": "6db72bc23ba216056a5b2c49e53b31232a8e4e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_fe2d68ff",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/gen/BgpUpdater.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-27T14:10:00Z",
+      "side": 1,
+      "message": "this file should not be reverted\nit is generated file",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 121
+      },
+      "revId": "6db72bc23ba216056a5b2c49e53b31232a8e4e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_1e394c41",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/gen/af_afi.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-27T14:10:00Z",
+      "side": 1,
+      "message": "this file should not be reverted\nit is generated file",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 0
+      },
+      "revId": "6db72bc23ba216056a5b2c49e53b31232a8e4e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_5e3e3429",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/server/BgpThriftService.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-27T14:10:00Z",
+      "side": 1,
+      "message": "it is generated file",
+      "range": {
+        "startLine": 26,
+        "startChar": 54,
+        "endLine": 26,
+        "endChar": 64
+      },
+      "revId": "6db72bc23ba216056a5b2c49e53b31232a8e4e2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
