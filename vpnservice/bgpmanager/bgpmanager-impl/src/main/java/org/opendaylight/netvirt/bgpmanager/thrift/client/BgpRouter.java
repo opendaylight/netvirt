@@ -211,8 +211,8 @@ public class BgpRouter {
                                 op.ethernetTag,
                                 op.esi,
                                 op.macAddress,
-                                op.l2label,
                                 op.l3label,
+                                op.l2label,
                                 op.thriftEncapType,
                                 op.routermac)
 
