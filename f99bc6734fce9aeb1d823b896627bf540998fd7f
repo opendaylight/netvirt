@@ -1,0 +1,262 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_23f7d0f6",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-28T15:59:45Z",
+      "side": 1,
+      "message": "[10] is missing in the References.",
+      "revId": "f99bc6734fce9aeb1d823b896627bf540998fd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_9ee09397",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-28T15:59:45Z",
+      "side": 1,
+      "message": "This is a bit confusing. Can you please clarify.\n\nA tenant network is a network that is behind a neutron router. When you say \"tenant network is connected to an external network\", I hope you mean to say that there is a Neutron router in between.",
+      "range": {
+        "startLine": 141,
+        "startChar": 2,
+        "endLine": 141,
+        "endChar": 85
+      },
+      "revId": "f99bc6734fce9aeb1d823b896627bf540998fd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_febeff63",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-28T15:59:45Z",
+      "side": 1,
+      "message": "and external network?",
+      "revId": "f99bc6734fce9aeb1d823b896627bf540998fd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_bea8f720",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-28T15:59:45Z",
+      "side": 1,
+      "message": "nit: connectivity",
+      "range": {
+        "startLine": 174,
+        "startChar": 58,
+        "endLine": 174,
+        "endChar": 69
+      },
+      "revId": "f99bc6734fce9aeb1d823b896627bf540998fd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_fe655f1e",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-28T15:59:45Z",
+      "side": 1,
+      "message": "nit: encapsulation",
+      "range": {
+        "startLine": 182,
+        "startChar": 63,
+        "endLine": 182,
+        "endChar": 75
+      },
+      "revId": "f99bc6734fce9aeb1d823b896627bf540998fd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_5e246bc4",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-28T15:59:45Z",
+      "side": 1,
+      "message": "Alignment is broken in the generated doc, please fix it.",
+      "revId": "f99bc6734fce9aeb1d823b896627bf540998fd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_7e796fc7",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-28T15:59:45Z",
+      "side": 1,
+      "message": "nit: distinguisher",
+      "range": {
+        "startLine": 234,
+        "startChar": 70,
+        "endLine": 234,
+        "endChar": 82
+      },
+      "revId": "f99bc6734fce9aeb1d823b896627bf540998fd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_1e3f83d7",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-28T15:59:45Z",
+      "side": 1,
+      "message": "Hope you meant the numbers (i.e., step-ids) here. Please update accordingly.",
+      "range": {
+        "startLine": 263,
+        "startChar": 16,
+        "endLine": 263,
+        "endChar": 33
+      },
+      "revId": "f99bc6734fce9aeb1d823b896627bf540998fd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_9e7c13b7",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-28T15:59:45Z",
+      "side": 1,
+      "message": "nit: combined",
+      "range": {
+        "startLine": 263,
+        "startChar": 41,
+        "endLine": 263,
+        "endChar": 49
+      },
+      "revId": "f99bc6734fce9aeb1d823b896627bf540998fd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_29afaf95",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-28T15:59:45Z",
+      "side": 1,
+      "message": "nit: mechanism",
+      "range": {
+        "startLine": 279,
+        "startChar": 50,
+        "endLine": 279,
+        "endChar": 58
+      },
+      "revId": "f99bc6734fce9aeb1d823b896627bf540998fd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_8997bb47",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-28T15:59:45Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 280,
+        "startChar": 21,
+        "endLine": 280,
+        "endChar": 29
+      },
+      "revId": "f99bc6734fce9aeb1d823b896627bf540998fd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_897e9b17",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-04-28T15:59:45Z",
+      "side": 1,
+      "message": "Normally we use the word subnet and not subnetwork. Is subnetwork used in the vpn context?",
+      "range": {
+        "startLine": 300,
+        "startChar": 39,
+        "endLine": 300,
+        "endChar": 49
+      },
+      "revId": "f99bc6734fce9aeb1d823b896627bf540998fd7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
