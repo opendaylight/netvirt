@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_7e04cf49",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-28T14:41:01Z",
+      "side": 1,
+      "message": "That is why I was asking for the number of VPN interfaces. If a VM with both IPv4/IPv6 connects to two routers, I see 3 VPN interfaces \n\n    1 for the VM standing for VM VPN service\n    1 for each router standing for L3 (router) VPN service",
+      "range": {
+        "startLine": 79,
+        "startChar": 60,
+        "endLine": 79,
+        "endChar": 93
+      },
+      "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
