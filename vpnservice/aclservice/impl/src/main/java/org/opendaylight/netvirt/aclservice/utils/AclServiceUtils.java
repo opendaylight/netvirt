@@ -1057,7 +1057,7 @@ public final class AclServiceUtils {
 
     public static boolean isOfAclInterest(Acl acl) {
         List<Ace> aceList = acl.getAccessListEntries().getAce();
-        if (aceList != null) {
+        if ((aceList != null) && !aceList.isEmpty()) {
             return (aceList.get(0).getAugmentation(SecurityRuleAttr.class) != null);
         }
         return false;
