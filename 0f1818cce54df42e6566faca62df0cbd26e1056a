@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "da01753e_34b0daf3",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-28T14:41:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_2356ebd2",
+      "range": {
+        "startLine": 47,
+        "startChar": 38,
+        "endLine": 47,
+        "endChar": 39
+      },
+      "revId": "0f1818cce54df42e6566faca62df0cbd26e1056a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_a3101b02",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 4
@@ -99,6 +123,30 @@
       "writtenOn": "2017-04-19T15:42:09Z",
       "side": 1,
       "message": "TODO: complete with a full proposal of yang changes",
+      "range": {
+        "startLine": 212,
+        "startChar": 0,
+        "endLine": 212,
+        "endChar": 0
+      },
+      "revId": "0f1818cce54df42e6566faca62df0cbd26e1056a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_d4a06ea1",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-04-28T14:41:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_a3593b00",
       "range": {
         "startLine": 212,
         "startChar": 0,
