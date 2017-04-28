@@ -130,8 +130,8 @@ public class BgpThriftService {
                                       int ethtag,
                                       String esi,
                                       String macaddress,
-                                      int l2label,
                                       int l3label,
+                                      int l2label,
                                       String routermac) {
             try {
                 LOGGER.debug("Update on push route : rd {} prefix {} plen {}", rd, prefix, plen);
@@ -162,8 +162,8 @@ public class BgpThriftService {
                                           int ethtag,
                                           String esi,
                                           String macaddress,
-                                          int l2label,
-                                          int l3label) {
+                                          int l3label,
+                                          int l2label) {
             LOGGER.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
             LOGGER.info("REMOVE: Removing Fib entry rd {} prefix {} nexthop {}", rd, prefix, nexthop);
             fibDSWriter.removeOrUpdateFibEntryFromDS(rd, prefix + "/" + plen, nexthop);
