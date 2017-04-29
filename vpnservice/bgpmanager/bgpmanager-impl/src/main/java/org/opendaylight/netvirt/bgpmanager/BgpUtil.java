@@ -34,7 +34,17 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.encap_type;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.BgpControlPlaneType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.EncapType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTeps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTepsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTepsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.EvpnRdToNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetwork;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetworkKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -174,7 +184,7 @@ public class BgpUtil {
             ExecutionException, TimeoutException {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = getVpnInstanceOpDataIdentifier(rd);
         Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = MDSALUtil.read(broker,
-                LogicalDatastoreType.OPERATIONAL, id);
+                LogicalDatastoreType.CONFIGURATION, id);
         if (vpnInstanceOpData.isPresent()) {
             return vpnInstanceOpData.get();
         }
@@ -185,5 +195,62 @@ public class BgpUtil {
         return InstanceIdentifier.builder(VpnInstanceOpData.class)
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd)).build();
     }
+
+    static String getElanNamefromRd(DataBroker broker, String rd)  {
+        InstanceIdentifier<EvpnRdToNetwork> id = getEvpnRdToNetworkIdentifier(rd);
+        Optional<EvpnRdToNetwork> evpnRdToNetworkOpData = MDSALUtil.read(broker,
+                LogicalDatastoreType.OPERATIONAL, id);
+        if (evpnRdToNetworkOpData.isPresent()) {
+            return evpnRdToNetworkOpData.get().getNetworkId();
+        }
+        return null;
+    }
+
+    public static InstanceIdentifier<EvpnRdToNetwork> getEvpnRdToNetworkIdentifier(String rd) {
+        return InstanceIdentifier.builder(EvpnRdToNetworks.class)
+                .child(EvpnRdToNetwork.class, new EvpnRdToNetworkKey(rd)).build();
+    }
+
+    public static void addTepToElanInstance(DataBroker broker, String rd, String tepIp) {
+        if (rd == null || tepIp == null) {
+            LOG.error("addTepToElanInstance : Null parameters returning");
+            return;
+        }
+        String elanName = getElanNamefromRd(broker, rd);
+        if (elanName == null) {
+            LOG.error("Elan null while processing RT2 for RD {}", rd);
+            return;
+        }
+        LOG.debug("Adding tepIp {} to elan {}", tepIp, elanName);
+        InstanceIdentifier<ExternalTeps> externalTepsId = getExternalTepsIdentifier(elanName, tepIp);
+        ExternalTepsBuilder externalTepsBuilder = new ExternalTepsBuilder();
+        ExternalTepsKey externalTepsKey = externalTepsId.firstKeyOf(ExternalTeps.class);
+        externalTepsBuilder.setKey(externalTepsKey);
+        externalTepsBuilder.setTepIp(externalTepsKey.getTepIp());
+        BgpUtil.update(dataBroker, LogicalDatastoreType.CONFIGURATION, externalTepsId, externalTepsBuilder.build());
+    }
+
+    public static void deleteTepFromElanInstance(DataBroker broker, String rd, String tepIp) {
+        if (rd == null || tepIp == null) {
+            LOG.error("deleteTepFromElanInstance : Null parameters returning");
+            return;
+        }
+        String elanName = getElanNamefromRd(broker, rd);
+        if (elanName == null) {
+            LOG.error("Elan null while processing RT2 withdraw for RD {}", rd);
+            return;
+        }
+        LOG.debug("Deleting tepIp {} from elan {}", tepIp, elanName);
+        InstanceIdentifier<ExternalTeps> externalTepsId = getExternalTepsIdentifier(elanName, tepIp);
+        BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, externalTepsId);
+    }
+
+    public static InstanceIdentifier<ExternalTeps> getExternalTepsIdentifier(String elanInstanceName, String tepIp) {
+        IpAddress tepAdress = (tepIp == null) ? null : new IpAddress(tepIp.toCharArray());
+        return InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class,
+                new ElanInstanceKey(elanInstanceName)).child(ExternalTeps.class,
+                new ExternalTepsKey(tepAdress)).build();
+    }
+
 }
 

@@ -338,6 +338,7 @@ public class BgpRouter {
                                        String nexthop,
                                        int label,
                                        int l3vni,
+                                       int l2vni,
                                        protocol_type protocolType,
                                        int ethtag,
                                        String esi,
@@ -354,6 +355,7 @@ public class BgpRouter {
         bop.ints[0] = label;
         if (protocolType.equals(protocol_type.PROTOCOL_EVPN) && encapType.equals(encap_type.VXLAN)) {
             bop.l3label = l3vni; //L3VPN Over VxLan
+            bop.l2label = l2vni;
         } else {
             bop.l3label = label; // L3VPN Over MPLSGRE
         }
