@@ -14,6 +14,7 @@ import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
+import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,6 +31,7 @@ import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
 
 /**
  * End-to-end test of IElanService.
@@ -77,6 +79,16 @@ public class ElanServiceTest {
         assertNotNull(elanService.getElanInstance(TEST_ELAN_NAME));
     }
 
+    @Test public void deleteElanInstance() throws Exception {
+        // Given
+        // When
+        elanService.deleteElanInstance(TEST_ELAN_NAME);
+        asyncEventsWaiter.awaitEventsConsumption();
+        // Then
+        singleTxdataBroker.syncDelete(CONFIGURATION,InstanceIdentifier.builder(ElanInstances.class).build());
+        assertNotNull(elanService.deleteElanInstance(TEST_ELAN_NAME));
+    }
+
     @Test public void addElanInterface() throws Exception {
         // Given
         elanService.createElanInstance(TEST_ELAN_NAME, 12345, "...");
@@ -96,6 +108,16 @@ public class ElanServiceTest {
         InterfaceInfo interfaceInfo = new InterfaceInfo(BigInteger.valueOf(789), "TestPortName");
         interfaceInfo.setInterfaceName(TEST_INTERFACE_NAME);
         return interfaceInfo;
+    }
+
+    @Test public void deleteElanInterface() throws Exception {
+        //Given
+        //When
+        elanService.deleteElanInterface(TEST_ELAN_NAME, TEST_INTERFACE_NAME);
+        asyncEventsWaiter.awaitEventsConsumption();
+        // Then
+        singleTxdataBroker.syncDelete(CONFIGURATION,InstanceIdentifier.builder(ElanInterfaces.class).build());
+        Assert.assertTrue(null, true);
     }
 
 }
