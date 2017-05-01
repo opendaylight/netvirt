@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_93081e2f",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1060,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-05-01T17:01:24Z",
+      "side": 1,
+      "message": "Could use aceList.isEmpty() as well.",
+      "revId": "d2f7549c8e1472f24ff2730ed3578c4b8f229a74",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
