@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_d6c0d42c",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-05-01T20:06:07Z",
+      "side": 1,
+      "message": "nitpicky, but the log doesn\u0027t say before after, but then lists the params as after and then before so it could be confusing.",
+      "revId": "a579f0dd7420449de422516663ba7695cfbeb1a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
