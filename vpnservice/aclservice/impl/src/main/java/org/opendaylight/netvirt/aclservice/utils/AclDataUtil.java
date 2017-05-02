@@ -8,12 +8,10 @@
 
 package org.opendaylight.netvirt.aclservice.utils;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,14 +44,17 @@ public class AclDataUtil {
     public synchronized void addOrUpdateAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
         for (Uuid acl : aclList) {
             List<AclInterface> interfaceList = aclInterfaceMap.get(acl);
-            if (interfaceList == null) {
+            if (interfaceList == null || interfaceList.isEmpty()) {
                 interfaceList = new ArrayList<>();
-                interfaceList.add(port);
             } else {
-                Set<AclInterface> interfacesSet = Sets.newHashSet(interfaceList);
-                interfacesSet.add(port);
-                interfaceList = Lists.newArrayList(interfacesSet);
+                for (Iterator<AclInterface> iterator = interfaceList.iterator();iterator.hasNext();) {
+                    AclInterface aclInterface = iterator.next();
+                    if (aclInterface.getInterfaceId().equals(port.getInterfaceId())) {
+                        iterator.remove();
+                    }
+                }
             }
+            interfaceList.add(port);
             aclInterfaceMap.put(acl, interfaceList);
         }
     }

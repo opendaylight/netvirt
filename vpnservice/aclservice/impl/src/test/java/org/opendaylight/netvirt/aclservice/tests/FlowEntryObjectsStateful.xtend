@@ -52,7 +52,6 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedConntrackIngressFlowsPort2
         + etherIngressFlowsPort2
         + etherIngressFlowsPort2
-        + etherIngressFlowsPort2
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + etheregressFlowPort2
@@ -72,7 +71,6 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedConntrackEgressFlowsPort2
         + tcpEgressFlowPort2
         + tcpEgressFlowPort2
-        + tcpEgressFlowPort2
         + remoteFlows
     }
 
@@ -84,7 +82,6 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + udpEgressFlowsPort1
         + fixedIngressFlowsPort2
         + fixedConntrackIngressFlowsPort2
-        + udpIngressFlowsPort2
         + udpIngressFlowsPort2
         + udpIngressFlowsPort2
         + fixedEgressFlowsPort2
@@ -104,7 +101,6 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + icmpIngressFlowsPort2
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
-        + icmpEgressFlowsPort2
         + icmpEgressFlowsPort2
         + icmpEgressFlowsPort2
         + remoteFlows
@@ -146,6 +142,178 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         icmpFlows()
         + aapRemoteFlowsPort1
         + aapFlowsPort2
+    }
+
+    protected def multipleAcl() {
+          fixedIngressFlowsPort1
+        + fixedConntrackIngressFlowsPort1
+        + fixedEgressFlowsPort1
+        + fixedConntrackEgressFlowsPort1
+        + etherEgressFlowsPort1
+        + etherEgressFlowsPort1
+        + etherEgressFlowsPort1
+        + fixedIngressFlowsPort2
+        + fixedConntrackIngressFlowsPort2
+        + etherIngressFlowsPort2
+        + etherIngressFlowsPort2
+        + etherIngressFlowsPort2
+        + fixedEgressFlowsPort2
+        + fixedConntrackEgressFlowsPort2
+        + etheregressFlowPort2
+        + remoteFlows
+        + remoteIngressFlowsPort2
+        + remoteEgressFlowsPort2
+        + fixedEgressArpFlowsPort1()
+        + fixedEgressArpFlowsPort2()
+        + tcpEgressFlowPort2WithRemoteIpSg
+        + tcpIngressFlowPort1WithMultipleSG
+        + tcpIngressFlowPort1WithMultipleSG
+        + etherIngressFlowsPort1WithRemoteIpSg()
+        + etherIngressFlowsPort1WithRemoteIpSg()
+        + etherIngressFlowsPort2WithRemoteIpSg()
+    }
+
+    protected def etherIngressFlowsPort1WithRemoteIpSg() {
+        val theFlowId ="ETHERnull_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F3_10.0.0.1/32"
+                        +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = theFlowId
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Source("10.0.0.1", "32"),
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(33L, 33L)
+                ]
+                priority = IdHelper.getId(theFlowId)
+                tableId = 243 as short
+            ]
+        ]
+    }
+
+    protected def etherIngressFlowsPort2WithRemoteIpSg() {
+        val theFlowId = "ETHERnull_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.2/32"
+                        +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = theFlowId
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Source("10.0.0.2", "32"),
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(33L, 33L)
+                ]
+                priority = IdHelper.getId(theFlowId)
+                tableId = 243 as short
+            ]
+        ]
+    }
+
+    protected def tcpEgressFlowPort2WithRemoteIpSg() {
+        val theFlowId1 ="TCP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F3_10.0.0.1/32"
+                        +"Egress98785cc3048-abc3-43cc-89b3-377341426a21"
+        val theFlowId2 = "TCP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.2/32"
+                        +"Egress98785cc3048-abc3-43cc-89b3-377341426a21"
+        #[
+             new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = theFlowId1
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Destination("10.0.0.1", "32"),
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
+                    new NxMatchTcpDestinationPort(80, 65535),
+                    new MatchIpProtocol(6 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchCtState(33L, 33L)
+                ]
+                priority = IdHelper.getId(theFlowId1)
+                tableId = 213 as short
+            ],
+             new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = theFlowId2
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Destination("10.0.0.2", "32"),
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
+                    new NxMatchTcpDestinationPort(80, 65535),
+                    new MatchIpProtocol(6 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchCtState(33L, 33L)
+                ]
+                priority = IdHelper.getId(theFlowId2)
+                tableId = 213 as short
+            ]
+        ]
+    }
+
+     protected def tcpIngressFlowPort1WithMultipleSG() {
+        val theFlowId = "TCP_DESTINATION_80_65535Ingress98785cc3048-abc3-43cc-89b3-377341426a22"
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = theFlowId
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
+                    new NxMatchTcpDestinationPort(80, 65535),
+                    new MatchIpProtocol(6 as short),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(33L, 33L)
+                ]
+                priority = IdHelper.getId(theFlowId)
+                tableId = 243 as short
+            ]
+        ]
     }
 
     protected def aapIpv4AllFlowsPort2() {

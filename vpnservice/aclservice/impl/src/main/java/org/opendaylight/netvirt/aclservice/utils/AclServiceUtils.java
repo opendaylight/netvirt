@@ -558,10 +558,6 @@ public final class AclServiceUtils {
         MatchInfoBase ipv6Match = MatchEthernetType.IPV6;
         for (String flowName : flowMatchesMap.keySet()) {
             List<MatchInfoBase> flows = flowMatchesMap.get(flowName);
-
-            List<MatchInfoBase> matchInfoBaseList = addFlowMatchForAclId(remoteAclId, flows);
-            String flowId = flowName + "_remoteACL_id_" + remoteAclId.getValue();
-            updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
             for (AclInterface port : interfaceList) {
                 if (port.getInterfaceId().equals(ignoreInterfaceId)) {
                     continue;
@@ -572,12 +568,17 @@ public final class AclServiceUtils {
                             "port {} is in only one SG. "
                                     + "Doesn't adding it's IPs {} to matches (handled in acl id match)",
                             port.getLPortTag(), port.getAllowedAddressPairs());
+                    List<MatchInfoBase> matchInfoBaseList = addFlowMatchForAclId(remoteAclId, flows);
+                    String flowId = flowName + "_remoteACL_id_" + remoteAclId.getValue();
+                    updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
                     continue;
                 }
                 // get allow address pair
                 List<AllowedAddressPairs> allowedAddressPair = port.getAllowedAddressPairs();
                 // iterate over allow address pair and update match type
                 for (AllowedAddressPairs aap : allowedAddressPair) {
+                    List<MatchInfoBase> matchInfoBaseList;
+                    String flowId;
                     if (flows.contains(ipv4Match) && isIPv4Address(aap) && isNotIpv4AllNetwork(aap)) {
                         matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
                         flowId = flowName + "_ipv4_remoteACL_interface_aap_" + getAapFlowId(aap);
