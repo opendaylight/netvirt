@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "ba068154_79b0fbdd",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-02T08:51:31Z",
+      "side": 1,
+      "message": "This is not the correct statement.  This is a premise and its already a working premise in ODL.",
+      "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_99c67f48",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-02T08:51:31Z",
+      "side": 1,
+      "message": "This is the right problem..  Please put this first in the Problem description and little bit elaborate.\n\nSomething like:\\\n\nAs part of this Spec, we would like to support neutron ports that belong to multiple subnets specifically where one subnet is IPv4 and other subnet is IPv6.   We would like",
+      "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_7e04cf49",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 7
@@ -19,6 +53,75 @@
         "endLine": 79,
         "endChar": 93
       },
+      "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_b0aef8e5",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-02T08:51:31Z",
+      "side": 1,
+      "message": "How it is 3 VPN Interfaces..  It is 2 VPN Interfaces:\n\n1. One for 1st Router for that vpn interface.\n\n2. One for 2nd Router for that same vpn interface.\n\nWhen both the routers are associted to a  given VPN, then again\n1. One vpn Interface in teh BGPVPN representing the presence of that interface on the 1st Router.\n2. One vpn interface in the BGPVPN representing teh presence of that interface on the 2nd Router",
+      "parentUuid": "da01753e_7e04cf49",
+      "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_79411b0b",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-02T08:51:31Z",
+      "side": 1,
+      "message": "user must create an internet VPN",
+      "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_79991b6e",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-02T08:51:31Z",
+      "side": 1,
+      "message": "In the dataplane,",
+      "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_599ed757",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-02T08:51:31Z",
+      "side": 1,
+      "message": "why should we have differentIPv4 and IPv6 vrf tables when both such entries are part of the same L3VPN?",
       "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
