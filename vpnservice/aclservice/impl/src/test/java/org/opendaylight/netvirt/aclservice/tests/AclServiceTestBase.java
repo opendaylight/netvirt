@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.aclservice.tests;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 import static org.opendaylight.netvirt.aclservice.tests.StateInterfaceBuilderHelper.putNewStateInterface;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -159,6 +160,65 @@ public abstract class AclServiceTestBase {
     }
 
     abstract void newInterfaceWithEtherTypeAclCheck();
+
+    @Test
+    public void newInterfaceWithMultipleAcl() throws Exception {
+        LOG.info("newInterfaceWithEtherTypeAcl - start");
+
+        newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
+        newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_2));
+
+        Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
+                AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_UNSPECIFIED,
+                AclConstants.DEST_UPPER_PORT_UNSPECIFIED, AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED,
+                AclConstants.DEST_REMOTE_IP_PREFIX_SPECIFIED, (short) -1);
+        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_1)
+                .newMatches(matches).newDirection(DirectionEgress.class).build());
+        matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED, AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED,
+                AclConstants.DEST_LOWER_PORT_UNSPECIFIED, AclConstants.DEST_UPPER_PORT_UNSPECIFIED,
+                AclConstants.SOURCE_REMOTE_IP_PREFIX_SPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_UNSPECIFIED,
+                (short) -1);
+        dataBrokerUtil.put(
+                ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_2).newMatches(matches)
+                        .newDirection(DirectionIngress.class).newRemoteGroupId(new Uuid(SG_UUID_1)).build());
+        // When
+        putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
+        putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
+
+        AclServiceTestUtils.waitABit(asyncEventsWaiter);
+
+        // Then
+        newInterfaceWithEtherTypeAclCheck();
+
+        LOG.info("newInterfaceWithEtherTypeAcl - end");
+
+        // Given
+        matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
+                AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_HTTP,
+                AclConstants.DEST_UPPER_PORT_HTTP, AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED,
+                AclConstants.DEST_REMOTE_IP_PREFIX_SPECIFIED, (short) NwConstants.IP_PROT_TCP);
+        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_2).newRuleName(SR_UUID_2_1)
+                .newMatches(matches).newDirection(DirectionEgress.class).newRemoteGroupId(new Uuid(SG_UUID_2)).build());
+        matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED, AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED,
+                AclConstants.DEST_LOWER_PORT_HTTP, AclConstants.DEST_UPPER_PORT_HTTP,
+                AclConstants.SOURCE_REMOTE_IP_PREFIX_SPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_UNSPECIFIED,
+                (short) NwConstants.IP_PROT_TCP);
+
+        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_2).newRuleName(SR_UUID_2_2)
+                .newMatches(matches).newDirection(DirectionIngress.class).build());
+        List<String> sgList = new ArrayList<>();
+        sgList.add(SG_UUID_1);
+        sgList.add(SG_UUID_2);
+        newAllowedAddressPair(PORT_1, sgList, Collections.singletonList(AAP_PORT_1));
+        newAllowedAddressPair(PORT_2, sgList, Collections.singletonList(AAP_PORT_2));
+
+        AclServiceTestUtils.waitABit(asyncEventsWaiter);
+        newInterfaceWithMultipleAclCheck();
+        Thread.sleep(10000);
+
+    }
+
+    abstract void newInterfaceWithMultipleAclCheck();
 
     @Test
     public void newInterfaceWithTcpDstAcl() throws Exception {
