@@ -128,6 +128,12 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                     LOG.error("AS specific part of RD should not be same as that defined by DC Admin");
                     return;
                 }
+                List<String> existingRDs = NeutronvpnUtils.getExistingRDs(dataBroker);
+                if (!Collections.disjoint(existingRDs, rd)) {
+                    LOG.error("Failed to create VPN {} as another VPN with the same RD {} already exists.",
+                            input.getUuid().getValue(), rd);
+                    return;
+                }
                 Uuid router = null;
                 if (input.getRouters() != null && !input.getRouters().isEmpty()) {
                     // currently only one router
