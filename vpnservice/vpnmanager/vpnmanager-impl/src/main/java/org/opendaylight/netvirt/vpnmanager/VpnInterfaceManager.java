@@ -298,7 +298,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     // However, if the primary VRF Entry for this VPNInterface exists, please continue bailing out !
                     List<Adjacency> adjs = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker, interfaceName);
                     if (adjs == null) {
-                        LOG.info(
+                        LOG.error(
                                 "VPN Interface {} addition failed as adjacencies for this vpn interface could not be "
                                         + "obtained", interfaceName);
                         return;
@@ -310,7 +310,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         }
                     }
                     if (primaryInterfaceIp == null) {
-                        LOG.info("VPN Interface {} addition failed as primary adjacency "
+                        LOG.error("VPN Interface {} addition failed as primary adjacency "
                                 + "for this vpn interface could not be obtained", interfaceName);
                         return;
                     }
@@ -318,12 +318,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     String primaryRd = VpnUtil.getPrimaryRd(dataBroker, opVpnName);
                     VrfEntry vrf = VpnUtil.getVrfEntry(dataBroker, primaryRd, primaryInterfaceIp);
                     if (vrf != null) {
-                        LOG.info("VPN Interface {} already provisioned , bailing out from here.", interfaceName);
+                        LOG.error("VPN Interface {} already provisioned , bailing out from here.", interfaceName);
                         return;
                     }
                     waitForVpnInterfaceOpRemoval = true;
                 } else {
-                    LOG.info("vpn interface {} to go to configured vpn {}, but in operational vpn {}",
+                    LOG.error("vpn interface {} to go to configured vpn {}, but in operational vpn {}",
                             interfaceName, vpnName, opVpnName);
                 }
             }
@@ -1940,7 +1940,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         unprocessedVpnInterfaces.put(vpnInterface.getVpnInstanceName(), vpnInterfaces);
     }
 
-    private boolean isVpnInstanceReady(String vpnInstanceName) {
+    public boolean isVpnInstanceReady(String vpnInstanceName) {
         String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnInstanceName);
         if (vpnRd == null) {
             return false;
