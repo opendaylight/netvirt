@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_c4f77e8b",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-02T10:19:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_79b0fbdd",
+      "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_99c67f48",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2017-05-02T08:51:31Z",
       "side": 1,
       "message": "This is the right problem..  Please put this first in the Problem description and little bit elaborate.\n\nSomething like:\\\n\nAs part of this Spec, we would like to support neutron ports that belong to multiple subnets specifically where one subnet is IPv4 and other subnet is IPv6.   We would like",
+      "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_64033274",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-02T10:19:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_99c67f48",
       "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -77,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_a4919a54",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-02T10:19:42Z",
+      "side": 1,
+      "message": "can you please clarify ?\nI was thinking that if a VM is new, then a new VPN interface is present.\nI was thinking the VPN interface is the entry point of the VPN ( that is to say from VM to Router).\n\nCan you please confirm that on a case where 10 VM are connected to a router associated to a VPN, there is only 1 VPN interface ?",
+      "parentUuid": "ba068154_b0aef8e5",
+      "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_79411b0b",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 7
@@ -88,6 +142,24 @@
       "writtenOn": "2017-05-02T08:51:31Z",
       "side": 1,
       "message": "user must create an internet VPN",
+      "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_44a1cea8",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-02T10:19:42Z",
+      "side": 1,
+      "message": "I will replace ECM with user.\nThis is more clear.",
+      "parentUuid": "ba068154_79411b0b",
       "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -111,6 +183,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_24a64ac2",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-02T10:19:42Z",
+      "side": 1,
+      "message": "the pipeline explanation is associated to dataplane changes.",
+      "parentUuid": "ba068154_79991b6e",
+      "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_599ed757",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 7
@@ -122,6 +212,24 @@
       "writtenOn": "2017-05-02T08:51:31Z",
       "side": 1,
       "message": "why should we have differentIPv4 and IPv6 vrf tables when both such entries are part of the same L3VPN?",
+      "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_c4949e46",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-02T10:19:42Z",
+      "side": 1,
+      "message": "this is an implementation choice:\non fib-manager, there is one single table that hosts IPv4 and IPv6 entries.\non QBGP, for each VRF instance, ther is one table for IPv4 and one table for IPv6.\n\nThe idea behind the API addVRF() is to initialise only the necessary table in QBGP, that is to say either IPv4 or IPV6.",
+      "parentUuid": "ba068154_599ed757",
       "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
