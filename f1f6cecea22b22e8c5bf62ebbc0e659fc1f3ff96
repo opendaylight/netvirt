@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da01753e_d8ab5373",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-02T08:51:31Z",
+      "side": 1,
+      "message": "The tunnel is going to be of IPV4 type only regardless of whether IPV6 (or) IPV4 overlay traffic is carried.  So, just use \"MPLSOverGRE tunnel\"  without mentioning address types.",
+      "revId": "f1f6cecea22b22e8c5bf62ebbc0e659fc1f3ff96",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
