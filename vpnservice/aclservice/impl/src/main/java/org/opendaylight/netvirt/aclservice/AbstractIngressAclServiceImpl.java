@@ -254,11 +254,11 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
     }
 
     protected short getIngressAclFilterTable() {
-        return NwConstants.INGRESS_ACL_FILTER_TABLE;
+        return NwConstants.EGRESS_ACL_FILTER_TABLE;
     }
 
     protected short getIngressAclRemoteAclTable() {
-        return NwConstants.INGRESS_ACL_REMOTE_ACL_TABLE;
+        return NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE;
     }
 
     @Override
@@ -269,7 +269,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
                 continue;
             }
             List<MatchInfoBase> flowMatches = new ArrayList<>();
-            flowMatches.addAll(AclServiceUtils.buildIpAndElanDstMatch(elanTag, ip, dataBroker));
+            flowMatches.addAll(AclServiceUtils.buildIpAndElanSrcMatch(elanTag, ip, dataBroker));
 
             List<InstructionInfo> instructions = new ArrayList<>();
 
