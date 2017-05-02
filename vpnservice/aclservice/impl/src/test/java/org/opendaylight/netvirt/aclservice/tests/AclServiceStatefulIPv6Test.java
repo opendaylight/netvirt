@@ -73,4 +73,9 @@ public class AclServiceStatefulIPv6Test extends AclServiceTestBaseIPv6 {
         // TODO: To be handled
 
     }
+
+    @Override
+    void newInterfaceWithMultipleAclCheck() {
+     // Not applicable as it is handled in IPv4 testing
+    }
 }
