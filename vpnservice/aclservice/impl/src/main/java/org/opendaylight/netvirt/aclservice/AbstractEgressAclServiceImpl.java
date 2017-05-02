@@ -228,7 +228,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     protected void writeCurrentAclForRemoteAcls(Uuid acl, int addOrRemove, Long elanTag, AllowedAddressPairs ip,
             BigInteger aclId) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
-        flowMatches.addAll(AclServiceUtils.buildIpAndElanSrcMatch(elanTag, ip, dataBroker));
+        flowMatches.addAll(AclServiceUtils.buildIpAndElanDstMatch(elanTag, ip, dataBroker));
 
         List<InstructionInfo> instructions = new ArrayList<>();
 
@@ -251,11 +251,11 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     }
 
     protected short getEgressAclFilterTable() {
-        return NwConstants.EGRESS_ACL_FILTER_TABLE;
+        return NwConstants.INGRESS_ACL_FILTER_TABLE;
     }
 
     protected short getEgressAclRemoteAclTable() {
-        return NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE;
+        return NwConstants.INGRESS_ACL_REMOTE_ACL_TABLE;
     }
 
     @Override

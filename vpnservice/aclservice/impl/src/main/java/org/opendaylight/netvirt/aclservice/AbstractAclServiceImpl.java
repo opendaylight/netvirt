@@ -136,8 +136,6 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         } else if (isPortSecurityEnable) {
             // Acls has been updated, find added/removed Acls and act accordingly.
             processInterfaceUpdate(portBefore, portAfter);
-            updateRemoteAclFilterTable(portBefore, NwConstants.DEL_FLOW);
-            updateRemoteAclFilterTable(portAfter, NwConstants.ADD_FLOW);
         }
 
         return result;
@@ -169,11 +167,13 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         // So we need to remove all rules and install them from 0, and we cannot handle only the delta.
         updateCustomRules(dpId, portAfter.getLPortTag(), portBefore.getSecurityGroups(), NwConstants.DEL_FLOW,
                 portAfter.getInterfaceId(), portAfter.getAllowedAddressPairs());
+        updateRemoteAclFilterTable(portBefore, NwConstants.DEL_FLOW);
 
         updateAclInterfaceInCache(portAfter);
 
         updateCustomRules(dpId, portAfter.getLPortTag(), portAfter.getSecurityGroups(), NwConstants.ADD_FLOW,
                 portAfter.getInterfaceId(), portAfter.getAllowedAddressPairs());
+        updateRemoteAclFilterTable(portAfter, NwConstants.ADD_FLOW);
     }
 
     private void updateAclInterfaceInCache(AclInterface aclInterfaceNew) {
