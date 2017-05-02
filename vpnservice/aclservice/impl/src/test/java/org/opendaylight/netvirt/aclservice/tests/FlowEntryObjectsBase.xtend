@@ -303,7 +303,13 @@ class FlowEntryObjectsBase {
                 ]
                 priority = 63010
                 tableId = 211 as short
-            ],
+            ]
+        ] + fixedEgressArpFlowsPort1
+
+    }
+
+     protected def fixedEgressArpFlowsPort1() {
+        #[
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
@@ -322,9 +328,8 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ]
-        ]
+       ]
     }
-
 
      protected def fixedIngressFlowsPort2() {
         #[
@@ -593,8 +598,13 @@ class FlowEntryObjectsBase {
                 ]
                 priority = 63010
                 tableId = 211 as short
-            ],
-            new FlowEntityBuilder >> [
+            ]
+        ] + fixedEgressArpFlowsPort2
+    }
+
+    protected def fixedEgressArpFlowsPort2() {
+        #[
+           new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F4"
@@ -612,8 +622,7 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 211 as short
             ]
-        ]
-
+       ]
     }
 
      protected def fixedIngressFlowsPort3() {
@@ -1249,7 +1258,7 @@ class FlowEntryObjectsBase {
         new FlowEntityBuilder >> [
                 dpnId = 123bi
             cookie = 110100480bi
-            flowId = "Acl_Filter_Ingress_" + ip + "/32_5000"
+            flowId = "Acl_Filter_Egress_" + ip + "/32_5000"
             flowName = "ACL"
             instructionInfoList = #[
                 new InstructionWriteMetadata(4bi, 16777214bi),
@@ -1269,7 +1278,7 @@ class FlowEntryObjectsBase {
         new FlowEntityBuilder >> [
                 dpnId = 123bi
             cookie = 110100480bi
-            flowId = "Acl_Filter_Egress_" + ip + "/32_5000"
+            flowId = "Acl_Filter_Ingress_" + ip + "/32_5000"
             flowName = "ACL"
             instructionInfoList = #[
                 new InstructionWriteMetadata(4bi, 16777214bi),
