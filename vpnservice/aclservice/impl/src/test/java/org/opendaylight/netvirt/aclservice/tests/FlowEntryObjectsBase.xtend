@@ -1249,7 +1249,7 @@ class FlowEntryObjectsBase {
         new FlowEntityBuilder >> [
                 dpnId = 123bi
             cookie = 110100480bi
-            flowId = "Acl_Filter_Ingress_" + ip + "/32_5000"
+            flowId = "Acl_Filter_Egress_" + ip + "/32_5000"
             flowName = "ACL"
             instructionInfoList = #[
                 new InstructionWriteMetadata(4bi, 16777214bi),
@@ -1269,7 +1269,7 @@ class FlowEntryObjectsBase {
         new FlowEntityBuilder >> [
                 dpnId = 123bi
             cookie = 110100480bi
-            flowId = "Acl_Filter_Egress_" + ip + "/32_5000"
+            flowId = "Acl_Filter_Ingress_" + ip + "/32_5000"
             flowName = "ACL"
             instructionInfoList = #[
                 new InstructionWriteMetadata(4bi, 16777214bi),

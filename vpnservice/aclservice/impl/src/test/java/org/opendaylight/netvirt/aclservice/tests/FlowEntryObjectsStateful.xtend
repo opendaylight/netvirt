@@ -52,7 +52,6 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedConntrackIngressFlowsPort2
         + etherIngressFlowsPort2
         + etherIngressFlowsPort2
-        + etherIngressFlowsPort2
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + etheregressFlowPort2
@@ -72,7 +71,6 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedConntrackEgressFlowsPort2
         + tcpEgressFlowPort2
         + tcpEgressFlowPort2
-        + tcpEgressFlowPort2
         + remoteFlows
     }
 
@@ -84,7 +82,6 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + udpEgressFlowsPort1
         + fixedIngressFlowsPort2
         + fixedConntrackIngressFlowsPort2
-        + udpIngressFlowsPort2
         + udpIngressFlowsPort2
         + udpIngressFlowsPort2
         + fixedEgressFlowsPort2
@@ -104,7 +101,6 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + icmpIngressFlowsPort2
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
-        + icmpEgressFlowsPort2
         + icmpEgressFlowsPort2
         + icmpEgressFlowsPort2
         + remoteFlows
