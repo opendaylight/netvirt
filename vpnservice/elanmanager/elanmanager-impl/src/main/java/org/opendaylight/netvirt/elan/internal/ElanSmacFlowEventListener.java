@@ -21,6 +21,7 @@ import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.FlowAdded;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.FlowRemoved;
@@ -117,8 +118,10 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 ListenableFuture<Void> writeResult = tx.submit();
                 addCallBack(writeResult, srcMacAddress);
                 ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
-                evpnUtils.withdrawPrefix(elanInstance,
-                        existingInterfaceMacEntry.get().getIpPrefix().getIpv4Address().getValue());
+                IpAddress IpAddress = existingInterfaceMacEntry.get().getIpPrefix();
+                if (IpAddress != null) {
+                    evpnUtils.withdrawPrefix(elanInstance, IpAddress.getIpv4Address().getValue());
+                }
             }
         }
     }
