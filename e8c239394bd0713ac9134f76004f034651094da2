@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ba068154_b7cd4760",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-03T10:16:52Z",
+      "side": 1,
+      "message": "clarification.\nthere will be 2 entries available for the same VM in each VPN.\nAs the 2 entries are inherited from the same information, there will be one single tunnel that will connect between DC-GW and compute node.",
+      "parentUuid": "fafc7978_dc61aea9",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 64
+      },
+      "revId": "e8c239394bd0713ac9134f76004f034651094da2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5cf49ece",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "ba068154_1777f303",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-03T10:16:52Z",
+      "side": 1,
+      "message": "The 2 workflow cases you describe are updated.\n\nI did not precise how the internet VPN was used. Indeed, I intend to attach to a network ( external or not).\n\n- About the another workflow, I guess I am on the case that should be solved by solution 2 ( ie associating vpn to external network from a router). right ?",
+      "parentUuid": "fafc7978_5cf49ece",
+      "range": {
+        "startLine": 128,
+        "startChar": 2,
+        "endLine": 138,
+        "endChar": 67
+      },
+      "revId": "e8c239394bd0713ac9134f76004f034651094da2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9cc3a656",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2017-05-03T04:24:36Z",
       "side": 1,
       "message": "It is better to make it explicit that this must be done only for those Router/VPNs that have external network connectivity. For VPNs without external network connectivity, it is expected that the match fails and hte packet is dropped.",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 184,
+        "endChar": 27
+      },
+      "revId": "e8c239394bd0713ac9134f76004f034651094da2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_5795fbe2",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-03T10:16:52Z",
+      "side": 1,
+      "message": "You mean a condition should be added:\n- if there is no external connectivity for the router, and a VPN associated, then the mechanism will not apply.\n\nNote that the mechanism does not apply for IPv4 too.",
+      "parentUuid": "fafc7978_9cc3a656",
       "range": {
         "startLine": 178,
         "startChar": 0,
@@ -105,6 +177,30 @@
       "writtenOn": "2017-04-10T12:27:33Z",
       "side": 1,
       "message": "I changed the rule:\nL3 FIB Table (21) ``match: dl_type\u003d0x806, vpn-id\u003dl3vpn-id, set vpn-id\u003dinternetvpn-id, resubmit(,21) \u003d\u003e\n\nI hope it clarifies.",
+      "parentUuid": "da01753e_42e532a7",
+      "range": {
+        "startLine": 210,
+        "startChar": 89,
+        "endLine": 210,
+        "endChar": 90
+      },
+      "revId": "e8c239394bd0713ac9134f76004f034651094da2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_379af714",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-03T10:16:52Z",
+      "side": 1,
+      "message": "Done",
       "parentUuid": "da01753e_42e532a7",
       "range": {
         "startLine": 210,
