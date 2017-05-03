@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.bgpmanager.oam;
 
+import static org.opendaylight.netvirt.bgpmanager.oam.BgpCounters.parseIpBgpVpnv4AllSummary;
+import static org.opendaylight.netvirt.bgpmanager.oam.BgpCounters.resetFile;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -32,26 +35,19 @@ public class BgpAlarms extends TimerTask {
         List<Neighbors> nbrList = null;
         try {
             LOG.debug("Fetching neighbor status' from BGP");
-            BgpCounters.resetFile(BgpCounters.BGP_VPNV4_SUMMARY_FILE);
-            BgpCounters.resetFile(BgpCounters.BGP_VPNV6_SUMMARY_FILE);
+            resetFile("cmd_ip_bgp_vpnv4_all_summary.txt");
             neighborStatusMap.clear();
 
             if (bgpMgr != null && bgpMgr.getBgpCounters() != null) {
-                bgpMgr.getBgpCounters().fetchCmdOutputs(BgpCounters.BGP_VPNV4_SUMMARY_FILE,
+                bgpMgr.getBgpCounters().fetchCmdOutputs("cmd_ip_bgp_vpnv4_all_summary.txt",
                         "show ip bgp vpnv4 all summary");
                 if (bgpMgr.getConfig() != null) {
                     nbrList = bgpMgr.getConfig().getNeighbors();
                 }
-                BgpCounters.parseIpBgpVpnv4AllSummary(neighborStatusMap);
-
-                bgpMgr.getBgpCounters().fetchCmdOutputs(BgpCounters.BGP_VPNV6_SUMMARY_FILE,
-                        "show ip bgp vpnv6 all summary");
-                if (bgpMgr.getConfig() != null) {
-                    nbrList = bgpMgr.getConfig().getNeighbors();
-                }
-                BgpCounters.parseIpBgpVpnv6AllSummary(neighborStatusMap);
+                parseIpBgpVpnv4AllSummary(neighborStatusMap);
                 processNeighborStatusMap(neighborStatusMap, nbrList, neighborsRaisedAlarmStatusMap);
             }
+
             LOG.debug("Finished getting the status of BGP neighbors");
         } catch (IOException e) {
             LOG.error("Failed to publish bgp counters ", e);
