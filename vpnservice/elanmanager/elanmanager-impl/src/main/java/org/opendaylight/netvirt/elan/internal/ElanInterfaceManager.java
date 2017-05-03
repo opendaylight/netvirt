@@ -1528,8 +1528,13 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
      *            the dp id
      */
     private void deleteElanDpnInterface(String elanInstanceName, BigInteger dpId, WriteTransaction tx) {
-        tx.delete(LogicalDatastoreType.OPERATIONAL,
-                ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId));
+        InstanceIdentifier<DpnInterfaces> dpnInterfacesId = ElanUtils
+                .getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId);
+        Optional<DpnInterfaces> dpnInterfaces = elanUtils.read(broker,
+                LogicalDatastoreType.OPERATIONAL, dpnInterfacesId);
+        if (dpnInterfaces.isPresent()) {
+            tx.delete(LogicalDatastoreType.OPERATIONAL, dpnInterfacesId);
+        }
     }
 
     private DpnInterfaces createElanInterfacesList(String elanInstanceName, String interfaceName, BigInteger dpId,
