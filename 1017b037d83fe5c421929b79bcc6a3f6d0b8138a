@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "ba068154_faedf6f0",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-03T09:50:33Z",
+      "side": 1,
+      "message": "what do we mean by handling?\n\nWe should be clear what the Spec is going to accomplish..\n\nThis specification proposes to bring in a feature into NetVirt enabling OpenDaylight controller to provide Intra-DC L2-switching and L3-forwarding support for DualStack VMs.  DualStack VMs are virtual machines that will have 2 L3-identities.  More specifically, DualStack VMs will have a single network interface in them (i.e., single VNIC) but that interface will actively hold both an IPv4 and IPv6 address.\n\nIn addition to providing initial support for DualStack VMs, this Spec ensures that such DualStack VMs work on BGPVPNs too.",
+      "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_79b0fbdd",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 7
@@ -125,6 +142,24 @@
       "side": 1,
       "message": "can you please clarify ?\nI was thinking that if a VM is new, then a new VPN interface is present.\nI was thinking the VPN interface is the entry point of the VPN ( that is to say from VM to Router).\n\nCan you please confirm that on a case where 10 VM are connected to a router associated to a VPN, there is only 1 VPN interface ?",
       "parentUuid": "ba068154_b0aef8e5",
+      "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_9a414a0e",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-03T09:50:33Z",
+      "side": 1,
+      "message": "Every Neutron Port present for a VM and if such Neutron Port is part of a router-subnet , then such Neutron Port is a VPN Interface.   In addition, the router-interface on the subnet is also a VPN Interface.\n\nSo VPN Interface is wrt to Neutron Port and not with respect to a VM.  If a VM has multiple Neutron Ports attached to it (as VNICs), then such a VM can actually participate in more than one VPN where each Neutron Port on that VM can belong to a different VPN.",
+      "parentUuid": "ba068154_a4919a54",
       "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
