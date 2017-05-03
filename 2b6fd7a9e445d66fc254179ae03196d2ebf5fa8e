@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "ba068154_7a874610",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-03T17:40:11Z",
+      "side": 1,
+      "message": "First please put few sentences on what is a DualStack VM. \n\nThen , are we sure that dual-stack VMs are first working today for Intra-DC even without BGPVPN?\n\nIf that is not supported, that should be put here that we will start to support it and then we should add few sentences to indicate that we will support DualStack VMs on BGPVPN.",
+      "revId": "2b6fd7a9e445d66fc254179ae03196d2ebf5fa8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_24364a04",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 8
