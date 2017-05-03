@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ba068154_b09f0d50",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-03T16:21:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da01753e_59a4a9a5",
+      "range": {
+        "startLine": 43,
+        "startChar": 26,
+        "endLine": 47,
+        "endChar": 56
+      },
+      "revId": "25568547fbf61ce94361ea089136b9853da2b668",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_399f2552",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2017-05-03T04:25:38Z",
       "side": 1,
       "message": "Both the IPv4 and IPv6 subnets of the dual-stack VM will be in the same Network. We cannot have a single neutron port being a part of two networks. Its not allowed in Openstack.",
+      "range": {
+        "startLine": 67,
+        "startChar": 70,
+        "endLine": 68,
+        "endChar": 18
+      },
+      "revId": "25568547fbf61ce94361ea089136b9853da2b668",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_906da907",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-03T16:21:38Z",
+      "side": 1,
+      "message": "yes.\nI clarified.",
+      "parentUuid": "da01753e_399f2552",
       "range": {
         "startLine": 67,
         "startChar": 70,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "ba068154_d053b16a",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-03T16:21:38Z",
+      "side": 1,
+      "message": "this is a management tool.\nI replace it by user",
+      "parentUuid": "da01753e_99ae1184",
+      "range": {
+        "startLine": 103,
+        "startChar": 17,
+        "endLine": 103,
+        "endChar": 20
+      },
+      "revId": "25568547fbf61ce94361ea089136b9853da2b668",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_19b221e6",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 5
@@ -82,6 +154,30 @@
       "writtenOn": "2017-05-03T04:25:38Z",
       "side": 1,
       "message": "Will the leaf-list be limiting the number of such router associations to two?\n\nAlso, when we associate two routers to the same VPN, do we check if one is IPv4 and the other is IPv6? Is the check necessary?",
+      "range": {
+        "startLine": 162,
+        "startChar": 68,
+        "endLine": 162,
+        "endChar": 77
+      },
+      "revId": "25568547fbf61ce94361ea089136b9853da2b668",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_d07611d8",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-03T16:21:38Z",
+      "side": 1,
+      "message": "We think the leaf will be a list.\nHowever, we will ensure that the leaf will be limited to two router-ids only.",
+      "parentUuid": "da01753e_19b221e6",
       "range": {
         "startLine": 162,
         "startChar": 68,
