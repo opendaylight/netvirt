@@ -2,6 +2,374 @@
   "comments": [
     {
       "key": {
+        "uuid": "ba068154_19bbafc5",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "I do not understand whether we are talking about Inter DC connectivity or Internet connectivity here. Both are separate use cases. \n\nThe title indicates that the spec is about Internet connectivity. However, this sentence appears to indicate that we are doing inter-DC connectivity.",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 41
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_f954ebcb",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "The solution should not talk about Shortest Path, since it is not guaranteed with this solution.",
+      "range": {
+        "startLine": 22,
+        "startChar": 1,
+        "endLine": 22,
+        "endChar": 13
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_39b673dd",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "I do not follow. Why do we need to reconfigure the Internet VPN whenever a VM is spawned?",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 81
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_d9a9277d",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "Internet connectivity is about enabling the VM to reach to the Internet. This statement appears to indicate that the requirement is to enable the hosts outside DC reach the VM.",
+      "range": {
+        "startLine": 32,
+        "startChar": 50,
+        "endLine": 32,
+        "endChar": 77
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_f9aceb8e",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "We are directly discussing solution in the problem description.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 81
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_999f9f50",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "VPNs do not access Internet. Tenant VMs access Internet.",
+      "range": {
+        "startLine": 87,
+        "startChar": 33,
+        "endLine": 87,
+        "endChar": 37
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_d9c0072d",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "This paragraph does not continue the thought from the previous paragraph. Maybe we need some rewriting here.",
+      "range": {
+        "startLine": 118,
+        "startChar": 0,
+        "endLine": 121,
+        "endChar": 46
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_79e75be5",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "I do not understand this sentence",
+      "range": {
+        "startLine": 125,
+        "startChar": 0,
+        "endLine": 125,
+        "endChar": 85
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_99cddf60",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "What is \"it\"? Openstack? ODL?",
+      "range": {
+        "startLine": 126,
+        "startChar": 12,
+        "endLine": 126,
+        "endChar": 14
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_f9da2b16",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "What is \"it\" ?",
+      "range": {
+        "startLine": 127,
+        "startChar": 0,
+        "endLine": 127,
+        "endChar": 92
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_d9d767ec",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "private",
+      "range": {
+        "startLine": 131,
+        "startChar": 23,
+        "endLine": 131,
+        "endChar": 28
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_d9ee47b4",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "Why only some? All the routes from the private VPN will be exported to Internet VPN",
+      "range": {
+        "startLine": 134,
+        "startChar": 76,
+        "endLine": 135,
+        "endChar": 13
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_993b1f38",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "This workflow only creates \"Internal VPNs\" or VPNs that have visibility only within a single DC. This alone does not need BGPVPN. \n\nYou can also have a workflow where the VPNs are private VPNs that have visibility in 2 or more DCs. \n\nExternal network connectivity must work in Conjunction with VPNs that span multiple DCs.",
+      "range": {
+        "startLine": 140,
+        "startChar": 0,
+        "endLine": 140,
+        "endChar": 105
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_b96c2338",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "I do not understand this. Are we proposing network to external network association? This is not supported in Openstack",
+      "range": {
+        "startLine": 141,
+        "startChar": 0,
+        "endLine": 141,
+        "endChar": 87
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_595ff772",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "I don\u0027t understand this sentence. I need more explanation here.",
+      "range": {
+        "startLine": 143,
+        "startChar": 2,
+        "endLine": 143,
+        "endChar": 110
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_99503f60",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "Option a is not supported for IPv6. We should not be talking about it.",
+      "range": {
+        "startLine": 202,
+        "startChar": 0,
+        "endLine": 202,
+        "endChar": 100
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_e4ed62f1",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 14
@@ -77,6 +445,75 @@
         "startChar": 19,
         "endLine": 263,
         "endChar": 36
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_f94d0bc6",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "I do not understand what we mean by VPN instance is a neutron router. VPN Instance is NOT a neutron Router",
+      "range": {
+        "startLine": 275,
+        "startChar": 1,
+        "endLine": 276,
+        "endChar": 52
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_f9fb4b45",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "This rule should be present only if the subnet has external connectivity access. Else, the packet should be dropped from VPN directly.",
+      "range": {
+        "startLine": 371,
+        "startChar": 0,
+        "endLine": 371,
+        "endChar": 115
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_d9f8074c",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "is this yang a part of API defined by Openstack? If yes, we cannot change this. If this is internal to ODL, we can.",
+      "range": {
+        "startLine": 399,
+        "startChar": 0,
+        "endLine": 407,
+        "endChar": 8
       },
       "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
