@@ -31,8 +31,6 @@ import java.util.regex.Pattern;
 import javax.management.JMException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-
-import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,10 +42,6 @@ public class BgpCounters extends TimerTask {
     private MBeanServer bgpStatsServer = null;
     private Map<String, String> countersMap = new HashMap<>();
     private String bgpSdncMip = "127.0.0.1";
-    public static final String BGP_VPNV6_FILE = "cmd_ip_bgp_vpnv6_all.txt";
-    public static final String BGP_VPNV4_FILE = "cmd_ip_bgp_vpnv4_all.txt";
-    public static final String BGP_VPNV6_SUMMARY_FILE = "cmd_ip_bgp_vpnv6_all_summary.txt";
-    public static final String BGP_VPNV4_SUMMARY_FILE = "cmd_ip_bgp_vpnv4_all_summary.txt";
 
     public BgpCounters(String mipAddress) {
         bgpSdncMip = mipAddress;
@@ -60,11 +54,9 @@ public class BgpCounters extends TimerTask {
             resetCounters();
             fetchCmdOutputs("cmd_ip_bgp_summary.txt", "show ip bgp summary");
             fetchCmdOutputs("cmd_bgp_ipv4_unicast_statistics.txt", "show bgp ipv4 unicast statistics");
-            fetchCmdOutputs(BGP_VPNV4_FILE, "show ip bgp vpnv4 all");
-            fetchCmdOutputs(BGP_VPNV6_FILE, "show ip bgp vpnv6 all");
+            fetchCmdOutputs("cmd_ip_bgp_vpnv4_all.txt", "show ip bgp vpnv4 all");
             parseIpBgpSummary();
             parseIpBgpVpnv4All();
-            parseIpBgpVpnv6All();
             if (LOGGER.isDebugEnabled()) {
                 dumpCounters();
             }
@@ -127,7 +119,6 @@ public class BgpCounters extends TimerTask {
                     case '>':
                         // Fall through
                     case '#':
-                        sb.append((char) read);
                         prompt = sb.toString().trim();
                         break;
                     default:
@@ -155,9 +146,6 @@ public class BgpCounters extends TimerTask {
             cbuf = new char[1024];
             while ((read = fromRouter.read(cbuf)) != -1) {
                 sb.append(cbuf, 0, read);
-                if (sb.toString().trim().endsWith(prompt)) {
-                    break;
-                }
             }
 
             // Only keep output up to the last prompt
@@ -177,21 +165,15 @@ public class BgpCounters extends TimerTask {
         }
     }
 
-    private static boolean validate(final String ip, af_afi afi) {
+    private static boolean validate(final String ip) {
         if (ip == null || ip.equals("")) {
             return false;
         }
-        String reg = "";
-
-        if (afi == af_afi.AFI_IP) {
-            reg = "^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
-        } else {
-            reg = "\\A(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\\z";
-        }
-        Pattern pattern = Pattern.compile(reg);
+        Pattern pattern = Pattern.compile("^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
         Matcher matcher = pattern.matcher(ip);
         return matcher.matches();
     }
+
 
     /*
      * The below function parses the output of "show ip bgp summary" saved in a file.
@@ -221,7 +203,7 @@ public class BgpCounters extends TimerTask {
                         return;
                     }
                     String strIp = result[0].trim();
-                    if (!validate(strIp, af_afi.AFI_IP)) {
+                    if (!validate(strIp)) {
                         return;
                     }
                     final String as = result[2];
@@ -294,7 +276,7 @@ public class BgpCounters extends TimerTask {
         </output>
      */
     private void parseIpBgpVpnv4All() {
-        File file = new File(BGP_VPNV4_FILE);
+        File file = new File("cmd_ip_bgp_vpnv4_all.txt");
         List<String> inputStrs = new ArrayList<>();
 
         try (Scanner scanner = new Scanner(file)) {
@@ -318,46 +300,6 @@ public class BgpCounters extends TimerTask {
         int bgpTotalPfxs = calculateBgpTotalPrefixes();
         LOGGER.trace("BGP Total Prefixes:{}",bgpTotalPfxs);
         countersMap.put(BgpConstants.BGP_COUNTER_TOTAL_PFX,String.valueOf(bgpTotalPfxs));
-    }
-
-    /*
-     *  The below function parses the output of "show ip bgp vpnv6 all" saved in a file.
-     *  Below is the sample output for the same :-
-     *  show ip bgp vpnv6 all
-        <output>
-        BGP table version is 0, local router ID is 10.183.181.21
-        ......
-        Route Distinguisher: 100:1
-        *>i2001:db8:0:2::/128   10.183.181.25            0    100      0 ?
-        *>i2001:db8:0:2::/128   10.183.181.25            0    100      0 ?
-        *>i2001:db8:0:2::/128   10.183.181.25            0    100      0 ?
-        *>i2001:db8:0:2::/128   10.183.181.25            0    100      0 ?
-        Route Distinguisher: 100:2
-        *>i2001:db9:0:3::/128   10.183.181.25            0    100      0 ?
-        *>i2001:db9:0:3::/128   10.183.181.25            0    100      0 ?
-        *>i2001:db9:0:3::/128   10.183.181.25            0    100      0 ?
-        </output>
-     */
-    private void parseIpBgpVpnv6All() {
-        File file = new File(BGP_VPNV6_FILE);
-        List<String> inputStrs = new ArrayList<>();
-
-        try (Scanner scanner = new Scanner(file)) {
-            while (scanner.hasNextLine()) {
-                inputStrs.add(scanner.nextLine());
-            }
-        } catch (IOException e) {
-            LOGGER.error("Could not process the file {}", file.getAbsolutePath());
-            return;
-        }
-        for (int i = 0; i < inputStrs.size(); i++) {
-            String instr = inputStrs.get(i);
-            if (instr.contains("Route Distinguisher")) {
-                String[] result = instr.split(":");
-                String rd = result[1].trim() + "_" + result[2].trim();
-                i = processRouteCount(rd, i + 1, inputStrs);
-            }
-        }
     }
 
     private int processRouteCount(String rd, int startIndex, List<String> inputStrs) {
@@ -397,8 +339,7 @@ public class BgpCounters extends TimerTask {
         countersMap.clear();
         resetFile("cmd_ip_bgp_summary.txt");
         resetFile("cmd_bgp_ipv4_unicast_statistics.txt");
-        resetFile(BGP_VPNV4_FILE);
-        resetFile(BGP_VPNV6_FILE);
+        resetFile("cmd_ip_bgp_vpnv4_all.txt");
     }
 
     static void resetFile(String fileName) {
@@ -412,10 +353,8 @@ public class BgpCounters extends TimerTask {
         }
     }
 
-    static Map<String, String> parseIpBgpVpnAllSummary(Map<String, String> countMap,
-                                                       String cmdFile,
-                                                       af_afi afi) {
-        File file = new File(cmdFile);
+    static Map<String, String> parseIpBgpVpnv4AllSummary(Map<String, String> countMap) {
+        File file = new File("cmd_ip_bgp_vpnv4_all_summary.txt");
 
         try (Scanner scanner = new Scanner(file)) {
             boolean startEntries = false;
@@ -430,7 +369,7 @@ public class BgpCounters extends TimerTask {
                         String strIp = result[0].trim();
                         LOGGER.trace("strIp " + strIp);
 
-                        if (!validate(strIp, afi)) {
+                        if (!validate(strIp)) {
                             break;
                         }
                         String statePfxRcvd = result[9];
@@ -444,17 +383,5 @@ public class BgpCounters extends TimerTask {
         }
 
         return countMap;
-    }
-
-    static Map<String, String> parseIpBgpVpnv4AllSummary(Map<String, String> countMap) {
-        return BgpCounters.parseIpBgpVpnAllSummary(countMap,
-                                                   BGP_VPNV4_SUMMARY_FILE,
-                                                   af_afi.AFI_IP);
-    }
-
-    static Map<String, String> parseIpBgpVpnv6AllSummary(Map<String, String> countMap) {
-        return BgpCounters.parseIpBgpVpnAllSummary(countMap,
-                                                   BGP_VPNV6_SUMMARY_FILE,
-                                                   af_afi.AFI_IPV6);
     }
 }
