@@ -107,6 +107,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -1528,8 +1529,13 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
      *            the dp id
      */
     private void deleteElanDpnInterface(String elanInstanceName, BigInteger dpId, WriteTransaction tx) {
-        tx.delete(LogicalDatastoreType.OPERATIONAL,
-                ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId));
+        InstanceIdentifier<DpnInterfaces> dpnInterfacesId = ElanUtils
+                .getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId);
+        Optional<DpnInterfaces> dpnInterfaces = elanUtils.read(broker,
+                LogicalDatastoreType.OPERATIONAL, dpnInterfacesId);
+        if (dpnInterfaces.isPresent()) {
+            tx.delete(LogicalDatastoreType.OPERATIONAL, dpnInterfacesId);
+        }
     }
 
     private DpnInterfaces createElanInterfacesList(String elanInstanceName, String interfaceName, BigInteger dpId,
