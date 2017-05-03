@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ba068154_3a793e94",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-03T10:16:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_19bbafc5",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 41
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_f954ebcb",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 14
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "ba068154_9a6e6ac8",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-03T10:16:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_f954ebcb",
+      "range": {
+        "startLine": 22,
+        "startChar": 1,
+        "endLine": 22,
+        "endChar": 13
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_39b673dd",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 14
@@ -59,6 +107,30 @@
       "writtenOn": "2017-05-03T04:24:36Z",
       "side": 1,
       "message": "I do not follow. Why do we need to reconfigure the Internet VPN whenever a VM is spawned?",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 81
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_3ad81e53",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-03T10:16:52Z",
+      "side": 1,
+      "message": "Sentence was not correct.\nI rephrased it.",
+      "parentUuid": "ba068154_39b673dd",
       "range": {
         "startLine": 28,
         "startChar": 0,
@@ -117,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "ba068154_1ac8ba73",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-03T10:16:52Z",
+      "side": 1,
+      "message": "moved to use case to illustrate what needs to be done.\nbut note that because of the L3-VPN concept usage, that implicitly means that we exchange entries through MP-BGP.",
+      "parentUuid": "ba068154_f9aceb8e",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 81
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_999f9f50",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 14
@@ -128,6 +224,30 @@
       "writtenOn": "2017-05-03T04:24:36Z",
       "side": 1,
       "message": "VPNs do not access Internet. Tenant VMs access Internet.",
+      "range": {
+        "startLine": 87,
+        "startChar": 33,
+        "endLine": 87,
+        "endChar": 37
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_5aa1a2a8",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-03T10:16:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_999f9f50",
       "range": {
         "startLine": 87,
         "startChar": 33,
@@ -255,6 +375,30 @@
     },
     {
       "key": {
+        "uuid": "ba068154_3abbfec5",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-03T10:16:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_d9d767ec",
+      "range": {
+        "startLine": 131,
+        "startChar": 23,
+        "endLine": 131,
+        "endChar": 28
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_d9ee47b4",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 14
@@ -266,6 +410,30 @@
       "writtenOn": "2017-05-03T04:24:36Z",
       "side": 1,
       "message": "Why only some? All the routes from the private VPN will be exported to Internet VPN",
+      "range": {
+        "startLine": 134,
+        "startChar": 76,
+        "endLine": 135,
+        "endChar": 13
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_7ab586cc",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-03T10:16:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_d9ee47b4",
       "range": {
         "startLine": 134,
         "startChar": 76,
@@ -358,6 +526,30 @@
       "writtenOn": "2017-05-03T04:24:36Z",
       "side": 1,
       "message": "Option a is not supported for IPv6. We should not be talking about it.",
+      "range": {
+        "startLine": 202,
+        "startChar": 0,
+        "endLine": 202,
+        "endChar": 100
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_fac0562c",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-03T10:16:52Z",
+      "side": 1,
+      "message": "Done; i was referring to cvr north south that is avaialbe.\ni removed the reference to 4",
+      "parentUuid": "ba068154_99503f60",
       "range": {
         "startLine": 202,
         "startChar": 0,
@@ -475,6 +667,30 @@
     },
     {
       "key": {
+        "uuid": "ba068154_daf7528b",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-03T10:16:52Z",
+      "side": 1,
+      "message": "see pipeline.",
+      "parentUuid": "ba068154_f94d0bc6",
+      "range": {
+        "startLine": 275,
+        "startChar": 1,
+        "endLine": 276,
+        "endChar": 52
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_f9fb4b45",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 14
@@ -498,6 +714,30 @@
     },
     {
       "key": {
+        "uuid": "ba068154_7a3aa637",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-03T10:16:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_f9fb4b45",
+      "range": {
+        "startLine": 371,
+        "startChar": 0,
+        "endLine": 371,
+        "endChar": 115
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_d9f8074c",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 14
@@ -509,6 +749,30 @@
       "writtenOn": "2017-05-03T04:24:36Z",
       "side": 1,
       "message": "is this yang a part of API defined by Openstack? If yes, we cannot change this. If this is internal to ODL, we can.",
+      "range": {
+        "startLine": 399,
+        "startChar": 0,
+        "endLine": 407,
+        "endChar": 8
+      },
+      "revId": "1aaaf74a520c2c1c56a5ad9bed630f7ddebc7531",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_3a301e56",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-03T10:16:52Z",
+      "side": 1,
+      "message": "I don\u0027t think this impacts openstack.\nthis is subnetmap structure.\n\nHow can I know subnetmap structure is used / not used by openstack ?",
+      "parentUuid": "ba068154_d9f8074c",
       "range": {
         "startLine": 399,
         "startChar": 0,
