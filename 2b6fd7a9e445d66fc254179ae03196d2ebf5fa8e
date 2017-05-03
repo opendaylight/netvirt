@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_24364a04",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:25:38Z",
+      "side": 1,
+      "message": "The communication between OVS A and OVS B is via vXLAN. Something that is not shown in the figure. Is that intentional?",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 65
+      },
+      "revId": "2b6fd7a9e445d66fc254179ae03196d2ebf5fa8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_c4249ec8",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:25:38Z",
+      "side": 1,
+      "message": "IPv4 subnet1.",
+      "range": {
+        "startLine": 77,
+        "startChar": 69,
+        "endLine": 77,
+        "endChar": 83
+      },
+      "revId": "2b6fd7a9e445d66fc254179ae03196d2ebf5fa8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_a4087a2e",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:25:38Z",
+      "side": 1,
+      "message": "Do we support the generic use case where the 2 routers can be associated with any subnet type? If not, is there a mechanism to restrict the yang-model to have 1 IPv4 router and 1 IPv6 router? Is this possible?",
+      "range": {
+        "startLine": 188,
+        "startChar": 50,
+        "endLine": 188,
+        "endChar": 60
+      },
+      "revId": "2b6fd7a9e445d66fc254179ae03196d2ebf5fa8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_ff1ccb6c",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:25:38Z",
+      "side": 1,
+      "message": "You must also handle the ECMP case. In that case, it would be output to a group.",
+      "range": {
+        "startLine": 229,
+        "startChar": 2,
+        "endLine": 229,
+        "endChar": 51
+      },
+      "revId": "2b6fd7a9e445d66fc254179ae03196d2ebf5fa8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_3f2653bb",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:25:38Z",
+      "side": 1,
+      "message": "With multipath enabled, it could be output to a group.",
+      "range": {
+        "startLine": 238,
+        "startChar": 3,
+        "endLine": 239,
+        "endChar": 127
+      },
+      "revId": "2b6fd7a9e445d66fc254179ae03196d2ebf5fa8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
