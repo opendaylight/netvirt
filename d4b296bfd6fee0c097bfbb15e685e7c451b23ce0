@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_da3912da",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/EvpnRdNetworkListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-05-03T09:11:24Z",
+      "side": 1,
+      "message": "If this is a new file, why would it be (c) 2015?",
+      "revId": "d4b296bfd6fee0c097bfbb15e685e7c451b23ce0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_37f31775",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/EvpnRdNetworkListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-05-03T09:11:24Z",
+      "side": 1,
+      "message": "nit: network misspelled and in the previous log statements as well",
+      "revId": "d4b296bfd6fee0c097bfbb15e685e7c451b23ce0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
