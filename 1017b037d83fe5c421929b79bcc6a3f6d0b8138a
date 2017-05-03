@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_301ddd74",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-03T16:21:38Z",
+      "side": 1,
+      "message": "thanks for the feedback.\nwhat you mention L3-identify is either an IPv4 or an IPv6 address.",
+      "parentUuid": "ba068154_faedf6f0",
+      "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_79b0fbdd",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 7
@@ -160,6 +178,24 @@
       "side": 1,
       "message": "Every Neutron Port present for a VM and if such Neutron Port is part of a router-subnet , then such Neutron Port is a VPN Interface.   In addition, the router-interface on the subnet is also a VPN Interface.\n\nSo VPN Interface is wrt to Neutron Port and not with respect to a VM.  If a VM has multiple Neutron Ports attached to it (as VNICs), then such a VM can actually participate in more than one VPN where each Neutron Port on that VM can belong to a different VPN.",
       "parentUuid": "ba068154_a4919a54",
+      "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_50186184",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-03T16:21:38Z",
+      "side": 1,
+      "message": "ok.\nso that means that if I create 5 neutron ports on defined network, the 5 neutron ports will stand for one VPN interface.\n\nThe router interface will be instantiated when the neutron port is used. THat is to say:\n- when a neutron port is attached to router ( status is down by default)\n- when a VM is started and attached to one VNIC only \n\nIf the VM was requesting to have several neutron ports, the VM could eventually participate in several VPNs.\n\nThanks to ack my understanding.",
+      "parentUuid": "ba068154_9a414a0e",
       "revId": "1017b037d83fe5c421929b79bcc6a3f6d0b8138a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
