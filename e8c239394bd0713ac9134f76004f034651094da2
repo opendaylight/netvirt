@@ -2,6 +2,75 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_dc61aea9",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "I do not understand this statement. Specifically, I think the connection between control-plane export/import to the data-plane forwarding needs to be clarified.",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 64
+      },
+      "revId": "e8c239394bd0713ac9134f76004f034651094da2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5cf49ece",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "This is one work-flow. In another work-flow, the private VPN will already exist and would be managing the private connectivity. Now, there may be requirement to support external network connectivity for this already configured VPN. In such a scenario, we need to make use of BGPVPN updateVPN API, using which you will update the existing VPN with additional RT parameters\n\nBoth workflows need to be suported.\n\nAlso, there is another workflow in which the VPN was handling only intra-DC L3 forwarding. In this case, there would be NO explicit private VPN configuration from Openstack. Only router would be configured. Such a VPN may also require external network connectivity.",
+      "range": {
+        "startLine": 128,
+        "startChar": 2,
+        "endLine": 138,
+        "endChar": 67
+      },
+      "revId": "e8c239394bd0713ac9134f76004f034651094da2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9cc3a656",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-03T04:24:36Z",
+      "side": 1,
+      "message": "It is better to make it explicit that this must be done only for those Router/VPNs that have external network connectivity. For VPNs without external network connectivity, it is expected that the match fails and hte packet is dropped.",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 184,
+        "endChar": 27
+      },
+      "revId": "e8c239394bd0713ac9134f76004f034651094da2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da01753e_42e532a7",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 2
