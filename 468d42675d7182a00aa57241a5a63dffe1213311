@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_1a939afb",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-05-03T10:58:52Z",
+      "side": 1,
+      "message": "Based on the sentence in Line 200, this Line208 (i.e., bgpvpn-update) should be after bgpvpn-create of internetvpn (i.e., Line 210) right?",
+      "revId": "468d42675d7182a00aa57241a5a63dffe1213311",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_5abc026d",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-05-03T10:58:52Z",
+      "side": 1,
+      "message": "In this workflow, this should be above Line216.",
+      "revId": "468d42675d7182a00aa57241a5a63dffe1213311",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_5a31a20a",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-05-03T10:58:52Z",
+      "side": 1,
+      "message": "if?",
+      "range": {
+        "startLine": 366,
+        "startChar": 2,
+        "endLine": 366,
+        "endChar": 4
+      },
+      "revId": "468d42675d7182a00aa57241a5a63dffe1213311",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_9a3b0aeb",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 747,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-05-03T10:58:52Z",
+      "side": 1,
+      "message": "nit: workflows",
+      "range": {
+        "startLine": 747,
+        "startChar": 10,
+        "endLine": 747,
+        "endChar": 18
+      },
+      "revId": "468d42675d7182a00aa57241a5a63dffe1213311",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
