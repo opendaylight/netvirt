@@ -27,7 +27,6 @@ public class Network extends OsgiCommandSupport {
     private static final String PFX = "--prefix";
     private static final String NH = "--nexthop";
     private static final String LB = "--label";
-    private static final String AFI = "--afi";
 
     static final Logger LOGGER = LoggerFactory.getLogger(Network.class);
     @Argument(name = "add|del", description = "The desired operation",
@@ -54,18 +53,12 @@ public class Network extends OsgiCommandSupport {
             required = false, multiValued = false)
     private String lbl = null;
 
-    @Option(name = AFI, aliases = {"-a"},
-            description = "Address Family",
-            required = false, multiValued = false)
-    private String afi = "1";
-
     private RouteOrigin staticOrigin = RouteOrigin.STATIC;
 
     private Object usage() {
         session.getConsole().println(
                 "usage: bgp-network [" + RD + " rd] [" + PFX + " prefix/len] ["
-                        + NH + " nexthop] [" + LB + " label] ["
-                        + AFI + " afi] <add|del>");
+                        + NH + " nexthop] [" + LB + " label] <add|del>");
         return null;
     }
 
@@ -98,9 +91,8 @@ public class Network extends OsgiCommandSupport {
                     } else {
                         label = Integer.valueOf(lbl);
                     }
-                }
-                if (!Commands.isValid(session.getConsole(), afi, Commands.Validators.AFI, AFI)) {
-                    session.getConsole().println("error: " + AFI + " must be 1 (IPv4) or 2 (IPv6). Default is 1");
+                } else if (rd == null) {
+                    session.getConsole().println("error: " + RD + " is needed");
                     return null;
                 }
                 LOGGER.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {}", rd, pfx, nh, label);
@@ -114,12 +106,7 @@ public class Network extends OsgiCommandSupport {
                     return null;
                 }
                 if (nh != null || lbl != null) {
-                    session.getConsole().println("note: some option(s) not needed as " + NH + " and/or " + LB
-                            + "; will be ignored");
-                }
-                if (!Commands.isValid(session.getConsole(), afi, Commands.Validators.AFI, AFI)) {
-                    session.getConsole().println("error: " + AFI + " must be 1 (IPv4) or 2 (IPv6). Default is 1");
-                    return null;
+                    session.getConsole().println("note: some option(s) not needed; ignored");
                 }
                 LOGGER.info("REMOVE: Removing Fib entry rd {} prefix {}", rd, pfx);
                 bm.deletePrefix(rd, pfx);
