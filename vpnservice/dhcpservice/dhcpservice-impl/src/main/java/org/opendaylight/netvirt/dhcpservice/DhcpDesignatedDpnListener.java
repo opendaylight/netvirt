@@ -20,6 +20,7 @@ import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListen
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.DesignatedSwitchesForExternalTunnels;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.designated.switches._for.external.tunnels.DesignatedSwitchForTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,18 +33,23 @@ public class DhcpDesignatedDpnListener
     private static final Logger LOG = LoggerFactory.getLogger(DhcpDesignatedDpnListener.class);
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final DataBroker broker;
+    private final DhcpserviceConfig config;
 
     @Inject
     public DhcpDesignatedDpnListener(final DhcpExternalTunnelManager dhcpExternalTunnelManager,
-                                     final DataBroker broker) {
+                                     final DataBroker broker,
+                                     final DhcpserviceConfig config) {
         super(DesignatedSwitchForTunnel.class, DhcpDesignatedDpnListener.class);
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.broker = broker;
+        this.config = config;
     }
 
     @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+        if (config.isControllerDhcpEnabled()) {
+            registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+        }
     }
 
     @Override

@@ -28,7 +28,6 @@ public class DhcpAllocationPoolAddJob implements Callable<List<ListenableFuture<
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpAllocationPoolAddJob.class);
     private final DhcpAllocationPoolManager dhcpAllocationPoolManager;
-    DhcpExternalTunnelManager dhcpExternalTunnelManager;
     DataBroker dataBroker;
     String interfaceName;
     BigInteger dpnId;

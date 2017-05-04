@@ -27,7 +27,6 @@ public class DhcpAllocationPoolRemoveJob implements Callable<List<ListenableFutu
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpAllocationPoolRemoveJob.class);
     private final DhcpAllocationPoolManager dhcpAllocationPoolManager;
-    DhcpExternalTunnelManager dhcpExternalTunnelManager;
     DataBroker dataBroker;
     String interfaceName;
     BigInteger dpnId;
