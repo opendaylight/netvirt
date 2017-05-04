@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_8563a619",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1055,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-05-04T13:31:47Z",
+      "side": 1,
+      "message": "So is this the actual bug and all the other changes in this review are unrelated, albeit correct, changes?\n\nSo, it looks like the point here is to use the ip address instead of the prefix when calling checkDeleteLocalFibEntry. All calls to checkCreateLocalFibEntry seem to use prefix. Is this intentional? What is the reasoning.",
+      "revId": "92ad446d2ebd0539cbc07d27bc07d33e94a84a07",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
