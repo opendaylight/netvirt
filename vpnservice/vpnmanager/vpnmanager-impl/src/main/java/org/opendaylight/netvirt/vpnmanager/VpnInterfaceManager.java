@@ -1725,11 +1725,22 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             ivpnLinkService.leakRoute(interVpnLink, srcVpnUuid, dstVpnUuid, destination, newLabel, RouteOrigin.STATIC,
                                       NwConstants.ADD_FLOW);
         } else {
-            L3vpnInput input = new L3vpnInput().setNextHop(operationalAdj).setNextHopIp(nextHop).setL3vni(l3vni)
-                    .setPrimaryRd(primaryRd).setVpnName(vpnName).setDpnId(dpnId)
-                    .setEncapType(encapType).setRd(rd).setRouteOrigin(origin);
-            L3vpnRegistry.getRegisteredPopulator(encapType).populateFib(input, writeConfigTxn, null);
+            Optional<Routes> optVpnExtraRoutes = VpnExtraRouteHelper
+                    .getVpnExtraroutes(dataBroker, vpnName, (rd != null) ? rd : routerID, destination);
+            if (optVpnExtraRoutes.isPresent()) {
+                List<String> nhList = optVpnExtraRoutes.get().getNexthopIpList();
+                if (nhList != null && nhList.size() > 1) {
+                    // If nhList is greater than one for vpnextraroute, a call to populatefib doesn't update vrfentry.
+                    fibManager.refreshVrfEntry(primaryRd, destination);
+                } else {
+                    L3vpnInput input = new L3vpnInput().setNextHop(operationalAdj).setNextHopIp(nextHop).setL3vni(l3vni)
+                            .setPrimaryRd(primaryRd).setVpnName(vpnName).setDpnId(dpnId)
+                            .setEncapType(encapType).setRd(rd).setRouteOrigin(origin);
+                    L3vpnRegistry.getRegisteredPopulator(encapType).populateFib(input, writeConfigTxn, null);
+                }
+            }
         }
+
         if (!writeConfigTxnPresent) {
             writeConfigTxn.submit();
         }
