@@ -1068,7 +1068,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId,
                         extraRoute.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX);
                 if (localNextHopInfo != null) {
-                    BigInteger dpnId = localNextHopInfo.getDpnId();
+                    BigInteger dpnId = checkDeleteLocalFibEntry(localNextHopInfo, localNextHopIP,
+                            vpnId, rd, vrfEntry);
                     if (!dpnId.equals(BigInteger.ZERO)) {
                         nextHopManager.setupLoadBalancingNextHop(vpnId, dpnId,
                                 vrfEntry.getDestPrefix(), /*listBucketInfo*/ null, /*remove*/ false);
