@@ -36,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,21 +47,24 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
     private DataBroker dataBroker;
     private DhcpManager dhcpManager;
     private DhcpExternalTunnelManager dhcpExternalTunnelManager;
+    private DhcpserviceConfig config;
     private static final Logger LOG = LoggerFactory.getLogger(DhcpSubnetListener.class);
 
     @Inject
     public DhcpSubnetListener(final DhcpManager dhcpManager, final DhcpExternalTunnelManager
-            dhcpExternalTunnelManager, final DataBroker
-                                      broker) {
+            dhcpExternalTunnelManager, final DataBroker broker, final DhcpserviceConfig config) {
         super(Subnet.class, DhcpSubnetListener.class);
         this.dhcpManager = dhcpManager;
         this.dataBroker = broker;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
+        this.config = config;
     }
 
     @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+        if (config.isControllerDhcpEnabled()) {
+            registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+        }
     }
 
     @Override
