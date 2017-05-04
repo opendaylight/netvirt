@@ -269,7 +269,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     @Override
     protected void update(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update) {
         Preconditions.checkNotNull(update, "VrfEntry should not be null or empty.");
-
+        if (original.equals(update)) {
+            return;
+        }
         final String rd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
         LOG.debug("UPDATE: Updating Fib Entries to rd {} prefix {} route-paths {}",
             rd, update.getDestPrefix(), update.getRoutePaths());
@@ -815,11 +817,16 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             String gwMacAddress = vrfEntry.getGatewayMacAddress();
             //The loadbalancing group is created only if the extra route has multiple nexthops
             //to avoid loadbalancing the discovered routes
-            if (routes != null && (vpnExtraRoutes.size() > 1 || routes.getNexthopIpList().size() > 1)) {
-                localNextHopIP = routes.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX;
-                groupId = nextHopManager.createNextHopGroups(parentVpnId, rd, dpnId, vrfEntry, routes,
-                        vpnExtraRoutes);
-                localGroupId = nextHopManager.getLocalNextHopGroup(parentVpnId, localNextHopIP);
+            if (vpnExtraRoutes != null) {
+                if (vpnExtraRoutes.size() > 1 || routes.getNexthopIpList().size() > 1) {
+                    localNextHopIP = routes.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX;
+                    groupId = nextHopManager.createNextHopGroups(parentVpnId, rd, dpnId, vrfEntry, routes,
+                            vpnExtraRoutes);
+                    localGroupId = nextHopManager.getLocalNextHopGroup(parentVpnId, localNextHopIP);
+                } else {
+                    groupId = nextHopManager.getLocalNextHopGroup(parentVpnId, localNextHopIP);
+                    localGroupId = groupId;
+                }
             } else {
                 groupId = nextHopManager.createLocalNextHop(parentVpnId, dpnId, interfaceName, localNextHopIP, prefix,
                         gwMacAddress, jobKey);
@@ -981,8 +988,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     public List<BigInteger> deleteLocalFibEntry(Long vpnId, String rd, VrfEntry vrfEntry) {
         List<BigInteger> returnLocalDpnId = new ArrayList<>();
         Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
-        String localNextHopIP = vrfEntry.getDestPrefix();
         String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnId);
+        Boolean isExtraroute = false;
 
         if (localNextHopInfo == null) {
             List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
@@ -996,12 +1003,14 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             Optional<Routes> extraRouteOptional = VpnExtraRouteHelper.getVpnExtraroutes(dataBroker,
                     vpnName, rd, vrfEntry.getDestPrefix());
             if (extraRouteOptional.isPresent()) {
+                isExtraroute = true;
                 Routes extraRoute = extraRouteOptional.get();
                 localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId,
                         extraRoute.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX);
                 if (localNextHopInfo != null) {
+                    String localNextHopIP = localNextHopInfo.getIpAddress();
                     BigInteger dpnId = checkDeleteLocalFibEntry(localNextHopInfo, localNextHopIP,
-                            vpnId, rd, vrfEntry);
+                            vpnId, rd, vrfEntry, isExtraroute);
                     if (!dpnId.equals(BigInteger.ZERO)) {
                         nextHopManager.setupLoadBalancingNextHop(vpnId, dpnId,
                                 vrfEntry.getDestPrefix(), /*listBucketInfo*/ null, /*remove*/ false);
@@ -1023,8 +1032,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopAddressList, lri)) {
                         PrefixesBuilder prefixBuilder = new PrefixesBuilder();
                         prefixBuilder.setDpnId(lri.getDpnId());
-                        BigInteger dpnId = checkDeleteLocalFibEntry(prefixBuilder.build(), localNextHopIP,
-                                vpnId, rd, vrfEntry);
+                        BigInteger dpnId = checkDeleteLocalFibEntry(prefixBuilder.build(), nextHopAddressList.get(0),
+                                vpnId, rd, vrfEntry, isExtraroute);
                         if (!dpnId.equals(BigInteger.ZERO)) {
                             returnLocalDpnId.add(dpnId);
                         }
@@ -1033,8 +1042,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
 
         } else {
+            String localNextHopIP = localNextHopInfo.getIpAddress();
             BigInteger dpnId = checkDeleteLocalFibEntry(localNextHopInfo, localNextHopIP,
-                vpnId, rd, vrfEntry);
+                vpnId, rd, vrfEntry, isExtraroute);
             if (!dpnId.equals(BigInteger.ZERO)) {
                 returnLocalDpnId.add(dpnId);
             }
@@ -1045,7 +1055,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
     private BigInteger checkDeleteLocalFibEntry(Prefixes localNextHopInfo, final String localNextHopIP,
                                                 final Long vpnId, final String rd,
-                                                final VrfEntry vrfEntry) {
+                                                final VrfEntry vrfEntry, Boolean isExtraroute) {
         if (localNextHopInfo != null) {
             final BigInteger dpnId = localNextHopInfo.getDpnId();
             if (!FibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(dataBroker, localNextHopInfo
@@ -1069,7 +1079,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     });
             }
             //TODO: verify below adjacency call need to be optimized (?)
-            deleteLocalAdjacency(dpnId, vpnId, localNextHopIP, vrfEntry.getDestPrefix());
+            if (!isExtraroute) {
+                deleteLocalAdjacency(dpnId, vpnId, localNextHopIP, vrfEntry.getDestPrefix());
+            }
             return dpnId;
         }
         return BigInteger.ZERO;
