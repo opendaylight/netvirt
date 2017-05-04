@@ -22,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.P
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,17 +34,22 @@ public class DhcpNeutronPortListener
     private static final Logger LOG = LoggerFactory.getLogger(DhcpNeutronPortListener.class);
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final DataBroker broker;
+    private DhcpserviceConfig config;
 
     @Inject
-    public DhcpNeutronPortListener(final DataBroker db, final DhcpExternalTunnelManager dhcpExternalTunnelManager) {
+    public DhcpNeutronPortListener(final DataBroker db, final DhcpExternalTunnelManager dhcpExternalTunnelManager,
+                                   final DhcpserviceConfig config) {
         super(Port.class, DhcpNeutronPortListener.class);
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.broker = db;
+        this.config = config;
     }
 
     @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+        if (config.isControllerDhcpEnabled()) {
+            registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+        }
     }
 
     @Override
