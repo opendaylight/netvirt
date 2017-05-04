@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_0b0ce741",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-05-04T20:12:21Z",
+      "side": 1,
+      "message": "is this the only place we would need this type of check? Or does it help to not even start these threads for handling - similar to how DhcpManager looks at the config and then spawns the listener threads.",
+      "revId": "76895fd3ca2e2d44831c6d5c472d01623d2d08c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
