@@ -277,6 +277,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     protected void update(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update) {
         Preconditions.checkNotNull(update, "VrfEntry should not be null or empty.");
 
+        if(original.equals(update)) {
+            return;
+        }
         final String rd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
         LOG.debug("UPDATE: Updating Fib Entries to rd {} prefix {} route-paths {}",
             rd, update.getDestPrefix(), update.getRoutePaths());
@@ -1049,7 +1052,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     public List<BigInteger> deleteLocalFibEntry(Long vpnId, String rd, VrfEntry vrfEntry) {
         List<BigInteger> returnLocalDpnId = new ArrayList<>();
         Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
-        String localNextHopIP = vrfEntry.getDestPrefix();
+        String localNextHopIP = localNextHopInfo.getIpAddress();
         String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnId);
 
         if (localNextHopInfo == null) {

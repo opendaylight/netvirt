@@ -386,7 +386,7 @@ public class NexthopManager implements AutoCloseable {
                     VpnNexthop nh = new VpnNexthopBuilder().setKey(new VpnNexthopKey(ipAddress))
                             .setFlowrefCount(flowrefCnt).build();
                     LOG.trace("Updating vpnnextHop {} for refCount {} to Operational DS", nh, flowrefCnt);
-                    MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, getVpnNextHopIdentifier(vpnId,
+                    MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, getVpnNextHopIdentifier(vpnId,
                             ipAddress), nh);
                 }
             }
@@ -542,7 +542,7 @@ public class NexthopManager implements AutoCloseable {
                     VpnNexthop currNh = new VpnNexthopBuilder().setKey(new VpnNexthopKey(ipAddress))
                         .setFlowrefCount(newFlowrefCnt).build();
                     LOG.trace("Updating vpnnextHop {} for refCount {} to Operational DS", currNh, newFlowrefCnt);
-                    MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, getVpnNextHopIdentifier(vpnId,
+                    MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, getVpnNextHopIdentifier(vpnId,
                             ipAddress), currNh);
                 }
             } else {
