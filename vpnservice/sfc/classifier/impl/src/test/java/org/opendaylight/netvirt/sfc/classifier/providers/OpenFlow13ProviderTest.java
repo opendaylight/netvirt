@@ -37,6 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.ge
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.general.rev140714.general.extension.grouping.Extension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.general.rev140714.general.extension.list.grouping.ExtensionList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxNshMdtypeCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxNshNpCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxNshc1Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxNshc2Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxNsiCase;
@@ -150,15 +151,16 @@ public class OpenFlow13ProviderTest {
 
         assertEquals(1, flow.getInstructions().getInstruction().size());
         Instruction curInstruction = flow.getInstructions().getInstruction().get(0).getInstruction();
-        List<Action> actionList = checkApplyActionSize(curInstruction, 8);
+        List<Action> actionList = checkApplyActionSize(curInstruction, 9);
 
         checkActionPushNsh(actionList.get(0));
         checkActionLoadNshMdtype(actionList.get(1));
-        checkActionLoadNsp(actionList.get(2));
-        checkActionLoadNsi(actionList.get(3));
-        checkActionLoadNshc1(actionList.get(4));
-        checkActionLoadNshc2(actionList.get(5));
-        checkActionLoadReg0(actionList.get(6),
+        checkActionLoadNshNp(actionList.get(2));
+        checkActionLoadNsp(actionList.get(3));
+        checkActionLoadNsi(actionList.get(4));
+        checkActionLoadNshc1(actionList.get(5));
+        checkActionLoadNshc2(actionList.get(6));
+        checkActionLoadReg0(actionList.get(7),
                 InetAddresses.coerceToInteger(InetAddresses.forString(SFF_IP_STR)) & 0xffffffffL);
         checkActionResubmit(curInstruction, NwConstants.LPORT_DISPATCHER_TABLE);
     }
@@ -479,6 +481,13 @@ public class OpenFlow13ProviderTest {
                 (NxActionRegLoadNodesNodeTableFlowApplyActionsCase) action.getAction();
         DstNxNshMdtypeCase mdTypeCase = (DstNxNshMdtypeCase) regLoad.getNxRegLoad().getDst().getDstChoice();
         assertTrue(mdTypeCase.isNxNshMdtype());
+    }
+
+    private void checkActionLoadNshNp(Action action) {
+        NxActionRegLoadNodesNodeTableFlowApplyActionsCase regLoad =
+                (NxActionRegLoadNodesNodeTableFlowApplyActionsCase) action.getAction();
+        DstNxNshNpCase npCase = (DstNxNshNpCase) regLoad.getNxRegLoad().getDst().getDstChoice();
+        assertTrue(npCase.isNxNshNp());
     }
 
     private void checkActionLoadNsp(Action action) {
