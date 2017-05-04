@@ -66,6 +66,7 @@ public class OpenFlow13Provider {
     public static final String EGRESS_CLASSIFIER_TPORTEGRESS_FLOW_NAME = "nvsfc_egr_class_ tport egress";
 
     public static final short NSH_MDTYPE_ONE = 0x01;
+    public static final short NSH_NP_ETH = 0x3;
     public static final long DEFAULT_NSH_CONTEXT_VALUE = 0L;
     private static final int DEFAULT_NETMASK = 32;
     public static final String OF_URI_SEPARATOR = ":";
@@ -177,6 +178,7 @@ public class OpenFlow13Provider {
         List<Action> actionList = new ArrayList<>();
         actionList.add(OpenFlow13Utils.createActionNxPushNsh(actionList.size()));
         actionList.add(OpenFlow13Utils.createActionNxLoadNshMdtype(NSH_MDTYPE_ONE, actionList.size()));
+        actionList.add(OpenFlow13Utils.createActionNxLoadNp(NSH_NP_ETH, actionList.size()));
         actionList.add(OpenFlow13Utils.createActionNxLoadNsp((int) nsp, actionList.size()));
         actionList.add(OpenFlow13Utils.createActionNxLoadNsi(nsi, actionList.size()));
         actionList.add(OpenFlow13Utils.createActionNxLoadNshc1(DEFAULT_NSH_CONTEXT_VALUE, actionList.size()));
