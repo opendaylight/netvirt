@@ -19,6 +19,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
@@ -37,18 +38,24 @@ public class DhcpHwvtepListener
     private static final Logger LOG = LoggerFactory.getLogger(DhcpHwvtepListener.class);
     private DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private DataBroker dataBroker;
+    private final DhcpserviceConfig config;
+
 
     @Inject
-    public DhcpHwvtepListener(DataBroker dataBroker, DhcpExternalTunnelManager dhcpManager) {
+    public DhcpHwvtepListener(DataBroker dataBroker, DhcpExternalTunnelManager dhcpManager,
+                              DhcpserviceConfig config) {
         super(Node.class, DhcpHwvtepListener.class);
         this.dhcpExternalTunnelManager = dhcpManager;
         this.dataBroker = dataBroker;
+        this.config = config;
     }
 
     @Override
     @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+        if (config.isControllerDhcpEnabled()) {
+            registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+        }
     }
 
     @Override

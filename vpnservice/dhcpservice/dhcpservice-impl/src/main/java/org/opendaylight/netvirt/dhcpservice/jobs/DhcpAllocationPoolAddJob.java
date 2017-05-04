@@ -19,7 +19,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.dhcpservice.DhcpAllocationPoolManager;
-import org.opendaylight.netvirt.dhcpservice.DhcpExternalTunnelManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpServiceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,6 @@ public class DhcpAllocationPoolAddJob implements Callable<List<ListenableFuture<
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpAllocationPoolAddJob.class);
     private final DhcpAllocationPoolManager dhcpAllocationPoolManager;
-    DhcpExternalTunnelManager dhcpExternalTunnelManager;
     DataBroker dataBroker;
     String interfaceName;
     BigInteger dpnId;

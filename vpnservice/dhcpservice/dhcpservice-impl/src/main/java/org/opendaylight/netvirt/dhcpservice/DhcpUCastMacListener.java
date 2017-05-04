@@ -25,6 +25,7 @@ import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
@@ -45,19 +46,23 @@ public class DhcpUCastMacListener
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final DhcpManager dhcpManager;
     private final DataBroker broker;
+    private final DhcpserviceConfig config;
 
     @Inject
     public DhcpUCastMacListener(final DhcpManager dhcpManager, final DhcpExternalTunnelManager dhcpExtTunnelMgr,
-                                final DataBroker dataBroker) {
+                                final DataBroker dataBroker, final DhcpserviceConfig config) {
         super(LocalUcastMacs.class, DhcpUCastMacListener.class);
         this.broker = dataBroker;
         this.dhcpExternalTunnelManager = dhcpExtTunnelMgr;
         this.dhcpManager = dhcpManager;
+        this.config = config;
     }
 
     @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+        if (config.isControllerDhcpEnabled()) {
+            registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+        }
     }
 
     @Override
