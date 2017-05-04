@@ -24,6 +24,7 @@ import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
@@ -45,18 +46,23 @@ public class DhcpLogicalSwitchListener
 
     private final DataBroker dataBroker;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
+    private final DhcpserviceConfig config;
 
     @Inject
-    public DhcpLogicalSwitchListener(final DhcpExternalTunnelManager dhcpManager, final DataBroker dataBroker) {
+    public DhcpLogicalSwitchListener(final DhcpExternalTunnelManager dhcpManager, final DataBroker dataBroker,
+                                     final DhcpserviceConfig config) {
         super(LogicalSwitches.class, DhcpLogicalSwitchListener.class);
         this.dhcpExternalTunnelManager = dhcpManager;
         this.dataBroker = dataBroker;
+        this.config = config;
     }
 
     @Override
     @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+        if (config.isControllerDhcpEnabled()) {
+            registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+        }
     }
 
     @Override
