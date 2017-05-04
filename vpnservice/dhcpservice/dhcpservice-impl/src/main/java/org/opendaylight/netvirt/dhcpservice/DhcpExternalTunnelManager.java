@@ -61,6 +61,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.Desi
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.designated.switches._for.external.tunnels.DesignatedSwitchForTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.designated.switches._for.external.tunnels.DesignatedSwitchForTunnelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.designated.switches._for.external.tunnels.DesignatedSwitchForTunnelKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
@@ -91,6 +92,7 @@ public class DhcpExternalTunnelManager {
     private final ItmRpcService itmRpcService;
     private final EntityOwnershipService entityOwnershipService;
     private final IInterfaceManager interfaceManager;
+    private final DhcpserviceConfig config;
 
     private final ConcurrentMap<BigInteger, Set<Pair<IpAddress, String>>> designatedDpnsToTunnelIpElanNameCache =
             new ConcurrentHashMap<>();
@@ -102,12 +104,14 @@ public class DhcpExternalTunnelManager {
     @Inject
     public DhcpExternalTunnelManager(final DataBroker broker,
             final IMdsalApiManager mdsalUtil, final ItmRpcService itmRpcService,
-            final EntityOwnershipService entityOwnershipService, final IInterfaceManager interfaceManager) {
+            final EntityOwnershipService entityOwnershipService, final IInterfaceManager interfaceManager,
+            final DhcpserviceConfig config) {
         this.broker = broker;
         this.mdsalUtil = mdsalUtil;
         this.itmRpcService = itmRpcService;
         this.entityOwnershipService = entityOwnershipService;
         this.interfaceManager = interfaceManager;
+        this.config = config;
     }
 
     @PostConstruct
@@ -173,6 +177,13 @@ public class DhcpExternalTunnelManager {
             final BigInteger designatedDpnId, final String vmMacAddress) {
         LOG.trace("In installDhcpFlowsForVms ipAddress {}, elanInstanceName {}, dpn {}, vmMacAddress {}", tunnelIp,
                 elanInstanceName, designatedDpnId, vmMacAddress);
+
+        if (!config.isControllerDhcpEnabled()) {
+            LOG.trace("DHCP not enabled. Will NOT installDhcpFlowsForVms ipAddress {}, elanInstanceName {}, dpn {}, vmMacAddress {}", tunnelIp,
+                    elanInstanceName, designatedDpnId, vmMacAddress);
+            updateLocalCache(tunnelIp, elanInstanceName, vmMacAddress);
+            return;
+        }
         // TODO: Make use a util that directly tells if this is the owner or not rather than making use of callbacks.
         ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
                 entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
@@ -204,6 +215,10 @@ public class DhcpExternalTunnelManager {
     }
 
     public void installDhcpFlowsForVms(BigInteger designatedDpnId, Set<String> listVmMacAddress, WriteTransaction tx) {
+        if (!config.isControllerDhcpEnabled()) {
+            LOG.trace("DHCP not enabled. Will NOT installDhcpFlowsForVms dpn {} designatedDpnId");
+            return;
+        }
         for (String vmMacAddress : listVmMacAddress) {
             installDhcpEntries(designatedDpnId, vmMacAddress, tx);
         }
