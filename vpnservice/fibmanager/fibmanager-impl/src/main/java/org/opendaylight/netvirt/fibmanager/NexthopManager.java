@@ -386,7 +386,7 @@ public class NexthopManager implements AutoCloseable {
                     VpnNexthop nh = new VpnNexthopBuilder().setKey(new VpnNexthopKey(ipAddress))
                             .setFlowrefCount(flowrefCnt).build();
                     LOG.trace("Updating vpnnextHop {} for refCount {} to Operational DS", nh, flowrefCnt);
-                    MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, getVpnNextHopIdentifier(vpnId,
+                    MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, getVpnNextHopIdentifier(vpnId,
                             ipAddress), nh);
                 }
             }
@@ -542,7 +542,7 @@ public class NexthopManager implements AutoCloseable {
                     VpnNexthop currNh = new VpnNexthopBuilder().setKey(new VpnNexthopKey(ipAddress))
                         .setFlowrefCount(newFlowrefCnt).build();
                     LOG.trace("Updating vpnnextHop {} for refCount {} to Operational DS", currNh, newFlowrefCnt);
-                    MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, getVpnNextHopIdentifier(vpnId,
+                    MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, getVpnNextHopIdentifier(vpnId,
                             ipAddress), currNh);
                 }
             } else {
@@ -831,6 +831,9 @@ public class NexthopManager implements AutoCloseable {
                     String nextHopPrefixIp = nextHopIp + NwConstants.IPV4PREFIX;
                     List<String> tepIpAddresses = FibUtil.getNextHopAddresses(dataBroker, rd, nextHopPrefixIp);
                     java.util.Optional<String> tepIp = tepIpAddresses.stream().findFirst();
+                    if (!tepIp.isPresent()) {
+                        return;
+                    }
                     AdjacencyResult adjacencyResult = getRemoteNextHopPointer(dpnId, vpnId,
                             vrfEntry.getDestPrefix(), tepIp.get());
                     if (adjacencyResult == null) {
