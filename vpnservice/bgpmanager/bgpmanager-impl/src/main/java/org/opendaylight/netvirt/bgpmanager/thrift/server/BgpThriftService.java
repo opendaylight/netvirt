@@ -9,6 +9,9 @@
 package org.opendaylight.netvirt.bgpmanager.thrift.server;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.server.ServerContext;
@@ -147,6 +150,7 @@ public class BgpThriftService {
                         esi,
                         macaddress,
                         l3label,
+                        l2label,
                         routermac);
 
             } catch (Throwable e) {
@@ -164,10 +168,22 @@ public class BgpThriftService {
                                           String macaddress,
                                           int l2label,
                                           int l3label) {
-            LOGGER.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
-            LOGGER.info("REMOVE: Removing Fib entry rd {} prefix {} nexthop {}", rd, prefix, nexthop);
-            fibDSWriter.removeOrUpdateFibEntryFromDS(rd, prefix + "/" + plen, nexthop);
-            LOGGER.info("REMOVE: Removed Fib entry rd {} prefix {} nexthop {}", rd, prefix, nexthop);
+            try {
+                LOGGER.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
+                BgpConfigurationManager.onUpdateWithdrawRoute(
+                        protocolType,
+                        rd,
+                        prefix,
+                        plen,
+                        nexthop,
+                        macaddress);
+            } catch (InterruptedException e1) {
+                LOGGER.error("Interrupted exception for withdraw route", e1);
+            } catch (ExecutionException e2) {
+                LOGGER.error("Execution exception for withdraw route", e2);
+            } catch (TimeoutException e3) {
+                LOGGER.error("Timeout exception for withdraw route", e3);
+            }
         }
 
         public void onStartConfigResyncNotification() {
