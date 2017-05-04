@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_c220049e",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-04T09:47:18Z",
+      "side": 1,
+      "message": "you mean intra DC use cases should be solved by BGPBVPN, if there is an issue ?\n\nWe will do the testing and refresh the specification, by proposing this, but will draw attention to the reader that the spec is focusing around solutions using BGPVPN.",
+      "parentUuid": "ba068154_7a874610",
+      "revId": "2b6fd7a9e445d66fc254179ae03196d2ebf5fa8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_24364a04",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 8
@@ -30,6 +48,30 @@
       "writtenOn": "2017-05-03T04:25:38Z",
       "side": 1,
       "message": "The communication between OVS A and OVS B is via vXLAN. Something that is not shown in the figure. Is that intentional?",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 65
+      },
+      "revId": "2b6fd7a9e445d66fc254179ae03196d2ebf5fa8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_bc5a464e",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-04T09:47:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_24364a04",
       "range": {
         "startLine": 53,
         "startChar": 0,
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "ba068154_62795893",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-04T09:47:18Z",
+      "side": 1,
+      "message": "this has been simplified and reworked.",
+      "parentUuid": "ba068154_c4249ec8",
+      "range": {
+        "startLine": 77,
+        "startChar": 69,
+        "endLine": 77,
+        "endChar": 83
+      },
+      "revId": "2b6fd7a9e445d66fc254179ae03196d2ebf5fa8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_a4087a2e",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 8
@@ -76,6 +142,30 @@
       "writtenOn": "2017-05-03T04:25:38Z",
       "side": 1,
       "message": "Do we support the generic use case where the 2 routers can be associated with any subnet type? If not, is there a mechanism to restrict the yang-model to have 1 IPv4 router and 1 IPv6 router? Is this possible?",
+      "range": {
+        "startLine": 188,
+        "startChar": 50,
+        "endLine": 188,
+        "endChar": 60
+      },
+      "revId": "2b6fd7a9e445d66fc254179ae03196d2ebf5fa8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_a246a021",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-04T09:47:18Z",
+      "side": 1,
+      "message": "we think it is ok to not limit the number of routers.\nhowever, we will limit the neutron port IPs to 2.",
+      "parentUuid": "ba068154_a4087a2e",
       "range": {
         "startLine": 188,
         "startChar": 50,
@@ -111,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "ba068154_62d83854",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-04T09:47:18Z",
+      "side": 1,
+      "message": "I don\u0027t see the impact of adding ECMP case in that spec.\nunless you think it is worth describing it for testing.\n\nI think it is more interestign to discuss it with l3vpn ipv6 internet spec [0].\nno ?\n\n\n[0] https://git.opendaylight.org/gerrit/#/c/54050/",
+      "parentUuid": "ba068154_ff1ccb6c",
+      "range": {
+        "startLine": 229,
+        "startChar": 2,
+        "endLine": 229,
+        "endChar": 51
+      },
+      "revId": "2b6fd7a9e445d66fc254179ae03196d2ebf5fa8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_3f2653bb",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 8
@@ -122,6 +236,30 @@
       "writtenOn": "2017-05-03T04:25:38Z",
       "side": 1,
       "message": "With multipath enabled, it could be output to a group.",
+      "range": {
+        "startLine": 238,
+        "startChar": 3,
+        "endLine": 239,
+        "endChar": 127
+      },
+      "revId": "2b6fd7a9e445d66fc254179ae03196d2ebf5fa8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_c2dda444",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-04T09:47:18Z",
+      "side": 1,
+      "message": "agree.\nbut I have a doubt on the need to add it.\n( for testing ?)\nsee comment above.",
+      "parentUuid": "ba068154_3f2653bb",
       "range": {
         "startLine": 238,
         "startChar": 3,
