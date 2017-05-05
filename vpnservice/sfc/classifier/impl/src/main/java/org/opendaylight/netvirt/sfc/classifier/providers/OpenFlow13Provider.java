@@ -68,6 +68,7 @@ public class OpenFlow13Provider {
     public static final short NSH_MDTYPE_ONE = 0x01;
     public static final short NSH_NP_ETH = 0x3;
     public static final long DEFAULT_NSH_CONTEXT_VALUE = 0L;
+    public static final long ACL_FLAG_CONTEXT_VALUE = 0xFFFFFFL;
     public static final long SFC_TUNNEL_ID = 0L;
     private static final int DEFAULT_NETMASK = 32;
     public static final String OF_URI_SEPARATOR = ":";
@@ -182,7 +183,7 @@ public class OpenFlow13Provider {
         actionList.add(OpenFlow13Utils.createActionNxLoadNp(NSH_NP_ETH, actionList.size()));
         actionList.add(OpenFlow13Utils.createActionNxLoadNsp((int) nsp, actionList.size()));
         actionList.add(OpenFlow13Utils.createActionNxLoadNsi(nsi, actionList.size()));
-        actionList.add(OpenFlow13Utils.createActionNxLoadNshc1(DEFAULT_NSH_CONTEXT_VALUE, actionList.size()));
+        actionList.add(OpenFlow13Utils.createActionNxLoadNshc1(ACL_FLAG_CONTEXT_VALUE, actionList.size()));
         actionList.add(OpenFlow13Utils.createActionNxLoadNshc2(DEFAULT_NSH_CONTEXT_VALUE, actionList.size()));
         actionList.add(OpenFlow13Utils.createActionNxLoadReg0(ipl, actionList.size()));
         actionList.add(OpenFlow13Utils.createActionResubmitTable(NwConstants.LPORT_DISPATCHER_TABLE,
@@ -235,10 +236,13 @@ public class OpenFlow13Provider {
      */
     public Flow createEgressClassifierFilterNshFlow(NodeId nodeId) {
         MatchBuilder match = new MatchBuilder();
-        OpenFlow13Utils.addMatchNshMdtype(match, NSH_MDTYPE_ONE);
+        OpenFlow13Utils.addMatchNshNsc1(match, ACL_FLAG_CONTEXT_VALUE);
 
-        InstructionsBuilder isb = OpenFlow13Utils.appendGotoTableInstruction(new InstructionsBuilder(),
-            NwConstants.EGRESS_SFC_CLASSIFIER_NEXTHOP_TABLE);
+        List<Action> actionList = new ArrayList<>();
+        actionList.add(OpenFlow13Utils.createActionNxLoadNshc1(DEFAULT_NSH_CONTEXT_VALUE, actionList.size()));
+
+        InstructionsBuilder isb = OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(actionList);
+        isb = OpenFlow13Utils.appendGotoTableInstruction(isb, NwConstants.EGRESS_SFC_CLASSIFIER_NEXTHOP_TABLE);
         String flowIdStr = EGRESS_CLASSIFIER_FILTER_NSH_FLOW_NAME + nodeId.getValue();
 
         return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_FILTER_TABLE,
@@ -304,7 +308,7 @@ public class OpenFlow13Provider {
         MatchBuilder match = new MatchBuilder();
 
         InstructionsBuilder isb = OpenFlow13Utils.appendGotoTableInstruction(new InstructionsBuilder(),
-            NwConstants.EGRESS_SFC_CLASSIFIER_EGRESS_TABLE);
+                NwConstants.EGRESS_SFC_CLASSIFIER_EGRESS_TABLE);
         String flowIdStr = EGRESS_CLASSIFIER_NEXTHOP_C1C2_FLOW_NAME + nodeId.getValue();
 
         return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_NEXTHOP_TABLE,
