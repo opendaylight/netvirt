@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_51f33c73",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1670,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-05-05T09:13:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_254bdab1",
+      "revId": "319ebe7dd2c3397ad5405e397e1d364ac936ff9b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_b1e8a87d",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1680,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-05-05T09:13:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_85c72612",
+      "revId": "319ebe7dd2c3397ad5405e397e1d364ac936ff9b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_91eda48e",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/ConfigureBgpCli.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-05-05T09:13:48Z",
+      "side": 1,
+      "message": "we cant reuse it. so kept this field",
+      "parentUuid": "ba068154_459ffe5f",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 4
+      },
+      "revId": "319ebe7dd2c3397ad5405e397e1d364ac936ff9b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_f101903a",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-05-05T09:13:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_a5eceac8",
+      "revId": "319ebe7dd2c3397ad5405e397e1d364ac936ff9b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_d1fe0c38",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-05-05T09:13:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_8504467f",
+      "revId": "319ebe7dd2c3397ad5405e397e1d364ac936ff9b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_31fcb83e",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-05-05T09:13:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_8560c636",
+      "revId": "319ebe7dd2c3397ad5405e397e1d364ac936ff9b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_11f9b44d",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-05-05T09:13:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_6565e244",
+      "revId": "319ebe7dd2c3397ad5405e397e1d364ac936ff9b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
