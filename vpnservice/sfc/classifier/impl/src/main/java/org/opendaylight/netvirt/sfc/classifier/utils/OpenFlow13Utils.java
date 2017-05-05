@@ -208,6 +208,14 @@ public final class OpenFlow13Utils {
         return ab.build();
     }
 
+    public static Action createActionNxLoadTunId(long value, int order) {
+        ActionBuilder ab = createActionBuilder(order);
+        ab.setAction(nxLoadRegAction(new DstNxTunIdCaseBuilder().setNxTunId(Boolean.TRUE).build(),
+                BigInteger.valueOf(value), 31, false));
+
+        return ab.build();
+    }
+
     public static Action createActionNxLoadNshMdtype(short value, int order) {
         ActionBuilder ab = createActionBuilder(order);
         ab.setAction(nxLoadRegAction(new DstNxNshMdtypeCaseBuilder().setNxNshMdtype(Boolean.TRUE).build(),
