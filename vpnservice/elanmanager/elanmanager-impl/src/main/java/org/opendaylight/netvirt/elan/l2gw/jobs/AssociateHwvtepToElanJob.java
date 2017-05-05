@@ -80,6 +80,7 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
             ListenableFuture<Void> lsCreateFuture = createLogicalSwitch(l2GatewayDevice, elanInstance);
             futures.add(lsCreateFuture);
         } else {
+            createLogicalSwitch(l2GatewayDevice, elanInstance);
             String logicalSwitchName = ElanL2GatewayUtils.getLogicalSwitchFromElan(elanInstanceName);
             LOG.info("{} is already created in {}; adding remaining configurations", logicalSwitchName, hwvtepNodeId);
 

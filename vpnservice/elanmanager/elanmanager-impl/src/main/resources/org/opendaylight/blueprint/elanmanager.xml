@@ -200,7 +200,7 @@
 
   <bean id="l2GatewayConnectionListener"
     class="org.opendaylight.netvirt.elan.l2gw.listeners.L2GatewayConnectionListener"
-    destroy-method="close">
+    init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="elanUtils" />
   </bean>

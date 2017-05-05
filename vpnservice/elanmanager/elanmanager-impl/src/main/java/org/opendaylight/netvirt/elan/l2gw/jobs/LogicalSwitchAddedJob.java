@@ -12,12 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepRemoteMcastMacListener;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.slf4j.Logger;
@@ -77,19 +75,8 @@ public class LogicalSwitchAddedJob implements Callable<List<ListenableFuture<Voi
             new NodeId(elanL2GwDevice.getHwvtepNodeId()), logicalSwitchName, physicalDevice, defaultVlanId));
         LOG.info("creating mast mac entries for {} {}", logicalSwitchName, elanL2GwDevice.getHwvtepNodeId());
         futures.add(elanL2GatewayMulticastUtils.handleMcastForElanL2GwDeviceAdd(logicalSwitchName, elanL2GwDevice));
-
-        List<IpAddress> expectedPhyLocatorIps = new ArrayList<>();
-        HwvtepRemoteMcastMacListener list = new HwvtepRemoteMcastMacListener(broker,
-                elanUtils, logicalSwitchName, elanL2GwDevice, expectedPhyLocatorIps,
-            () -> {
-                LOG.info("adding remote ucast macs for {} {}", logicalSwitchName,
-                    elanL2GwDevice.getHwvtepNodeId());
-                List<ListenableFuture<Void>> futures1 = new ArrayList<>();
-                futures1.add(elanL2GatewayUtils.installElanMacsInL2GatewayDevice(
-                    logicalSwitchName, elanL2GwDevice));
-                return futures1;
-            });
-
+        futures.add(elanL2GatewayUtils.installElanMacsInL2GatewayDevice(
+                logicalSwitchName, elanL2GwDevice));
         return futures;
     }
 
