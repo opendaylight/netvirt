@@ -158,8 +158,8 @@ public class OpenFlow13ProviderTest {
         checkActionLoadNshNp(actionList.get(2));
         checkActionLoadNsp(actionList.get(3));
         checkActionLoadNsi(actionList.get(4));
-        checkActionLoadNshc1(actionList.get(5));
-        checkActionLoadNshc2(actionList.get(6));
+        checkActionLoadNshc1(actionList.get(5), OpenFlow13Provider.ACL_FLAG_CONTEXT_VALUE);
+        checkActionLoadNshc2(actionList.get(6), OpenFlow13Provider.DEFAULT_NSH_CONTEXT_VALUE);
         checkActionLoadReg0(actionList.get(7),
                 InetAddresses.coerceToInteger(InetAddresses.forString(SFF_IP_STR)) & 0xffffffffL);
         checkActionResubmit(curInstruction, NwConstants.LPORT_DISPATCHER_TABLE);
@@ -194,8 +194,11 @@ public class OpenFlow13ProviderTest {
 
         checkMatchNshMdType1(flow.getMatch());
 
-        assertEquals(1, flow.getInstructions().getInstruction().size());
-        checkActionGotoTable(flow.getInstructions().getInstruction().get(0).getInstruction(),
+        assertEquals(2, flow.getInstructions().getInstruction().size());
+        List<Action> actionList;
+        actionList = checkApplyActionSize(flow.getInstructions().getInstruction().get(0).getInstruction(), 1);
+        checkActionLoadNshc1(actionList.get(0), OpenFlow13Provider.DEFAULT_NSH_CONTEXT_VALUE);
+        checkActionGotoTable(flow.getInstructions().getInstruction().get(1).getInstruction(),
                 NwConstants.EGRESS_SFC_CLASSIFIER_NEXTHOP_TABLE);
     }
 
@@ -513,18 +516,20 @@ public class OpenFlow13ProviderTest {
         assertTrue(nsiCase.isNxNsiDst());
     }
 
-    private void checkActionLoadNshc1(Action action) {
+    private void checkActionLoadNshc1(Action action, long c1) {
         NxActionRegLoadNodesNodeTableFlowApplyActionsCase regLoad =
                 (NxActionRegLoadNodesNodeTableFlowApplyActionsCase) action.getAction();
         DstNxNshc1Case c1Case = (DstNxNshc1Case) regLoad.getNxRegLoad().getDst().getDstChoice();
         assertTrue(c1Case.isNxNshc1Dst());
+        assertEquals(regLoad.getNxRegLoad().getValue().longValue(), c1);
     }
 
-    private void checkActionLoadNshc2(Action action) {
+    private void checkActionLoadNshc2(Action action, long c2) {
         NxActionRegLoadNodesNodeTableFlowApplyActionsCase regLoad =
                 (NxActionRegLoadNodesNodeTableFlowApplyActionsCase) action.getAction();
         DstNxNshc2Case c2Case = (DstNxNshc2Case) regLoad.getNxRegLoad().getDst().getDstChoice();
         assertTrue(c2Case.isNxNshc2Dst());
+        assertEquals(regLoad.getNxRegLoad().getValue().longValue(), c2);
     }
 
     private void checkActionLoadReg0(Action action, long reg0) {
