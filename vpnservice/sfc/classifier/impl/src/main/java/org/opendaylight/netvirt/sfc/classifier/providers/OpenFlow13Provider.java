@@ -68,6 +68,7 @@ public class OpenFlow13Provider {
     public static final short NSH_MDTYPE_ONE = 0x01;
     public static final short NSH_NP_ETH = 0x3;
     public static final long DEFAULT_NSH_CONTEXT_VALUE = 0L;
+    public static final long SFC_TUNNEL_ID = 0L;
     private static final int DEFAULT_NETMASK = 32;
     public static final String OF_URI_SEPARATOR = ":";
 
@@ -281,6 +282,7 @@ public class OpenFlow13Provider {
         List<Action> actionList = new ArrayList<>();
         actionList.add(OpenFlow13Utils.createActionNxMoveTunIpv4DstToNsc1Register(actionList.size()));
         actionList.add(OpenFlow13Utils.createActionNxMoveTunIdToNsc2Register(actionList.size()));
+        actionList.add(OpenFlow13Utils.createActionNxLoadTunId(SFC_TUNNEL_ID, actionList.size()));
         actionList.add(OpenFlow13Utils.createActionNxMoveReg0ToTunIpv4Dst(actionList.size()));
 
         InstructionsBuilder isb = OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(actionList);
