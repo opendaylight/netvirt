@@ -77,19 +77,8 @@ public class LogicalSwitchAddedJob implements Callable<List<ListenableFuture<Voi
             new NodeId(elanL2GwDevice.getHwvtepNodeId()), logicalSwitchName, physicalDevice, defaultVlanId));
         LOG.info("creating mast mac entries for {} {}", logicalSwitchName, elanL2GwDevice.getHwvtepNodeId());
         futures.add(elanL2GatewayMulticastUtils.handleMcastForElanL2GwDeviceAdd(logicalSwitchName, elanL2GwDevice));
-
-        List<IpAddress> expectedPhyLocatorIps = new ArrayList<>();
-        HwvtepRemoteMcastMacListener list = new HwvtepRemoteMcastMacListener(broker,
-                elanUtils, logicalSwitchName, elanL2GwDevice, expectedPhyLocatorIps,
-            () -> {
-                LOG.info("adding remote ucast macs for {} {}", logicalSwitchName,
-                    elanL2GwDevice.getHwvtepNodeId());
-                List<ListenableFuture<Void>> futures1 = new ArrayList<>();
-                futures1.add(elanL2GatewayUtils.installElanMacsInL2GatewayDevice(
-                    logicalSwitchName, elanL2GwDevice));
-                return futures1;
-            });
-
+        futures.add(elanL2GatewayUtils.installElanMacsInL2GatewayDevice(
+                logicalSwitchName, elanL2GwDevice));
         return futures;
     }
 
