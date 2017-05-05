@@ -231,14 +231,15 @@ public class OpenFlow13ProviderTest {
 
         assertEquals(2, flow.getInstructions().getInstruction().size());
         Instruction curInstruction = flow.getInstructions().getInstruction().get(0).getInstruction();
-        List<Action> actionList = checkApplyActionSize(curInstruction, 3);
+        List<Action> actionList = checkApplyActionSize(curInstruction, 4);
 
         checkActionMoveTunIpv4(actionList.get(0), true);
         checkActionMoveNsc1(actionList.get(0), false);
         checkActionMoveTunId(actionList.get(1), true);
         checkActionMoveNsc2(actionList.get(1), false);
-        checkActionMoveTunReg0(actionList.get(2), true);
-        checkActionMoveTunIpv4(actionList.get(2), false);
+        checkActionLoadTunId(actionList.get(2), OpenFlow13Provider.SFC_TUNNEL_ID);
+        checkActionMoveTunReg0(actionList.get(3), true);
+        checkActionMoveTunIpv4(actionList.get(3), false);
 
         curInstruction = flow.getInstructions().getInstruction().get(1).getInstruction();
         checkActionGotoTable(curInstruction, NwConstants.EGRESS_SFC_CLASSIFIER_EGRESS_TABLE);
@@ -474,6 +475,14 @@ public class OpenFlow13ProviderTest {
         NxActionPushNshNodesNodeTableFlowApplyActionsCase pushNshCase =
                 (NxActionPushNshNodesNodeTableFlowApplyActionsCase) action.getAction();
         assertNotNull(pushNshCase.getNxPushNsh());
+    }
+
+    private void checkActionLoadTunId(Action action, long tunId) {
+        NxActionRegLoadNodesNodeTableFlowApplyActionsCase regLoad =
+                (NxActionRegLoadNodesNodeTableFlowApplyActionsCase) action.getAction();
+        DstNxTunIdCase mdTypeCase = (DstNxTunIdCase) regLoad.getNxRegLoad().getDst().getDstChoice();
+        assertTrue(mdTypeCase.isNxTunId());
+        assertEquals(regLoad.getNxRegLoad().getValue().longValue(), tunId);
     }
 
     private void checkActionLoadNshMdtype(Action action) {
