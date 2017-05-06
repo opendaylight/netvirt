@@ -34,6 +34,24 @@
       "revId": "6378ff17122354e3340679321a67748bdbbf5c1d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_4c7442fd",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-06T11:20:14Z",
+      "side": 1,
+      "message": "can you please expand the message to include what prefix {} rd {} primaryrd {} vpnName {} into the error.",
+      "parentUuid": "ba068154_fc3967d9",
+      "revId": "6378ff17122354e3340679321a67748bdbbf5c1d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
