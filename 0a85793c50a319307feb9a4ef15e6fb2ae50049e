@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_582fd8a1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/test/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkLocatorTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-05-08T21:21:10Z",
+      "side": 1,
+      "message": "this is quite weird and doesn\u0027t really make sense... it looks like you are interested in using the AbstractConcurrentDataBrokerTest, which offers you a \"real\" (not Mock) test implementation of DataBroker (which is good and is what I now recommend everyone use; but please use the ConstantSchemaAbstractDataBrokerTest instead of the AbstractConcurrentDataBrokerTest as it will be noticeably faster as soon as you use more than 1 of them in the project), yet you still use @RunWith(MockitoJUnitRunner.class) and @Mock DataBroker and the transactions... why?  The idea is that you do not have to Mock DataBroker and Txs thanks to the AbstractConcurrentDataBrokerTest - so I would remove this.  See also https://wiki.opendaylight.org/view/BestPractices/Tests",
+      "revId": "0a85793c50a319307feb9a4ef15e6fb2ae50049e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
