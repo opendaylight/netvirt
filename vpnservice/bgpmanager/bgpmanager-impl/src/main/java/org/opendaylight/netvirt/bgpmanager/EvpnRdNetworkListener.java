@@ -56,7 +56,7 @@ public class EvpnRdNetworkListener extends AsyncDataTreeChangeListenerBase<EvpnR
         if (BgpConfigurationManager.ignoreClusterDcnEventForFollower()) {
             return;
         }
-        String rd = rdToNetwork.getVrfId();
+        String rd = rdToNetwork.getRd();
         String elanName = rdToNetwork.getNetworkId();
         LOG.trace("Received EvpnRdToNetwork Add for RD {} Netwrok {}", rd, elanName);
         addExternalTepstoElanInstance(rd);
@@ -65,7 +65,7 @@ public class EvpnRdNetworkListener extends AsyncDataTreeChangeListenerBase<EvpnR
     @Override
     protected void update(InstanceIdentifier<EvpnRdToNetwork> instanceIdentifier, EvpnRdToNetwork rdToNetwork,
                           EvpnRdToNetwork rdToNetworkOld) {
-        String rd = rdToNetwork.getVrfId();
+        String rd = rdToNetwork.getRd();
         String elanName = rdToNetwork.getNetworkId();
         LOG.trace("Received EvpnRdToNetwork Update for RD {} Netwrok {}", rd, elanName);
         LOG.trace("Update operation not supported");
@@ -77,7 +77,7 @@ public class EvpnRdNetworkListener extends AsyncDataTreeChangeListenerBase<EvpnR
         if (BgpConfigurationManager.ignoreClusterDcnEventForFollower()) {
             return;
         }
-        String rd = rdToNetwork.getVrfId();
+        String rd = rdToNetwork.getRd();
         String elanName = rdToNetwork.getNetworkId();
         LOG.trace("Received EvpnRdToNetwork Delete for RD {} Netwrok {}", rd, elanName);
         deleteExternalTepsfromElanInstance(rd);
