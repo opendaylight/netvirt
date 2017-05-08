@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_989b00c9",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-05-08T15:35:58Z",
+      "side": 1,
+      "message": "I don\u0027t really understand why in the Then part you delete?  isn\u0027t that what elanService.deleteElanInstance() just did?  (FYI I don\u0027t know much about the implementation.)",
+      "revId": "15d30cc01986a5c5e5bf473922261ddc37b2101e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_b881a44c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-05-08T15:35:58Z",
+      "side": 1,
+      "message": "this is strange - I assume you are trying to \"Then\" ASSERT now that it did indeed get deleted - but you are doing this by relying on an implementation detail of deleteElanInstance, and you are doing it strangely - what is assertNotNull on a (primitive, not object) boolean type return value supposed to \"prove\" (assert), in a test?  Perhaps instead you meant to just use singleTxdataBroker.syncReadOptional() to make sure that what something is initially there (but you probably have to create it in the \"Given\" section first?), but once you you deleted it, and that returned true, then indeed no longer there?  And when you have done that, then afterwards you could perhaps also assert that when you deleteElanInstance again, then it returned false?",
+      "revId": "15d30cc01986a5c5e5bf473922261ddc37b2101e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_1896f094",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-05-08T15:35:58Z",
+      "side": 1,
+      "message": "erm.. this \"asserts\" nothing useful at all? ;-)",
+      "revId": "15d30cc01986a5c5e5bf473922261ddc37b2101e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
