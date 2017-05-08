@@ -328,6 +328,8 @@
     <argument ref="dataBroker" />
     <argument ref="elanUtils" />
     <argument ref="idManagerService" />
+    <argument ref="elanEvpnFlowUtils" />
+    <argument ref="mdsalUtils" />
   </bean>
 
   <bean id="elanEvpnFlowUtils"
