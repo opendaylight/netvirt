@@ -8,24 +8,16 @@
 
 package org.opendaylight.netvirt.elan.evpn.listeners;
 
-import com.google.common.util.concurrent.ListenableFuture;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elan.evpn.utils.ElanEvpnFlowUtils;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnMacVrfUtils;
-import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.macvrfentries.MacVrfEntry;
@@ -84,40 +76,7 @@ public class MacVrfEntryListener extends AsyncDataTreeChangeListenerBase<MacVrfE
     @Override
     protected void add(InstanceIdentifier<MacVrfEntry> instanceIdentifier, MacVrfEntry macVrfEntry) {
         LOG.info("ADD: Adding DMAC Entry for MACVrfEntry {} ", macVrfEntry);
-        String elanName = evpnMacVrfUtils.getElanNameByMacvrfiid(instanceIdentifier);
-        if (elanName == null) {
-            LOG.trace("ADD: Error : elanName is null for iid {}", instanceIdentifier);
-            return;
-        }
-        List<DpnInterfaces> dpnInterfaceLists = elanUtils.getInvolvedDpnsInElan(elanName);
-        if (dpnInterfaceLists == null) {
-            LOG.error("ADD: Error : dpnInterfaceLists is null for elan {}", elanName);
-            return;
-        }
-
-        if (evpnMacVrfUtils.checkEvpnAttachedToNet(elanName)) {
-            //TODO(Riyaz) : Check if accessing first nexthop address is right solution
-            String nexthopIP = macVrfEntry.getRoutePaths().get(0).getNexthopAddress();
-            Long elanTag = evpnMacVrfUtils.getElanTagByMacvrfiid(instanceIdentifier);
-            String dstMacAddress = macVrfEntry.getMac();
-            long vni = macVrfEntry.getL2vni();
-            DataStoreJobCoordinator.getInstance().enqueueJob(dstMacAddress, () -> {
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                dpnInterfaceLists.forEach(dpnInterfaces -> {
-                    BigInteger dpId = dpnInterfaces.getDpId();
-                    LOG.info("ADD: Build DMAC flow with dpId {}, nexthopIP {}, elanTag {},"
-                                    + "vni {}, dstMacAddress {}, elanName {} ",
-                            dpId, nexthopIP, elanTag, vni, dstMacAddress, elanName);
-                    ElanEvpnFlowUtils.EvpnDmacFlowBuilder dmacFlowBuilder = new ElanEvpnFlowUtils.EvpnDmacFlowBuilder();
-                    dmacFlowBuilder.setDpId(dpId).setNexthopIP(nexthopIP).setElanTag(elanTag).setVni(vni)
-                            .setDstMacAddress(dstMacAddress).setElanName(elanName);
-                    Flow flow = elanEvpnFlowUtils.evpnBuildDmacFlowForExternalRemoteMac(dmacFlowBuilder.build());
-
-                    futures.add(mdsalManager.installFlow(dpId, flow));
-                });
-                return futures;
-            }, ElanConstants.JOB_MAX_RETRIES);
-        }
+        evpnMacVrfUtils.addEvpnDmacFlow(instanceIdentifier, macVrfEntry);
     }
 
     @Override
@@ -128,36 +87,6 @@ public class MacVrfEntryListener extends AsyncDataTreeChangeListenerBase<MacVrfE
     @Override
     protected void remove(InstanceIdentifier<MacVrfEntry> instanceIdentifier, MacVrfEntry macVrfEntry) {
         LOG.info("REMOVE: Removing DMAC Entry for MACVrfEntry {} ", macVrfEntry);
-
-        String elanName = evpnMacVrfUtils.getElanNameByMacvrfiid(instanceIdentifier);
-        if (elanName == null) {
-            LOG.error("REMOVE: Error : elanName is null for iid {}", instanceIdentifier);
-            return;
-        }
-        List<DpnInterfaces> dpnInterfaceLists = elanUtils.getInvolvedDpnsInElan(elanName);
-        if (dpnInterfaceLists == null) {
-            LOG.error("DELETE: Error : dpnInterfaceLists is null for elan {}", elanName);
-            return;
-        }
-
-        if (evpnMacVrfUtils.checkEvpnAttachedToNet(elanName)) {
-            //TODO(Riyaz) : Check if accessing first nexthop address is right
-            String nexthopIP = macVrfEntry.getRoutePaths().get(0).getNexthopAddress();
-            Long elanTag = evpnMacVrfUtils.getElanTagByMacvrfiid(instanceIdentifier);
-            String macToRemove = macVrfEntry.getMac();
-            DataStoreJobCoordinator.getInstance().enqueueJob(macToRemove, () -> {
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                dpnInterfaceLists.forEach(dpnInterfaces -> {
-                    BigInteger dpId = dpnInterfaces.getDpId();
-                    ElanEvpnFlowUtils.EvpnDmacFlowBuilder dmacFlowBuilder = new ElanEvpnFlowUtils.EvpnDmacFlowBuilder();
-                    dmacFlowBuilder.setDpId(dpId).setNexthopIP(nexthopIP).setElanTag(elanTag)
-                            .setDstMacAddress(macToRemove);
-                    LOG.info("REMOVE: Deleting DMAC Flows for external MAC. elanTag {}, dpId {},"
-                            + "nexthopIP {}, macToRemove {}", elanTag, dpId, nexthopIP, macToRemove);
-                    elanEvpnFlowUtils.evpnDeleteDmacFlowsToExternalMac(dmacFlowBuilder.build());
-                });
-                return futures;
-            }, ElanConstants.JOB_MAX_RETRIES);
-        }
+        evpnMacVrfUtils.removeEvpnDmacFlow(instanceIdentifier, macVrfEntry);
     }
 }
