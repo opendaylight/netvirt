@@ -7,16 +7,27 @@
  */
 package org.opendaylight.netvirt.elan.utils;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.function.Function;
+
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.genius.utils.clustering.ClusteringUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
+import org.opendaylight.netvirt.elan.l2gw.utils.SettableFutureCallback;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,4 +90,26 @@ public class ElanClusterUtils {
         });
     }
 
+    public static <T extends DataObject> void asyncReadAndExecute(final DataBroker broker,
+                                                                  final LogicalDatastoreType datastoreType,
+                                                                  final InstanceIdentifier<T> iid,
+                                                                  final String jobKey,
+                                                                  final Function<Optional<T>, Void> function) {
+        DataStoreJobCoordinator.getInstance().enqueueJob(jobKey, () -> {
+            SettableFuture settableFuture = SettableFuture.create();
+            List<ListenableFuture<Void>> futures = Lists.newArrayList(settableFuture);
+
+            ReadWriteTransaction tx = broker.newReadWriteTransaction();
+
+            Futures.addCallback(tx.read(datastoreType, iid),
+                    new SettableFutureCallback<Optional<T>>(settableFuture) {
+                        public void onSuccess(Optional<T> data) {
+                            function.apply(data);
+                            super.onSuccess(data);
+                        }
+                    });
+
+            return futures;
+        }, ElanConstants.JOB_MAX_RETRIES);
+    }
 }

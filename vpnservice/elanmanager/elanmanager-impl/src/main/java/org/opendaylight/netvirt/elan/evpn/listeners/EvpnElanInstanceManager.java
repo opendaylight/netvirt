@@ -13,6 +13,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.netvirt.elan.evpn.utils.EvpnMacVrfUtils;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.EvpnAugmentation;
@@ -30,12 +31,15 @@ public class EvpnElanInstanceManager extends AsyncDataTreeChangeListenerBase<Evp
 
     private final DataBroker broker;
     private final EvpnUtils evpnUtils;
+    private final EvpnMacVrfUtils evpnMacVrfUtils;
 
     @Inject
-    public EvpnElanInstanceManager(final DataBroker dataBroker, final EvpnUtils evpnUtils) {
+    public EvpnElanInstanceManager(final DataBroker dataBroker, final EvpnUtils evpnUtils,
+                                   EvpnMacVrfUtils evpnMacVrfUtils) {
         super(EvpnAugmentation.class, EvpnElanInstanceManager.class);
         this.broker = dataBroker;
         this.evpnUtils = evpnUtils;
+        this.evpnMacVrfUtils = evpnMacVrfUtils;
     }
 
     @Override
@@ -54,12 +58,14 @@ public class EvpnElanInstanceManager extends AsyncDataTreeChangeListenerBase<Evp
     protected void add(InstanceIdentifier<EvpnAugmentation> instanceIdentifier, EvpnAugmentation evpnAugmentation) {
         String elanName = instanceIdentifier.firstKeyOf(ElanInstance.class).getElanInstanceName();
         evpnUtils.advertiseEvpnRT2Routes(evpnAugmentation, elanName);
+        evpnMacVrfUtils.updateEvpnDmacFlows(elanName, true);
     }
 
     @Override
     protected void remove(InstanceIdentifier<EvpnAugmentation> instanceIdentifier, EvpnAugmentation evpnAugmentation) {
         String elanName = instanceIdentifier.firstKeyOf(ElanInstance.class).getElanInstanceName();
         evpnUtils.withdrawEvpnRT2Routes(evpnAugmentation, elanName);
+        evpnMacVrfUtils.updateEvpnDmacFlows(elanName, false);
     }
 
     @Override
@@ -68,8 +74,10 @@ public class EvpnElanInstanceManager extends AsyncDataTreeChangeListenerBase<Evp
         String elanName = instanceIdentifier.firstKeyOf(ElanInstance.class).getElanInstanceName();
         if (evpnUtils.isWithdrawEvpnRT2Routes(original, update)) {
             evpnUtils.withdrawEvpnRT2Routes(original, elanName);
+            evpnMacVrfUtils.updateEvpnDmacFlows(elanName, false);
         } else if (evpnUtils.isAdvertiseEvpnRT2Routes(original, update)) {
             evpnUtils.advertiseEvpnRT2Routes(update, elanName);
+            evpnMacVrfUtils.updateEvpnDmacFlows(elanName, true);
         }
     }
 
