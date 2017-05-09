@@ -12,6 +12,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.inject.AbstractLifecycle;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -35,6 +36,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
     private final NAPTSwitchSelector naptSwitchSelector;
     private NatMode natMode;
     private final IVpnManager vpnManager;
+    private final ExternalRoutersListener externalRouterListener;
+    private final IElanService elanManager;
 
     @Inject
     public SnatServiceImplFactory(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -44,7 +47,9 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
             final NaptManager naptManager,
             final NAPTSwitchSelector naptSwitchSelector,
             final IVpnManager vpnManager,
-            final NatserviceConfig config) {
+            final NatserviceConfig config,
+            final ExternalRoutersListener externalRouterListener,
+            final IElanService elanManager) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.itmManager = itmManager;
@@ -53,6 +58,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         this.naptManager = naptManager;
         this.naptSwitchSelector = naptSwitchSelector;
         this.vpnManager = vpnManager;
+        this.externalRouterListener = externalRouterListener;
+        this.elanManager = elanManager;
         if (config != null) {
             this.natMode = config.getNatMode();
         }
@@ -68,15 +75,23 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         LOG.info("{} close", getClass().getSimpleName());
     }
 
-    public AbstractSnatService createSnatServiceImpl() {
+    public AbstractSnatService createFlatVlanSnatServiceImpl() {
 
         if (natMode == NatMode.Conntrack) {
-            return new ConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, interfaceManager, idManager,
-                naptManager, naptSwitchSelector, vpnManager);
+            return new FlatVlanConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, interfaceManager,
+                    idManager, naptManager, naptSwitchSelector, vpnManager);
         }
         return null;
     }
 
+    public AbstractSnatService createVxlanGreSnatServiceImpl() {
+
+        if (natMode == NatMode.Conntrack) {
+            return new VxlanGreConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, interfaceManager,
+                    idManager, naptManager, naptSwitchSelector, vpnManager, externalRouterListener, elanManager);
+        }
+        return null;
+    }
 
 
 }

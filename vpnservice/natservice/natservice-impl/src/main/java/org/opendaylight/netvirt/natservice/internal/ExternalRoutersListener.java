@@ -228,6 +228,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         String routerName = routers.getRouterName();
         LOG.info("add : external router event for {}", routerName);
         NatUtil.createRouterIdsConfigDS(dataBroker, routerName);
+        NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager, idManager,
+                NatConstants.ODL_VNI_POOL_NAME);
+
+        long segmentId = NatUtil.getVpnId(dataBroker, routerName);
         if (natMode == NatMode.Conntrack) {
             Uuid bgpVpnUuid = NatUtil.getVpnForRouter(dataBroker, routerName);
             if (bgpVpnUuid != null) {
@@ -236,6 +240,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             List<ExternalIps> externalIps = routers.getExternalIps();
             // Allocate Primary Napt Switch for this router
             if (routers.isEnableSnat() && externalIps != null && !externalIps.isEmpty()) {
+                naptManager.initialiseExternalCounter(routers, segmentId);
+                subnetRegisterMapping(routers, segmentId);
                 boolean result = centralizedSwitchScheduler.scheduleCentralizedSwitch(routerName);
             }
             //snatServiceManger.notify(routers, null, Action.ADD);
@@ -248,7 +254,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         routerName, ex);
             }
 
-            long segmentId = NatUtil.getVpnId(dataBroker, routerName);
             // Allocate Primary Napt Switch for this router
             BigInteger primarySwitchId = getPrimaryNaptSwitch(routerName, segmentId);
             if (primarySwitchId == null || primarySwitchId.equals(BigInteger.ZERO)) {
@@ -325,10 +330,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 primarySwitchId, routerName);
             return primarySwitchId;
         }
-        // Validating and creating VNI pool during when NAPT switch is selected.
-        // With Assumption this might be the first NAT service comes up.
-        NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager, idManager,
-                NatConstants.ODL_VNI_POOL_NAME);
+
         // Allocated an id from VNI pool for the Router.
         NatOverVxlanUtil.getRouterVni(idManager, routerName, NatConstants.INVALID_ID);
         primarySwitchId = naptSwitchSelector.selectNewNAPTSwitch(routerName);
@@ -928,7 +930,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         return flowEntity;
     }
 
-    private void handleSnatReverseTraffic(BigInteger dpnId, Routers router, long routerId, String routerName,
+    public void handleSnatReverseTraffic(BigInteger dpnId, Routers router, long routerId, String routerName,
             String externalIp) {
         LOG.debug("handleSnatReverseTraffic : entry for DPN ID {}, routerId {}, externalIp: {}",
             dpnId, routerId, externalIp);
@@ -944,16 +946,14 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             return;
         }
         advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnName, routerId, routerName,
-            externalIp, router, vpnService, fibService, bgpManager, dataBroker, LOG);
+            externalIp, router);
         LOG.debug("handleSnatReverseTraffic : exit for DPN ID {}, routerId {}, externalIp : {}",
             dpnId, routerId, externalIp);
     }
 
     public void advToBgpAndInstallFibAndTsFlows(final BigInteger dpnId, final short tableId, final String vpnName,
                                                 final long routerId, final String routerName, final String externalIp,
-                                                final Routers router, VpnRpcService vpnService,
-                                                final FibRpcService fibService, final IBgpManager bgpManager,
-                                                final DataBroker dataBroker, final Logger log) {
+                                                final Routers router) {
         LOG.debug("advToBgpAndInstallFibAndTsFlows : entry for DPN ID {}, tableId {}, vpnname {} "
                 + "and externalIp {}", dpnId, tableId, vpnName, externalIp);
         String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
@@ -1029,7 +1029,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(dataBroker, externalIp,
                                 extRouter);
                         NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, externalSubnetId,
-                            externalIp, nextHopIp, extRouter.getNetworkId().getValue(), null, label, l3vni, log,
+                            externalIp, nextHopIp, extRouter.getNetworkId().getValue(), null, label, l3vni,
                             RouteOrigin.STATIC, dpnId);
 
                         //Install custom FIB routes
@@ -1072,16 +1072,16 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
             @Override
             public void onFailure(@Nonnull Throwable error) {
-                log.error("advToBgpAndInstallFibAndTsFlows : Error in generate label or fib install process", error);
+                LOG.error("advToBgpAndInstallFibAndTsFlows : Error in generate label or fib install process", error);
             }
 
             @Override
             public void onSuccess(RpcResult<Void> result) {
                 if (result.isSuccessful()) {
-                    log.info("advToBgpAndInstallFibAndTsFlows : Successfully installed custom FIB routes for prefix {}",
+                    LOG.info("advToBgpAndInstallFibAndTsFlows : Successfully installed custom FIB routes for prefix {}",
                             externalIp);
                 } else {
-                    log.error("advToBgpAndInstallFibAndTsFlows : Error in rpc call to create custom Fib entries "
+                    LOG.error("advToBgpAndInstallFibAndTsFlows : Error in rpc call to create custom Fib entries "
                             + "for prefix {} in DPN {}, {}", externalIp, dpnId, result.getErrors());
                 }
             }
@@ -1580,8 +1580,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     }
                 }
                 advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnName, routerId, routerName,
-                    leastLoadedExtIp + "/" + leastLoadedExtIpPrefix, router,
-                    vpnService, fibService, bgpManager, dataBroker, LOG);
+                    leastLoadedExtIp + "/" + leastLoadedExtIpPrefix, router);
             }
         }
     }
