@@ -946,7 +946,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         return flowEntity;
     }
 
-    private void handleSnatReverseTraffic(BigInteger dpnId, Routers router, long routerId, String routerName,
+    public void handleSnatReverseTraffic(BigInteger dpnId, Routers router, long routerId, String routerName,
             String externalIp, WriteTransaction writeFlowInvTx) {
         LOG.debug("handleSnatReverseTraffic : entry for DPN ID {}, routerId {}, externalIp: {}",
             dpnId, routerId, externalIp);
