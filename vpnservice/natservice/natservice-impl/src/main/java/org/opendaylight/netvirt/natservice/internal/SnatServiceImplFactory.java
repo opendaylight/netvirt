@@ -35,6 +35,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
     private final NAPTSwitchSelector naptSwitchSelector;
     private NatMode natMode;
     private final IVpnManager vpnManager;
+    private final ExternalRoutersListener externalRouterListener;
 
     @Inject
     public SnatServiceImplFactory(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -44,6 +45,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
             final NaptManager naptManager,
             final NAPTSwitchSelector naptSwitchSelector,
             final IVpnManager vpnManager,
+            final ExternalRoutersListener externalRouterListener,
             final NatserviceConfig config) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
@@ -53,6 +55,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         this.naptManager = naptManager;
         this.naptSwitchSelector = naptSwitchSelector;
         this.vpnManager = vpnManager;
+        this.externalRouterListener = externalRouterListener;
         if (config != null) {
             this.natMode = config.getNatMode();
         }
@@ -68,15 +71,23 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         LOG.info("{} close", getClass().getSimpleName());
     }
 
-    public AbstractSnatService createSnatServiceImpl() {
+    public AbstractSnatService createFlatVlanSnatServiceImpl() {
 
         if (natMode == NatMode.Conntrack) {
-            return new ConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, interfaceManager, idManager,
-                naptManager, naptSwitchSelector, vpnManager);
+            return new FlatVlanConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, interfaceManager,
+                    idManager, naptManager, naptSwitchSelector, vpnManager, externalRouterListener);
         }
         return null;
     }
 
+    public AbstractSnatService createVxlanGreSnatServiceImpl() {
+
+        if (natMode == NatMode.Conntrack) {
+            return new VxlanGreConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, interfaceManager,
+                    idManager, naptManager, naptSwitchSelector, vpnManager, externalRouterListener);
+        }
+        return null;
+    }
 
 
 }
