@@ -67,6 +67,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -314,8 +315,8 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             data1 = Lists.transform(data1, withoutUuidTransformer);
             data2 = Lists.transform(data2, withoutUuidTransformer);
 
-            Map<String, DataObject> map1 = new HashMap<>();
-            Map<String, DataObject> map2 = new HashMap<>();
+            Map<Identifier, DataObject> map1 = new HashMap<>();
+            Map<Identifier, DataObject> map2 = new HashMap<>();
             for (DataObject dataObject : data1) {
                 map1.put(cmd.getKey(dataObject), dataObject);
             }
@@ -324,7 +325,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             }
             Set<DataObject> diff = Sets.newHashSet();
 
-            for (String key : map1.keySet()) {
+            for (Identifier key : map1.keySet()) {
                 DataObject obj1 = map1.get(key);
                 DataObject obj2 = map2.get(key);
                 if (obj2 == null || !cmd.areEqual(obj1, obj2)) {
@@ -349,7 +350,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             }
 
             diff = Sets.newHashSet();
-            for (String key : map2.keySet()) {
+            for (Identifier key : map2.keySet()) {
                 DataObject obj1 = map2.get(key);
                 DataObject obj2 = map1.get(key);
                 if (globalNodes || parentChildComparison) {
