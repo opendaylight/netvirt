@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -8,11 +8,13 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.merge;
 
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.TunnelCmd;
+import org.opendaylight.netvirt.elan.l2gw.ha.commands.TunnelIpCmd;
 
 public class PSAugmentationMerger
         extends MergeCommandsAggregator {
     public PSAugmentationMerger() {
         commands.add(new TunnelCmd());
+        commands.add(new TunnelIpCmd());
     }
 
     static PSAugmentationMerger instance = new PSAugmentationMerger();
