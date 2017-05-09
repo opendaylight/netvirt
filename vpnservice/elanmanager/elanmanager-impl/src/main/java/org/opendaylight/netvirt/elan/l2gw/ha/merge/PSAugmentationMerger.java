@@ -8,11 +8,13 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.merge;
 
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.TunnelCmd;
+import org.opendaylight.netvirt.elan.l2gw.ha.commands.TunnelIpCmd;
 
 public class PSAugmentationMerger
         extends MergeCommandsAggregator {
     public PSAugmentationMerger() {
         commands.add(new TunnelCmd());
+        commands.add(new TunnelIpCmd());
     }
 
     static PSAugmentationMerger instance = new PSAugmentationMerger();
