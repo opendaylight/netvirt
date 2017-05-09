@@ -239,6 +239,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
         NatUtil.createRouterIdsConfigDS(dataBroker, routerId, routerName);
         Uuid bgpVpnUuid = NatUtil.getVpnForRouter(dataBroker, routerName);
+        long segmentId = NatUtil.getVpnId(dataBroker, routerName);
         if (natMode == NatMode.Conntrack) {
             if (bgpVpnUuid != null) {
                 return;
@@ -246,6 +247,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             List<ExternalIps> externalIps = routers.getExternalIps();
             // Allocate Primary Napt Switch for this router
             if (routers.isEnableSnat() && externalIps != null && !externalIps.isEmpty()) {
+                naptManager.initialiseExternalCounter(routers, segmentId);
+                subnetRegisterMapping(routers, segmentId);
                 centralizedSwitchScheduler.scheduleCentralizedSwitch(routers);
             }
             //snatServiceManger.notify(routers, null, Action.ADD);
@@ -942,7 +945,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         return flowEntity;
     }
 
-    private void handleSnatReverseTraffic(BigInteger dpnId, Routers router, long routerId, String routerName,
+    public void handleSnatReverseTraffic(BigInteger dpnId, Routers router, long routerId, String routerName,
             String externalIp, WriteTransaction writeFlowInvTx) {
         LOG.debug("handleSnatReverseTraffic : entry for DPN ID {}, routerId {}, externalIp: {}",
             dpnId, routerId, externalIp);

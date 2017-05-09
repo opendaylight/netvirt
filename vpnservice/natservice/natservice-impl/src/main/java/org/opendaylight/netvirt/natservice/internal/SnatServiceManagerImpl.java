@@ -28,9 +28,13 @@ public class SnatServiceManagerImpl implements SnatServiceManager {
 
     @Inject
     public SnatServiceManagerImpl(final SnatServiceImplFactory factory) {
-        AbstractSnatService snatServiceImpl = factory.createSnatServiceImpl();
-        if (snatServiceImpl != null) {
-            addNatServiceListener(snatServiceImpl);
+        AbstractSnatService flatVlaSnatServiceImpl = factory.createFlatVlanSnatServiceImpl();
+        if (flatVlaSnatServiceImpl != null) {
+            addNatServiceListener(flatVlaSnatServiceImpl);
+        }
+        AbstractSnatService vxlanGreSnatServiceImpl = factory.createVxlanGreSnatServiceImpl();
+        if (vxlanGreSnatServiceImpl != null) {
+            addNatServiceListener(vxlanGreSnatServiceImpl);
         }
     }
 
