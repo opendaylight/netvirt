@@ -627,7 +627,7 @@ public class NatUtil {
                                       String macAddress,
                                       long label,
                                       long l3vni,
-                                      Logger log, RouteOrigin origin, BigInteger dpId) {
+                                      RouteOrigin origin, BigInteger dpId) {
         try {
             LOG.info("NAT Service : ADD: Adding Fib entry rd {} prefix {} nextHop {} label {}", rd,
                     prefix, nextHopIp, label);

@@ -696,7 +696,7 @@ public class NatTunnelInterfaceStateListener
                     Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(dataBroker, externalIp,
                             router);
                     NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, externalVpnName, rd, externalSubnetId,
-                            fibExternalIp, nextHopIp, networkId.getValue(), null /* mac-address */, label, l3vni, LOG,
+                            fibExternalIp, nextHopIp, networkId.getValue(), null /* mac-address */, label, l3vni,
                             RouteOrigin.STATIC, srcDpnId);
                     serviceId = label;
                 }
@@ -848,7 +848,7 @@ public class NatTunnelInterfaceStateListener
                         l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
                     }
                     NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, null,
-                            fibExternalIp, nextHopIp, null, null, label, l3vni, LOG, RouteOrigin.STATIC,
+                            fibExternalIp, nextHopIp, null, null, label, l3vni, RouteOrigin.STATIC,
                             fipCfgdDpnId);
                     serviceId = label;
                 }
