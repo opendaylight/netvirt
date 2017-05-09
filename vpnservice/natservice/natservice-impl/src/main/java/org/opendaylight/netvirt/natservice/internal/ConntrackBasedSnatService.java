@@ -42,7 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.action.rev1
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConntrackBasedSnatService extends AbstractSnatService {
+public abstract class ConntrackBasedSnatService extends AbstractSnatService {
 
     protected final int trackedNewCtState = 0x21;
     protected final int trackedNewCtMask = 0x21;
@@ -57,30 +57,6 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
             NAPTSwitchSelector naptSwitchSelector, IVpnManager vpnManager) {
         super(dataBroker, mdsalManager, itmManager, interfaceManager, idManager, naptManager, naptSwitchSelector,
                 vpnManager);
-    }
-
-    @Override
-    protected void installSnatSpecificEntriesForNaptSwitch(Routers routers, BigInteger dpnId, int addOrRemove) {
-        LOG.info("ConntrackBasedSnatService: installSnatSpecificEntriesForNaptSwitch for router {}",
-                routers.getRouterName());
-        String routerName = routers.getRouterName();
-        Long routerId = NatUtil.getVpnId(dataBroker, routerName);
-        int elanId = NatUtil.getElanInstanceByName(routers.getNetworkId().getValue(), dataBroker)
-                .getElanTag().intValue();
-        /* Install Outbound NAT entries */
-
-        installSnatMissEntryForPrimrySwch(dpnId, routerId, elanId, addOrRemove);
-        installTerminatingServiceTblEntry(dpnId, routerId, elanId, addOrRemove);
-        List<ExternalIps> externalIps = routers.getExternalIps();
-        createOutboundTblTrackEntry(dpnId, routerId, externalIps, addOrRemove);
-        createOutboundTblEntry(dpnId, routerId, externalIps, elanId, addOrRemove);
-        installNaptPfibFlow(routers, dpnId, externalIps, routerName, addOrRemove);
-
-        //Install Inbound NAT entries
-        Long extNetId = NatUtil.getVpnId(dataBroker, routers.getNetworkId().getValue());
-        installInboundEntry(dpnId, routerId, extNetId, externalIps, elanId, addOrRemove);
-        installNaptPfibEntry(dpnId, routerId, addOrRemove);
-
     }
 
     @Override
@@ -307,6 +283,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
 
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
+        listActionInfo.add(new ActionNxLoadInPort(BigInteger.ZERO));
         listActionInfo.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
         instructionInfo.add(new InstructionApplyActions(listActionInfo));
 
