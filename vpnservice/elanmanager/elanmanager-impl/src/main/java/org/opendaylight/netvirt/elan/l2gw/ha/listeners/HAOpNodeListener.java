@@ -102,7 +102,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
     public HAOpNodeListener(DataBroker db, HAEventHandler haEventHandler) throws Exception {
         super(OPERATIONAL, db);
         this.haEventHandler = haEventHandler;
-        this.managerListener = new ManagerListener(Managers.class, ManagerListener.class);
+        //this.managerListener = new ManagerListener(Managers.class, ManagerListener.class);
         LOG.info("Registering HwvtepDataChangeListener for operational nodes");
     }
 
@@ -171,10 +171,11 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
                             Node originalChildNode,
                             ReadWriteTransaction tx) throws ReadFailedException {
 
-       /* String oldHAId = HwvtepHAUtil.getHAIdFromManagerOtherConfig(originalChildNode);
+        String oldHAId = HwvtepHAUtil.getHAIdFromManagerOtherConfig(originalChildNode);
         if (!Strings.isNullOrEmpty(oldHAId)) { //was already ha child
-            InstanceIdentifier<Node> haPath = hwvtepHACache.getParent(childPath);
-            haEventHandler.copyChildGlobalOpUpdateToHAParent(updatedChildNode, originalChildNode, haPath, tx);
+            //The following update is taken care by HAListeners
+            //InstanceIdentifier<Node> haPath = hwvtepHACache.getParent(childPath);
+            //haEventHandler.copyChildGlobalOpUpdateToHAParent(updatedChildNode, originalChildNode, haPath, tx);
             return;//TODO handle unha case
         }
 
@@ -184,7 +185,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
             hwvtepHACache.updateConnectedNodeStatus(childPath);
             LOG.info("{} became ha child ", updatedChildNode.getNodeId().getValue());
             onGlobalNodeAdd(childPath, updatedChildNode, tx);
-        }*/
+        }
     }
 
     @Override
