@@ -133,10 +133,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected void installSnatCommonEntriesForNaptSwitch(Routers routers, BigInteger dpnId,  int addOrRemove) {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
-        Long extNetId = NatUtil.getVpnId(dataBroker, routers.getNetworkId().getValue());
         installDefaultFibRouteForSNAT(dpnId, routerId, addOrRemove);
-        List<ExternalIps> externalIps = routers.getExternalIps();
-        installInboundFibEntry(dpnId, extNetId,  externalIps, addOrRemove);
     }
 
     protected void installSnatCommonEntriesForNonNaptSwitch(Routers routers, BigInteger primarySwitchId,
