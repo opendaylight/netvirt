@@ -16,6 +16,24 @@
       "revId": "a18a9b5c158546c1b8c5d8ff9c6b8ebff8f0e318",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_ec888fe9",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2311,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-09T11:16:20Z",
+      "side": 1,
+      "message": "would that be ok ?\nopendaylight-user@root\u003efib-show\n   RD       Prefix                NextHop               Label    Origin \n-------------------------------------------------------------------\n   324b27c7-5ab7-4964-81c1-a49314c2225f  10.1.1.0/24           local                 \u003cnot set\u003e  c      \nopendaylight-user@root\u003e",
+      "parentUuid": "ba068154_33c1552f",
+      "revId": "a18a9b5c158546c1b8c5d8ff9c6b8ebff8f0e318",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
