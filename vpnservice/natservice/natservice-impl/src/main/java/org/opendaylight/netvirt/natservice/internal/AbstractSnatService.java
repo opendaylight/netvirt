@@ -36,6 +36,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.netvirt.natservice.api.SnatServiceListener;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -134,6 +135,14 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         Long extNetId = NatUtil.getVpnId(dataBroker, routers.getNetworkId().getValue());
+        if (extNetId == NatConstants.INVALID_ID) {
+            Uuid bgpVpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, routers.getNetworkId());
+            if (bgpVpnUuid != null) {
+                extNetId = NatUtil.getVpnId(dataBroker, bgpVpnUuid.getValue());
+                LOG.info("AbstractSnatService: installSnatCommonEntriesForNaptSwitch for router {} and "
+                        + "VPN_ID {}", routers.getRouterName(), extNetId);
+            }
+        }
         installDefaultFibRouteForSNAT(dpnId, routerId, addOrRemove);
         List<ExternalIps> externalIps = routers.getExternalIps();
         installInboundFibEntry(dpnId, extNetId,  externalIps, addOrRemove);

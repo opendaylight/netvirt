@@ -32,6 +32,10 @@ public class SnatServiceManagerImpl implements SnatServiceManager {
         if (snatServiceImpl != null) {
             addNatServiceListener(snatServiceImpl);
         }
+        AbstractSnatService vxlanGreSnatServiceImpl = factory.createVxlanGreSnatServiceImpl();
+        if (vxlanGreSnatServiceImpl != null) {
+            addNatServiceListener(vxlanGreSnatServiceImpl);
+        }
     }
 
     @Override

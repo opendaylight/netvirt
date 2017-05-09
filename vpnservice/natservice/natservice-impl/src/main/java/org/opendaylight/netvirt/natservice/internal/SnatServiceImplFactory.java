@@ -77,6 +77,14 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         return null;
     }
 
+    public AbstractSnatService createVxlanGreSnatServiceImpl() {
+
+        if (natMode == NatMode.Conntrack) {
+            return new VxlanGreConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, interfaceManager,
+                    idManager, naptManager, naptSwitchSelector, vpnManager);
+        }
+        return null;
+    }
 
 
 }
