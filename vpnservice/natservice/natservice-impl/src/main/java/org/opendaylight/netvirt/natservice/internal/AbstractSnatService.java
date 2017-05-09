@@ -296,7 +296,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         }
     }
 
-    private long createGroupId(String groupIdKey) {
+    protected long createGroupId(String groupIdKey) {
         AllocateIdInput getIdInput = new AllocateIdInputBuilder()
             .setPoolName(NatConstants.SNAT_IDPOOL_NAME).setIdKey(groupIdKey)
             .build();
@@ -310,12 +310,12 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         return 0;
     }
 
-    private String getGroupIdKey(String routerName) {
+    protected String getGroupIdKey(String routerName) {
         String groupIdKey = new String("snatmiss." + routerName);
         return groupIdKey;
     }
 
-    private String getTunnelInterfaceName(BigInteger srcDpId, BigInteger dstDpId) {
+    protected String getTunnelInterfaceName(BigInteger srcDpId, BigInteger dstDpId) {
         Class<? extends TunnelTypeBase> tunType = TunnelTypeVxlan.class;
         RpcResult<GetTunnelInterfaceNameOutput> rpcResult;
         try {

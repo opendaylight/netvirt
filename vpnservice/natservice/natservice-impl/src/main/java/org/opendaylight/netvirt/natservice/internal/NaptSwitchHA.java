@@ -948,15 +948,18 @@ public class NaptSwitchHA {
             //Install Fib entries for ExternalIps & program 36 -> 44
             Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
             String rd = NatUtil.getVpnRd(dataBroker, vpnName);
-            for (String externalIp : externalIps) {
-                removeFibEntry(rd, externalIp);
-                LOG.debug("installSnatFlows : advToBgpAndInstallFibAndTsFlows in naptswitch id {} "
-                    + "with vpnName {} and externalIp {}", naptSwitch, vpnName, externalIp);
-                externalRouterListener.advToBgpAndInstallFibAndTsFlows(naptSwitch, NwConstants.INBOUND_NAPT_TABLE,
-                    vpnName, routerId, routerName, externalIp, null /* external-router */, vpnService, fibService,
-                    bgpManager, dataBroker, LOG);
-                LOG.debug("installSnatFlows : Successfully added fib entries in naptswitch {} for "
-                    + "router {} with external IP {}", naptSwitch, routerId, externalIp);
+            if (externalIps != null) {
+                for (String externalIp : externalIps) {
+                    removeFibEntry(rd, externalIp);
+                    LOG.debug("installSnatFlows : advToBgpAndInstallFibAndTsFlows in naptswitch id {} "
+                            + "with vpnName {} and externalIp {}", naptSwitch, vpnName, externalIp);
+                    externalRouterListener.advToBgpAndInstallFibAndTsFlows(naptSwitch, NwConstants.INBOUND_NAPT_TABLE,
+                        vpnName, routerId, routerName, externalIp, null /* external-router */);
+                    LOG.debug("installSnatFlows : Successfully added fib entries in naptswitch {} for "
+                            + "router {} with external IP {}", naptSwitch, routerId, externalIp);
+                }
+            } else {
+                LOG.debug("installSnatFlows : External Ip not found for routerId {}", routerId);
             }
         } else {
             LOG.debug("installSnatFlows : Associated vpnName not found for router {}", routerId);

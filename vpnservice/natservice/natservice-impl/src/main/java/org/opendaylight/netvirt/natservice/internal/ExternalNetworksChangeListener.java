@@ -242,8 +242,7 @@ public class ExternalNetworksChangeListener
                     if (natMode == NatMode.Controller) {
                         externalRouterListener.advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE,
                                 vpnName, NatUtil.getVpnId(dataBroker, routerId.getValue()), routerId.getValue(),
-                                externalIp, null /* external-router */, vpnService, fibService, bgpManager, dataBroker,
-                                LOG);
+                                externalIp, null /* external-router */);
                     }
                 }
             } else {

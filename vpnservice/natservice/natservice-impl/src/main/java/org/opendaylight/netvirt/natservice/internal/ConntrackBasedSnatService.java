@@ -44,7 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.action.rev1
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConntrackBasedSnatService extends AbstractSnatService {
+public abstract class ConntrackBasedSnatService extends AbstractSnatService {
 
     protected final int trackedNewCtState = 0x21;
     protected final int trackedNewCtMask = 0x21;
@@ -304,6 +304,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
 
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
+        listActionInfo.add(new ActionNxLoadInPort(BigInteger.ZERO));
         listActionInfo.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
         instructionInfo.add(new InstructionApplyActions(listActionInfo));
 
