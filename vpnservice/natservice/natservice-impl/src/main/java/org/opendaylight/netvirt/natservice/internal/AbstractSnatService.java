@@ -65,6 +65,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected final ItmRpcService itmManager;
     protected final OdlInterfaceRpcService interfaceManager;
     private final IVpnManager vpnManager;
+    protected final ExternalRoutersListener externalRouterListener;
     private static final Logger LOG = LoggerFactory.getLogger(AbstractSnatService.class);
 
     public AbstractSnatService(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -73,7 +74,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             final IdManagerService idManager,
             final NaptManager naptManager,
             final NAPTSwitchSelector naptSwitchSelector,
-            final IVpnManager vpnManager) {
+            final IVpnManager vpnManager,
+            final ExternalRoutersListener externalRouterListener) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.itmManager = itmManager;
@@ -82,6 +84,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         this.naptManager = naptManager;
         this.naptSwitchSelector = naptSwitchSelector;
         this.vpnManager = vpnManager;
+        this.externalRouterListener = externalRouterListener;
     }
 
     public void init() {
@@ -161,7 +164,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             int addOrRemove);
 
     protected void installInboundFibEntry(BigInteger dpnId, String externalIp, String routerName, Long routerId,
-            int addOrRemove) {
+                                          int addOrRemove) {
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
         matches.add(MatchEthernetType.IPV4);
         if (addOrRemove == NwConstants.ADD_FLOW) {

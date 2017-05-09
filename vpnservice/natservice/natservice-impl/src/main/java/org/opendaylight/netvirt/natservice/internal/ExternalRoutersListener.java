@@ -917,7 +917,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         return flowEntity;
     }
 
-    private void handleSnatReverseTraffic(BigInteger dpnId, Routers router, long routerId, String routerName,
+    public void handleSnatReverseTraffic(BigInteger dpnId, Routers router, long routerId, String routerName,
             String externalIp) {
         LOG.debug("NAT Service : handleSnatReverseTraffic() entry for DPN ID {}, routerId {}, externalIp: {}",
             dpnId, routerId, externalIp);
@@ -934,16 +934,14 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             return;
         }
         advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnName, routerId, routerName,
-            externalIp, router, vpnService, fibService, bgpManager, dataBroker, LOG);
+            externalIp, router);
         LOG.debug("NAT Service : handleSnatReverseTraffic() exit for DPN ID {}, routerId {}, externalIp : {}",
             dpnId, routerId, externalIp);
     }
 
     public void advToBgpAndInstallFibAndTsFlows(final BigInteger dpnId, final short tableId, final String vpnName,
                                                 final long routerId, final String routerName, final String externalIp,
-                                                final Routers router, VpnRpcService vpnService,
-                                                final FibRpcService fibService, final IBgpManager bgpManager,
-                                                final DataBroker dataBroker, final Logger log) {
+                                                final Routers router) {
         LOG.debug("NAT Service : advToBgpAndInstallFibAndTsFlows() entry for DPN ID {}, tableId {}, vpnname {} "
                 + "and externalIp {}", dpnId, tableId, vpnName, externalIp);
         String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
@@ -1017,7 +1015,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(dataBroker, externalIp,
                                 extRouter);
                         NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, externalSubnetId,
-                            externalIp, nextHopIp, extRouter.getNetworkId().getValue(), null, label, l3vni, log,
+                            externalIp, nextHopIp, extRouter.getNetworkId().getValue(), null, label, l3vni,
                             RouteOrigin.STATIC, dpnId);
 
                         //Install custom FIB routes
@@ -1060,15 +1058,15 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
             @Override
             public void onFailure(Throwable error) {
-                log.error("NAT Service : Error in generate label or fib install process", error);
+                LOG.error("NAT Service : Error in generate label or fib install process", error);
             }
 
             @Override
             public void onSuccess(RpcResult<Void> result) {
                 if (result.isSuccessful()) {
-                    log.info("NAT Service : Successfully installed custom FIB routes for prefix {}", externalIp);
+                    LOG.info("NAT Service : Successfully installed custom FIB routes for prefix {}", externalIp);
                 } else {
-                    log.error("NAT Service : Error in rpc call to create custom Fib entries for prefix {} in "
+                    LOG.error("NAT Service : Error in rpc call to create custom Fib entries for prefix {} in "
                         + "DPN {}, {}", externalIp, dpnId, result.getErrors());
                 }
             }
@@ -1560,8 +1558,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     dpnId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
                 }
                 advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnName, routerId, routerName,
-                    leastLoadedExtIp + "/" + leastLoadedExtIpPrefix, router,
-                    vpnService, fibService, bgpManager, dataBroker, LOG);
+                    leastLoadedExtIp + "/" + leastLoadedExtIpPrefix, router);
             }
         }
     }
