@@ -68,15 +68,23 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         LOG.info("{} close", getClass().getSimpleName());
     }
 
-    public AbstractSnatService createSnatServiceImpl() {
+    public AbstractSnatService createFlatVlanSnatServiceImpl() {
 
         if (natMode == NatMode.Conntrack) {
-            return new ConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, interfaceManager, idManager,
-                naptManager, naptSwitchSelector, vpnManager);
+            return new FlatVlanConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, interfaceManager,
+                    idManager, naptManager, naptSwitchSelector, vpnManager);
         }
         return null;
     }
 
+    public AbstractSnatService createVxlanGreSnatServiceImpl() {
+
+        if (natMode == NatMode.Conntrack) {
+            return new VxlanGreConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, interfaceManager,
+                    idManager, naptManager, naptSwitchSelector, vpnManager);
+        }
+        return null;
+    }
 
 
 }
