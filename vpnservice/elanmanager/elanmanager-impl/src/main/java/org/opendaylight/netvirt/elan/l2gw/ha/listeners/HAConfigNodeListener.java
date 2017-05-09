@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016,2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -70,11 +70,13 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener {
                             Node haOriginal,
                             ReadWriteTransaction tx)
             throws InterruptedException, ExecutionException, ReadFailedException {
-        //copy the ha node data to children
+        //copy the ha node data to children taken care of the HAListeners
+        /*
         Set<InstanceIdentifier<Node>> childNodeIds = hwvtepHACache.getChildrenForHANode(key);
         for (InstanceIdentifier<Node> haChildNodeId : childNodeIds) {
             haEventHandler.copyHAGlobalUpdateToChild(haUpdated, haOriginal, haChildNodeId, tx);
         }
+        */
     }
 
     @Override
