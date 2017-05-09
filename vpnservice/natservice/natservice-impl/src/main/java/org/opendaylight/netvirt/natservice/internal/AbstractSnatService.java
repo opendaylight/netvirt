@@ -60,12 +60,12 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     static final int LOAD_END = mostSignificantBit(MetaDataUtil.METADATA_MASK_VRFID.intValue() | MetaDataUtil
             .METADATA_MASK_SH_FLAG.intValue());
 
-    private final DataBroker dataBroker;
-    private final IMdsalApiManager mdsalManager;
-    private final IdManagerService idManager;
-    private final NAPTSwitchSelector naptSwitchSelector;
-    private final ItmRpcService itmManager;
-    private final OdlInterfaceRpcService interfaceManager;
+    protected final DataBroker dataBroker;
+    protected final IMdsalApiManager mdsalManager;
+    protected final IdManagerService idManager;
+    protected final NAPTSwitchSelector naptSwitchSelector;
+    protected final ItmRpcService itmManager;
+    protected final OdlInterfaceRpcService interfaceManager;
 
     protected AbstractSnatService(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
             final ItmRpcService itmManager,
@@ -321,7 +321,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         }
     }
 
-    private long createGroupId(String groupIdKey) {
+    protected long createGroupId(String groupIdKey) {
         AllocateIdInput getIdInput = new AllocateIdInputBuilder()
             .setPoolName(NatConstants.SNAT_IDPOOL_NAME).setIdKey(groupIdKey)
             .build();
@@ -335,11 +335,11 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         return 0;
     }
 
-    private String getGroupIdKey(String routerName) {
+    protected String getGroupIdKey(String routerName) {
         return "snatmiss." + routerName;
     }
 
-    private String getTunnelInterfaceName(BigInteger srcDpId, BigInteger dstDpId) {
+    protected String getTunnelInterfaceName(BigInteger srcDpId, BigInteger dstDpId) {
         Class<? extends TunnelTypeBase> tunType = TunnelTypeVxlan.class;
         RpcResult<GetTunnelInterfaceNameOutput> rpcResult;
         try {
