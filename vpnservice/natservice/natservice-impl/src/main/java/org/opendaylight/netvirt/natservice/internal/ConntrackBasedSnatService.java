@@ -42,15 +42,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.action.rev1
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConntrackBasedSnatService extends AbstractSnatService {
+public abstract class ConntrackBasedSnatService extends AbstractSnatService {
     private static final Logger LOG = LoggerFactory.getLogger(ConntrackBasedSnatService.class);
 
-    private static final int TRACKED_NEW_CT_STATE = 0x21;
-    private static final int TRACKED_NEW_CT_MASK = 0x21;
-    private static final int SNAT_CT_STATE = 0x40;
-    private static final int SNAT_CT_STATE_MASK = 0x40;
-    private static final int DNAT_CT_STATE = 0x80;
-    private static final int DNAT_CT_STATE_MASK = 0x80;
+    protected static final int TRACKED_NEW_CT_STATE = 0x21;
+    protected static final int TRACKED_NEW_CT_MASK = 0x21;
+    protected static final int SNAT_CT_STATE = 0x40;
+    protected static final int SNAT_CT_STATE_MASK = 0x40;
+    protected static final int DNAT_CT_STATE = 0x80;
+    protected static final int DNAT_CT_STATE_MASK = 0x80;
 
     public ConntrackBasedSnatService(DataBroker dataBroker, IMdsalApiManager mdsalManager, ItmRpcService itmManager,
             OdlInterfaceRpcService interfaceManager, IdManagerService idManager,
