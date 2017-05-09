@@ -1,0 +1,245 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_ef87e10d",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-05-09T13:47:24Z",
+      "side": 1,
+      "message": "nit: The sentence needs small correction. It should be \"both IP4 \u0027and\u0027 IPv6 addresses\"",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_ef9ec155",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-05-09T13:47:24Z",
+      "side": 1,
+      "message": "nit: please remove \"from\"",
+      "range": {
+        "startLine": 33,
+        "startChar": 71,
+        "endLine": 33,
+        "endChar": 75
+      },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_cfb65ddc",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-05-09T13:47:24Z",
+      "side": 1,
+      "message": "It is possible to create multiple IPv6 subnets in a tenant network and Ipv6service supports IPAM (i.e., IPAddress Assignment) for such networks. Does this spec cover this use-case (i.e., say one SLAAC subnet and one dhcpv6-stateful subnet in the same network)?",
+      "range": {
+        "startLine": 35,
+        "startChar": 3,
+        "endLine": 35,
+        "endChar": 17
+      },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_4fca6d50",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-05-09T13:47:24Z",
+      "side": 1,
+      "message": "nit: s/more interesting/important",
+      "range": {
+        "startLine": 39,
+        "startChar": 77,
+        "endLine": 39,
+        "endChar": 93
+      },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_efec01ca",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-05-09T13:47:24Z",
+      "side": 1,
+      "message": "IMHO, I don\u0027t think this sentence is required in this SPEC. Please remove this.",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 75
+      },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_af095997",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-05-09T13:47:24Z",
+      "side": 1,
+      "message": "I\u0027m afraid, I did not understand this sentence. Are you suggesting that if you notice any issue in 1 to 4 (i.e., non-BGPVPN use-cases?), you will address the issue using BGPVPN?",
+      "range": {
+        "startLine": 62,
+        "startChar": 6,
+        "endLine": 63,
+        "endChar": 9
+      },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_ef036171",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-05-09T13:47:24Z",
+      "side": 1,
+      "message": "nit: s/there/then",
+      "range": {
+        "startLine": 73,
+        "startChar": 4,
+        "endLine": 73,
+        "endChar": 9
+      },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_cf2bfde9",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-05-09T13:47:24Z",
+      "side": 1,
+      "message": "Does this spec not cover the use-case where the two subnets (i.e., IPv4 and IPv6) are associated to the same Neutron router?",
+      "range": {
+        "startLine": 77,
+        "startChar": 65,
+        "endLine": 77,
+        "endChar": 84
+      },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_2ff56983",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-05-09T13:47:24Z",
+      "side": 1,
+      "message": "nit: s/belonw/belong",
+      "range": {
+        "startLine": 84,
+        "startChar": 33,
+        "endLine": 84,
+        "endChar": 39
+      },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_cf12ddb3",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-05-09T13:47:24Z",
+      "side": 1,
+      "message": "JFYI, in the current netvirt implementation we do support dual-stack use-cases like same router advertising all the prefixes that are present in the network. ipv6service has the necessary support.",
+      "range": {
+        "startLine": 153,
+        "startChar": 0,
+        "endLine": 154,
+        "endChar": 6
+      },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_0f84e5d2",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-05-09T13:47:24Z",
+      "side": 1,
+      "message": "Is late for Carbon isn\u0027t it?",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
