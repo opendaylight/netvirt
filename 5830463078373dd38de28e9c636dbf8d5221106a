@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_e6826651",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAConfigNodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-05-10T10:33:56Z",
+      "side": 1,
+      "message": "nit probably 2016, 2017",
+      "revId": "5830463078373dd38de28e9c636dbf8d5221106a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_a6b97e30",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/merge/PSAugmentationMerger.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-05-10T10:33:56Z",
+      "side": 1,
+      "message": "nit: 2017",
+      "revId": "5830463078373dd38de28e9c636dbf8d5221106a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
