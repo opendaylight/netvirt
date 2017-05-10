@@ -21,6 +21,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
@@ -276,10 +277,15 @@ public class ElanL2GatewayMulticastUtils {
 
         HwvtepLogicalSwitchRef lsRef = new HwvtepLogicalSwitchRef(HwvtepSouthboundUtils
                 .createLogicalSwitchesInstanceIdentifier(nodeId, new HwvtepNodeName(logicalSwitchName)));
-        RemoteMcastMacs remoteUcastMac = new RemoteMcastMacsBuilder()
+        RemoteMcastMacs remoteMcastMac = new RemoteMcastMacsBuilder()
                 .setMacEntryKey(new MacAddress(ElanConstants.UNKNOWN_DMAC)).setLogicalSwitchRef(lsRef)
                 .setLocatorSet(locators).build();
-        HwvtepUtils.putRemoteMcastMac(transaction, nodeId, remoteUcastMac);
+        HwvtepUtils.putRemoteMcastMac(transaction, nodeId, remoteMcastMac);
+        InstanceIdentifier<RemoteMcastMacs> iid = HwvtepSouthboundUtils.createRemoteMcastMacsInstanceIdentifier(nodeId,
+                remoteMcastMac.getKey());
+        ResourceBatchingManager.getInstance().put(ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY,
+                iid, remoteMcastMac);
+
     }
 
     /**
