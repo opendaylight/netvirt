@@ -11,11 +11,13 @@ import java.util.Collections;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
+import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
@@ -40,12 +42,15 @@ public class HwvtepLocalUcastMacListener extends
 
     private final DataBroker broker;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
+    private final ElanUtils elanUtils;
 
     public HwvtepLocalUcastMacListener(DataBroker broker, ElanUtils elanUtils) {
         super(LocalUcastMacs.class, HwvtepLocalUcastMacListener.class);
 
         this.broker = broker;
         this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
+        this.elanUtils = elanUtils;
+        ResourceBatchingManager.getInstance().registerDefaultBatchHandlers(this.broker);
     }
 
     public void init() {
@@ -72,7 +77,7 @@ public class HwvtepLocalUcastMacListener extends
         elanL2GwDevice.removeUcastLocalMac(macRemoved);
 
         elanL2GatewayUtils.unInstallL2GwUcastMacFromElan(elan, elanL2GwDevice,
-                Collections.singletonList(macRemoved.getMacEntryKey()));
+                Collections.singletonList(new MacAddress(macAddress.toLowerCase())));
     }
 
     protected String getElanName(LocalUcastMacs mac) {
@@ -90,17 +95,17 @@ public class HwvtepLocalUcastMacListener extends
     @Override
     protected void added(InstanceIdentifier<LocalUcastMacs> identifier, LocalUcastMacs macAdded) {
         String hwvtepNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
-        String macAddress = macAdded.getMacEntryKey().getValue();
+        String macAddress = macAdded.getMacEntryKey().getValue().toLowerCase();
 
         LOG.trace("LocalUcastMacs {} added to {}", macAddress, hwvtepNodeId);
 
-        ElanInstance elan = elanL2GatewayUtils.getElanInstanceForUcastLocalMac(macAdded);
+        String elanName = getElanName(macAdded);
+        ElanInstance elan = ElanUtils.getElanInstanceByName(broker, elanName);
         if (elan == null) {
             LOG.warn("Could not find ELAN for mac {} being added", macAddress);
             return;
         }
 
-        String elanName = elan.getElanInstanceName();
         L2GatewayDevice elanL2GwDevice = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanName, hwvtepNodeId);
         if (elanL2GwDevice == null) {
             LOG.warn("Could not find L2GatewayDevice for ELAN: {}, nodeID:{} from cache", elanName, hwvtepNodeId);
