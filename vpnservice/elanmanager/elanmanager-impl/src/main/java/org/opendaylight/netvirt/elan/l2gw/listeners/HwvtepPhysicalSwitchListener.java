@@ -168,7 +168,7 @@ public class HwvtepPhysicalSwitchListener
             }
 
             l2GwDevice.setConnected(false);
-            ElanL2GwCacheUtils.removeL2GatewayDeviceFromAllElanCache(psName);
+            //ElanL2GwCacheUtils.removeL2GatewayDeviceFromAllElanCache(psName);
         } else {
             LOG.error("Unable to find L2 Gateway details for {}", psName);
         }
@@ -223,14 +223,16 @@ public class HwvtepPhysicalSwitchListener
                     HAOpClusteredListener.addToCacheIfHAChildNode(globalNodeIid, (Node) globalNodeOptional.get());
                     if (hwvtepHACache.isHAEnabledDevice(globalNodeIid)) {
                         LOG.trace("Ha enabled device {}", globalNodeIid);
+                        return;
                     }
                     LOG.trace("Updating cache for node {}", globalNodeIid);
                     L2GatewayDevice l2GwDevice = L2GatewayCacheUtils.getL2DeviceFromCache(psName);
                     if (!hwvtepHACache.isHAParentNode(globalNodeIid)
                             && l2GwDevice != null && l2GwDevice.getHwvtepNodeId() != null
                             && !Objects.equals(l2GwDevice.getHwvtepNodeId(), globalNodeId)) {
-                        LOG.trace("Device {} {} is already Connected by ",
+                        LOG.trace("Device {} {} is already Connected by {}",
                                 psName, globalNodeId, l2GwDevice.getHwvtepNodeId());
+                        return;
                     }
                     l2GwDevice = L2GatewayCacheUtils.updateCacheUponSwitchConnect(
                             psName, globalNodeId, phySwitchAdded.getTunnelIps());

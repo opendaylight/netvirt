@@ -12,9 +12,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
+import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -23,42 +26,41 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Created by eaksahu on 11/2/2016.
- */
-public class ElanInstanceListener extends AsyncDataTreeChangeListenerBase<ElanInstance,
+public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBase<ElanInstance,
         ElanInstanceListener> implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanInstanceListener.class);
 
     private final DataBroker broker;
     private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
-    private static final Map<String, List<Runnable>> WAITING_JOBS_LIST = new ConcurrentHashMap<>();
+    private static final Map<String, List<Runnable>> waitingJobsList = new ConcurrentHashMap<>();
 
-    public ElanInstanceListener(final DataBroker db, ElanUtils elanUtils) {
+    public ElanInstanceListener(final DataBroker db, final ElanUtils elanUtils) {
         super(ElanInstance.class, ElanInstanceListener.class);
         broker = db;
         this.l2GatewayConnectionUtils = elanUtils.getL2GatewayConnectionUtils();
+        registerListener(LogicalDatastoreType.CONFIGURATION, db);
     }
 
     public void init() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
     }
 
+    public void close() {
+    }
     @Override
-    protected void remove(InstanceIdentifier<ElanInstance> identifier, ElanInstance del) {
-        LOG.info("Elan instance {} deleted from Operational tree ", del);
-        List<L2gatewayConnection> l2gatewayConnections = L2GatewayConnectionUtils.getL2GwConnectionsByElanName(this
-                .broker, del.getElanInstanceName());
+    protected void remove(final InstanceIdentifier<ElanInstance> identifier,
+                          final ElanInstance del) {
+        LOG.debug("Elan instance {} deleted from Operational tree ", del);
+        List<L2gatewayConnection> l2gatewayConnections =
+                L2GatewayConnectionUtils.getL2GwConnectionsByElanName(
+                        this.broker, del.getElanInstanceName());
         if (l2gatewayConnections != null) {
-            LOG.info("L2Gatewconnection {} to be deleted as part of Elan Instance deletion {} ", l2gatewayConnections,
-                    del);
+            LOG.debug("L2Gatewconnection {} to be deleted as part of Elan Instance deletion {}",
+                    l2gatewayConnections, del);
             for (L2gatewayConnection l2gatewayConnection : l2gatewayConnections) {
                 l2GatewayConnectionUtils.deleteL2GatewayConnection(l2gatewayConnection);
             }
-            LOG.info("L2Gatewconnection {} delet task submitted Successfully", l2gatewayConnections);
         }
-
     }
 
     @Override
@@ -68,10 +70,15 @@ public class ElanInstanceListener extends AsyncDataTreeChangeListenerBase<ElanIn
 
     @Override
     protected void add(InstanceIdentifier<ElanInstance> identifier, ElanInstance add) {
-        List<Runnable> runnables = WAITING_JOBS_LIST.get(add.getElanInstanceName());
+        List<Runnable> runnables = waitingJobsList.get(add.getElanInstanceName());
         if (runnables != null) {
             runnables.forEach(Runnable::run);
         }
+    }
+
+    public static void runJobAfterElanIsAvailable(String elanName, Runnable runnable) {
+        waitingJobsList.computeIfAbsent(elanName, (name) -> new ArrayList<>());
+        waitingJobsList.get(elanName).add(runnable);
     }
 
     @Override
@@ -82,11 +89,6 @@ public class ElanInstanceListener extends AsyncDataTreeChangeListenerBase<ElanIn
     @Override
     protected InstanceIdentifier<ElanInstance> getWildCardPath() {
         return InstanceIdentifier.create(ElanInstances.class).child(ElanInstance.class);
-    }
-
-    public static  void runJobAfterElanIsAvailable(String elanName, Runnable runnable) {
-        WAITING_JOBS_LIST.computeIfAbsent(elanName, (name) -> new ArrayList<>());
-        WAITING_JOBS_LIST.get(elanName).add(runnable);
     }
 
 }
