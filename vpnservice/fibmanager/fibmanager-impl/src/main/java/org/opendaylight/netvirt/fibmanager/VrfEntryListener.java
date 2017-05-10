@@ -2312,7 +2312,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             vrfTable.getRouteDistinguisher(),
                             vrfEntry.getDestPrefix(), "local",
                             "<not set>", vrfEntry.getOrigin()));
-                        break;
+                        continue;
                     }
                     for (RoutePaths routePath : routePaths) {
                         result.add(String.format("   %-7s  %-20s  %-20s  %-7s  %-7s",
