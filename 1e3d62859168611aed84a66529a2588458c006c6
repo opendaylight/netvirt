@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_d646ed22",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/commands/Multipath.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-05-10T20:27:51Z",
+      "side": 1,
+      "message": "remove the private final and the \u003d null everywhere, so just:\n\nString multipathEnable",
+      "revId": "1e3d62859168611aed84a66529a2588458c006c6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
