@@ -273,8 +273,14 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
 
 
         String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, routerId);
+        LOG.info("jamo: flowRef {}", flowRef);
         syncFlow(dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef, NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef,
                 NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo, addOrRemove);
+        LOG.info("jamo: dpnId {}, NwConstants.NAPT_PFIB_TABLE {}, flowRef {}, " +
+                        "NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY {}, NwConstants.COOKIE_SNAT_TABLE {}, " +
+                        "matches {}, instructionInfo {}, addOrRemove {}", dpnId, NwConstants.NAPT_PFIB_TABLE,
+                flowRef, NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, NwConstants.COOKIE_SNAT_TABLE, matches,
+                instructionInfo, addOrRemove);
     }
 
     private Uuid getSubnetIdOfIp(String ip) {

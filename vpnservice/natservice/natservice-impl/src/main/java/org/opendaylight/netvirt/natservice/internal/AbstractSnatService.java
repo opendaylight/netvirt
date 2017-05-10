@@ -269,13 +269,13 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         if (addOrRemove == NwConstants.DEL_FLOW) {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName,
                     NatConstants.DEFAULT_IDLE_TIMEOUT, NatConstants.DEFAULT_IDLE_TIMEOUT, cookie, matches, null);
-            LOG.trace("Removing Acl Flow DpnId {}, flowId {}", dpId, flowId);
+            LOG.info("Removing Acl Flow DpnId {}, flowId {}, flowEntity {}", dpId, flowId, flowEntity);
             mdsalManager.removeFlow(flowEntity);
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName,
                     NatConstants.DEFAULT_IDLE_TIMEOUT, NatConstants.DEFAULT_IDLE_TIMEOUT, cookie, matches,
                     instructions);
-            LOG.trace("Installing DpnId {}, flowId {}", dpId, flowId);
+            LOG.info("Installing DpnId {}, flowId {}, flowEntity {}", dpId, flowId, flowEntity);
             mdsalManager.installFlow(flowEntity);
         }
     }
