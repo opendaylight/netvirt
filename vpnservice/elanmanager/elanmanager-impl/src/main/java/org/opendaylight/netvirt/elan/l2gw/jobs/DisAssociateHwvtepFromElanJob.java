@@ -34,11 +34,13 @@ public class DisAssociateHwvtepFromElanJob implements Callable<List<ListenableFu
     private final Devices l2Device;
     private final Integer defaultVlan;
     private final boolean isLastL2GwConnDeleted;
+    private final NodeId hwvtepNodeId;
 
     public DisAssociateHwvtepFromElanJob(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils,
                                          ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
                                          L2GatewayDevice l2GatewayDevice,  String elanName,
-                                         Devices l2Device, Integer defaultVlan, boolean isLastL2GwConnDeleted) {
+                                         Devices l2Device, Integer defaultVlan, String nodeId,
+                                         boolean isLastL2GwConnDeleted) {
         this.broker = broker;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
@@ -47,6 +49,7 @@ public class DisAssociateHwvtepFromElanJob implements Callable<List<ListenableFu
         this.l2Device = l2Device;
         this.defaultVlan = defaultVlan;
         this.isLastL2GwConnDeleted = isLastL2GwConnDeleted;
+        this.hwvtepNodeId = new NodeId(nodeId);
         LOG.info("created disassosiate l2gw connection job for {} {}", elanName ,
                 l2GatewayDevice.getHwvtepNodeId());
     }
@@ -57,8 +60,7 @@ public class DisAssociateHwvtepFromElanJob implements Callable<List<ListenableFu
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
-        String strHwvtepNodeId = l2GatewayDevice.getHwvtepNodeId();
-        NodeId hwvtepNodeId = new NodeId(strHwvtepNodeId);
+        String strHwvtepNodeId = hwvtepNodeId.getValue();
         LOG.info("running disassosiate l2gw connection job for {} {}", elanName, strHwvtepNodeId);
 
         List<ListenableFuture<Void>> futures = new ArrayList<>();
@@ -70,8 +72,14 @@ public class DisAssociateHwvtepFromElanJob implements Callable<List<ListenableFu
         futures.add(elanL2GatewayUtils.deleteVlanBindingsFromL2GatewayDevice(hwvtepNodeId, l2Device, defaultVlan));
 
         if (isLastL2GwConnDeleted) {
+            if (l2GatewayDevice == null) {
+                LOG.info("Scheduled delete logical switch {} {}", elanName, strHwvtepNodeId);
+                elanL2GatewayUtils.scheduleDeleteLogicalSwitch(hwvtepNodeId,
+                        ElanL2GatewayUtils.getLogicalSwitchFromElan(elanName));
+                return futures;
+            }
             LOG.info("delete remote ucast macs {} {}", elanName, strHwvtepNodeId);
-            futures.add(elanL2GatewayUtils.deleteElanMacsFromL2GatewayDevice(l2GatewayDevice, elanName));
+            futures.add(elanL2GatewayUtils.deleteElanMacsFromL2GatewayDevice(hwvtepNodeId.getValue(), elanName));
 
             LOG.info("delete mcast mac for {} {}", elanName, strHwvtepNodeId);
             futures.addAll(elanL2GatewayMulticastUtils.handleMcastForElanL2GwDeviceDelete(this.elanName,
@@ -83,6 +91,9 @@ public class DisAssociateHwvtepFromElanJob implements Callable<List<ListenableFu
             LOG.info("scheduled delete logical switch {} {}", elanName, strHwvtepNodeId);
             elanL2GatewayUtils.scheduleDeleteLogicalSwitch(hwvtepNodeId,
                     ElanL2GatewayUtils.getLogicalSwitchFromElan(elanName));
+        } else {
+            LOG.info("l2gw mcast delete not triggered for nodeId {}  with elan {}", l2GatewayDevice.getHwvtepNodeId(),
+                    elanName);
         }
 
         return futures;

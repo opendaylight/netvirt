@@ -35,7 +35,6 @@ import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2gwServiceProvider;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
-import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -168,7 +167,7 @@ public class HwvtepPhysicalSwitchListener
             }
 
             l2GwDevice.setConnected(false);
-            ElanL2GwCacheUtils.removeL2GatewayDeviceFromAllElanCache(psName);
+            //ElanL2GwCacheUtils.removeL2GatewayDeviceFromAllElanCache(psName);
         } else {
             LOG.error("Unable to find L2 Gateway details for {}", psName);
         }
@@ -223,14 +222,18 @@ public class HwvtepPhysicalSwitchListener
                     HAOpClusteredListener.addToCacheIfHAChildNode(globalNodeIid, (Node) globalNodeOptional.get());
                     if (hwvtepHACache.isHAEnabledDevice(globalNodeIid)) {
                         LOG.trace("Ha enabled device {}", globalNodeIid);
+                        //Only parent nodes needs to be updated in cache not child node hence returning in case of HA
+                        return;
                     }
                     LOG.trace("Updating cache for node {}", globalNodeIid);
                     L2GatewayDevice l2GwDevice = L2GatewayCacheUtils.getL2DeviceFromCache(psName);
                     if (!hwvtepHACache.isHAParentNode(globalNodeIid)
                             && l2GwDevice != null && l2GwDevice.getHwvtepNodeId() != null
                             && !Objects.equals(l2GwDevice.getHwvtepNodeId(), globalNodeId)) {
-                        LOG.trace("Device {} {} is already Connected by ",
+                        LOG.trace("Device {} {} is already Connected by {}",
                                 psName, globalNodeId, l2GwDevice.getHwvtepNodeId());
+                        //Only parent nodes needs to be updated in cache not child node hence returning in case of HA
+                        return;
                     }
                     l2GwDevice = L2GatewayCacheUtils.updateCacheUponSwitchConnect(
                             psName, globalNodeId, phySwitchAdded.getTunnelIps());

@@ -8,20 +8,22 @@
 
 package org.opendaylight.netvirt.elan.l2gw.jobs;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
+import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
+import org.opendaylight.genius.utils.batching.ResourceBatchingManager.ShardResource;
+import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,6 +94,9 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<Listenable
         LOG.debug("Deleting l2gw device [{}] macs from other l2gw devices for elan [{}]",
                 this.l2GwDevice.getHwvtepNodeId(), this.elanName);
         final String logicalSwitchName = ElanL2GatewayUtils.getLogicalSwitchFromElan(this.elanName);
+        List<MacAddress> macs = new ArrayList<>();
+        macAddresses.forEach((mac) -> macs.add(new MacAddress(mac.getValue().toLowerCase())));
+
 
         ConcurrentMap<String, L2GatewayDevice> elanL2GwDevices = ElanL2GwCacheUtils
                 .getInvolvedL2GwDevices(this.elanName);
@@ -100,25 +105,29 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<Listenable
             if (!otherDevice.getHwvtepNodeId().equals(this.l2GwDevice.getHwvtepNodeId())
                     && !ElanL2GatewayUtils.areMLAGDevices(this.l2GwDevice, otherDevice)) {
                 final String hwvtepId = otherDevice.getHwvtepNodeId();
-                // never batch deletes
-                ListenableFuture<Void> uninstallFuture = HwvtepUtils.deleteRemoteUcastMacs(this.broker,
-                        new NodeId(hwvtepId), logicalSwitchName, this.macAddresses);
-                Futures.addCallback(uninstallFuture, new FutureCallback<Void>() {
-                    @Override
-                    public void onSuccess(Void noarg) {
-                        LOG.trace("Successful in initiating ucast_remote_macs deletion related to {} in {}",
-                                logicalSwitchName, hwvtepId);
-                    }
-
-                    @Override
-                    public void onFailure(Throwable error) {
-                        LOG.error(String.format("Failed removing ucast_remote_macs related to %s in %s",
-                                logicalSwitchName, hwvtepId), error);
-                    }
-                });
-                futures.add(uninstallFuture);
+                //This delete is batched using resourcebatchingmnagaer
+                deleteRemoteUcastMacs(new NodeId(hwvtepId), logicalSwitchName, macs);
+                // TODO: why to create a new arraylist for uninstallFuture?
             }
         }
         return futures;
+    }
+
+    /**
+     *  Batched operation to delete list of Uast mac from the given nodeId and logical Switch .
+     * @param nodeId NodeId of device
+     * @param logicalSwitchName logicalSwitch Name
+     * @param lstMac list of macs to be deleted
+     *
+     */
+    public static void deleteRemoteUcastMacs(final NodeId nodeId,
+                                             String logicalSwitchName, final List<MacAddress> lstMac) {
+        if (lstMac != null && !lstMac.isEmpty()) {
+            for (MacAddress mac : lstMac) {
+                InstanceIdentifier<RemoteUcastMacs> remoteUcastMac = HwvtepSouthboundUtils
+                        .createRemoteUcastMacsInstanceIdentifier(nodeId, logicalSwitchName, mac);
+                ResourceBatchingManager.getInstance().delete(ShardResource.CONFIG_TOPOLOGY, remoteUcastMac);
+            }
+        }
     }
 }
