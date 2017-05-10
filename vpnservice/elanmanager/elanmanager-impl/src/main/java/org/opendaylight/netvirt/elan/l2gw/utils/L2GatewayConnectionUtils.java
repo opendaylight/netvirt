@@ -232,7 +232,7 @@ public class L2GatewayConnectionUtils {
             DisAssociateHwvtepFromElanJob disAssociateHwvtepToElanJob =
                     new DisAssociateHwvtepFromElanJob(broker, elanL2GatewayUtils, elanL2GatewayMulticastUtils,
                             elanL2GwDevice, elanName,
-                            l2Device, defaultVlan, isLastL2GwConnDeleted);
+                            l2Device, defaultVlan, hwvtepNodeId, isLastL2GwConnDeleted);
             ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, disAssociateHwvtepToElanJob.getJobKey(),
                     "remove l2gw connection job ", disAssociateHwvtepToElanJob);
         }
@@ -320,7 +320,7 @@ public class L2GatewayConnectionUtils {
     }
 
     private static boolean isL2GwDeviceConnected(L2GatewayDevice l2GwDevice) {
-        return l2GwDevice != null && l2GwDevice.getHwvtepNodeId() != null && l2GwDevice.isConnected();
+        return l2GwDevice != null && l2GwDevice.getHwvtepNodeId() != null;
     }
 
     protected static boolean isLastL2GwConnBeingDeleted(L2GatewayDevice l2GwDevice) {

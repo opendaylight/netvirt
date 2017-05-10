@@ -257,7 +257,7 @@ public class HwvtepTerminationPointListener
     }
 
     private boolean isL2GatewayConfigured(L2GatewayDevice l2GwDevice) {
-        return l2GwDevice.getHwvtepNodeId() != null && l2GwDevice.isConnected()
-                && l2GwDevice.getL2GatewayIds().size() > 0 && l2GwDevice.getTunnelIp() != null;
+        return l2GwDevice.getHwvtepNodeId() != null
+                && !l2GwDevice.getL2GatewayIds().isEmpty() && l2GwDevice.getTunnelIp() != null;
     }
 }

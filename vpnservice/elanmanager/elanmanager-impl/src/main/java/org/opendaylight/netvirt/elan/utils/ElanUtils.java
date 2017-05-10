@@ -66,6 +66,8 @@ import org.opendaylight.genius.mdsalutil.packet.ARP;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.utils.ServiceIndex;
+import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
+import org.opendaylight.genius.utils.batching.ResourceBatchingManager.ShardResource;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
@@ -82,9 +84,13 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.TableKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
@@ -130,6 +136,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.R
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstance;
@@ -1621,10 +1628,11 @@ public class ElanUtils {
         synchronized (getElanMacDPNKey(elanTag, macAddress, dpnId)) {
             Flow flow = buildDmacFlowForExternalRemoteMac(dpnId, extDeviceNodeId, elanTag, vni, macAddress,
                     displayName);
-            futures.add(mdsalManager.installFlow(dpnId, flow));
+            ResourceBatchingManager.getInstance().put(ShardResource.CONFIG_TOPOLOGY, getFlowIid(flow, dpnId), flow);
 
             Flow dropFlow = buildDmacFlowDropIfPacketComingFromTunnel(dpnId, extDeviceNodeId, elanTag, macAddress);
-            futures.add(mdsalManager.installFlow(dpnId, dropFlow));
+            ResourceBatchingManager.getInstance().put(ShardResource.CONFIG_TOPOLOGY, getFlowIid(dropFlow, dpnId),
+                    dropFlow);
             installEtreeDmacFlowsToExternalRemoteMac(dpnId, extDeviceNodeId, elanTag, vni, macAddress, displayName,
                     interfaceName, futures);
         }
@@ -1660,7 +1668,7 @@ public class ElanUtils {
         if (isRoot) {
             Flow flow = buildDmacFlowForExternalRemoteMac(dpnId, extDeviceNodeId,
                     etreeLeafTag.getEtreeLeafTag().getValue(), vni, macAddress, displayName);
-            futures.add(mdsalManager.installFlow(dpnId, flow));
+            ResourceBatchingManager.getInstance().put(ShardResource.CONFIG_TOPOLOGY, getFlowIid(flow, dpnId), flow);
         }
     }
 
@@ -1669,7 +1677,8 @@ public class ElanUtils {
         if (etreeLeafTag != null) {
             Flow dropFlow = buildDmacFlowDropIfPacketComingFromTunnel(dpnId, extDeviceNodeId,
                     etreeLeafTag.getEtreeLeafTag().getValue(), macAddress);
-            futures.add(mdsalManager.installFlow(dpnId, dropFlow));
+            ResourceBatchingManager.getInstance().put(ShardResource.CONFIG_TOPOLOGY, getFlowIid(dropFlow, dpnId),
+                    dropFlow);
         }
     }
 
@@ -1836,7 +1845,7 @@ public class ElanUtils {
         String flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, extDeviceNodeId, macToRemove,
                 elanTag, true);
         Flow flowToRemove = new FlowBuilder().setId(new FlowId(flowId)).setTableId(NwConstants.ELAN_DMAC_TABLE).build();
-        futures.add(mdsalManager.removeFlow(dpId, flowToRemove));
+        ResourceBatchingManager.getInstance().delete(ShardResource.CONFIG_TOPOLOGY, getFlowIid(flowToRemove, dpId));
     }
 
     private void removeFlowThatSendsThePacketOnAnExternalTunnel(long elanTag, BigInteger dpId,
@@ -1844,7 +1853,7 @@ public class ElanUtils {
         String flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, extDeviceNodeId, macToRemove,
                 elanTag, false);
         Flow flowToRemove = new FlowBuilder().setId(new FlowId(flowId)).setTableId(NwConstants.ELAN_DMAC_TABLE).build();
-        futures.add(mdsalManager.removeFlow(dpId, flowToRemove));
+        ResourceBatchingManager.getInstance().delete(ShardResource.CONFIG_TOPOLOGY, getFlowIid(flowToRemove, dpId));
     }
 
     /**
@@ -2256,5 +2265,78 @@ public class ElanUtils {
     @Nonnull public static Set<String> removeAndGetElanInterfaces(String elanInstanceName) {
         Set<String> removed = elanInstanceToInterfacesCache.remove(elanInstanceName);
         return removed != null ? removed : Collections.emptySet();
+    }
+
+    private void buildEtreeDmacFlowForExternalRemoteMacWithBatch(
+            BigInteger dpnId, String extDeviceNodeId, Long vni, String macAddress, String displayName,
+            String interfaceName, EtreeLeafTagName etreeLeafTag)throws ElanException {
+
+        boolean isRoot = false;
+        if (interfaceName == null) {
+            isRoot = true;
+        } else {
+            EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(broker, interfaceName);
+            if (etreeInterface != null) {
+                if (etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
+                    isRoot = true;
+                }
+            }
+        }
+        if (isRoot) {
+            Flow flow = buildDmacFlowForExternalRemoteMac(dpnId, extDeviceNodeId,
+                    etreeLeafTag.getEtreeLeafTag().getValue(), vni, macAddress, displayName);
+            ResourceBatchingManager.getInstance().put(ShardResource.CONFIG_TOPOLOGY, getFlowIid(flow, dpnId), flow);
+        }
+    }
+
+    private void buildEtreeDmacFlowDropIfPacketComingFromTunnelwithBatch(
+            BigInteger dpnId, String extDeviceNodeId, Long elanTag, String macAddress,EtreeLeafTagName etreeLeafTag) {
+        if (etreeLeafTag != null) {
+            Flow dropFlow = buildDmacFlowDropIfPacketComingFromTunnel(dpnId, extDeviceNodeId,
+                    etreeLeafTag.getEtreeLeafTag().getValue(), macAddress);
+            ResourceBatchingManager.getInstance().put(ShardResource.CONFIG_TOPOLOGY,
+                    getFlowIid(dropFlow, dpnId),dropFlow);
+        }
+    }
+
+    public void installDmacFlowsToExternalRemoteMacInBatch(
+            BigInteger dpnId, String extDeviceNodeId, Long elanTag, Long vni, String macAddress, String displayName,
+            String interfaceName) throws ElanException {
+
+        synchronized (getElanMacDPNKey(elanTag, macAddress, dpnId)) {
+            Flow flow = buildDmacFlowForExternalRemoteMac(dpnId, extDeviceNodeId, elanTag, vni, macAddress,
+                    displayName);
+            ResourceBatchingManager.getInstance().put(ShardResource.CONFIG_TOPOLOGY, getFlowIid(flow, dpnId), flow);
+            Flow dropFlow = buildDmacFlowDropIfPacketComingFromTunnel(dpnId, extDeviceNodeId, elanTag, macAddress);
+            ResourceBatchingManager.getInstance().put(ShardResource.CONFIG_TOPOLOGY,
+                    getFlowIid(dropFlow, dpnId), dropFlow);
+            installEtreeDmacFlowsToExternalRemoteMacInBatch(dpnId, extDeviceNodeId, elanTag, vni, macAddress,
+                    displayName, interfaceName);
+        }
+    }
+
+    private void installEtreeDmacFlowsToExternalRemoteMacInBatch(
+            BigInteger dpnId, String extDeviceNodeId, Long elanTag, Long vni, String macAddress, String displayName,
+            String interfaceName) throws ElanException {
+
+        EtreeLeafTagName etreeLeafTag = getEtreeLeafTagByElanTag(elanTag);
+        if (etreeLeafTag != null) {
+            buildEtreeDmacFlowDropIfPacketComingFromTunnelwithBatch(dpnId, extDeviceNodeId, elanTag, macAddress,
+                    etreeLeafTag);
+            buildEtreeDmacFlowForExternalRemoteMacWithBatch(dpnId, extDeviceNodeId, vni, macAddress, displayName,
+                    interfaceName, etreeLeafTag);
+        }
+    }
+
+    private InstanceIdentifier<Flow> getFlowIid(Flow flow, BigInteger dpnId) {
+        FlowKey flowKey = new FlowKey(new FlowId(flow.getId()));
+        org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId nodeId =
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId("openflow:" + dpnId);
+        org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node nodeDpn =
+                new NodeBuilder().setId(nodeId).setKey(new NodeKey(nodeId)).build();
+        return InstanceIdentifier.builder(Nodes.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class,
+                        nodeDpn.getKey()).augmentation(FlowCapableNode.class)
+                .child(Table.class, new TableKey(flow.getTableId())).child(Flow.class, flowKey).build();
     }
 }
