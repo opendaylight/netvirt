@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_76be2101",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/commands/Multipath.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-05-10T20:26:39Z",
+      "side": 1,
+      "message": "I suspect this is probably wrong, and will break this command (because Karaf can\u0027t set it anymore if it\u0027s final).. the problem here is the default \u003d null, that\u0027s stupid, I\u0027d remove that.  Also I think the private here is wrong too.  Does anyone actually test these CLI commands?! ;-)",
+      "revId": "9b8edf579f6731e393df1faa9ce0a84616d55b08",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
