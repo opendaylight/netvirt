@@ -44,6 +44,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -52,7 +53,6 @@ import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
-import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.vpnmanager.populator.input.L3vpnInput;
 import org.opendaylight.netvirt.vpnmanager.populator.intfc.VpnPopulator;
 import org.opendaylight.netvirt.vpnmanager.populator.registry.L3vpnRegistry;
@@ -63,7 +63,6 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -127,6 +126,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     private final IInterfaceManager interfaceManager;
     private final IVpnManager vpnManager;
     private final IVpnLinkService ivpnLinkService;
+    private final IElanService elanService;
 
     private ConcurrentHashMap<String, Runnable> vpnIntfMap = new ConcurrentHashMap<>();
 
@@ -147,7 +147,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                final VpnFootprintService vpnFootprintService,
                                final IInterfaceManager interfaceManager,
                                final IVpnManager vpnManager,
-                               final IVpnLinkService ivpnLnkSrvce) {
+                               final IVpnLinkService ivpnLnkSrvce,
+                               final IElanService elanService) {
         super(VpnInterface.class, VpnInterfaceManager.class);
 
         this.dataBroker = dataBroker;
@@ -161,6 +162,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         this.interfaceManager = interfaceManager;
         this.vpnManager = vpnManager;
         this.ivpnLinkService = ivpnLnkSrvce;
+        this.elanService = elanService;
         vpnInfUpdateTaskExecutor.scheduleWithFixedDelay(new VpnInterfaceUpdateTimerTask(),
             0, VPN_INF_UPDATE_TIMER_TASK_DELAY, TIME_UNIT);
     }
@@ -1152,7 +1154,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         final Uuid subnetId = nextHop.getSubnetId();
                         setupGwMacIfRequired(dpnId, vpnName, interfaceName, vpnId, subnetId,
                                 writeInvTxn, NwConstants.DEL_FLOW, interfaceState);
-                        removeArpResponderFlow(dpnId, lportTag, subnetId, writeInvTxn);
+                        removeArpResponderFlow(dpnId, lportTag, subnetId, interfaceName);
                     }
 
                     if (!nhList.isEmpty()) {
@@ -1201,13 +1203,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                       final long vpnId, final String ifName, final Uuid subnetId,
                                       final String subnetGwMac, final String gwIp, final WriteTransaction writeInvTxn) {
         LOG.trace("Creating the ARP Responder flow for VPN Interface {}",ifName);
-        final String flowId = ArpResponderUtil.getFlowID(lportTag, gwIp);
-        List<Action> actions = ArpResponderUtil.getActions(ifaceMgrRpcService, ifName, gwIp, subnetGwMac);
-        ArpResponderUtil.installFlow(mdsalManager, writeInvTxn, dpId, flowId, flowId,
-                NwConstants.DEFAULT_ARP_FLOW_PRIORITY, ArpResponderUtil.generateCookie(lportTag, gwIp),
-                ArpResponderUtil.getMatchCriteria(lportTag, vpnId, gwIp),
-                Collections.singletonList(MDSALUtil.buildApplyActionsInstruction(actions)));
-        LOG.trace("Installed the ARP Responder flow for VPN Interface {}", ifName);
+        elanService.addArpResponderFlow(dpId, ifName, gwIp, subnetGwMac, java.util.Optional.of(lportTag));
     }
 
     private Optional<String> getGatewayMacAddressForInterface(String vpnName, String ifName, String ipAddress) {
@@ -1221,12 +1217,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     }
 
     private void removeArpResponderFlow(final BigInteger dpId, final int lportTag, final Uuid subnetUuid,
-                                        final WriteTransaction writeInvTxn) {
+            final String ifName) {
         final Optional<String> gwIp = VpnUtil.getVpnSubnetGatewayIp(dataBroker, subnetUuid);
         if (gwIp.isPresent()) {
             LOG.trace("VPNInterface adjacency Gsteway IP {} for ARP Responder removal", gwIp.get());
-            final String flowId = ArpResponderUtil.getFlowID(lportTag, gwIp.get());
-            ArpResponderUtil.removeFlow(mdsalManager, writeInvTxn, dpId, flowId);
+            elanService.removeArpResponderFlow(dpId, ifName, gwIp.get(), java.util.Optional.of(lportTag));
         }
     }
 
@@ -1554,7 +1549,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         operationalAdjacency = populator.createOperationalAdjacency(input);
                         int label = operationalAdjacency.getLabel().intValue();
                         addExtraRoute(vpnName, adj.getIpAddress(), nh,rdToAllocate.get(),
-                                currVpnIntf.getVpnInstanceName(), (int) label, l3vni, origin,
+                                currVpnIntf.getVpnInstanceName(), label, l3vni, origin,
                                 currVpnIntf.getName(), operationalAdjacency, encapType, writeConfigTxn);
                     } else {
                         LOG.error("No rds to allocate extraroute {}", prefix);
@@ -1573,7 +1568,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     writeOperTxn)).ifPresent(rdsToAllocate -> {
                                         addExtraRoute(VpnUtil.getVpnName(dataBroker, vpn.getVpnId()),
                                             adj.getIpAddress(), nh, rdsToAllocate.get(),
-                                            currVpnIntf.getVpnInstanceName(), (int) opAdjacency.getLabel().intValue(),
+                                            currVpnIntf.getVpnInstanceName(), opAdjacency.getLabel().intValue(),
                                             l3vni, RouteOrigin.SELF_IMPORTED,
                                             currVpnIntf.getName(), opAdjacency, encapType, writeConfigTxn);
                                     });
