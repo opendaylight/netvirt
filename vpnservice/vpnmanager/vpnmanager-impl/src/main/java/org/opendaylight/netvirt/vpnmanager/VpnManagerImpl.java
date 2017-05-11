@@ -23,12 +23,10 @@ import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
-import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -255,7 +253,7 @@ public class VpnManagerImpl implements IVpnManager {
                 installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lportTag, vpnId,
                         fixedIp, writeTx);
             } else {
-                removeArpResponderFlowsToExternalNetworkIp(dpnId, lportTag, fixedIp, writeTx);
+                removeArpResponderFlowsToExternalNetworkIp(dpnId, lportTag, fixedIp, writeTx,extInterfaceName);
             }
         }
 
@@ -283,18 +281,13 @@ public class VpnManagerImpl implements IVpnManager {
 
     private void installArpResponderFlowsToExternalNetworkIp(String macAddress, BigInteger dpnId,
             String extInterfaceName, Integer lportTag, long vpnId, String fixedIp, WriteTransaction writeTx) {
-        String flowId = ArpResponderUtil.getFlowID(lportTag, fixedIp);
-        List<Instruction> instructions = ArpResponderUtil.getExtInterfaceInstructions(ifaceMgrRpcService,
-                extInterfaceName, fixedIp, macAddress);
-        ArpResponderUtil.installFlow(mdsalManager, writeTx, dpnId, flowId, flowId,
-                NwConstants.DEFAULT_ARP_FLOW_PRIORITY, ArpResponderUtil.generateCookie(lportTag, fixedIp),
-                ArpResponderUtil.getMatchCriteria(lportTag, vpnId, fixedIp), instructions);
+        elanService.addArpResponderFlow(dpnId, extInterfaceName, fixedIp, macAddress,
+                java.util.Optional.of(lportTag),true);
     }
 
     private void removeArpResponderFlowsToExternalNetworkIp(BigInteger dpnId, Integer lportTag, String fixedIp,
-            WriteTransaction writeTx) {
-        String flowId = ArpResponderUtil.getFlowID(lportTag, fixedIp);
-        ArpResponderUtil.removeFlow(mdsalManager, writeTx, dpnId, flowId);
+            WriteTransaction writeTx,String extInterfaceName) {
+        elanService.removeArpResponderFlow(dpnId, extInterfaceName, fixedIp, java.util.Optional.of(lportTag));
     }
 
     private long getVpnIdFromExtNetworkId(Uuid extNetworkId) {

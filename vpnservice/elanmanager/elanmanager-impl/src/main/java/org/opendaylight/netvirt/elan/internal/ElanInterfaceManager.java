@@ -1465,7 +1465,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 elanTag).buildAction());
         instructions.add(MDSALUtil.buildApplyActionsInstruction(actions, ++instructionKey));
 
-        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.ELAN_BASE_TABLE,
+        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.ARP_CHECK_TABLE,
                 ++instructionKey));
 
         short elanServiceIndex = ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX);
