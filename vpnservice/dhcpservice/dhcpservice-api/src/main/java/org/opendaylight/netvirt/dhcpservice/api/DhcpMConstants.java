@@ -38,4 +38,5 @@ public final class DhcpMConstants {
     public static final BigInteger INVALID_DPID = new BigInteger("-1");
     public static final String DHCP_JOB_KEY_PREFIX = "DHCP_";
     public static final int RETRY_COUNT = 6;
+    public static String OF_URI_SEPARATOR =  ":";
 }
