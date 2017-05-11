@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
+import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
 import org.opendaylight.netvirt.elanmanager.exceptions.MacNotFoundException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
@@ -75,5 +76,23 @@ public interface IElanService extends IEtreeService {
     List<MatchInfoBase> getEgressMatchesForElanInstance(String elanInstanceName);
 
     Boolean isOpenStackVniSemanticsEnforced();
+
+    /**
+     * Add ARP Responder Flow on the given dpn for the ingress interface.
+     *
+     * @param arpResponderInput
+     *            ArpResponder Input parameters
+     * @see ArpResponderInput
+     */
+    void addArpResponderFlow(ArpResponderInput arpResponderInput);
+
+    /**
+     * Remove ARP Responder flow from the given dpn for the ingress interface.
+     *
+     * @param arpResponderInput
+     *            ArpResponder Input parameters
+     * @see ArpResponderInput
+     */
+    void removeArpResponderFlow(ArpResponderInput arpResponderInput);
 
 }

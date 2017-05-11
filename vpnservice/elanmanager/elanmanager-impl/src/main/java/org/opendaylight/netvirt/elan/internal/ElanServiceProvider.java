@@ -38,6 +38,7 @@ import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.infrautils.inject.AbstractLifecycle;
+import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
 import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -813,5 +814,21 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             LOG.info("ELAN service is set after L3VPN service in the Netvirt pipeline");
             isL2BeforeL3 = false;
         }
+    }
+
+    @Override
+    public void addArpResponderFlow(ArpResponderInput arpResponderInput) {
+
+        elanUtils.addArpResponderFlow(arpResponderInput.getDpId(), arpResponderInput.getInterfaceName(),
+                arpResponderInput.getSpa(), arpResponderInput.getSha(), arpResponderInput.getLportTag(),
+                arpResponderInput.getInstructions());
+
+
+    }
+
+    @Override
+    public void removeArpResponderFlow(ArpResponderInput arpResponderInput) {
+        elanUtils.removeArpResponderFlow(arpResponderInput.getDpId(), arpResponderInput.getInterfaceName(),
+                arpResponderInput.getSpa(), arpResponderInput.getLportTag());
     }
 }
