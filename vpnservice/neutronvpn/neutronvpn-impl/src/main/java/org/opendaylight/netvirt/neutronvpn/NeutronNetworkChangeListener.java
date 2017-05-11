@@ -153,9 +153,12 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         if (!Objects.equals(origSegmentType, updateSegmentType)
                 || !Objects.equals(origSegmentationId, updateSegmentationId)
                 || !Objects.equals(origPhysicalNetwork, updatePhysicalNetwork)) {
-            if (NeutronvpnUtils.getIsExternal(original) && NeutronvpnUtils.isFlatOrVlanNetwork(original)) {
+            if (NeutronvpnUtils.getIsExternal(original) && NeutronvpnUtils.isFlatOrVlanNetwork(original)
+                    && !NeutronvpnUtils.isFlatOrVlanNetwork(update)) {
                 nvpnManager.removeExternalVpnInterfaces(original.getUuid());
+                nvpnManager.removeVpn(original.getUuid());
             }
+
             ElanInstance elanInstance = elanService.getElanInstance(elanInstanceName);
             if (elanInstance != null) {
                 elanService.deleteExternalElanNetwork(elanInstance);
@@ -164,9 +167,12 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
                 elanService.updateExternalElanNetwork(elanInstance);
             }
 
-            if (NeutronvpnUtils.getIsExternal(update) && NeutronvpnUtils.isFlatOrVlanNetwork(update)) {
+            if (NeutronvpnUtils.getIsExternal(update) && NeutronvpnUtils.isFlatOrVlanNetwork(update)
+                    && !NeutronvpnUtils.isFlatOrVlanNetwork(original)) {
+                nvpnManager.createL3InternalVpn(update.getUuid(), null, null, null, null, null, null, null);
                 nvpnManager.createExternalVpnInterfaces(update.getUuid());
             }
+
         }
     }
 
