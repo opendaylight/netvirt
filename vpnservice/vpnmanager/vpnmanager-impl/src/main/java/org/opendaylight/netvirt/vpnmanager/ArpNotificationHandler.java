@@ -24,7 +24,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
@@ -43,7 +42,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -124,26 +122,18 @@ public class ArpNotificationHandler implements OdlArputilListener {
         }
         BigInteger metadata = notification.getMetadata();
         IpAddress targetIP = notification.getDstIpaddress();
+        LOG.trace("ArpNotification Response Received from interface {} and IP {} having MAC {}, learning MAC",
+                srcInterface, srcIP.getIpv4Address().getValue(), srcMac.getValue());
         processArpLearning(srcInterface, srcIP, srcMac, metadata, targetIP);
     }
 
     private void processArpLearning(String srcInterface, IpAddress srcIP, PhysAddress srcMac, BigInteger metadata,
             IpAddress dstIP) {
         if (metadata != null && !Objects.equals(metadata, BigInteger.ZERO)) {
-            long vpnId = MetaDataUtil.getVpnIdFromMetadata(metadata);
-            // Process ARP only if vpnservice is configured on the interface
-            InstanceIdentifier<VpnIds> vpnIdsInstanceIdentifier = VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId);
-            Optional<VpnIds> vpnIdsOptional
-                    = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdsInstanceIdentifier);
-            if (!vpnIdsOptional.isPresent()) {
-                LOG.trace("ARP NO_RESOLVE: VPN {} not configured. Ignoring responding to ARP requests on this VPN",
-                        vpnId);
-                return;
-            }
-            VpnIds vpnIds = vpnIdsOptional.get();
-            String vpnName = vpnIds.getVpnInstanceName();
-            if (VpnUtil.isInterfaceAssociatedWithVpn(dataBroker, vpnName, srcInterface)) {
-                LOG.debug("Received ARP for sender MAC {} and sender IP {} via interface {}",
+            Optional<String> vpn = VpnUtil.getVpnAssociatedWithInterface(dataBroker, srcInterface);
+            if (vpn.isPresent()) {
+                String vpnName = vpn.get();
+                LOG.info("Received ARP for sender MAC {} and sender IP {} via interface {}",
                           srcMac.getValue(), srcIP.getIpv4Address().getValue(), srcInterface);
                 String ipToQuery = srcIP.getIpv4Address().getValue();
                 LOG.info("ARP being processed for Source IP {}", ipToQuery);
@@ -172,6 +162,11 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 } else if (!isIpInArpMigrateCache(vpnName, ipToQuery)) {
                     learnMacFromArpPackets(vpnName, srcInterface, srcIP, srcMac, dstIP);
                 }
+            } else {
+                LOG.info("ARP NO_RESOLVE: VPN  not configured. Ignoring responding to ARP requests from this"
+                        + " Interface {}.", srcInterface);
+                return;
+
             }
         }
     }

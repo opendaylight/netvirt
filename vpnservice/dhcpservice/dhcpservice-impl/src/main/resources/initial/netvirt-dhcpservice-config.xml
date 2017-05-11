@@ -1,4 +1,5 @@
 <dhcpservice-config xmlns="urn:opendaylight:params:xml:ns:yang:dhcpservice:config">
   <controller-dhcp-enabled>false</controller-dhcp-enabled>
   <dhcp-dynamic-allocation-pool-enabled>false</dhcp-dynamic-allocation-pool-enabled>
+  <controller-dhcp-mode>use-odl-dhcp-neutron-port</controller-dhcp-mode>
 </dhcpservice-config>
