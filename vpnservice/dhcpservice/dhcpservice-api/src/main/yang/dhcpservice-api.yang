@@ -33,4 +33,16 @@ module dhcpservice-api {
             }
         }
     }
+
+    container network-dhcpport-data {
+        config true;
+        list network-to-dhcpport {
+            key "networkid";
+            leaf networkid { type string;}
+            leaf port-name { type string;}
+            leaf port-fixedip { type string;}
+            leaf port-macaddress { type string;}
+        }
+    }
+
 }
