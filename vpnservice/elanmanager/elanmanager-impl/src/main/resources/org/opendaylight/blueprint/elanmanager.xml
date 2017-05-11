@@ -74,6 +74,7 @@
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />
     <argument ref="elanConfig" />
+    <argument ref="idManagerService" />
   </bean>
 
   <bean id="elanPacketInHandler"
