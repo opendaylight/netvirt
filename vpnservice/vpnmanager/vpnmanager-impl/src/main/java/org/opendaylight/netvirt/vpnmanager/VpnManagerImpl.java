@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -15,15 +16,19 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
+import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
+import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput.ArpReponderInputBuilder;
+import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
-import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -32,7 +37,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
@@ -50,9 +54,8 @@ public class VpnManagerImpl implements IVpnManager {
     private final VpnInstanceListener vpnInstanceListener;
     private final IdManagerService idManager;
     private final IMdsalApiManager mdsalManager;
-    private final VpnFootprintService vpnFootprintService;
-    private final OdlInterfaceRpcService ifaceMgrRpcService;
     private final IElanService elanService;
+    private final IInterfaceManager interfaceManager;
     private final VpnSubnetRouteHandler vpnSubnetRouteHandler;
 
     public VpnManagerImpl(final DataBroker dataBroker,
@@ -61,17 +64,16 @@ public class VpnManagerImpl implements IVpnManager {
                           final VpnInterfaceManager vpnInterfaceManager,
                           final IMdsalApiManager mdsalManager,
                           final VpnFootprintService vpnFootprintService,
-                          final OdlInterfaceRpcService ifaceMgrRpcService,
                           final IElanService elanService,
+                          final IInterfaceManager interfaceManager,
                           final VpnSubnetRouteHandler vpnSubnetRouteHandler) {
         this.dataBroker = dataBroker;
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.vpnInstanceListener = vpnInstanceListener;
         this.idManager = idManagerService;
         this.mdsalManager = mdsalManager;
-        this.vpnFootprintService = vpnFootprintService;
-        this.ifaceMgrRpcService = ifaceMgrRpcService;
         this.elanService = elanService;
+        this.interfaceManager = interfaceManager;
         this.vpnSubnetRouteHandler = vpnSubnetRouteHandler;
     }
 
@@ -263,7 +265,7 @@ public class VpnManagerImpl implements IVpnManager {
                 installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lportTag, vpnId,
                         fixedIp, writeTx);
             } else {
-                removeArpResponderFlowsToExternalNetworkIp(dpnId, lportTag, fixedIp, writeTx);
+                removeArpResponderFlowsToExternalNetworkIp(dpnId, lportTag, fixedIp, writeTx,extInterfaceName);
             }
         }
 
@@ -290,19 +292,25 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     private void installArpResponderFlowsToExternalNetworkIp(String macAddress, BigInteger dpnId,
-            String extInterfaceName, Integer lportTag, long vpnId, String fixedIp, WriteTransaction writeTx) {
-        String flowId = ArpResponderUtil.getFlowID(lportTag, fixedIp);
-        List<Instruction> instructions = ArpResponderUtil.getExtInterfaceInstructions(ifaceMgrRpcService,
-                extInterfaceName, fixedIp, macAddress);
-        ArpResponderUtil.installFlow(mdsalManager, writeTx, dpnId, flowId, flowId,
-                NwConstants.DEFAULT_ARP_FLOW_PRIORITY, ArpResponderUtil.generateCookie(lportTag, fixedIp),
-                ArpResponderUtil.getMatchCriteria(lportTag, vpnId, fixedIp), instructions);
+            String extInterfaceName, int lportTag, long vpnId, String fixedIp, WriteTransaction writeTx) {
+        // reset the split-horizon bit to allow traffic to be sent back to the
+        // provider port
+        List<Instruction> instructions = new ArrayList<>();
+        instructions.add(
+                new InstructionWriteMetadata(BigInteger.ZERO, MetaDataUtil.METADATA_MASK_SH_FLAG).buildInstruction(1));
+        instructions.addAll(
+                ArpResponderUtil.getExtInterfaceInstructions(interfaceManager, extInterfaceName, fixedIp, macAddress));
+        ArpReponderInputBuilder builder = new ArpReponderInputBuilder().setDpId(dpnId)
+                .setInterfaceName(extInterfaceName).setSpa(fixedIp).setSha(macAddress).setLportTag(lportTag);
+        builder.setInstructions(instructions);
+        elanService.addArpResponderFlow(builder.buildForInstallFlow());
     }
 
     private void removeArpResponderFlowsToExternalNetworkIp(BigInteger dpnId, Integer lportTag, String fixedIp,
-            WriteTransaction writeTx) {
-        String flowId = ArpResponderUtil.getFlowID(lportTag, fixedIp);
-        ArpResponderUtil.removeFlow(mdsalManager, writeTx, dpnId, flowId);
+            WriteTransaction writeTx,String extInterfaceName) {
+        ArpResponderInput arpInput = new ArpReponderInputBuilder().setDpId(dpnId).setInterfaceName(extInterfaceName)
+                .setSpa(fixedIp).setLportTag(lportTag).buildForRemoveFlow();
+        elanService.removeArpResponderFlow(arpInput);
     }
 
     private long getVpnIdFromExtNetworkId(Uuid extNetworkId) {
