@@ -33,4 +33,16 @@ module dhcpservice-api {
             }
         }
     }
+
+    container subnet-dhcp-port-data {
+        config true;
+        list subnet-to-dhcp-port {
+            key "subnet-id";
+            leaf subnet-id { type string;}
+            leaf port-name { type string;}
+            leaf port-fixedip { type string;}
+            leaf port-macaddress { type string;}
+        }
+    }
+
 }

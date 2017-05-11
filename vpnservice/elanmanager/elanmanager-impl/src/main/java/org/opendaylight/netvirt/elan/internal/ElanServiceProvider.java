@@ -48,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -813,5 +814,18 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             LOG.info("ELAN service is set after L3VPN service in the Netvirt pipeline");
             isL2BeforeL3 = false;
         }
+    }
+
+    @Override
+    public void addArpResponderFlow(BigInteger dpnId, String ingressInterfaceName, String ipAddress, String macAddress,
+            int lportTag, List<Instruction> instructions) {
+        elanUtils.addArpResponderFlow(dpnId, ingressInterfaceName, ipAddress, macAddress, lportTag, instructions);
+
+    }
+
+    @Override
+    public void removeArpResponderFlow(BigInteger dpnId, String ingressInterfaceName, String ipAddress,
+            int lportTag) {
+        elanUtils.removeArpResponderFlow(dpnId, ingressInterfaceName, ipAddress, lportTag);
     }
 }
