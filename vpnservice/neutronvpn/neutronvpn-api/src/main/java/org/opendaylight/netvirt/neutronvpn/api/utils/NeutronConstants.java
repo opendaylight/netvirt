@@ -7,6 +7,10 @@
  */
 package org.opendaylight.netvirt.neutronvpn.api.utils;
 
+import java.util.function.Predicate;
+
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+
 public class NeutronConstants {
 
     public static final String DEVICE_OWNER_GATEWAY_INF = "network:router_gateway";
@@ -29,5 +33,12 @@ public class NeutronConstants {
     public static final String VIF_TYPE_OTHER = "other";
     public static final String VIF_TYPE_MACVTAP = "macvtap";
     public static final String VNIC_TYPE_NORMAL = "normal";
+
+    public static final Predicate<Port> IS_DHCP_PORT = port -> port != null
+            && DEVICE_OWNER_DHCP.equals(port.getDeviceOwner());
+
+    public static final Predicate<Port> IS_ODL_DHCP_PORT = port -> port != null
+            && DEVICE_OWNER_DHCP.equals(port.getDeviceOwner()) && port.getDeviceId() != null
+            && port.getDeviceId().startsWith("OpenDaylight");
 
 }
