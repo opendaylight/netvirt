@@ -7,16 +7,29 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
+import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput.ArpReponderInputBuilder;
+import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
+import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
@@ -33,14 +46,19 @@ public class DhcpNeutronPortListener
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpNeutronPortListener.class);
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
+    private final IElanService elanService;
     private final DataBroker broker;
-    private DhcpserviceConfig config;
+    private final DhcpserviceConfig config;
+    private final IInterfaceManager interfaceManager;
 
     @Inject
-    public DhcpNeutronPortListener(final DataBroker db, final DhcpExternalTunnelManager dhcpExternalTunnelManager,
-                                   final DhcpserviceConfig config) {
+    public DhcpNeutronPortListener(DataBroker db, DhcpExternalTunnelManager dhcpExternalTunnelManager,
+            @Named("elanService") IElanService ielanService, IInterfaceManager interfaceManager,
+            DhcpserviceConfig config) {
         super(Port.class, DhcpNeutronPortListener.class);
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
+        this.elanService = ielanService;
+        this.interfaceManager = interfaceManager;
         this.broker = db;
         this.config = config;
     }
@@ -65,11 +83,32 @@ public class DhcpNeutronPortListener
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     protected void remove(InstanceIdentifier<Port> identifier, Port del) {
         LOG.trace("Port removed: {}", del);
+        if (NeutronConstants.IS_ODL_DHCP_PORT.test(del)) {
+            DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+            portDataStoreCoordinator.enqueueJob(getJobKey(del), () -> {
+                WriteTransaction wrtConfigTxn = broker.newWriteOnlyTransaction();
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                DhcpServiceUtils.removeSubnetDhcpPortData(del, subnetDhcpPortIdfr -> wrtConfigTxn
+                        .delete(LogicalDatastoreType.CONFIGURATION, subnetDhcpPortIdfr));
+                processArpResponderForElanDpns(del, arpInput -> {
+                    LOG.trace("Removing ARP RESPONDER Flows  for dhcp port {} with ipaddress {} with mac {} on dpn {}",
+                            arpInput.getInterfaceName(), arpInput.getSpa(), arpInput.getSha(), arpInput.getDpId());
+                    elanService.removeArpResponderFlow(arpInput);
+                });
+                futures.add(wrtConfigTxn.submit());
+                return futures;
+            });
+        }
         if (isVnicTypeDirectOrMacVtap(del)) {
             removePort(del);
         }
+    }
+
+    private String getJobKey(Port port) {
+        return "PORT- " + port.getUuid().getValue();
     }
 
     @Override
@@ -103,8 +142,28 @@ public class DhcpNeutronPortListener
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     protected void add(InstanceIdentifier<Port> identifier, Port add) {
         LOG.trace("Port added {}", add);
+        if (NeutronConstants.IS_ODL_DHCP_PORT.test(add)) {
+            DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+            portDataStoreCoordinator.enqueueJob(getJobKey(add), () -> {
+                WriteTransaction wrtConfigTxn = broker.newWriteOnlyTransaction();
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                DhcpServiceUtils.createSubnetDhcpPortData(add, (subnetDhcpPortIdfr, subnetToDhcpport) -> wrtConfigTxn
+                        .put(LogicalDatastoreType.CONFIGURATION, subnetDhcpPortIdfr, subnetToDhcpport));
+                processArpResponderForElanDpns(add, arpInput -> {
+                    LOG.trace("Installing ARP RESPONDER Flows  for dhcp port {} ipaddress {} with mac {} on dpn {}",
+                            arpInput.getInterfaceName(), arpInput.getSpa(), arpInput.getSha(), arpInput.getDpId());
+                    ArpReponderInputBuilder builder = new ArpReponderInputBuilder(arpInput);
+                    builder.setInstructions(ArpResponderUtil.getInterfaceInstructions(interfaceManager,
+                            arpInput.getInterfaceName(), arpInput.getSpa(), arpInput.getSha()));
+                    elanService.addArpResponderFlow(builder.buildForInstallFlow());
+                });
+                futures.add(wrtConfigTxn.submit());
+                return futures;
+            });
+        }
         if (!isVnicTypeDirectOrMacVtap(add)) {
             return;
         }
@@ -132,6 +191,7 @@ public class DhcpNeutronPortListener
             return;
         }
         dhcpExternalTunnelManager.updateVniMacToPortCache(new BigInteger(segmentationId), macAddress, port);
+
     }
 
     private String getMacAddress(Port port) {
@@ -152,4 +212,36 @@ public class DhcpNeutronPortListener
     protected DhcpNeutronPortListener getDataTreeChangeListener() {
         return DhcpNeutronPortListener.this;
     }
+
+    /**
+     * Handle(Add/Remove) ARP Responder for DHCP IP on all the DPNs when DHCP is
+     * enabled/disabled on subnet add or update or delete.
+     *
+     * @param port
+     *            DHCP port for which ARP Responder flow to be added when dhcp
+     *            flag is enabled on the subnet or DHCP port for which ARP
+     *            Responder flow to be removed when dhcp flag is disabled on the
+     *            Subnet
+     * @param arpResponderAction
+     *            ARP Responder Action to be performed i.e., add or remove flow
+     */
+    private void processArpResponderForElanDpns(Port port, Consumer<ArpResponderInput> arpResponderAction) {
+
+        java.util.Optional<String> ip4Address = DhcpServiceUtils.getIpV4Address(port);
+        if (!ip4Address.isPresent()) {
+            LOG.warn("There is no IPv4Address for port {}, not performing ARP responder add/remove flow operation",
+                    port.getName());
+            return;
+        }
+        ElanHelper.getDpnInterfacesInElanInstance(broker, port.getNetworkId().getValue()).stream()
+                .map(ifName -> DhcpServiceUtils.getInterfaceInfo(interfaceManager, ifName)).forEach(interfaceInfo -> {
+                    ArpResponderInput arpResponderInput = new ArpResponderInput.ArpReponderInputBuilder()
+                            .setDpId(interfaceInfo.getDpId()).setInterfaceName(interfaceInfo.getInterfaceName())
+                            .setLportTag(interfaceInfo.getInterfaceTag()).setSha(port.getMacAddress().getValue())
+                            .setSpa(ip4Address.get()).build();
+                    arpResponderAction.accept(arpResponderInput);
+                });
+
+    }
+
 }

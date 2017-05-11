@@ -64,6 +64,7 @@ import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanForwardingEntriesHandler;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
+import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
@@ -1081,7 +1082,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
      */
     private List<InstructionInfo> getInstructionsIntOrExtTunnelTable(Long elanTag) {
         List<InstructionInfo> mkInstructions = new ArrayList<>();
-        mkInstructions.add(new InstructionWriteMetadata(ElanUtils.getElanMetadataLabel(elanTag), ElanUtils
+        mkInstructions.add(new InstructionWriteMetadata(ElanHelper.getElanMetadataLabel(elanTag), ElanHelper
                 .getElanMetadataMask()));
         /* applicable for EXTERNAL_TUNNEL_TABLE only
         * TODO: We should point to SMAC or DMAC depending on a configuration property to enable mac learning
@@ -1458,7 +1459,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             WriteTransaction tx) {
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
-        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(ElanUtils.getElanMetadataLabel(elanTag),
+        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(ElanHelper.getElanMetadataLabel(elanTag),
                 MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
 
         List<Action> actions = new ArrayList<>();
@@ -1468,7 +1469,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 elanTag).buildAction());
         instructions.add(MDSALUtil.buildApplyActionsInstruction(actions, ++instructionKey));
 
-        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.ELAN_BASE_TABLE,
+        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.ARP_CHECK_TABLE,
                 ++instructionKey));
 
         short elanServiceIndex = ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX);

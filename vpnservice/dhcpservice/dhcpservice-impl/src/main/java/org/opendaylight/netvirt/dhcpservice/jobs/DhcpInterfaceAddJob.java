@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -26,7 +27,11 @@ import org.opendaylight.netvirt.dhcpservice.DhcpExternalTunnelManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpServiceUtils;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
+import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput.ArpReponderInputBuilder;
+import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
@@ -34,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpserv
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710._interface.name.mac.addresses.InterfaceNameMacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710._interface.name.mac.addresses.InterfaceNameMacAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710._interface.name.mac.addresses.InterfaceNameMacAddressKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.subnet.dhcp.port.data.SubnetToDhcpPort;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,9 +50,10 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
     DhcpManager dhcpManager;
     DhcpExternalTunnelManager dhcpExternalTunnelManager;
     DataBroker dataBroker;
-    String interfaceName;
+    private final Interface interfaceAdd;
     BigInteger dpnId;
     IInterfaceManager interfaceManager;
+    private final IElanService elanService;
     private static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
         @Override
         public void onSuccess(Void result) {
@@ -60,20 +67,22 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
     };
 
     public DhcpInterfaceAddJob(DhcpManager dhcpManager, DhcpExternalTunnelManager dhcpExternalTunnelManager,
-                               DataBroker dataBroker, String interfaceName, BigInteger dpnId,
-                               IInterfaceManager interfaceManager) {
+                               DataBroker dataBroker, Interface interfaceAdd, BigInteger dpnId,
+                               IInterfaceManager interfaceManager, IElanService elanService) {
         super();
         this.dhcpManager = dhcpManager;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.dataBroker = dataBroker;
-        this.interfaceName = interfaceName;
+        this.interfaceAdd = interfaceAdd;
         this.dpnId = dpnId;
         this.interfaceManager = interfaceManager;
+        this.elanService = elanService;
     }
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
+        String interfaceName = interfaceAdd.getName();
         LOG.trace("Received add DCN for interface {}, dpid {}", interfaceName, dpnId);
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
                 interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
@@ -91,10 +100,27 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
         if (!dpnId.equals(DhcpMConstants.INVALID_DPID)) {
             Port port = dhcpManager.getNeutronPort(interfaceName);
             Subnet subnet = dhcpManager.getNeutronSubnet(port);
-            if (null != subnet && subnet.isEnableDhcp()) {
-                LOG.info("DhcpInterfaceEventListener add isEnableDhcp" + subnet.isEnableDhcp());
-                installDhcpEntries(interfaceName, dpnId, futures);
+            if (null == subnet || !subnet.isEnableDhcp()) {
+                LOG.debug("DHCP is not enabled for port {}", port.getName());
+                return Collections.emptyList();
             }
+            LOG.info("DhcpInterfaceEventListener add isEnableDhcp:{}", subnet.isEnableDhcp());
+            installDhcpEntries(interfaceAdd.getName(), dpnId, futures);
+            LOG.trace("Checking ElanDpnInterface {} for dpn {} ", interfaceName, dpnId);
+            String subnetId = subnet.getUuid().getValue();
+            java.util.Optional<SubnetToDhcpPort> subnetToDhcp = DhcpServiceUtils
+                    .getSubnetDhcpPortData(dataBroker, subnetId);
+            if (!subnetToDhcp.isPresent()) {
+                return Collections.emptyList();
+            }
+            LOG.trace("Installing the Arp responder for interface {} with DHCP MAC {} & IP {}.", interfaceName,
+                    subnetToDhcp.get().getPortMacaddress(), subnetToDhcp.get().getPortFixedip());
+            ArpReponderInputBuilder builder = new ArpReponderInputBuilder();
+            builder.setDpId(dpnId).setInterfaceName(interfaceName).setSpa(subnetToDhcp.get().getPortFixedip())
+                    .setSha(subnetToDhcp.get().getPortMacaddress()).setLportTag(interfaceAdd.getIfIndex());
+            builder.setInstructions(ArpResponderUtil.getInterfaceInstructions(interfaceManager, interfaceName,
+                    subnetToDhcp.get().getPortFixedip(), subnetToDhcp.get().getPortMacaddress()));
+            elanService.addArpResponderFlow(builder.buildForInstallFlow());
         }
         return futures;
     }
