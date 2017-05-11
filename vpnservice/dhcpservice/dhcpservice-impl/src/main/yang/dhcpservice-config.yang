@@ -23,5 +23,15 @@ module dhcpservice-config {
             type boolean;
             default false;
         }
+
+        leaf controller-dhcp-mode {
+            description "Specify the controller DHCP mode to use Neutron port or Subnet gateway as DHCP server IP";
+            type enumeration {
+                enum "use-odl-dhcp-neutron-port";
+                enum "use-subnet-gateway-ip";
+            }
+            default "use-odl-dhcp-neutron-port";
+        }
+
     }
 }
