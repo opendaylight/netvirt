@@ -10,11 +10,15 @@ package org.opendaylight.netvirt.elan.internal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -22,17 +26,22 @@ import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
+import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchArpOp;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
+import org.opendaylight.netvirt.elan.arp.responder.ArpResponderConstant;
+import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -49,15 +58,18 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
 
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
+    private final IdManagerService idManagerService;
     private final int tempSmacLearnTimeout;
     private final boolean puntLldpToController;
 
 
-    public ElanNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanConfig elanConfig) {
+    public ElanNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanConfig elanConfig,
+            IdManagerService idManagerService) {
         this.broker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.tempSmacLearnTimeout = elanConfig.getTempSmacLearnTimeout();
         this.puntLldpToController = elanConfig.isPuntLldpToController();
+        this.idManagerService = idManagerService;
     }
 
     @Override
@@ -89,11 +101,26 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         BigInteger dpId = new BigInteger(node[1]);
         createTableMissEntry(dpId);
         createMulticastFlows(dpId);
+        createArpDefaultFlowsForArpCheckTable(dpId);
+    }
+
+    @SuppressWarnings("deprecation")
+    private void createArpDefaultFlowsForArpCheckTable(BigInteger dpId) {
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob("ARP_CHECK_TABLE-" + dpId.toString(), () -> {
+            WriteTransaction writeFlowTx = broker.newWriteOnlyTransaction();
+            LOG.debug("Received notification to install Arp Check Default entries for dpn {} ", dpId);
+            createArpRequestMatchFlows(dpId, writeFlowTx);
+            createArpResponseMatchFlows(dpId, writeFlowTx);
+            return Arrays.asList(writeFlowTx.submit());
+        });
     }
 
     public void createTableMissEntry(BigInteger dpnId) {
         setupTableMissSmacFlow(dpnId);
         setupTableMissDmacFlow(dpnId);
+        setupTableMissArpCheckFlow(dpnId);
+        setupTableMissApResponderFlow(dpnId);
     }
 
     private void createMulticastFlows(BigInteger dpId) {
@@ -230,8 +257,45 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
 
     @Override
     protected ElanNodeListener getDataTreeChangeListener() {
-        // TODO Auto-generated method stub
         return ElanNodeListener.this;
+    }
+
+    private void setupTableMissApResponderFlow(final BigInteger dpnId) {
+        mdsalManager.installFlow(dpnId, ArpResponderUtil.getArpResponderTableMissFlow(dpnId));
+    }
+
+    private void setupTableMissArpCheckFlow(BigInteger dpnId) {
+        mdsalManager.installFlow(dpnId,
+                MDSALUtil.buildFlowEntity(dpnId, NwConstants.ARP_CHECK_TABLE,
+                        String.valueOf("L2.ELAN." + NwConstants.ARP_CHECK_TABLE), NwConstants.TABLE_MISS_PRIORITY,
+                        ArpResponderConstant.DROP_FLOW_NAME.value(), 0, 0, NwConstants.COOKIE_ARP_RESPONDER,
+                        new ArrayList<MatchInfo>(),
+                        Collections.singletonList(new InstructionGotoTable(NwConstants.ELAN_BASE_TABLE))));
+    }
+
+    private void createArpRequestMatchFlows(BigInteger dpId, WriteTransaction writeFlowTx) {
+
+        long arpRequestGroupId = ArpResponderUtil.retrieveStandardArpResponderGroupId(idManagerService);
+        List<BucketInfo> buckets = ArpResponderUtil.getDefaultBucketInfos(NwConstants.ELAN_BASE_TABLE,
+                NwConstants.ARP_RESPONDER_TABLE);
+        ArpResponderUtil.installGroup(mdsalManager, dpId, arpRequestGroupId,
+                ArpResponderConstant.GROUP_FLOW_NAME.value(), buckets);
+
+        FlowEntity arpReqArpCheckTbl = ArpResponderUtil.createArpDefaultFlow(dpId, NwConstants.ARP_CHECK_TABLE,
+                NwConstants.ARP_REQUEST, () -> Arrays.asList(MatchEthernetType.ARP, MatchArpOp.REQUEST),
+            () -> Collections.singletonList(new ActionGroup(arpRequestGroupId)));
+        LOG.trace("Invoking MDSAL to install Arp Rquest Match Flow for table {}", NwConstants.ARP_CHECK_TABLE);
+        mdsalManager.addFlowToTx(arpReqArpCheckTbl, writeFlowTx);
+
+    }
+
+    private void createArpResponseMatchFlows(BigInteger dpId, WriteTransaction writeFlowTx) {
+        FlowEntity arpRepArpCheckTbl = ArpResponderUtil.createArpDefaultFlow(dpId, NwConstants.ARP_CHECK_TABLE,
+                NwConstants.ARP_REPLY, () -> Arrays.asList(MatchEthernetType.ARP, MatchArpOp.REPLY),
+            () -> Arrays.asList(new ActionPuntToController(), new ActionNxResubmit(NwConstants.ELAN_BASE_TABLE)));
+        LOG.trace("Invoking MDSAL to install  Arp Reply Match Flow for Table {} ", NwConstants.ARP_CHECK_TABLE);
+        mdsalManager.addFlowToTx(arpRepArpCheckTbl, writeFlowTx);
+
     }
 
 }
