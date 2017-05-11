@@ -15,13 +15,18 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -66,9 +71,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.SubnetDhcpPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.subnet.dhcp.port.data.SubnetToDhcpPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.subnet.dhcp.port.data.SubnetToDhcpPortBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.subnet.dhcp.port.data.SubnetToDhcpPortKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +93,6 @@ public class DhcpServiceUtils {
             return;
         }
         List<MatchInfo> matches = getDhcpMatch(vmMacAddress);
-
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
 
@@ -289,6 +298,59 @@ public class DhcpServiceUtils {
                 .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    protected static void createSubnetDhcpPortData(Port port,
+            BiConsumer<InstanceIdentifier<SubnetToDhcpPort>, SubnetToDhcpPort> consumer) {
+        java.util.Optional<String> ip4Address = getIpV4Address(port);
+        java.util.Optional<String> subnetId = getNeutronSubnetId(port);
+        if (!(ip4Address.isPresent() && subnetId.isPresent())) {
+            return;
+        }
+        LOG.trace("Adding SubnetPortData entry for subnet {}", subnetId.get());
+        InstanceIdentifier<SubnetToDhcpPort> identifier = buildSubnetToDhcpPort(subnetId.get());
+        SubnetToDhcpPort subnetToDhcpPort = getSubnetToDhcpPort(port, subnetId.get(), ip4Address.get());
+        try {
+            LOG.trace("Adding to SubnetToDhcpPort subnet {}  mac {}.", subnetId.get(),
+                    port.getMacAddress().getValue());
+            consumer.accept(identifier, subnetToDhcpPort);
+        } catch (Exception e) {
+            LOG.error("Failure while creating SubnetToDhcpPort map for network {}.", port.getNetworkId(), e);
+        }
+    }
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    protected static void removeSubnetDhcpPortData(Port port, Consumer<InstanceIdentifier<SubnetToDhcpPort>> consumer) {
+        java.util.Optional<String> subnetId = getNeutronSubnetId(port);
+        if (!subnetId.isPresent()) {
+            return;
+        }
+        LOG.trace("Removing NetworkPortData entry for Subnet {}", subnetId);
+        InstanceIdentifier<SubnetToDhcpPort> identifier = buildSubnetToDhcpPort(subnetId.get());
+        try {
+            consumer.accept(identifier);
+            LOG.trace("Deleted SubnetDhcpPort for Network {}", subnetId.get());
+        } catch (Exception e) {
+            LOG.error("Failure while removing SubnetToDhcpPort for subnet {}.", subnetId, e);
+        }
+
+    }
+
+    static InstanceIdentifier<SubnetToDhcpPort> buildSubnetToDhcpPort(String subnetId) {
+        return InstanceIdentifier.builder(SubnetDhcpPortData.class)
+                .child(SubnetToDhcpPort.class, new SubnetToDhcpPortKey(subnetId)).build();
+    }
+
+    public static java.util.Optional<SubnetToDhcpPort> getSubnetDhcpPortData(DataBroker broker, String subnetId) {
+        InstanceIdentifier<SubnetToDhcpPort> id = buildSubnetToDhcpPort(subnetId);
+        try {
+            return java.util.Optional
+                    .ofNullable(SingleTransactionDataBroker.syncRead(broker, LogicalDatastoreType.CONFIGURATION, id));
+        } catch (ReadFailedException e) {
+            LOG.warn("Failed to read SubnetToDhcpPort for DS due to error {}", e.getMessage());
+        }
+        return java.util.Optional.empty();
+    }
+
     static IpAddress convertIntToIp(int ipn) {
         String[] array = IntStream.of(24, 16, 8, 0) //
                 .map(x -> (ipn >> x) & 0xFF).boxed() //
@@ -313,6 +375,42 @@ public class DhcpServiceUtils {
             result |= Integer.parseInt(part);
         }
         return result;
+    }
+
+
+    static SubnetToDhcpPort getSubnetToDhcpPort(Port port, String subnetId, String ipAddress) {
+        return new SubnetToDhcpPortBuilder()
+                .setKey(new SubnetToDhcpPortKey(subnetId))
+                .setSubnetId(subnetId).setPortName(port.getUuid().getValue())
+                .setPortMacaddress(port.getMacAddress().getValue()).setPortFixedip(ipAddress).build();
+    }
+
+    static InterfaceInfo getInterfaceInfo(IInterfaceManager interfaceManager, String interfaceName) {
+        return interfaceManager.getInterfaceInfoFromOperationalDataStore(interfaceName);
+    }
+
+    static BigInteger getDpIdFromInterface(IInterfaceManager interfaceManager, String interfaceName) {
+        return interfaceManager.getDpnForInterface(interfaceName);
+    }
+
+    public static java.util.Optional<String> getIpV4Address(Port port) {
+        if (port.getFixedIps() == null) {
+            return java.util.Optional.empty();
+        }
+        return port.getFixedIps().stream().filter(DhcpServiceUtils::isIpV4AddressAvailable)
+                .map(v -> v.getIpAddress().getIpv4Address().getValue()).findFirst();
+    }
+
+    public static java.util.Optional<String> getNeutronSubnetId(Port port) {
+        if (port.getFixedIps() == null) {
+            return java.util.Optional.empty();
+        }
+        return port.getFixedIps().stream().filter(DhcpServiceUtils::isIpV4AddressAvailable)
+                .map(v -> v.getSubnetId().getValue()).findFirst();
+    }
+
+    public static boolean isIpV4AddressAvailable(FixedIps fixedIp) {
+        return fixedIp != null && fixedIp.getIpAddress() != null && fixedIp.getIpAddress().getIpv4Address() != null;
     }
 
 }
