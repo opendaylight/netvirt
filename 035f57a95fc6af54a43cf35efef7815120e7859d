@@ -104,6 +104,57 @@
       "revId": "035f57a95fc6af54a43cf35efef7815120e7859d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_5aecbb8f",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-11T16:51:50Z",
+      "side": 1,
+      "message": "\"The same VPN instance will be attached...\"",
+      "revId": "035f57a95fc6af54a43cf35efef7815120e7859d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_ba02073c",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-11T16:51:50Z",
+      "side": 1,
+      "message": "\"with addresses from a IPv4 and IPv6 subnets\"",
+      "revId": "035f57a95fc6af54a43cf35efef7815120e7859d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da01753e_9afd833e",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-11T16:51:50Z",
+      "side": 1,
+      "message": "\"The IPv4 neutron private subnet will obtain...\"",
+      "revId": "035f57a95fc6af54a43cf35efef7815120e7859d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
