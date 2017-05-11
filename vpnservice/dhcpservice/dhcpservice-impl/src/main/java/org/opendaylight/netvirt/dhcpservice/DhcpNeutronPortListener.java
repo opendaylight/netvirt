@@ -7,16 +7,29 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
@@ -33,14 +46,19 @@ public class DhcpNeutronPortListener
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpNeutronPortListener.class);
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
+    private final IElanService elanService;
     private final DataBroker broker;
-    private DhcpserviceConfig config;
+    private final DhcpserviceConfig config;
+    private final IInterfaceManager interfaceManager;
 
     @Inject
-    public DhcpNeutronPortListener(final DataBroker db, final DhcpExternalTunnelManager dhcpExternalTunnelManager,
-                                   final DhcpserviceConfig config) {
+    public DhcpNeutronPortListener(DataBroker db, DhcpExternalTunnelManager dhcpExternalTunnelManager,
+            @Named("elanService") IElanService ielanService, IInterfaceManager interfaceManager,
+            DhcpserviceConfig config) {
         super(Port.class, DhcpNeutronPortListener.class);
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
+        this.elanService = ielanService;
+        this.interfaceManager = interfaceManager;
         this.broker = db;
         this.config = config;
     }
@@ -67,9 +85,48 @@ public class DhcpNeutronPortListener
     @Override
     protected void remove(InstanceIdentifier<Port> identifier, Port del) {
         LOG.trace("Port removed: {}", del);
+        if (NeutronConstants.IS_ODL_DHCP_PORT.test(del)) {
+            processFixedIpsInPort(del, (short)0,(port, ip) -> delArpResponderForElanDpns(port.getNetworkId().getValue(),
+                    port.getMacAddress().getValue(), ip));
+        }
         if (isVnicTypeDirectOrMacVtap(del)) {
             removePort(del);
         }
+    }
+
+    @SuppressWarnings("deprecation")
+    private void processFixedIpsInPort(Port port, short addOrRemove, BiConsumer<Port, String> arpFlowConsumer) {
+        DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        portDataStoreCoordinator.enqueueJob(getJobKey(port), () -> {
+            WriteTransaction wrtConfigTxn = broker.newWriteOnlyTransaction();
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            if (addOrRemove == 1) {
+                if (wrtConfigTxn != null) {
+                    DhcpServiceUtils.createNetworkDhcpPortData(port,
+                        (networkDhcpPortIdfr, networkToDhcpport) -> wrtConfigTxn
+                                    .put(LogicalDatastoreType.CONFIGURATION, networkDhcpPortIdfr, networkToDhcpport));
+                } else {
+                    DhcpServiceUtils.createNetworkDhcpPortData(port,
+                        (networkDhcpPortIdfr, networkToDhcpport) -> MDSALUtil.syncWrite(broker,
+                                    LogicalDatastoreType.CONFIGURATION, networkDhcpPortIdfr, networkToDhcpport));
+                }
+            } else {
+                if (wrtConfigTxn != null) {
+                    DhcpServiceUtils.removeNetworkDhcpPortData(port, (networkDhcpPortIdfr) -> wrtConfigTxn
+                            .delete(LogicalDatastoreType.CONFIGURATION, networkDhcpPortIdfr));
+                } else {
+                    DhcpServiceUtils.removeNetworkDhcpPortData(port, (networkDhcpPortIdfr) -> MDSALUtil
+                            .syncDelete(broker, LogicalDatastoreType.CONFIGURATION, networkDhcpPortIdfr));
+                }
+            }
+            DhcpServiceUtils.getIpV4Address(port).ifPresent(ip -> arpFlowConsumer.accept(port, ip));
+            futures.add(wrtConfigTxn.submit());
+            return futures;
+        });
+    }
+
+    private String getJobKey(Port port) {
+        return "PORT- " + port.getUuid().getValue();
     }
 
     @Override
@@ -105,6 +162,11 @@ public class DhcpNeutronPortListener
     @Override
     protected void add(InstanceIdentifier<Port> identifier, Port add) {
         LOG.trace("Port added {}", add);
+        if (NeutronConstants.IS_ODL_DHCP_PORT.test(add)) {
+            processFixedIpsInPort(add, (short) 1,
+                (port, ip) -> addArpResponderForElanDpns(port.getNetworkId().getValue(),
+                            port.getMacAddress().getValue(), ip));
+        }
         if (!isVnicTypeDirectOrMacVtap(add)) {
             return;
         }
@@ -132,6 +194,7 @@ public class DhcpNeutronPortListener
             return;
         }
         dhcpExternalTunnelManager.updateVniMacToPortCache(new BigInteger(segmentationId), macAddress, port);
+
     }
 
     private String getMacAddress(Port port) {
@@ -152,4 +215,47 @@ public class DhcpNeutronPortListener
     protected DhcpNeutronPortListener getDataTreeChangeListener() {
         return DhcpNeutronPortListener.this;
     }
+
+    /**
+     * Add ARP Responder for DHCP IP on all the DPNs when DHCP is enabled on
+     * subnet add or update.
+     *
+     * @param networkId
+     *            NetworkId on which subnet is enabled
+     * @param macAddress
+     *            Mac address of the DHCP Port
+     * @param ipAddress
+     *            IP address of the DHCP Port
+     */
+    private void addArpResponderForElanDpns(String networkId, String macAddress, String ipAddress) {
+        for (String intrf : ElanHelper.getDpnInterfacesInElanInstance(broker, networkId)) {
+            InterfaceInfo interfaceInfo = DhcpServiceUtils.getInterfaceInfo(interfaceManager, intrf);
+            BigInteger dpnId = interfaceInfo.getDpId();
+            LOG.trace("Installing DHCP ARPResponder Flows for DPN {}", dpnId);
+            elanService.addArpResponderFlow(dpnId, intrf, ipAddress, macAddress, interfaceInfo.getInterfaceTag(),
+                    Collections.EMPTY_LIST);
+
+        }
+    }
+
+    /**
+     * Remove ARP Responder for DHCP IP on all the DPNs when DHCP is disabled on
+     * Subnet removed or updated.
+     *
+     * @param networkId
+     *            NetworkId on which subnet is enabled
+     * @param macAddress
+     *            Mac address of the DHCP Port
+     * @param ipAddress
+     *            IP address of the DHCP Port
+     */
+    private void delArpResponderForElanDpns(String networkId, String macAddress, String ipAddress) {
+        for (String intrf : ElanHelper.getDpnInterfacesInElanInstance(broker, networkId)) {
+            InterfaceInfo interfaceInfo = DhcpServiceUtils.getInterfaceInfo(interfaceManager, intrf);
+            BigInteger dpnId = interfaceInfo.getDpId();
+            LOG.trace("Installing DHCP ARPResponder Flows for DPN {}", dpnId);
+            elanService.removeArpResponderFlow(dpnId, intrf, ipAddress, interfaceInfo.getInterfaceTag());
+        }
+    }
+
 }
