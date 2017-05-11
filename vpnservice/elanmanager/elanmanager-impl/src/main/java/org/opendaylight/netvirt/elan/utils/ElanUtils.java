@@ -69,6 +69,7 @@ import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager.ShardResource;
 import org.opendaylight.netvirt.elan.ElanException;
+import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
@@ -667,21 +668,9 @@ public class ElanUtils {
         return ElanConstants.ELAN_GID_MIN + etreeLeafTag % ElanConstants.ELAN_GID_MIN * 2;
     }
 
-    public static BigInteger getElanMetadataLabel(long elanTag) {
-        return MetaDataUtil.getElanTagMetadata(elanTag);
-    }
-
     public static BigInteger getElanMetadataLabel(long elanTag, boolean isSHFlagSet) {
         int shBit = isSHFlagSet ? 1 : 0;
         return BigInteger.valueOf(elanTag).shiftLeft(24).or(BigInteger.valueOf(shBit));
-    }
-
-    public static BigInteger getElanMetadataLabel(long elanTag, int lportTag) {
-        return getElanMetadataLabel(elanTag).or(MetaDataUtil.getLportTagMetaData(lportTag));
-    }
-
-    public static BigInteger getElanMetadataMask() {
-        return MetaDataUtil.METADATA_MASK_SERVICE.or(MetaDataUtil.METADATA_MASK_LPORT_TAG);
     }
 
     /**
@@ -739,7 +728,8 @@ public class ElanUtils {
         int lportTag = interfaceInfo.getInterfaceTag();
         // Matching metadata and eth_src fields
         List<MatchInfo> mkMatches = new ArrayList<>();
-        mkMatches.add(new MatchMetadata(getElanMetadataLabel(elanInfo.getElanTag(), lportTag), getElanMetadataMask()));
+        mkMatches.add(new MatchMetadata(ElanHelper.getElanMetadataLabel(elanInfo.getElanTag(), lportTag),
+                ElanHelper.getElanMetadataMask()));
         mkMatches.add(new MatchEthernetSource(new MacAddress(macAddress)));
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_DMAC_TABLE));
@@ -1022,7 +1012,7 @@ public class ElanUtils {
             ElanInstance elanInfo, long ifTag) {
 
         List<MatchInfo> mkMatches = new ArrayList<>();
-        mkMatches.add(new MatchMetadata(getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
+        mkMatches.add(new MatchMetadata(ElanHelper.getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
         mkMatches.add(new MatchEthernetDestination(new MacAddress(macAddress)));
 
         List<Instruction> mkInstructions = new ArrayList<>();
@@ -1102,7 +1092,7 @@ public class ElanUtils {
     public Flow buildRemoteDmacFlowEntry(BigInteger srcDpId, BigInteger destDpId, long lportTagOrVni, long elanTag,
             String macAddress, String displayName, ElanInstance elanInstance) throws ElanException {
         List<MatchInfo> mkMatches = new ArrayList<>();
-        mkMatches.add(new MatchMetadata(getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
+        mkMatches.add(new MatchMetadata(ElanHelper.getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
         mkMatches.add(new MatchEthernetDestination(new MacAddress(macAddress)));
 
         List<Instruction> mkInstructions = new ArrayList<>();
@@ -1312,7 +1302,7 @@ public class ElanUtils {
         int priority = ElanConstants.ELAN_SERVICE_PRIORITY;
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
-        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(getElanMetadataLabel(elanTag),
+        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(ElanHelper.getElanMetadataLabel(elanTag),
                 MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.ELAN_SMAC_TABLE, ++instructionKey));
 
@@ -2014,7 +2004,7 @@ public class ElanUtils {
     public static FlowEntity buildDmacRedirectToDispatcherFlow(BigInteger dpId, String dstMacAddress,
             String displayName, long elanTag) {
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchMetadata(getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
+        matches.add(new MatchMetadata(ElanHelper.getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
         matches.add(new MatchEthernetDestination(new MacAddress(dstMacAddress)));
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actions = new ArrayList<>();
@@ -2325,5 +2315,27 @@ public class ElanUtils {
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class,
                         nodeDpn.getKey()).augmentation(FlowCapableNode.class)
                 .child(Table.class, new TableKey(flow.getTableId())).child(Flow.class, flowKey).build();
+    }
+
+    public void addArpResponderFlow(BigInteger dpnId, String ingressInterfaceName, String ipAddress, String macAddress,
+            int lportTag, List<Instruction> instructions) {
+        LOG.trace("Installing the ARP responder flow on DPN {} for Interface {} with MAC {} & IP {}", dpnId,
+                ingressInterfaceName, macAddress, ipAddress);
+
+        ElanInterface elanIface = getElanInterfaceByElanInterfaceName(broker, ingressInterfaceName);
+        ElanInstance elanInstance = getElanInstanceByName(broker, elanIface.getElanInstanceName());
+        String flowId = ArpResponderUtil.getFlowId(lportTag, ipAddress);
+        ArpResponderUtil.installFlow(mdsalManager, dpnId, flowId, flowId, NwConstants.DEFAULT_ARP_FLOW_PRIORITY,
+                ArpResponderUtil.generateCookie(lportTag, ipAddress),
+                ArpResponderUtil.getMatchCriteria(lportTag, elanInstance, ipAddress), instructions);
+        LOG.trace("Installed the ARP Responder flow for Interface {}", ingressInterfaceName);
+
+    }
+
+    public void removeArpResponderFlow(BigInteger dpnId, String ingressInterfaceName, String ipAddress,
+            int lportTag) {
+        LOG.trace("Removing the ARP responder flow on DPN {} of Interface {} with IP {}", dpnId, ingressInterfaceName,
+                ipAddress);
+        ArpResponderUtil.removeFlow(mdsalManager, dpnId, ArpResponderUtil.getFlowId(lportTag, ipAddress));
     }
 }
