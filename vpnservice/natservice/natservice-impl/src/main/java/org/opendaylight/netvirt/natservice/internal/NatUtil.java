@@ -1760,9 +1760,9 @@ public class NatUtil {
                     vpnName, dpnId, rd, externalIp);
             try {
                 List<IpAddresses> ipAddressList = dpnInVpn.get().getIpAddresses();
-                if ((ipAddressList != null) && (ipAddressList.size() > 0)) {
+                if (ipAddressList != null && !ipAddressList.isEmpty()) {
                     int floatingIpPresentCount = 0;
-                    for (IpAddresses ipAddress : ipAddressList) {
+                    for (IpAddresses ipAddress: ipAddressList) {
                         if (!ipAddress.getIpAddress().equals(externalIp)
                                 && IpAddresses.IpAddressSource.FloatingIP.equals(ipAddress.getIpAddressSource())) {
                             floatingIpPresentCount++;
