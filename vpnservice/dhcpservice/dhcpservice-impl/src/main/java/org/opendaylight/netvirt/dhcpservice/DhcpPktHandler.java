@@ -25,6 +25,7 @@ import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.opendaylight.controller.liblldp.EtherTypes;
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.liblldp.PacketException;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -58,10 +59,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.SendToController;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.subnet.dhcp.port.data.SubnetToDhcpPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 @Singleton
 public class DhcpPktHandler implements PacketProcessingListener {
@@ -75,6 +78,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
     private final IInterfaceManager interfaceManager;
     private final DhcpserviceConfig config;
     private final DhcpAllocationPoolManager dhcpAllocationPoolMgr;
+    private final DataBroker broker;
 
     @Inject
     public DhcpPktHandler(final DhcpManager dhcpManager,
@@ -83,7 +87,8 @@ public class DhcpPktHandler implements PacketProcessingListener {
                           final PacketProcessingService pktService,
                           final IInterfaceManager interfaceManager,
                           final DhcpserviceConfig config,
-                          final DhcpAllocationPoolManager dhcpAllocationPoolMgr) {
+                          final DhcpAllocationPoolManager dhcpAllocationPoolMgr,
+                          final DataBroker dataBroker) {
         this.interfaceManagerRpc = interfaceManagerRpc;
         this.pktService = pktService;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
@@ -91,6 +96,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
         this.interfaceManager = interfaceManager;
         this.config = config;
         this.dhcpAllocationPoolMgr = dhcpAllocationPoolMgr;
+        this.broker = dataBroker;
     }
 
     //TODO: Handle this in a separate thread
@@ -221,18 +227,27 @@ public class DhcpPktHandler implements PacketProcessingListener {
 
     private DhcpInfo getDhcpInfo(Port port, Subnet subnet) {
         DhcpInfo dhcpInfo = null;
+        List<IpAddress> dnsServers = subnet.getDnsNameservers();
         if (port != null && subnet != null) {
             String clientIp = getIpv4Address(port);
-            String serverIp = null;
-            if (isIpv4Address(subnet.getGatewayIp())) {
-                serverIp = subnet.getGatewayIp().getIpv4Address().getValue();
-            }
-            if (clientIp != null && serverIp != null) {
-                List<IpAddress> dnsServers = subnet.getDnsNameservers();
+            /* If neutronport-dhcp flag was enabled and an ODL network DHCP Port data was made available use the
+             * ports Fixed IP as server IP for DHCP communication.
+             */
+            java.util.Optional<SubnetToDhcpPort> dhcpPortData = DhcpServiceUtils.getSubnetDhcpPortData(broker,
+                    subnet.getUuid().getValue());
+            if (dhcpPortData.isPresent()) {
+                String serverIp = dhcpPortData.get().getPortFixedip();
                 dhcpInfo = new DhcpInfo();
+                if (isIpv4Address(subnet.getGatewayIp())) {
+                    dhcpInfo.setGatewayIp(subnet.getGatewayIp().getIpv4Address().getValue());
+                }
                 dhcpInfo.setClientIp(clientIp).setServerIp(serverIp)
                         .setCidr(String.valueOf(subnet.getCidr().getValue())).setHostRoutes(subnet.getHostRoutes())
-                        .setDnsServersIpAddrs(dnsServers).setGatewayIp(serverIp);
+                        .setDnsServersIpAddrs(dnsServers);
+            } else {
+                // DHCP Neutron Port not found for this subnet
+                LOG.error("DHCP response failed as Neutron DHCP Port is absent on subnet {} and so"
+                        + " cannot respond with offer for Port {}.", subnet.getUuid(), port.getUuid());
             }
         }
         return dhcpInfo;
@@ -269,7 +284,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
     }
 
     private boolean isIpv4Address(IpAddress ip) {
-        return ip.getIpv4Address() != null;
+        return ip != null && ip.getIpv4Address() != null;
     }
 
     private Subnet getNeutronSubnet(Port port) {
@@ -487,7 +502,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
     }
 
     private void setCommonOptions(DHCP pkt, DhcpInfo dhcpInfo) {
-        String gwIp = dhcpInfo.getGatewayIp();
+        String serverIp = dhcpInfo.getServerIp();
         if (pkt.getMsgType() != DHCPConstants.MSG_NAK) {
             setNonNakOptions(pkt, dhcpInfo);
         }
@@ -497,8 +512,8 @@ public class DhcpPktHandler implements PacketProcessingListener {
              * options to maintain order. If we can't fill them, unset to avoid
              * sending wrong information in reply.
              */
-            if (gwIp != null) {
-                pkt.setOptionInetAddr(DHCPConstants.OPT_SERVER_IDENTIFIER, gwIp);
+            if (serverIp != null) {
+                pkt.setOptionInetAddr(DHCPConstants.OPT_SERVER_IDENTIFIER, serverIp);
             } else {
                 pkt.unsetOption(DHCPConstants.OPT_SERVER_IDENTIFIER);
             }
