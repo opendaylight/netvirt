@@ -76,4 +76,9 @@ public interface IElanService extends IEtreeService {
 
     Boolean isOpenStackVniSemanticsEnforced();
 
+    void addArpResponderFlow(final BigInteger dpnId, final String ingressInterfaceName, final String ipAddress,
+            final String macAddress, final java.util.Optional<Integer> lportTag,boolean isFloatingIp);
+
+    void removeArpResponderFlow(final BigInteger dpnId, final String ingressInterfaceName, final String ipAddress,
+            final java.util.Optional<Integer> lportTag);
 }
