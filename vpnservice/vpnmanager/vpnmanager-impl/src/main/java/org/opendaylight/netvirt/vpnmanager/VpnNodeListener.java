@@ -120,8 +120,8 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
                     makeL3IntfTblMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
                     makeSubnetRouteTableMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
                     createTableMissForVpnGwFlow(writeFlowTx, dpId);
-                    createArpRequestMatchFlowForGwMacTable(writeFlowTx, dpId);
-                    createArpResponseMatchFlowForGwMacTable(writeFlowTx, dpId);
+//                    createArpRequestMatchFlowForGwMacTable(writeFlowTx, dpId);
+//                    createArpResponseMatchFlowForGwMacTable(writeFlowTx, dpId);
                     programTableMissForVpnVniDemuxTable(writeFlowTx, dpId, NwConstants.ADD_FLOW);
                     List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
                     futures.add(writeFlowTx.submit());
@@ -194,9 +194,9 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
                 .LPORT_DISPATCHER_TABLE));
         List<InstructionInfo> instructions = Collections.singletonList(new InstructionApplyActions(actionsInfos));
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        String flowRef = getTableMissFlowRef(dpnId, (short)NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,
+        String flowRef = getTableMissFlowRef(dpnId, NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,
                 NwConstants.TABLE_MISS_FLOW);
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, (short)NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,
                 flowRef, NwConstants.TABLE_MISS_PRIORITY, "VPN-VNI Demux Table Miss", 0, 0,
                 new BigInteger("1080000", 16), matches, instructions);
 
@@ -218,7 +218,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
             instructions);
         LOG.trace("Invoking MDSAL to install L3 Gw Mac Table Miss Entry");
         mdsalManager.addFlowToTx(flowEntityMissforGw, writeFlowTx);
-        mdsalManager.addFlowToTx(ArpResponderUtil.getArpResponderTableMissFlow(dpId), writeFlowTx);
+ //       mdsalManager.addFlowToTx(ArpResponderUtil.getArpResponderTableMissFlow(dpId), writeFlowTx);
     }
 
     private void createArpRequestMatchFlowForGwMacTable(WriteTransaction writeFlowTx, BigInteger dpId) {
