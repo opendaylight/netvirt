@@ -814,4 +814,17 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             isL2BeforeL3 = false;
         }
     }
+
+    @Override
+    public void addArpResponderFlow(final BigInteger dpnId, final String ingressInterfaceName, final String ipAddress,
+            final String macAddress, final java.util.Optional<Integer> lportTag,boolean isFloatingIp) {
+        elanUtils.addArpResponderFlow(dpnId, ingressInterfaceName, ipAddress, macAddress, lportTag, isFloatingIp);
+
+    }
+
+    @Override
+    public void removeArpResponderFlow(final BigInteger dpnId, final String ingressInterfaceName,
+            final String ipAddress, final java.util.Optional<Integer> lportTag) {
+        elanUtils.removeArpResponderFlow(dpnId, ingressInterfaceName, ipAddress, lportTag);
+    }
 }
