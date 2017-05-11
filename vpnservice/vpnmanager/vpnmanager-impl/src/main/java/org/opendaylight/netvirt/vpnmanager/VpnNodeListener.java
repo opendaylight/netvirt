@@ -11,8 +11,10 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -21,13 +23,11 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
@@ -35,8 +35,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchArpOp;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
-import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderConstant;
-import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderUtil;
+import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -110,19 +109,21 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     private void processNodeAdd(BigInteger dpId) {
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         dataStoreCoordinator.enqueueJob("VPNNODE-" + dpId.toString(),
-            () -> {
-                WriteTransaction writeFlowTx = broker.newWriteOnlyTransaction();
-                LOG.debug("Received notification to install TableMiss entries for dpn {} ", dpId);
-                makeTableMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
-                makeL3IntfTblMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
-                makeSubnetRouteTableMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
-                createTableMissForVpnGwFlow(writeFlowTx, dpId);
-                createArpRequestMatchFlowForGwMacTable(writeFlowTx, dpId);
-                createArpResponseMatchFlowForGwMacTable(writeFlowTx, dpId);
-                programTableMissForVpnVniDemuxTable(writeFlowTx, dpId, NwConstants.ADD_FLOW);
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                futures.add(writeFlowTx.submit());
-                return futures;
+            new Callable<List<ListenableFuture<Void>>>() {
+                @Override
+                public List<ListenableFuture<Void>> call() throws Exception {
+                    WriteTransaction writeFlowTx = broker.newWriteOnlyTransaction();
+                    LOG.debug("Received notification to install TableMiss entries for dpn {} ", dpId);
+                    makeTableMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
+                    makeL3IntfTblMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
+                    makeSubnetRouteTableMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
+                    createTableMissForVpnGwFlow(writeFlowTx, dpId);
+                    createL3GwMacArpFlows(writeFlowTx, dpId);
+                    programTableMissForVpnVniDemuxTable(writeFlowTx, dpId, NwConstants.ADD_FLOW);
+                    List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                    futures.add(writeFlowTx.submit());
+                    return futures;
+                }
             });
     }
 
@@ -190,9 +191,9 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
                 .LPORT_DISPATCHER_TABLE));
         List<InstructionInfo> instructions = Collections.singletonList(new InstructionApplyActions(actionsInfos));
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        String flowRef = getTableMissFlowRef(dpnId, (short)NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,
+        String flowRef = getTableMissFlowRef(dpnId, NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,
                 NwConstants.TABLE_MISS_FLOW);
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, (short)NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,
                 flowRef, NwConstants.TABLE_MISS_PRIORITY, "VPN-VNI Demux Table Miss", 0, 0,
                 new BigInteger("1080000", 16), matches, instructions);
 
@@ -214,51 +215,19 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
             instructions);
         LOG.trace("Invoking MDSAL to install L3 Gw Mac Table Miss Entry");
         mdsalManager.addFlowToTx(flowEntityMissforGw, writeFlowTx);
-        mdsalManager.addFlowToTx(ArpResponderUtil.getArpResponderTableMissFlow(dpId), writeFlowTx);
     }
 
-    private void createArpRequestMatchFlowForGwMacTable(WriteTransaction writeFlowTx, BigInteger dpId) {
-        final List<BucketInfo> buckets = ArpResponderUtil.getDefaultBucketInfos(
-            NwConstants.LPORT_DISPATCHER_TABLE,
-            NwConstants.ARP_RESPONDER_TABLE);
-        ArpResponderUtil.installGroup(mdsalManager, dpId,
-            ArpResponderUtil.retrieveStandardArpResponderGroupId(idManagerService),
-            ArpResponderConstant.GROUP_FLOW_NAME.value(), buckets);
-
-        final List<MatchInfo> matches = new ArrayList<>();
-        matches.add(MatchEthernetType.ARP);
-        matches.add(MatchArpOp.REQUEST);
-        final List<ActionInfo> actionInfos = Collections.singletonList(
-            new ActionGroup(ArpResponderUtil.retrieveStandardArpResponderGroupId(idManagerService)));
-        final List<InstructionInfo> instructions = Collections.singletonList(new InstructionApplyActions(actionInfos));
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
-            getFlowRefForArpFlows(dpId, NwConstants.L3_GW_MAC_TABLE, NwConstants.ARP_REQUEST),
-            NwConstants.DEFAULT_ARP_FLOW_PRIORITY, "L3GwMac Arp Rquest", 0, 0, new BigInteger("1080000", 16), matches,
-            instructions);
-        LOG.trace("Invoking MDSAL to install L3 Gw Mac Arp Rquest Match Flow");
-        mdsalManager.addFlowToTx(flowEntity, writeFlowTx);
-    }
-
-    private void createArpResponseMatchFlowForGwMacTable(WriteTransaction writeFlowTx, BigInteger dpId) {
-        List<MatchInfo> matches = new ArrayList<>();
-        matches.add(MatchEthernetType.ARP);
-        matches.add(MatchArpOp.REPLY);
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionPuntToController());
-        actionsInfos.add(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
-        List<InstructionInfo> instructions = Collections.singletonList(new InstructionApplyActions(actionsInfos));
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
-            getFlowRefForArpFlows(dpId, NwConstants.L3_GW_MAC_TABLE, NwConstants.ARP_REPLY),
-            NwConstants.DEFAULT_ARP_FLOW_PRIORITY, "L3GwMac Arp Reply", 0, 0, new BigInteger("1080000", 16), matches,
-            instructions);
-        LOG.trace("Invoking MDSAL to install L3 Gw Mac Arp Reply Match Flow");
-        mdsalManager.addFlowToTx(flowEntity, writeFlowTx);
-    }
-
-    private String getFlowRefForArpFlows(BigInteger dpnId, short tableId, int arpRequestOrReply) {
-        return new StringBuffer().append(FLOWID_PREFIX_FOR_ARP).append(dpnId).append(NwConstants.FLOWID_SEPARATOR)
-            .append(tableId).append(NwConstants.FLOWID_SEPARATOR).append(arpRequestOrReply)
-            .append(FLOWID_PREFIX).toString();
+    private void createL3GwMacArpFlows(WriteTransaction writeFlowTx, BigInteger dpId) {
+        FlowEntity arpReqGwMacTbl = ArpResponderUtil.createArpDefaultFlow(dpId, NwConstants.L3_GW_MAC_TABLE,
+                NwConstants.ARP_REQUEST, () -> Arrays.asList(MatchEthernetType.ARP, MatchArpOp.REQUEST),
+            () -> Collections.singletonList(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE)));
+        LOG.trace("Invoking MDSAL to install Arp Rquest Match Flow for table {}", NwConstants.L3_GW_MAC_TABLE);
+        mdsalManager.addFlowToTx(arpReqGwMacTbl, writeFlowTx);
+        FlowEntity arpRepGwMacTbl = ArpResponderUtil.createArpDefaultFlow(dpId, NwConstants.L3_GW_MAC_TABLE,
+                NwConstants.ARP_REPLY, () -> Arrays.asList(MatchEthernetType.ARP, MatchArpOp.REPLY),
+            () -> Collections.singletonList(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE)));
+        LOG.trace("Invoking MDSAL to install  Arp Reply Match Flow for Table {} ", NwConstants.L3_GW_MAC_TABLE);
+        mdsalManager.addFlowToTx(arpRepGwMacTbl, writeFlowTx);
     }
 
     private String getTableMissFlowRef(BigInteger dpnId, short tableId, int tableMiss) {
