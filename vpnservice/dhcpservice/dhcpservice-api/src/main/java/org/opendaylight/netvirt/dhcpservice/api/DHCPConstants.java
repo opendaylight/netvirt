@@ -127,4 +127,5 @@ public final class DHCPConstants {
     public static final int DHCP_MAX_SIZE        = 576;
 
     public static final int DHCP_NOOPT_HDR_SIZE        = 240;
+    public static final String DEVICE_OWNER_DHCP  = "network:dhcp";
 }
