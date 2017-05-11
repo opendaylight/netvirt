@@ -15,13 +15,18 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -69,6 +74,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.NetworkDhcpportData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.network.dhcpport.data.NetworkToDhcpport;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.network.dhcpport.data.NetworkToDhcpportBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.network.dhcpport.data.NetworkToDhcpportKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +92,6 @@ public class DhcpServiceUtils {
             return;
         }
         List<MatchInfo> matches = getDhcpMatch(vmMacAddress);
-
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
 
@@ -289,6 +297,49 @@ public class DhcpServiceUtils {
                 .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    protected static void createNetworkDhcpPortData(Port port,
+            BiConsumer<InstanceIdentifier<NetworkToDhcpport>, NetworkToDhcpport> consumer) {
+        LOG.trace("Adding NetworkPortData entry for network {}", port.getNetworkId().getValue());
+        InstanceIdentifier<NetworkToDhcpport> identifier = buildNetworktoDhcpPort(port.getNetworkId().getValue());
+        java.util.Optional<String> ip4Address = getIpV4Address(port);
+        ip4Address.ifPresent(ip -> {
+            NetworkToDhcpport networkToDhcpport = getNetworkToDhcpPort(port, ip);
+            try {
+                LOG.trace("Adding to NetworktoDhcpPort network {}  mac {}.", port.getNetworkId().getValue(),
+                        port.getMacAddress().getValue());
+                consumer.accept(identifier, networkToDhcpport);
+            } catch (Exception e) {
+                LOG.error("Failure while creating NetworkToDhcpPort map for network {}.", port.getNetworkId(), e);
+            }
+        });
+
+    }
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    protected static void removeNetworkDhcpPortData(Port port,
+            Consumer<InstanceIdentifier<NetworkToDhcpport>> consumer) {
+        LOG.trace("Removing NetworkPortData entry for Network {}", port.getNetworkId().getValue());
+        InstanceIdentifier<NetworkToDhcpport> identifier = buildNetworktoDhcpPort(port.getNetworkId().getValue());
+        try {
+            consumer.accept(identifier);
+            LOG.trace("Deleted NetworkDhcpPort for Network {}", port.getNetworkId());
+        } catch (Exception e) {
+            LOG.error("Failure while removing NetworkToDhcpPort for network {}.", port.getNetworkId(), e);
+        }
+    }
+
+    static InstanceIdentifier<NetworkToDhcpport> buildNetworktoDhcpPort(String networkId) {
+        InstanceIdentifier<NetworkToDhcpport> id = InstanceIdentifier.builder(NetworkDhcpportData.class)
+                .child(NetworkToDhcpport.class, new NetworkToDhcpportKey(networkId)).build();
+        return id;
+    }
+
+    public static Optional<NetworkToDhcpport> getNetworkDhcpPortData(DataBroker broker, String networkId) {
+        InstanceIdentifier<NetworkToDhcpport> id = buildNetworktoDhcpPort(networkId);
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+    }
+
     static IpAddress convertIntToIp(int ipn) {
         String[] array = IntStream.of(24, 16, 8, 0) //
                 .map(x -> (ipn >> x) & 0xFF).boxed() //
@@ -313,6 +364,31 @@ public class DhcpServiceUtils {
             result |= Integer.parseInt(part);
         }
         return result;
+    }
+
+
+    static NetworkToDhcpport getNetworkToDhcpPort(Port port, String ipAddress) {
+        NetworkToDhcpportBuilder builder = new NetworkToDhcpportBuilder()
+                .setKey(new NetworkToDhcpportKey(port.getNetworkId().getValue()))
+                .setNetworkid(port.getNetworkId().getValue()).setPortName(port.getUuid().getValue())
+                .setPortMacaddress(port.getMacAddress().getValue()).setPortFixedip(ipAddress);
+        return builder.build();
+    }
+
+    static InterfaceInfo getInterfaceInfo(IInterfaceManager interfaceManager, String interfaceName) {
+        return interfaceManager.getInterfaceInfoFromOperationalDataStore(interfaceName);
+    }
+
+    static BigInteger getDpIdFromInterface(IInterfaceManager interfaceManager, String interfaceName) {
+        return interfaceManager.getDpnForInterface(interfaceName);
+    }
+
+    public static java.util.Optional<String> getIpV4Address(Port port) {
+        if (port.getFixedIps() == null) {
+            return java.util.Optional.empty();
+        }
+        return port.getFixedIps().stream().flatMap(v -> v.getIpAddress().getIpv4Address() == null ? Stream.empty()
+                : Stream.of(v.getIpAddress().getIpv4Address().getValue())).findFirst();
     }
 
 }
