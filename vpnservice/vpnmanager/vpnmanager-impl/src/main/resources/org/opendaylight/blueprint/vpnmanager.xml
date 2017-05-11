@@ -63,6 +63,11 @@
   <service ref="vpnFootprintService"
            interface="org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService" />
 
+  <bean id="arpResponderHandler" class="org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderHandler">
+  	<argument ref="dataBroker" />
+    <argument ref="elanService" />
+  </bean>
+  
   <bean id="vpnInterfaceManager"
         class="org.opendaylight.netvirt.vpnmanager.VpnInterfaceManager"
         init-method="start" destroy-method="close">
@@ -77,6 +82,7 @@
     <argument ref="interfaceManager" />
     <argument ref="vpnManager" />
     <argument ref="interVpnLinkService" />
+    <argument ref="arpResponderHandler" />
   </bean>
 
   <bean id="interfaceStateChangeListener"
