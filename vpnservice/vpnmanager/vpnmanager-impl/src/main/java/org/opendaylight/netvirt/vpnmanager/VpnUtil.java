@@ -115,6 +115,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Rou
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.SubnetOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
@@ -215,7 +216,7 @@ public class VpnUtil {
                 new PrefixesKey(ipPrefix)).build();
     }
 
-    static InstanceIdentifier<VpnIds> getPrefixToInterfaceIdentifier(long vpnId) {
+    public static InstanceIdentifier<VpnIds> getPrefixToInterfaceIdentifier(long vpnId) {
         return InstanceIdentifier.builder(PrefixToInterface.class)
             .child(VpnIds.class, new VpnIdsKey(vpnId)).build();
     }
@@ -488,6 +489,18 @@ public class VpnUtil {
             vpnId = vpnInstance.get().getVpnId();
         }
         return vpnId;
+    }
+
+    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance
+                        .to.vpn.id.VpnInstance> getVpnInstanceToVpnIdIdentifier(
+            String vpnName) {
+        return InstanceIdentifier.builder(VpnInstanceToVpnId.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
+                          .VpnInstance.class,
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn
+                               .id.VpnInstanceKey(
+                                vpnName))
+                .build();
     }
 
     /**
@@ -1088,7 +1101,7 @@ public class VpnUtil {
         return id;
     }
 
-    static VpnPortipToPort getNeutronPortFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp) {
+    public static VpnPortipToPort getNeutronPortFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp) {
         InstanceIdentifier id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         Optional<VpnPortipToPort> vpnPortipToPortData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         if (vpnPortipToPortData.isPresent()) {

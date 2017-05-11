@@ -23,8 +23,11 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.dhcpservice.DhcpExternalTunnelManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpServiceUtils;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.InterfaceNameMacAddresses;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710._interface.name.mac.addresses.InterfaceNameMacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710._interface.name.mac.addresses.InterfaceNameMacAddressKey;
@@ -38,9 +41,10 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
     DhcpManager dhcpManager;
     DhcpExternalTunnelManager dhcpExternalTunnelManager;
     DataBroker dataBroker;
-    String interfaceName;
+    final Interface intf;
     BigInteger dpnId;
     IInterfaceManager interfaceManager;
+    IElanService elanService;
     private static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
         @Override
         public void onSuccess(Void result) {
@@ -55,21 +59,23 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
 
     public DhcpInterfaceRemoveJob(DhcpManager dhcpManager, DhcpExternalTunnelManager dhcpExternalTunnelManager,
                                   DataBroker dataBroker,
-                                  String interfaceName, BigInteger dpnId, IInterfaceManager interfaceManager) {
+                                  final Interface intf, BigInteger dpnId, IInterfaceManager interfaceManager,
+                                  IElanService elanService) {
         super();
         this.dhcpManager = dhcpManager;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.dataBroker = dataBroker;
-        this.interfaceName = interfaceName;
+        this.intf = intf;
         this.dpnId = dpnId;
         this.interfaceManager = interfaceManager;
+        this.elanService = elanService;
     }
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
-                interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
+                interfaceManager.getInterfaceInfoFromConfigDataStore(intf.getName());
         if (iface != null) {
             IfTunnel tunnelInterface = iface.getAugmentation(IfTunnel.class);
             if (tunnelInterface != null && !tunnelInterface.isInternal()) {
@@ -81,7 +87,20 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
                 return futures;
             }
         }
-        unInstallDhcpEntries(interfaceName, dpnId, futures);
+        Port port = dhcpManager.getNeutronPort(intf.getName());
+        if (!DhcpServiceUtils.DHCP_PORT.test(port)) {
+            String networkId = port.getNetworkId().getValue();
+            //if (!DhcpServiceUtils.anyOtherInterfacceOnDpn(dataBroker, dpnId, networkId, intf.getName())) {
+                DhcpServiceUtils.getNetworkDhcpPortData(dataBroker, networkId).ifPresent(networkToDhcp -> {
+
+                    LOG.trace("Removing ArpResponder flow for last interface {} on DPN {}", intf.getName(), dpnId);
+                    elanService.removeArpResponderFlow(dpnId, intf.getName(), networkToDhcp.getPortFixedip(),
+                            java.util.Optional.of(intf.getIfIndex()));
+
+                });
+            //}
+        }
+        unInstallDhcpEntries(intf.getName(), dpnId, futures);
         return futures;
     }
 

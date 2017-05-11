@@ -25,6 +25,7 @@ import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.opendaylight.controller.liblldp.EtherTypes;
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.liblldp.PacketException;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -58,6 +59,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.SendToController;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.network.dhcpport.data.NetworkToDhcpport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -75,6 +77,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
     private final IInterfaceManager interfaceManager;
     private final DhcpserviceConfig config;
     private final DhcpAllocationPoolManager dhcpAllocationPoolMgr;
+    private final DataBroker broker;
 
     @Inject
     public DhcpPktHandler(final DhcpManager dhcpManager,
@@ -83,7 +86,8 @@ public class DhcpPktHandler implements PacketProcessingListener {
                           final PacketProcessingService pktService,
                           final IInterfaceManager interfaceManager,
                           final DhcpserviceConfig config,
-                          final DhcpAllocationPoolManager dhcpAllocationPoolMgr) {
+                          final DhcpAllocationPoolManager dhcpAllocationPoolMgr,
+                          final DataBroker dataBroker) {
         this.interfaceManagerRpc = interfaceManagerRpc;
         this.pktService = pktService;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
@@ -91,6 +95,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
         this.interfaceManager = interfaceManager;
         this.config = config;
         this.dhcpAllocationPoolMgr = dhcpAllocationPoolMgr;
+        this.broker = dataBroker;
     }
 
     //TODO: Handle this in a separate thread
@@ -221,18 +226,29 @@ public class DhcpPktHandler implements PacketProcessingListener {
 
     private DhcpInfo getDhcpInfo(Port port, Subnet subnet) {
         DhcpInfo dhcpInfo = null;
+        List<IpAddress> dnsServers = subnet.getDnsNameservers();
         if (port != null && subnet != null) {
             String clientIp = getIpv4Address(port);
             String serverIp = null;
-            if (isIpv4Address(subnet.getGatewayIp())) {
-                serverIp = subnet.getGatewayIp().getIpv4Address().getValue();
-            }
-            if (clientIp != null && serverIp != null) {
-                List<IpAddress> dnsServers = subnet.getDnsNameservers();
+            java.util.Optional<NetworkToDhcpport> dhcpPortData = DhcpServiceUtils.getNetworkDhcpPortData(broker,
+                    port.getNetworkId().getValue());
+            if (dhcpPortData.isPresent()) {
+                serverIp = dhcpPortData.get().getPortFixedip();
                 dhcpInfo = new DhcpInfo();
+                if (isIpv4Address(subnet.getGatewayIp())) {
+                    dhcpInfo.setGatewayIp(subnet.getGatewayIp().getIpv4Address().getValue());
+                }
                 dhcpInfo.setClientIp(clientIp).setServerIp(serverIp)
                         .setCidr(String.valueOf(subnet.getCidr().getValue())).setHostRoutes(subnet.getHostRoutes())
-                        .setDnsServersIpAddrs(dnsServers).setGatewayIp(serverIp);
+                        .setDnsServersIpAddrs(dnsServers);
+            } else if (isIpv4Address(subnet.getGatewayIp())) {
+                serverIp = subnet.getGatewayIp().getIpv4Address().getValue();
+                if (clientIp != null && serverIp != null) {
+                    dhcpInfo = new DhcpInfo();
+                    dhcpInfo.setClientIp(clientIp).setServerIp(serverIp)
+                            .setCidr(String.valueOf(subnet.getCidr().getValue())).setHostRoutes(subnet.getHostRoutes())
+                            .setDnsServersIpAddrs(dnsServers).setGatewayIp(serverIp);
+                }
             }
         }
         return dhcpInfo;

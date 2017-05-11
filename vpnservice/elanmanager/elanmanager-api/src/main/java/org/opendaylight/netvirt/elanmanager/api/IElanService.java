@@ -76,4 +76,41 @@ public interface IElanService extends IEtreeService {
 
     Boolean isOpenStackVniSemanticsEnforced();
 
+    /**
+     * Add ARP Responder Flow on the given dpn for the ingress interface. LPort
+     * tag is optional, if lport tag is present then flow will per interface
+     * else flow would per subnet.
+     *
+     * @param dpnId
+     *            DPN on which flow to be added
+     * @param ingressInterfaceName
+     *            ingress interface
+     * @param ipAddress
+     *            ip address for which ARP response to be generated
+     * @param macAddress
+     *            mac address where IP is present
+     * @param lportTag
+     *            LPort Tag of the ingress interface
+     * @param isFloatingIp
+     *            true if ingress port is floating ip
+     */
+    void addArpResponderFlow(final BigInteger dpnId, final String ingressInterfaceName, final String ipAddress,
+            final String macAddress, final java.util.Optional<Integer> lportTag, boolean isFloatingIp);
+
+    /**
+     * Remove ARP Responder flow from the given dpn for the ingress interface.
+     * Lport tag is optional if lport is present then flow will per interface
+     * else flow would per subnet.
+     *
+     * @param dpnId
+     *            DPN on which flow to be removed
+     * @param ingressInterfaceName
+     *            ingress interface
+     * @param ipAddress
+     *            ip address for which ARP responder flow to be removed
+     * @param lportTag
+     *            LPort Tag of the ingress interface, optional field
+     */
+    void removeArpResponderFlow(final BigInteger dpnId, final String ingressInterfaceName, final String ipAddress,
+            final java.util.Optional<Integer> lportTag);
 }
