@@ -203,6 +203,23 @@
     },
     {
       "key": {
+        "uuid": "ba068154_4272377d",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-11T16:51:50Z",
+      "side": 1,
+      "message": "s/will inherit from information from the two subnetworks./will inherit information (extraroutes, etc) from 2 subnetworks  IPv4 and IPv6./",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_cf12ddb3",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -220,6 +237,40 @@
         "endLine": 154,
         "endChar": 6
       },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_c20587c3",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-11T16:51:50Z",
+      "side": 1,
+      "message": "s/that will connect to the neutron.../that will connect VMs with appropriate subnets by neutron ports../",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_a2bb23c3",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-11T16:51:50Z",
+      "side": 1,
+      "message": "s/The same VPN/The same L3VPN instance/",
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
