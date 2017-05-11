@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
@@ -22,12 +23,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.FlowEntity;
-import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
-import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.*;
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
 import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
@@ -45,6 +41,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceTypeFlowBased;
@@ -69,7 +68,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.NetworkDhcpportData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.network.dhcpport.data.NetworkToDhcpport;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.network.dhcpport.data.NetworkToDhcpportBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.network.dhcpport.data.NetworkToDhcpportKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -289,6 +293,126 @@ public class DhcpServiceUtils {
                 .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
     }
 
+    public static boolean isDpnAlreadyPresentInElanInstance(DataBroker broker, BigInteger dpId, String elanInstanceName) {
+        InstanceIdentifier<ElanDpnInterfacesList> elanDpnInterfaceId = getElanDpnOperationDataPath(elanInstanceName);
+        Optional<ElanDpnInterfacesList> existingElanDpnInterfaces = MDSALUtil.read(broker,
+                LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
+        if (!existingElanDpnInterfaces.isPresent()) {
+            return false;
+        }
+        List<DpnInterfaces> dpnInterfaces = existingElanDpnInterfaces.get().getDpnInterfaces();
+        for (DpnInterfaces dpnInterface : dpnInterfaces) {
+            if (dpnInterface.getDpId().equals(dpId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isLastDpnInterfaceInElanInstance(DataBroker broker, BigInteger dpId,
+                                                           String interfaceName, String elanInstanceName) {
+        InstanceIdentifier<ElanDpnInterfacesList> elanDpnInterfaceId = getElanDpnOperationDataPath(elanInstanceName);
+        Optional<ElanDpnInterfacesList> existingElanDpnInterfaces = MDSALUtil.read(broker,
+                LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
+        if (!existingElanDpnInterfaces.isPresent()) {
+            LOG.trace("No ElanDpn interfaces found for the ELAN instance {}.",elanInstanceName);
+            return true;
+        }
+        List<DpnInterfaces> dpnInterfaces = existingElanDpnInterfaces.get().getDpnInterfaces();
+        for (DpnInterfaces dpnInterface : dpnInterfaces) {
+            if (dpnInterface.getDpId().equals(dpId)) {
+                List<String> intf = dpnInterface.getInterfaces();
+                if (intf.size() > 1) {
+                    LOG.trace("{} ELAN Dpn interfaces are already existing for DPN {}.",intf.size(), dpId);
+                    return false;
+                } else if (intf.size() == 1 && intf.equals(interfaceName)) {
+                    LOG.trace("Dpn interface {} for the DPN {} is the last.",interfaceName,dpId);
+                    return true;
+                }
+                return true;
+            }
+        }
+        //No matching dpnInterfaces
+        return true;
+    }
+
+    public static InstanceIdentifier<ElanDpnInterfacesList> getElanDpnOperationDataPath(String elanInstanceName) {
+        return InstanceIdentifier.builder(ElanDpnInterfaces.class)
+                .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName)).build();
+
+    }
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    protected static void createNetworkDhcpPortData(DataBroker broker,Port port, WriteTransaction tx){
+        LOG.trace("Adding NetworkPortData entry for network {}", port.getNetworkId().getValue());
+        InstanceIdentifier<NetworkToDhcpport> identifier = buildNetworktoDhcpPort(port.getNetworkId().getValue());
+        String ipAddress = port.getFixedIps().get(0).getIpAddress().getIpv4Address().toString();
+        NetworkToDhcpportBuilder builder = new NetworkToDhcpportBuilder().
+                setKey(new NetworkToDhcpportKey(port.getNetworkId().getValue())).
+                setPortNetworkid(port.getNetworkId().getValue()).
+                setPortName(port.getUuid().getValue()).setMacAddress(port.getMacAddress().getValue()).
+                setPortFixedip(ipAddress);
+        try {
+            if (tx != null) {
+                tx.put(LogicalDatastoreType.CONFIGURATION, identifier, builder.build());
+            } else {
+                MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, identifier, builder.build());
+            }
+            LOG.trace("Adding to NetworktoDhcpPort network {}  mac {}",port.getNetworkId().getValue(),
+                    port.getMacAddress().getValue());
+        } catch (Exception e){
+            LOG.error("Failure while creating NetworkToDhcpPort map for network {}.", port.getNetworkId(),e);
+        }
+
+    }
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    protected static void removeNetworkDhcpPortData(DataBroker broker, Port port, WriteTransaction tx) {
+        LOG.trace("Removing NetworkPortData entry for Network {}", port.getNetworkId().getValue());
+        InstanceIdentifier<NetworkToDhcpport> identifier = buildNetworktoDhcpPort(port.getNetworkId().getValue());
+        try {
+            if (tx != null) {
+                tx.delete(LogicalDatastoreType.CONFIGURATION, identifier);
+            } else {
+                MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, identifier);
+            }
+            LOG.trace("Deleted NetworkDhcpPort for Network {}",port.getNetworkId());
+        }catch(Exception e){
+            LOG.error("Failure while removing NetworkToDhcpPort for network {}.", port.getNetworkId(),e);
+        }
+    }
+
+    static InstanceIdentifier<NetworkToDhcpport> buildNetworktoDhcpPort(String networkId){
+        InstanceIdentifier<NetworkToDhcpport> id = InstanceIdentifier.builder(NetworkDhcpportData.class)
+                .child(NetworkToDhcpport.class, new NetworkToDhcpportKey(networkId)).build();
+        return id;
+    }
+
+    public static  Optional<NetworkToDhcpport>  getNetworkDhcpportData(DataBroker broker, String networkId) {
+        InstanceIdentifier<NetworkToDhcpport> id = buildNetworktoDhcpPort(networkId);
+        Optional<NetworkToDhcpport> optional = Optional.absent();
+        optional = MDSALUtil.read(broker,LogicalDatastoreType.CONFIGURATION,id);
+        if (optional.isPresent()) {
+            return optional;
+        }
+        return optional;
+    }
+
+    public static BigInteger getDpnFromInterface(String interfaceName, OdlInterfaceRpcService odlInterfaceRpcService) {
+        BigInteger dpId = null;
+        Future<RpcResult<GetDpidFromInterfaceOutput>> output = odlInterfaceRpcService
+                .getDpidFromInterface(new GetDpidFromInterfaceInputBuilder().setIntfName(interfaceName).build());
+        try {
+            RpcResult<GetDpidFromInterfaceOutput> rpcResult = output.get();
+            if (rpcResult.isSuccessful()) {
+                dpId = rpcResult.getResult().getDpid();
+            }
+        } catch (NullPointerException | InterruptedException | ExecutionException e) {
+            LOG.error("Failed to get the DPN ID: {} for interface {}: {} ", dpId, interfaceName, e);
+        }
+        return dpId;
+    }
+
     static IpAddress convertIntToIp(int ipn) {
         String[] array = IntStream.of(24, 16, 8, 0) //
                 .map(x -> (ipn >> x) & 0xFF).boxed() //
@@ -313,6 +437,24 @@ public class DhcpServiceUtils {
             result |= Integer.parseInt(part);
         }
         return result;
+    }
+
+    public static Optional<String> getAvailableDpnInterface(DataBroker broker, BigInteger dpId, String elanInstanceName) {
+        Optional<String> dpnInterface = Optional.absent();
+        InstanceIdentifier<ElanDpnInterfacesList> elanDpnInterfaceId = getElanDpnOperationDataPath(elanInstanceName);
+        Optional<ElanDpnInterfacesList> existingElanDpnInterfaces = MDSALUtil.read(broker,
+                LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
+        if (!existingElanDpnInterfaces.isPresent()) {
+            return dpnInterface;
+        }
+        List<DpnInterfaces> dpnInterfaces = existingElanDpnInterfaces.get().getDpnInterfaces();
+        for (DpnInterfaces interfaces : dpnInterfaces) {
+            if (interfaces.getDpId().equals(dpId)) {
+                dpnInterface = Optional.of(interfaces.getInterfaces().get(0));
+                return  dpnInterface;
+            }
+        }
+        return Optional.absent();
     }
 
 }
