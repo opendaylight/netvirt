@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.netvirt.elanmanager.exceptions.MacNotFoundException;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
@@ -76,4 +77,41 @@ public interface IElanService extends IEtreeService {
 
     Boolean isOpenStackVniSemanticsEnforced();
 
+    /**
+     * Add ARP Responder Flow on the given dpn for the ingress interface. LPort
+     * tag is optional, if lport tag is present then flow will per interface
+     * else flow would per subnet.
+     *
+     * @param dpnId
+     *            DPN on which flow to be added
+     * @param ingressInterfaceName
+     *            ingress interface
+     * @param ipAddress
+     *            ip address for which ARP response to be generated
+     * @param macAddress
+     *            mac address where IP is present
+     * @param lportTag
+     *            LPort Tag of the ingress interface
+     * @param instructions
+     *            Custom instruction to be add before the ARP actions to be added
+     */
+    void addArpResponderFlow(BigInteger dpnId, String ingressInterfaceName, String ipAddress,
+            String macAddress, java.util.Optional<Integer> lportTag, List<Instruction> instructions);
+
+    /**
+     * Remove ARP Responder flow from the given dpn for the ingress interface.
+     * Lport tag is optional if lport is present then flow will per interface
+     * else flow would per subnet.
+     *
+     * @param dpnId
+     *            DPN on which flow to be removed
+     * @param ingressInterfaceName
+     *            ingress interface
+     * @param ipAddress
+     *            ip address for which ARP responder flow to be removed
+     * @param lportTag
+     *            LPort Tag of the ingress interface, optional field
+     */
+    void removeArpResponderFlow(BigInteger dpnId, String ingressInterfaceName, String ipAddress,
+            java.util.Optional<Integer> lportTag);
 }
