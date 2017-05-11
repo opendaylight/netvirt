@@ -7,16 +7,22 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
@@ -33,14 +39,16 @@ public class DhcpNeutronPortListener
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpNeutronPortListener.class);
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
+    private final IElanService elanService;
     private final DataBroker broker;
     private DhcpserviceConfig config;
 
     @Inject
     public DhcpNeutronPortListener(final DataBroker db, final DhcpExternalTunnelManager dhcpExternalTunnelManager,
-                                   final DhcpserviceConfig config) {
+            final @Named("elanService") IElanService ielanService, final DhcpserviceConfig config) {
         super(Port.class, DhcpNeutronPortListener.class);
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
+        this.elanService = ielanService;
         this.broker = db;
         this.config = config;
     }
@@ -67,6 +75,21 @@ public class DhcpNeutronPortListener
     @Override
     protected void remove(InstanceIdentifier<Port> identifier, Port del) {
         LOG.trace("Port removed: {}", del);
+        if (DhcpServiceUtils.ODL_DHCP_PORT.test(del)) {
+            final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+            portDataStoreCoordinator.enqueueJob("PORT- " + del.getUuid().getValue(), () -> {
+                del.getFixedIps().stream().filter(v -> v.getIpAddress().getIpv4Address() != null).findFirst()
+                        .map(v -> v.getIpAddress().getIpv4Address()).ifPresent(ip -> {
+                    delArpResponderForElanDpns(del.getNetworkId().getValue(), del.getMacAddress().getValue(),
+                            ip.getValue());
+                });
+                WriteTransaction wrtConfigTxn = broker.newWriteOnlyTransaction();
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                DhcpServiceUtils.removeNetworkDhcpPortData(broker,del, wrtConfigTxn);
+                futures.add(wrtConfigTxn.submit());
+                return futures;
+            });
+        }
         if (isVnicTypeDirectOrMacVtap(del)) {
             removePort(del);
         }
@@ -105,6 +128,21 @@ public class DhcpNeutronPortListener
     @Override
     protected void add(InstanceIdentifier<Port> identifier, Port add) {
         LOG.trace("Port added {}", add);
+        if (DhcpServiceUtils.ODL_DHCP_PORT.test(add)) {
+            final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+            portDataStoreCoordinator.enqueueJob("PORT- " + add.getUuid().getValue(), () -> {
+                WriteTransaction wrtConfigTxn = broker.newWriteOnlyTransaction();
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                DhcpServiceUtils.createNetworkDhcpPortData(broker,add, wrtConfigTxn);
+                futures.add(wrtConfigTxn.submit());
+                add.getFixedIps().stream().filter(v -> v.getIpAddress().getIpv4Address() != null).findFirst()
+                        .map(v -> v.getIpAddress().getIpv4Address()).ifPresent(ip -> {
+                    addArpResponderForElanDpns(add.getNetworkId().getValue(), add.getMacAddress().getValue(),
+                            ip.getValue());
+                });
+                return futures;
+            });
+        }
         if (!isVnicTypeDirectOrMacVtap(add)) {
             return;
         }
@@ -132,6 +170,7 @@ public class DhcpNeutronPortListener
             return;
         }
         dhcpExternalTunnelManager.updateVniMacToPortCache(new BigInteger(segmentationId), macAddress, port);
+
     }
 
     private String getMacAddress(Port port) {
@@ -152,4 +191,71 @@ public class DhcpNeutronPortListener
     protected DhcpNeutronPortListener getDataTreeChangeListener() {
         return DhcpNeutronPortListener.this;
     }
+
+    /**
+     * Add ARP Responder for DHCP IP on all the DPNs when DHCP is enabled on
+     * subnet add or update.
+     *
+     * @param networkId
+     *            NetworkId on which subnet is enabled
+     * @param macAddress
+     *            Mac address of the DHCP Port
+     * @param ipAddress
+     *            IP address of the DHCP Port
+     */
+//    private void addArpResponderForElanDpns(String networkId, String macAddress, String ipAddress) {
+//        List<BigInteger> dpnIds = DhcpServiceUtils.getDpnsForElan(networkId, broker);
+//        for (BigInteger dpnId : dpnIds) {
+//            LOG.trace("Installing DHCP ARPResponder Flows for DPN {}", dpnId);
+//            DhcpServiceUtils.getAvailableDpnInterface(broker, dpnId, networkId).ifPresent(dpnInterface -> {
+//                elanService.addArpResponderFlow(dpnId, dpnInterface, ipAddress, macAddress, java.util.Optional.empty(),
+//                        false);
+//
+//            });
+//        }
+//    }
+    private void addArpResponderForElanDpns(String networkId, String macAddress, String ipAddress) {
+        for (String intrf : DhcpServiceUtils.getDpnInterfacesInElanInstance(broker, networkId)) {
+            Interface ifState = DhcpServiceUtils.getInterfaceStateFromOperDS(broker, intrf);
+            BigInteger dpnId = DhcpServiceUtils.getDpIdFromInterface(ifState);
+            LOG.trace("Installing DHCP ARPResponder Flows for DPN {}", dpnId);
+            //DhcpServiceUtils.getAvailableDpnInterface(broker, dpnId, networkId).ifPresent(dpnInterface -> {
+            elanService.addArpResponderFlow(dpnId, intrf, ipAddress, macAddress,
+                    java.util.Optional.of(ifState.getIfIndex()), false);
+
+            //});
+        }
+    }
+    /**
+     * Remove ARP Responder for DHCP IP on all the DPNs when DHCP is disabled on
+     * Subnet removed or updated.
+     *
+     * @param networkId
+     *            NetworkId on which subnet is enabled
+     * @param macAddress
+     *            Mac address of the DHCP Port
+     * @param ipAddress
+     *            IP address of the DHCP Port
+     */
+//    private void delArpResponderForElanDpns(String networkId, String macAddress, String ipAddress) {
+//        List<BigInteger> dpnIds = DhcpServiceUtils.getDpnsForElan(networkId, broker);
+//        for (BigInteger dpnId : dpnIds) {
+//            LOG.trace("Removing DHCP ArpResponder Flows for DPN {}", dpnId);
+//            elanService.removeArpResponderFlow(dpnId, null, ipAddress, java.util.Optional.empty());
+//        }
+//
+//    }
+    private void delArpResponderForElanDpns(String networkId, String macAddress, String ipAddress) {
+        for (String intrf : DhcpServiceUtils.getDpnInterfacesInElanInstance(broker, networkId)) {
+            Interface ifState = DhcpServiceUtils.getInterfaceStateFromOperDS(broker, intrf);
+            BigInteger dpnId = DhcpServiceUtils.getDpIdFromInterface(ifState);
+            LOG.trace("Installing DHCP ARPResponder Flows for DPN {}", dpnId);
+            //DhcpServiceUtils.getAvailableDpnInterface(broker, dpnId, networkId).ifPresent(dpnInterface -> {
+            elanService.removeArpResponderFlow(dpnId, intrf, ipAddress,
+                    java.util.Optional.of(ifState.getIfIndex()));
+
+            //});
+        }
+    }
+
 }
