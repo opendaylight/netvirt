@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.netvirt.vpnmanager.arp.responder;
+package org.opendaylight.netvirt.elan.arp.responder;
 
 import java.math.BigInteger;
 import java.text.MessageFormat;
@@ -15,7 +15,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
@@ -42,19 +46,17 @@ import org.opendaylight.genius.mdsalutil.matches.MatchArpOp;
 import org.opendaylight.genius.mdsalutil.matches.MatchArpTpa;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.add.group.input.buckets.bucket.action.action.NxActionResubmitRpcAddGroupCase;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -94,7 +96,7 @@ public class ArpResponderUtil {
         mdSalManager.syncInstallGroup(groupEntity, WAIT_TIME_FOR_SYNC_INSTALL);
         try {
             Thread.sleep(WAIT_TIME_FOR_SYNC_INSTALL);
-        } catch (InterruptedException e1) {
+        } catch (final InterruptedException e1) {
             LOG.warn("Error while waiting for ARP Responder Group Entry to be installed on DPN {} ", dpnId);
         }
     }
@@ -156,22 +158,18 @@ public class ArpResponderUtil {
      * </ul>
      *
      * @param lportTag LPort Tag
-     * @param vpnId VPN ID
+     * @param elanInstance VPN ID
      * @param ipAddress Gateway IP
      * @return List of Match criteria
      */
-    public static List<MatchInfo> getMatchCriteria(final int lportTag,
-        final long vpnId, final String ipAddress) {
+    public static List<MatchInfo> getMatchCriteria(final java.util.Optional<Integer> lportTag,
+        final ElanInstance elanInstance, final String ipAddress) {
 
         final List<MatchInfo> matches = new ArrayList<>();
-        short matchIndex = NwConstants.L3VPN_SERVICE_INDEX;
-        final BigInteger metadata = MetaDataUtil.getMetaDataForLPortDispatcher(
-            lportTag, ++matchIndex, MetaDataUtil.getVpnIdMetadata(vpnId));
-        final BigInteger metadataMask = MetaDataUtil
-            .getMetaDataMaskForLPortDispatcher(
-                MetaDataUtil.METADATA_MASK_SERVICE_INDEX,
-                MetaDataUtil.METADATA_MASK_LPORT_TAG,
-                MetaDataUtil.METADATA_MASK_VRFID);
+        final BigInteger metadata = lportTag.map(v->ElanUtils.getElanMetadataLabel(elanInstance.getElanTag(), v))
+                .orElse(ElanUtils.getElanMetadataLabel(elanInstance.getElanTag()));
+        final BigInteger metadataMask = lportTag.map(v->MetaDataUtil.METADATA_MASK_SERVICE
+                .or(MetaDataUtil.METADATA_MASK_LPORT_TAG)).orElse(MetaDataUtil.METADATA_MASK_SERVICE);
 
         // Matching Arp request flows
         matches.add(MatchEthernetType.ARP);
@@ -195,7 +193,7 @@ public class ArpResponderUtil {
      * @return List of ARP Responder Actions actions
      */
     public static List<Action> getActions(
-        final OdlInterfaceRpcService ifaceMgrRpcService,
+        final IInterfaceManager ifaceMgrRpcService,
         final String vpnInterface, final String ipAddress,
         final String macAddress) {
 
@@ -211,7 +209,43 @@ public class ArpResponderUtil {
         // A temporary fix until to send packet to incoming port by loading IN_PORT with zero, until in_port is
         // overridden in table=0
         actions.add(new ActionNxLoadInPort(BigInteger.ZERO).buildAction(actionCounter++));
+        actions.add(new ActionNxResubmit(NwConstants.ELAN_BASE_TABLE).buildAction(actionCounter));
+//        actions.addAll(getEgressActionsForInterface(ifaceMgrRpcService, vpnInterface, actionCounter));
+        LOG.trace("Total Number of actions is {}", actionCounter);
+        return actions;
 
+    }
+    
+    /**
+     * Get List of actions for ARP Responder Flows.
+     *
+     * <p>Actions consists of all the ARP actions from
+     * and Egress Actions Retrieved for External Interface
+     *
+     * @param ifaceMgrRpcService Interface manager RPC reference to invoke RPC to get Egress actions for the interface
+     * @param vpnInterface VPN Interface for which flow to be installed
+     * @param ipAddress Gateway IP Address
+     * @param macAddress Gateway MacAddress
+     * @return List of ARP Responder Actions actions
+     */
+    public static List<Action> getExternalActions(
+        final IInterfaceManager ifaceMgrRpcService,
+        final String vpnInterface, final String ipAddress,
+        final String macAddress) {
+
+        final List<Action> actions = new ArrayList<>();
+        int actionCounter = 0;
+        actions.add(new ActionMoveSourceDestinationEth().buildAction(actionCounter++));
+        actions.add(new ActionSetFieldEthernetSource(new MacAddress(macAddress)).buildAction(actionCounter++));
+        actions.add(new ActionSetArpOp(NwConstants.ARP_REPLY).buildAction(actionCounter++));
+        actions.add(new ActionMoveShaToTha().buildAction(actionCounter++));
+        actions.add(new ActionMoveSpaToTpa().buildAction(actionCounter++));
+        actions.add(new ActionLoadMacToSha(new MacAddress(macAddress)).buildAction(actionCounter++));
+        actions.add(new ActionLoadIpToSpa(ipAddress).buildAction(actionCounter++));
+        // A temporary fix until to send packet to incoming port by loading IN_PORT with zero, until in_port is
+        // overridden in table=0
+        actions.add(new ActionNxLoadInPort(BigInteger.ZERO).buildAction(actionCounter++));
+        //actions.add(new ActionNxResubmit(NwConstants.ELAN_BASE_TABLE).buildAction(actionCounter));
         actions.addAll(getEgressActionsForInterface(ifaceMgrRpcService, vpnInterface, actionCounter));
         LOG.trace("Total Number of actions is {}", actionCounter);
         return actions;
@@ -227,14 +261,14 @@ public class ArpResponderUtil {
      * In order to allow write-metadata in the ARP responder table the resubmit
      * action needs to be replaced with goto instruction.
      */
-    public static List<Instruction> getExtInterfaceInstructions(final OdlInterfaceRpcService ifaceMgrRpcService,
+    public static List<Instruction> getExtInterfaceInstructions(final IInterfaceManager ifaceMgrRpcService,
             final String extInterfaceName, final String ipAddress, final String macAddress) {
         Short tableId = null;
-        List<Instruction> instructions = new ArrayList<>();
-        List<Action> actions = getActions(ifaceMgrRpcService, extInterfaceName, ipAddress, macAddress);
-        for (Iterator<Action> iterator = actions.iterator(); iterator.hasNext();) {
-            org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action actionClass = iterator
-                    .next().getAction();
+        final List<Instruction> instructions = new ArrayList<>();
+        final List<Action> actions = getExternalActions(ifaceMgrRpcService, extInterfaceName, ipAddress, macAddress);
+        for (final Iterator<Action> iterator = actions.iterator(); iterator.hasNext();) {
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action actionClass =
+                    iterator.next().getAction();
             if (actionClass instanceof NxActionResubmitRpcAddGroupCase) {
                 tableId = ((NxActionResubmitRpcAddGroupCase) actionClass).getNxResubmit().getTable();
                 iterator.remove();
@@ -268,8 +302,6 @@ public class ArpResponderUtil {
      * @param mdSalManager
      *            Reference of MDSAL API RPC that provides API for installing
      *            flow
-     * @param writeInvTxn
-     *            Write Transaction to write the flow
      * @param dpnId
      *            DPN on which flow to be installed
      * @param flowId
@@ -286,30 +318,28 @@ public class ArpResponderUtil {
      *            List of Instructions for the flow
      */
     public static void installFlow(final IMdsalApiManager mdSalManager,
-            final WriteTransaction writeInvTxn, final BigInteger dpnId,
+            final BigInteger dpnId,
             final String flowId, final String flowName,
             final int priority, final BigInteger cookie,
-            List<MatchInfo> matches, List<Instruction> instructions) {
+            final List<MatchInfo> matches, final List<Instruction> instructions) {
         final Flow flowEntity = MDSALUtil.buildFlowNew(
                 NwConstants.ARP_RESPONDER_TABLE, flowId, priority, flowName, 0,
                 0, cookie, matches, instructions);
-        mdSalManager.addFlowToTx(dpnId, flowEntity, writeInvTxn);
+        mdSalManager.installFlow(dpnId, flowEntity);
     }
 
     /**
      * Remove flow form DPN.
      *
      * @param mdSalManager Reference of MDSAL API RPC that provides API for installing flow
-     * @param writeInvTxn Write Transaction to write the flow
      * @param dpnId DPN form which flow to be removed
      * @param flowId Uniquely Identifiable Arp Responder Table flow Id that is to be removed
      */
     public static void removeFlow(final IMdsalApiManager mdSalManager,
-        final WriteTransaction writeInvTxn,
         final BigInteger dpnId, final String flowId) {
         final Flow flowEntity = MDSALUtil
             .buildFlow(NwConstants.ARP_RESPONDER_TABLE, flowId);
-        mdSalManager.removeFlowToTx(dpnId, flowEntity, writeInvTxn);
+        mdSalManager.removeFlow(dpnId, flowEntity);
     }
 
     /**
@@ -318,12 +348,14 @@ public class ArpResponderUtil {
      * <p><b>Refer:</b> {@link ArpResponderConstant#FLOW_ID_FORMAT}
      *
      * @param lportTag LportTag of the flow
-     * @param gwIp Gateway IP for which ARP Response flow to be installed
+     * @param ipAdress Gateway IP for which ARP Response flow to be installed
      * @return Unique Flow Id
      */
-    public static String getFlowID(final int lportTag, final String gwIp) {
-        return MessageFormat.format(ArpResponderConstant.FLOW_ID_FORMAT.value(),
-            NwConstants.ARP_RESPONDER_TABLE, lportTag, gwIp);
+    public static String getFlowID(final java.util.Optional<Integer> lportTag, final String ipAdress) {
+        return lportTag.map(v->MessageFormat.format(ArpResponderConstant.FLOW_ID_FORMAT_WITH_LPORT.value(),
+            NwConstants.ARP_RESPONDER_TABLE, v, ipAdress)).orElse(MessageFormat
+                .format(ArpResponderConstant.FLOW_ID_FORMAT_WITHOUT_LPORT.value(), NwConstants.ARP_RESPONDER_TABLE,
+                        ipAdress));
     }
 
     /**
@@ -333,15 +365,15 @@ public class ArpResponderUtil {
      * {@link NwConstants#COOKIE_ARP_RESPONDER} + 1 + lportTag + Gateway IP
      *
      * @param lportTag Lport Tag of the flow
-     * @param gwIp Gateway IP for which ARP Response flow to be installed
+     * @param ipAddress Gateway IP for which ARP Response flow to be installed
      * @return Cookie
      */
-    public static BigInteger generateCookie(final long lportTag,
-        final String gwIp) {
-        LOG.trace("IPAddress in long {}", gwIp);
-        return NwConstants.COOKIE_ARP_RESPONDER.add(BigInteger.ONE)
-            .add(BigInteger.valueOf(lportTag))
-            .add(BigInteger.valueOf(ipTolong(gwIp)));
+    public static BigInteger generateCookie(final java.util.Optional<Integer> lportTag,
+        final String ipAddress) {
+        LOG.trace("IPAddress in long {}", ipAddress);
+        final BigInteger cookie = NwConstants.COOKIE_ARP_RESPONDER.add(BigInteger.ONE)
+                .add(BigInteger.valueOf(ipTolong(ipAddress)));
+        return lportTag.map(v->cookie.add(BigInteger.valueOf(v))).orElse(cookie);
     }
 
     /**
@@ -350,11 +382,11 @@ public class ArpResponderUtil {
      * @param address IP Address that to be converted to long
      * @return Long value of the IP Address
      */
-    private static long ipTolong(String address) {
+    private static long ipTolong(final String address) {
 
         // Parse IP parts into an int array
-        long[] ip = new long[4];
-        String[] parts = address.split("\\.");
+        final long[] ip = new long[4];
+        final String[] parts = address.split("\\.");
 
         for (int i = 0; i < 4; i++) {
             ip[i] = Long.parseLong(parts[i]);
@@ -378,39 +410,11 @@ public class ArpResponderUtil {
      * @return List of Egress Actions
      */
     public static List<Action> getEgressActionsForInterface(
-        final OdlInterfaceRpcService ifaceMgrRpcService, String ifName,
-        int actionCounter) {
-        final List<Action> listActions = new ArrayList<>();
-        try {
-            final RpcResult<GetEgressActionsForInterfaceOutput> result = ifaceMgrRpcService
-                .getEgressActionsForInterface(
-                    new GetEgressActionsForInterfaceInputBuilder()
-                        .setIntfName(ifName).build())
-                .get();
-            if (result.isSuccessful()) {
-                final List<org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action>
-                    actions = result
-                    .getResult().getAction();
-                for (final Action action : actions) {
-
-                    listActions
-                        .add(
-                            new org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list
-                                .ActionBuilder(
-                                action).setKey(new ActionKey(actionCounter))
-                                .setOrder(actionCounter++).build());
-
-                }
-            } else {
-                LOG.warn(
-                    "RPC Call to Get egress actions for interface {} returned with Errors {}",
-                    ifName, result.getErrors());
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when egress actions for interface {}", ifName,
-                e);
-        }
-        return listActions;
+        final IInterfaceManager ifaceMgrRpcService, final String ifName,
+        final int actionCounter) {
+        final List<ActionInfo> actionInfos = ifaceMgrRpcService.getInterfaceEgressActions(ifName);
+        final AtomicInteger counter = new AtomicInteger(actionCounter);
+        return actionInfos.stream().map(v->v.buildAction(counter.getAndIncrement())).collect(Collectors.toList());
     }
 
     /**
@@ -419,15 +423,15 @@ public class ArpResponderUtil {
      * @param idManager the id manager
      * @return the integer
      */
-    public static Long retrieveStandardArpResponderGroupId(IdManagerService idManager) {
+    public static Long retrieveStandardArpResponderGroupId(final IdManagerService idManager) {
 
-        AllocateIdInput getIdInput =
+        final AllocateIdInput getIdInput =
             new AllocateIdInputBuilder().setPoolName(ArpResponderConstant.ELAN_ID_POOL_NAME.value())
                 .setIdKey(ArpResponderConstant.ARP_RESPONDER_GROUP_ID.value()).build();
 
         try {
-            Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
-            RpcResult<AllocateIdOutput> rpcResult = result.get();
+            final Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
+            final RpcResult<AllocateIdOutput> rpcResult = result.get();
             if (rpcResult.isSuccessful()) {
                 LOG.trace("Retrieved Group Id is {}", rpcResult.getResult().getIdValue());
                 return rpcResult.getResult().getIdValue();

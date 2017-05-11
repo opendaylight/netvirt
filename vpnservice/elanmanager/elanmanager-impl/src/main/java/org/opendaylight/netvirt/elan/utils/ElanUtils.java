@@ -64,6 +64,7 @@ import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.ElanException;
+import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
@@ -2216,6 +2217,39 @@ public class ElanUtils {
             return Collections.emptyList();
         }
         return macTable.getMacEntry();
+    }
+
+
+    public void addArpResponderFlow(final BigInteger dpnId, final String ingressInterfaceName, final String ipAddress,
+            final String macAddress, final java.util.Optional<Integer> lportTag,boolean isFloatingIp) {
+        LOG.trace("Installing the ARP responder flow for DPN {} Interface {} with MAC {} & IP {}", dpnId,
+                ingressInterfaceName, macAddress, ipAddress);
+        final ElanInterface elanIface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, ingressInterfaceName);
+        final ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanIface.getElanInstanceName());
+        final String flowId = ArpResponderUtil.getFlowID(lportTag, ipAddress);
+        if (!isFloatingIp) {
+            final List<Action> actions = ArpResponderUtil.getActions(interfaceManager, ingressInterfaceName, ipAddress,
+                    macAddress);
+            ArpResponderUtil.installFlow(mdsalManager, dpnId, flowId, flowId, NwConstants.DEFAULT_ARP_FLOW_PRIORITY,
+                    ArpResponderUtil.generateCookie(lportTag, ipAddress),
+                    ArpResponderUtil.getMatchCriteria(lportTag, elanInstance, ipAddress),
+                    Collections.singletonList(MDSALUtil.buildApplyActionsInstruction(actions)));
+		} else {
+			List<Instruction> instructions = ArpResponderUtil.getExtInterfaceInstructions(interfaceManager,
+                    ingressInterfaceName, ipAddress, macAddress);
+			ArpResponderUtil.installFlow(mdsalManager, dpnId, flowId, flowId, NwConstants.DEFAULT_ARP_FLOW_PRIORITY,
+                    ArpResponderUtil.generateCookie(lportTag, ipAddress),
+                    ArpResponderUtil.getMatchCriteria(lportTag, elanInstance, ipAddress), instructions);
+		}
+        LOG.trace("Installed the ARP Responder flow for Interface {}", ingressInterfaceName);
+
+    }
+
+    public void removeArpResponderFlow(final BigInteger dpnId, final String ingressInterfaceName,
+            final String ipAddress, final java.util.Optional<Integer> lportTag) {
+        LOG.trace("Removing the ARP responder flow for DPN {} Interface {} with IP {}", dpnId, ingressInterfaceName,
+                ipAddress);
+        ArpResponderUtil.removeFlow(mdsalManager, dpnId, ArpResponderUtil.getFlowID(lportTag, ipAddress));
     }
 
 }
