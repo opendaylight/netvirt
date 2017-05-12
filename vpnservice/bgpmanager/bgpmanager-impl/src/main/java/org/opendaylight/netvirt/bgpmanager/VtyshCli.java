@@ -18,8 +18,6 @@ import java.net.UnknownHostException;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Command(scope = "odl", name = "show-bgp", description = "")
 public class VtyshCli extends OsgiCommandSupport {
@@ -27,8 +25,6 @@ public class VtyshCli extends OsgiCommandSupport {
 
     @Option(name = "--cmd", description = "command to run", required = true, multiValued = false)
     String cmd = null;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(VtyshCli.class);
 
     private static int serverPort = 2605;
     private static String serverName = "localhost";
@@ -59,7 +55,6 @@ public class VtyshCli extends OsgiCommandSupport {
         "display routing bgp ipv4 unicast <ip>",
         "display routing bgp ipv4 unicast <ip/mask>"
     };
-    private static final Logger LOG = LoggerFactory.getLogger(VtyshCli.class);
 
     @Override
     protected Object doExecute() throws Exception {

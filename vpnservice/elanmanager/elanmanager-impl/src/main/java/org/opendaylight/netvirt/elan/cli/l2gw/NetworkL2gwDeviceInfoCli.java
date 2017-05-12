@@ -46,8 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Prints L2Gw devices and Elan details .
@@ -56,8 +54,6 @@ import org.slf4j.LoggerFactory;
  */
 @Command(scope = "l2gw", name = "dump", description = "Provide l2gw info per network")
 public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
-
-    private static final Logger LOG = LoggerFactory.getLogger(L2GwUtilsCacheCli.class);
 
     private static final String GAP = "                              ";
     private static final String HEADINGUCAST = "    Mac " + GAP + "          Locator";

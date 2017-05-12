@@ -24,13 +24,9 @@ import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Command(scope = "l2gw", name = "show-cache", description = "display l2gateways cache")
 public class L2GwUtilsCacheCli extends OsgiCommandSupport {
-    private static final Logger LOG = LoggerFactory.getLogger(L2GwUtilsCacheCli.class);
-
     private static final String DEMARCATION = "=================================";
 
     @Option(name = "-cache", aliases = {"--cache"}, description = "cache name",

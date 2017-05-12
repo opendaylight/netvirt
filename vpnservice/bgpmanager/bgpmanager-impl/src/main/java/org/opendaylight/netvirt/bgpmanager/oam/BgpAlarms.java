@@ -25,7 +25,7 @@ public class BgpAlarms extends TimerTask {
     private BgpConfigurationManager bgpMgr;
 
     private static Map<String, BgpAlarmStatus> neighborsRaisedAlarmStatusMap = new HashMap<>();
-    private final String alarmText = "Bgp Neighbor TCP connection is down";
+    private static final String ALARM_TEXT = "Bgp Neighbor TCP connection is down";
 
     @Override
     public void run() {
@@ -129,9 +129,9 @@ public class BgpAlarms extends TimerTask {
         if ((nbrIp == null) || (nbrIp.isEmpty())) {
             return;
         }
-        LOG.trace("Raising BgpControlPathFailure alarm. {} alarmtext {} ", source, alarmText);
+        LOG.trace("Raising BgpControlPathFailure alarm. {} alarmtext {} ", source, ALARM_TEXT);
         //Invokes JMX raiseAlarm method
-        ALARM_AGENT.invokeFMraisemethod("BgpControlPathFailure", alarmText, source.toString());
+        ALARM_AGENT.invokeFMraisemethod("BgpControlPathFailure", ALARM_TEXT, source.toString());
     }
 
     public void clearBgpNbrDownAlarm(String nbrIp) {
@@ -140,8 +140,8 @@ public class BgpAlarms extends TimerTask {
         if ((nbrIp == null) || (nbrIp.isEmpty())) {
             return;
         }
-        LOG.trace("Clearing BgpControlPathFailure alarm of source {} alarmtext {} ", source, alarmText);
+        LOG.trace("Clearing BgpControlPathFailure alarm of source {} alarmtext {} ", source, ALARM_TEXT);
         //Invokes JMX clearAlarm method
-        ALARM_AGENT.invokeFMclearmethod("BgpControlPathFailure", alarmText, source.toString());
+        ALARM_AGENT.invokeFMclearmethod("BgpControlPathFailure", ALARM_TEXT, source.toString());
     }
 }
