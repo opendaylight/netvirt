@@ -74,9 +74,12 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         if (!rd.equalsIgnoreCase(vpnName) && !rd.equals(input.getNetworkName())
                 && !rd.equals(input.getDpnId().toString())) {
             // the DpnId is set as rd in case of extra routes present in router based VPN
-            vpnInterfaceManager.addToLabelMapper(label, input.getDpnId(), nextHopIpAddress,
+            /*vpnInterfaceManager.addToLabelMapper(label, input.getDpnId(), nextHopIpAddress,
                     Arrays.asList(nextHopIp), vpnId, input.getInterfaceName(), null,false,
-                    primaryRd, writeOperTxn);
+                    primaryRd, writeOperTxn);*/
+            vpnInterfaceManager.addToIpPrefixInfo(primaryRd, nextHopIpAddress, vpnName,
+                    Collections.singletonList(nextHopIp), vpnId, false /*isSubnetRoute*/, input.getDpnId(),
+                    input.getInterfaceName(), writeOperTxn);
             Objects.requireNonNull(input.getRouteOrigin(), "RouteOrigin is mandatory");
             addPrefixToBGP(rd, primaryRd, null /*macAddress*/, nextHopIpAddress, nextHopIp, encapType,
                     label, 0 /*l3vni*/, input.getGatewayMac(), input.getRouteOrigin(), writeConfigTxn);
@@ -88,7 +91,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
                             nextHopIpAddress, nextHopIp, label, vpn);
                     fibManager.addOrUpdateFibEntry(broker, vpnRd, null /*macAddress*/,
                             nextHopIpAddress, Arrays.asList(nextHopIp), encapType, (int) label,
-                            0 /*l3vni*/, input.getGatewayMac(), null /*parentVpnRd*/, RouteOrigin.SELF_IMPORTED,
+                            0 /*l3vni*/, input.getGatewayMac(), primaryRd, RouteOrigin.SELF_IMPORTED,
                             writeConfigTxn);
                 }
             }
@@ -96,7 +99,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
             // ### add FIB route directly
             fibManager.addOrUpdateFibEntry(broker, vpnName, null /*macAddress*/,
                     nextHopIpAddress, Arrays.asList(nextHopIp), encapType, (int) label,
-                    0 /*l3vni*/, input.getGatewayMac(), null /*parentVpnRd*/, input.getRouteOrigin(), writeConfigTxn);
+                    0 /*l3vni*/, input.getGatewayMac(), primaryRd, input.getRouteOrigin(), writeConfigTxn);
         }
     }
 
