@@ -43,8 +43,8 @@ public class DhcpConfigureCommand extends OsgiCommandSupport {
     String defaultDomain;
 
     private DataBroker dataBroker;
-    private final String defDomain = "openstacklocal";
-    private final Integer defLeaseDuration = 86400;
+    private static final String DEF_DOMAIN = "openstacklocal";
+    private static final Integer DEF_LEASE_DURATION = 86400;
 
     public void setDataBroker(DataBroker broker) {
         this.dataBroker = broker;
@@ -59,8 +59,8 @@ public class DhcpConfigureCommand extends OsgiCommandSupport {
                 session.getConsole().println(getHelp());
                 return null;
             }
-            Integer currLeaseDuration = defLeaseDuration;
-            String currDefDomain = defDomain;
+            Integer currLeaseDuration = DEF_LEASE_DURATION;
+            String currDefDomain = DEF_DOMAIN;
             ConfigsBuilder dccBuilder = new ConfigsBuilder();
             InstanceIdentifier<DhcpConfig> iid = InstanceIdentifier.create(DhcpConfig.class);
             DhcpConfig currentConfig = read(iid);
