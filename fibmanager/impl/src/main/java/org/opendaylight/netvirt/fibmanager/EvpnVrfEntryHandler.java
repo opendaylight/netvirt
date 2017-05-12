@@ -14,6 +14,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -26,14 +27,17 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.utils.batching.SubTransaction;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.ip.prefix.map.IpPrefixInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.vpnnexthops.VpnNexthop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.vpnnexthops.VpnNexthopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
@@ -123,6 +127,14 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
         }
         VpnNexthop localNextHopInfo = nexthopManager.getVpnNexthop(vpnInstance.getVpnId(),
                 vrfEntry.getDestPrefix());
+        if (localNextHopInfo == null) {
+            //Handle Imported Routes
+            List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
+            IpPrefixInfo ipPrefixInfo = vrfEntryListener.getIpPrefixInfo(rd, vrfEntry.getDestPrefix());
+            if (vrfEntryListener.isNextHopPresentInIpPrefixInfo(nextHopAddressList, ipPrefixInfo)) {
+                localNextHopInfo = new VpnNexthopBuilder().setDpnId(ipPrefixInfo.getDpnId()).build();
+            }
+        }
         List<BigInteger> localDpnId = checkDeleteLocalEvpnFLows(vpnInstance.getVpnId(), rd, vrfEntry, localNextHopInfo);
         deleteRemoteEvpnFlows(rd, vrfEntry, vpnInstance, vrfTableKey, localDpnId);
         vrfEntryListener.cleanUpOpDataForFib(vpnInstance.getVpnId(), rd, vrfEntry);
@@ -137,6 +149,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
                                                   Prefixes localNextHopInfo) {
         List<BigInteger> returnLocalDpnId = new ArrayList<>();
         String localNextHopIP = vrfEntry.getDestPrefix();
+        String vpnName = getFibUtil().getVpnNameFromId(vpnId);
         if (localNextHopInfo == null) {
             //Handle extra routes and imported routes
             Routes extraRoute = getVpnToExtraroute(vpnId, rd, vrfEntry.getDestPrefix());
@@ -150,6 +163,32 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
                             BigInteger dpnId = checkCreateLocalEvpnFlows(localNextHopInfo, localNextHopIP, vpnId,
                                     rd, vrfEntry);
                             returnLocalDpnId.add(dpnId);
+                        }
+                    }
+                }
+            } else if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.SELF_IMPORTED) {
+                //Imported Route
+                List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
+                String parentPrimaryRd = vrfEntry.getParentVpnRd();
+                String vpnPrefixString = parentPrimaryRd + vrfEntry.getDestPrefix();
+                synchronized (vpnPrefixString.intern()) {
+                    IpPrefixInfo ipPrefixInfo = vrfEntryListener.getIpPrefixInfo(parentPrimaryRd,
+                            vrfEntry.getDestPrefix());
+                    if (vrfEntryListener.isNextHopPresentInIpPrefixInfo(nextHopAddressList, ipPrefixInfo)) {
+                        Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
+                                getFibUtil().getVpnInstanceOpData(rd);
+                        if (vpnInstanceOpDataEntryOptional.isPresent()) {
+                            String vpnInstanceName = vpnInstanceOpDataEntryOptional.get().getVpnInstanceName();
+                            localNextHopInfo = vrfEntryListener.updateVpnReferencesInIpPrefixInfo(ipPrefixInfo,
+                                    vpnName, ipPrefixInfo.getVpnInstanceList().contains(vpnInstanceName));
+                            localNextHopIP = ipPrefixInfo.getPrefix();
+                        }
+                        if (localNextHopInfo != null) {
+                            LOG.debug("Fetched IpPrefixInfo for rd {} prefix {}", parentPrimaryRd,
+                                    vrfEntry.getDestPrefix());
+                            checkCreateLocalEvpnFlows(localNextHopInfo, localNextHopIP, vpnId, rd, vrfEntry);
+                        } else {
+                            LOG.error("Unable to fetch prefixes for rd {} prefix {}", rd, vrfEntry.getDestPrefix());
                         }
                     }
                 }
@@ -325,14 +364,13 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
     private List<BigInteger> checkDeleteLocalEvpnFLows(long vpnId, String rd, VrfEntry vrfEntry,
                                                        VpnNexthop localNextHopInfo) {
         List<BigInteger> returnLocalDpnId = new ArrayList<>();
-        if (localNextHopInfo == null) {
-            //Handle extra routes and imported routes
-        } else {
-            final BigInteger dpnId = localNextHopInfo.getDpnId();
+        if (localNextHopInfo != null) {
+            BigInteger dpnId = localNextHopInfo.getDpnId();
             jobCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(),
                 () -> {
                     WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-                    makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx, null);
+                    makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null,
+                                       NwConstants.DEL_FLOW, tx, null);
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
                     futures.add(tx.submit());
                     return futures;

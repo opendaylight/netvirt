@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,8 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
     }
 
     @Override
-    public void populateFib(L3vpnInput input, WriteTransaction writeConfigTxn) {
+    public void populateFib(L3vpnInput input, WriteTransaction writeConfigTxn,
+                            WriteTransaction writeOperTxn) {
         if (input.getRouteOrigin() == RouteOrigin.CONNECTED) {
             LOG.info("populateFib : Found SubnetRoute for subnet {} rd {}", input.getSubnetIp(), input.getPrimaryRd());
             addSubnetRouteFibEntry(input);
@@ -59,12 +61,32 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
         String rd = input.getRd();
         String primaryRd = input.getPrimaryRd();
         Adjacency nextHop = input.getNextHop();
+        String nextHopIp = input.getNextHopIp();
+        String nextHopIpAddress = nextHop.getIpAddress();
+        long l3vni = input.getL3vni();
+        String vpnName = input.getVpnName();
+        long vpnId = VpnUtil.getVpnId(broker, vpnName);
         LOG.info("populateFib : Found Interface Adjacency with prefix {} rd {}", nextHop.getIpAddress(), primaryRd);
-        if (!rd.equalsIgnoreCase(input.getVpnName()) && !rd.equals(input.getNetworkName())) {
+        if (!rd.equalsIgnoreCase(vpnName) && !rd.equals(input.getNetworkName())) {
+            VpnUtil.addToIpPrefixInfo(broker, primaryRd, nextHopIpAddress, vpnName,
+                    Collections.singletonList(nextHopIp), vpnId, false /*isSubnetRoute*/, input.getDpnId(),
+                    input.getInterfaceName(), writeOperTxn);
+            List<VpnInstanceOpDataEntry> vpnsToImportRoute = VpnUtil.getVpnsImportingMyRoute(broker, vpnName);
             Objects.requireNonNull(input.getRouteOrigin(), "populateFib: RouteOrigin is mandatory");
             addPrefixToBGP(rd, primaryRd, nextHop.getMacAddress(), nextHop.getIpAddress(), input.getNextHopIp(),
                     input.getEncapType(), 0 /*label*/, input.getL3vni(), input.getGatewayMac(),
                     input.getRouteOrigin(), writeConfigTxn);
+            for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
+                String vpnRd = vpn.getVrfId();
+                if (vpnRd != null) {
+                    LOG.debug("Exporting route with rd {} prefix {} nexthop {} l3vni {} to VPN {}", vpnRd,
+                            nextHopIpAddress, nextHopIp, l3vni, vpn);
+                    fibManager.addOrUpdateFibEntry(vpnRd, null /*macAddress*/,
+                            nextHopIpAddress, Collections.singletonList(nextHopIp), input.getEncapType(), 0 /*label*/,
+                            l3vni, input.getGatewayMac(), primaryRd, RouteOrigin.SELF_IMPORTED,
+                            writeConfigTxn);
+                }
+            }
         } else {
             LOG.error("Internal VPN for L3 Over VxLAN is not supported. Aborting.");
             return;

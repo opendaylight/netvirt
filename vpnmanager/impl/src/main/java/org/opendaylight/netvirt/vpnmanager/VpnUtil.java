@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -126,11 +127,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagNameKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.IpPrefixMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.VrfEntryBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.extraroute.rds.dest.prefixes.AllocatedRdsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.extraroute.rds.dest.prefixes.AllocatedRdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.ip.prefix.map.IpPrefixInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.ip.prefix.map.IpPrefixInfoBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.ip.prefix.map.IpPrefixInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.L3nexthop;
@@ -2248,5 +2253,35 @@ public final class VpnUtil {
         return InstanceIdentifier.builder(ElanDpnInterfaces.class)
                 .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName))
                 .build();
+    }
+
+    public static void addToIpPrefixInfo(DataBroker broker, String primaryRd, String prefix, String vpnName,
+                                         List<String> nextHopList, Long vpnId, boolean isSubnetRoute,
+                                         BigInteger dpnId, String interfaceName,
+                                         WriteTransaction writeOperTxn) {
+        Preconditions.checkNotNull(primaryRd, "rd cannot be null or empty!");
+        Preconditions.checkNotNull(prefix, "prefix cannot be null or empty!");
+        Preconditions.checkNotNull(vpnName, "vpnName cannot be null or empty!");
+        Preconditions.checkNotNull(vpnId, "vpnId cannot be null or empty!");
+        if (!isSubnetRoute) {
+            Preconditions.checkNotNull(nextHopList, "nextHopList cannot be null or empty!");
+        }
+        synchronized (prefix.intern()) {
+            LOG.info("Adding IpPrefixInfo for prefix {} vpn {} nexthop {}", prefix, vpnName, nextHopList);
+            InstanceIdentifier<IpPrefixInfo> ipPrefixInfoId = InstanceIdentifier.builder(IpPrefixMap.class)
+                .child(IpPrefixInfo.class, new IpPrefixInfoKey(primaryRd, prefix)).build();
+            IpPrefixInfoBuilder ipPrefixInfoBuilder = new IpPrefixInfoBuilder();
+            ipPrefixInfoBuilder.setParentPrimaryRd(primaryRd).setParentVpnid(vpnId).setPrefix(prefix)
+                .setVpnInstanceList(Collections.singletonList(vpnName)).setNextHopList(nextHopList)
+                .setVpnInterfaceName(interfaceName).setDpnId(dpnId);
+            LOG.debug("Adding IpPrefixInfo for vpn {} prefix {} to datastore", vpnName, prefix);
+            if (writeOperTxn != null) {
+                writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, ipPrefixInfoId, ipPrefixInfoBuilder.build(),
+                                   true);
+            } else {
+                syncUpdate(broker, LogicalDatastoreType.OPERATIONAL, ipPrefixInfoId,
+                                   ipPrefixInfoBuilder.build());
+            }
+        }
     }
 }

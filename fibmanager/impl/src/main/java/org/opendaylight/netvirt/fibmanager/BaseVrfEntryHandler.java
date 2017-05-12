@@ -158,8 +158,8 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                      * (1) an extra-route-prefix or,
                      * (2) for a local route without prefix-to-interface.
                      * Allow only self-imported routes in such cases */
-                    if (prefixInfo == null && FibHelper
-                            .isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
+                    if (prefixInfo == null && !FibHelper
+                            .isControllerManagedSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
                         LOG.debug("The prefix {} in rd {} for vpn {} does not have a valid extra-route or"
                                 + " prefix-to-interface entry in the data-store", vrfEntry.getDestPrefix(), rd, vpnId);
                         return adjacencyList;
@@ -346,7 +346,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         // FIXME vxlan vni bit set is not working properly with OVS.need to
         // revisit
         if (tunnelType.equals(TunnelTypeVxlan.class)) {
-            if (FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
+            if (!FibHelper.isControllerManagedSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
                 prefixInfo = fibUtil.getPrefixToInterface(vpnId, vrfEntry.getDestPrefix());
                 //For extra route, the prefixInfo is fetched from the primary adjacency
                 if (prefixInfo == null) {

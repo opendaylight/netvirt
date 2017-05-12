@@ -67,7 +67,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.LabelRouteMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.IpPrefixMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRoute;
@@ -75,9 +75,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.label.route.map.LabelRouteInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.label.route.map.LabelRouteInfoBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.label.route.map.LabelRouteInfoKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.ip.prefix.map.IpPrefixInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.ip.prefix.map.IpPrefixInfoBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.ip.prefix.map.IpPrefixInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
@@ -851,7 +851,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 RouteOrigin origin = nextHop.getAdjacencyType() == AdjacencyType.PrimaryAdjacency ? RouteOrigin.LOCAL
                         : RouteOrigin.STATIC;
                 input.setNextHop(nextHop).setRd(nextHop.getVrfId()).setRouteOrigin(origin);
-                registeredPopulator.populateFib(input, writeConfigTxn);
+                registeredPopulator.populateFib(input, writeConfigTxn, writeOperTxn);
             }
         }
     }
@@ -925,8 +925,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             }
 
             if (isNextHopAddReqd) {
-                updateLabelMapper(label, nhList);
-                LOG.info("updateVpnInterfaceOnTepAdd: Updated label mapper : label {} dpn {} prefix {} nexthoplist {}"
+                updateIpPrefixInfo(rd, prefix, nhList);
+                LOG.info("updateVpnInterfaceOnTepAdd: Updated ipPrefixInfo : label {} dpn {} prefix {} nexthoplist {}"
                         + " vpn {} vpnid {} rd {} interface {}", label, srcDpnId , prefix, nhList,
                         vpnInterface.getVpnInstanceName(), vpnId, rd, vpnInterface.getName());
                 // Update the VRF entry with nextHop
@@ -1029,8 +1029,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 }
 
                 if (isNextHopRemoveReqd) {
-                    updateLabelMapper(label, nhList);
-                    LOG.info("updateVpnInterfaceOnTepDelete: Updated label mapper : label {} dpn {} prefix {}"
+                    updateIpPrefixInfo(rd, prefix, nhList);
+                    LOG.info("updateVpnInterfaceOnTepDelete: Updated ipPrefixInfo : label {} dpn {} prefix {}"
                             + " nexthoplist {} vpn {} vpnid {} rd {} interface {}", label, srcDpnId,
                             prefix, nhList, vpnName,
                             vpnId, rd, vpnInterface.getName());
@@ -1146,14 +1146,14 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                         vpnName, vpnRd);
                                 fibManager.addOrUpdateFibEntry(vpnRd, null /*macAddress*/, prefix,
                                         Collections.singletonList(nh), VrfEntry.EncapType.Mplsgre, label,
-                                        0 /*l3vni*/, gwMac,  vpn.getVrfId(), RouteOrigin.SELF_IMPORTED,
+                                        0 /*l3vni*/, gwMac,  vrfEntry.getParentVpnRd(), RouteOrigin.SELF_IMPORTED,
                                         writeConfigTxn);
                             } else {
                                 LOG.info("handleVpnsExportingRoutes: Importing subnet route fib entry rd {} prefix {}"
                                         + " nexthop {} label {} to vpn {} vpnRd {}", vpn.getVrfId(), prefix, nh, label,
                                         vpnName, vpnRd);
                                 SubnetRoute route = vrfEntry.getAugmentation(SubnetRoute.class);
-                                importSubnetRouteForNewVpn(vpnRd, prefix, nh, label, route, vpn.getVrfId(),
+                                importSubnetRouteForNewVpn(vpnRd, prefix, nh, label, route, vrfEntry.getParentVpnRd(),
                                         writeConfigTxn);
                             }
                         });
@@ -1595,26 +1595,30 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         return isSwap;
     }
 
-    private void updateLabelMapper(Long label, List<String> nextHopIpList) {
-        Preconditions.checkNotNull(label, "updateLabelMapper: label cannot be null or empty!");
-        synchronized (label.toString().intern()) {
-            InstanceIdentifier<LabelRouteInfo> lriIid = InstanceIdentifier.builder(LabelRouteMap.class)
-                    .child(LabelRouteInfo.class, new LabelRouteInfoKey(label)).build();
-            Optional<LabelRouteInfo> opResult = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, lriIid);
-            if (opResult.isPresent()) {
-                LabelRouteInfo labelRouteInfo =
-                    new LabelRouteInfoBuilder(opResult.get()).setNextHopIpList(nextHopIpList).build();
-                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, lriIid, labelRouteInfo);
+    private void updateIpPrefixInfo(String parentRd, String prefix, List<String> nextHopList) {
+        Preconditions.checkNotNull(parentRd, "parentRd cannot be null or empty!");
+        Preconditions.checkNotNull(prefix, "prefix cannot be null or empty!");
+        String uniquePrefixString = parentRd + prefix;
+        synchronized (uniquePrefixString.intern()) {
+            InstanceIdentifier<IpPrefixInfo> ipPrefixInfoId = InstanceIdentifier.builder(IpPrefixMap.class)
+                    .child(IpPrefixInfo.class, new IpPrefixInfoKey(parentRd, prefix)).build();
+            Optional<IpPrefixInfo> ipPrefixInfoOptional = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                    ipPrefixInfoId);
+            if (ipPrefixInfoOptional.isPresent()) {
+                IpPrefixInfo ipPrefixInfo = new IpPrefixInfoBuilder(ipPrefixInfoOptional.get())
+                        .setNextHopList(nextHopList).build();
+                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, ipPrefixInfoId, ipPrefixInfo);
             }
         }
-        LOG.info("updateLabelMapper: Updated label rotue info for label {} with nextHopList {}", label, nextHopIpList);
+        LOG.info("updateLabelMapper: Updated ipPrefix for prefix {} with nextHopList {} parentRd {}", prefix,
+                nextHopList, parentRd);
     }
 
     public synchronized void importSubnetRouteForNewVpn(String rd, String prefix, String nextHop, int label,
-        SubnetRoute route, String parentVpnRd, WriteTransaction writeConfigTxn) {
+        SubnetRoute route, String parentPrimaryRd, WriteTransaction writeConfigTxn) {
 
         RouteOrigin origin = RouteOrigin.SELF_IMPORTED;
-        VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop, origin, parentVpnRd)
+        VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop, origin, parentPrimaryRd)
                 .addAugmentation(SubnetRoute.class, route).build();
         List<VrfEntry> vrfEntryList = Collections.singletonList(vrfEntry);
         InstanceIdentifierBuilder<VrfTables> idBuilder =

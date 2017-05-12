@@ -245,7 +245,7 @@ public class VpnManagerImpl implements IVpnManager {
                     L3vpnInput input = new L3vpnInput().setNextHop(operationalAdj).setNextHopIp(nextHop).setL3vni(l3vni)
                             .setPrimaryRd(primaryRd).setVpnName(vpnName).setDpnId(dpnId)
                             .setEncapType(encapType).setRd(rd).setRouteOrigin(origin);
-                    L3vpnRegistry.getRegisteredPopulator(encapType).populateFib(input, writeConfigTxn);
+                    L3vpnRegistry.getRegisteredPopulator(encapType).populateFib(input, writeConfigTxn, null);
                 }
             }
         }
