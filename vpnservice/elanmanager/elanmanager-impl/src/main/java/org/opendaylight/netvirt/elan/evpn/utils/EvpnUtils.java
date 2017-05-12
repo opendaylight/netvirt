@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
@@ -42,6 +43,8 @@ public class EvpnUtils {
 
     private final BiPredicate<String, String> isNetAttach = (var1, var2) -> ((var1 == null) && (var2 != null));
     private final BiPredicate<String, String> isNetDetach = (var1, var2) -> ((var1 != null) && (var2 == null));
+    private final Predicate<MacEntry> isIpv4PrefixAvailable = (macEntry) -> (macEntry != null
+        && macEntry.getIpPrefix() != null && macEntry.getIpPrefix().getIpv4Address() != null);
     private final DataBroker broker;
     private final IInterfaceManager interfaceManager;
     private final ElanUtils elanUtils;
@@ -94,7 +97,7 @@ public class EvpnUtils {
         }
         String rd = vpnManager.getVpnRd(broker, evpnName);
         ElanInstance elanInfo = elanUtils.getElanInstanceByName(broker, elanName);
-        macEntries.forEach((macEntry) -> {
+        macEntries.stream().filter(isIpv4PrefixAvailable).forEach(macEntry -> {
             InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(macEntry.getInterface());
             advertisePrefix(elanInfo, rd, macEntry.getMacAddress().getValue(),
                     macEntry.getIpPrefix().getIpv4Address().getValue(),
@@ -195,6 +198,10 @@ public class EvpnUtils {
 
     public void advertisePrefix(ElanInstance elanInfo, MacEntry macEntry) {
         InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(macEntry.getInterface());
+        if (!isIpv4PrefixAvailable.test(macEntry)) {
+            LOG.debug("advertisePrefix macEntry does not have IPv4 prefix {}", macEntry);
+            return;
+        }
         advertisePrefix(elanInfo, macEntry.getMacAddress().getValue(),
                 macEntry.getIpPrefix().getIpv4Address().getValue(),
                 interfaceInfo.getInterfaceName(), interfaceInfo.getDpId());
@@ -212,6 +219,10 @@ public class EvpnUtils {
             return;
         }
         for (MacEntry macEntry : macEntries) {
+            if (!isIpv4PrefixAvailable.test(macEntry)) {
+                LOG.debug("withdrawEvpnRT2Routes macEntry does not have IPv4 prefix {}", macEntry);
+                continue;
+            }
             String prefix = macEntry.getIpPrefix().getIpv4Address().getValue();
             LOG.info("Withdrawing routes with rd {}, prefix {}", rd, prefix);
             bgpManager.withdrawPrefix(rd, prefix);
@@ -227,6 +238,10 @@ public class EvpnUtils {
     }
 
     public void withdrawPrefix(ElanInstance elanInfo, MacEntry macEntry) {
+        if (!isIpv4PrefixAvailable.test(macEntry)) {
+            LOG.debug("withdrawPrefix macEntry does not have IPv4 prefix {}", macEntry);
+            return;
+        }
         withdrawPrefix(elanInfo, macEntry.getIpPrefix().getIpv4Address().getValue());
     }
 
