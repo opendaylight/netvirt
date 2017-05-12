@@ -98,8 +98,10 @@ public abstract class L3vpnPopulator implements VpnPopulator {
         //Will be handled appropriately with the iRT patch for EVPN
         if (input.getEncapType().equals(VrfEntryBase.EncapType.Mplsgre)) {
             long vpnId = VpnUtil.getVpnId(broker, vpnName);
-            vpnInterfaceManager.addToLabelMapper((long) label, dpnId, prefix, Collections.singletonList(nextHop),
-                    vpnId, null, elantag, true, rd, null);
+            /*vpnInterfaceManager.addToLabelMapper((long) label, dpnId, prefix, Collections.singletonList(nextHop),
+                    vpnId, null, elantag, true, rd, null);*/
+            vpnInterfaceManager.addToIpPrefixInfo(rd, prefix, vpnName, Collections.singletonList(nextHop),
+                    vpnId, true /*isSubnetRoute*/, dpnId, null/*interfaceName*/, null /*writeOpenTxn*/);
             List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnInterfaceManager.getVpnsImportingMyRoute(vpnName);
             if (vpnsToImportRoute.size() > 0) {
                 VrfEntry importingVrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop,
@@ -109,13 +111,10 @@ public abstract class L3vpnPopulator implements VpnPopulator {
                     LOG.info("Exporting subnet route rd {} prefix {} nexthop {} label {} to vpn {}", rd, prefix,
                             nextHop, label, vpnInstance.getVpnInstanceName());
                     String importingRd = vpnInstance.getVrfId();
-                    InstanceIdentifier<VrfTables> importingVrfTableId =
-                            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class,
-                                    new VrfTablesKey(importingRd)).build();
-                    VrfTables importingVrfTable = new VrfTablesBuilder().setRouteDistinguisher(importingRd)
-                            .setVrfEntry(importingVrfEntryList).build();
-                    VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, importingVrfTableId,
-                            importingVrfTable);
+                    fibManager.addOrUpdateFibEntry(broker, importingRd, null /*macAddress*/,
+                            prefix, Collections.singletonList(nextHop), input.getEncapType(), (int) label,
+                            0 /*l3vni*/, input.getGatewayMac(), rd, RouteOrigin.SELF_IMPORTED,
+                            null/*WriteCfgTxn*/);
                 }
             }
         }

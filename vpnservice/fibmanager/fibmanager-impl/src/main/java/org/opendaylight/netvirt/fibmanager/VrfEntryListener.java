@@ -105,14 +105,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.LabelRouteMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.IpPrefixMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.label.route.map.LabelRouteInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.label.route.map.LabelRouteInfoBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.label.route.map.LabelRouteInfoKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.ip.prefix.map.IpPrefixInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.ip.prefix.map.IpPrefixInfoBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.ip.prefix.map.IpPrefixInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
@@ -492,7 +492,32 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
     }
 
-    private Prefixes updateVpnReferencesInLri(LabelRouteInfo lri, String vpnInstanceName, boolean isPresentInList) {
+    private Prefixes updateVpnReferencesInIpPrefixInfo(IpPrefixInfo ipPrefixInfo, String vpnName,
+                                                       boolean isPresentInList) {
+        String prefix = ipPrefixInfo.getPrefix();
+        String parentPrimaryRd = ipPrefixInfo.getParentPrimaryRd();
+        LOG.debug("Updating IpPrefixInfo for prefix {} rd {}", prefix, parentPrimaryRd);
+        PrefixesBuilder prefixBuilder = new PrefixesBuilder();
+        prefixBuilder.setDpnId(ipPrefixInfo.getDpnId());
+        prefixBuilder.setVpnInterfaceName(ipPrefixInfo.getVpnInterfaceName());
+        prefixBuilder.setIpAddress(ipPrefixInfo.getPrefix());
+        InstanceIdentifier<IpPrefixInfo> ipPrefixInfoId = InstanceIdentifier.builder(IpPrefixMap.class)
+                .child(IpPrefixInfo.class, new IpPrefixInfoKey(parentPrimaryRd, prefix)).build();
+        IpPrefixInfoBuilder builder = new IpPrefixInfoBuilder(ipPrefixInfo);
+        if (!isPresentInList) {
+            LOG.debug("vpnName {} is not present in IpPrefixInfo with prefix {} parentVpn {}", vpnName, prefix,
+                    parentPrimaryRd);
+            List<String> vpnInstanceList = ipPrefixInfo.getVpnInstanceList();
+            vpnInstanceList.add(vpnName);
+            builder.setVpnInstanceList(vpnInstanceList);
+            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, ipPrefixInfoId, builder.build());
+        } else {
+            LOG.debug("vpnName {} is present in IpPrefixInfo with prefix {} rd {}", vpnName, prefix, parentPrimaryRd);
+        }
+        return prefixBuilder.build();
+    }
+
+    /*private Prefixes updateVpnReferencesInLri(LabelRouteInfo lri, String vpnInstanceName, boolean isPresentInList) {
         LOG.debug("updating LRI : for label {} vpninstancename {}", lri.getLabel(), vpnInstanceName);
         PrefixesBuilder prefixBuilder = new PrefixesBuilder();
         prefixBuilder.setDpnId(lri.getDpnId());
@@ -512,7 +537,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             LOG.debug("vpnName {} is present in LRI with label {}..", vpnInstanceName, lri.getLabel());
         }
         return prefixBuilder.build();
-    }
+    }*/
 
     void installSubnetRouteInFib(final BigInteger dpnId, final long elanTag, final String rd,
                                          final long vpnId, final VrfEntry vrfEntry, WriteTransaction tx) {
@@ -524,21 +549,26 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         FibUtil.getLabelFromRoutePaths(vrfEntry).ifPresent(label -> {
             List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
             synchronized (label.toString().intern()) {
-                LabelRouteInfo lri = getLabelRouteInfo(label);
-                if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopAddressList, lri)) {
-
+                /*LabelRouteInfo lri = getLabelRouteInfo(label);*/
+                IpPrefixInfo ipPrefixInfo = getIpPrefixInfo(rd, vrfEntry.getDestPrefix());
+                /*if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopAddressList, lri)) {*/
+                if (isNextHopPresentInIpPrefixInfo(nextHopAddressList, ipPrefixInfo)) {
                     if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.SELF_IMPORTED) {
                         Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
                                 FibUtil.getVpnInstanceOpData(dataBroker, rd);
                         if (vpnInstanceOpDataEntryOptional.isPresent()) {
                             String vpnInstanceName = vpnInstanceOpDataEntryOptional.get().getVpnInstanceName();
-                            if (!lri.getVpnInstanceList().contains(vpnInstanceName)) {
+                            /*if (!lri.getVpnInstanceList().contains(vpnInstanceName)) {
                                 updateVpnReferencesInLri(lri, vpnInstanceName, false);
+                            }*/
+                            if (!ipPrefixInfo.getVpnInstanceList().contains(vpnInstanceName)) {
+                                updateVpnReferencesInIpPrefixInfo(ipPrefixInfo, vpnInstanceName,
+                                        false/*isPresentInList*/);
                             }
                         }
                     }
                     LOG.debug("Fetched labelRouteInfo for label {} interface {} and got dpn {}",
-                            label, lri.getVpnInterfaceName(), lri.getDpnId());
+                            label, ipPrefixInfo.getVpnInterfaceName(), ipPrefixInfo.getDpnId());
                 }
             }
         });
@@ -748,32 +778,38 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         Long label = optionalLabel.get();
                         List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
                         synchronized (label.toString().intern()) {
-                            LabelRouteInfo lri = getLabelRouteInfo(label);
-                            if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopAddressList, lri)) {
+                            /*LabelRouteInfo lri = getLabelRouteInfo(label);*/
+                            IpPrefixInfo ipPrefixInfo = getIpPrefixInfo(rd, vrfEntry.getDestPrefix());
+                            /*if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopAddressList, lri)) {*/
+                            if (isNextHopPresentInIpPrefixInfo(nextHopAddressList, ipPrefixInfo)) {
                                 Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
                                         FibUtil.getVpnInstanceOpData(dataBroker, rd);
                                 if (vpnInstanceOpDataEntryOptional.isPresent()) {
                                     String vpnInstanceName = vpnInstanceOpDataEntryOptional.get().getVpnInstanceName();
-                                    if (lri.getVpnInstanceList().contains(vpnInstanceName)) {
+                                    localNextHopInfo = updateVpnReferencesInIpPrefixInfo(ipPrefixInfo, vpnName,
+                                            ipPrefixInfo.getVpnInstanceList().contains(vpnInstanceName));
+                                    localNextHopIP = ipPrefixInfo.getPrefix();
+                                    /*if (lri.getVpnInstanceList().contains(vpnInstanceName)) {
                                         localNextHopInfo = updateVpnReferencesInLri(lri, vpnInstanceName, true);
                                         localNextHopIP = lri.getPrefix();
                                     } else {
                                         localNextHopInfo = updateVpnReferencesInLri(lri, vpnInstanceName, false);
                                         localNextHopIP = lri.getPrefix();
-                                    }
+                                    }*/
                                 }
                                 if (localNextHopInfo != null) {
                                     LOG.debug("Fetched labelRouteInfo for label {} interface {} and got dpn {}",
-                                            label, localNextHopInfo.getVpnInterfaceName(), lri.getDpnId());
+                                            label, localNextHopInfo.getVpnInterfaceName(), ipPrefixInfo.getDpnId());
                                     if (vpnExtraRoutes == null || vpnExtraRoutes.isEmpty()) {
                                         BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP,
-                                                vpnId, rd, vrfEntry, lri.getParentVpnid(), null, vpnExtraRoutes);
+                                                vpnId, rd, vrfEntry, ipPrefixInfo.getParentVpnid(), null,
+                                                vpnExtraRoutes);
                                         returnLocalDpnId.add(dpnId);
                                     } else {
                                         for (Routes extraRoutes : vpnExtraRoutes) {
                                             BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo,
                                                     localNextHopIP,
-                                                    vpnId, rd, vrfEntry, lri.getParentVpnid(),
+                                                    vpnId, rd, vrfEntry, ipPrefixInfo.getParentVpnid(),
                                                     extraRoutes, vpnExtraRoutes);
                                             returnLocalDpnId.add(dpnId);
                                         }
@@ -876,7 +912,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id).isPresent();
     }
 
-    private LabelRouteInfo getLabelRouteInfo(Long label) {
+    /*private LabelRouteInfo getLabelRouteInfo(Long label) {
         InstanceIdentifier<LabelRouteInfo> lriIid = InstanceIdentifier.builder(LabelRouteMap.class)
             .child(LabelRouteInfo.class, new LabelRouteInfoKey(label)).build();
         Optional<LabelRouteInfo> opResult = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, lriIid);
@@ -884,9 +920,53 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             return opResult.get();
         }
         return null;
+    }*/
+
+    private IpPrefixInfo getIpPrefixInfo(String parentPrimaryRd, String prefix) {
+        IpPrefixInfo ipPrefixInfo = null;
+        InstanceIdentifier<IpPrefixInfo> ipPrefixInfoId = InstanceIdentifier.builder(IpPrefixMap.class)
+                .child(IpPrefixInfo.class, new IpPrefixInfoKey(parentPrimaryRd, prefix)).build();
+        Optional<IpPrefixInfo> ipPrefixInfoOptional = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                ipPrefixInfoId);
+        if (ipPrefixInfoOptional.isPresent()) {
+            ipPrefixInfo = ipPrefixInfoOptional.get();
+        }
+        return ipPrefixInfo;
     }
 
-    private boolean deleteLabelRouteInfo(LabelRouteInfo lri, String vpnInstanceName, WriteTransaction tx) {
+    private boolean deleteIpPrefixInfo(IpPrefixInfo ipPrefixInfo, String vpnName, WriteTransaction writeOperTxn) {
+        LOG.info("Deleting IpPrefixInfo for prefix {} vpn {}", ipPrefixInfo.getPrefix(), vpnName);
+        String prefix = ipPrefixInfo.getPrefix();
+        String parentPrimaryRd = ipPrefixInfo.getParentPrimaryRd();
+        InstanceIdentifier<IpPrefixInfo> ipPrefixInfoId = InstanceIdentifier.builder(IpPrefixMap.class)
+                .child(IpPrefixInfo.class, new IpPrefixInfoKey(parentPrimaryRd, prefix)).build();
+        boolean ipPrefixInfoDeleted = false;
+        if (ipPrefixInfo != null) {
+            List<String> vpnInstanceList = ipPrefixInfo.getVpnInstanceList() != null
+                    ? ipPrefixInfo.getVpnInstanceList() : Collections.EMPTY_LIST;
+            if (vpnInstanceList.contains(vpnName)) {
+                LOG.debug("vpnInstance {} is present in IpPrefixInfo for prefix {} rd {}", vpnName, prefix,
+                        parentPrimaryRd);
+                vpnInstanceList.remove(vpnName);
+            }
+            if (vpnInstanceList.isEmpty()) {
+                LOG.debug("Deleting IpPrefixInfo object for rd {} prefix {}", parentPrimaryRd, prefix);
+                if (writeOperTxn != null) {
+                    writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, ipPrefixInfoId);
+                } else {
+                    MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, ipPrefixInfoId);
+                }
+                ipPrefixInfoDeleted = true;
+            } else {
+                LOG.debug("Updating IpPrefixInfo object for rd {} prefix {}", parentPrimaryRd, prefix);
+                IpPrefixInfoBuilder builder = new IpPrefixInfoBuilder(ipPrefixInfo)
+                        .setVpnInstanceList(vpnInstanceList);
+                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, ipPrefixInfoId, builder.build());
+            }
+        }
+        return ipPrefixInfoDeleted;
+    }
+    /*private boolean deleteLabelRouteInfo(LabelRouteInfo lri, String vpnInstanceName, WriteTransaction tx) {
         LOG.debug("deleting LRI : for label {} vpninstancename {}", lri.getLabel(), vpnInstanceName);
         InstanceIdentifier<LabelRouteInfo> lriId = InstanceIdentifier.builder(LabelRouteMap.class)
             .child(LabelRouteInfo.class, new LabelRouteInfoKey(lri.getLabel())).build();
@@ -913,7 +993,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, lriId, builder.build());
         }
         return false;
-    }
+    }*/
 
     void makeTunnelTableEntry(BigInteger dpId, long label, long groupId/*String egressInterfaceName*/,
                                       WriteTransaction tx) {
@@ -1019,10 +1099,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 if (optionalLabel.isPresent()) {
                     Long label = optionalLabel.get();
                     List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
-                    LabelRouteInfo lri = getLabelRouteInfo(label);
-                    if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopAddressList, lri)) {
+                    /*LabelRouteInfo lri = getLabelRouteInfo(label);*/
+                    IpPrefixInfo ipPrefixInfo = getIpPrefixInfo(rd, vrfEntry.getDestPrefix());
+                    /*if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopAddressList, lri)) {*/
+                    if (isNextHopPresentInIpPrefixInfo(nextHopAddressList, ipPrefixInfo)) {
                         PrefixesBuilder prefixBuilder = new PrefixesBuilder();
-                        prefixBuilder.setDpnId(lri.getDpnId());
+                        prefixBuilder.setDpnId(ipPrefixInfo.getDpnId());
                         BigInteger dpnId = checkDeleteLocalFibEntry(prefixBuilder.build(), localNextHopIP,
                                 vpnId, rd, vrfEntry);
                         if (!dpnId.equals(BigInteger.ZERO)) {
@@ -1301,15 +1383,17 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 if (optionalLabel.isPresent()) {
                     Long label = optionalLabel.get();
                     List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
-                    LabelRouteInfo lri = getLabelRouteInfo(label);
-                    if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopAddressList, lri)) {
+                    /*LabelRouteInfo lri = getLabelRouteInfo(label);*/
+                    IpPrefixInfo ipPrefixInfo = getIpPrefixInfo(primaryRd, vrfEntry.getDestPrefix());
+                    /*if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopAddressList, lri)) {*/
+                    if (isNextHopPresentInIpPrefixInfo(nextHopAddressList, ipPrefixInfo)) {
                         PrefixesBuilder prefixBuilder = new PrefixesBuilder();
-                        prefixBuilder.setDpnId(lri.getDpnId());
-                        prefixBuilder.setVpnInterfaceName(lri.getVpnInterfaceName());
-                        prefixBuilder.setIpAddress(lri.getPrefix());
+                        prefixBuilder.setDpnId(ipPrefixInfo.getDpnId());
+                        prefixBuilder.setVpnInterfaceName(ipPrefixInfo.getVpnInterfaceName());
+                        prefixBuilder.setIpAddress(ipPrefixInfo.getPrefix());
                         prefixInfo = prefixBuilder.build();
                         LOG.debug("Fetched labelRouteInfo for label {} interface {} and got dpn {}",
-                                label, prefixInfo.getVpnInterfaceName(), lri.getDpnId());
+                                label, prefixInfo.getVpnInterfaceName(), ipPrefixInfo.getDpnId());
                         checkCleanUpOpDataForFib(prefixInfo, vpnId, primaryRd, vrfEntry, extraRoute);
                     }
                 }
@@ -1367,18 +1451,20 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 FibUtil.getLabelFromRoutePaths(vrfEntry).ifPresent(label -> {
                     List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
                     synchronized (label.toString().intern()) {
-                        LabelRouteInfo lri = getLabelRouteInfo(label);
-                        if (lri != null && lri.getPrefix().equals(vrfEntry.getDestPrefix())
-                                && nextHopAddressList.contains(lri.getNextHopIpList().get(0))) {
+                        /*LabelRouteInfo lri = getLabelRouteInfo(label);*/
+                        IpPrefixInfo ipPrefixInfo = getIpPrefixInfo(rd, vrfEntry.getDestPrefix());
+                        if (isNextHopPresentInIpPrefixInfo(nextHopAddressList, ipPrefixInfo)) {
                             Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
                                     FibUtil.getVpnInstanceOpData(dataBroker, rd);
                             String vpnInstanceName = "";
                             if (vpnInstanceOpDataEntryOptional.isPresent()) {
                                 vpnInstanceName = vpnInstanceOpDataEntryOptional.get().getVpnInstanceName();
                             }
-                            boolean lriRemoved = deleteLabelRouteInfo(lri, vpnInstanceName, writeOperTxn);
-                            if (lriRemoved) {
-                                String parentRd = lri.getParentVpnRd();
+                            /*boolean lriRemoved = deleteLabelRouteInfo(lri, vpnInstanceName, writeOperTxn);*/
+                            boolean ipPrefixInfoRemoved = deleteIpPrefixInfo(ipPrefixInfo, vpnInstanceName,
+                                    writeOperTxn);
+                            if (ipPrefixInfoRemoved) {
+                                String parentRd = ipPrefixInfo.getParentPrimaryRd();
                                 FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
                                         FibUtil.getNextHopLabelKey(parentRd, vrfEntry.getDestPrefix()));
                             }
@@ -1482,17 +1568,21 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
             optionalLabel.ifPresent(label -> {
                 synchronized (label.toString().intern()) {
-                    LabelRouteInfo lri = getLabelRouteInfo(label);
-                    if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopAddressList, lri)) {
+                    /*LabelRouteInfo lri = getLabelRouteInfo(label);*/
+                    IpPrefixInfo ipPrefixInfo = getIpPrefixInfo(rd, vrfEntry.getDestPrefix());
+                    /*if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopAddressList, lri)) {*/
+                    if (isNextHopPresentInIpPrefixInfo(nextHopAddressList, ipPrefixInfo)) {
                         Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
                                 FibUtil.getVpnInstanceOpData(dataBroker, rd);
                         String vpnInstanceName = "";
                         if (vpnInstanceOpDataEntryOptional.isPresent()) {
                             vpnInstanceName = vpnInstanceOpDataEntryOptional.get().getVpnInstanceName();
                         }
-                        boolean lriRemoved = this.deleteLabelRouteInfo(lri, vpnInstanceName, null);
-                        if (lriRemoved) {
-                            String parentRd = lri.getParentVpnRd();
+                        /*boolean lriRemoved = this.deleteLabelRouteInfo(lri, vpnInstanceName, null);*/
+                        boolean ipPrefixInfoRemoved = deleteIpPrefixInfo(ipPrefixInfo, vpnInstanceName,
+                                null/*writeOperTxn*/);
+                        if (ipPrefixInfoRemoved) {
+                            String parentRd = ipPrefixInfo.getParentPrimaryRd();
                             FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
                                     FibUtil.getNextHopLabelKey(parentRd, vrfEntry.getDestPrefix()));
                             LOG.trace("deleteFibEntries: Released subnetroute label {} for rd {} prefix {} as "
@@ -1889,9 +1979,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             java.util.Optional<Long> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
                             if (optionalLabel.isPresent()) {
                                 List<String> nextHopList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
-                                LabelRouteInfo lri = getLabelRouteInfo(optionalLabel.get());
-                                if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopList, lri)) {
-                                    if (lri.getDpnId().equals(dpnId)) {
+                                /*LabelRouteInfo lri = getLabelRouteInfo(optionalLabel.get());*/
+                                IpPrefixInfo ipPrefixInfo = getIpPrefixInfo(rd, vrfEntry.getDestPrefix());
+                                /*if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopList, lri)) {*/
+                                if (isNextHopPresentInIpPrefixInfo(nextHopList, ipPrefixInfo)) {
+                                    if (ipPrefixInfo.getDpnId().equals(dpnId)) {
                                         createLocalFibEntry(vpnId, rd, vrfEntry);
                                         continue;
                                     }
@@ -2524,10 +2616,14 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 });
     }
 
-    private boolean isPrefixAndNextHopPresentInLri(String prefix,
+    /*private boolean isPrefixAndNextHopPresentInLri(String prefix,
             List<String> nextHopAddressList, LabelRouteInfo lri) {
         return lri != null && lri.getPrefix().equals(prefix)
                 && nextHopAddressList.contains(lri.getNextHopIpList().get(0));
+    }*/
+
+    private boolean isNextHopPresentInIpPrefixInfo(List<String> nextHopList, IpPrefixInfo ipPrefixInfo) {
+        return ipPrefixInfo != null && nextHopList.contains(ipPrefixInfo.getNextHopList().get(0));
     }
 
     private boolean shouldCreateFibEntryForVrfAndVpnIdOnDpn(Long vpnId, VrfEntry vrfEntry, BigInteger dpnId) {
