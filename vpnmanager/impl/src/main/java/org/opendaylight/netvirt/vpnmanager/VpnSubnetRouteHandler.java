@@ -832,15 +832,20 @@ public class VpnSubnetRouteHandler {
                 .setSubnetIp(subnetIp).setNextHopIp(nextHopIp).setL3vni(l3vni).setLabel(label).setElanTag(elanTag)
                 .setDpnId(nhDpnId).setEncapType(encapType).setNetworkName(networkName).setPrimaryRd(rd);
         if (!isBgpVpn) {
-            vpnPopulator.populateFib(input, null /*writeCfgTxn*/);
+            vpnPopulator.populateFib(input, null /*writeCfgTxn*/, null);
             return true;
         }
         Preconditions.checkNotNull(nextHopIp, LOGGING_PREFIX + "NextHopIp cannot be null or empty!");
-        VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, VpnUtil
-                .getPrefixToInterfaceIdentifier(VpnUtil.getVpnId(dataBroker, vpnName), subnetIp), VpnUtil
-                .getPrefixToInterface(nhDpnId, subnetId.getValue(), subnetIp, subnetId,
-                        Prefixes.PrefixCue.SubnetRoute));
-        vpnPopulator.populateFib(input, null /*writeCfgTxn*/);
+
+        // Prefix to interface is not required for subnet route
+        /*
+         * VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, VpnUtil
+         * .getPrefixToInterfaceIdentifier(VpnUtil.getVpnId(dataBroker, vpnName), subnetIp), VpnUtil
+         * .getPrefixToInterface(nhDpnId, subnetId.getValue(), subnetIp, subnetId,
+         * Prefixes.PrefixCue.SubnetRoute));
+         *
+         */
+        vpnPopulator.populateFib(input, null /*writeCfgTxn*/, null);
         try {
             // BGP manager will handle withdraw and advertise internally if prefix
             // already exist
