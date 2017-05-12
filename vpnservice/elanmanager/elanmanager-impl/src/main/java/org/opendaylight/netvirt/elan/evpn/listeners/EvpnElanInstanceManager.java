@@ -7,6 +7,7 @@
  */
 
 package org.opendaylight.netvirt.elan.evpn.listeners;
+import com.google.common.base.Strings;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -57,15 +58,23 @@ public class EvpnElanInstanceManager extends AsyncDataTreeChangeListenerBase<Evp
     @Override
     protected void add(InstanceIdentifier<EvpnAugmentation> instanceIdentifier, EvpnAugmentation evpnAugmentation) {
         String elanName = instanceIdentifier.firstKeyOf(ElanInstance.class).getElanInstanceName();
-        evpnUtils.advertiseEvpnRT2Routes(evpnAugmentation, elanName);
-        evpnMacVrfUtils.updateEvpnDmacFlows(elanName, true);
+        if (Strings.isNullOrEmpty(elanName)) {
+            evpnUtils.advertiseEvpnRT2Routes(evpnAugmentation, elanName);
+            evpnMacVrfUtils.updateEvpnDmacFlows(elanName, true);
+        } else {
+            LOG.warn("EvpnElanInstanceManager:add, cannot add elanName {}", elanName);
+        }
     }
 
     @Override
     protected void remove(InstanceIdentifier<EvpnAugmentation> instanceIdentifier, EvpnAugmentation evpnAugmentation) {
         String elanName = instanceIdentifier.firstKeyOf(ElanInstance.class).getElanInstanceName();
-        evpnUtils.withdrawEvpnRT2Routes(evpnAugmentation, elanName);
-        evpnMacVrfUtils.updateEvpnDmacFlows(elanName, false);
+        if (Strings.isNullOrEmpty(elanName)) {
+            evpnUtils.withdrawEvpnRT2Routes(evpnAugmentation, elanName);
+            evpnMacVrfUtils.updateEvpnDmacFlows(elanName, false);
+        } else {
+            LOG.warn("EvpnElanInstanceManager:remove, cannot remove elanName {}", elanName);
+        }
     }
 
     @Override
