@@ -29,12 +29,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
-
-    private static final Logger LOG = LoggerFactory.getLogger(LearnIngressAclServiceImpl.class);
 
     public LearnIngressAclServiceImpl(DataBroker dataBroker, IMdsalApiManager mdsalManager, AclDataUtil aclDataUtil,
             AclServiceUtils aclServiceUtils) {
