@@ -75,7 +75,7 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implemen
         synchronized (vpnInstance.getVpnInstanceName().intern()) {
             final Collection<VpnToDpnList> vpnToDpnList;
             if (vrfEntry.getParentVpnRd() != null
-                    && FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
+                    && !FibHelper.isControllerManagedSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
                 VpnInstanceOpDataEntry parentVpnInstance =
                         getFibUtil().getVpnInstance(vrfEntry.getParentVpnRd());
                 vpnToDpnList = parentVpnInstance != null ? parentVpnInstance.getVpnToDpnList()
