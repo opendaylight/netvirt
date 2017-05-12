@@ -25,7 +25,7 @@ public class BgpAlarms extends TimerTask {
     private BgpConfigurationManager bgpMgr;
 
     private static Map<String, BgpAlarmStatus> neighborsRaisedAlarmStatusMap = new HashMap<>();
-    private final String alarmText = "Bgp Neighbor TCP connection is down";
+    private static final String alarmText = "Bgp Neighbor TCP connection is down";
 
     @Override
     public void run() {

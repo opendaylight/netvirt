@@ -67,8 +67,8 @@ public class AbstractServiceInstanceTest {
 
     private Service service = Service.L3_FORWARDING;
 
-    private final String ID = "5710881121";
-    private final String NODE_ID = Constants.INTEGRATION_BRIDGE + ":" +  ID;
+    private static final String ID = "5710881121";
+    private static final String NODE_ID = Constants.INTEGRATION_BRIDGE + ":" +  ID;
 
     /**
      * Test method {@link AbstractServiceInstance#isBridgeInPipeline(Node)}
