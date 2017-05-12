@@ -17,13 +17,10 @@ import org.omg.CORBA.Object;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Command(scope = "odl", name = "multipath", description = "Enable/Disable multipaths")
 public class Multipath extends OsgiCommandSupport {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Multipath.class);
     private static final String AF = "--address-family";
     private static final String RD = "--rd";
     private static final String MAXPATH = "--maxpath";
