@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
  * In some cases it is very difficult to automate it since there can be unions such as (uint32 - uint16), or (string - uint32).
  *
  * The reason behind putting it under src/main/java is:
- * This class is generated in form of a stub and needs to be finished by the user. This class is generated only once to prevent
+ * This class is gelllnerated in form of a stub and needs to be finished by the user. This class is generated only once to prevent
  * loss of user code.
  *
  */
