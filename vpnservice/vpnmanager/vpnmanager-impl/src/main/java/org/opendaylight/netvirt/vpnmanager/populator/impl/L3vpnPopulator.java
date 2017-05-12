@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.vpnmanager.populator.impl;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,7 +26,6 @@ import org.opendaylight.netvirt.vpnmanager.populator.intfc.VpnPopulator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.VrfEntryBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
@@ -61,18 +59,17 @@ public abstract class L3vpnPopulator implements VpnPopulator {
 
     public void addSubnetRouteFibEntry(L3vpnInput input) {
         String rd = input.getRd();
-        String vpnName = input.getVpnName();
         String prefix = input.getSubnetIp();
         String nextHop = input.getNextHopIp();
         long label = input.getLabel();
         long l3vni = input.getL3vni();
         long elantag = input.getElanTag();
-        BigInteger dpnId = input.getDpnId();
-        String networkName = input.getNetworkName();
+        String vpnName = input.getVpnName();
+        long vpnId = VpnUtil.getVpnId(broker, vpnName);
         String gwMacAddress = input.getGatewayMac();
         SubnetRoute route = new SubnetRouteBuilder().setElantag(elantag).build();
         RouteOrigin origin = RouteOrigin.CONNECTED; // Only case when a route is considered as directly connected
-        VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop, origin, networkName)
+        VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop, origin, rd)
                 .addAugmentation(SubnetRoute.class, route).setL3vni(l3vni).setGatewayMacAddress(gwMacAddress).build();
         LOG.debug("Created vrfEntry for {} nexthop {} label {} and elantag {}", prefix, nextHop, label, elantag);
         InstanceIdentifier<VrfEntry> vrfEntryId =
@@ -97,30 +94,19 @@ public abstract class L3vpnPopulator implements VpnPopulator {
             LOG.info("SUBNETROUTE: addSubnetRouteFibEntryToDS: Updated vrfEntry for {} nexthop {} label {} rd {}"
                     + " vpnName {}", prefix, nextHop, label, rd, vpnName);
         }
-
-        //Will be handled appropriately with the iRT patch for EVPN
-        if (input.getEncapType().equals(VrfEntryBase.EncapType.Mplsgre)) {
-            long vpnId = VpnUtil.getVpnId(broker, vpnName);
-            vpnInterfaceManager.addToLabelMapper((long) label, dpnId, prefix, Collections.singletonList(nextHop),
-                    vpnId, null, elantag, true, rd);
-            List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnInterfaceManager.getVpnsImportingMyRoute(vpnName);
-            if (vpnsToImportRoute.size() > 0) {
-                VrfEntry importingVrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop,
-                        RouteOrigin.SELF_IMPORTED, networkName).addAugmentation(SubnetRoute.class, route).build();
-                List<VrfEntry> importingVrfEntryList = Collections.singletonList(importingVrfEntry);
-                for (VpnInstanceOpDataEntry vpnInstance : vpnsToImportRoute) {
-                    String importingRd = vpnInstance.getVrfId();
-                    InstanceIdentifier<VrfTables> importingVrfTableId =
-                            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class,
-                                    new VrfTablesKey(importingRd)).build();
-                    VrfTables importingVrfTable = new VrfTablesBuilder().setRouteDistinguisher(importingRd)
-                            .setVrfEntry(importingVrfEntryList).build();
-                    VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, importingVrfTableId,
-                            importingVrfTable);
-                    LOG.info("SUBNETROUTE: addSubnetRouteFibEntryToDS: Exported route rd {} prefix {} nexthop {}"
-                            + " label {} to vpn {} importingRd {}", rd, prefix, nextHop, label,
-                            vpnInstance.getVpnInstanceName(), importingRd);
-                }
+        vpnInterfaceManager.addToIpPrefixInfo(rd, prefix, vpnName, Collections.singletonList(nextHop),
+                vpnId, true /*isSubnetRoute*/, input.getDpnId(), null/*interfaceName*/, null /*writeOpenTxn*/);
+        List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnInterfaceManager.getVpnsImportingMyRoute(vpnName);
+        if (vpnsToImportRoute.size() > 0) {
+            for (VpnInstanceOpDataEntry vpnInstance : vpnsToImportRoute) {
+                String importingRd = vpnInstance.getVrfId();
+                fibManager.addOrUpdateFibEntry(broker, importingRd, null /*macAddress*/,
+                        prefix, Collections.singletonList(nextHop), input.getEncapType(), (int) label,
+                        input.getL3vni(), input.getGatewayMac(), rd, RouteOrigin.SELF_IMPORTED,
+                        null/*WriteCfgTxn*/);
+                LOG.info("SUBNETROUTE: addSubnetRouteFibEntryToDS: Exported route rd {} prefix {} nexthop {}"
+                                + " label {} to vpn {} importingRd {}", rd, prefix, nextHop, label,
+                        vpnInstance.getVpnInstanceName(), importingRd);
             }
         }
         LOG.info("SUBNETROUTE: addSubnetRouteFibEntryToDS: Created vrfEntry for {} nexthop {} label {} and elantag {}"
@@ -141,7 +127,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
             LOG.info("ADD: addPrefixToBGP: Adding Fib entry rd {} prefix {} nextHop {} label {} gwMac {}", rd, prefix,
                     nextHopList, label, gatewayMac);
             fibManager.addOrUpdateFibEntry(broker, primaryRd, macAddress, prefix, nextHopList,
-                    encapType, (int)label, l3vni, gatewayMac, null /*parentVpnRd*/, origin, writeConfigTxn);
+                    encapType, (int)label, l3vni, gatewayMac, primaryRd, origin, writeConfigTxn);
             LOG.info("ADD: addPrefixToBGP: Added Fib entry rd {} prefix {} nextHop {} label {} gwMac {}", rd, prefix,
                     nextHopList, label, gatewayMac);
             // Advertise the prefix to BGP only if nexthop ip is available
