@@ -112,23 +112,6 @@ module odl-fib {
         }
     }
 
-    container label-route-map {
-         config false;
-         list label-route-info {
-            key label;
-            leaf label { type uint32; }
-            leaf dpn-id { type uint64; }
-            leaf prefix { type string; }
-            leaf-list next-hop-ip-list { type string; }
-            leaf-list vpn-instance-list { type string; }
-            leaf parent-vpnid { type uint32; }
-            leaf vpn-interface-name { type string; }
-            leaf elan-tag { type uint32; }
-            leaf is-subnet-route { type boolean; }
-            leaf parent-vpn-rd { type string; }
-         }
-    }
-
     container extraroute-rds-map {
         config true;
         list extraroute-rds {
@@ -202,17 +185,8 @@ module odl-fib {
             leaf l2vni {
                  type uint32;
             }
-            list route-paths {
-                 key "nexthop-address";
-                 leaf nexthop-address {
-                      type string;
-                 }
-                 leaf label {
-                      type uint32;
-                 }
-                 leaf gateway_mac_address {
-                      type string;
-                 }
+            leaf-list next-hop-list {
+                type string;
             }
         }
    }
