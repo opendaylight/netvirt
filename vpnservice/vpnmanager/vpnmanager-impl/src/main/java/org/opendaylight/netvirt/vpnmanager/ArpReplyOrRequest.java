@@ -24,17 +24,11 @@ public enum ArpReplyOrRequest {
     }
 
     public int getArpOperation() {
-        int arpOperation =
-            (Objects.equals(name, ArpReplyOrRequest.REQUEST.getName())
-                    ? NwConstants.ARP_REQUEST : NwConstants.ARP_REPLY);
-        return arpOperation;
+        return Objects.equals(name, ArpReplyOrRequest.REQUEST.getName())
+                    ? NwConstants.ARP_REQUEST : NwConstants.ARP_REPLY;
     }
 
     public int calculateConsistentHashCode() {
-        if (this.name != null) {
-            return this.name.hashCode();
-        } else {
-            return 0;
-        }
+        return this.name != null ? this.name.hashCode(): 0;
     }
 }

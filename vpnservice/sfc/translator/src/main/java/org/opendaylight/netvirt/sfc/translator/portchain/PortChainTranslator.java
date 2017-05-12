@@ -29,15 +29,12 @@ import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfp.rev1407
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfp.rev140701.service.function.paths.ServiceFunctionPathKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.port.chain.attributes.ChainParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.sfc.attributes.port.chains.PortChain;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class will convert OpenStack Port Chain API yang models present in
  * neutron northbound project to OpenDaylight SFC yang models.
  */
 public class PortChainTranslator {
-    private static final Logger LOG = LoggerFactory.getLogger(PortChainTranslator.class);
     private static final String SYMMETRIC_PARAM = "symmetric";
     private static final String SFP_NAME_PREFIX = "Path-";
 

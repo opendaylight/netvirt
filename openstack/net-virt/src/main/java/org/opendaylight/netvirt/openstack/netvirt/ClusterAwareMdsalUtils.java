@@ -11,8 +11,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 /**
  * Class is a wrapper for MdsalUtils.java class. It wrap all the methods
  * from MdsalUtils and call it only when *this* instance is net-virt master
@@ -23,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 public class ClusterAwareMdsalUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClusterAwareMdsalUtils.class);
     private final MdsalUtils mdsalUtils;
 
     /**

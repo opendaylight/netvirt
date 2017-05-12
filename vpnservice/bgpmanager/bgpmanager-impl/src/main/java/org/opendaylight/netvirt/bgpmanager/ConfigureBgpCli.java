@@ -22,13 +22,9 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.TcpMd5SignaturePasswordType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Command(scope = "odl", name = "configure-bgp", description = "")
 public class ConfigureBgpCli extends OsgiCommandSupport {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigureBgpCli.class);
 
     private static BgpManager bgpManager;
     private static BgpConfigurationManager bgpConfigurationManager;
