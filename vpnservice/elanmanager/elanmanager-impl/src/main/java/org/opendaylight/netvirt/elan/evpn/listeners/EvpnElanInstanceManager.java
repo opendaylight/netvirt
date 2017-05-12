@@ -57,15 +57,23 @@ public class EvpnElanInstanceManager extends AsyncDataTreeChangeListenerBase<Evp
     @Override
     protected void add(InstanceIdentifier<EvpnAugmentation> instanceIdentifier, EvpnAugmentation evpnAugmentation) {
         String elanName = instanceIdentifier.firstKeyOf(ElanInstance.class).getElanInstanceName();
-        evpnUtils.advertiseEvpnRT2Routes(evpnAugmentation, elanName);
-        evpnMacVrfUtils.updateEvpnDmacFlows(elanName, true);
+        if (elanName != null) {
+            evpnUtils.advertiseEvpnRT2Routes(evpnAugmentation, elanName);
+            evpnMacVrfUtils.updateEvpnDmacFlows(elanName, true);
+        } else {
+            LOG.warn("EvpnElanInstanceManager:add, cannot add elanName {}", elanName);
+        }
     }
 
     @Override
     protected void remove(InstanceIdentifier<EvpnAugmentation> instanceIdentifier, EvpnAugmentation evpnAugmentation) {
         String elanName = instanceIdentifier.firstKeyOf(ElanInstance.class).getElanInstanceName();
-        evpnUtils.withdrawEvpnRT2Routes(evpnAugmentation, elanName);
-        evpnMacVrfUtils.updateEvpnDmacFlows(elanName, false);
+        if (elanName != null) {
+            evpnUtils.withdrawEvpnRT2Routes(evpnAugmentation, elanName);
+            evpnMacVrfUtils.updateEvpnDmacFlows(elanName, false);
+        } else {
+            LOG.warn("EvpnElanInstanceManager:remove, cannot remove elanName {}", elanName);
+        }
     }
 
     @Override
