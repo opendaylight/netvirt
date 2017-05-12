@@ -43,8 +43,8 @@ public class DhcpConfigureCommand extends OsgiCommandSupport {
     String defaultDomain;
 
     private DataBroker dataBroker;
-    private final String defDomain = "openstacklocal";
-    private final Integer defLeaseDuration = 86400;
+    private static final String defDomain = "openstacklocal";
+    private static final Integer defLeaseDuration = 86400;
 
     public void setDataBroker(DataBroker broker) {
         this.dataBroker = broker;

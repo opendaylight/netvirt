@@ -26,13 +26,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeLeafTagName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 @Singleton
 public class ElanEvpnFlowUtils {
-    private static final Logger LOG = LoggerFactory.getLogger(ElanEvpnFlowUtils.class);
     private final IMdsalApiManager mdsalManager;
     private final ElanUtils elanUtils;
 
