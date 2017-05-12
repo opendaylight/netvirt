@@ -15,15 +15,11 @@ import org.opendaylight.statistics.api.ICountersInterfaceChangeHandler;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("deprecation")
 public class CountersServiceInterfaceListener
         extends AsyncDataTreeChangeListenerBase<Interface, CountersServiceInterfaceListener>
         implements ClusteredDataTreeChangeListener<Interface> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(CountersServiceInterfaceListener.class);
 
     private final ICountersInterfaceChangeHandler cich;
     private final DataBroker db;

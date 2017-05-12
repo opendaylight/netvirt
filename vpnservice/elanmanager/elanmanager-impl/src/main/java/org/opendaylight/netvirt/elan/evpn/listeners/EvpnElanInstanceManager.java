@@ -19,15 +19,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.EvpnAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 @Singleton
 public class EvpnElanInstanceManager extends AsyncDataTreeChangeListenerBase<EvpnAugmentation, EvpnElanInstanceManager>
         implements AutoCloseable {
-
-    private static final Logger LOG = LoggerFactory.getLogger(EvpnElanInstanceManager.class);
 
     private final DataBroker broker;
     private final EvpnUtils evpnUtils;
