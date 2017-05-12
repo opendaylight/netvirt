@@ -277,6 +277,40 @@
     },
     {
       "key": {
+        "uuid": "ba068154_c14622bf",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-12T15:54:53Z",
+      "side": 1,
+      "message": "s/will be IPv4 or IPv6/will be also either IPv4 or IPv6",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_41187281",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-12T15:54:53Z",
+      "side": 1,
+      "message": "Maybe after this sentence it would be useful to add:\n\nWhen the 1-st subnet IPv4 or IPv6 was attached to VPN, associated QBGP context must be created as well. And respectively, when the last subnet was removed, we must to remove associated QBGP context.",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_0f84e5d2",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
