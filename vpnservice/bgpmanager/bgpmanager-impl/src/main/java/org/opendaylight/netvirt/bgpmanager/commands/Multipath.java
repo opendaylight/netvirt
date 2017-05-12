@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.bgpmanager.commands;
 
+
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
@@ -31,26 +32,24 @@ public class Multipath extends OsgiCommandSupport {
             description = "rd",
             required = false,
             multiValued = false)
-    String rd;
+    String rd = null;
 
     @Option(name = MAXPATH, aliases = { "-n" },
             description = "max number of paths",
             required = false,
             multiValued = false)
-    String maxpath;
+    String maxpath = null;
 
     @Option(name = AF, aliases = {"-f"},
             description = "Address family",
             required = true, multiValued = false)
-
-    String addrFamily;
+    String addrFamily = null;
 
 
     @Argument(name = "enable|disable|setmaxpath",
             description = "The desired operation",
             required = true, multiValued = false)
-
-    String multipathEnable;
+    private String multipathEnable = null;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -93,6 +92,7 @@ public class Multipath extends OsgiCommandSupport {
                 default:
                     return usage();
             }
+
         }
 
         return null;
@@ -103,5 +103,6 @@ public class Multipath extends OsgiCommandSupport {
                 + "odl:multipath -f lu -r <rd> -n <maxpath> setmaxpath");
         return null;
     }
+
 }
 

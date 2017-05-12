@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.merge;
 
+
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LocalMcastCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LocalUcastCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LogicalSwitchesCmd;
