@@ -35,12 +35,8 @@ import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HAListeners implements AutoCloseable {
-
-    private static final Logger LOG = LoggerFactory.getLogger(HAListeners.class);
 
     private final DataBroker broker;
     private final List<HwvtepNodeDataListener> listeners = new ArrayList<>();

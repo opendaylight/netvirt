@@ -22,12 +22,8 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BatchedTransaction implements ReadWriteTransaction {
-
-    private static final Logger LOG = LoggerFactory.getLogger(BatchedTransaction.class);
 
     private final DataBroker broker;
 
