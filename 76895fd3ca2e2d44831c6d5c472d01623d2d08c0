@@ -16,6 +16,24 @@
       "revId": "76895fd3ca2e2d44831c6d5c472d01623d2d08c0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_64130467",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2017-05-12T19:51:34Z",
+      "side": 1,
+      "message": "Good point, the better way to handle this is to not start listeners for DHCP on external tunnels, if ODL DHCP is not enabled.\n\nI\u0027ll push another patch shortly.\n\nThanks,\nVic",
+      "parentUuid": "ba068154_0b0ce741",
+      "revId": "76895fd3ca2e2d44831c6d5c472d01623d2d08c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
