@@ -106,8 +106,8 @@ public final class FibHelper {
                 || routeOrigin == RouteOrigin.LOCAL;
     }
 
-    public static boolean isControllerManagedNonSelfImportedRoute(RouteOrigin routeOrigin) {
-        return routeOrigin != RouteOrigin.SELF_IMPORTED;
+    public static boolean isControllerManagedSelfImportedRoute(RouteOrigin routeOrigin) {
+        return routeOrigin == RouteOrigin.SELF_IMPORTED;
     }
 
     public static boolean isControllerManagedSubnetRoute(RouteOrigin routeOrigin) {
