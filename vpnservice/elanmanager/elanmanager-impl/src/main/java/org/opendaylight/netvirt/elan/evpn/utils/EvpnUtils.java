@@ -195,6 +195,10 @@ public class EvpnUtils {
 
     public void advertisePrefix(ElanInstance elanInfo, MacEntry macEntry) {
         InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(macEntry.getInterface());
+        if ((macEntry == null) || (macEntry.getIpPrefix() == null)) {
+            LOG.debug("advertisePrefix macEntry does not have prefix {}", macEntry);
+            return;
+        }
         advertisePrefix(elanInfo, macEntry.getMacAddress().getValue(),
                 macEntry.getIpPrefix().getIpv4Address().getValue(),
                 interfaceInfo.getInterfaceName(), interfaceInfo.getDpId());
@@ -227,6 +231,10 @@ public class EvpnUtils {
     }
 
     public void withdrawPrefix(ElanInstance elanInfo, MacEntry macEntry) {
+        if ((macEntry == null) || (macEntry.getIpPrefix() == null)) {
+            LOG.debug("withdrawPrefix macEntry does not have prefix {}", macEntry);
+            return;
+        }
         withdrawPrefix(elanInfo, macEntry.getIpPrefix().getIpv4Address().getValue());
     }
 
