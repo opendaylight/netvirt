@@ -77,7 +77,7 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implemen
                 "Vpn Instance with rd " + vpnInstance.getVrfId() + " has null vpnId!");
         final Collection<VpnToDpnList> vpnToDpnList;
         if (vrfEntry.getParentVpnRd() != null
-                && FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
+                && !FibHelper.isControllerManagedSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
             VpnInstanceOpDataEntry parentVpnInstance = FibUtil.getVpnInstance(dataBroker, vrfEntry.getParentVpnRd());
             vpnToDpnList = parentVpnInstance != null ? parentVpnInstance.getVpnToDpnList()
                     : vpnInstance.getVpnToDpnList();
