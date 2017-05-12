@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
@@ -42,6 +43,8 @@ public class EvpnUtils {
 
     private final BiPredicate<String, String> isNetAttach = (var1, var2) -> ((var1 == null) && (var2 != null));
     private final BiPredicate<String, String> isNetDetach = (var1, var2) -> ((var1 != null) && (var2 == null));
+    private final Predicate<MacEntry> isMacEntryPrefixNull = (macEntry) -> ((macEntry == null)
+        || (macEntry.getIpPrefix() == null));
     private final DataBroker broker;
     private final IInterfaceManager interfaceManager;
     private final ElanUtils elanUtils;
@@ -195,6 +198,10 @@ public class EvpnUtils {
 
     public void advertisePrefix(ElanInstance elanInfo, MacEntry macEntry) {
         InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(macEntry.getInterface());
+        if (isMacEntryPrefixNull.test(macEntry)) {
+            LOG.debug("advertisePrefix macEntry does not have prefix {}", macEntry);
+            return;
+        }
         advertisePrefix(elanInfo, macEntry.getMacAddress().getValue(),
                 macEntry.getIpPrefix().getIpv4Address().getValue(),
                 interfaceInfo.getInterfaceName(), interfaceInfo.getDpId());
@@ -227,6 +234,10 @@ public class EvpnUtils {
     }
 
     public void withdrawPrefix(ElanInstance elanInfo, MacEntry macEntry) {
+        if (isMacEntryPrefixNull.test(macEntry)) {
+            LOG.debug("withdrawPrefix macEntry does not have prefix {}", macEntry);
+            return;
+        }
         withdrawPrefix(elanInfo, macEntry.getIpPrefix().getIpv4Address().getValue());
     }
 
