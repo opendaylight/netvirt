@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_843708e3",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpAlarms.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-05-12T16:01:48Z",
+      "side": 1,
+      "message": "You need to rename the field too.",
+      "revId": "56ef62a8f3cffb7fc1da59d8f0aef57a4a9c065d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_e43414e0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/DhcpConfigureCommand.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-05-12T16:01:48Z",
+      "side": 1,
+      "message": "You need to rename the fields too.",
+      "revId": "56ef62a8f3cffb7fc1da59d8f0aef57a4a9c065d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
