@@ -515,6 +515,57 @@
     },
     {
       "key": {
+        "uuid": "ba068154_b8d86b1e",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-15T10:48:24Z",
+      "side": 1,
+      "message": "Some clarifications are needed:\n\n- we should check, that we do not add the same router 2 times\n- attached router list can contain more, than 2 routers\n- for each neutron port we take only the last received IPv4 address and the last received IPv6 address, so IPs retrieved from a neutron port would be always limited to 2.\n\nAnd, probably, we have to check here that retrieved IPs have different Ethertypes  ?",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_986da735",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-15T10:48:24Z",
+      "side": 1,
+      "message": "We should create only 1 VPN port instance, which should handle 2 addresses: the last IPv4 and the last IPv6 addresses",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_d8772f01",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-15T10:48:24Z",
+      "side": 1,
+      "message": "add new attribute to VPN port object",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_0f84e5d2",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
