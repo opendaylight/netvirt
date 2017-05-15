@@ -67,6 +67,7 @@ import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
@@ -107,6 +108,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -129,6 +131,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private final IInterfaceManager interfaceManager;
     private final IdManagerService idManager;
     private final ElanForwardingEntriesHandler elanForwardingEntriesHandler;
+    private INeutronVpnManager neutronVpnManager;
     private ElanL2GatewayUtils elanL2GatewayUtils;
     private ElanUtils elanUtils;
 
@@ -142,13 +145,15 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     @Inject
     public ElanInterfaceManager(final DataBroker dataBroker, final IdManagerService managerService,
                                 final IMdsalApiManager mdsalApiManager, IInterfaceManager interfaceManager,
-                                final ElanForwardingEntriesHandler elanForwardingEntriesHandler) {
+                                final ElanForwardingEntriesHandler elanForwardingEntriesHandler,
+                                final INeutronVpnManager neutronVpnManager) {
         super(ElanInterface.class, ElanInterfaceManager.class);
         this.broker = dataBroker;
         this.idManager = managerService;
         this.mdsalManager = mdsalApiManager;
         this.interfaceManager = interfaceManager;
         this.elanForwardingEntriesHandler = elanForwardingEntriesHandler;
+        this.neutronVpnManager = neutronVpnManager;
     }
 
     /**
@@ -743,7 +748,14 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         futures.add(ElanUtils.waitForTransactionToComplete(writeFlowGroupTx));
         if (isInterfaceOperational && !interfaceManager.isExternalInterface(interfaceName)) {
             //At this point, the interface is operational and D/SMAC flows have been configured, mark the port active
-            NeutronUtils.updatePortStatus(elanInterface.getName(), NeutronUtils.PORT_STATUS_ACTIVE, broker);
+            try {
+                Port neutronPort = neutronVpnManager.getNeutronPort(interfaceName);
+                if (neutronPort != null) {
+                    NeutronUtils.updatePortStatus(interfaceName, NeutronUtils.PORT_STATUS_ACTIVE, broker);
+                }
+            } catch (IllegalArgumentException ex) {
+                LOG.trace("Interface: {} is not part of Neutron Network", interfaceName);
+            }
         }
     }
 
