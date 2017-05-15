@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_18c89721",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-15T11:33:02Z",
+      "side": 1,
+      "message": "Why are we even getting an update if origin \u003d\u003d update?",
+      "range": {
+        "startLine": 272,
+        "startChar": 8,
+        "endLine": 274,
+        "endChar": 9
+      },
+      "revId": "9f5e3cc5afd459b2dfe410896b52acdde2b543e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_58e97f7f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 820,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-15T11:33:02Z",
+      "side": 1,
+      "message": "I dont think even this is required. Please let me know why this is added? There is a vpnExtraRoutes.stream() in the parent caller... In such cases will you get a null?",
+      "range": {
+        "startLine": 820,
+        "startChar": 16,
+        "endLine": 820,
+        "endChar": 38
+      },
+      "revId": "9f5e3cc5afd459b2dfe410896b52acdde2b543e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_f8f31371",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 821,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-15T11:33:02Z",
+      "side": 1,
+      "message": "why do you need this check? If size was 0, the call would not have come inside checkCreateLocalFibEntry() right?",
+      "range": {
+        "startLine": 821,
+        "startChar": 20,
+        "endLine": 821,
+        "endChar": 45
+      },
+      "revId": "9f5e3cc5afd459b2dfe410896b52acdde2b543e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_788603bb",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 992,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-15T11:33:02Z",
+      "side": 1,
+      "message": "use primitive",
+      "range": {
+        "startLine": 992,
+        "startChar": 8,
+        "endLine": 992,
+        "endChar": 15
+      },
+      "revId": "9f5e3cc5afd459b2dfe410896b52acdde2b543e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_d893aff8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1058,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-15T11:33:02Z",
+      "side": 1,
+      "message": "use primitive",
+      "range": {
+        "startLine": 1058,
+        "startChar": 73,
+        "endLine": 1058,
+        "endChar": 80
+      },
+      "revId": "9f5e3cc5afd459b2dfe410896b52acdde2b543e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_d8aa8f18",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1082,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-15T11:33:02Z",
+      "side": 1,
+      "message": "Why is this boolean required? \nIf I remember clearly, a VrfEntryListener().update was only doing a createFibEntry() and not calling the deleteFibEntry(). This was causing problems with the refCount in the vpnNextHop.\nIs this boolean added to compensate for that problem?\nIf yes, then how does this change help? Following are the concerns:\n\n1) When there is a router-update for extra-route, delete is not called, and only create is called. This leads to unnecessary increase in flowRefCount. But the above check does not handle this situation right? You need to compensate for that extra flowRefCount right? \n\n2) If you are only deleting local adjacency, only if its not an extraroute, how will you reduce the refCount for extra-Route? Because I see that the refCount increment if its extra route is still present in checkCreateLocalFibEntry() right? You have not changed it. In that case, for a scenario where both primary adj and extra route exists, the group will never get deleted right?\n\nFinally, a proper boolean based approach is acceptable to fix this issue for now. But please add appropriate comments, as the right fix for this would need considerable refactoring(I think), and SHOULD BE done in the future.",
+      "range": {
+        "startLine": 1082,
+        "startChar": 17,
+        "endLine": 1082,
+        "endChar": 29
+      },
+      "revId": "9f5e3cc5afd459b2dfe410896b52acdde2b543e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_d84e0fc1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1732,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-15T11:33:02Z",
+      "side": 1,
+      "message": "refreshVrfEntry() does not upadate the vrfEntry. vrfEntry has to be updated as well.\nrefreshVrfEntry() cannot be a substitute for add/remove fib entry.\nWe will need to think about this piece of code a bit more. @Manu : Could you please refresh my memory as to why the refreshVrfEntry() was written in the first place? \n\nI see that addOrUpdateFibEntry() does a syncUpdate, merge. I think even this has to trigger a vrfEntry update event.",
+      "range": {
+        "startLine": 1732,
+        "startChar": 20,
+        "endLine": 1732,
+        "endChar": 71
+      },
+      "revId": "9f5e3cc5afd459b2dfe410896b52acdde2b543e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
