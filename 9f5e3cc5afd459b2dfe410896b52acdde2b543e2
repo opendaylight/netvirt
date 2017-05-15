@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "ba068154_c803deb6",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 820,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-05-15T17:21:07Z",
+      "side": 1,
+      "message": "The checkCreateLocalFibEntry() method is called for the non-extra routes prefixes too. In that case the vpnExtraRoutes is passed as null.",
+      "parentUuid": "ba068154_58e97f7f",
+      "range": {
+        "startLine": 820,
+        "startChar": 16,
+        "endLine": 820,
+        "endChar": 38
+      },
+      "revId": "9f5e3cc5afd459b2dfe410896b52acdde2b543e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_f8f31371",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 6
@@ -59,6 +83,30 @@
       "writtenOn": "2017-05-15T11:33:02Z",
       "side": 1,
       "message": "why do you need this check? If size was 0, the call would not have come inside checkCreateLocalFibEntry() right?",
+      "range": {
+        "startLine": 821,
+        "startChar": 20,
+        "endLine": 821,
+        "endChar": 45
+      },
+      "revId": "9f5e3cc5afd459b2dfe410896b52acdde2b543e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_282c2a47",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 821,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-05-15T17:21:07Z",
+      "side": 1,
+      "message": "The checkCreateLocalFibEntry() method is called for the non-extra routes prefixes too. In that case the vpnExtraRoutes is passed as null. So we also check for the size as we wont create loadbalancing group if the extra route is present just behind one nexthop.",
+      "parentUuid": "ba068154_f8f31371",
       "range": {
         "startLine": 821,
         "startChar": 20,
@@ -94,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "ba068154_285eeae6",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 992,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-05-15T17:21:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_788603bb",
+      "range": {
+        "startLine": 992,
+        "startChar": 8,
+        "endLine": 992,
+        "endChar": 15
+      },
+      "revId": "9f5e3cc5afd459b2dfe410896b52acdde2b543e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_d893aff8",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 6
@@ -105,6 +177,30 @@
       "writtenOn": "2017-05-15T11:33:02Z",
       "side": 1,
       "message": "use primitive",
+      "range": {
+        "startLine": 1058,
+        "startChar": 73,
+        "endLine": 1058,
+        "endChar": 80
+      },
+      "revId": "9f5e3cc5afd459b2dfe410896b52acdde2b543e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_4859aefd",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1058,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-05-15T17:21:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_d893aff8",
       "range": {
         "startLine": 1058,
         "startChar": 73,
@@ -140,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "ba068154_884b962a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1082,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-05-15T17:21:07Z",
+      "side": 1,
+      "message": "I\u0027ve done changes in createFibEntry() such that the flow reference count won\u0027t be increased in case of extra routes. Instead of calling the cratelocalnexthop(), now the groupId is directly computes and used in programming the  loadbalancing group. So, this flag has been introduced in the deleteFibEntry() so that the flow reference count is not decreased in case of the deletion of the extra route. Would add comments.",
+      "parentUuid": "ba068154_d8aa8f18",
+      "range": {
+        "startLine": 1082,
+        "startChar": 17,
+        "endLine": 1082,
+        "endChar": 29
+      },
+      "revId": "9f5e3cc5afd459b2dfe410896b52acdde2b543e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_d84e0fc1",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 6
@@ -151,6 +271,30 @@
       "writtenOn": "2017-05-15T11:33:02Z",
       "side": 1,
       "message": "refreshVrfEntry() does not upadate the vrfEntry. vrfEntry has to be updated as well.\nrefreshVrfEntry() cannot be a substitute for add/remove fib entry.\nWe will need to think about this piece of code a bit more. @Manu : Could you please refresh my memory as to why the refreshVrfEntry() was written in the first place? \n\nI see that addOrUpdateFibEntry() does a syncUpdate, merge. I think even this has to trigger a vrfEntry update event.",
+      "range": {
+        "startLine": 1732,
+        "startChar": 20,
+        "endLine": 1732,
+        "endChar": 71
+      },
+      "revId": "9f5e3cc5afd459b2dfe410896b52acdde2b543e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_28e38a08",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1732,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-05-15T17:21:07Z",
+      "side": 1,
+      "message": "In case of the extra route update when the newly updated extra routes are also present behind the same DPN there is no change in the odl-fib DS so the flows are not updated. To fix this, we implicitly call the refreshVrfEntry() method which would directly call createFibentries()",
+      "parentUuid": "ba068154_d84e0fc1",
       "range": {
         "startLine": 1732,
         "startChar": 20,
