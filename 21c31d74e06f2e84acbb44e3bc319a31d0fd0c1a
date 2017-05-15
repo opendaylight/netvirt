@@ -22,6 +22,30 @@
       "revId": "21c31d74e06f2e84acbb44e3bc319a31d0fd0c1a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_1b5d2e22",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/EvpnElanInstanceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-05-15T19:55:00Z",
+      "side": 1,
+      "message": "in this case I am not sure if a key can be returned that is empty, so the null check might be enough. Also not a bad idea to use isNullOrEmpty to be extra careful.",
+      "parentUuid": "ba068154_28ed4ac4",
+      "range": {
+        "startLine": 60,
+        "startChar": 8,
+        "endLine": 60,
+        "endChar": 31
+      },
+      "revId": "21c31d74e06f2e84acbb44e3bc319a31d0fd0c1a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
