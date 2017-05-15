@@ -88,6 +88,23 @@
     },
     {
       "key": {
+        "uuid": "ba068154_182d3747",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-15T09:58:44Z",
+      "side": 1,
+      "message": "There is a 2 router configs for each listed use-case:\n\n#1. In OpenStack virtual infrastructure we have 2 routers attached to the same L3VPN instance: the 1st with one  IPv4 port and the 2nd with one IPv6 port\n\n#2. In OpenStack virtual infrastructure we have only router attached to L3VPN instance: there are 1 IPv4 port and 1 IPv6 port in this router.",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_efec01ca",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -180,6 +197,23 @@
     },
     {
       "key": {
+        "uuid": "ba068154_5827bf64",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-15T09:58:44Z",
+      "side": 1,
+      "message": "We would like to rely on two specific router configurations:\n\n#1. We have 2 routers in OpenStack virtual infrastructure, attached to the same L3VPN: the 1-st router with only one IPv4 port, the 2-nd router with only one IPv6 port.\n\n\n#2. We have 1 router, attached to L3VPN instance with only 2 ports: one port for IPv4 subnetwork,  and another port for IPv6 subnetwork.",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_2ff56983",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -197,6 +231,23 @@
         "endLine": 84,
         "endChar": 39
       },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_9820074b",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-15T09:58:44Z",
+      "side": 1,
+      "message": "We need to provide the second scheme: 1 router with 2 ports, and description for it",
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -260,6 +311,23 @@
     },
     {
       "key": {
+        "uuid": "ba068154_18d4171f",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-15T09:58:44Z",
+      "side": 1,
+      "message": "except that the a single L3VPN instance for both IPv4 and IPv6 subnets",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_a2bb23c3",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -271,6 +339,91 @@
       "writtenOn": "2017-05-11T16:51:50Z",
       "side": 1,
       "message": "s/The same VPN/The same L3VPN instance/",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_78e4430d",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-15T09:58:44Z",
+      "side": 1,
+      "message": "We need to provide here some info about the use-case with 1 router",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_78cba372",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-15T09:58:44Z",
+      "side": 1,
+      "message": "\"Any dual stack VM with a IPv4 and IPv6 subnet will be associated with 2 router (one for IPv4 and the other for IPv6).\"\n\nProbably here we should be more general:\n\n\"Any dual stack VM from a IPv4 and IPv6 subnets will be associated with router/routers\".",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_b8c50b5d",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-15T09:58:44Z",
+      "side": 1,
+      "message": "s/router/routers/",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_9895a742",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-15T09:58:44Z",
+      "side": 1,
+      "message": "s/the address family/IPv6 address family/\n\ns/and subsequent address family information/and subsequent IPv6 address family information/",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_78928358",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-15T09:58:44Z",
+      "side": 1,
+      "message": "need to provide info for the second use-case with one router for IPv4 and IPv6 ports",
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -294,6 +447,40 @@
     },
     {
       "key": {
+        "uuid": "ba068154_b89ceb6a",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-15T09:58:44Z",
+      "side": 1,
+      "message": "\"This means that first the NeutronVPN module will detect the configuration change\"\n\nDo you mean:\n\n\"This means that,  NeutronVPN module will detect a configuration change the first\"\n\n?",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_7879e32e",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-15T09:58:44Z",
+      "side": 1,
+      "message": "\"time\" - should be probably removed ?",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_41187281",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -305,6 +492,23 @@
       "writtenOn": "2017-05-12T15:54:53Z",
       "side": 1,
       "message": "Maybe after this sentence it would be useful to add:\n\nWhen the 1-st subnet IPv4 or IPv6 was attached to VPN, associated QBGP context must be created as well. And respectively, when the last subnet was removed, we must to remove associated QBGP context.",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_f894b338",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-15T09:58:44Z",
+      "side": 1,
+      "message": "For the use-case with 2 routers, each router associated to 1 VPN port instance, lied with L3VPN instance. This will claim 2 addVRF() calls:",
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
