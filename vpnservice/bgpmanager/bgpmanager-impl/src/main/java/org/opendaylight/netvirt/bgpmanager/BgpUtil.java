@@ -172,14 +172,33 @@ public class BgpUtil {
 
     // Convert ProtocolType to thrift protocol_type
     public static protocol_type convertToThriftProtocolType(BgpControlPlaneType protocolType) {
-        // TODO: add implementation
-        return protocol_type.PROTOCOL_ANY;
+        switch (protocolType) {
+            case PROTOCOLLU:
+                return protocol_type.PROTOCOL_LU;
+            case PROTOCOLL3VPN:
+                return protocol_type.PROTOCOL_L3VPN;
+            case PROTOCOLEVPN:
+                return protocol_type.PROTOCOL_EVPN;
+            default:
+                return protocol_type.PROTOCOL_ANY;
+        }
     }
 
     // Convert EncapType to thrift encap_type
     public static encap_type convertToThriftEncapType(EncapType encapType) {
-        // TODO: add implementation
-        return encap_type.MPLS;
+        switch (encapType) {
+            case L2TPV3OVERIP:
+                return encap_type.L2TPV3_OVER_IP;
+            case GRE:
+                return encap_type.GRE;
+            case IPINIP:
+                return encap_type.IP_IN_IP;
+            case VXLAN:
+                return encap_type.VXLAN;
+            case MPLS:
+            default:
+                return encap_type.MPLS;
+        }
     }
 
     static VpnInstanceOpDataEntry getVpnInstanceOpData(DataBroker broker, String rd) throws InterruptedException,
