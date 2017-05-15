@@ -22,6 +22,8 @@ import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
 import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.neutronvpn.NeutronvpnManagerImpl;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
@@ -65,6 +67,7 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         bind(ElanStatusMonitor.class).toInstance(Mockito.mock(ElanStatusMonitor.class));
         bind(EvpnUtils.class).toInstance(Mockito.mock(EvpnUtils.class));
         bind(EntityOwnershipService.class).toInstance(Mockito.mock(EntityOwnershipService.class));
+        bind(INeutronVpnManager.class).toInstance(Mockito.mock(NeutronvpnManagerImpl.class));
     }
 
     /**
