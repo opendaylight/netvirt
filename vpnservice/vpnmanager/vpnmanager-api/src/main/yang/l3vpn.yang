@@ -813,7 +813,7 @@ module l3vpn {
       leaf scheduled-for-remove {
         type boolean;
       }
-      leaf is-router-interface {
+      leaf router-interface {
           type boolean;
       }
     }

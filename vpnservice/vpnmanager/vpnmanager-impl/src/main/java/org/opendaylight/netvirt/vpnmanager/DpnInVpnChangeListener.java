@@ -17,7 +17,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OdlL3vpnListener;
@@ -44,21 +43,6 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
         AddEventData addEventData = notification.getAddEventData();
         String vpnName = addEventData.getVpnName();
         BigInteger dpId = addEventData.getDpnId();
-        setupSubnetGwMacEntriesOnDpn(vpnName, dpId, NwConstants.ADD_FLOW);
-    }
-
-    private void setupSubnetGwMacEntriesOnDpn(String vpnName, BigInteger dpId, int addOrRemove) {
-        List<String> macAddresses = VpnUtil.getAllSubnetGatewayMacAddressesforVpn(dataBroker, vpnName);
-        if (macAddresses.isEmpty()) {
-            return;
-        }
-        long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-        WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-        for (String gwMacAddress: macAddresses) {
-            VpnUtil.addGwMacIntoTx(mdsalManager, gwMacAddress, writeTx, addOrRemove, vpnId, dpId,
-                    VpnConstants.INVALID_ID);
-        }
-        writeTx.submit();
     }
 
     public void onRemoveDpnEvent(RemoveDpnEvent notification) {
@@ -98,7 +82,6 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
                 }
             }
         }
-        setupSubnetGwMacEntriesOnDpn(vpnName, dpnId, NwConstants.DEL_FLOW);
     }
 
     protected void deleteDpn(Collection<VpnToDpnList> vpnToDpnList, String rd, WriteTransaction writeTxn) {
