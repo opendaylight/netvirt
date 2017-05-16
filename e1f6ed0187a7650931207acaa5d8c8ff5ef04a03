@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_d44ff390",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-05-16T13:33:54Z",
+      "side": 1,
+      "message": "I hope this should be ipv4-public-subnet?",
+      "range": {
+        "startLine": 346,
+        "startChar": 67,
+        "endLine": 346,
+        "endChar": 85
+      },
+      "revId": "e1f6ed0187a7650931207acaa5d8c8ff5ef04a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
