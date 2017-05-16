@@ -2247,7 +2247,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         VpnInterfaceBuilder vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName))
                 .setName(infName)
                 .setVpnInstanceName(vpnId.getValue())
-                .setIsRouterInterface(isRouterInterface);
+                .setRouterInterface(isRouterInterface);
         if (adjacencies != null) {
             vpnb.addAugmentation(Adjacencies.class, adjacencies);
         }

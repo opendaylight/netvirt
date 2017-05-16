@@ -165,6 +165,15 @@ public class InterfaceUtils {
         return macAddressOptional;
     }
 
+    public static Optional<String> getMacAddressFromInterfaceState(Interface ifState) {
+        Optional<String> macAddressOptional = Optional.absent();
+        PhysAddress macAddress = ifState.getPhysAddress();
+        if (macAddress != null) {
+            macAddressOptional = Optional.of(macAddress.getValue());
+        }
+        return macAddressOptional;
+    }
+
     public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces
         .rev140508.interfaces.Interface> getInterfaceIdentifier(
         String interfaceName) {
