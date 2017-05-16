@@ -62,6 +62,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv4;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
@@ -139,6 +140,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 @Singleton
 public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, VrfEntryListener>
@@ -2437,11 +2439,34 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_FIB_TABLE, flowRef, priority, flowRef,
             0, 0, NwConstants.COOKIE_VM_FIB_TABLE, matches, instructions);
 
+
+        FlowEntity l3GwMacFlowEntity = buildL3vpnGatewayFlow(dpnId, routerMac.getValue(), vpnId);
+
         if (addOrRemove == NwConstants.ADD_FLOW) {
             mdsalManager.installFlow(flowEntity);
+            mdsalManager.installFlow(l3GwMacFlowEntity);
         } else {
             mdsalManager.removeFlow(flowEntity);
+            mdsalManager.removeFlow(l3GwMacFlowEntity);
+
         }
+    }
+
+    public static FlowEntity buildL3vpnGatewayFlow(BigInteger dpId, String gwMacAddress, long vpnId) {
+        List<MatchInfo> mkMatches = new ArrayList<>();
+        mkMatches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        mkMatches.add(new MatchEthernetDestination(new MacAddress(gwMacAddress)));
+        List<InstructionInfo> mkInstructions = new ArrayList<>();
+        mkInstructions.add(new InstructionGotoTable(NwConstants.L3_FIB_TABLE));
+        String flowId = getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, gwMacAddress);
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
+                flowId, 20, flowId, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, mkMatches, mkInstructions);
+        return flowEntity;
+    }
+
+    private static String getL3VpnGatewayFlowRef(short l3GwMacTable, BigInteger dpId, long vpnId, String gwMacAddress) {
+        return gwMacAddress + NwConstants.FLOWID_SEPARATOR + vpnId + NwConstants.FLOWID_SEPARATOR + dpId
+                + NwConstants.FLOWID_SEPARATOR + l3GwMacTable;
     }
 
     public void removeInterVPNLinkRouteFlows(final InterVpnLinkDataComposite interVpnLink,

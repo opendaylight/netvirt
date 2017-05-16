@@ -113,13 +113,6 @@
     <argument ref="entityOwnershipService" />
   </bean>
 
-  <bean id="subnetMacHandler"
-        class="org.opendaylight.netvirt.vpnmanager.SubnetMacHandler"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
-  </bean>
-
   <bean id="subnetRoutePacketInHandler"
         class="org.opendaylight.netvirt.vpnmanager.SubnetRoutePacketInHandler">
     <argument ref="dataBroker" />
