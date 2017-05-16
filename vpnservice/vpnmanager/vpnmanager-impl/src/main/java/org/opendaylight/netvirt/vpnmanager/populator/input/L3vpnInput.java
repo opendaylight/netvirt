@@ -18,6 +18,7 @@ public class L3vpnInput {
     private Adjacency nextHop;
     private String nextHopIp;
     private String gatewayMac;
+    private String subnetGatewayMacAddress;
     private Long l3vni;
     private String interfaceName;
     private String vpnName;
@@ -47,6 +48,10 @@ public class L3vpnInput {
 
     public String getGatewayMac() {
         return gatewayMac;
+    }
+
+    public String getSubnetGatewayMacAddress() {
+        return subnetGatewayMacAddress;
     }
 
     public Long getL3vni() {
@@ -111,6 +116,11 @@ public class L3vpnInput {
 
     public L3vpnInput setGatewayMac(String gatewayMac) {
         this.gatewayMac = gatewayMac;
+        return this;
+    }
+
+    public L3vpnInput setSubnetGatewayMacAddress(String subnetGatewayMacAddress) {
+        this.subnetGatewayMacAddress = subnetGatewayMacAddress;
         return this;
     }
 

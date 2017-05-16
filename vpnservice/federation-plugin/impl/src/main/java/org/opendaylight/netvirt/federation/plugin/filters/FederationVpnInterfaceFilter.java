@@ -49,8 +49,8 @@ public class FederationVpnInterfaceFilter implements FederationPluginFilter<VpnI
             LOG.trace("Interface {} filtered out. Reason: shadow interface", interfaceName);
             return FilterResult.DENY;
         }
-        Boolean isRouterInterface = vpnInterface.isIsRouterInterface();
-        if (isRouterInterface != null && vpnInterface.isIsRouterInterface()) {
+        Boolean isRouterInterface = vpnInterface.isRouterInterface();
+        if (isRouterInterface != null && vpnInterface.isRouterInterface()) {
             LOG.trace("Interface {} filtered out. Reason: router interface", interfaceName);
             return FilterResult.DENY;
         }
