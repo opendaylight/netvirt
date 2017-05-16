@@ -89,6 +89,11 @@
       <version>${ovsdb.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.opendaylight.ovsdb</groupId>
+      <artifactId>library</artifactId>
+      <version>${ovsdb.version}</version>
+    </dependency>
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>vpnmanager-api</artifactId>
       <version>${project.version}</version>
