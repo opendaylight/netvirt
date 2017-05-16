@@ -255,7 +255,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     futures.add(writeInvTxn.submit());
                     return futures;
                 });
-        } else if (Boolean.TRUE.equals(vpnInterface.isIsRouterInterface())) {
+        } else if (Boolean.TRUE.equals(vpnInterface.isRouterInterface())) {
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterface.getName(),
                 () -> {
@@ -556,6 +556,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             LOG.trace("NextHop for interface {} is {}", interfaceName, nhList);
         }
         Optional<String> gwMac = Optional.absent();
+        String vpnInterfaceSubnetGwMacAddress = null;
         VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, primaryRd);
         Long l3vni = vpnInstanceOpData.getL3vni();
         boolean isL3VpnOverVxLan = VpnUtil.isL3VpnOverVxLan(l3vni);
@@ -577,18 +578,33 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     VpnUtil.getPrefixToInterface(dpnId, interfaceName, prefix, nextHop.getSubnetId(),
                             isNatPrefix), true);
                 final Uuid subnetId = nextHop.getSubnetId();
-                setupGwMacIfRequired(dpnId, vpnName, interfaceName, vpnId, subnetId,
-                        writeInvTxn, NwConstants.ADD_FLOW, interfaceState);
                 final Optional<String> gatewayIp = VpnUtil.getVpnSubnetGatewayIp(dataBroker, subnetId);
                 if (gatewayIp.isPresent()) {
-                    gwMac = getGatewayMacAddressForInterface(vpnName, interfaceName, gatewayIp.get());
+                    gwMac = getMacAddressForSubnetIp(vpnName, interfaceName, gatewayIp.get());
                     if (gwMac.isPresent()) {
+                        // A valid mac-address is available for this subnet-gateway-ip
+                        // Use this for programming ARP_RESPONDER table here.  And save this
+                        // info into vpnInterface operational, so it can used in VrfEntryProcessor
+                        // to populate L3_GW_MAC_TABLE there.
                         addArpResponderFlow(dpnId, lportTag, vpnName, vpnId, interfaceName, subnetId,
                                 gwMac.get(), gatewayIp.get(), writeInvTxn);
+                        vpnInterfaceSubnetGwMacAddress = gwMac.get();
                     } else {
-                        LOG.warn("Gateway MAC for subnet ID {} could not be obtained, cannot create "
-                                        + "ARP responder flow for interface name {}, vpnName {}, gwIp {}",
-                                interfaceName, vpnName, gatewayIp.get());
+                        // A valid mac-address is not available for this subnet-gateway-ip
+                        // Use the connected-mac-address to configure ARP_RESPONDER Table.
+                        // Save this connected-mac-address as gateway-mac-address for the
+                        // VrfEntryProcessor to use this later to populate the L3_GW_MAC_TABLE.
+                        gwMac = InterfaceUtils.getMacAddressFromInterfaceState(interfaceState);
+                        if (gwMac.isPresent()) {
+                            VpnUtil.setupGwMacIfExternalVpn(dataBroker, mdsalManager, dpnId, interfaceName,
+                                    vpnId, writeInvTxn, NwConstants.ADD_FLOW, interfaceState);
+                            addArpResponderFlow(dpnId, lportTag, vpnName, vpnId, interfaceName, subnetId,
+                                    gwMac.get(), gatewayIp.get(), writeInvTxn);
+                        } else {
+                            LOG.error("Gateway MAC for subnet ID {} could not be obtained, cannot create "
+                                            + "ARP responder flow for interface name {}, vpnName {}, gwIp {}",
+                                    interfaceName, vpnName, gatewayIp.get());
+                        }
                     }
                 } else {
                     LOG.warn("Gateway IP for subnet ID {} could not be obtained, cannot create ARP responder flow "
@@ -619,8 +635,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     }
                 }
             }
+            // Please note that primary adjacency will use a subnet-gateway-mac-address that
+            // can be different from the gateway-mac-address within the VRFEntry as the
+            // gateway-mac-address is a superset.
             L3vpnInput input = new L3vpnInput().setNextHop(nextHop).setRd(rd).setVpnName(vpnName)
                     .setInterfaceName(interfaceName).setNextHopIp(nextHopIp).setPrimaryRd(primaryRd)
+                    .setSubnetGatewayMacAddress(vpnInterfaceSubnetGwMacAddress)
                     .setRouteOrigin(nextHop.isPrimaryAdjacency() ? RouteOrigin.LOCAL : RouteOrigin.STATIC);
             Adjacency operationalAdjacency = null;
             try {
@@ -1049,7 +1069,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     return futures;
                 });
 
-        } else if (Boolean.TRUE.equals(vpnInterface.isIsRouterInterface())) {
+        } else if (Boolean.TRUE.equals(vpnInterface.isRouterInterface())) {
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterface.getName(),
                 () -> {
@@ -1150,8 +1170,14 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         // This is a primary adjacency
                         nhList = nextHop.getNextHopIpList();
                         final Uuid subnetId = nextHop.getSubnetId();
-                        setupGwMacIfRequired(dpnId, vpnName, interfaceName, vpnId, subnetId,
-                                writeInvTxn, NwConstants.DEL_FLOW, interfaceState);
+                        if (nextHop.getSubnetGatewayMacAddress() == null) {
+                            // A valid mac-address was not available for this subnet-gateway-ip
+                            // So a connected-mac-address was used for this subnet and we need
+                            // to remove the flows here for the same here from the L3_GW_MAC_TABLE.
+                            VpnUtil.setupGwMacIfExternalVpn(dataBroker, mdsalManager, dpnId, interfaceName,
+                                    vpnId, writeInvTxn, NwConstants.DEL_FLOW, interfaceState);
+
+                        }
                         removeArpResponderFlow(dpnId, lportTag, subnetId, writeInvTxn);
                     }
 
@@ -1220,6 +1246,16 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         return routerGwMac;
     }
 
+    private Optional<String> getMacAddressForSubnetIp(String vpnName, String ifName, String ipAddress) {
+        VpnPortipToPort gwPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnName, ipAddress);
+        //Check if a router gateway interface is available for the subnet gw is so then use Router interface
+        // else use connected interface
+        if (gwPort != null && gwPort.isSubnetIp()) {
+            return Optional.of(gwPort.getMacAddress());
+        }
+        return Optional.absent();
+    }
+
     private void removeArpResponderFlow(final BigInteger dpId, final int lportTag, final Uuid subnetUuid,
                                         final WriteTransaction writeInvTxn) {
         final Optional<String> gwIp = VpnUtil.getVpnSubnetGatewayIp(dataBroker, subnetUuid);
@@ -1228,20 +1264,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             final String flowId = ArpResponderUtil.getFlowID(lportTag, gwIp.get());
             ArpResponderUtil.removeFlow(mdsalManager, writeInvTxn, dpId, flowId);
         }
-    }
-
-    private void setupGwMacIfRequired(BigInteger dpId, String vpnInstanceName, final String vpnInterfaceName,
-                                      long vpnId, final Uuid subnetUuid, WriteTransaction writeInvTxn,
-                                      int addOrRemove, Interface interfaceState) {
-        // check for router is present for the given vpn interface, if present return it immediately and
-        // do not need to proceed with adding/removing interface mac as l3_gwmac_table flow entry
-        Optional<VpnPortipToPort> routerInterfaceOptional = VpnUtil.getRouterInterfaceForVpnInterface(dataBroker,
-                vpnInterfaceName, vpnInstanceName, subnetUuid);
-        if (routerInterfaceOptional.isPresent() && routerInterfaceOptional.get().getMacAddress() != null) {
-            return;
-        }
-        VpnUtil.setupGwMacIfExternalVpn(dataBroker, mdsalManager, dpId, vpnInterfaceName,
-                vpnId, writeInvTxn, addOrRemove, interfaceState);
     }
 
     // TODO Clean up the exception handling
