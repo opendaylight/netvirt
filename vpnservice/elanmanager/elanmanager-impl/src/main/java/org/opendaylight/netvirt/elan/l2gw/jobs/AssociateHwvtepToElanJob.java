@@ -20,6 +20,7 @@ import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
+import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
@@ -96,12 +97,21 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
         final String logicalSwitchName = ElanL2GatewayUtils.getLogicalSwitchFromElan(
                 elanInstance.getElanInstanceName());
         String segmentationId = ElanUtils.getVxlanSegmentationId(elanInstance).toString();
+        String replicationMode = "";
 
         LOG.trace("logical switch {} is created on {} with VNI {}", logicalSwitchName,
                 l2GatewayDevice.getHwvtepNodeId(), segmentationId);
         NodeId hwvtepNodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
+        String dbVersion = HwvtepUtils.getDbVersion(broker,hwvtepNodeId);
+        if (SouthboundUtils.compareDbVersionToMinVersion(dbVersion, "1.6.0")) {
+            replicationMode = "source_node";
+        }
+
+        LOG.trace("logical switch {} has schema version {}, replication mode set to {}", logicalSwitchName,
+                dbVersion, replicationMode);
+
         LogicalSwitches logicalSwitch = HwvtepSouthboundUtils.createLogicalSwitch(logicalSwitchName,
-                elanInstance.getDescription(), segmentationId);
+                elanInstance.getDescription(), segmentationId, replicationMode);
 
         ListenableFuture<Void> lsCreateFuture = HwvtepUtils.addLogicalSwitch(broker, hwvtepNodeId, logicalSwitch);
         Futures.addCallback(lsCreateFuture, new FutureCallback<Void>() {
