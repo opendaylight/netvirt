@@ -118,8 +118,10 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         }
         List<String> nextHopList = (adjNextHop != null && !adjNextHop.isEmpty()) ? adjNextHop
                 : (nextHopIp == null ? Collections.emptyList() : Collections.singletonList(nextHopIp));
+
         return new AdjacencyBuilder(nextHop).setLabel(label).setNextHopIpList(nextHopList)
                 .setIpAddress(prefix).setVrfId(rd).setKey(new AdjacencyKey(prefix))
-                .setPrimaryAdjacency(nextHop.isPrimaryAdjacency()).build();
+                .setPrimaryAdjacency(nextHop.isPrimaryAdjacency())
+                .setSubnetGatewayMacAddress(nextHop.getSubnetGatewayMacAddress()).build();
     }
 }
