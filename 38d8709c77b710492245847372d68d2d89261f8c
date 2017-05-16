@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_3ea0e042",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 674,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-05-16T06:56:49Z",
+      "side": 1,
+      "message": "The vlan provider interface is external interface. The Network/Elan is of type internal.",
+      "parentUuid": "ba068154_d84baf57",
+      "range": {
+        "startLine": 674,
+        "startChar": 0,
+        "endLine": 674,
+        "endChar": 84
+      },
+      "revId": "38d8709c77b710492245847372d68d2d89261f8c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
