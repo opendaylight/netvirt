@@ -271,6 +271,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     String ipValue = String.valueOf(portIP.getIpAddress().getValue());
                     nvpnManager.updateSubnetNodeWithFixedIp(portIP.getSubnetId(), routerId,
                             routerPort.getUuid(), ipValue, routerPort.getMacAddress().getValue());
+                    nvpnManager.createVpnInterface(vpnId, routerId, routerPort, null);
                     nvpnManager.addSubnetToVpn(vpnId, portIP.getSubnetId());
                     nvpnNatManager.handleSubnetsForExternalRouter(routerId, dataBroker);
                     WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
@@ -281,8 +282,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     LOG.trace("NeutronPortChangeListener Add Subnet Gateway IP {} MAC {} Interface {} VPN {}",
                             ipValue, routerPort.getMacAddress(),
                             routerPort.getUuid().getValue(), vpnId.getValue());
-                    // ping responder for router interfaces
-                    nvpnManager.createVpnInterface(vpnId, routerId, routerPort, null);
+
                 }
             } else {
                 LOG.error("Neutron network {} corresponding to router interface port {} for neutron router {} already"
