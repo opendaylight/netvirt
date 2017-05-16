@@ -26,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.opendaylight.ovsdb.lib.notation.Version;
 /**
 * Created by ekvsver on 4/15/2016.
 */
@@ -96,12 +96,22 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
         final String logicalSwitchName = ElanL2GatewayUtils.getLogicalSwitchFromElan(
                 elanInstance.getElanInstanceName());
         String segmentationId = ElanUtils.getVxlanSegmentationId(elanInstance).toString();
+        String replicationMode = "";
 
         LOG.trace("logical switch {} is created on {} with VNI {}", logicalSwitchName,
                 l2GatewayDevice.getHwvtepNodeId(), segmentationId);
         NodeId hwvtepNodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
+
+        Version minVersion = Version.fromString("1.6.0");
+        Version dbVersion = Version.fromString(HwvtepUtils.getDbVersion(broker, hwvtepNodeId));
+        if (dbVersion.compareTo(minVersion) >= 0 ) {
+           replicationMode = "source_node";
+        }
+        LOG.trace("logical switch {} has schema version {}, replication mode set to {}", logicalSwitchName,
+                dbVersion, replicationMode);
+
         LogicalSwitches logicalSwitch = HwvtepSouthboundUtils.createLogicalSwitch(logicalSwitchName,
-                elanInstance.getDescription(), segmentationId);
+                elanInstance.getDescription(), segmentationId, replicationMode);
 
         ListenableFuture<Void> lsCreateFuture = HwvtepUtils.addLogicalSwitch(broker, hwvtepNodeId, logicalSwitch);
         Futures.addCallback(lsCreateFuture, new FutureCallback<Void>() {
