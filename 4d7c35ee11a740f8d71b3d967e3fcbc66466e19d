@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_b4db4f1a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2442,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-05-16T12:46:31Z",
+      "side": 1,
+      "message": "removeFlow",
+      "revId": "4d7c35ee11a740f8d71b3d967e3fcbc66466e19d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
