@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_f4603737",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-16T13:08:04Z",
+      "side": 1,
+      "message": "It is not clear to me why this changed to Update from Write?  \n\nI realize this method is now called from 3 places (from vrfentrylistener, getbucketsforlocalnexthop and then evpnprogrammer). \n\nSine you are still incrementing the flowCount at L385 and using that same \u0027nh\u0027 in Update, why is the change required?",
+      "revId": "dad7412e6f0a56835f3cdbd3d3f19ddd836c12d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_345bdf88",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1081,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-16T13:08:04Z",
+      "side": 1,
+      "message": "Removal of one of the nextHops for an active extraroute will only manage the existing LB group.\n\nSo shouldn\u0027t removal of an extra-route prefix just remove the load-balancing group altogether also?",
+      "revId": "dad7412e6f0a56835f3cdbd3d3f19ddd836c12d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
