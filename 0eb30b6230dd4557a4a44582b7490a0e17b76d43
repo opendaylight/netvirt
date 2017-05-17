@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "ba068154_cef47fd1",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-05-17T08:30:52Z",
+      "side": 1,
+      "message": "Are we doing anything specific to support L2 switching?",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_ef87e10d",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -151,6 +168,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_0effa7ab",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-05-17T08:30:52Z",
+      "side": 1,
+      "message": "Me too.. It would be better if we can say what all out of the 6 is supported today, what would be supported as part of this feature and what is out of scope",
+      "parentUuid": "ba068154_af095997",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_ef036171",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -208,6 +243,24 @@
       "writtenOn": "2017-05-15T09:58:44Z",
       "side": 1,
       "message": "We would like to rely on two specific router configurations:\n\n#1. We have 2 routers in OpenStack virtual infrastructure, attached to the same L3VPN: the 1-st router with only one IPv4 port, the 2-nd router with only one IPv6 port.\n\n\n#2. We have 1 router, attached to L3VPN instance with only 2 ports: one port for IPv4 subnetwork,  and another port for IPv6 subnetwork.",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_11ed06f0",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-05-17T08:30:52Z",
+      "side": 1,
+      "message": "So dont we support a case where we have one router with 2 subnets - one ipv4 and ipv6?\nAlso can we have bgpvpn without a router with ipv6 subnets for inter subnet routing?",
+      "parentUuid": "ba068154_5827bf64",
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -413,6 +466,23 @@
     },
     {
       "key": {
+        "uuid": "ba068154_8e71d7e2",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-05-17T08:30:52Z",
+      "side": 1,
+      "message": "Why do we need to have afi in addVrf for IPv6.? Cant we have it only in pushRoute?",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_78928358",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -577,6 +647,23 @@
       "writtenOn": "2017-05-09T13:47:24Z",
       "side": 1,
       "message": "Is late for Carbon isn\u0027t it?",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_b1acfaa1",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-05-17T08:30:52Z",
+      "side": 1,
+      "message": "Do we support subnets associated to VPN directly? In IPV4 its supported",
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
