@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_6fe10ad0",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 814,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-17T17:59:23Z",
+      "side": 1,
+      "message": "please see comments below and apply the concept here.",
+      "revId": "3f689c2556363d9236dc45db3679f6aabbed4a3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_afebf2ae",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 817,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-17T17:59:23Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "3f689c2556363d9236dc45db3679f6aabbed4a3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_2fc0a229",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 836,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-17T17:59:23Z",
+      "side": 1,
+      "message": "a logged error statement must be cloud admin friendly... So we should not be referring function names here..  \n\nWe should just Log error\n\"Unable to retrieve output actions on Non-NAPT switch for router {} towards NaptSwitch via tunnel interface {}\"",
+      "revId": "3f689c2556363d9236dc45db3679f6aabbed4a3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_8fdeee0f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 840,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-17T17:59:23Z",
+      "side": 1,
+      "message": "Unable to obtain primary tunnel interface to Napt-Switch {}  from Non-Napt switch {}",
+      "revId": "3f689c2556363d9236dc45db3679f6aabbed4a3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
