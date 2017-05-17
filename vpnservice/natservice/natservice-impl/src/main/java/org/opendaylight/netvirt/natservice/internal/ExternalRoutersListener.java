@@ -854,6 +854,14 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         if(ifNamePrimary != null) {
             LOG.debug("NAT Service : On Non- Napt switch , Primary Tunnel interface is {}", ifNamePrimary);
             listActionInfoPrimary = NatUtil.getEgressActionsForInterface(interfaceManager, ifNamePrimary, routerId);
+            if (listActionInfoPrimary == null || listActionInfoPrimary.isEmpty()) {
+                LOG.error("Unable to retrieve output actions on Non-NAPT switch {} for router {} towards "
+                        + "Napt-switch {} via tunnel interface {}", dpnId, routerName, primarySwitchId,
+                        ifNamePrimary);
+            }
+        } else {
+            LOG.error("Unable to obtain primary tunnel interface to Napt-Switch {} from Non-Napt switch {} for "
+                    + "router {}", primarySwitchId, dpnId, routerName);
         }
         BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
 
@@ -870,6 +878,14 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         if (ifNamePrimary != null) {
             LOG.debug("NAT Service : On Non- Napt switch , Primary Tunnel interface is {}", ifNamePrimary);
             listActionInfoPrimary = NatUtil.getEgressActionsForInterface(interfaceManager, ifNamePrimary, routerId);
+            if (listActionInfoPrimary == null || listActionInfoPrimary.isEmpty()) {
+                LOG.error("Unable to retrieve output actions on Non-NAPT switch {} for router {} towards "
+                        + "Napt-switch {} via tunnel interface {}", nonNaptSwitchId, routerName, primarySwitchId,
+                        ifNamePrimary);
+            }
+        } else {
+            LOG.error("Unable to obtain primary tunnel interface to Napt-Switch {} from Non-Napt switch {} for "
+                    + "router {}", primarySwitchId, nonNaptSwitchId, routerName);
         }
         BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
 
