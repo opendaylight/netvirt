@@ -35,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.NetvirtsfcAclActions;
@@ -112,11 +113,11 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             return Collections.emptySet();
         }
 
-        String destinationIp = sfcProvider.getFirstHopSfInterfaceFromRsp(rsp)
+        String firstHopIp = sfcProvider.getFirstHopSfInterfaceFromRsp(rsp)
                 .flatMap(geniusProvider::getIpFromInterfaceName)
                 .orElse(null);
 
-        if (Objects.isNull(destinationIp)) {
+        if (Objects.isNull(firstHopIp)) {
             LOG.trace("Could not acquire a valid first RSP hop destination ip");
             return Collections.emptySet();
         }
@@ -137,32 +138,48 @@ public class ConfigurationClassifierImpl implements ClassifierState {
         LOG.trace("Got classifier nodes and interfaces: {}", nodeToInterfaces);
 
         Set<ClassifierRenderableEntry> entries = new HashSet<>();
-        nodeToInterfaces.entrySet().forEach(nodeIdListEntry -> {
-            NodeId nodeId = nodeIdListEntry.getKey();
-            nodeIdListEntry.getValue().forEach(interfaceKey -> {
+        nodeToInterfaces.forEach((nodeId, ifaces) -> {
+            // Get node info
+            DpnIdType dpnIdType = new DpnIdType(OpenFlow13Provider.getDpnIdFromNodeId(nodeId));
+            List<String> nodeIps = geniusProvider.getIpFromDpnId(dpnIdType).stream()
+                    .map(IpAddress::getIpv4Address)
+                    .filter(Objects::nonNull)
+                    .map(Ipv4Address::getValue)
+                    .collect(Collectors.toList());
+            String nodeIp = nodeIps.isEmpty() ? null : nodeIps.get(0);
+
+            if (nodeIp == null) {
+                LOG.trace("Could not get IP address for node {}, skipping", nodeId.getValue());
+                return;
+            }
+
+            // Add entries that are not based on ingress or egress interface
+            entries.add(ClassifierEntry.buildNodeEntry(nodeId));
+            entries.add(ClassifierEntry.buildPathEntry(
+                    nodeId,
+                    nsp,
+                    nodeIps.contains(firstHopIp) ? null : firstHopIp));
+
+            // Add entries based on ingress interface
+            ifaces.forEach(interfaceKey -> {
                 entries.add(ClassifierEntry.buildIngressEntry(interfaceKey));
                 entries.add(ClassifierEntry.buildMatchEntry(
                         nodeId,
                         geniusProvider.getNodeConnectorIdFromInterfaceName(interfaceKey.getName()).get(),
                         matches,
                         nsp,
-                        nsi,
-                        destinationIp));
+                        nsi));
             });
-            entries.add(ClassifierEntry.buildNodeEntry(nodeId));
-
-            // Get the nodeIp from the NodeId
-            DpnIdType dpnIdType = new DpnIdType(OpenFlow13Provider.getDpnIdFromNodeId(nodeId));
-            List<IpAddress> nodeIps = geniusProvider.getIpFromDpnId(dpnIdType);
-            String nodeIp = nodeIps.isEmpty() ? null : nodeIps.get(0).getIpv4Address().getValue();
-            entries.add(ClassifierEntry.buildPathEntry(nodeIdListEntry.getKey(), nsp, nodeIp));
 
             // Egress services must bind to egress ports. Since we dont know before-hand what
             // the egress ports will be, we will bind on all switch ports. If the packet
             // doesnt have NSH, it will be returned to the the egress dispatcher table.
             List<String> interfaceUuidStrList = geniusProvider.getInterfacesFromNode(nodeId);
-            interfaceUuidStrList.forEach(interfaceUuidStr ->
-                entries.add(ClassifierEntry.buildEgressEntry(new InterfaceKey(interfaceUuidStr))));
+            interfaceUuidStrList.forEach(interfaceUuidStr -> {
+                InterfaceKey interfaceKey = new InterfaceKey(interfaceUuidStr);
+                String remoteIp = geniusProvider.getRemoteIpAddress(interfaceUuidStr);
+                entries.add(ClassifierEntry.buildEgressEntry(interfaceKey, remoteIp == null ? nodeIp : remoteIp));
+            });
         });
 
         return entries;
