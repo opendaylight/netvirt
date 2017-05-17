@@ -267,6 +267,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_4f6366dc",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-17T17:06:10Z",
+      "side": 1,
+      "message": "We donot support in this Spec a router with both IPv4 and IPv6 networks attached to it...\n\nWhy that need not be supported for our use-case is when you want to have IPv6 go without NATing while IPv4 needs NATing for external access in the next spec, we will need two different routers each holding only one network of unique address-family-types.\n\nFor the second question, yes the old spec that implemented \u0027ipv6-interdc-l3vpn\u0027 must have already supported bgpvpn that is purely network-based rather than router-based.   So the second question does not apply to this spec as it should already expected to work :) !",
+      "parentUuid": "ba068154_11ed06f0",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_2ff56983",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
