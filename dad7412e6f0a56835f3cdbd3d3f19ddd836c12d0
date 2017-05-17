@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_ced63fc3",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-05-17T11:24:10Z",
+      "side": 1,
+      "message": "If syncWrite is used, the fields of l3nexthop DS like dpnId and egress pointer are overwritten (as null). We need to fetch the dpnId from this DS in checkDpnDeleteFibEntry(). So, syncUpdate is used.",
+      "parentUuid": "ba068154_f4603737",
+      "revId": "dad7412e6f0a56835f3cdbd3d3f19ddd836c12d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_345bdf88",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2017-05-16T13:08:04Z",
       "side": 1,
       "message": "Removal of one of the nextHops for an active extraroute will only manage the existing LB group.\n\nSo shouldn\u0027t removal of an extra-route prefix just remove the load-balancing group altogether also?",
+      "revId": "dad7412e6f0a56835f3cdbd3d3f19ddd836c12d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_ae277b63",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1081,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-05-17T11:24:10Z",
+      "side": 1,
+      "message": "Yes. The LB group should be completely removed in case of removal of an extra-route prefix. It is already being taken care by setupLoadBalancingNextHop() method. The deleteLocalAdjacency() only deletes the local next hop group so this is skipped in case of removal of extra route.",
+      "parentUuid": "ba068154_345bdf88",
       "revId": "dad7412e6f0a56835f3cdbd3d3f19ddd836c12d0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
