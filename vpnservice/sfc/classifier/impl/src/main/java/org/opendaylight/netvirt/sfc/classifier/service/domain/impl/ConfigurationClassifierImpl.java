@@ -112,11 +112,11 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             return Collections.emptySet();
         }
 
-        String destinationIp = sfcProvider.getFirstHopSfInterfaceFromRsp(rsp)
+        String firstHopIp = sfcProvider.getFirstHopSfInterfaceFromRsp(rsp)
                 .flatMap(geniusProvider::getIpFromInterfaceName)
                 .orElse(null);
 
-        if (Objects.isNull(destinationIp)) {
+        if (Objects.isNull(firstHopIp)) {
             LOG.trace("Could not acquire a valid first RSP hop destination ip");
             return Collections.emptySet();
         }
@@ -146,8 +146,7 @@ public class ConfigurationClassifierImpl implements ClassifierState {
                         geniusProvider.getNodeConnectorIdFromInterfaceName(interfaceKey.getName()).get(),
                         matches,
                         nsp,
-                        nsi,
-                        destinationIp));
+                        nsi));
             });
             entries.add(ClassifierEntry.buildNodeEntry(nodeId));
 
@@ -155,14 +154,19 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             DpnIdType dpnIdType = new DpnIdType(OpenFlow13Provider.getDpnIdFromNodeId(nodeId));
             List<IpAddress> nodeIps = geniusProvider.getIpFromDpnId(dpnIdType);
             String nodeIp = nodeIps.isEmpty() ? null : nodeIps.get(0).getIpv4Address().getValue();
-            entries.add(ClassifierEntry.buildPathEntry(nodeIdListEntry.getKey(), nsp, nodeIp));
+            entries.add(ClassifierEntry.buildPathEntry(nodeIdListEntry.getKey(), nsp, nodeIp, firstHopIp));
 
             // Egress services must bind to egress ports. Since we dont know before-hand what
             // the egress ports will be, we will bind on all switch ports. If the packet
             // doesnt have NSH, it will be returned to the the egress dispatcher table.
             List<String> interfaceUuidStrList = geniusProvider.getInterfacesFromNode(nodeId);
-            interfaceUuidStrList.forEach(interfaceUuidStr ->
-                entries.add(ClassifierEntry.buildEgressEntry(new InterfaceKey(interfaceUuidStr))));
+            interfaceUuidStrList.forEach(interfaceUuidStr -> {
+                InterfaceKey interfaceKey = new InterfaceKey(interfaceUuidStr);
+                String remoteIp = geniusProvider.getRemoteIpAddress(interfaceUuidStr);
+                entries.add(remoteIp == null
+                    ? ClassifierEntry.buildLocalEgressEntry(interfaceKey)
+                    : ClassifierEntry.buildRemoteEgressEntry(interfaceKey, remoteIp));
+            });
         });
 
         return entries;

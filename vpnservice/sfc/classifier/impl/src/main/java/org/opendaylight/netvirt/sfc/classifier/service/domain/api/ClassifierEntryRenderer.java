@@ -49,9 +49,10 @@ public interface ClassifierEntryRenderer {
      *
      * @param nodeId the classifier node identifier.
      * @param nsp the path identifier.
-     * @param ip the ip address of the first service function.
+     * @param localIp the node IP address.
+     * @param firstHopIp the first SFF ip address
      */
-    void renderPath(NodeId nodeId, Long nsp, String ip);
+    void renderPath(NodeId nodeId, Long nsp, String localIp, String firstHopIp);
 
     /**
      * Rended match based actions.
@@ -61,16 +62,23 @@ public interface ClassifierEntryRenderer {
      * @param matches the ACL matches.
      * @param nsp the path identifier.
      * @param nsi the initial path index.
-     * @param ip the ip address of the first service function.
      */
-    void renderMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi, String ip);
+    void renderMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi);
 
     /**
      * Render egress interface actions.
      *
      * @param interfaceKey the egress interface key.
      */
-    void renderEgress(InterfaceKey interfaceKey);
+    void renderLocalEgress(InterfaceKey interfaceKey);
+
+    /**
+     * Render egress interface actions.
+     *
+     * @param interfaceKey the egress interface key.
+     * @param remoteIp the remote IP address associated to the interface.
+     */
+    void renderRemoteEgress(InterfaceKey interfaceKey, String remoteIp);
 
     /**
      * Suppress ingress interface actions.
@@ -91,9 +99,10 @@ public interface ClassifierEntryRenderer {
      *
      * @param nodeId the classifier node identifier.
      * @param nsp the path identifier.
-     * @param ip the ip address of the first service function.
+     * @param localIp the node IP address.
+     * @param firstHopIp the first SFF ip address
      */
-    void suppressPath(NodeId nodeId, Long nsp, String ip);
+    void suppressPath(NodeId nodeId, Long nsp, String localIp, String firstHopIp);
 
     /**
      * Supress match based actions.
@@ -103,14 +112,21 @@ public interface ClassifierEntryRenderer {
      * @param matches the ACL matches.
      * @param nsp the path identifier.
      * @param nsi the initial path index.
-     * @param ip the ip address of the first service function.
      */
-    void suppressMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi, String ip);
+    void suppressMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi);
 
     /**
      * Supress egress interface actions.
      *
      * @param interfaceKey the egress interface key.
      */
-    void suppressEgress(InterfaceKey interfaceKey);
+    void suppressLocalEgress(InterfaceKey interfaceKey);
+
+    /**
+     * Supress egress interface actions.
+     *
+     * @param interfaceKey the egress interface key.
+     * @param remoteIp the remote IP address associated to the interface.
+     */
+    void suppressRemoteEgress(InterfaceKey interfaceKey, String remoteIp);
 }

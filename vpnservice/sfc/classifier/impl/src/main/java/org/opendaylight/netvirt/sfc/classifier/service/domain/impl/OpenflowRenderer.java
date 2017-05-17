@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.sfc.classifier.service.domain.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.sfc.classifier.providers.GeniusProvider;
@@ -63,28 +63,18 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
     }
 
     @Override
-    public void renderPath(NodeId nodeId, Long nsp, String nodeIp) {
-        Optional<Long> egressPort = geniusProvider.getEgressVxlanPortForNode(
-                OpenFlow13Provider.getDpnIdFromNodeId(nodeId));
-        if (!egressPort.isPresent()) {
+    public void renderPath(NodeId nodeId, Long nsp, String localIp, String firstHopIp) {
+        Long port = geniusProvider.getEgressVxlanPortForNode(OpenFlow13Provider.getDpnIdFromNodeId(nodeId))
+                .orElse(null);
+
+        if (port == null) {
             LOG.error("OpenflowRenderer: cant get egressPort for nodeId [{}]", nodeId.getValue());
             return;
         }
-        List<Flow> flows = new ArrayList<>();
-        flows.add(this.openFlow13Provider.createEgressClassifierTransportEgressRemoteFlow(
-                nodeId, nsp, egressPort.get()));
-        flows.add(this.openFlow13Provider.createEgressClassifierTransportEgressLocalFlow(nodeId, nsp, nodeIp));
 
-        WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
-        flows.forEach((flow) -> this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx));
-        tx.submit();
-    }
-
-    @Override
-    public void renderMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi, String destIp) {
-        Long port = OpenFlow13Provider.getPortNoFromNodeConnector(connector);
-        Flow flow = this.openFlow13Provider.createIngressClassifierAclFlow(
-                nodeId, this.openFlow13Provider.getMatchBuilderFromAceMatches(matches), port, destIp, nsp, nsi);
+        Flow flow = Objects.equals(localIp, firstHopIp)
+                ? openFlow13Provider.createEgressClassifierTransportEgressLocalFlow(nodeId, nsp)
+                : openFlow13Provider.createEgressClassifierTransportEgressRemoteFlow(nodeId, nsp, port, firstHopIp);
 
         WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
         this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx);
@@ -92,7 +82,23 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
     }
 
     @Override
-    public void renderEgress(InterfaceKey interfaceKey) {
+    public void renderMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi) {
+        Long port = OpenFlow13Provider.getPortNoFromNodeConnector(connector);
+        Flow flow = this.openFlow13Provider.createIngressClassifierAclFlow(
+                nodeId, this.openFlow13Provider.getMatchBuilderFromAceMatches(matches), port, nsp, nsi);
+
+        WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
+        this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx);
+        tx.submit();
+    }
+
+    @Override
+    public void renderLocalEgress(InterfaceKey interfaceKey) {
+        // noop
+    }
+
+    @Override
+    public void renderRemoteEgress(InterfaceKey interfaceKey, String remoteIp) {
         // noop
     }
 
@@ -120,28 +126,29 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
     }
 
     @Override
-    public void suppressPath(NodeId nodeId, Long nsp, String nodeIp) {
-        Optional<Long> egressPort = geniusProvider.getEgressVxlanPortForNode(
-                OpenFlow13Provider.getDpnIdFromNodeId(nodeId));
-        if (!egressPort.isPresent()) {
+    public void suppressPath(NodeId nodeId, Long nsp, String localIp, String firstHopIp) {
+        Long port = geniusProvider.getEgressVxlanPortForNode(OpenFlow13Provider.getDpnIdFromNodeId(nodeId))
+                .orElse(null);
+
+        if (port == null) {
             LOG.error("OpenflowRenderer: cant get egressPort for nodeId [{}]", nodeId.getValue());
             return;
         }
-        List<Flow> flows = new ArrayList<>();
-        flows.add(this.openFlow13Provider.createEgressClassifierTransportEgressRemoteFlow(
-                nodeId, nsp, egressPort.get()));
-        flows.add(this.openFlow13Provider.createEgressClassifierTransportEgressLocalFlow(nodeId, nsp, nodeIp));
+
+        Flow flow = Objects.equals(localIp, firstHopIp)
+                ? openFlow13Provider.createEgressClassifierTransportEgressLocalFlow(nodeId, nsp)
+                : openFlow13Provider.createEgressClassifierTransportEgressRemoteFlow(nodeId, nsp, port, firstHopIp);
 
         WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
-        flows.forEach((flow) -> this.openFlow13Provider.appendFlowForDelete(nodeId, flow, tx));
+        this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx);
         tx.submit();
     }
 
     @Override
-    public void suppressMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi, String destIp) {
+    public void suppressMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi) {
         Long port = OpenFlow13Provider.getPortNoFromNodeConnector(connector);
         Flow flow = this.openFlow13Provider.createIngressClassifierAclFlow(
-                nodeId, this.openFlow13Provider.getMatchBuilderFromAceMatches(matches), port, destIp, nsp, nsi);
+                nodeId, this.openFlow13Provider.getMatchBuilderFromAceMatches(matches), port, nsp, nsi);
 
         WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
         this.openFlow13Provider.appendFlowForDelete(nodeId, flow, tx);
@@ -149,8 +156,12 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
     }
 
     @Override
-    public void suppressEgress(InterfaceKey interfaceKey) {
+    public void suppressLocalEgress(InterfaceKey interfaceKey) {
         // noop
     }
 
+    @Override
+    public void suppressRemoteEgress(InterfaceKey interfaceKey, String remoteIp) {
+        // noop
+    }
 }

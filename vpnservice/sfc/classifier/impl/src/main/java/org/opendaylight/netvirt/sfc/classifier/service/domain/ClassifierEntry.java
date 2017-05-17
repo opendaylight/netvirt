@@ -24,10 +24,11 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
 
     private enum EntryType {
         NODE_ENTRY_TYPE,
-        INGRESS_INTERFACE_ENTRY_TYPE,
+        INGRESS_ENTRY_TYPE,
         PATH_ENTRY_TYPE,
         MATCH_ENTRY_TYPE,
-        EGRESS_INTERFACE_ENTRY_TYPE
+        EGRESS_LOCAL_ENTRY_TYPE,
+        EGRESS_REMOTE_ENTRY_TYPE
     }
 
     private final EntryType entryType;
@@ -37,12 +38,13 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
     private final Matches matches;
     private final Long nsp;
     private final Short nsi;
-    private final String destinationIp;
-    private final String nodeIp;
+    private final String localIp;
+    private final String remoteIp;
+    private final String firstHopIp;
 
     private ClassifierEntry(EntryType entryType, NodeId node, InterfaceKey interfaceKey, String connector,
-                            Matches matches, Long nsp, Short nsi, String destinationIp, String nodeIp) {
-
+                            Matches matches, Long nsp, Short nsi, String localIp, String remoteIp,
+                            String firstHopIp) {
         this.entryType = entryType;
         this.node = node;
         this.interfaceKey = interfaceKey;
@@ -50,8 +52,9 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
         this.matches = matches;
         this.nsp = nsp;
         this.nsi = nsi;
-        this.destinationIp = destinationIp;
-        this.nodeIp = nodeIp;
+        this.localIp = localIp;
+        this.remoteIp = remoteIp;
+        this.firstHopIp = firstHopIp;
     }
 
     @Override
@@ -64,8 +67,9 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 matches,
                 nsp,
                 nsi,
-                destinationIp,
-                nodeIp);
+                localIp,
+                remoteIp,
+                firstHopIp);
     }
 
     @Override
@@ -87,8 +91,9 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 && Objects.equals(matches, other.matches)
                 && Objects.equals(nsp, other.nsp)
                 && Objects.equals(nsi, other.nsi)
-                && Objects.equals(destinationIp, other.destinationIp)
-                && Objects.equals(nodeIp, other.nodeIp);
+                && Objects.equals(localIp, other.localIp)
+                && Objects.equals(remoteIp, other.remoteIp)
+                && Objects.equals(firstHopIp, other.firstHopIp);
     }
 
     @Override
@@ -101,8 +106,9 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 .add("matches", matches)
                 .add("nsp", nsp)
                 .add("nsi", nsi)
-                .add("destinationIp", destinationIp)
-                .add("nodeIp", nodeIp)
+                .add("localIp", localIp)
+                .add("remoteIp", remoteIp)
+                .add("firstHopIp", firstHopIp)
                 .toString();
     }
 
@@ -112,17 +118,20 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
             case NODE_ENTRY_TYPE:
                 classifierEntryRenderer.renderNode(node);
                 break;
-            case INGRESS_INTERFACE_ENTRY_TYPE:
+            case INGRESS_ENTRY_TYPE:
                 classifierEntryRenderer.renderIngress(interfaceKey);
                 break;
             case PATH_ENTRY_TYPE:
-                classifierEntryRenderer.renderPath(node, nsp, nodeIp);
+                classifierEntryRenderer.renderPath(node, nsp, localIp, firstHopIp);
                 break;
             case MATCH_ENTRY_TYPE:
-                classifierEntryRenderer.renderMatch(node, connector, matches, nsp, nsi, destinationIp);
+                classifierEntryRenderer.renderMatch(node, connector, matches, nsp, nsi);
                 break;
-            case EGRESS_INTERFACE_ENTRY_TYPE:
-                classifierEntryRenderer.renderEgress(interfaceKey);
+            case EGRESS_LOCAL_ENTRY_TYPE:
+                classifierEntryRenderer.renderLocalEgress(interfaceKey);
+                break;
+            case EGRESS_REMOTE_ENTRY_TYPE:
+                classifierEntryRenderer.renderRemoteEgress(interfaceKey, remoteIp);
                 break;
             default:
         }
@@ -134,17 +143,20 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
             case NODE_ENTRY_TYPE:
                 classifierEntryRenderer.suppressNode(node);
                 break;
-            case INGRESS_INTERFACE_ENTRY_TYPE:
+            case INGRESS_ENTRY_TYPE:
                 classifierEntryRenderer.suppressIngress(interfaceKey);
                 break;
             case PATH_ENTRY_TYPE:
-                classifierEntryRenderer.suppressPath(node, nsp, nodeIp);
+                classifierEntryRenderer.suppressPath(node, nsp, localIp, firstHopIp);
                 break;
             case MATCH_ENTRY_TYPE:
-                classifierEntryRenderer.suppressMatch(node, connector, matches, nsp, nsi, destinationIp);
+                classifierEntryRenderer.suppressMatch(node, connector, matches, nsp, nsi);
                 break;
-            case EGRESS_INTERFACE_ENTRY_TYPE:
-                classifierEntryRenderer.suppressEgress(interfaceKey);
+            case EGRESS_LOCAL_ENTRY_TYPE:
+                classifierEntryRenderer.suppressLocalEgress(interfaceKey);
+                break;
+            case EGRESS_REMOTE_ENTRY_TYPE:
+                classifierEntryRenderer.suppressRemoteEgress(interfaceKey, remoteIp);
                 break;
             default:
         }
@@ -157,8 +169,17 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
      * @return the {@code ClassifierEntry}.
      */
     public static ClassifierEntry buildIngressEntry(InterfaceKey interfaceKey) {
-        return new ClassifierEntry(EntryType.INGRESS_INTERFACE_ENTRY_TYPE, null, interfaceKey, null, null, null,
-                null, null, null);
+        return new ClassifierEntry(
+                EntryType.INGRESS_ENTRY_TYPE,
+                null,
+                interfaceKey,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
     }
 
     /**
@@ -168,8 +189,17 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
      * @return the {@code ClassifierEntry}.
      */
     public static ClassifierEntry buildNodeEntry(NodeId node) {
-        return new ClassifierEntry(EntryType.NODE_ENTRY_TYPE, node, null, null, null, null,
-                null, null, null);
+        return new ClassifierEntry(
+                EntryType.NODE_ENTRY_TYPE,
+                node,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
     }
 
     /**
@@ -177,12 +207,21 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
      *
      * @param node the classifier node identifier.
      * @param nsp the path identifier.
-     * @param nodeIp the ip address of this node.
+     * @param localIp the ip address of this node.
      * @return the {@code ClassifierEntry}.
      */
-    public static ClassifierEntry buildPathEntry(NodeId node, Long nsp, String nodeIp) {
-        return new ClassifierEntry(EntryType.PATH_ENTRY_TYPE, node, null, null, null, nsp,
-                null, null, nodeIp);
+    public static ClassifierEntry buildPathEntry(NodeId node, Long nsp, String localIp, String firstHopIp) {
+        return new ClassifierEntry(
+                EntryType.PATH_ENTRY_TYPE,
+                node,
+                null,
+                null,
+                null,
+                nsp,
+                null,
+                localIp,
+                null,
+                firstHopIp);
     }
 
     /**
@@ -193,23 +232,60 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
      * @param matches the ACL matches.
      * @param nsp the path identifier.
      * @param nsi the initial path index.
-     * @param destinationIp the ip address of the first service function.
      * @return the {@code ClassifierEntry}.
      */
-    public static ClassifierEntry buildMatchEntry(NodeId node, String connector, Matches matches, Long nsp, Short nsi,
-            String destinationIp) {
-        return new ClassifierEntry(EntryType.MATCH_ENTRY_TYPE, node, null, connector, matches, nsp,
-                nsi, destinationIp, null);
+    public static ClassifierEntry buildMatchEntry(NodeId node, String connector, Matches matches, Long nsp, Short nsi) {
+        return new ClassifierEntry(
+                EntryType.MATCH_ENTRY_TYPE,
+                node,
+                null,
+                connector,
+                matches,
+                nsp,
+                nsi,
+                null,
+                null,
+                null);
     }
 
     /**
-     * Build a {@code ClassifierEntry} supporting an egress render type.
+     * Build a {@code ClassifierEntry} supporting a local egress render type.
      *
      * @param interfaceKey the egress interface key.
      * @return the {@code ClassifierEntry}.
      */
-    public static ClassifierEntry buildEgressEntry(InterfaceKey interfaceKey) {
-        return new ClassifierEntry(EntryType.EGRESS_INTERFACE_ENTRY_TYPE, null, interfaceKey, null, null, null,
-                null, null, null);
+    public static ClassifierEntry buildLocalEgressEntry(InterfaceKey interfaceKey) {
+        return new ClassifierEntry(
+                EntryType.EGRESS_LOCAL_ENTRY_TYPE,
+                null,
+                interfaceKey,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+    }
+
+    /**
+     * Build a {@code ClassifierEntry} supporting a remote egress render type.
+     *
+     * @param interfaceKey the egress interface key.
+     * @param remoteIp the remote ip associated to the interface.
+     * @return the {@code ClassifierEntry}.
+     */
+    public static ClassifierEntry buildRemoteEgressEntry(InterfaceKey interfaceKey, String remoteIp) {
+        return new ClassifierEntry(
+                EntryType.EGRESS_REMOTE_ENTRY_TYPE,
+                null,
+                interfaceKey,
+                null,
+                null,
+                null,
+                null,
+                null,
+                remoteIp,
+                null);
     }
 }

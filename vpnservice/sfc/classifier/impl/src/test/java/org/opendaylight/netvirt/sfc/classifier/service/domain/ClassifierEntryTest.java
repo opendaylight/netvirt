@@ -38,7 +38,8 @@ public class ClassifierEntryTest {
                 .addEqualityGroup(buildNodeEntry(), buildNodeEntry())
                 .addEqualityGroup(buildMatchEntry(), buildMatchEntry())
                 .addEqualityGroup(buildPathEntry(), buildPathEntry())
-                .addEqualityGroup(buildEgressEntry(), buildEgressEntry())
+                .addEqualityGroup(buildLocalEgressEntry(), buildLocalEgressEntry())
+                .addEqualityGroup(buildRemoteEgressEntry(), buildRemoteEgressEntry())
                 .testEquals();
     }
 
@@ -46,8 +47,12 @@ public class ClassifierEntryTest {
         return ClassifierEntry.buildIngressEntry(new InterfaceKey("input"));
     }
 
-    private ClassifierEntry buildEgressEntry() {
-        return ClassifierEntry.buildIngressEntry(new InterfaceKey("output"));
+    private ClassifierEntry buildLocalEgressEntry() {
+        return ClassifierEntry.buildLocalEgressEntry(new InterfaceKey("output"));
+    }
+
+    private ClassifierEntry buildRemoteEgressEntry() {
+        return ClassifierEntry.buildRemoteEgressEntry(new InterfaceKey("output"), "127.0.0.1");
     }
 
     private ClassifierEntry buildNodeEntry() {
@@ -55,7 +60,7 @@ public class ClassifierEntryTest {
     }
 
     private ClassifierEntry buildPathEntry() {
-        return ClassifierEntry.buildPathEntry(new NodeId("node"), 100L, "127.0.0.1");
+        return ClassifierEntry.buildPathEntry(new NodeId("node"), 100L, "127.0.0.1", "127.0.0.10");
     }
 
     private ClassifierEntry buildMatchEntry() {
@@ -68,8 +73,7 @@ public class ClassifierEntryTest {
                 "connector",
                 matches,
                 100L,
-                (short) 254,
-                "127.0.0.1");
+                (short) 254);
     }
 
     @Test
@@ -82,11 +86,20 @@ public class ClassifierEntryTest {
     }
 
     @Test
-    public void renderEgressEntry() throws Exception {
+    public void renderLocalEgressEntry() throws Exception {
         InterfaceKey interfaceKey = new InterfaceKey("interface");
-        ClassifierEntry entry = ClassifierEntry.buildEgressEntry(interfaceKey);
+        ClassifierEntry entry = ClassifierEntry.buildLocalEgressEntry(interfaceKey);
         entry.render(renderer);
-        verify(renderer).renderEgress(interfaceKey);
+        verify(renderer).renderLocalEgress(interfaceKey);
+        verifyNoMoreInteractions(renderer);
+    }
+
+    @Test
+    public void renderRemoteEgressEntry() throws Exception {
+        InterfaceKey interfaceKey = new InterfaceKey("interface");
+        ClassifierEntry entry = ClassifierEntry.buildRemoteEgressEntry(interfaceKey, "127.0.0.1");
+        entry.render(renderer);
+        verify(renderer).renderRemoteEgress(interfaceKey, "127.0.0.1");
         verifyNoMoreInteractions(renderer);
     }
 
@@ -103,10 +116,11 @@ public class ClassifierEntryTest {
     public void renderPathEntry() throws Exception {
         NodeId nodeId = new NodeId("node");
         Long nsp = 2L;
-        String ip = "127.0.0.1";
-        ClassifierEntry entry = ClassifierEntry.buildPathEntry(nodeId, nsp, ip);
+        String localIp = "127.0.0.1";
+        String firstHopIp = "127.0.0.1";
+        ClassifierEntry entry = ClassifierEntry.buildPathEntry(nodeId, nsp, localIp, firstHopIp);
         entry.render(renderer);
-        verify(renderer).renderPath(nodeId, nsp, ip);
+        verify(renderer).renderPath(nodeId, nsp, localIp, firstHopIp);
         verifyNoMoreInteractions(renderer);
     }
 
@@ -116,11 +130,10 @@ public class ClassifierEntryTest {
         String connector = "openflow:0123456789:1";
         Long nsp = 2L;
         Short nsi = (short) 254;
-        String ip = "127.0.0.1";
         Matches matches = new MatchesBuilder().build();
-        ClassifierEntry entry = ClassifierEntry.buildMatchEntry(nodeId, connector, matches, nsp, nsi, ip);
+        ClassifierEntry entry = ClassifierEntry.buildMatchEntry(nodeId, connector, matches, nsp, nsi);
         entry.render(renderer);
-        verify(renderer).renderMatch(nodeId, connector, matches, nsp, nsi, ip);
+        verify(renderer).renderMatch(nodeId, connector, matches, nsp, nsi);
         verifyNoMoreInteractions(renderer);
     }
 
@@ -134,11 +147,20 @@ public class ClassifierEntryTest {
     }
 
     @Test
-    public void suppressEgressEntry() throws Exception {
+    public void suppressLocalEgressEntry() throws Exception {
         InterfaceKey interfaceKey = new InterfaceKey("interface");
-        ClassifierEntry entry = ClassifierEntry.buildEgressEntry(interfaceKey);
+        ClassifierEntry entry = ClassifierEntry.buildLocalEgressEntry(interfaceKey);
         entry.suppress(renderer);
-        verify(renderer).suppressEgress(interfaceKey);
+        verify(renderer).suppressLocalEgress(interfaceKey);
+        verifyNoMoreInteractions(renderer);
+    }
+
+    @Test
+    public void suppressRemoteEgressEntry() throws Exception {
+        InterfaceKey interfaceKey = new InterfaceKey("interface");
+        ClassifierEntry entry = ClassifierEntry.buildRemoteEgressEntry(interfaceKey, "127.0.0.1");
+        entry.suppress(renderer);
+        verify(renderer).suppressRemoteEgress(interfaceKey, "127.0.0.1");
         verifyNoMoreInteractions(renderer);
     }
 
@@ -155,10 +177,11 @@ public class ClassifierEntryTest {
     public void suppressPathEntry() throws Exception {
         NodeId nodeId = new NodeId("node");
         Long nsp = 2L;
-        String ip = "127.0.0.1";
-        ClassifierEntry entry = ClassifierEntry.buildPathEntry(nodeId, nsp, ip);
+        String localIp = "127.0.0.1";
+        String firstHopIp = "127.0.0.1";
+        ClassifierEntry entry = ClassifierEntry.buildPathEntry(nodeId, nsp, localIp, firstHopIp);
         entry.suppress(renderer);
-        verify(renderer).suppressPath(nodeId, nsp, ip);
+        verify(renderer).suppressPath(nodeId, nsp, localIp, firstHopIp);
         verifyNoMoreInteractions(renderer);
     }
 
@@ -168,11 +191,10 @@ public class ClassifierEntryTest {
         String connector = "openflow:0123456789:1";
         Long nsp = 2L;
         Short nsi = (short) 254;
-        String ip = "127.0.0.1";
         Matches matches = new MatchesBuilder().build();
-        ClassifierEntry entry = ClassifierEntry.buildMatchEntry(nodeId, connector, matches, nsp, nsi, ip);
+        ClassifierEntry entry = ClassifierEntry.buildMatchEntry(nodeId, connector, matches, nsp, nsi);
         entry.suppress(renderer);
-        verify(renderer).suppressMatch(nodeId, connector, matches, nsp, nsi, ip);
+        verify(renderer).suppressMatch(nodeId, connector, matches, nsp, nsi);
         verifyNoMoreInteractions(renderer);
     }
 
