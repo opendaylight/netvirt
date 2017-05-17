@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.sfc.classifier.providers;
 
+import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,8 +23,13 @@ import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.netvirt.sfc.classifier.utils.OpenFlow13Utils;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.sfc.sff.logical.rev160620.DpnIdType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.InstructionsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
@@ -48,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.bound.services.instruction.instruction.apply.actions._case.apply.actions.action.action.ServiceBindingNxActionRegLoadApplyActionsCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeBase;
@@ -95,14 +102,20 @@ public class GeniusProvider {
                 OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_COOKIE);
     }
 
-    public void bindPortOnEgressClassifier(String interfaceName) {
+    public void bindPortOnEgressClassifier(String interfaceName, String destinationIp) {
         bindService(
                 getBindServiceId(NwConstants.EGRESS_SFC_CLASSIFIER_SERVICE_INDEX, interfaceName, false),
                 NwConstants.EGRESS_SFC_CLASSIFIER_SERVICE_INDEX,
                 NwConstants.EGRESS_SFC_CLASSIFIER_SERVICE_NAME,
                 NwConstants.EGRESS_SFC_CLASSIFIER_SERVICE_INDEX,
                 NwConstants.EGRESS_SFC_CLASSIFIER_FILTER_TABLE,
-                OpenFlow13Provider.EGRESS_CLASSIFIER_FILTER_COOKIE);
+                OpenFlow13Provider.EGRESS_CLASSIFIER_FILTER_COOKIE,
+                Collections.singletonList(
+                        createServiceBindingActionNxLoadReg0(
+                                InetAddresses.coerceToInteger(
+                                            InetAddresses.forString(destinationIp)) & 0xffffffffL,
+                                0)
+                ));
     }
 
     public void unbindPortOnIngressClassifier(String interfaceName) {
@@ -323,23 +336,55 @@ public class GeniusProvider {
     }
 
     private void bindService(InstanceIdentifier<BoundServices> id, short serviceId, String serviceName,
-            int servicePriority, short serviceDestTable, BigInteger serviceTableCookie) {
+                             int servicePriority, short serviceDestTable, BigInteger serviceTableCookie) {
+        bindService(
+                id,
+                serviceId,
+                serviceName,
+                servicePriority,
+                serviceDestTable,
+                serviceTableCookie,
+                Collections.emptyList());
+    }
 
-        StypeOpenflow stypeOpenflow = new StypeOpenflowBuilder().setFlowCookie(serviceTableCookie)
+    private void bindService(InstanceIdentifier<BoundServices> id, short serviceId, String serviceName,
+            int servicePriority, short serviceDestTable, BigInteger serviceTableCookie, List<Action> extraActions) {
+        InstructionsBuilder isb = extraActions.isEmpty()
+                ? new InstructionsBuilder()
+                : OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(extraActions);
+        isb = OpenFlow13Utils.appendGotoTableInstruction(isb, serviceDestTable);
+        StypeOpenflow stypeOpenflow = new StypeOpenflowBuilder()
+                .setFlowCookie(serviceTableCookie)
                 .setFlowPriority(servicePriority)
-                .setInstruction(Collections.singletonList(
-                        MDSALUtil.buildAndGetGotoTableInstruction(serviceDestTable, 0)))
+                .setInstruction(isb.build().getInstruction())
                 .build();
         BoundServices boundServices = new BoundServicesBuilder().setServiceName(serviceName)
                 .setServicePriority(serviceId).setServiceType(ServiceTypeFlowBased.class)
                 .addAugmentation(StypeOpenflow.class, stypeOpenflow).build();
-        LOG.info("Binding Service ID [{}] name [{}] priority [{}] table [{}] cookie [{}]",
-                serviceId, serviceName, servicePriority, serviceDestTable, serviceTableCookie);
+        LOG.info("Binding Service ID [{}] name [{}] priority [{}] table [{}] cookie [{}] extraActions [{}]",
+                serviceId, serviceName, servicePriority, serviceDestTable, serviceTableCookie, extraActions);
 
         MDSALUtil.syncWrite(this.dataBroker, LogicalDatastoreType.CONFIGURATION, id, boundServices);
     }
 
     private void unbindService(InstanceIdentifier<BoundServices> id) {
         MDSALUtil.syncDelete(this.dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+    }
+
+    public String getRemoteIpAddress(String interfaceName) {
+        return Optional.ofNullable(interfaceMgr.getInterfaceInfoFromConfigDataStore(interfaceName))
+                .map(iface -> iface.getAugmentation(IfTunnel.class))
+                .map(IfTunnel::getTunnelDestination)
+                .map(IpAddress::getIpv4Address)
+                .map(Ipv4Address::getValue)
+                .orElse(null);
+    }
+
+    public static Action createServiceBindingActionNxLoadReg0(long value, int order) {
+        return OpenFlow13Utils.createAction(
+                new ServiceBindingNxActionRegLoadApplyActionsCaseBuilder()
+                        .setNxRegLoad(OpenFlow13Utils.createNxLoadReg0(value))
+                        .build(),
+                order);
     }
 }

@@ -40,7 +40,6 @@ public class OpenFlow13Provider {
     public static final BigInteger EGRESS_CLASSIFIER_FILTER_COOKIE = new BigInteger("F005BA1100000003", 16);
     public static final BigInteger EGRESS_CLASSIFIER_NEXTHOP_COOKIE = new BigInteger("F005BA1100000004", 16);
     public static final BigInteger EGRESS_CLASSIFIER_TPORTEGRESS_COOKIE = new BigInteger("F005BA1100000005", 16);
-    public static final int SFC_SERVICE_PRIORITY = 6;
 
     // Priorities for each flow
     public static final int INGRESS_CLASSIFIER_FILTER_NSH_PRIORITY = 510;
@@ -70,7 +69,6 @@ public class OpenFlow13Provider {
     public static final long DEFAULT_NSH_CONTEXT_VALUE = 0L;
     public static final long ACL_FLAG_CONTEXT_VALUE = 0xFFFFFFL;
     public static final long SFC_TUNNEL_ID = 0L;
-    private static final int DEFAULT_NETMASK = 32;
     public static final String OF_URI_SEPARATOR = ":";
 
     public MatchBuilder getMatchBuilderFromAceMatches(Matches matches) {
@@ -169,14 +167,12 @@ public class OpenFlow13Provider {
      * Ingress Classifier ACL flow:
      *     Performs the ACL classification, and sends packets to Ingress Dispatcher
      *     Match on inport (corresponds to Neutron NW/tenant), Push NSH, init(nsp, nsi, C1, C2),
-     *     set SFFIp in Reg0, and resubmit to Ingress Dispatcher to be sent down the rest of
+     *     and resubmit to Ingress Dispatcher to be sent down the rest of
      *     the pipeline
      */
-    public Flow createIngressClassifierAclFlow(NodeId nodeId, MatchBuilder match, Long port, String sffIpStr,
-            long nsp, short nsi) {
+    public Flow createIngressClassifierAclFlow(NodeId nodeId, MatchBuilder match, Long port, long nsp, short nsi) {
         OpenFlow13Utils.addMatchInPort(match, nodeId, port);
 
-        Long ipl = InetAddresses.coerceToInteger(InetAddresses.forString(sffIpStr)) & 0xffffffffL;
         List<Action> actionList = new ArrayList<>();
         actionList.add(OpenFlow13Utils.createActionNxPushNsh(actionList.size()));
         actionList.add(OpenFlow13Utils.createActionNxLoadNshMdtype(NSH_MDTYPE_ONE, actionList.size()));
@@ -185,7 +181,6 @@ public class OpenFlow13Provider {
         actionList.add(OpenFlow13Utils.createActionNxLoadNsi(nsi, actionList.size()));
         actionList.add(OpenFlow13Utils.createActionNxLoadNshc1(ACL_FLAG_CONTEXT_VALUE, actionList.size()));
         actionList.add(OpenFlow13Utils.createActionNxLoadNshc2(DEFAULT_NSH_CONTEXT_VALUE, actionList.size()));
-        actionList.add(OpenFlow13Utils.createActionNxLoadReg0(ipl, actionList.size()));
         actionList.add(OpenFlow13Utils.createActionResubmitTable(NwConstants.LPORT_DISPATCHER_TABLE,
             actionList.size()));
 
@@ -284,10 +279,9 @@ public class OpenFlow13Provider {
         OpenFlow13Utils.addMatchNshNsc2(match, DEFAULT_NSH_CONTEXT_VALUE);
 
         List<Action> actionList = new ArrayList<>();
-        actionList.add(OpenFlow13Utils.createActionNxMoveTunIpv4DstToNsc1Register(actionList.size()));
+        actionList.add(OpenFlow13Utils.createActionNxMoveReg0ToNsc1Register(actionList.size()));
         actionList.add(OpenFlow13Utils.createActionNxMoveTunIdToNsc2Register(actionList.size()));
         actionList.add(OpenFlow13Utils.createActionNxLoadTunId(SFC_TUNNEL_ID, actionList.size()));
-        actionList.add(OpenFlow13Utils.createActionNxMoveReg0ToTunIpv4Dst(actionList.size()));
 
         InstructionsBuilder isb = OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(actionList);
         OpenFlow13Utils.appendGotoTableInstruction(isb, NwConstants.EGRESS_SFC_CLASSIFIER_EGRESS_TABLE);
@@ -318,21 +312,18 @@ public class OpenFlow13Provider {
 
     /*
      * Egress Classifier TransportEgress Local Flow
-     *     Final egress processing and egress packets. Determines if the
-     *     packet should go to a local or remote SFF.
-     *     Match on [Nsp, TunIpv4Dst==thisNodeIp], Resubmit to Ingress
+     *     Final egress processing and egress packets. Resubmit to Ingress
      *     Dispatcher to be processed by SFC SFF on match
      */
-    public Flow createEgressClassifierTransportEgressLocalFlow(NodeId nodeId, long nsp, String localIpStr) {
+    public Flow createEgressClassifierTransportEgressLocalFlow(NodeId nodeId, long nsp) {
         MatchBuilder match = OpenFlow13Utils.getNspMatch(nsp);
-        OpenFlow13Utils.addMatchTunIpv4Dst(match, localIpStr, DEFAULT_NETMASK);
 
         List<Action> actionList = new ArrayList<>();
         actionList.add(OpenFlow13Utils.createActionResubmitTable(NwConstants.SFC_TRANSPORT_INGRESS_TABLE,
             actionList.size()));
 
         InstructionsBuilder isb = OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(actionList);
-        String flowIdStr = EGRESS_CLASSIFIER_TPORTEGRESS_FLOW_NAME + nodeId.getValue() + "_" + nsp + "_" + localIpStr;
+        String flowIdStr = EGRESS_CLASSIFIER_TPORTEGRESS_FLOW_NAME + nodeId.getValue() + "_" + nsp;
 
         return OpenFlow13Utils.createFlowBuilder(NwConstants.EGRESS_SFC_CLASSIFIER_EGRESS_TABLE,
             EGRESS_CLASSIFIER_EGRESS_LOCAL_PRIORITY, EGRESS_CLASSIFIER_TPORTEGRESS_COOKIE,
@@ -345,10 +336,13 @@ public class OpenFlow13Provider {
      *     packet should go to a local or remote SFF.
      *     Match on Nsp, Output to port to send to remote SFF on match.
      */
-    public Flow createEgressClassifierTransportEgressRemoteFlow(NodeId nodeId, long nsp, long outport) {
+    public Flow createEgressClassifierTransportEgressRemoteFlow(NodeId nodeId, long nsp, long outport,
+                                                                String firstHopIp) {
         MatchBuilder match = OpenFlow13Utils.getNspMatch(nsp);
 
+        Long ipl = InetAddresses.coerceToInteger(InetAddresses.forString(firstHopIp)) & 0xffffffffL;
         List<Action> actionList = new ArrayList<>();
+        actionList.add(OpenFlow13Utils.createActionNxLoadTunIpv4Dst(ipl, actionList.size()));
         actionList.add(OpenFlow13Utils.createActionOutPort("output:" + outport, actionList.size()));
 
         InstructionsBuilder isb = OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(actionList);
