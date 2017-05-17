@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_4e8c0f36",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-17T07:32:11Z",
+      "side": 1,
+      "message": "What if the previous job fired on Line 83 ran before this job got a chance to run (regardless of difference in jobkeys)?\n\nWouldn\u0027t that previous job remove the interface from the elan-dpn-interfaces list?  If that happens, won\u0027t your count need to be checked for 0 here?",
+      "revId": "41d76e0abb0f5b16e36d7e7db06851772ee4aa92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_ae83fb02",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-17T07:32:11Z",
+      "side": 1,
+      "message": "can you please specify in comments, which patch-port on which bridge is referred here?",
+      "revId": "41d76e0abb0f5b16e36d7e7db06851772ee4aa92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
