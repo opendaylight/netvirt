@@ -22,6 +22,30 @@
       "revId": "68b4f32d27a8f2f5ad2c36c6853adbe181ab7a21",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_ef35fadb",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-17T17:01:07Z",
+      "side": 1,
+      "message": "Sure, i will update the comment..\n\nJust to add clarity to the request here:\nThe subnetgatewaymacaddress is purely router-interface-driven-mac-address while the gateway-mac-address  can be router-interface-driven (or) connected-mac-address driven based on whether a router-association/network-association is in action.\n\nWhy we store the subnetgatewaymacaddress in operational adjacency is that when the delete lifecycle is triggered, we still need to know what MAC should be used in the match to remove the flows from table 19.",
+      "parentUuid": "ba068154_a22aea29",
+      "range": {
+        "startLine": 638,
+        "startChar": 15,
+        "endLine": 640,
+        "endChar": 49
+      },
+      "revId": "68b4f32d27a8f2f5ad2c36c6853adbe181ab7a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
