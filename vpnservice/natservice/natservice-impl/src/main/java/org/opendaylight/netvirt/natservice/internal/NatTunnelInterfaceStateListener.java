@@ -262,7 +262,7 @@ public class NatTunnelInterfaceStateListener
                 try {
                     groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName,
                         GroupTypes.GroupAll, null);
-                    LOG.info("NAT Service : SNAT -> Removing NAPT GroupEntity:{}", groupEntity);
+                    LOG.info("NAT Service : SNAT -> Removing NAPT GroupEntity:{} on Dpn {}", groupEntity, dpnId);
                     mdsalManager.removeGroup(groupEntity);
                 } catch (Exception ex) {
                     LOG.debug("NAT Service : SNAT -> Failed to remove group entity {} : {}", groupEntity, ex);
@@ -542,9 +542,9 @@ public class NatTunnelInterfaceStateListener
                 + "with vpnId {}...", srcDpnId, routerId, vpnId);
             defaultRouteProgrammer.installDefNATRouteInDPN(srcDpnId, vpnId, routerId);
 
-            LOG.debug("NAT Service : Install group in non NAPT switch {}", srcDpnId);
+            LOG.debug("NAT Service : Install group in non NAPT switch {} for router {}", srcDpnId, routerName);
             List<BucketInfo> bucketInfoForNonNaptSwitches =
-                externalRouterListner.getBucketInfoForNonNaptSwitches(srcDpnId, srcDpnId, routerName);
+                externalRouterListner.getBucketInfoForNonNaptSwitches(srcDpnId, primaryDpnId, routerName);
             long groupId = externalRouterListner.installGroup(srcDpnId, routerName, bucketInfoForNonNaptSwitches);
 
             LOG.debug("NAT Service : SNAT -> in the SNAT miss entry pointing to group {} in the non NAPT switch {}",
