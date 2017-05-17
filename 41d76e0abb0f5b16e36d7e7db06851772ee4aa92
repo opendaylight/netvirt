@@ -104,6 +104,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_bcde913d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-05-17T10:12:28Z",
+      "side": 1,
+      "message": "sure. will upload new patch with the changes",
+      "parentUuid": "ba068154_2e4a6bc5",
+      "revId": "41d76e0abb0f5b16e36d7e7db06851772ee4aa92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_ce4f5fbd",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
         "patchSetId": 6
