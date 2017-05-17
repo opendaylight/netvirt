@@ -49,9 +49,9 @@ public interface ClassifierEntryRenderer {
      *
      * @param nodeId the classifier node identifier.
      * @param nsp the path identifier.
-     * @param ip the ip address of the first service function.
+     * @param firstHopIp the first SFF ip address. Null if the SFF is nodeId.
      */
-    void renderPath(NodeId nodeId, Long nsp, String ip);
+    void renderPath(NodeId nodeId, Long nsp, String firstHopIp);
 
     /**
      * Rended match based actions.
@@ -61,16 +61,18 @@ public interface ClassifierEntryRenderer {
      * @param matches the ACL matches.
      * @param nsp the path identifier.
      * @param nsi the initial path index.
-     * @param ip the ip address of the first service function.
      */
-    void renderMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi, String ip);
+    void renderMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi);
 
     /**
      * Render egress interface actions.
      *
      * @param interfaceKey the egress interface key.
+     * @param remoteIp the remote IP address associated to the interface. If
+     *                 the interface is a local interface, this should be a
+     *                 node local IP address.
      */
-    void renderEgress(InterfaceKey interfaceKey);
+    void renderEgress(InterfaceKey interfaceKey, String remoteIp);
 
     /**
      * Suppress ingress interface actions.
@@ -91,9 +93,9 @@ public interface ClassifierEntryRenderer {
      *
      * @param nodeId the classifier node identifier.
      * @param nsp the path identifier.
-     * @param ip the ip address of the first service function.
+     * @param firstHopIp the first SFF ip address. Null if the SFF is nodeId.
      */
-    void suppressPath(NodeId nodeId, Long nsp, String ip);
+    void suppressPath(NodeId nodeId, Long nsp, String firstHopIp);
 
     /**
      * Supress match based actions.
@@ -103,14 +105,16 @@ public interface ClassifierEntryRenderer {
      * @param matches the ACL matches.
      * @param nsp the path identifier.
      * @param nsi the initial path index.
-     * @param ip the ip address of the first service function.
      */
-    void suppressMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi, String ip);
+    void suppressMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi);
 
     /**
      * Supress egress interface actions.
      *
      * @param interfaceKey the egress interface key.
+     * @param remoteIp the remote IP address associated to the interface. If
+     *                 the interface is a local interface, this should be a
+     *                 node local IP address.
      */
-    void suppressEgress(InterfaceKey interfaceKey);
+    void suppressEgress(InterfaceKey interfaceKey, String remoteIp);
 }

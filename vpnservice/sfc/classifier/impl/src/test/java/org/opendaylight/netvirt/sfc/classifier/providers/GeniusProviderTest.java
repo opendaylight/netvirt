@@ -52,9 +52,11 @@ public class GeniusProviderTest extends ConstantSchemaAbstractDataBrokerTest {
     }
 
     @Test
-    public void bindPortOnEgressClassifier() {
+    public void bindPortOnLocalEgressClassifier() {
         // Bind the Egress service
-        geniusProvider.bindPortOnEgressClassifier(GeniusProviderTestParams.INTERFACE_NAME);
+        geniusProvider.bindPortOnEgressClassifier(
+                GeniusProviderTestParams.INTERFACE_NAME,
+                GeniusProviderTestParams.IPV4_ADDRESS_STR);
 
         // Now make sure its in the data store
         InstanceIdentifier<BoundServices> id = geniusProvider.getBindServiceId(

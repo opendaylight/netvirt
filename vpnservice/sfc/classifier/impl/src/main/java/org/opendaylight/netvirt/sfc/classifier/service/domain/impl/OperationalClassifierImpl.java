@@ -42,19 +42,18 @@ public class OperationalClassifierImpl implements ClassifierState {
             }
 
             @Override
-            public void renderPath(NodeId nodeId, Long nsp, String nodeIp) {
-                entries.add(ClassifierEntry.buildPathEntry(nodeId, nsp, nodeIp));
+            public void renderPath(NodeId nodeId, Long nsp, String firstHopIp) {
+                entries.add(ClassifierEntry.buildPathEntry(nodeId, nsp, firstHopIp));
             }
 
             @Override
-            public void renderMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi,
-                    String destIp) {
-                entries.add(ClassifierEntry.buildMatchEntry(nodeId, connector, matches, nsp, nsi, destIp));
+            public void renderMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi) {
+                entries.add(ClassifierEntry.buildMatchEntry(nodeId, connector, matches, nsp, nsi));
             }
 
             @Override
-            public void renderEgress(InterfaceKey interfaceKey) {
-                entries.add(ClassifierEntry.buildEgressEntry(interfaceKey));
+            public void renderEgress(InterfaceKey interfaceKey, String remoteIp) {
+                entries.add(ClassifierEntry.buildEgressEntry(interfaceKey, remoteIp));
             }
 
             @Override
@@ -68,19 +67,18 @@ public class OperationalClassifierImpl implements ClassifierState {
             }
 
             @Override
-            public void suppressPath(NodeId nodeId, Long nsp, String nodeIp) {
-                entries.remove(ClassifierEntry.buildPathEntry(nodeId, nsp, nodeIp));
+            public void suppressPath(NodeId nodeId, Long nsp, String firstHopIp) {
+                entries.remove(ClassifierEntry.buildPathEntry(nodeId, nsp, firstHopIp));
             }
 
             @Override
-            public void suppressMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi,
-                                      String destIp) {
-                entries.remove(ClassifierEntry.buildMatchEntry(nodeId, connector, matches, nsp, nsi, destIp));
+            public void suppressMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi) {
+                entries.remove(ClassifierEntry.buildMatchEntry(nodeId, connector, matches, nsp, nsi));
             }
 
             @Override
-            public void suppressEgress(InterfaceKey interfaceKey) {
-                entries.remove(ClassifierEntry.buildEgressEntry(interfaceKey));
+            public void suppressEgress(InterfaceKey interfaceKey, String remoteIp) {
+                entries.remove(ClassifierEntry.buildEgressEntry(interfaceKey, remoteIp));
             }
         };
     }
