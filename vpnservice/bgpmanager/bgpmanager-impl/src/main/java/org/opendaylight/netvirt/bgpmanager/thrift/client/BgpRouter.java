@@ -218,7 +218,7 @@ public class BgpRouter {
                                 op.l2label,
                                 op.thriftEncapType,
                                 op.routermac,
-                                op.afi)
+                                afi)
 
                         : bgpClient.withdrawRoute(
                         op.thriftProtocolType,
@@ -227,7 +227,7 @@ public class BgpRouter {
                         op.ethernetTag,
                         op.esi,
                         op.macAddress,
-                        op.afi);
+                        afi);
                 break;
             case LOG:
                 result = bgpClient.setLogConfig(op.strs[0], op.strs[1]);
