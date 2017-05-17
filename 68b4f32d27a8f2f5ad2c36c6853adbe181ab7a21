@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_a22aea29",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-17T13:45:36Z",
+      "side": 1,
+      "message": "Could you please explain this comment? How will the gwMac in Vpn Interface Adj and VrfEntry be different? An example perhaps? :)\nAs I see, every Router Association will have a subnet-gatewayMac, and the same will be used for fib and then in the arp responder(as per your change). Similary for network assoc, the connected mac will anyways be the used for both the FIB and Arp Responder.\nFor extra-routes, anyways you will have a router FIB entry with the subnet-gateway mac.",
+      "range": {
+        "startLine": 638,
+        "startChar": 15,
+        "endLine": 640,
+        "endChar": 49
+      },
+      "revId": "68b4f32d27a8f2f5ad2c36c6853adbe181ab7a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
