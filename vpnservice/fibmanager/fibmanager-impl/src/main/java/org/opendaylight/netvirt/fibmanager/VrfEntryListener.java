@@ -827,23 +827,23 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
             if (groupId == FibConstants.INVALID_GROUP_ID) {
                 LOG.error("Unable to create Group for local prefix {} on rd {} for vpninterface {} on Node {}",
-                    prefix, rd, interfaceName, dpnId.toString());
+                        prefix, rd, interfaceName, dpnId.toString());
                 return BigInteger.ZERO;
             }
             final List<InstructionInfo> instructions = Collections.singletonList(
-                new InstructionApplyActions(
-                    Collections.singletonList(new ActionGroup(groupId))));
+                    new InstructionApplyActions(
+                            Collections.singletonList(new ActionGroup(groupId))));
             final List<InstructionInfo> lfibinstructions = Collections.singletonList(
-                new InstructionApplyActions(
-                    Arrays.asList(new ActionPopMpls(), new ActionGroup(groupId))));
+                    new InstructionApplyActions(
+                            Arrays.asList(new ActionPopMpls(), new ActionGroup(groupId))));
             java.util.Optional<Long> optLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
             List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
-            if (!FibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(dataBroker, localNextHopInfo
-                    .getSubnetId(), vpnName, rd)) {
-                DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                dataStoreCoordinator.enqueueJob(jobKey, () -> {
-                    WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-                    makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx);
+            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+            dataStoreCoordinator.enqueueJob(jobKey, () -> {
+                WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+                makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx);
+                if (!FibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(dataBroker,
+                        localNextHopInfo.getSubnetId(), vpnName, rd)) {
                     optLabel.ifPresent(label -> {
                         if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
                             LOG.debug("Installing LFIB and tunnel table entry on dpn {} for interface {} with label "
@@ -854,20 +854,20 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                     NwConstants.ADD_FLOW, tx);
                             makeTunnelTableEntry(dpnId, label, localGroupId, tx);
                         } else {
-                            LOG.debug("Route with rd {} prefix {} label {} nexthop {} for vpn {} is an imported route. "
-                                            + "LFib and Terminating table entries will not be created.",
+                            LOG.debug("Route with rd {} prefix {} label {} nexthop {} for vpn {} is an imported " +
+                                            "route. LFib and Terminating table entries will not be created.",
                                     rd, vrfEntry.getDestPrefix(), optLabel, nextHopAddressList, vpnId);
                         }
                     });
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    futures.add(tx.submit());
-                    return futures;
-                });
-            }
+                }
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                futures.add(tx.submit());
+                return futures;
+            });
             return dpnId;
         }
-        LOG.error("localNextHopInfo received is null for prefix {} on rd {} on vpn {}",
-                vrfEntry.getDestPrefix(), rd, vpnName);
+        LOG.error("localNextHopInfo received is null for prefix {} on rd {} on vpn {}", vrfEntry.getDestPrefix(), rd,
+                vpnName);
         return BigInteger.ZERO;
     }
 
