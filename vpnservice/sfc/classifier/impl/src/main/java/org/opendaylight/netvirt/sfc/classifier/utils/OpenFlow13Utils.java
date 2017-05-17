@@ -64,6 +64,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.ni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.push.nsh.grouping.NxPushNshBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.reg.load.grouping.NxRegLoad;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.reg.load.grouping.NxRegLoadBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.reg.load.grouping.nx.reg.load.Dst;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.reg.load.grouping.nx.reg.load.DstBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.reg.move.grouping.NxRegMove;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.reg.move.grouping.NxRegMoveBuilder;
@@ -208,6 +209,14 @@ public final class OpenFlow13Utils {
         return ab.build();
     }
 
+    public static Action createActionNxLoadTunIpv4Dst(long value, int order) {
+        ActionBuilder ab = createActionBuilder(order);
+        ab.setAction(nxLoadRegAction(new DstNxTunIpv4DstCaseBuilder().setNxTunIpv4Dst(Boolean.TRUE).build(),
+                BigInteger.valueOf(value), 31, false));
+
+        return ab.build();
+    }
+
     public static Action createActionNxLoadTunId(long value, int order) {
         ActionBuilder ab = createActionBuilder(order);
         ab.setAction(nxLoadRegAction(new DstNxTunIdCaseBuilder().setNxTunId(Boolean.TRUE).build(),
@@ -313,6 +322,14 @@ public final class OpenFlow13Utils {
         ActionBuilder ab = createActionBuilder(order);
         ab.setAction(nxMoveRegAction(new SrcNxRegCaseBuilder().setNxReg(NxmNxReg0.class).build(),
                 new DstNxTunIpv4DstCaseBuilder().setNxTunIpv4Dst(Boolean.TRUE).build(), 31, false));
+
+        return ab.build();
+    }
+
+    public static Action createActionNxMoveReg0ToNsc1Register(int order) {
+        ActionBuilder ab = createActionBuilder(order);
+        ab.setAction(nxMoveRegAction(new SrcNxRegCaseBuilder().setNxReg(NxmNxReg0.class).build(),
+                new DstNxNshc1CaseBuilder().setNxNshc1Dst(Boolean.TRUE).build(), 31, false));
 
         return ab.build();
     }
@@ -438,5 +455,26 @@ public final class OpenFlow13Utils {
         gotoTb.setTableId(toTable);
 
         return gotoTb;
+    }
+
+    public static NxRegLoad createNxLoadReg0(long value) {
+        Dst dst = new DstBuilder()
+                .setDstChoice(new DstNxRegCaseBuilder().setNxReg(NxmNxReg0.class).build())
+                .setStart(0)
+                .setEnd(31)
+                .build();
+        return new NxRegLoadBuilder()
+                .setDst(dst)
+                .setValue(BigInteger.valueOf(value))
+                .build();
+    }
+
+    public static Action createAction(
+            org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action action, int order) {
+        return new ActionBuilder()
+                .setOrder(order)
+                .setKey(new ActionKey(order))
+                .setAction(action)
+                .build();
     }
 }
