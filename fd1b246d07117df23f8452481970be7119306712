@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_1ed22a00",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ConntrackBasedSnatService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-05-18T12:04:30Z",
+      "side": 1,
+      "message": "Do we really required to program the flow with actionfield value for INVALID_ID (-1) use case for returning from NatUtil.",
+      "range": {
+        "startLine": 158,
+        "startChar": 42,
+        "endLine": 158,
+        "endChar": 68
+      },
+      "revId": "fd1b246d07117df23f8452481970be7119306712",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
