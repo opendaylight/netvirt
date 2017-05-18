@@ -223,7 +223,13 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         subnetMapIdentifier, subnetmapBuilder.build());
             }
         } catch (Exception e) {
-            LOG.error("Creating subnetmap node failed for subnet {}", subnetId.getValue());
+            StackTraceElement[] stackTraces = e.getStackTrace();
+            String stackTrace = "execption cause => " + e.toString() + "\n";
+            for (StackTraceElement s : stackTraces) {
+                stackTrace += s.toString() + "\n";
+            }
+            LOG.error("Creating subnetmap node failed for subnet {}\n NoelRemarkRef_82317jusbethe exception is=>\n{}",
+                    subnetId.getValue(), stackTrace);
         }
     }
 
