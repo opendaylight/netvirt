@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.vpnmanager;
 import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency.AdjacencyType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
@@ -188,10 +190,9 @@ public class ArpNotificationHandler implements OdlArputilListener {
                     return;
                 }
                 ip = VpnUtil.getIpPrefix(ip);
-                AdjacencyBuilder newAdjBuilder =
-                        new AdjacencyBuilder().setIpAddress(ip).setKey(new AdjacencyKey(ip))
-                        .setPrimaryAdjacency(true).setMacAddress(mipMacAddress).setSubnetId(new Uuid(subnetId))
-                        .setPhysNetworkFunc(true);
+                AdjacencyBuilder newAdjBuilder = new AdjacencyBuilder().setIpAddress(ip).setKey(new AdjacencyKey(ip))
+                        .setAdjacencyType(AdjacencyType.PrimaryAdjacency).setMacAddress(mipMacAddress)
+                        .setSubnetId(new Uuid(subnetId)).setPhysNetworkFunc(true);
 
                 List<Adjacency> adjacencyList = adjacencies.isPresent()
                         ? adjacencies.get().getAdjacency() : new ArrayList<>();
@@ -212,7 +213,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 List<Adjacency> adjacencyList = adjacencies.get().getAdjacency();
                 ip = VpnUtil.getIpPrefix(ip);
                 for (Adjacency adjacs : adjacencyList) {
-                    if (adjacs.isPrimaryAdjacency()) {
+                    if (adjacs.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
                         nextHopIpAddr = adjacs.getIpAddress();
                         nextHopMacAddress = adjacs.getMacAddress();
                         break;
@@ -231,7 +232,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                     String nextHopIp = nextHopIpAddr.split("/")[0];
                     AdjacencyBuilder newAdjBuilder =
                             new AdjacencyBuilder().setIpAddress(ip).setKey(new AdjacencyKey(ip)).setNextHopIpList(
-                                    Collections.singletonList(nextHopIp));
+                                    Collections.singletonList(nextHopIp)).setAdjacencyType(AdjacencyType.LearntIp);
                     if (mipMacAddress != null && !mipMacAddress.equalsIgnoreCase(nextHopMacAddress)) {
                         newAdjBuilder.setMacAddress(mipMacAddress);
                     }
@@ -256,7 +257,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
             List<Adjacency> adjacecnyList = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker,
                     vpnPortipToPort.getPortName());
             for (Adjacency adjacency : adjacecnyList) {
-                if (adjacency.isPrimaryAdjacency()) {
+                if (adjacency.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
                     return adjacency.getSubnetId().getValue();
                 }
             }

@@ -120,7 +120,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
 
         return new AdjacencyBuilder(nextHop).setLabel(label).setNextHopIpList(nextHopList)
                 .setIpAddress(prefix).setVrfId(rd).setKey(new AdjacencyKey(prefix))
-                .setPrimaryAdjacency(nextHop.isPrimaryAdjacency())
+                .setAdjacencyType(nextHop.getAdjacencyType())
                 .setSubnetGatewayMacAddress(nextHop.getSubnetGatewayMacAddress()).build();
     }
 }
