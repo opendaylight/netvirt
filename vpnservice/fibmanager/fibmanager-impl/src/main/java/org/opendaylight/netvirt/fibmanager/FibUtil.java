@@ -401,11 +401,8 @@ public class FibUtil {
                 InstanceIdentifier<RoutePaths> routePathsId =
                         FibHelper.buildRoutePathId(rd, prefix, routePath.getNexthopAddress());
                 // Remove route
-                if (writeConfigTxn != null) {
-                    writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, routePathsId);
-                } else {
-                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routePathsId);
-                }
+                MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routePathsId);
+
                 LOG.info("Removed Route Path rd {} prefix {}, nextHop {}, label {}", rd, prefix,
                         routePath.getNexthopAddress(), routePath.getLabel());
             }
