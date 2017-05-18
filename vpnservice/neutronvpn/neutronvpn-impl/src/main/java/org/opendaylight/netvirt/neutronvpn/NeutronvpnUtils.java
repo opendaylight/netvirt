@@ -73,10 +73,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.lea
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpPortInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMappingKey;
@@ -121,6 +124,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkStateKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
+import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -1260,4 +1264,131 @@ public class NeutronvpnUtils {
         return (!isEmpty(collection));
     }
 
+    /**
+     * Get the Uuid of external network of the router (remember you that one router have only one external network).
+     * @param broker the DataBroker
+     * @param routerId the Uuid of the router which you try to reach the external network
+     * @return Uuid of externalNetwork or null if is not exist
+     */
+    protected static Uuid getExternalNetworkUuidAttachedFromRouterUuid(DataBroker broker, Uuid routerId) {
+        LOG.debug("getExternalNetworkUuidAttachedFromRouterUuid for {}", routerId.getValue());
+        Uuid externalNetworkUuid = null;
+        Router router = getNeutronRouter(broker, routerId);
+        if (router != null && router.getExternalGatewayInfo() != null) {
+            externalNetworkUuid = router.getExternalGatewayInfo().getExternalNetworkId();
+        }
+        return externalNetworkUuid;
+    }
+
+    /** This method get Uuid of external vpn if existing one bound to the same router of the subnetUuid arg. 
+     * <br><br><u>Explanation:</u><br>If the subnet (of arg subnetUuid) have a router bound and this router have an
+     * externalVpn (vpn on external network) then <font color=#ff9900>its Uuid</font> will be returned.
+     * @param dataBroker the DataBroker to do action
+     * @param subnetUuid Uuid of subnet where you are finding a link to an external network
+     * @return Uuid of externalVpn or null if it is not found
+     */
+    public static Uuid getExternalvpnUuidBoundToSubnetRouter(DataBroker dataBroker, Uuid subnetUuid) {
+        Subnetmap subnetmap = NeutronvpnUtils.getSubnetmap(dataBroker, subnetUuid);
+        Uuid routerUuid = subnetmap.getRouterId();
+        Uuid externalNetworkUuid = NeutronvpnUtils.getExternalNetworkUuidAttachedFromRouterUuid(dataBroker, routerUuid);
+        if (externalNetworkUuid != null) {
+            Uuid vpnExtUuid = NeutronvpnUtils.getVpnForNetwork(dataBroker, externalNetworkUuid);
+            return vpnExtUuid;
+        }
+        return null;
+    }
+
+    /** Get all subnetmap associate to the belonging router of network.
+     * @param dataBroker the dataBroker to do action
+     * @param network the network which have router bound
+     * @return
+     */
+    public static List<Subnetmap> getAllsubnetmapAroundNetwork(DataBroker dataBroker, Network network) {
+        Uuid vpnUuid = NeutronvpnUtils.getVpnForNetwork(dataBroker, network.getUuid());
+        Uuid routerUuid = getRouterforVpn(dataBroker, vpnUuid);
+        List<Subnetmap> subList = getNeutronRouterListSubnetmaps(dataBroker, routerUuid);
+        return subList;
+    }
+    /** Get all subnetmap associate to the router
+     * @param broker the dataBroker to do action
+     * @param routerId Uuid of router
+     * @return a list of Subnetmap associated to the router
+     */
+    protected static List<Subnetmap> getNeutronRouterListSubnetmaps(DataBroker broker, Uuid routerId) {
+        List<Subnetmap> subnetmapsList = new ArrayList<>();
+        Optional<Subnetmaps> subnetMaps = read(broker, LogicalDatastoreType.CONFIGURATION,
+            InstanceIdentifier.builder(Subnetmaps.class).build());
+        if (subnetMaps.isPresent() && subnetMaps.get().getSubnetmap() != null) {
+            for (Subnetmap subnetmap : subnetMaps.get().getSubnetmap()) {
+                if (routerId.equals(subnetmap.getRouterId())) {
+                    subnetmapsList.add(subnetmap);
+                }
+            }
+        }
+        return subnetmapsList;
+    }
+
+    /** Get the router associated with network through the associated vpn
+     * @param broker the databroker to do action
+     * @param network the Uuid of network
+     * @return the Uuid of the router associated 
+     */
+    protected static Uuid getRouterForNetwork(DataBroker broker, Uuid network) {
+        InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
+        Optional<VpnMaps> optionalVpnMaps = read(broker, LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
+        if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
+            List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
+            for (VpnMap vpnMap : allMaps) {
+                List<Uuid> netIds = vpnMap.getNetworkIds();
+                if (netIds != null && netIds.contains(network)) {
+                    return vpnMap.getVpnId();
+                }
+            }
+        }
+        return null;
+    }
+    
+
+//
+//    static Map<Router, org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers>
+//        getRouterForNetwork_Ext(DataBroker broker, Uuid networkUuid) {
+//
+//
+//        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers
+//                .Routers> id = InstanceIdentifier.builder(ExtRouters.class).child(org.opendaylight.yang.gen.v1.urn
+//                .opendaylight.netvirt.natservice.rev160111.ext.routers.Routers.class).build();
+//        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers>
+//            routers = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+//
+//        List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers> routerList
+//            = Collections.emptyList();
+//
+//        if (routers.isPresent() && routers.get()!=null) {
+//            routers.asSet().forEach(r -> {
+//                if (r.getNetworkId().equals(networkUuid) && !routerList.contains(r)) {
+//                    routerList.add(r);
+//                }
+//            });            
+//        }
+//        
+//        Map<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router,
+//            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers> mapRouters =
+//            Collections.emptyMap();
+//        InstanceIdentifier<Routers> id2 = InstanceIdentifier.create(Routers.class);
+//        Optional<Routers> routers2 = read(broker, LogicalDatastoreType.CONFIGURATION, id2);
+//        if (routers2.isPresent() && routers2.get() != null) {
+//            routers2.get().getRouter().forEach(r1 -> {
+//                routerList.forEach(r2 -> {
+//                    if (r2.getKey().equals(r1.getKey())) {
+//                        mapRouters.put(null, r2);
+//                    }
+//                });
+//            });
+//        }
+//        
+//        
+//        return mapRouters;
+//        
+//        
+//    }
 }
