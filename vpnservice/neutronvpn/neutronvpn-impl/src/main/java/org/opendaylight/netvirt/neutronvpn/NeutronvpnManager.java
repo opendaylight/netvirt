@@ -123,6 +123,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.extensions.rev16061
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.extensions.rev160617.service.provider.features.attributes.features.Feature;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.extensions.rev160617.service.provider.features.attributes.features.FeatureBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.extensions.rev160617.service.provider.features.attributes.features.FeatureKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
@@ -202,6 +203,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     protected void createSubnetmapNode(Uuid subnetId, String subnetIp, Uuid tenantId, Uuid networkId,
                                        NetworkAttributes.NetworkType networkType, long segmentationId) {
         try {
+            Uuid externalVpnUuid = getExternalvpnUuidInAnotherSubnetmap(subnetId);
             InstanceIdentifier<Subnetmap> subnetMapIdentifier = NeutronvpnUtils.buildSubnetMapIdentifier(subnetId);
             synchronized (subnetId.getValue().intern()) {
                 Optional<Subnetmap> sn = SingleTransactionDataBroker.syncReadOptional(dataBroker,
@@ -212,7 +214,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
                 SubnetmapBuilder subnetmapBuilder = new SubnetmapBuilder().setKey(new SubnetmapKey(subnetId))
                         .setId(subnetId).setSubnetIp(subnetIp).setTenantId(tenantId).setNetworkId(networkId)
-                        .setNetworkType(networkType).setSegmentationId(segmentationId);
+                        .setNetworkType(networkType).setSegmentationId(segmentationId).setExternalVpnId(externalVpnUuid);
                 LOG.debug("Adding a new subnet node in Subnetmaps DS for subnet {}", subnetId.getValue());
                 SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                         subnetMapIdentifier, subnetmapBuilder.build());
@@ -224,7 +226,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected Subnetmap updateSubnetNode(Uuid subnetId, Uuid routerId, Uuid vpnId) {
+    protected Subnetmap updateSubnetNode(Uuid subnetId, Uuid routerId, Uuid vpnId, Uuid externalvpnId) {
         Subnetmap subnetmap = null;
         SubnetmapBuilder builder = null;
         InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class)
@@ -245,6 +247,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
                 if (vpnId != null) {
                     builder.setVpnId(vpnId);
+                }
+                if (externalvpnId != null) {
+                    builder.setExternalVpnId(externalvpnId);
                 }
 
                 subnetmap = builder.build();
@@ -340,7 +345,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected Subnetmap removeFromSubnetNode(Uuid subnetId, Uuid networkId, Uuid routerId, Uuid vpnId, Uuid portId) {
+    protected Subnetmap removeFromSubnetNode(Uuid subnetId, Uuid networkId, Uuid routerId, Uuid vpnId, Uuid portId/*, Uuid externalvpnId*/) {
         Subnetmap subnetmap = null;
         InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class)
                 .child(Subnetmap.class, new SubnetmapKey(subnetId))
@@ -359,6 +364,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     if (vpnId != null) {
                         builder.setVpnId(null);
                     }
+                    /*if (externalvpnId != null) {
+                        builder.setExternalVpnId(null);
+                    }*/
                     if (portId != null && builder.getPortList() != null) {
                         List<Uuid> portList = builder.getPortList();
                         portList.remove(portId);
@@ -1170,9 +1178,25 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         removeVpn(subnetId);
     }
 
+    protected void addSubnetToExternalVpn(final Uuid vpnId, Uuid subnet) {// Noel remarque : Methode cree par Philippe elle est a modifier et pour l'instant elle n'est jamais appellée;
+        LOG.debug("Adding subnet {} to external vpn {}", subnet.getValue(), vpnId.getValue());
+        Subnetmap sn = updateSubnetNode(subnet, null, null, vpnId);
+        if (sn == null) {
+            LOG.error("subnetmap is null, cannot add subnet {} to VPN external {}", subnet.getValue(), vpnId.getValue());
+            return;
+        }
+        VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, vpnId);
+        if (vpnMap == null) {
+            LOG.error("No vpnMap for vpnId {}, cannot add subnet {} to external VPN", vpnId.getValue(), subnet.getValue());
+            return;
+        }
+        // because externalvpn, do not create Vpninterface on subnet
+    }
+
     protected void addSubnetToVpn(final Uuid vpnId, Uuid subnet) {
         LOG.debug("Adding subnet {} to vpn {}", subnet.getValue(), vpnId.getValue());
-        Subnetmap sn = updateSubnetNode(subnet, null, vpnId);
+        Uuid vpnExtUuid = getExternalvpnUuidInAnotherSubnetmap(subnet);
+        Subnetmap sn = updateSubnetNode(subnet, null, vpnId, vpnExtUuid);
         if (sn == null) {
             LOG.error("subnetmap is null, cannot add subnet {} to VPN {}", subnet.getValue(), vpnId.getValue());
             return;
@@ -1211,7 +1235,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     private void updateVpnForSubnet(Uuid oldVpnId, Uuid newVpnId, Uuid subnet, boolean isBeingAssociated) {
         LOG.debug("Moving subnet {} from oldVpn {} to newVpn {} ", subnet.getValue(),
                 oldVpnId.getValue(), newVpnId.getValue());
-        Subnetmap sn = updateSubnetNode(subnet, null, newVpnId);
+        Uuid vpnExtUuid = getExternalvpnUuidInAnotherSubnetmap(subnet);
+        Subnetmap sn = updateSubnetNode(subnet, null, newVpnId, vpnExtUuid);
         if (sn == null) {
             LOG.error("Updating subnet {} with newVpn {} failed", subnet.getValue(), newVpnId.getValue());
             return;
@@ -1548,6 +1573,27 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         deleteVpnInstance(id);
     }
 
+    protected void removeSubnetFromExternalVpn(final Uuid vpnId, Uuid subnet) {//Noel remarque : Methode cree par Philippe elle est a modifier et pour l'instant elle n'est jamais appellée;
+        LOG.debug("Removing subnet {} from external vpn {}", subnet.getValue(), vpnId.getValue());
+        VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, vpnId);
+        if (vpnMap == null) {
+            LOG.error("No vpnMap for vpnId {}, cannot remove subnet {} from VPN",
+                    vpnId.getValue(), subnet.getValue());
+            return;
+        }
+
+        final Uuid routerId = vpnMap.getRouterId();
+        Subnetmap sn = NeutronvpnUtils.getSubnetmap(dataBroker, subnet);
+        final VpnInstance vpnInstance = VpnHelper.getVpnInstance(dataBroker, vpnId.getValue());
+        // no vpn interfaces for externalvpnid.
+        if (sn != null) {
+            // update subnet-vpn association
+            removeFromSubnetNode(subnet, null, null, null, vpnId);
+        } else {
+            LOG.warn("Subnetmap for subnet {} not found", subnet.getValue());
+        }
+    }
+
     protected void removeSubnetFromVpn(final Uuid vpnId, Uuid subnet) {
         LOG.debug("Removing subnet {} from vpn {}", subnet.getValue(), vpnId.getValue());
         VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, vpnId);
@@ -1587,7 +1633,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
             }
             // update subnet-vpn association
-            removeFromSubnetNode(subnet, null, null, vpnId, null);
+            removeFromSubnetNode(subnet, null, null, vpnId, null);//, null);
         } else {
             LOG.warn("Subnetmap for subnet {} not found", subnet.getValue());
         }
@@ -1698,6 +1744,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     }
                     if (NeutronvpnUtils.getIsExternal(network)) {
                         nvpnNatManager.addExternalNetworkToVpn(network, vpn);
+
+                        // get router list using externalnetwork
+                        // for each router, get subnetlist
+			// for each subnetlist
+			//  call addSubnetToExternalVpn(vpn, null, subnet)
                     }
                 }
             }
@@ -1737,6 +1788,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     }
                     if (NeutronvpnUtils.getIsExternal(network)) {
                         nvpnNatManager.removeExternalNetworkFromVpn(network);
+
+                        // get router list using externalnetwork
+                        // for each router, get subnetlist
+			// for each subnetlist
+			//  call removeSubnetFromExternalVpn(vpn, subnet)
                     }
                 }
             }
@@ -2303,5 +2359,35 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     @Override
     public Future<RpcResult<DeleteEVPNOutput>> deleteEVPN(DeleteEVPNInput input) {
         return neutronEvpnManager.deleteEVPN(input);
+    }
+
+    /** This method get Uuid of external vpn if existing one attached at the same router of the subnetUuid arg. 
+     * <br><br><u>Explanation:</u><br>If the subnet (of arg subnetUuid) have a router attached and this router have an
+     * externalVpn (vpn on external network) then <font color=#ff9900>its Uuid</font> will be returned.
+     * @param subnetUuid Uuid of subnet where you are finding a link to an external network
+     * @return Uuid of externalVpn or null if it is not found
+     */
+    public Uuid getExternalvpnUuidInAnotherSubnetmap(Uuid subnetUuid) {
+        Subnetmap subnetmap = NeutronvpnUtils.getSubnetmap(dataBroker, subnetUuid);
+        Uuid routerUuid = subnetmap.getRouterId();
+        List<Uuid> subnetUuids = NeutronvpnUtils.getNeutronRouterSubnetIds(dataBroker, routerUuid);
+        List<Network> externalNetwork = Collections.emptyList();
+        for (Uuid subUuid : subnetUuids) {
+            Uuid netUuid = NeutronvpnUtils.getNetworkForSubnet(dataBroker, subUuid);
+            Network net = NeutronvpnUtils.getNeutronNetwork(dataBroker, netUuid);
+            NetworkL3Extension augmnt = net.getAugmentation(NetworkL3Extension.class);
+            if ( augmnt !=null && augmnt.isExternal()) {
+                externalNetwork.add(net);
+            }
+        }
+        if (externalNetwork.size()>0) {
+            for (Network n : externalNetwork) {
+                Uuid vpnExtUuid = NeutronvpnUtils.getVpnForNetwork(dataBroker, n.getUuid());
+                if (vpnExtUuid != null) {
+                    return vpnExtUuid;
+                }
+            }
+        }
+        return null;
     }
 }

@@ -82,7 +82,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         }
         NeutronvpnUtils.addToSubnetCache(input);
         handleNeutronSubnetCreated(input, network);
-        externalSubnetHandler.handleExternalSubnetAdded(network, subnetId, null);
+        externalSubnetHandler.handleExternalSubnetAdded(network, subnetId, null, dataBroker);
     }
 
     @Override
@@ -98,7 +98,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
             return;
         }
         handleNeutronSubnetDeleted(subnetId, networkId);
-        externalSubnetHandler.handleExternalSubnetRemoved(network, subnetId);
+        externalSubnetHandler.handleExternalSubnetRemoved(network, subnetId, dataBroker);
         NeutronvpnUtils.removeFromSubnetCache(input);
     }
 
@@ -113,7 +113,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         Uuid subnetId = subnet.getUuid();
         ProviderTypes providerType = NeutronvpnUtils.getProviderNetworkType(network);
         String segmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(network);
-        nvpnManager.createSubnetmapNode(subnetId, String.valueOf(subnet.getCidr().getValue()),
+        nvpnManager.createSubnetmapNode(subnetId, String.valueOf(subnet.getCidr().getValue()),//Noel ici est appellé la methode qui cherchera et ajoutera Uuid du vpn externe
                 subnet.getTenantId(), networkId,
                 (providerType != null) ? NetworkAttributes.NetworkType.valueOf(providerType.getName()) : null,
                 (segmentationId != null) ? Long.valueOf(segmentationId) : 0L);
