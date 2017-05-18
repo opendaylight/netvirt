@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_651649a9",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 814,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-05-18T05:07:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_6fe10ad0",
+      "revId": "3f689c2556363d9236dc45db3679f6aabbed4a3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_afebf2ae",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-05-17T17:59:23Z",
       "side": 1,
       "message": "ditto",
+      "revId": "3f689c2556363d9236dc45db3679f6aabbed4a3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_c50d7592",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 817,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-05-18T05:07:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_afebf2ae",
       "revId": "3f689c2556363d9236dc45db3679f6aabbed4a3b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_454a25c6",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 836,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-05-18T05:07:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_2fc0a229",
+      "revId": "3f689c2556363d9236dc45db3679f6aabbed4a3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_8fdeee0f",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2017-05-17T17:59:23Z",
       "side": 1,
       "message": "Unable to obtain primary tunnel interface to Napt-Switch {}  from Non-Napt switch {}",
+      "revId": "3f689c2556363d9236dc45db3679f6aabbed4a3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_254561b3",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 840,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-05-18T05:07:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_8fdeee0f",
       "revId": "3f689c2556363d9236dc45db3679f6aabbed4a3b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
