@@ -1717,4 +1717,10 @@ public class VpnUtil {
         }
         return network;
     }
+
+    public static VpnInstance.Type getVpnInstanceType(DataBroker broker, String vpnInstanceName) {
+        VpnInstance vpnInstance = getVpnInstance(broker, vpnInstanceName);
+        return (vpnInstance == null) ? null : vpnInstance.getType();
+    }
+
 }

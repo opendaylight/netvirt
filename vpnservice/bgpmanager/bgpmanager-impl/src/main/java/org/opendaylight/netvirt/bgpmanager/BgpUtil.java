@@ -205,7 +205,7 @@ public class BgpUtil {
             ExecutionException, TimeoutException {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = getVpnInstanceOpDataIdentifier(rd);
         Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = MDSALUtil.read(broker,
-                LogicalDatastoreType.CONFIGURATION, id);
+                LogicalDatastoreType.OPERATIONAL, id);
         if (vpnInstanceOpData.isPresent()) {
             return vpnInstanceOpData.get();
         }

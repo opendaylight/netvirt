@@ -424,6 +424,10 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             if (value.getL3vni() != null) {
                 builder.setL3vni(value.getL3vni());
             }
+            if (value.getType() == VpnInstance.Type.L2) {
+                builder.setType(VpnInstanceOpDataEntry.Type.L2);
+            }
+
             VpnTargets vpnTargets = config.getVpnTargets();
             if (vpnTargets != null) {
                 List<VpnTarget> vpnTargetList = vpnTargets.getVpnTarget();
@@ -543,7 +547,9 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             //Advertise all the rds and check if primary Rd advertisement fails
             long primaryRdAddFailed = rds.parallelStream().filter(rd -> {
                 try {
-                    bgpManager.addVrf(rd, irtList, ertList, LayerType.LAYER3);
+                    LayerType layerType = (VpnUtil.getVpnInstanceType(dataBroker, vpnName)
+                            == VpnInstance.Type.L2) ? LayerType.LAYER2 : LayerType.LAYER3;
+                    bgpManager.addVrf(rd, irtList, ertList, layerType);
                 } catch (Exception e) {
                     LOG.error("Exception when adding VRF {} to BGP {}. Exception {}", rd, vpnName, e);
                     return rd.equals(primaryRd);
