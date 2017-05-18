@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import java.math.BigInteger;
+import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -19,6 +20,7 @@ import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -100,8 +102,14 @@ public class CentralizedSwitchChangeListener
         Uuid extNetworkId = router.getNetworkId();
         String extGwMacAddress = router.getExtGwMacAddress();
         String routerName = router.getRouterName();
-        vpnManager.setupRouterGwMacFlow(routerName, extGwMacAddress, primarySwitchId, extNetworkId, writeTx,
-                addOrRemove);
+        List<ExternalIps> externalIps = router.getExternalIps();
+        if (externalIps.isEmpty()) {
+            LOG.error("CentralizedSwitchChangeListener: setupRouterGwFlows no externalIP present");
+            return;
+        }
+        Uuid subnetVpnName = externalIps.get(0).getSubnetId();
+        vpnManager.setupRouterGwMacFlow(routerName, extGwMacAddress, primarySwitchId, extNetworkId,
+                subnetVpnName.getValue(), writeTx, addOrRemove);
         vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerName,
                 VpnUtil.getIpsListFromExternalIps(router.getExternalIps()),
                 extGwMacAddress, primarySwitchId, extNetworkId, writeTx, addOrRemove);

@@ -36,6 +36,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.netvirt.natservice.api.SnatServiceListener;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -133,10 +134,17 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected void installSnatCommonEntriesForNaptSwitch(Routers routers, BigInteger dpnId,  int addOrRemove) {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
-        Long extNetId = NatUtil.getVpnId(dataBroker, routers.getNetworkId().getValue());
         installDefaultFibRouteForSNAT(dpnId, routerId, addOrRemove);
         List<ExternalIps> externalIps = routers.getExternalIps();
-        installInboundFibEntry(dpnId, extNetId,  externalIps, addOrRemove);
+        if (externalIps.isEmpty()) {
+            LOG.error("AbstractSnatService: installSnatCommonEntriesForNaptSwitch no externalIP present"
+                    + " for routerId {}",
+                    routerId);
+            return;
+        }
+        String externalIp = externalIps.get(0).getIpAddress();
+        Long extSubnetId = NatUtil.getVpnIdFromExternalSubnet(dataBroker, routerId, externalIp);
+        installInboundFibEntry(dpnId, extSubnetId,  externalIp, addOrRemove);
     }
 
     protected void installSnatCommonEntriesForNonNaptSwitch(Routers routers, BigInteger primarySwitchId,
@@ -153,20 +161,20 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected abstract void installSnatSpecificEntriesForNonNaptSwitch(Routers routers, BigInteger dpnId,
             int addOrRemove);
 
-    protected void installInboundFibEntry(BigInteger dpnId, Long extNetId, List<ExternalIps> externalIps,
+    protected void installInboundFibEntry(BigInteger dpnId, Long extSubnetId, String externalIp,
             int addOrRemove) {
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
         matches.add(MatchEthernetType.IPV4);
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(extNetId), MetaDataUtil.METADATA_MASK_VRFID));
-        matches.add(new MatchIpv4Destination(externalIps.get(0).getIpAddress(), "32"));
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(extSubnetId), MetaDataUtil.METADATA_MASK_VRFID));
+        matches.add(new MatchIpv4Destination(externalIp, "32"));
 
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
         listActionInfo.add(new ActionNxResubmit(NwConstants.INBOUND_NAPT_TABLE));
         instructionInfo.add(new InstructionApplyActions(listActionInfo));
 
-        String flowRef = getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, extNetId);
-        flowRef = flowRef + "inbound" + externalIps;
+        String flowRef = getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, extSubnetId);
+        flowRef = flowRef + "inbound" + externalIp;
         syncFlow(dpnId, NwConstants.L3_FIB_TABLE, flowRef, NatConstants.SNAT_FIB_FLOW_PRIORITY, flowRef,
                 NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo, addOrRemove);
     }
@@ -178,8 +186,9 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         for (ExternalIps externalIp : externalIps) {
             externalIpsSting.add(externalIp.getIpAddress());
         }
+        Uuid subnetVpnName = externalIps.get(0).getSubnetId();
         vpnManager.setupRouterGwMacFlow(router.getRouterName(), router.getExtGwMacAddress(), primarySwitchId,
-                router.getNetworkId(), writeTx, addOrRemove);
+                router.getNetworkId(), subnetVpnName.getValue(), writeTx, addOrRemove);
         vpnManager.setupArpResponderFlowsToExternalNetworkIps(router.getRouterName(), externalIpsSting,
                 router.getExtGwMacAddress(), primarySwitchId,
                 router.getNetworkId(), writeTx, addOrRemove);

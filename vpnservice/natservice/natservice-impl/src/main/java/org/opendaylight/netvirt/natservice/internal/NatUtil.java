@@ -1965,4 +1965,16 @@ public class NatUtil {
         return vpnConfig.getRouteDistinguisher() != null ? new ArrayList<>(
                 vpnConfig.getRouteDistinguisher()) : new ArrayList<>();
     }
+
+    public static long getVpnIdFromExternalSubnet(DataBroker dataBroker, Long routerId, String externalIpAddress) {
+        String routerName = NatUtil.getRouterName(dataBroker, routerId);
+        if (routerName != null) {
+            Routers extRouter = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
+            if (extRouter != null) {
+                return getExternalSubnetVpnIdForRouterExternalIp(dataBroker, externalIpAddress, extRouter);
+            }
+        }
+
+        return NatConstants.INVALID_ID;
+    }
 }

@@ -50,7 +50,7 @@ public interface IVpnManager {
             BigInteger dpnId, WriteTransaction writeTx, int addOrRemove);
 
     void setupRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
-            WriteTransaction writeTx, int addOrRemove);
+            String subnetVpnName, WriteTransaction writeTx, int addOrRemove);
 
     void setupArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
             BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx, int addOrRemove);
