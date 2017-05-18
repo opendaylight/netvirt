@@ -383,7 +383,7 @@ public class VpnSubnetRouteHandlerTest {
     @Test
     public void testOnSubnetUpdatedInVpn() {
 
-        vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetmap, false, true, elanTag);
+        vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetmap, elanTag);
 
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
