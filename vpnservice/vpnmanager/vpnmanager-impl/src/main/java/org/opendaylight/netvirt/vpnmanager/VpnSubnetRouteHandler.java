@@ -296,8 +296,7 @@ public class VpnSubnetRouteHandler {
         }
     }
 
-    public void onSubnetUpdatedInVpn(Subnetmap subnetmap, boolean oldVpnType,
-                                     boolean newVpnType, Long elanTag) {
+    public void onSubnetUpdatedInVpn(Subnetmap subnetmap, Long elanTag) {
         Uuid subnetId = subnetmap.getId();
         String vpnName = subnetmap.getVpnId().getValue();
         String subnetIp = subnetmap.getSubnetIp();
@@ -313,9 +312,9 @@ public class VpnSubnetRouteHandler {
         Optional<SubnetOpDataEntry> optionalSubs =
             VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
         if (optionalSubs.isPresent()) {
-            onSubnetDeletedFromVpn(subnetmap, oldVpnType);
+            onSubnetDeletedFromVpn(subnetmap, true);
         } else {
-            onSubnetAddedToVpn(subnetmap, newVpnType, elanTag);
+            onSubnetAddedToVpn(subnetmap, true, elanTag);
         }
     }
 
