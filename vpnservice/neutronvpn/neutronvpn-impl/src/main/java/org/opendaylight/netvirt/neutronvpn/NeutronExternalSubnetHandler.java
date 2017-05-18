@@ -41,9 +41,17 @@ public class NeutronExternalSubnetHandler implements AutoCloseable {
         if (NeutronvpnUtils.getIsExternal(network) && NeutronvpnUtils.isFlatOrVlanNetwork(network)) {
             LOG.info("Added external subnet {} part of external network {} will create NAT external subnet",
                     subnetId.getValue(), networkId.getValue());
-            nvpnManager.updateSubnetNode(subnetId, null/* routerId */, subnetId);
+            nvpnManager.updateSubnetNode(subnetId, null/* routerId */, subnetId, null);
             nvpnNatManager.updateOrAddExternalSubnet(networkId, subnetId, routerIds);
             nvpnManager.createVpnInstanceForSubnet(subnetId);
+        }
+        else {
+            // get list of routers where this subnetwork is attached
+            // for each router, 
+            //  if there is an external network
+            //  if there is a VPN attached to ext network
+            //   retrieve vpnId from VPN
+            //   nvpnManager.updateSubnetNode(subnetId, null/* routerId */, subnetId, vpnid);
         }
     }
 
