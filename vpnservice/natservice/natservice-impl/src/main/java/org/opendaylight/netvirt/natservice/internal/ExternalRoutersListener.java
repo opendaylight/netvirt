@@ -995,7 +995,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         }
                         Routers extRouter = router != null ? router :
                             NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
-                        Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(dataBroker, externalIp,
+                        String externalIpStr = externalIp.replace("/32", "");
+                        Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(dataBroker, externalIpStr,
                                 extRouter);
                         NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, externalSubnetId,
                             externalIp, nextHopIp, extRouter.getNetworkId().getValue(), null, label, l3vni, log,
@@ -1016,7 +1017,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                     NwConstants.INBOUND_NAPT_TABLE);
                         }
                         String fibExternalIp = externalIp.contains("/32") ? externalIp : (externalIp + "/32");
-                        CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
+                        CreateFibEntryInput input = new CreateFibEntryInputBuilder()
+                            .setVpnName(externalSubnetId.getValue())
                             .setSourceDpid(dpnId).setIpAddress(fibExternalIp).setServiceId(label)
                             .setIpAddressSource(CreateFibEntryInput.IpAddressSource.ExternalFixedIP)
                             .setInstruction(fibTableCustomInstructions).build();
@@ -1603,8 +1605,14 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     private void handleRouterGwFlows(Routers router, BigInteger primarySwitchId, int addOrRemove) {
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
+        List<ExternalIps> externalIps = router.getExternalIps();
+        if (externalIps.isEmpty()) {
+            LOG.error("ExternalRoutersListener: handleRouterGwFlows no externalIP present");
+            return;
+        }
+        Uuid subnetVpnName = externalIps.get(0).getSubnetId();
         vpnManager.setupRouterGwMacFlow(router.getRouterName(), router.getExtGwMacAddress(), primarySwitchId,
-            router.getNetworkId(), writeTx, addOrRemove);
+            router.getNetworkId(), subnetVpnName.getValue(), writeTx, addOrRemove);
         vpnManager.setupArpResponderFlowsToExternalNetworkIps(router.getRouterName(),
             NatUtil.getIpsListFromExternalIps(router.getExternalIps()),
             router.getExtGwMacAddress(), primarySwitchId, router.getNetworkId(), writeTx, addOrRemove);
