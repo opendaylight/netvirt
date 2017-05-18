@@ -46,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency.AdjacencyType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
@@ -74,8 +75,8 @@ public class End2EndFullSyncTest extends AbstractEnd2EndTest {
     @Test
     public void mixedEntitiesOrderAndAmount() {
         Adjacencies adjacencies = new AdjacenciesBuilder().setAdjacency(Arrays.asList(new AdjacencyBuilder()
-                .setSubnetId(new Uuid(PRODUCER_SUBNET_ID)).setPrimaryAdjacency(true).setIpAddress("7.7.7.7").build()))
-                .build();
+                .setSubnetId(new Uuid(PRODUCER_SUBNET_ID)).setAdjacencyType(AdjacencyType.PrimaryAdjacency)
+                .setIpAddress("7.7.7.7").build())).build();
 
         VpnInterface vpnIface = new VpnInterfaceBuilder().addAugmentation(Adjacencies.class, adjacencies)
                 .setName(DUMMYINTERFACE).build();

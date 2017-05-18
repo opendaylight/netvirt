@@ -838,6 +838,19 @@ public class VpnUtil {
         }
     }
 
+    public static <T extends DataObject> void syncDelete(DataBroker broker, LogicalDatastoreType datastoreType,
+            InstanceIdentifier<T> path) {
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        tx.delete(datastoreType, path);
+        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
+        try {
+            futures.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error deleting from datastore (path) : ({})", path);
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
     public static long getRemoteBCGroup(long elanTag) {
         return VpnConstants.ELAN_GID_MIN + elanTag % VpnConstants.ELAN_GID_MIN * 2;
     }
