@@ -102,6 +102,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.ExternalCounters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.external.counters.ExternalIpCounter;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.ip.mapping.IpMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.ip.mapping.IpMapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.ip.mapping.IpMapKey;
@@ -1032,7 +1033,14 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                     NwConstants.INBOUND_NAPT_TABLE);
                         }
                         String fibExternalIp = externalIp.contains("/32") ? externalIp : (externalIp + "/32");
-                        CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
+                        Optional<Subnets> externalSubnet = NatUtil.getOptionalExternalSubnets(dataBroker,
+                                externalSubnetId);
+                        String externalVpn = vpnName;
+                        if (externalSubnet.isPresent()) {
+                            externalVpn =  externalSubnetId.getValue();
+                        }
+                        CreateFibEntryInput input = new CreateFibEntryInputBuilder()
+                            .setVpnName(externalVpn)
                             .setSourceDpid(dpnId).setIpAddress(fibExternalIp).setServiceId(label)
                             .setIpAddressSource(CreateFibEntryInput.IpAddressSource.ExternalFixedIP)
                             .setInstruction(fibTableCustomInstructions).build();
@@ -1619,8 +1627,14 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     private void handleRouterGwFlows(Routers router, BigInteger primarySwitchId, int addOrRemove) {
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
+        List<ExternalIps> externalIps = router.getExternalIps();
+        if (externalIps.isEmpty()) {
+            LOG.error("ExternalRoutersListener: handleRouterGwFlows no externalIP present");
+            return;
+        }
+        Uuid subnetVpnName = externalIps.get(0).getSubnetId();
         vpnManager.setupRouterGwMacFlow(router.getRouterName(), router.getExtGwMacAddress(), primarySwitchId,
-            router.getNetworkId(), writeTx, addOrRemove);
+            router.getNetworkId(), subnetVpnName.getValue(), writeTx, addOrRemove);
         vpnManager.setupArpResponderFlowsToExternalNetworkIps(router.getRouterName(),
             NatUtil.getIpsListFromExternalIps(router.getExternalIps()),
             router.getExtGwMacAddress(), primarySwitchId, router.getNetworkId(), writeTx, addOrRemove);
