@@ -1260,4 +1260,88 @@ public class NeutronvpnUtils {
         return (!isEmpty(collection));
     }
 
+    /**
+     * Get the Uuid of external network of the router (remember you that one router have only one external network).
+     * @param broker the DataBroker
+     * @param routerId the Uuid of the router which you try to reach the external network
+     * @return Uuid of externalNetwork or null if is not exist
+     */
+    protected static Uuid getExternalNetworkUuidAttachedFromRouterUuid(DataBroker broker, Uuid routerId) {
+        LOG.debug("getExternalNetworkUuidAttachedFromRouterUuid for {}", routerId.getValue());
+        Uuid externalNetworkUuid = null;
+        Router router = getNeutronRouter(broker, routerId);
+        if (router != null && router.getExternalGatewayInfo() != null) {
+            externalNetworkUuid = router.getExternalGatewayInfo().getExternalNetworkId();
+        }
+        return externalNetworkUuid;
+    }
+
+    /** This method get Uuid of external vpn if existing one bound to the same router of the subnetUuid arg.
+     * <br><br><u>Explanation:</u><br>If the subnet (of arg subnetUuid) have a router bound and this router have an
+     * externalVpn (vpn on external network) then <font color=#ff9900>its Uuid</font> will be returned.
+     * @param dataBroker the DataBroker to do action
+     * @param subnetUuid Uuid of subnet where you are finding a link to an external network
+     * @return Uuid of externalVpn or null if it is not found
+     */
+    public static Uuid getExternalvpnUuidBoundToSubnetRouter(DataBroker dataBroker, Uuid subnetUuid) {
+        Subnetmap subnetmap = NeutronvpnUtils.getSubnetmap(dataBroker, subnetUuid);
+        Uuid routerUuid = subnetmap.getRouterId();
+        Uuid externalNetworkUuid = NeutronvpnUtils.getExternalNetworkUuidAttachedFromRouterUuid(dataBroker, routerUuid);
+        if (externalNetworkUuid != null) {
+            Uuid vpnExtUuid = NeutronvpnUtils.getVpnForNetwork(dataBroker, externalNetworkUuid);
+            return vpnExtUuid;
+        }
+        return null;
+    }
+
+    /** Get all subnetmap associate to the belonging router of network.
+     * @param dataBroker the dataBroker to do action
+     * @param network the network which have router bound
+     * @return a list of Subnetmap of the router (which the network is associated)
+     */
+    public static List<Subnetmap> getAllsubnetmapAroundNetwork(DataBroker dataBroker, Network network) {
+        Uuid vpnUuid = NeutronvpnUtils.getVpnForNetwork(dataBroker, network.getUuid());
+        Uuid routerUuid = getRouterforVpn(dataBroker, vpnUuid);
+        List<Subnetmap> subList = getNeutronRouterListSubnetmaps(dataBroker, routerUuid);
+        return subList;
+    }
+
+    /** Get all subnetmap associate to the router.
+     * @param broker the dataBroker to do action
+     * @param routerId Uuid of router
+     * @return a list of Subnetmap associated to the router
+     */
+    protected static List<Subnetmap> getNeutronRouterListSubnetmaps(DataBroker broker, Uuid routerId) {
+        List<Subnetmap> subnetmapsList = new ArrayList<>();
+        Optional<Subnetmaps> subnetMaps = read(broker, LogicalDatastoreType.CONFIGURATION,
+            InstanceIdentifier.builder(Subnetmaps.class).build());
+        if (subnetMaps.isPresent() && subnetMaps.get().getSubnetmap() != null) {
+            for (Subnetmap subnetmap : subnetMaps.get().getSubnetmap()) {
+                if (routerId.equals(subnetmap.getRouterId())) {
+                    subnetmapsList.add(subnetmap);
+                }
+            }
+        }
+        return subnetmapsList;
+    }
+
+    /** Get the router associated with network through the associated vpn.
+     * @param broker the databroker to do action
+     * @param network the Uuid of network
+     * @return the Uuid of the router associated
+     */
+    protected static Uuid getRouterForNetwork(DataBroker broker, Uuid network) {
+        InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
+        Optional<VpnMaps> optionalVpnMaps = read(broker, LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
+        if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
+            List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
+            for (VpnMap vpnMap : allMaps) {
+                List<Uuid> netIds = vpnMap.getNetworkIds();
+                if (netIds != null && netIds.contains(network)) {
+                    return vpnMap.getVpnId();
+                }
+            }
+        }
+        return null;
+    }
 }
