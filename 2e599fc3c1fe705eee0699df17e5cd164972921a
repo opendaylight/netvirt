@@ -22,6 +22,30 @@
       "revId": "2e599fc3c1fe705eee0699df17e5cd164972921a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_395108d9",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 998,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-05-18T13:21:02Z",
+      "side": 1,
+      "message": "This was done as I was not aware  of the side effects If I change the API. I have now corrected in the API, now both input as well as the value from the datastore will me made into \"/32\" format.",
+      "parentUuid": "ba068154_9e89fa28",
+      "range": {
+        "startLine": 998,
+        "startChar": 47,
+        "endLine": 998,
+        "endChar": 57
+      },
+      "revId": "2e599fc3c1fe705eee0699df17e5cd164972921a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
