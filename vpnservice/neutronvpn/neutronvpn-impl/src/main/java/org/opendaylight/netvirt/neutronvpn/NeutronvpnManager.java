@@ -10,6 +10,8 @@ package org.opendaylight.netvirt.neutronvpn;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -223,7 +225,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         subnetMapIdentifier, subnetmapBuilder.build());
             }
         } catch (Exception e) {
-            LOG.error("Creating subnetmap node failed for subnet {}", subnetId.getValue());
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            LOG.error("Creating subnetmap node failed for subnet {}\n NoelRemarkRef_82317jusbethe exception is=>\n{}",
+                    subnetId.getValue(), sw.toString());
         }
     }
 
