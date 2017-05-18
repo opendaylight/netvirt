@@ -1715,10 +1715,12 @@ public class NatUtil {
 
     protected static Uuid getExternalSubnetForRouterExternalIp(DataBroker dataBroker, String externalIpAddress,
             Routers router) {
+        externalIpAddress = externalIpAddress.contains("/32") ? externalIpAddress :
+            externalIpAddress + "/32" ;
         List<ExternalIps> externalIps = router.getExternalIps();
         for (ExternalIps extIp : externalIps) {
-            String extIpString = extIp.getIpAddress().contains("/32") ? extIp.getIpAddress() + "/32" :
-                extIp.getIpAddress();
+            String extIpString = extIp.getIpAddress().contains("/32") ? extIp.getIpAddress() :
+                extIp.getIpAddress() + "/32" ;
             if (extIpString.equals(externalIpAddress)) {
                 return extIp.getSubnetId();
             }
@@ -1964,5 +1966,16 @@ public class NatUtil {
         VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
         return vpnConfig.getRouteDistinguisher() != null ? new ArrayList<>(
                 vpnConfig.getRouteDistinguisher()) : new ArrayList<>();
+    }
+
+    public static long getVpnIdFromExternalSubnet(DataBroker dataBroker, String routerName, String externalIpAddress) {
+        if (routerName != null) {
+            Routers extRouter = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
+            if (extRouter != null) {
+                return getExternalSubnetVpnIdForRouterExternalIp(dataBroker, externalIpAddress, extRouter);
+            }
+        }
+
+        return NatConstants.INVALID_ID;
     }
 }
