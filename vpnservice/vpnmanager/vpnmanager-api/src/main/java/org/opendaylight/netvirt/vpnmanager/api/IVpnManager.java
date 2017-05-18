@@ -17,8 +17,8 @@ import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev170725.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev170725.subnetmaps.Subnetmap;
 
 
 public interface IVpnManager {

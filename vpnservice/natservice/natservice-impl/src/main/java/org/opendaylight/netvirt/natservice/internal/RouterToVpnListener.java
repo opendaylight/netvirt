@@ -22,9 +22,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterAssociatedToVpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterDisassociatedFromVpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev170725.NeutronvpnListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev170725.RouterAssociatedToVpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev170725.RouterDisassociatedFromVpn;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
