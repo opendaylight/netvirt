@@ -13,6 +13,7 @@ import static java.util.stream.Collectors.toList;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -24,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -32,6 +34,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -274,7 +277,14 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     .forEach(nextHopRemoved -> FibUtil.updateUsedRdAndVpnToExtraRoute(
                              writeOperTxn, dataBroker, nextHopRemoved, rd,
                              update.getDestPrefix()));
-            writeOperTxn.submit();
+            CheckedFuture<Void, TransactionCommitFailedException> operFuture = writeOperTxn.submit();
+            try {
+                operFuture.get();
+            } catch (InterruptedException | ExecutionException e) {
+                LOG.error("Exception encountered while submitting operational future for update vrfentry {}: "
+                        + "{}", update, e);
+            }
+
             createFibEntries(identifier, update);
             LOG.info("UPDATE: Updated Fib Entries to rd {} prefix {} route-paths {}",
                 rd, update.getDestPrefix(), update.getRoutePaths());
