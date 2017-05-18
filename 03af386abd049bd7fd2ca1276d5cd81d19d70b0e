@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_f42145fd",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1020,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-05-18T15:00:48Z",
+      "side": 1,
+      "message": "Thanks, I have added the check.",
+      "parentUuid": "ba068154_545651d3",
+      "revId": "03af386abd049bd7fd2ca1276d5cd81d19d70b0e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
