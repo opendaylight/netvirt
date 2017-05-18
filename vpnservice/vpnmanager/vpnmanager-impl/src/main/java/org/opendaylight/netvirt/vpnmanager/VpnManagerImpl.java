@@ -165,7 +165,7 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void setupRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
-            WriteTransaction writeTx, int addOrRemove) {
+            String subnetVpnName, WriteTransaction writeTx, int addOrRemove) {
         if (routerGwMac == null) {
             LOG.warn("Failed to handle router GW flow in GW-MAC table. MAC address is missing for router-id {}",
                     routerName);
@@ -190,8 +190,7 @@ public class VpnManagerImpl implements IVpnManager {
             submit = true;
             writeTx = dataBroker.newWriteOnlyTransaction();
         }
-
-        setupSubnetMacIntoVpnInstance(vpnId.getValue(), null, routerGwMac, dpnId, writeTx,
+        setupSubnetMacIntoVpnInstance(vpnId.getValue(), subnetVpnName, routerGwMac, dpnId, writeTx,
                 addOrRemove);
         if (submit) {
             writeTx.submit();
