@@ -42,7 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rpc.rev1
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rpc.rev170209.nat.output.RouterNatBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rpc.rev170209.snat.state.SnatIpMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rpc.rev170209.snat.state.SnatIpMappingBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev170725.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnet.attributes.AllocationPools;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yangtools.yang.common.RpcError;
