@@ -6,7 +6,7 @@ module neutronvpn {
 
     import ietf-yang-types { prefix yang; revision-date "2013-07-15";}
 
-    revision "2015-06-02" {
+    revision "2017-07-25" {
         description "Neutron based L3Service Module, provides integration of ODL VPN service with Neutron NSF";
     }
 
@@ -53,6 +53,11 @@ module neutronvpn {
             leaf vpn-id {
                 type    yang:uuid;
                 description "VPN to which this subnet belongs";
+            }
+
+            leaf internet-vpn-id {
+                type    yang:uuid;
+                description "internet VPN to which this IPv6 subnet belongs";
             }
 
             leaf-list port-list {
