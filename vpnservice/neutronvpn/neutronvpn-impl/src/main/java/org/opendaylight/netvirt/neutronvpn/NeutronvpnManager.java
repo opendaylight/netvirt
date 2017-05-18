@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.neutronvpn;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,9 +22,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -57,6 +60,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency.AdjacencyType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
@@ -698,7 +702,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             String ipValue = String.valueOf(ip.getIpAddress().getValue());
             String ipPrefix = (ip.getIpAddress().getIpv4Address() != null) ? ipValue + "/32" : ipValue + "/128";
             Adjacency vmAdj = new AdjacencyBuilder().setKey(new AdjacencyKey(ipPrefix)).setIpAddress(ipPrefix)
-                    .setMacAddress(port.getMacAddress().getValue()).setPrimaryAdjacency(true)
+                    .setMacAddress(port.getMacAddress().getValue()).setAdjacencyType(AdjacencyType.PrimaryAdjacency)
                     .setSubnetId(ip.getSubnetId()).build();
             adjList.add(vmAdj);
             // create extra route adjacency
@@ -1429,7 +1433,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
         for (String destination : adjMap.keySet()) {
             Adjacency erAdj = new AdjacencyBuilder().setIpAddress(destination)
-                .setNextHopIpList(adjMap.get(destination)).setKey(new AdjacencyKey(destination)).build();
+                    .setAdjacencyType(AdjacencyType.ExtraRoute).setNextHopIpList(adjMap.get(destination))
+                    .setKey(new AdjacencyKey(destination)).build();
             adjList.add(erAdj);
         }
         return  adjList;
@@ -1457,7 +1462,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                             .child(Adjacency.class, new AdjacencyKey(destination));
                         Adjacency erAdj = new AdjacencyBuilder().setIpAddress(destination)
                             .setNextHopIpList(Collections.singletonList(nextHop)).setKey(new AdjacencyKey(destination))
-                            .build();
+                            .setAdjacencyType(AdjacencyType.ExtraRoute).build();
                         isLockAcquired = NeutronvpnUtils.lock(infName);
                         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, path, erAdj);
                     } catch (Exception e) {

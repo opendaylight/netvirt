@@ -37,6 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -400,11 +401,8 @@ public class FibUtil {
                 InstanceIdentifier<RoutePaths> routePathsId =
                         FibHelper.buildRoutePathId(rd, prefix, routePath.getNexthopAddress());
                 // Remove route
-                if (writeConfigTxn != null) {
-                    writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, routePathsId);
-                } else {
-                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routePathsId);
-                }
+                MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routePathsId);
+
                 LOG.info("Removed Route Path rd {} prefix {}, nextHop {}, label {}", rd, prefix,
                         routePath.getNexthopAddress(), routePath.getLabel());
             }
@@ -543,13 +541,21 @@ public class FibUtil {
                 Prefixes prefixToInterface = getPrefixToInterface(broker, vpnId, getIpPrefix(nextHopRemoved));
                 if (prefixToInterface != null && tunnelIpRemoved
                         .equals(getEndpointIpAddressForDPN(broker, prefixToInterface.getDpnId()))) {
-                    writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                            getAdjacencyIdentifier(prefixToInterface.getVpnInterfaceName(), prefix));
-                    writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                            VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, usedRd, prefix));
-                    writeOperTxn.delete(LogicalDatastoreType.CONFIGURATION,
-                            VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix, nextHopRemoved));
-                    break;
+                    InstanceIdentifier<Adjacency> adjId = getAdjacencyIdentifier(
+                            prefixToInterface.getVpnInterfaceName(), prefix);
+                    Interface ifState = FibUtil.getInterfaceStateFromOperDS(
+                            broker, prefixToInterface.getVpnInterfaceName());
+                    //Delete datastore only if extra route is deleted or VM interface is deleted/down
+                    if (!MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, adjId).isPresent()
+                            || ifState == null || ifState.getOperStatus() == OperStatus.Down) {
+                        writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                                getAdjacencyIdentifier(prefixToInterface.getVpnInterfaceName(), prefix));
+                        writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                                VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, usedRd, prefix));
+                        writeOperTxn.delete(LogicalDatastoreType.CONFIGURATION,
+                                VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix, nextHopRemoved));
+                        break;
+                    }
                 }
             }
         }

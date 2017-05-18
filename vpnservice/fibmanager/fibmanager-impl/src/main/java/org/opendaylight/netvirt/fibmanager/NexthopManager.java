@@ -796,9 +796,11 @@ public class NexthopManager implements AutoCloseable {
         List<Routes> clonedVpnExtraRoutes  = new ArrayList<>(vpnExtraRoutes);
         if (clonedVpnExtraRoutes.contains(routes)) {
             listBucketInfo.addAll(getBucketsForLocalNexthop(vpnId, dpnId, vrfEntry, routes));
+            LOG.trace("LOCAL: listbucket {}, routes {}", listBucketInfo, routes);
             clonedVpnExtraRoutes.remove(routes);
         }
         listBucketInfo.addAll(getBucketsForRemoteNexthop(vpnId, dpnId, vrfEntry, rd, clonedVpnExtraRoutes));
+        LOG.trace("ALL: listbucket {}, vpnExtraRoutes {}", listBucketInfo, vpnExtraRoutes);
         return setupLoadBalancingNextHop(vpnId, dpnId, vrfEntry.getDestPrefix(), listBucketInfo, true);
     }
 
@@ -834,73 +836,75 @@ public class NexthopManager implements AutoCloseable {
             List<Routes> vpnExtraRoutes) {
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         Map<String, List<ActionInfo>> egressActionMap = new HashMap<>();
-        vpnExtraRoutes.forEach(vpnExtraRoute -> vpnExtraRoute.getNexthopIpList().forEach(nextHopIp -> {
-            String nextHopPrefixIp;
-            if (isIpv4Address(nextHopIp)) {
-                nextHopPrefixIp = nextHopIp + NwConstants.IPV4PREFIX;
-            } else {
-                nextHopPrefixIp = nextHopIp + NwConstants.IPV6PREFIX;
-            }
-            List<String> tepIpAddresses = FibUtil.getNextHopAddresses(dataBroker, rd, nextHopPrefixIp);
-            if (tepIpAddresses.isEmpty()) {
-                return;
-            }
-            // There would be only one nexthop address for a VM ip which would be the tep Ip
-            String tepIp = tepIpAddresses.get(0);
-            AdjacencyResult adjacencyResult = getRemoteNextHopPointer(dpnId, vpnId,
-                    vrfEntry.getDestPrefix(), tepIp);
-            if (adjacencyResult == null) {
-                return;
-            }
-            String egressInterface = adjacencyResult.getInterfaceName();
-            if (!FibUtil.isTunnelInterface(adjacencyResult)) {
-                return;
-            }
-            Class<? extends TunnelTypeBase> tunnelType = VpnExtraRouteHelper
-                    .getTunnelType(interfaceManager,
-                            egressInterface);
-            if (!TunnelTypeVxlan.class.equals(tunnelType)) {
-                return;
-            }
-            Long label = FibUtil.getLabelFromRoutePaths(vrfEntry).get();
-            Prefixes prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, nextHopPrefixIp);
-            BigInteger tunnelId;
-            if (FibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(dataBroker, prefixInfo.getSubnetId(),
-                    vpnId, rd)) {
-                java.util.Optional<Long> optionalVni = FibUtil.getVniForVxlanNetwork(dataBroker,
-                        prefixInfo.getSubnetId());
-                if (!optionalVni.isPresent()) {
-                    LOG.error("VNI not found for nexthop {} vrfEntry {} with subnetId {}", nextHopIp,
-                            vrfEntry, prefixInfo.getSubnetId());
-                    return;
-                }
-                tunnelId = BigInteger.valueOf(optionalVni.get());
-            } else {
-                tunnelId = BigInteger.valueOf(label);
-            }
-            List<ActionInfo> actionInfos = new ArrayList<>();
-            actionInfos.add(new ActionSetFieldTunnelId(tunnelId));
-            String ifName = prefixInfo.getVpnInterfaceName();
-            String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, nextHopPrefixIp);
-            actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(),
-                    new MacAddress(macAddress)));
-            List<ActionInfo> egressActions;
-            if (egressActionMap.containsKey(egressInterface)) {
-                egressActions = egressActionMap.get(egressInterface);
-            } else {
-                egressActions = getEgressActionsForInterface(egressInterface, actionInfos.size());
-                egressActionMap.put(egressInterface, egressActions);
-            }
-            if (egressActions.isEmpty()) {
-                LOG.error("Failed to retrieve egress action for prefix {} route-paths {}"
-                        + " interface {}." + " Aborting remote FIB entry creation.",
-                        vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths(), egressInterface);
-            }
-            actionInfos.addAll(egressActions);
-            BucketInfo bucket = new BucketInfo(actionInfos);
-            bucket.setWeight(1);
-            listBucketInfo.add(bucket);
-        }));
+        vpnExtraRoutes.stream().forEach(vpnExtraRoute -> vpnExtraRoute.getNexthopIpList()
+                .stream().forEach(nextHopIp -> {
+                    String nextHopPrefixIp;
+                    if (isIpv4Address(nextHopIp)) {
+                        nextHopPrefixIp = nextHopIp + NwConstants.IPV4PREFIX;
+                    } else {
+                        nextHopPrefixIp = nextHopIp + NwConstants.IPV6PREFIX;
+                    }
+                    List<String> tepIpAddresses = FibUtil.getNextHopAddresses(dataBroker, rd, nextHopPrefixIp);
+                    if (tepIpAddresses.isEmpty()) {
+                        LOG.trace("TepIpAddress Empty for rd {} and nextHopPrefixIp{}", rd, nextHopPrefixIp);
+                        return;
+                    }
+                    // There would be only one nexthop address for a VM ip which would be the tep Ip
+                    String tepIp = tepIpAddresses.get(0);
+                    AdjacencyResult adjacencyResult = getRemoteNextHopPointer(dpnId, vpnId,
+                            vrfEntry.getDestPrefix(), tepIp);
+                    if (adjacencyResult == null) {
+                        return;
+                    }
+                    String egressInterface = adjacencyResult.getInterfaceName();
+                    if (!FibUtil.isTunnelInterface(adjacencyResult)) {
+                        return;
+                    }
+                    Class<? extends TunnelTypeBase> tunnelType = VpnExtraRouteHelper
+                            .getTunnelType(interfaceManager,
+                                    egressInterface);
+                    if (!tunnelType.equals(TunnelTypeVxlan.class)) {
+                        return;
+                    }
+                    Long label = FibUtil.getLabelFromRoutePaths(vrfEntry).get();
+                    Prefixes prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, nextHopPrefixIp);
+                    BigInteger tunnelId;
+                    if (FibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(dataBroker, prefixInfo.getSubnetId(),
+                            vpnId, rd)) {
+                        java.util.Optional<Long> optionalVni = FibUtil.getVniForVxlanNetwork(dataBroker,
+                                prefixInfo.getSubnetId());
+                        if (!optionalVni.isPresent()) {
+                            LOG.error("VNI not found for nexthop {} vrfEntry {} with subnetId {}", nextHopIp,
+                                    vrfEntry, prefixInfo.getSubnetId());
+                            return;
+                        }
+                        tunnelId = BigInteger.valueOf(optionalVni.get());
+                    } else {
+                        tunnelId = BigInteger.valueOf(label);
+                    }
+                    List<ActionInfo> actionInfos = new ArrayList<>();
+                    actionInfos.add(new ActionSetFieldTunnelId(tunnelId));
+                    String ifName = prefixInfo.getVpnInterfaceName();
+                    String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, nextHopPrefixIp);
+                    actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(),
+                            new MacAddress(macAddress)));
+                    List<ActionInfo> egressActions;
+                    if (egressActionMap.containsKey(egressInterface)) {
+                        egressActions = egressActionMap.get(egressInterface);
+                    } else {
+                        egressActions = getEgressActionsForInterface(egressInterface, actionInfos.size());
+                        egressActionMap.put(egressInterface, egressActions);
+                    }
+                    if (egressActions.isEmpty()) {
+                        LOG.error("Failed to retrieve egress action for prefix {} route-paths {}"
+                                + " interface {}." + " Aborting remote FIB entry creation.",
+                                vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths(), egressInterface);
+                    }
+                    actionInfos.addAll(egressActions);
+                    BucketInfo bucket = new BucketInfo(actionInfos);
+                    bucket.setWeight(1);
+                    listBucketInfo.add(bucket);
+                }));
         return listBucketInfo;
     }
 
