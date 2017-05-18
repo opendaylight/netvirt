@@ -796,9 +796,11 @@ public class NexthopManager implements AutoCloseable {
         List<Routes> clonedVpnExtraRoutes  = new ArrayList<>(vpnExtraRoutes);
         if (clonedVpnExtraRoutes.contains(routes)) {
             listBucketInfo.addAll(getBucketsForLocalNexthop(vpnId, dpnId, vrfEntry, routes));
+            LOG.trace("LOCAL: listbucket {}, routes {}", listBucketInfo, routes);
             clonedVpnExtraRoutes.remove(routes);
         }
         listBucketInfo.addAll(getBucketsForRemoteNexthop(vpnId, dpnId, vrfEntry, rd, clonedVpnExtraRoutes));
+        LOG.trace("ALL: listbucket {}, vpnExtraRoutes {}", listBucketInfo, vpnExtraRoutes);
         return setupLoadBalancingNextHop(vpnId, dpnId, vrfEntry.getDestPrefix(), listBucketInfo, true);
     }
 
