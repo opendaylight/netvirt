@@ -35,7 +35,7 @@
   <odl:rpc-service id="packetProcessingService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService" />
   <odl:rpc-service id="neutronvpnService"
-                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService" />
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev170725.NeutronvpnService" />
   <odl:rpc-service id="vpnRpcService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService" />
   <odl:rpc-service id="fibRpcService"
