@@ -125,11 +125,11 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
 
     @Override
     protected short getIngressAclFilterTable() {
-        return NwConstants.INGRESS_LEARN_ACL_FILTER_TABLE;
+        return NwConstants.EGRESS_LEARN_ACL_FILTER_TABLE;
     }
 
     @Override
     protected short getIngressAclRemoteAclTable() {
-        return NwConstants.INGRESS_LEARN_ACL_REMOTE_ACL_TABLE;
+        return NwConstants.EGRESS_LEARN_ACL_REMOTE_ACL_TABLE;
     }
 }
