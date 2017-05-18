@@ -105,9 +105,20 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         // SubnetRoute for ExternalSubnets is handled in ExternalSubnetVpnInstanceListener.
         // Here we must handle only InternalVpnSubnetRoute and BGPVPNBasedSubnetRoute
         Network network = VpnUtil.getNeutronNetwork(dataBroker, subnetmapUpdate.getNetworkId());
-        if (VpnUtil.getIsExternal(network)) {
-            return;
+        if (vpnIdNew != null && vpnIdOld == null) {
+            boolean isBgpVpn = !vpnIdNew.equals(subnetmapUpdate.getRouterId());
+            if (!isBgpVpn) {
+                if (!VpnUtil.getIsExternal(network)) {
+                    LOG.debug("Subnet {} is neither part BgpVpN nor external-network", subnetId);
+                    return;
+                }
+            } else if (VpnUtil.getIsExternal(network)) {
+                LOG.debug("Subnet {} is not part of external-network", subnetId);
+                return;
+            }
         }
+
+
         Long elanTag = getElanTag(elanInstanceName);
         if (elanTag.equals(0L)) {
             LOG.error("update:Unable to fetch elantag from ElanInstance {} and hence not proceeding with "
