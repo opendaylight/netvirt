@@ -118,6 +118,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OpState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OpStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency.AdjacencyType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.L2gatewayConnections;
@@ -409,7 +410,8 @@ public class FederationPluginUtils {
         }
 
         for (Adjacency adjacency : adjacencies.getAdjacency()) {
-            if (adjacency.isPrimaryAdjacency() != null && adjacency.isPrimaryAdjacency()) {
+            if (adjacency.getAdjacencyType() != null
+                    && adjacency.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
                 Uuid subnetId = adjacency.getSubnetId();
                 return subnetId != null ? subnetId.getValue() : null;
             }
