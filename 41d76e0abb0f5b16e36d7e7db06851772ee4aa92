@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_de270263",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/java/org/opendaylight/netvirt/elanmanager/api/IElanService.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-05-18T11:49:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_4e936f4f",
+      "revId": "41d76e0abb0f5b16e36d7e7db06851772ee4aa92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_8e9d575c",
         "filename": "vpnservice/elanmanager/elanmanager-api/src/main/java/org/opendaylight/netvirt/elanmanager/api/IElanService.java",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2017-05-17T07:39:37Z",
       "side": 1,
       "message": "Its not good to have dpId passed while creating elan instance. Also When you have first VM added into a DPN, add ELANInterface for provider port. \nso you could simply use existing methods.",
+      "revId": "41d76e0abb0f5b16e36d7e7db06851772ee4aa92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_5e1b121b",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/java/org/opendaylight/netvirt/elanmanager/api/IElanService.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-05-18T11:49:50Z",
+      "side": 1,
+      "message": "dpn ID is passed to get the provider mapping and provider interface for the DPN to create the vlan provider interface on the DPN",
+      "parentUuid": "ba068154_8e9d575c",
       "revId": "41d76e0abb0f5b16e36d7e7db06851772ee4aa92",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_3e160ef2",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/java/org/opendaylight/netvirt/elanmanager/api/IElanService.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-05-18T11:49:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_cec59f3e",
+      "revId": "41d76e0abb0f5b16e36d7e7db06851772ee4aa92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_8eeb97af",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
         "patchSetId": 6
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_9ed45a21",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-05-18T11:49:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_8eeb97af",
+      "revId": "41d76e0abb0f5b16e36d7e7db06851772ee4aa92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_cecc7f64",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
         "patchSetId": 6
@@ -81,6 +153,24 @@
       "writtenOn": "2017-05-17T07:39:37Z",
       "side": 1,
       "message": "why do you need this logic? It is already handled in getRemoteBCGroupBuckets \u003e listBucketInfo.addAll(getRemoteBCGroupExternalPortBuckets(elanDpns, dpnInterfaces, dpnId,\n            getNextAvailableBucketId(listBucketInfo.size())));",
+      "revId": "41d76e0abb0f5b16e36d7e7db06851772ee4aa92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_7ed7f623",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 669,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-05-18T11:49:50Z",
+      "side": 1,
+      "message": "When getRemoteBCGroupBuckets() is called first at the time of VM port addition, getRemoteBCGroupExternalPortBuckets() doesn\u0027t give any output since vlan provider interface is not present at this time.\nSo, after adding vlan provider interface, the remote BC group needs to be updated to get the required egress action bucket.",
+      "parentUuid": "ba068154_cecc7f64",
       "revId": "41d76e0abb0f5b16e36d7e7db06851772ee4aa92",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -140,6 +230,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_dedee23e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-05-18T11:49:50Z",
+      "side": 1,
+      "message": "UT is being done before raising patches.",
+      "parentUuid": "ba068154_c5e9f581",
+      "revId": "41d76e0abb0f5b16e36d7e7db06851772ee4aa92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_ce4f5fbd",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
         "patchSetId": 6
@@ -151,6 +259,24 @@
       "writtenOn": "2017-05-17T07:39:37Z",
       "side": 1,
       "message": "Right now there is only one vlanprovider port is added as external interface for a ELAN inside DPN. so this check can be removed.",
+      "revId": "41d76e0abb0f5b16e36d7e7db06851772ee4aa92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_bee15e00",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-05-18T11:49:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_ce4f5fbd",
       "revId": "41d76e0abb0f5b16e36d7e7db06851772ee4aa92",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -174,6 +300,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_fee2c6ff",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-05-18T11:49:50Z",
+      "side": 1,
+      "message": "moved to new DCN as suggested by Peri which will resolve this problem",
+      "parentUuid": "ba068154_4e8c0f36",
+      "revId": "41d76e0abb0f5b16e36d7e7db06851772ee4aa92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_ee54e355",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
         "patchSetId": 6
@@ -185,6 +329,24 @@
       "writtenOn": "2017-05-17T07:39:37Z",
       "side": 1,
       "message": "basically you are just removing only elan interface for vlan provider port. so calling deleteExternalElanNetwork is inappropriate here",
+      "revId": "41d76e0abb0f5b16e36d7e7db06851772ee4aa92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_5ef2f2d2",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-05-18T11:49:50Z",
+      "side": 1,
+      "message": "Both elaninterface and ietf interface is being removed for the DPN on the elan.",
+      "parentUuid": "ba068154_ee54e355",
       "revId": "41d76e0abb0f5b16e36d7e7db06851772ee4aa92",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -208,6 +370,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_3eed6ef0",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-05-18T11:49:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_ae83fb02",
+      "revId": "41d76e0abb0f5b16e36d7e7db06851772ee4aa92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_ee26a315",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
         "patchSetId": 6
@@ -225,6 +405,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_9ebbbae4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-05-18T11:49:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_ee26a315",
+      "revId": "41d76e0abb0f5b16e36d7e7db06851772ee4aa92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_aed2dbcf",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
         "patchSetId": 6
@@ -236,6 +434,24 @@
       "writtenOn": "2017-05-17T07:39:37Z",
       "side": 1,
       "message": "this would lead to calling createIetfInterfaces multiple times. you basically need to call addElanInterface and deleteElanInterface whenever first/last VM is added/removed on a DPN correspondingly.",
+      "revId": "41d76e0abb0f5b16e36d7e7db06851772ee4aa92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_7ebed6d5",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2017-05-18T11:49:50Z",
+      "side": 1,
+      "message": "If Ietf interface remains, the flow entry for processing packets on this vlan will remain and this would lead to processing of packets till elan pipeline. \nWithout Ietf interface, packets will be dropped at table 0 itself.",
+      "parentUuid": "ba068154_aed2dbcf",
       "revId": "41d76e0abb0f5b16e36d7e7db06851772ee4aa92",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
