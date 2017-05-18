@@ -891,6 +891,10 @@ public class NexthopManager implements AutoCloseable {
     public void createDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId, String destinationIp) {
         Preconditions.checkNotNull(availableDcGws, "There are no dc-gws present");
         int noOfDcGws = availableDcGws.size();
+        if (noOfDcGws == 1) {
+            LOG.trace("There are no enough DC GateWays {} present to program LB group", availableDcGws);
+            return;
+        }
         // TODO : Place the logic to construct all possible DC-GW combination here.
         String groupIdKey = FibUtil.getGreLbGroupKey(availableDcGws);
         Long groupId = createNextHopPointer(groupIdKey);
