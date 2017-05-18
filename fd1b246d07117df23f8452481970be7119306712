@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ba068154_995f54e5",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ConntrackBasedSnatService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-05-18T13:21:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_1ed22a00",
+      "range": {
+        "startLine": 158,
+        "startChar": 42,
+        "endLine": 158,
+        "endChar": 68
+      },
+      "revId": "fd1b246d07117df23f8452481970be7119306712",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_1e27ca13",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 2
@@ -36,6 +60,24 @@
       "writtenOn": "2017-05-18T12:15:36Z",
       "side": 1,
       "message": "Can you please pass routerName directly from caller.",
+      "revId": "fd1b246d07117df23f8452481970be7119306712",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_d959dcff",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1969,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-05-18T13:21:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_1e27ca13",
       "revId": "fd1b246d07117df23f8452481970be7119306712",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
