@@ -326,6 +326,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         // With Assumption this might be the first NAT service comes up.
         NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager, idManager,
                 NatConstants.ODL_VNI_POOL_NAME);
+        // Allocated an id from VNI pool for the Router.
+        NatOverVxlanUtil.getRouterVni(idManager, routerName, NatConstants.INVALID_ID);
         primarySwitchId = naptSwitchSelector.selectNewNAPTSwitch(routerName);
         LOG.debug("NAT Service : Primary NAPT switch DPN ID {}", primarySwitchId);
         if (primarySwitchId == null || primarySwitchId.equals(BigInteger.ZERO)) {
