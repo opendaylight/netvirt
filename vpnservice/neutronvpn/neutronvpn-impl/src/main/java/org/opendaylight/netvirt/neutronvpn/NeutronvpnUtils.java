@@ -342,7 +342,7 @@ public class NeutronvpnUtils {
         if (network != null) {
             return network;
         }
-        LOG.debug("getNeutronNetwork for {}", networkId.getValue());
+        LOG.info("getNeutronNetwork for {}", networkId.getValue());
         InstanceIdentifier<Network> inst = InstanceIdentifier.create(Neutron.class).child(Networks.class)
             .child(Network.class, new NetworkKey(networkId));
         Optional<Network> net = read(broker, LogicalDatastoreType.CONFIGURATION, inst);
