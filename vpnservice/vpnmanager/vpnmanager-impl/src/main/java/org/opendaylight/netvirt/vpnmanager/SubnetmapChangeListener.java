@@ -117,20 +117,24 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         // subnet added to VPN case
         if (vpnIdNew != null && vpnIdOld == null) {
             boolean isBgpVpn = !vpnIdNew.equals(subnetmapUpdate.getRouterId());
-            vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmapUpdate, isBgpVpn, elanTag);
+            if (!isBgpVpn) {
+                return;
+            }
+            vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmapUpdate, true, elanTag);
             return;
         }
         // subnet removed from VPN case
         if (vpnIdOld != null && vpnIdNew == null) {
             Boolean isBgpVpn = vpnIdOld.equals(subnetmapOriginal.getRouterId()) ? false : true;
-            vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmapOriginal, isBgpVpn);
+            if (!isBgpVpn) {
+                return;
+            }
+            vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmapOriginal, true);
             return;
         }
         // subnet updated in VPN case
         if (vpnIdOld != null && vpnIdNew != null && (!vpnIdNew.equals(vpnIdOld))) {
-            boolean isBeingAssociated = vpnIdNew.equals(subnetmapUpdate.getRouterId()) ? false : true;
-            vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetmapUpdate, !isBeingAssociated /* oldVpnType */,
-                    isBeingAssociated /* newVpnType */, elanTag);
+            vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetmapUpdate, elanTag);
             return;
         }
         // port added/removed to/from subnet case
