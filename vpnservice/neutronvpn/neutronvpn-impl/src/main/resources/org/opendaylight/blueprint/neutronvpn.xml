@@ -26,6 +26,8 @@
              interface="org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache"/>
   <reference id="cacheProvider"
              interface="org.opendaylight.infrautils.caches.CacheProvider"/>
+  <reference id="iMdsalApiManager"
+             interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
