@@ -501,6 +501,23 @@
     },
     {
       "key": {
+        "uuid": "ba068154_c3dba6eb",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-05-19T03:35:52Z",
+      "side": 1,
+      "message": "Also on what basis BGPManager decide on AFI? or VPNManger itself will call addVrf with ipv6 afi? today vpnmanager calls addvrf with rd, rt and layer type, are we going to add afi parameter as well?",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_78928358",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -654,6 +671,23 @@
     },
     {
       "key": {
+        "uuid": "ba068154_a3d662c1",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-05-19T03:35:52Z",
+      "side": 1,
+      "message": "Are these the only yang changes expected?",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_0f84e5d2",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -665,6 +699,23 @@
       "writtenOn": "2017-05-09T13:47:24Z",
       "side": 1,
       "message": "Is late for Carbon isn\u0027t it?",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_43c85622",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-05-19T03:35:52Z",
+      "side": 1,
+      "message": "What if we add an ipv4 subnet and an ipv6 subnet to same router? Are we restricting that?",
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
