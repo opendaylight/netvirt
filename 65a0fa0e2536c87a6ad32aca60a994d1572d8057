@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_ce18ed77",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 830,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-05-19T05:28:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_a5a3114e",
+      "revId": "65a0fa0e2536c87a6ad32aca60a994d1572d8057",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_a5baf16b",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 9
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_230d593f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-05-19T05:28:24Z",
+      "side": 1,
+      "message": "Yes. I have checked the equals() implementation in VrfEntryBuilder",
+      "parentUuid": "ba068154_a5baf16b",
+      "revId": "65a0fa0e2536c87a6ad32aca60a994d1572d8057",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_055f7d42",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 9
@@ -47,6 +83,24 @@
       "writtenOn": "2017-05-18T06:04:35Z",
       "side": 1,
       "message": "doesn\u0027t nhList.size() \u003e\u003d 1 (to update new tep ip address) ?",
+      "revId": "65a0fa0e2536c87a6ad32aca60a994d1572d8057",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_80cb54a4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1730,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-05-19T05:28:24Z",
+      "side": 1,
+      "message": "The refreshVrfEntry is to be called only when there is no change in the od-fib DS (when the updated nexthop for the same extraroute is also present same DPN). Otherwise, the fib is updated and since there would change in fib DS, the flows \u0026 groups for extra routes would get updated too. The size would never be 1 when we update the nexthop for the same extra route, since the already existing nexthop would be still present \u0026 is removed later. This would be 1 only in case of addition of a new extra route.",
+      "parentUuid": "ba068154_055f7d42",
       "revId": "65a0fa0e2536c87a6ad32aca60a994d1572d8057",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
