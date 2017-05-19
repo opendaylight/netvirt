@@ -9,6 +9,9 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
 
+import java.math.BigInteger;
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -71,6 +74,18 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
                 new Uuid(possibleExtSubnetUuid));
         if (optionalSubnets.isPresent()) {
             addOrDelDefaultFibRouteToSNATFlow(vpnInstance, optionalSubnets.get(), NwConstants.DEL_FLOW);
+
+            long vpnId = vpnInstance.getVpnId();
+            String routerIdUuid =
+                 NatUtil.getRouterIdfromVpnInstance(dataBroker, vpnInstance.getVpnInstanceName());
+            List<BigInteger> dpnIds =
+                 NatUtil.getDpnsForRouter(dataBroker, routerIdUuid);
+            long routerIdAsLong = Long.valueOf(routerIdUuid);
+            if (!dpnIds.isEmpty()) {
+                for (BigInteger dpnId : dpnIds) {
+                    ipv6DefaultRouteProgrammer.removeDefaultRouteIpv6InDPN(dpnId, vpnId, routerIdAsLong);
+                }
+            }
             invokeSubnetDeletedFromVpn(possibleExtSubnetUuid);
         }
     }
@@ -93,6 +108,18 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
             LOG.debug("add : VpnInstance {} for external subnet {}.", possibleExtSubnetUuid,
                     optionalSubnets.get());
             addOrDelDefaultFibRouteToSNATFlow(vpnInstance, optionalSubnets.get(), NwConstants.ADD_FLOW);
+
+            long vpnId = vpnInstance.getVpnId();
+            String routerIdUuid =
+                NatUtil.getRouterIdfromVpnInstance(dataBroker, vpnInstance.getVpnInstanceName());
+            long routerIdAsLong = Long.valueOf(routerIdUuid);
+            List<BigInteger> dpnIds =
+                 NatUtil.getDpnsForRouter(dataBroker, routerIdUuid);
+            if (!dpnIds.isEmpty()) {
+                for (BigInteger dpnId : dpnIds) {
+                    ipv6DefaultRouteProgrammer.installDefaultRouteIpv6InDPN(dpnId, vpnId, routerIdAsLong);
+                }
+            }
             invokeSubnetAddedToVpn(possibleExtSubnetUuid);
         }
     }
