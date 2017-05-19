@@ -1,0 +1,8 @@
+Code-Review+2: Vivekanandan Narasimhan <n.vivekanandan@ericsson.com>
+Verified+1: Sam Hague <shague@redhat.com>
+Code-Review+1: A H <an.ho@huawei.com>
+Submitted-by: Thanh Ha <thanh.ha@linuxfoundation.org>
+Submitted-at: Fri, 19 May 2017 17:49:37 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/57397
+Project: netvirt
+Branch: refs/heads/stable/carbon
