@@ -9,6 +9,10 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -17,13 +21,21 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.ipv6service.IPv6DefaultRouteProgrammer;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +46,22 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
     private static final Logger LOG = LoggerFactory.getLogger(ExternalSubnetVpnInstanceListener.class);
     private final DataBroker dataBroker;
     private final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer;
+    private final IPv6DefaultRouteProgrammer ipv6DefaultRouteProgrammer;
     private final IElanService elanService;
     private final IVpnManager vpnManager;
+
+
+    @Inject
+    public ExternalSubnetVpnInstanceListener(final DataBroker dataBroker,
+            final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer,
+            final IElanService elanService, final IVpnManager vpnManager,
+            final IPv6DefaultRouteProgrammer argIpv6DefaultRouteProgrammer) {
+        this.dataBroker = dataBroker;
+        this.snatDefaultRouteProgrammer = snatDefaultRouteProgrammer;
+        this.ipv6DefaultRouteProgrammer = argIpv6DefaultRouteProgrammer;
+        this.elanService = elanService;
+        this.vpnManager = vpnManager;
+    }
 
     @Inject
     public ExternalSubnetVpnInstanceListener(final DataBroker dataBroker,
@@ -43,6 +69,7 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
             final IElanService elanService, final IVpnManager vpnManager) {
         this.dataBroker = dataBroker;
         this.snatDefaultRouteProgrammer = snatDefaultRouteProgrammer;
+        this.ipv6DefaultRouteProgrammer = IPv6DefaultRouteProgrammer.getInstance(null);
         this.elanService = elanService;
         this.vpnManager = vpnManager;
     }
@@ -68,6 +95,58 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
                 new Uuid(possibleExtSubnetUuid));
         if (optionalSubnets.isPresent()) {
             addOrDelDefaultFibRouteToSNATFlow(vpnInstance, optionalSubnets.get(), NwConstants.DEL_FLOW);
+
+            long vpnId = vpnInstance.getVpnId();
+            List<Subnet> subnetList = NatUtil.getNeutronSubnets(dataBroker);
+            for (Subnet subnet : subnetList) {
+                Subnetmap subnetmap = NatUtil.getSubnetMap(dataBroker, subnet.getUuid());
+                if (subnetmap.getExternalVpnId() != null && subnetmap.getExternalVpnId().equals(
+                    new Uuid(vpnInstance.getVpnInstanceName())) && subnet.getIpVersion() ==  IpVersionV6.class) {
+                    Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, subnetmap.getRouterId().getValue());
+                    InstanceIdentifier id = NatUtil.buildRouterIdentifier(router.getRouterName()/*routerId*/);
+                    Optional<Routers> routerData = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+                    long routerIdAsLong = 0;
+                    if (routerData.isPresent()) {
+                        String rn = routerData.get().getRouterName();
+                        routerIdAsLong =
+                            Long.valueOf(NatUtil.getRouterId(rn).firstKeyOf(RouterPorts.class).getRouterId());
+                    } else {
+                        continue;
+                    }
+
+                    String routerIdUuid =
+                        NatUtil.getRouterIdfromVpnInstance(dataBroker, vpnInstance.getVpnInstanceName());
+                    Optional<RouterDpnList> routerDpnListData =
+                        NatUtil.getRouterDpnListFromRouterUuid(dataBroker, routerIdUuid);
+
+                    BigInteger dpnId = null;
+                    if (routerDpnListData.isPresent()) {
+                        List<DpnVpninterfacesList> dpnVpninterfacesList = routerDpnListData.get()
+                            .getDpnVpninterfacesList();
+                        for (DpnVpninterfacesList dpnL1 : dpnVpninterfacesList) {
+                            for (RouterInterfaces dpnL2 : dpnL1.getRouterInterfaces()) {
+                                if (vpnInstance.getKey().getVpnInstanceName()
+                                    .compareTo(dpnL2.getKey().toString()) == 0) {
+                                    dpnId = dpnL1.getDpnId();
+                                }
+                                if (dpnId != null) {
+                                    break;
+                                }
+                            }
+                            if (dpnId != null) {
+                                break;
+                            }
+                        }
+                    }
+
+                    if (dpnId == null) {
+                        continue;
+                    }
+
+                    this.ipv6DefaultRouteProgrammer.removeDefaultRouteIpv6InDPN(dpnId, vpnId, routerIdAsLong);
+                }
+            }
+
             invokeSubnetDeletedFromVpn(possibleExtSubnetUuid);
         }
     }
@@ -90,6 +169,67 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
             LOG.debug("NAT Service : VpnInstance {} for external subnet {}.", possibleExtSubnetUuid,
                     optionalSubnets.get());
             addOrDelDefaultFibRouteToSNATFlow(vpnInstance, optionalSubnets.get(), NwConstants.ADD_FLOW);
+
+            long vpnId = vpnInstance.getVpnId();
+            List<Subnet> subnetList = NatUtil.getNeutronSubnets(dataBroker);
+            List<Subnetmap> externalSubnetmapList = new ArrayList<>();
+            for (Subnet subnet : subnetList) {
+                Subnetmap subnetmap = NatUtil.getSubnetMap(dataBroker, subnet.getUuid());
+
+                if (subnetmap.getExternalVpnId() != null && subnetmap.getExternalVpnId()
+                    .equals(new Uuid(vpnInstance.getVpnInstanceName()))
+                    && subnet.getIpVersion() ==  IpVersionV6.class) {
+
+                    externalSubnetmapList.add(subnetmap);
+                    List<BigInteger> listdpns = NatUtil.getDpnsForRouter(dataBroker,
+                        subnetmap.getRouterId().toString());
+                    BigInteger dpnId = null;
+                    String routerIdUuid = NatUtil.getRouterIdfromVpnInstance(dataBroker,
+                        vpnInstance.getVpnInstanceName());
+                    Optional<RouterDpnList> routerDpnListData =
+                        NatUtil.getRouterDpnListFromRouterUuid(dataBroker, routerIdUuid);
+
+                    if (routerDpnListData.isPresent()) {
+                        List<DpnVpninterfacesList> dpnVpninterfacesList = routerDpnListData.get()
+                            .getDpnVpninterfacesList();
+                        for (DpnVpninterfacesList dpnL1 : dpnVpninterfacesList) {
+                            for (RouterInterfaces dpnL2 : dpnL1.getRouterInterfaces()) {
+                                if (vpnInstance.getKey().getVpnInstanceName().compareTo(dpnL2.getKey()
+                                    .toString()) == 0) {
+                                    dpnId = dpnL1.getDpnId();
+                                }
+                                if (dpnId != null) {
+                                    break;
+                                }
+                            }
+                            if (dpnId != null) {
+                                break;
+                            }
+                        }
+                    }
+
+                    if (dpnId == null) {
+                        continue;
+                    }
+
+                    Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, subnetmap.getRouterId().getValue());
+                    InstanceIdentifier<RouterDpnList> routerIdList = NatUtil.getRouterId(router.getRouterName());
+                    InstanceIdentifier id = NatUtil.buildRouterIdentifier(router.getRouterName()/*routerId*/);
+                    Optional<Routers> routerData = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+                    long routerIdAsLong = 0;
+                    if (routerData.isPresent()) {
+                        String rn = routerData.get().getRouterName();
+                        routerIdAsLong = Long.valueOf(NatUtil.getRouterId(rn).firstKeyOf(RouterPorts.class)
+                        .getRouterId());
+                    } else {
+                        continue;
+                    }
+
+                    this.ipv6DefaultRouteProgrammer.installDefaultRouteIpv6InDPN(dpnId, vpnId, routerIdAsLong);
+                }
+
+            }
+
             invokeSubnetAddedToVpn(possibleExtSubnetUuid);
         }
     }
