@@ -1564,7 +1564,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         LOG.debug("Removing subnet {} from vpn {}/{}", subnet.getValue(),
                   vpnId, internetVpnId);
         Subnetmap sn = neutronvpnUtils.getSubnetmap(subnet);
-        if (sn == null){
+        if (sn == null) {
             LOG.error("removeSubnetFromVpn: Subnetmap for subnet {} not found", subnet.getValue());
             return;
         }
