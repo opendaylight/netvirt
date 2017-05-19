@@ -123,8 +123,6 @@
     init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="elanInterfaceManager" />
-    <argument ref="interfaceManager" />
-    <argument ref="elanService" />
   </bean>
 
   <bean id="elanTunnelInterfaceStateListener"
@@ -354,6 +352,13 @@
     <argument ref="dataBroker" />
     <argument ref="elanUtils" />
     <argument ref="evpnUtils" />
+  </bean>
+
+  <bean id="elanDpnInterfacesListener" class="org.opendaylight.netvirt.elan.internal.ElanDpnInterfacesListener"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="interfaceManager" />
+    <argument ref="elanService" />
   </bean>
 
 </blueprint>

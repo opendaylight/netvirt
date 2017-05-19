@@ -573,7 +573,7 @@ public class ElanBridgeManager implements IElanBridgeManager {
         return INTEGRATION_BRIDGE;
     }
 
-    public BigInteger getDatapathID(Node node) {
+    public BigInteger getDatapathId(Node node) {
         return BigInteger.valueOf(southboundUtils.getDataPathId(node));
     }
 }

@@ -458,8 +458,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         });
     }
 
-    @Override
-    public void createExternalElanNetwork(ElanInstance elanInstance, BigInteger dpId) {
+    protected void createExternalElanNetwork(ElanInstance elanInstance, BigInteger dpId) {
         String providerIntfName = bridgeMgr.getProviderInterfaceName(dpId, elanInstance.getPhysicalNetworkName());
         String intfName = providerIntfName + IfmConstants.OF_URI_SEPARATOR + elanInstance.getSegmentationId();
         Interface memberIntf = interfaceManager.getInterfaceInfoFromConfigDataStore(intfName);
@@ -496,7 +495,6 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         });
     }
 
-
     @Override
     public void deleteExternalElanNetwork(ElanInstance elanInstance) {
         handleExternalElanNetwork(elanInstance, false, (elanInstance1, interfaceName) -> {
@@ -505,8 +503,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         });
     }
 
-    @Override
-    public void deleteExternalElanNetwork(ElanInstance elanInstance, BigInteger dpnId) {
+    protected void deleteExternalElanNetwork(ElanInstance elanInstance, BigInteger dpnId) {
         String providerIntfName = bridgeMgr.getProviderInterfaceName(dpnId, elanInstance.getPhysicalNetworkName());
         String intfName = providerIntfName + IfmConstants.OF_URI_SEPARATOR + elanInstance.getSegmentationId();
         Interface memberIntf = interfaceManager.getInterfaceInfoFromConfigDataStore(intfName);
@@ -574,7 +571,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
         boolean hasDatapathIdOnOrigNode = bridgeMgr.hasDatapathID(origNode);
         boolean hasDatapathIdOnUpdatedNode = bridgeMgr.hasDatapathID(updatedNode);
-        BigInteger origDpnID = bridgeMgr.getDatapathID(origNode);
+        BigInteger origDpnID = bridgeMgr.getDatapathId(origNode);
 
         for (ElanInstance elanInstance : elanInstances) {
             String physicalNetworkName = elanInstance.getPhysicalNetworkName();
@@ -646,11 +643,6 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     @Override
     public String getExternalElanInterface(String elanInstanceName, BigInteger dpnId) {
         return elanUtils.getExternalElanInterface(elanInstanceName, dpnId);
-    }
-
-    @Override
-    public DpnInterfaces getElanDpnInterfaces(String elanInstanceName, BigInteger dpnId) {
-        return elanUtils.getElanInterfaceInfoByElanDpn(elanInstanceName, dpnId);
     }
 
     @Override
@@ -793,7 +785,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         for (Node node : nodes) {
             if (bridgeMgr.isIntegrationBridge(node)) {
                 if (update && !elanInstance.isExternal()) {
-                    DpnInterfaces dpnInterfaces = getElanDpnInterfaces(elanInstanceName, bridgeMgr.getDatapathID(node));
+                    DpnInterfaces dpnInterfaces = elanUtils.getElanInterfaceInfoByElanDpn(elanInstanceName,
+                            bridgeMgr.getDatapathId(node));
                     if (dpnInterfaces == null || dpnInterfaces.getInterfaces().size() == 0) {
                         continue;
                     }
