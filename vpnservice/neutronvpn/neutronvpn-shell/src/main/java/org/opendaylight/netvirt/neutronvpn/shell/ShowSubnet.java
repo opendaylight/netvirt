@@ -61,29 +61,38 @@ public class ShowSubnet extends OsgiCommandSupport {
                 for (Subnetmap subnetmap : subnetmapList) {
                     SubnetOpDataEntry data = subnetOpDataEntryMap.get(subnetmap.getId());
                     if (data != null) {
-                        System.out.println(subnetmap.getId().toString() + "\n");
+                        System.out.println(subnetmap.getId().toString() + ", vpnName : " + data.getVpnName() + "\n");
                     }
                 }
+
                 System.out.println("\n\nFollowing subnetId is present in subnetMap but not in subnetOpDataEntry\n");
                 for (Subnetmap subnetmap : subnetmapList) {
                     SubnetOpDataEntry data = subnetOpDataEntryMap.get(subnetmap.getId());
                     if (data == null) {
-                        System.out.println(subnetmap.getId().toString() + "\n");
+                        System.out.println(subnetmap.getId().toString() + ", vpnName : " + data.getVpnName() + "\n");
                     }
                 }
                 getshowVpnCLIHelp();
             } else if (subnetmap == null && subnetopdata != null) {
                 InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class)
-                    .child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(new Uuid(subnetopdata))).build();
-                Optional<SubnetOpDataEntry> optionalSubs = read(LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
-                SubnetOpDataEntry data = optionalSubs.get();
-                System.out.println("Fetching subnetmap for given subnetId\n");
-                System.out.println("------------------------------------------------------------------------------");
-                System.out.println("Key: " + data.getKey() + "\n" + "VrfId: " + data.getVrfId() + "\n" + "ElanTag: "
-                    + "" + data.getElanTag() + "\n" + "NhDpnId: " + data.getNhDpnId() + "\n" + "RouteAdvState: "
-                    + data.getRouteAdvState() + "\n" + "SubnetCidr: " + data.getSubnetCidr() + "\n"
-                    + "SubnetToDpnList: " + data.getSubnetToDpn() + "\n" + "VpnName: " + data.getVpnName() + "\n");
-                System.out.println("------------------------------------------------------------------------------");
+                    .child(SubnetOpDataEntry.class).build();
+                Optional<SubnetOpDataEntry> optionalSubnetOpDataEntries =
+                    read(LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
+                if (optionalSubnetOpDataEntries.isPresent()) {
+                    optionalSubnetOpDataEntries.asSet().forEach(subnetOpDataEntry -> {
+                        SubnetOpDataEntry data = subnetOpDataEntry;
+                        System.out.println("Fetching subnetmap for given subnetId\n");
+                        System.out.println("------------------------"
+                                      + "------------------------------------------------------");
+                        System.out.println("Key: " + data.getKey() + "\n" + "VrfId: " + data.getVrfId() + "\n"
+                            + "ElanTag: " + "" + data.getElanTag() + "\n" + "NhDpnId: " + data.getNhDpnId() + "\n"
+                            + "RouteAdvState: " + data.getRouteAdvState() + "\n" + "SubnetCidr: " + data.getSubnetCidr()
+                            + "\n" + "SubnetToDpnList: " + data.getSubnetToDpn() + "\n" + "VpnName: "
+                            + data.getVpnName() + "\n");
+                        System.out.println("------------------------"
+                                      + "------------------------------------------------------");
+                    });
+                }
             } else if (subnetmap != null && subnetopdata == null) {
                 InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class)
                         .child(Subnetmap.class, new SubnetmapKey(new Uuid(subnetmap))).build();
@@ -92,6 +101,7 @@ public class ShowSubnet extends OsgiCommandSupport {
                 System.out.println("Fetching subnetopdataentry for given subnetId\n");
                 System.out.println("------------------------------------------------------------------------------");
                 System.out.println("Key: " + data.getKey() + "\n" + "VpnId: " + data.getVpnId() + "\n"
+                        + "InternetVpnId: " + data.getInternetVpnId() + "\n"
                         + "DirectPortList: " + data.getDirectPortList() + "\n" + "NetworkId: " + data.getNetworkId()
                         + "\n" + "Network-type: " + data.getNetworkType() + "\n" + "Network-segmentation-Id: "
                         + data.getSegmentationId() + "\n" + "PortList: " + data.getPortList() + "\n"
