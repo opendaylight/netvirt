@@ -1362,6 +1362,37 @@ public class NatUtil {
         return portsOptional.get().getPort();
     }
 
+    /**
+    * To get all subnet present in neutron or empty list if any found.
+    *
+    * @param broker the dataBroket where to find
+    * @return all subnet or empty list if any
+    */
+    public static List<Subnet> getNeutronSubnets(DataBroker broker) {
+        InstanceIdentifier<Subnets> ii = InstanceIdentifier.create(Neutron.class).child(Subnets.class);
+        Optional<Subnets> subnetsOptional = read(broker, LogicalDatastoreType.CONFIGURATION, ii);
+
+        if (!subnetsOptional.isPresent() || subnetsOptional.get().getSubnet() == null) {
+            LOG.trace("No neutron subnets found");
+            return Collections.EMPTY_LIST;
+        }
+
+        return subnetsOptional.get().getSubnet();
+    }
+
+    /** method to get all dpn of router.
+    *
+    * @param broker the data broker
+    * @param routerId String of Uuid router
+    * @return a router dpn list from this router
+    */
+    public static Optional<RouterDpnList> getRouterDpnListFromRouterUuid(DataBroker broker, String routerUuid) {
+        InstanceIdentifier id = InstanceIdentifier.builder(NeutronRouterDpns.class)
+            .child(RouterDpnList.class, new RouterDpnListKey(routerUuid)).build();
+        Optional<RouterDpnList> routerDpnListData = read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        return routerDpnListData;
+    }
+
     public static Port getNeutronPortForIp(DataBroker broker,
                                            IpAddress targetIP, String deviceType) {
         List<Port> ports = getNeutronPorts(
