@@ -1939,4 +1939,10 @@ public class NatUtil {
         }
         return false;
     }
+
+    public static String getIPv6FlowRefL3(BigInteger dpnId, short tableId, long vpnId) {
+        return "L3.IPv6" + dpnId.toString() + NwConstants.FLOWID_SEPARATOR + tableId
+                + NwConstants.FLOWID_SEPARATOR + vpnId;
+    }
+
 }
