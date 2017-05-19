@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_09094fdd",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 6016
+      },
+      "writtenOn": "2017-05-19T08:56:25Z",
+      "side": 1,
+      "message": "The same comment as in the openflow renderer. It would be nice to follow in the logs what decision was taken so that we can spot potential problems",
+      "range": {
+        "startLine": 115,
+        "startChar": 16,
+        "endLine": 115,
+        "endChar": 48
+      },
+      "revId": "b5c3ccc84ff25b887245185906cf997db7600c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_e9904b97",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/OpenFlow13Provider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 6016
+      },
+      "writtenOn": "2017-05-19T08:56:25Z",
+      "side": 1,
+      "message": "Could you add a debug/trace log in this method so that we can follow the decision it took (if Local or remote). I think this would ease the debugging",
+      "range": {
+        "startLine": 320,
+        "startChar": 16,
+        "endLine": 320,
+        "endChar": 62
+      },
+      "revId": "b5c3ccc84ff25b887245185906cf997db7600c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_49f7d7f5",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/OpenFlow13Provider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 6016
+      },
+      "writtenOn": "2017-05-19T08:56:25Z",
+      "side": 1,
+      "message": "Could you add a debug/trace log in this method so that we can follow the decision it took (if Local or remote). I think this would ease the debugging",
+      "range": {
+        "startLine": 341,
+        "startChar": 16,
+        "endLine": 341,
+        "endChar": 63
+      },
+      "revId": "b5c3ccc84ff25b887245185906cf997db7600c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
