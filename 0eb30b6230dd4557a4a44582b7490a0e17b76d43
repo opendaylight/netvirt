@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_ceb90d17",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-19T06:57:46Z",
+      "side": 1,
+      "message": "L2 switchwing will be part of an other spec. (not planned for now).\nIt is planned to reduce the perimeter of the spec",
+      "parentUuid": "ba068154_cef47fd1",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_ef87e10d",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -70,6 +88,30 @@
       "writtenOn": "2017-05-09T13:47:24Z",
       "side": 1,
       "message": "It is possible to create multiple IPv6 subnets in a tenant network and Ipv6service supports IPAM (i.e., IPAddress Assignment) for such networks. Does this spec cover this use-case (i.e., say one SLAAC subnet and one dhcpv6-stateful subnet in the same network)?",
+      "range": {
+        "startLine": 35,
+        "startChar": 3,
+        "endLine": 35,
+        "endChar": 17
+      },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_8e46e51f",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-19T06:57:46Z",
+      "side": 1,
+      "message": "you mean if we can handle IPv6 non GUA addresses in the case of SLAAC ? Right now, it is not planned. we consider all IPv6 subnets are GUA.\nI guess there is an API somewhere in IPv6 that does the distinguish between both cases ?",
+      "parentUuid": "ba068154_cfb65ddc",
       "range": {
         "startLine": 35,
         "startChar": 3,
@@ -186,6 +228,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_ce50edd6",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-19T06:57:46Z",
+      "side": 1,
+      "message": "ok.\nI will keep listing all the various use cases.\nand i will limit the perimeter to the use cases that are of interest for this spec. ( 5 and 6)",
+      "parentUuid": "ba068154_0effa7ab",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_ef036171",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -279,6 +339,24 @@
       "side": 1,
       "message": "We donot support in this Spec a router with both IPv4 and IPv6 networks attached to it...\n\nWhy that need not be supported for our use-case is when you want to have IPv6 go without NATing while IPv4 needs NATing for external access in the next spec, we will need two different routers each holding only one network of unique address-family-types.\n\nFor the second question, yes the old spec that implemented \u0027ipv6-interdc-l3vpn\u0027 must have already supported bgpvpn that is purely network-based rather than router-based.   So the second question does not apply to this spec as it should already expected to work :) !",
       "parentUuid": "ba068154_11ed06f0",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_0e0955dd",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-19T06:57:46Z",
+      "side": 1,
+      "message": "Hi,\nTo be sure that I understood well the first case:\ncurrently, we can not have both GUA IPv6 subnet and IPv4 subnet accessing external network in the same router.\nThe reason is that the nat policy applies the same for each router with odl-nat.yang file in enable-snat leaf.\n\nif we configure with enable-snat set to false, then it is possible to have both ipv4 global and ipv6 gua on the same router.\nBut if we have ipv4 local and ipv6 gua on the same router, current case is not covered.\nright ?",
+      "parentUuid": "ba068154_4f6366dc",
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -518,6 +596,42 @@
     },
     {
       "key": {
+        "uuid": "ba068154_4eb87de5",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-19T06:57:46Z",
+      "side": 1,
+      "message": "yes.\nthis is to bring flexibility in QBGP.\nif QBGP receives an entry IPv6 MPLSVPN on a VRF that is expecting to receive only IPv4 entries, then the entry will be ignored.",
+      "parentUuid": "ba068154_c3dba6eb",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_ceec6df6",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-19T06:57:46Z",
+      "side": 1,
+      "message": "this is so that the QBGP vrf tables will reflect what contains the VPN ( ipv4 entries, or ipv6 entries, or both).\n\nhere is the proposed behaviour:\n\nUpon a new subnetwork add to a VPN, the VPN will be created/deleted in QBGP.\n-  if new IPv4 network to be imported to MPLS VPN, then create VRF addVRF(IP, SAFI_MPLSVPN)\n-  if new IPv6 network to be imported to MPLS VPN, then create VRF addVRF(IP6, SAFI_MPLSVPN)\n-  if new IPv4 network to be imported to EVPN VPN ( case RT5), then create VRF addVRF(IP, SAFI_EVPN)\n-  if new IPv6 network to be imported to EVPN VPN ( case RT5), then create VRF addVRF(IP, SAFI_EVPN)\n\n\nUpon a change in the router or in the VPN configuration, there may be some subnetworks that are no more in the VPNs.\nThe list of IPv4 subnetworks attached to that VPN will be parsed.\nIf there are no IPv4 network present in the VPN, then:\n-  if VPN is MPLS VPN, then  the call will be deleteVRF(IP, SAFI_MPLSVPN)\n-  if VPN is MPLS VPN, then  the call will be deleteVRF(IP, SAFI_EVPN) If there are no IPv6 network present in the VPN, then:\n\nThe list of IPv6 subnetworks attached to that VPN will be parsed.\nIf there are no IPv6 network present in the VPN, then:\n-  if VPN is MPLS VPN, then  the call will be deleteVRF(IP6, SAFI_MPLSVPN)\n-  if VPN is MPLS VPN, then  the call will be deleteVRF(IP6, SAFI_EVPN)",
+      "parentUuid": "ba068154_8e71d7e2",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_78928358",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -586,6 +700,29 @@
     },
     {
       "key": {
+        "uuid": "ba068154_eec85176",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-19T06:57:46Z",
+      "side": 1,
+      "message": "( that is to say when neutron bgpvpn-net-assoc or neutron bgpvpn-router-assoc will be called)",
+      "range": {
+        "startLine": 243,
+        "startChar": 2,
+        "endLine": 243,
+        "endChar": 32
+      },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_41187281",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -597,6 +734,24 @@
       "writtenOn": "2017-05-12T15:54:53Z",
       "side": 1,
       "message": "Maybe after this sentence it would be useful to add:\n\nWhen the 1-st subnet IPv4 or IPv6 was attached to VPN, associated QBGP context must be created as well. And respectively, when the last subnet was removed, we must to remove associated QBGP context.",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_0ea5d5b4",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-19T06:57:46Z",
+      "side": 1,
+      "message": "yes. I will bring a subchapter about QBGP creation.",
+      "parentUuid": "ba068154_41187281",
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -620,6 +775,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_ae95a941",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-19T06:57:46Z",
+      "side": 1,
+      "message": "exactly.",
+      "parentUuid": "ba068154_f894b338",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_b8d86b1e",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -631,6 +804,24 @@
       "writtenOn": "2017-05-15T10:48:24Z",
       "side": 1,
       "message": "Some clarifications are needed:\n\n- we should check, that we do not add the same router 2 times\n- attached router list can contain more, than 2 routers\n- for each neutron port we take only the last received IPv4 address and the last received IPv6 address, so IPs retrieved from a neutron port would be always limited to 2.\n\nAnd, probably, we have to check here that retrieved IPs have different Ethertypes  ?",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_0e8cb534",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-19T06:57:46Z",
+      "side": 1,
+      "message": "about different EtherType, I am not sure.\nReason is that if we process different ethertype ( how to retrieve it first?), this may impact the pipeline.\nI would say that this EtherType question is out of perimeter of the spec).",
+      "parentUuid": "ba068154_b8d86b1e",
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -665,6 +856,24 @@
       "writtenOn": "2017-05-15T10:48:24Z",
       "side": 1,
       "message": "add new attribute to VPN port object",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_6e83c104",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-19T06:57:46Z",
+      "side": 1,
+      "message": "are there any other yang changes ?",
+      "parentUuid": "ba068154_d8772f01",
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -722,6 +931,24 @@
     },
     {
       "key": {
+        "uuid": "ba068154_8e77053b",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-19T06:57:46Z",
+      "side": 1,
+      "message": "as Valentina specified, there will be 2 use cases:\n- dual stackrouter\n- 2 routers with respectively each one with ipv4 and ipv6",
+      "parentUuid": "ba068154_43c85622",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_b1acfaa1",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -733,6 +960,24 @@
       "writtenOn": "2017-05-17T08:30:52Z",
       "side": 1,
       "message": "Do we support subnets associated to VPN directly? In IPV4 its supported",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_ce710d46",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-19T06:57:46Z",
+      "side": 1,
+      "message": "you mean associateNetworks ?\nIt is also planned to unlock it.\nI will try to give you more information.",
+      "parentUuid": "ba068154_b1acfaa1",
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
