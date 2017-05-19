@@ -9,6 +9,9 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
 
+import java.math.BigInteger;
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -34,8 +37,22 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
     private static final Logger LOG = LoggerFactory.getLogger(ExternalSubnetVpnInstanceListener.class);
     private final DataBroker dataBroker;
     private final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer;
+    private final IPv6DefaultRouteProgrammer ipv6DefaultRouteProgrammer;
     private final IElanService elanService;
     private final IVpnManager vpnManager;
+
+
+    @Inject
+    public ExternalSubnetVpnInstanceListener(final DataBroker dataBroker,
+            final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer,
+            final IElanService elanService, final IVpnManager vpnManager,
+            final IPv6DefaultRouteProgrammer argIpv6DefaultRouteProgrammer) {
+        this.dataBroker = dataBroker;
+        this.snatDefaultRouteProgrammer = snatDefaultRouteProgrammer;
+        this.ipv6DefaultRouteProgrammer = argIpv6DefaultRouteProgrammer;
+        this.elanService = elanService;
+        this.vpnManager = vpnManager;
+    }
 
     @Inject
     public ExternalSubnetVpnInstanceListener(final DataBroker dataBroker,
@@ -43,6 +60,7 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
             final IElanService elanService, final IVpnManager vpnManager) {
         this.dataBroker = dataBroker;
         this.snatDefaultRouteProgrammer = snatDefaultRouteProgrammer;
+        this.ipv6DefaultRouteProgrammer = IPv6DefaultRouteProgrammer.getInstance(null);
         this.elanService = elanService;
         this.vpnManager = vpnManager;
     }
@@ -68,6 +86,19 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
                 new Uuid(possibleExtSubnetUuid));
         if (optionalSubnets.isPresent()) {
             addOrDelDefaultFibRouteToSNATFlow(vpnInstance, optionalSubnets.get(), NwConstants.DEL_FLOW);
+
+            long vpnId = vpnInstance.getVpnId();
+            long routerIdAsLong;
+            String routerIdUuid =
+                 NatUtil.getRouterIdfromVpnInstance(dataBroker, vpnInstance.getVpnInstanceName());
+            List<BigInteger> dpnIds =
+                 NatUtil.getDpnsForRouter(dataBroker, routerIdUuid);
+            if (!dpnIds.isEmpty()) {
+                for (BigInteger dpnId : dpnIds) {
+                    routerIdAsLong = Long.valueOf(routerIdUuid);
+                    ipv6DefaultRouteProgrammer.removeDefaultRouteIpv6InDPN(dpnId, vpnId, routerIdAsLong);
+                }
+            }
             invokeSubnetDeletedFromVpn(possibleExtSubnetUuid);
         }
     }
@@ -90,6 +121,19 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
             LOG.debug("add : VpnInstance {} for external subnet {}.", possibleExtSubnetUuid,
                     optionalSubnets.get());
             addOrDelDefaultFibRouteToSNATFlow(vpnInstance, optionalSubnets.get(), NwConstants.ADD_FLOW);
+
+            long vpnId = vpnInstance.getVpnId();
+            long routerIdAsLong;
+            String routerIdUuid =
+                NatUtil.getRouterIdfromVpnInstance(dataBroker, vpnInstance.getVpnInstanceName());
+            List<BigInteger> dpnIds =
+                 NatUtil.getDpnsForRouter(dataBroker, routerIdUuid);
+            if (!dpnIds.isEmpty()) {
+                for (BigInteger dpnId : dpnIds) {
+                    routerIdAsLong = Long.valueOf(routerIdUuid);
+                    ipv6DefaultRouteProgrammer.installDefaultRouteIpv6InDPN(dpnId, vpnId, routerIdAsLong);
+                }
+            }
             invokeSubnetAddedToVpn(possibleExtSubnetUuid);
         }
     }
