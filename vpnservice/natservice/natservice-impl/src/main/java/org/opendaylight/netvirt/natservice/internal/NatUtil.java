@@ -1363,6 +1363,21 @@ public class NatUtil {
         return portsOptional.get().getPort();
     }
 
+    /** method to get all dpn of router.
+    *
+    * @param broker the data broker
+    * @param routerUuid String of Uuid router
+    * @return a router dpn list from this router
+    */
+    public static Optional<RouterDpnList> getRouterDpnListFromRouterUuid(DataBroker broker, String routerUuid) {
+        InstanceIdentifier id = InstanceIdentifier.builder(NeutronRouterDpns.class)
+            .child(RouterDpnList.class, new RouterDpnListKey(routerUuid)).build();
+        Optional<RouterDpnList> routerDpnListData = SingleTransactionDataBroker
+                .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                     LogicalDatastoreType.OPERATIONAL, id);
+        return routerDpnListData;
+    }
+
     public static Port getNeutronPortForIp(DataBroker broker,
                                            IpAddress targetIP, String deviceType) {
         List<Port> ports = getNeutronPorts(
