@@ -68,6 +68,26 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
                 new Uuid(possibleExtSubnetUuid));
         if (optionalSubnets.isPresent()) {
             addOrDelDefaultFibRouteToSNATFlow(vpnInstance, optionalSubnets.get(), NwConstants.DEL_FLOW);
+            // found = False
+	    // for all subnetmaps with externalvpnid ==  vpnInstance.getVpnId();
+	    //   if subnetmap->prefix is IPv6
+            //     found = true
+            // if found == false
+	    //     Optional<VpnInstanceOpDataEntry> networkVpnInstanceOp = NatUtil.read(dataBroker,
+            //       LogicalDatastoreType.OPERATIONAL, networkVpnInstanceIdentifier);
+	    //      if (networkVpnInstanceOp.isPresent()) {
+            //      List<VpnToDpnList> dpnListInVpn = networkVpnInstanceOp.get().getVpnToDpnList();
+            //       if (dpnListInVpn != null) {
+            //       for (VpnToDpnList dpn : dpnListInVpn) {
+	    //           FlowEntity = addIPv6FallbacktoExternalVpn(dpn.getDpnId(), vpnInstance.getVpnId(), routerId())
+            //               LOG.info("IPv6 Service : Installing flow {} for subnetId {}, vpnId {} on dpn {}",
+            //                         flowEntity, subnetId, vpnId, dpn.getDpnId());
+            //           mdsalManager.deleteFlow(flowEntity);
+	    //       }
+            //       break
+            //
+            // for all subnetmaps with externalvpnid ==  vpnInstance.getVpnId();
+            //    invokeSubnetRemovedFromExternalVpn(subnetId);
             invokeSubnetDeletedFromVpn(possibleExtSubnetUuid);
         }
     }
@@ -90,8 +110,46 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
             LOG.debug("NAT Service : VpnInstance {} for external subnet {}.", possibleExtSubnetUuid,
                     optionalSubnets.get());
             addOrDelDefaultFibRouteToSNATFlow(vpnInstance, optionalSubnets.get(), NwConstants.ADD_FLOW);
+	    // for all subnetmaps with externalvpnid ==  vpnInstance.getVpnId();
+	    //   if subnetmap->prefix is IPv6
+            //     Optional<VpnInstanceOpDataEntry> networkVpnInstanceOp = NatUtil.read(dataBroker,
+            //       LogicalDatastoreType.OPERATIONAL, networkVpnInstanceIdentifier);
+	    //      if (networkVpnInstanceOp.isPresent()) {
+            //      List<VpnToDpnList> dpnListInVpn = networkVpnInstanceOp.get().getVpnToDpnList();
+            //       if (dpnListInVpn != null) {
+            //       for (VpnToDpnList dpn : dpnListInVpn) {
+	    //           FlowEntity = addIPv6FallbacktoExternalVpn(dpn.getDpnId(), vpnInstance.getVpnId(), routerId())
+            //               LOG.info("IPv6 Service : Installing flow {} for subnetId {}, vpnId {} on dpn {}",
+            //                         flowEntity, subnetId, vpnId, dpn.getDpnId());
+            //           mdsalManager.installFlow(flowEntity);
+	    //       }
+            //       break
+            //
+	    // for all subnetmaps with externalvpnid ==  vpnInstance.getVpnId();
+	    //    String subnet = subnetmap.getSubnet().getValue();
+            //    String subnetId = subnet.getId().getValue();
+            //    invokeSubnetAddedToExternalVpn(subnetId);
             invokeSubnetAddedToVpn(possibleExtSubnetUuid);
         }
+    }
+
+    private void invokeSubnetAddedToExternalVpn(String externalSubnetId) {
+        Uuid externalSubnetUuid = new Uuid(externalSubnetId);
+        Subnetmap subnetMap = NatUtil.getSubnetMap(dataBroker, externalSubnetUuid);
+        if (subnetMap == null) {
+            LOG.error("Cannot invoke onSubnetAddedToVpn for subnet-id {} in vpn-id {}"
+                    + " due to this subnet missing in Subnetmap model", externalSubnetUuid, externalSubnetId);
+            return;
+        }
+        ElanInstance elanInstance = elanService.getElanInstance(subnetMap.getNetworkId().getValue());
+        vpnManager.onSubnetAddedToExternalVpn(subnetMap, false, elanInstance.getElanTag());
+
+    }
+
+    private void invokeSubnetDeletedFromExternalVpn(String externalSubnetId) {
+        Uuid externalSubnetUuid = new Uuid(externalSubnetId);
+        Subnetmap subnetMap = NatUtil.getSubnetMap(dataBroker, externalSubnetUuid);
+        vpnManager.onSubnetDeletedFromExternalVpn(subnetMap, false);
     }
 
     private void invokeSubnetAddedToVpn(String externalSubnetId) {
@@ -111,6 +169,28 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
         Uuid externalSubnetUuid = new Uuid(externalSubnetId);
         Subnetmap subnetMap = NatUtil.getSubnetMap(dataBroker, externalSubnetUuid);
         vpnManager.onSubnetDeletedFromVpn(subnetMap, false);
+    }
+
+    static FlowEntity buildDefaultIPv6FlowEntityForExternalSubnet(BigInteger dpId, long vpnId, String subnetId,
+            IdManagerService idManager) {
+        InetAddress defaultIP = null;
+        try {
+            defaultIP = InetAddress.getByName("0.0.0.0");
+        } catch (UnknownHostException e) {
+            LOG.error("NAT Service : UnknowHostException in buildDefNATFlowEntityForExternalSubnet. "
+                + "Failed to build FIB Table Flow for Default Route to NAT.");
+            return null;
+        }
+	// see code 
+
+        return flowEntity;
+    }
+
+    private void addOrDelDefaultFibRouteToExternalFlow(VpnInstance vpnInstance, Subnetmap subnet, String networkId, int flowAction) {
+        String vpnInstanceName = vpnInstance.getVpnInstanceName();
+        LOG.debug("NAT Service : VpnInstance {} for external subnet {}.", vpnInstanceName, subnet);
+        Long vpnId = vpnInstance.getVpnId();
+        addOrDelDefaultFibRouteToExternalVpnForSubnetMap(subnetmap, networkId, flowAction, vpnId);
     }
 
     private void addOrDelDefaultFibRouteToSNATFlow(VpnInstance vpnInstance, Subnets subnet, int flowAction) {
