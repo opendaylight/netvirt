@@ -83,6 +83,8 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             // in SubnetRouteHandler
             vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, isBgpVpn , elanTag);
         }
+        if (subnetmap.getInternetVpnUuid() != null) {
+        }
     }
 
     @Override
@@ -100,6 +102,8 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
                     identifier, subnetmapOriginal, subnetmapUpdate);
         Uuid vpnIdNew = subnetmapUpdate.getVpnId();
         Uuid vpnIdOld = subnetmapOriginal.getVpnId();
+        Uuid vpnIdInternetNew = subnetmapUpdate.getInternetVpnId();
+        Uuid vpnIdInternetOld = subnetmapOriginal.getInternetVpnId();
         Uuid subnetId = subnetmapUpdate.getId();
         String elanInstanceName = subnetmapUpdate.getNetworkId().getValue();
         // SubnetRoute for ExternalSubnets is handled in ExternalSubnetVpnInstanceListener.
@@ -120,7 +124,16 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             if (!isBgpVpn) {
                 return;
             }
-            vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmapUpdate, true, elanTag);
+            vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmapUpdate, true, elanTag, true);
+            return;
+        }
+        // subnet added to VPN case
+        if (vpnIdInternetNew != null && vpnIdInternetOld == null) {
+            boolean isBgpVpn = !vpnIdInternetNew.equals(subnetmapUpdate.getRouterId());
+            if (!isBgpVpn) {
+                return;
+            }
+            vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmapUpdate, true, elanTag, false);
             return;
         }
         // subnet removed from VPN case
@@ -129,12 +142,26 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             if (!isBgpVpn) {
                 return;
             }
-            vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmapOriginal, true);
+            vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmapOriginal, true, true);
+            return;
+        }
+        // subnet removed from VPN case
+        if (vpnIdInternetOld != null && vpnIdInternetNew == null) {
+            Boolean isBgpVpn = vpnIdOld.equals(subnetmapOriginal.getRouterId()) ? false : true;
+            if (!isBgpVpn) {
+                return;
+            }
+            vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmapOriginal, true, false);
             return;
         }
         // subnet updated in VPN case
         if (vpnIdOld != null && vpnIdNew != null && (!vpnIdNew.equals(vpnIdOld))) {
-            vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetmapUpdate, elanTag);
+            vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetmapUpdate, elanTag, true);
+            return;
+        }
+        // subnet updated in VPN case
+        if (vpnIdInternetOld != null && vpnIdInternetNew != null && (!vpnIdInternetNew.equals(vpnIdInternetOld))) {
+            vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetmapUpdate, elanTag, false);
             return;
         }
         // port added/removed to/from subnet case

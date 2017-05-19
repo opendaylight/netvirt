@@ -46,24 +46,49 @@ public class SubnetOpDpnManager {
 
     private SubnetToDpn addDpnToSubnet(Uuid subnetId, BigInteger dpnId) {
         try {
-            InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
-                InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
-                    new SubnetOpDataEntryKey(subnetId)).build();
-            InstanceIdentifier<SubnetToDpn> dpnOpId =
-                subOpIdentifier.child(SubnetToDpn.class, new SubnetToDpnKey(dpnId));
-            Optional<SubnetToDpn> optionalSubDpn = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId);
-            if (optionalSubDpn.isPresent()) {
-                LOG.error("Cannot create, SubnetToDpn for subnet {} as DPN {} already seen in datastore",
-                    subnetId.getValue(), dpnId);
-                return null;
+            String vpnName;
+            SubnetToDpn subDpn;
+            InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier;
+            // XXX fill in vpnName with subnetmap->vpnId
+	    if (vpnName) {
+               subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
+                         new SubnetOpDataEntryKey(subnetId, vpnName)).build();
+               InstanceIdentifier<SubnetToDpn> dpnOpId =
+                    subOpIdentifier.child(SubnetToDpn.class, new SubnetToDpnKey(dpnId));
+               Optional<SubnetToDpn> optionalSubDpn = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId);
+               if (optionalSubDpn.isPresent()) {
+                   LOG.error("Cannot create, SubnetToDpn for subnet {} vpnName {} as DPN {} already seen in datastore",
+                           subnetId.getValue(), vpnName, dpnId);
+                    return null;
+               }
+               SubnetToDpnBuilder subDpnBuilder = new SubnetToDpnBuilder().setKey(new SubnetToDpnKey(dpnId));
+                List<VpnInterfaces> vpnIntfList = new ArrayList<>();
+                subDpnBuilder.setVpnInterfaces(vpnIntfList);
+                subDpn = subDpnBuilder.build();
+                LOG.trace("Creating SubnetToDpn entry for subnet  " + subnetId.getValue() + " with DPNId " + dpnId);
+                SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId, subDpn);
             }
-            SubnetToDpnBuilder subDpnBuilder = new SubnetToDpnBuilder().setKey(new SubnetToDpnKey(dpnId));
-            List<VpnInterfaces> vpnIntfList = new ArrayList<>();
-            subDpnBuilder.setVpnInterfaces(vpnIntfList);
-            SubnetToDpn subDpn = subDpnBuilder.build();
-            LOG.trace("Creating SubnetToDpn entry for subnet  " + subnetId.getValue() + " with DPNId " + dpnId);
-            SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId, subDpn);
-            return subDpn;
+            // XXX fill in vpnName with subnetmap->vpnInternetId
+	    if (vpnName) {
+                 subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
+                         new SubnetOpDataEntryKey(subnetId, vpnName)).build();
+                 InstanceIdentifier<SubnetToDpn> dpnOpId =
+                    subOpIdentifier.child(SubnetToDpn.class, new SubnetToDpnKey(dpnId));
+                 Optional<SubnetToDpn> optionalSubDpn = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId);
+                 if (optionalSubDpn.isPresent()) {
+                    LOG.error("Cannot create, SubnetToDpn for subnet {} vpnName {} as DPN {} already seen in datastore",
+                           subnetId.getValue(), vpnName, dpnId);
+                    return null;
+                }
+                SubnetToDpnBuilder subDpnBuilder = new SubnetToDpnBuilder().setKey(new SubnetToDpnKey(dpnId));
+                List<VpnInterfaces> vpnIntfList = new ArrayList<>();
+                subDpnBuilder.setVpnInterfaces(vpnIntfList);
+                subDpn = subDpnBuilder.build();
+                LOG.trace("Creating SubnetToDpn entry for subnet  " + subnetId.getValue() + " with DPNId " + dpnId);
+                SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId, subDpn);
+	    }
+	    // XXX we assume we return only one out of the two allocated subdpns
+	    return subDpn;
         } catch (TransactionCommitFailedException ex) {
             LOG.error("Creation of SubnetToDpn for subnet {} with DpnId {} failed", subnetId.getValue(), dpnId, ex);
             return null;

@@ -59,14 +59,30 @@ public class ShowSubnet extends OsgiCommandSupport {
                 getSubnet();
                 System.out.println("Following subnetId is present in both subnetMap and subnetOpDataEntry\n");
                 for (Subnetmap subnetmap : subnetmapList) {
-                    SubnetOpDataEntry data = subnetOpDataEntryMap.get(subnetmap.getId());
+                    String vpnName = subnetmap->getVpnId();
+                    SubnetOpDataEntry data;
+		    if (vpnName)
+                       SubnetOpDataEntry data = subnetOpDataEntryMap.get(subnetmap.getId(), vpnName);
+                    if (data != null) {
+                        System.out.println(subnetmap.getId().toString() + "\n");
+                    }
+                    vpnName = subnetmap->getVpnInternetId();
+                    data = subnetOpDataEntryMap.get(subnetmap.getId(), vpnName);
                     if (data != null) {
                         System.out.println(subnetmap.getId().toString() + "\n");
                     }
                 }
                 System.out.println("\n\nFollowing subnetId is present in subnetMap but not in subnetOpDataEntry\n");
                 for (Subnetmap subnetmap : subnetmapList) {
-                    SubnetOpDataEntry data = subnetOpDataEntryMap.get(subnetmap.getId());
+                    String vpnName = subnetmap->getVpnId();
+                    SubnetOpDataEntry data = null;
+		    if (vpnName)
+                        data = subnetOpDataEntryMap.get(subnetmap.getId(), vpnName);
+                    if (data == null) {
+                        System.out.println(subnetmap.getId().toString() + "\n");
+                    }
+                    vpnName = subnetmap->getVpnInternetId();
+                    data = subnetOpDataEntryMap.get(subnetmap.getId(), vpnName);
                     if (data == null) {
                         System.out.println(subnetmap.getId().toString() + "\n");
                     }

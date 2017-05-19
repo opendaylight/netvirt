@@ -371,7 +371,7 @@ public class VpnSubnetRouteHandlerTest {
         doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, subOpIdentifier);
 
-        vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, true, elanTag);
+        vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, true, elanTag, true);
 
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn, true);
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, portOpIdentifier, portOp, true);

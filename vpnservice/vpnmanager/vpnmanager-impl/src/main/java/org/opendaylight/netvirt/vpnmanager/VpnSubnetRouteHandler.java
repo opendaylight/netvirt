@@ -80,7 +80,7 @@ public class VpnSubnetRouteHandler {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void onSubnetAddedToVpn(Subnetmap subnetmap, boolean isBgpVpn, Long elanTag) {
+    public void onSubnetAddedToVpn(Subnetmap subnetmap, boolean isBgpVpn, Long elanTag, boolean isExternalVpn) {
         Uuid subnetId = subnetmap.getId();
         String subnetIp = subnetmap.getSubnetIp();
         boolean isRouteAdvertised = false;
@@ -91,10 +91,14 @@ public class VpnSubnetRouteHandler {
 
         LOG.info("onSubnetAddedToVpn: Subnet {} being added to vpn", subnetId.getValue());
 
-        String vpnName;
-        if (subnetmap.getVpnId() != null) {
-            vpnName = subnetmap.getVpnId().getValue();
-            long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+        String vpnName = null;
+        if (isExternalVpn == true && subnetmap.getVpnId() != null) {
+                 vpnName = subnetmap.getVpnId().getValue();
+        } else if (subnetmap.getInternetVpnId() != null) {
+                 vpnName = subnetmap.getVpnId().getValue();
+	}
+	if (vpnName) {
+	    long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
             if (vpnId == VpnConstants.INVALID_ID) {
                 vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataType.vpnInstanceToId, vpnName,
                         VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);
@@ -143,7 +147,7 @@ public class VpnSubnetRouteHandler {
                 //Create and add SubnetOpDataEntry object for this subnet to the SubnetOpData container
                 InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
                     InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
-                        new SubnetOpDataEntryKey(subnetId)).build();
+                          new SubnetOpDataEntryKey(subnetId, vpnName)).build();
                 Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(dataBroker,
                         LogicalDatastoreType.OPERATIONAL,
                         subOpIdentifier);
@@ -157,7 +161,7 @@ public class VpnSubnetRouteHandler {
                 BigInteger dpnId = null;
                 SubnetToDpn subDpn = null;
                 SubnetOpDataEntryBuilder subOpBuilder =
-                    new SubnetOpDataEntryBuilder().setKey(new SubnetOpDataEntryKey(subnetId));
+                    new SubnetOpDataEntryBuilder().setKey(new SubnetOpDataEntryKey(subnetId, vpnName));
                 subOpBuilder.setSubnetId(subnetId);
                 subOpBuilder.setSubnetCidr(subnetIp);
                 String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
@@ -219,7 +223,7 @@ public class VpnSubnetRouteHandler {
                 LOG.info("onSubnetAddedToVpn: Added subnetopdataentry to OP Datastore for subnet {}",
                         subnetId.getValue());
             } catch (Exception ex) {
-                LOG.error("Creation of SubnetOpDataEntry for subnet {} failed", subnetId.getValue(), ex);
+                LOG.error("Creation of SubnetOpDataEntry for subnet {} vpn {} failed", subnetId.getValue(), vpnName, ex);
             } finally {
                 VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
             }
@@ -230,16 +234,27 @@ public class VpnSubnetRouteHandler {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void onSubnetDeletedFromVpn(Subnetmap subnetmap, boolean isBgpVpn) {
+    public void onSubnetDeletedFromVpn(Subnetmap subnetmap, boolean isBgpVpn , boolean isExternalVpn) {
         Uuid subnetId = subnetmap.getId();
+        String vpnName;
         LOG.info("onSubnetDeletedFromVpn: Subnet " + subnetId.getValue() + " being removed from vpn");
         //TODO(vivek): Change this to use more granularized lock at subnetId level
+	if (isExternalVpn)
+	    vpnName = subnetmap.getVpnId());
+        else
+	    vpnName = subnetmap.getVpnInternetId());
+
+        LOG.info("onSubnetDeletedFromVpn: Subnet " + subnetId.getValue() + " being removed from vpn");
+        //TODO(vivek): Change this to use more granularized lock at subnetId level
+        if (!vpnName) {
+	    return;
+        }
         try {
             VpnUtil.lockSubnet(lockManager, subnetId.getValue());
             try {
                 InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
                     InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
-                        new SubnetOpDataEntryKey(subnetId)).build();
+                               new SubnetOpDataEntryKey(subnetId,vpnName)).build();
                 LOG.trace(" Removing the SubnetOpDataEntry node for subnet: " +  subnetId.getValue());
                 Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(dataBroker,
                         LogicalDatastoreType.OPERATIONAL,
@@ -296,11 +311,14 @@ public class VpnSubnetRouteHandler {
         }
     }
 
-    public void onSubnetUpdatedInVpn(Subnetmap subnetmap, Long elanTag) {
+public void onSubnetUpdatedInVpn(Subnetmap subnetmap, Long elanTag, boolean isExternalVpn) {
         Uuid subnetId = subnetmap.getId();
-        String vpnName = subnetmap.getVpnId().getValue();
+        String vpnName = null;
         String subnetIp = subnetmap.getSubnetIp();
-
+        if (isExternalVpn)
+	    vpnName = subnetmap.getVpnId().getValue();
+        else
+            vpnName = subnetmap.getInternetVpnId().getValue();
         Preconditions.checkNotNull(subnetId, "SubnetId cannot be null or empty!");
         Preconditions.checkNotNull(subnetIp, "SubnetPrefix cannot be null or empty!");
         Preconditions.checkNotNull(vpnName, "VpnName cannot be null or empty!");
@@ -308,13 +326,13 @@ public class VpnSubnetRouteHandler {
 
         InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
             InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
-                new SubnetOpDataEntryKey(subnetId)).build();
+                   new SubnetOpDataEntryKey(subnetId, vpnName)).build();
         Optional<SubnetOpDataEntry> optionalSubs =
             VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
         if (optionalSubs.isPresent()) {
-            onSubnetDeletedFromVpn(subnetmap, true);
+            onSubnetDeletedFromVpn(subnetmap, true, isExternalVpn);
         } else {
-            onSubnetAddedToVpn(subnetmap, true, elanTag);
+            onSubnetAddedToVpn(subnetmap, true, elanTag, isExternalVpn);
         }
     }
 
