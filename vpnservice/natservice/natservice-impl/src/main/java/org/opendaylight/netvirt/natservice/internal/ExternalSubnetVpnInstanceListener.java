@@ -34,15 +34,18 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
     private static final Logger LOG = LoggerFactory.getLogger(ExternalSubnetVpnInstanceListener.class);
     private final DataBroker dataBroker;
     private final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer;
+    private final IPv6DefaultRouteProgrammer ipv6DefaultRouteProgrammer;
     private final IElanService elanService;
     private final IVpnManager vpnManager;
 
     @Inject
     public ExternalSubnetVpnInstanceListener(final DataBroker dataBroker,
             final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer,
-            final IElanService elanService, final IVpnManager vpnManager) {
+            final IElanService elanService, final IVpnManager vpnManager,
+            final IPv6DefaultRouteProgrammer ipv6drp) {
         this.dataBroker = dataBroker;
         this.snatDefaultRouteProgrammer = snatDefaultRouteProgrammer;
+        this.ipv6DefaultRouteProgrammer = ipv6drp;
         this.elanService = elanService;
         this.vpnManager = vpnManager;
     }
