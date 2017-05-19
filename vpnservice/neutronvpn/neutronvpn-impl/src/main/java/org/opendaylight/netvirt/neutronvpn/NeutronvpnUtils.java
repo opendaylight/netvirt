@@ -39,6 +39,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
@@ -1636,5 +1637,10 @@ public class NeutronvpnUtils {
             return Collections.singletonList(writeTxn.submit());
         });
         return;
+    }
+
+    public String getIPv6FlowRefL3(BigInteger dpnId, short tableId, long vpnId) {
+        return "L3.IPv6" + dpnId.toString() + NwConstants.FLOWID_SEPARATOR + tableId
+                + NwConstants.FLOWID_SEPARATOR + vpnId;
     }
 }
