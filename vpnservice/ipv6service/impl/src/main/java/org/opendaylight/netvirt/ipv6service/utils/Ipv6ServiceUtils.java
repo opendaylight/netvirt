@@ -368,6 +368,11 @@ public class Ipv6ServiceUtils {
                 .append(flowType).toString();
     }
 
+    public static String getIPv6FlowRefL3(BigInteger dpnId, short tableId, /*InetAddress destPrefix,*/ long vpnId) {
+        return "L3." + dpnId.toString() + Ipv6Constants.FLOWID_SEPARATOR + tableId
+                + Ipv6Constants.FLOWID_SEPARATOR + vpnId;
+    }
+
     public void installIcmpv6NsPuntFlow(short tableId, BigInteger dpId,  Long elanTag, String ipv6Address,
                                         IMdsalApiManager mdsalUtil,int addOrRemove) {
         List<MatchInfo> neighborSolicitationMatch = getIcmpv6NSMatch(elanTag, ipv6Address);
