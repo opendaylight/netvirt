@@ -40,9 +40,11 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
     @Inject
     public ExternalSubnetVpnInstanceListener(final DataBroker dataBroker,
             final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer,
-            final IElanService elanService, final IVpnManager vpnManager) {
+            final IElanService elanService, final IVpnManager vpnManager,
+            final IMdsalApiManager mdsalManager, final IPv6DefaultRouteProgrammer ipv6drp) {
         this.dataBroker = dataBroker;
         this.snatDefaultRouteProgrammer = snatDefaultRouteProgrammer;
+        this.ipv6DefaultRouteProgrammer = ipv6drp;
         this.elanService = elanService;
         this.vpnManager = vpnManager;
     }
