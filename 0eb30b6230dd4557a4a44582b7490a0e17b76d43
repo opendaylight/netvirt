@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "9a0b7d60_0f87e562",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_ceb90d17",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_ef87e10d",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -54,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "9a0b7d60_2f82a952",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_ef87e10d",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_ef9ec155",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -65,6 +101,30 @@
       "writtenOn": "2017-05-09T13:47:24Z",
       "side": 1,
       "message": "nit: please remove \"from\"",
+      "range": {
+        "startLine": 33,
+        "startChar": 71,
+        "endLine": 33,
+        "endChar": 75
+      },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a0b7d60_4f81ed49",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_ef9ec155",
       "range": {
         "startLine": 33,
         "startChar": 71,
@@ -187,6 +247,30 @@
     },
     {
       "key": {
+        "uuid": "9a0b7d60_2fe9091b",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_efec01ca",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 75
+      },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_af095997",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -246,6 +330,48 @@
     },
     {
       "key": {
+        "uuid": "9a0b7d60_cf8cbd82",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_af095997",
+      "range": {
+        "startLine": 62,
+        "startChar": 6,
+        "endLine": 63,
+        "endChar": 9
+      },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a0b7d60_ef8f0174",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_ce50edd6",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_ef036171",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -257,6 +383,30 @@
       "writtenOn": "2017-05-09T13:47:24Z",
       "side": 1,
       "message": "nit: s/there/then",
+      "range": {
+        "startLine": 73,
+        "startChar": 4,
+        "endLine": 73,
+        "endChar": 9
+      },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a0b7d60_0feec522",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_ef036171",
       "range": {
         "startLine": 73,
         "startChar": 4,
@@ -363,6 +513,102 @@
     },
     {
       "key": {
+        "uuid": "9a0b7d60_2fd0e952",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_4f6366dc",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a0b7d60_0fd52543",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_cf2bfde9",
+      "range": {
+        "startLine": 77,
+        "startChar": 65,
+        "endLine": 77,
+        "endChar": 84
+      },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a0b7d60_afc33989",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_0e0955dd",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a0b7d60_4fcf2db1",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_5827bf64",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a0b7d60_6fcaf1a2",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_11ed06f0",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_2ff56983",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -374,6 +620,30 @@
       "writtenOn": "2017-05-09T13:47:24Z",
       "side": 1,
       "message": "nit: s/belonw/belong",
+      "range": {
+        "startLine": 84,
+        "startChar": 33,
+        "endLine": 84,
+        "endChar": 39
+      },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a0b7d60_efbd4104",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_2ff56983",
       "range": {
         "startLine": 84,
         "startChar": 33,
@@ -403,6 +673,24 @@
     },
     {
       "key": {
+        "uuid": "9a0b7d60_af4a1925",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_9820074b",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_4272377d",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -414,6 +702,24 @@
       "writtenOn": "2017-05-11T16:51:50Z",
       "side": 1,
       "message": "s/will inherit from information from the two subnetworks./will inherit information (extraroutes, etc) from 2 subnetworks  IPv4 and IPv6./",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a0b7d60_8f47551d",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_4272377d",
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -460,6 +766,48 @@
     },
     {
       "key": {
+        "uuid": "9a0b7d60_2f5e29ea",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_cf12ddb3",
+      "range": {
+        "startLine": 153,
+        "startChar": 0,
+        "endLine": 154,
+        "endChar": 6
+      },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a0b7d60_0f6365b2",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_c20587c3",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_18d4171f",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -471,6 +819,24 @@
       "writtenOn": "2017-05-15T09:58:44Z",
       "side": 1,
       "message": "except that the a single L3VPN instance for both IPv4 and IPv6 subnets",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a0b7d60_6f5831fb",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_18d4171f",
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -494,6 +860,24 @@
     },
     {
       "key": {
+        "uuid": "9a0b7d60_4f5d6de9",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_a2bb23c3",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_78e4430d",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -505,6 +889,24 @@
       "writtenOn": "2017-05-15T09:58:44Z",
       "side": 1,
       "message": "We need to provide here some info about the use-case with 1 router",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a0b7d60_af1fb908",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_78e4430d",
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -528,6 +930,24 @@
     },
     {
       "key": {
+        "uuid": "9a0b7d60_cf167df1",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_78cba372",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_b8c50b5d",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -539,6 +959,24 @@
       "writtenOn": "2017-05-15T09:58:44Z",
       "side": 1,
       "message": "s/router/routers/",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a0b7d60_2fd3c939",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_b8c50b5d",
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -649,6 +1087,24 @@
     },
     {
       "key": {
+        "uuid": "9a0b7d60_8fcab56c",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_78928358",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_c14622bf",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -700,6 +1156,24 @@
     },
     {
       "key": {
+        "uuid": "9a0b7d60_efc70163",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_7879e32e",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_eec85176",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -711,6 +1185,30 @@
       "writtenOn": "2017-05-19T06:57:46Z",
       "side": 1,
       "message": "( that is to say when neutron bgpvpn-net-assoc or neutron bgpvpn-router-assoc will be called)",
+      "range": {
+        "startLine": 243,
+        "startChar": 2,
+        "endLine": 243,
+        "endChar": 32
+      },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a0b7d60_2fa109aa",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_eec85176",
       "range": {
         "startLine": 243,
         "startChar": 2,
@@ -758,6 +1256,42 @@
     },
     {
       "key": {
+        "uuid": "9a0b7d60_6fab118a",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_0ea5d5b4",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a0b7d60_0fa6c5c1",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_41187281",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_f894b338",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -786,6 +1320,24 @@
       "writtenOn": "2017-05-19T06:57:46Z",
       "side": 1,
       "message": "exactly.",
+      "parentUuid": "ba068154_f894b338",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a0b7d60_ef9ee162",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
       "parentUuid": "ba068154_f894b338",
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
@@ -839,6 +1391,24 @@
       "writtenOn": "2017-05-15T10:48:24Z",
       "side": 1,
       "message": "We should create only 1 VPN port instance, which should handle 2 addresses: the last IPv4 and the last IPv6 addresses",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a0b7d60_cfc03d2d",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_986da735",
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -943,6 +1513,42 @@
       "side": 1,
       "message": "as Valentina specified, there will be 2 use cases:\n- dual stackrouter\n- 2 routers with respectively each one with ipv4 and ipv6",
       "parentUuid": "ba068154_43c85622",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a0b7d60_6fe791e5",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_43c85622",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a0b7d60_0fe245d5",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T10:27:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_8e77053b",
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
