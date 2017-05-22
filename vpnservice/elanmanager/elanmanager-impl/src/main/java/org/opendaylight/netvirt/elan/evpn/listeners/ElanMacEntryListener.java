@@ -33,8 +33,8 @@ public class ElanMacEntryListener extends AsyncDataTreeChangeListenerBase<MacEnt
     private final EvpnUtils evpnUtils;
 
     @Inject
-    public ElanMacEntryListener(DataBroker broker, ElanUtils elanUtils,
-                                EvpnUtils evpnUtils) {
+    public ElanMacEntryListener(final DataBroker broker, final ElanUtils elanUtils,
+                                final EvpnUtils evpnUtils) {
         this.broker = broker;
         this.elanUtils = elanUtils;
         this.evpnUtils = evpnUtils;
@@ -62,6 +62,10 @@ public class ElanMacEntryListener extends AsyncDataTreeChangeListenerBase<MacEnt
         LOG.info("ElanMacEntryListener : ADD macEntry {} ", instanceIdentifier);
         String elanName = instanceIdentifier.firstKeyOf(MacTable.class).getElanInstanceName();
         ElanInstance elanInfo = elanUtils.getElanInstanceByName(broker, elanName);
+        if (!evpnUtils.getEvpnNameFromElan(elanInfo).isPresent()) {
+            LOG.trace("ElanMacEntryListener : Add evpnName is null for elan {} ", elanInfo);
+            return;
+        }
         evpnUtils.advertisePrefix(elanInfo, macEntry);
     }
 
@@ -70,6 +74,10 @@ public class ElanMacEntryListener extends AsyncDataTreeChangeListenerBase<MacEnt
         LOG.info("ElanMacEntryListener : remove macEntry {} ", instanceIdentifier);
         String elanName = instanceIdentifier.firstKeyOf(MacTable.class).getElanInstanceName();
         ElanInstance elanInfo = elanUtils.getElanInstanceByName(broker, elanName);
+        if (!evpnUtils.getEvpnNameFromElan(elanInfo).isPresent()) {
+            LOG.trace("ElanMacEntryListener : Remove evpnName is null for elan {} ", elanInfo);
+            return;
+        }
         evpnUtils.withdrawPrefix(elanInfo, macEntry);
     }
 

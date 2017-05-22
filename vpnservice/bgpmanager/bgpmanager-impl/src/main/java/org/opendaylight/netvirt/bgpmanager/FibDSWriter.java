@@ -126,7 +126,7 @@ public class FibDSWriter {
         builder.setGatewayMacAddress(gatewayMac);
         builder.setL2vni(l2vni);
         List<RoutePaths> routePaths = nextHopList.stream()
-                .filter(nextHop -> StringUtils.isEmpty(nextHop))
+                .filter(StringUtils::isNotEmpty)
                 .map(nextHop -> {
                     return FibHelper.buildRoutePath(nextHop, null);
                 }).collect(Collectors.toList());
