@@ -50,16 +50,18 @@ public class EvpnMacVrfUtils {
     private final IdManagerService idManager;
     private final ElanEvpnFlowUtils elanEvpnFlowUtils;
     private final IMdsalApiManager mdsalManager;
+    private final EvpnUtils evpnUtils;
 
     @Inject
     public EvpnMacVrfUtils(final DataBroker dataBroker, final ElanUtils elanUtils,
-                           final IdManagerService idManager, ElanEvpnFlowUtils elanEvpnFlowUtils,
-                           IMdsalApiManager mdsalManager) {
+                           final IdManagerService idManager, final ElanEvpnFlowUtils elanEvpnFlowUtils,
+                           final IMdsalApiManager mdsalManager, final EvpnUtils evpnUtils) {
         this.dataBroker = dataBroker;
         this.elanUtils = elanUtils;
         this.idManager = idManager;
         this.elanEvpnFlowUtils = elanEvpnFlowUtils;
         this.mdsalManager = mdsalManager;
+        this.evpnUtils = evpnUtils;
     }
 
     public Long getElanTagByMacvrfiid(InstanceIdentifier<MacVrfEntry> macVrfEntryIid) {
@@ -100,8 +102,10 @@ public class EvpnMacVrfUtils {
     }
 
     public void updateEvpnDmacFlows(final String elanName, final boolean install) {
-        EvpnUtils evpnUtils = null;
         String rd = evpnUtils.getEVpnRd(ElanUtils.getElanInstanceByName(dataBroker, elanName));
+        if (rd == null) {
+            return;
+        }
         final InstanceIdentifier<VrfTables> iid = InstanceIdentifier.create(FibEntries.class)
                 .child(VrfTables.class, new VrfTablesKey(rd));
         ElanClusterUtils.asyncReadAndExecute(dataBroker, LogicalDatastoreType.CONFIGURATION, iid,
