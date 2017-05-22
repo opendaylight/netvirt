@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba068154_cb68d4bc",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanSmacFlowEventListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 6331
+      },
+      "writtenOn": "2017-05-22T08:49:54Z",
+      "side": 1,
+      "message": "There is no extra line here.",
+      "parentUuid": "ba068154_504bef86",
+      "range": {
+        "startLine": 47,
+        "startChar": 11,
+        "endLine": 47,
+        "endChar": 36
+      },
+      "revId": "d743a2eaf70d7ee625c9dd44232af3889a1c44b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
