@@ -25,6 +25,8 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
@@ -50,16 +52,18 @@ public class EvpnMacVrfUtils {
     private final IdManagerService idManager;
     private final ElanEvpnFlowUtils elanEvpnFlowUtils;
     private final IMdsalApiManager mdsalManager;
+    private final EvpnUtils evpnUtils;
 
     @Inject
     public EvpnMacVrfUtils(final DataBroker dataBroker, final ElanUtils elanUtils,
-                           final IdManagerService idManager, ElanEvpnFlowUtils elanEvpnFlowUtils,
-                           IMdsalApiManager mdsalManager) {
+                           final IdManagerService idManager, final ElanEvpnFlowUtils elanEvpnFlowUtils,
+                           final IMdsalApiManager mdsalManager, final EvpnUtils evpnUtils) {
         this.dataBroker = dataBroker;
         this.elanUtils = elanUtils;
         this.idManager = idManager;
         this.elanEvpnFlowUtils = elanEvpnFlowUtils;
         this.mdsalManager = mdsalManager;
+        this.evpnUtils = evpnUtils;
     }
 
     public Long getElanTagByMacvrfiid(InstanceIdentifier<MacVrfEntry> macVrfEntryIid) {
@@ -84,7 +88,7 @@ public class EvpnMacVrfUtils {
                         new EvpnRdToNetworkKey(rd)).build();
         try {
             Optional<EvpnRdToNetwork> evpnRdToNetwork =
-                    tx.read(LogicalDatastoreType.OPERATIONAL, iidEvpnRdToNet).checkedGet();
+                    tx.read(LogicalDatastoreType.CONFIGURATION, iidEvpnRdToNet).checkedGet();
             if (evpnRdToNetwork.isPresent()) {
                 elanName = evpnRdToNetwork.get().getNetworkId();
             }
@@ -100,8 +104,10 @@ public class EvpnMacVrfUtils {
     }
 
     public void updateEvpnDmacFlows(final String elanName, final boolean install) {
-        EvpnUtils evpnUtils = null;
         String rd = evpnUtils.getEVpnRd(ElanUtils.getElanInstanceByName(dataBroker, elanName));
+        if (rd == null) {
+            return;
+        }
         final InstanceIdentifier<VrfTables> iid = InstanceIdentifier.create(FibEntries.class)
                 .child(VrfTables.class, new VrfTablesKey(rd));
         ElanClusterUtils.asyncReadAndExecute(dataBroker, LogicalDatastoreType.CONFIGURATION, iid,
@@ -152,6 +158,7 @@ public class EvpnMacVrfUtils {
         if (checkEvpnAttachedToNet(elanName)) {
             //TODO(Riyaz) : Check if accessing first nexthop address is right solution
             String nexthopIP = macVrfEntry.getRoutePaths().get(0).getNexthopAddress();
+            IpAddress ipAddress = new IpAddress(new Ipv4Address(nexthopIP));
             Long elanTag = getElanTagByMacvrfiid(instanceIdentifier);
             String dstMacAddress = macVrfEntry.getMac();
             long vni = macVrfEntry.getL2vni();
@@ -163,7 +170,7 @@ public class EvpnMacVrfUtils {
                                     + "vni {}, dstMacAddress {}, elanName {} ",
                             dpId, nexthopIP, elanTag, vni, dstMacAddress, elanName);
                     ElanEvpnFlowUtils.EvpnDmacFlowBuilder dmacFlowBuilder = new ElanEvpnFlowUtils.EvpnDmacFlowBuilder();
-                    dmacFlowBuilder.setDpId(dpId).setNexthopIP(nexthopIP).setElanTag(elanTag).setVni(vni)
+                    dmacFlowBuilder.setDpId(dpId).setNexthopIP(ipAddress.toString()).setElanTag(elanTag).setVni(vni)
                             .setDstMacAddress(dstMacAddress).setElanName(elanName);
                     Flow flow = elanEvpnFlowUtils.evpnBuildDmacFlowForExternalRemoteMac(dmacFlowBuilder.build());
 
