@@ -60,7 +60,7 @@ public class MacVrfEntryListener extends AsyncDataTreeChangeListenerBase<MacVrfE
     @Override
     @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
     }
 
     @Override

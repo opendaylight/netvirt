@@ -215,7 +215,7 @@ public class BgpUtil {
     static String getElanNamefromRd(DataBroker broker, String rd)  {
         InstanceIdentifier<EvpnRdToNetwork> id = getEvpnRdToNetworkIdentifier(rd);
         Optional<EvpnRdToNetwork> evpnRdToNetworkOpData = MDSALUtil.read(broker,
-                LogicalDatastoreType.OPERATIONAL, id);
+                LogicalDatastoreType.CONFIGURATION, id);
         if (evpnRdToNetworkOpData.isPresent()) {
             return evpnRdToNetworkOpData.get().getNetworkId();
         }
