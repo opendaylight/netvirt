@@ -333,6 +333,7 @@
     <argument ref="idManagerService" />
     <argument ref="elanEvpnFlowUtils" />
     <argument ref="mdsalUtils" />
+    <argument ref="evpnUtils" />
   </bean>
 
   <bean id="elanEvpnFlowUtils"
@@ -356,6 +357,14 @@
     <argument ref="elanUtils" />
     <argument ref="evpnUtils" />
   </bean>
+
+  <bean id="evpnElanInstanceListener" class="org.opendaylight.netvirt.elan.evpn.listeners.EvpnElanInstanceListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="evpnUtils" />
+    <argument ref="evpnMacVrfUtils" />
+  </bean>
+
 
   <bean id="elanDpnInterfacesListener" class="org.opendaylight.netvirt.elan.internal.ElanDpnInterfacesListener"
         init-method="start" destroy-method="close">
