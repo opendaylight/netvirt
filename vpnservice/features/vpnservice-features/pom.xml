@@ -9,30 +9,30 @@
   <parent>
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>features-parent</artifactId>
-    <version>1.8.0-SNAPSHOT</version>
+    <version>1.8.0-Carbon</version>
     <relativePath />
   </parent>
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>vpnservice-features</artifactId>
-  <version>0.4.0-SNAPSHOT</version>
+  <version>0.4.0-Carbon</version>
   <name>ODL :: netvirt :: ${project.artifactId}</name>
   <modelVersion>4.0.0</modelVersion>
   <properties>
     <configfile.directory>etc/opendaylight/karaf</configfile.directory>
-    <dlux.version>0.5.0-SNAPSHOT</dlux.version>
-    <federation.version>0.2.0-SNAPSHOT</federation.version>
-    <genius.version>0.2.0-SNAPSHOT</genius.version>
-    <infrautils.version>1.1.0-SNAPSHOT</infrautils.version>
-    <liblldp.version>0.12.0-SNAPSHOT</liblldp.version>
-    <model.bgp.version>2013.07.15.10-SNAPSHOT</model.bgp.version>
-    <mdsal.model.version>0.10.0-SNAPSHOT</mdsal.model.version>
-    <mdsal.version>1.5.0-SNAPSHOT</mdsal.version>
-    <neutron.version>0.8.0-SNAPSHOT</neutron.version>
-    <openflowplugin.version>0.4.0-SNAPSHOT</openflowplugin.version>
-    <ovsdb.version>1.4.0-SNAPSHOT</ovsdb.version>
-    <restconf.version>1.5.0-SNAPSHOT</restconf.version>
-    <sfc.version>0.5.0-SNAPSHOT</sfc.version>
-    <yangtools.version>1.1.0-SNAPSHOT</yangtools.version>
+    <dlux.version>0.5.0-Carbon</dlux.version>
+    <federation.version>0.2.0-Carbon</federation.version>
+    <genius.version>0.2.0-Carbon</genius.version>
+    <infrautils.version>1.1.0-Carbon</infrautils.version>
+    <liblldp.version>0.12.0-Carbon</liblldp.version>
+    <model.bgp.version>2013.07.15.10-Carbon</model.bgp.version>
+    <mdsal.model.version>0.10.0-Carbon</mdsal.model.version>
+    <mdsal.version>1.5.0-Carbon</mdsal.version>
+    <neutron.version>0.8.0-Carbon</neutron.version>
+    <openflowplugin.version>0.4.0-Carbon</openflowplugin.version>
+    <ovsdb.version>1.4.0-Carbon</ovsdb.version>
+    <restconf.version>1.5.0-Carbon</restconf.version>
+    <sfc.version>0.5.0-Carbon</sfc.version>
+    <yangtools.version>1.1.0-Carbon</yangtools.version>
   </properties>
   <dependencyManagement>
     <dependencies>
