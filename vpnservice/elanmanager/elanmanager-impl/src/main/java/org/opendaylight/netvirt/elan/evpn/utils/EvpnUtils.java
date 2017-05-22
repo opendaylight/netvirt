@@ -72,13 +72,23 @@ public class EvpnUtils {
         this.bgpManager = bgpManager;
     }
 
-    public boolean isWithdrawEvpnRT2Routes(EvpnAugmentation original, EvpnAugmentation update) {
-        return isNetDetach.test(original.getEvpnName(), update.getEvpnName());
+    public boolean isWithdrawEvpnRT2Routes(ElanInstance original, ElanInstance update) {
+        java.util.Optional<String>  originalEvpnName = getEvpnNameFromElan(original);
+        java.util.Optional<String>  updatedEvpnName = getEvpnNameFromElan(update);
+
+        return isNetDetach.test(originalEvpnName.get(), updatedEvpnName.get());
     }
 
-    public boolean isAdvertiseEvpnRT2Routes(EvpnAugmentation original, EvpnAugmentation update) {
-        return isNetAttach.test(original.getEvpnName(), update.getEvpnName())
-                || isNetAttach.test(original.getL3vpnName(), update.getL3vpnName());
+    public boolean isAdvertiseEvpnRT2Routes(ElanInstance original, ElanInstance update) {
+        java.util.Optional<String> originalEvpnName = getEvpnNameFromElan(original);
+        java.util.Optional<String> updatedEvpnName = getEvpnNameFromElan(update);
+
+        /*
+        Optional<String> originalL3VpnName = getL3vpnNameFromElan(original);
+        Optional<String> updatedL3VpnName = getL3vpnNameFromElan(update);
+        */
+        /*As of today We dont support RT2 with l3vni due to RT2 features limitations at DCGW*/
+        return isNetAttach.test(originalEvpnName.get(), updatedEvpnName.get());
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
@@ -124,7 +134,7 @@ public class EvpnUtils {
         }
 
         List<IpAddress> nexthopIpList = rpcResult.getResult().getNexthopipList();
-        return nexthopIpList.get(0).getIpv4Address().toString();
+        return nexthopIpList.get(0).getIpv4Address().getValue();
     }
 
     public Optional<String> getGatewayMacAddressForInterface(String vpnName, String ifName, String ipAddress) {
@@ -134,28 +144,28 @@ public class EvpnUtils {
                 : interfaceManager.getInterfaceInfoFromOperationalDataStore(ifName).getMacAddress());
     }
 
-    public String getL3vpnNameFromElan(ElanInstance elanInfo) {
-        EvpnAugmentation evpnAugmentation = elanInfo.getAugmentation(EvpnAugmentation.class);
-        return evpnAugmentation != null ? evpnAugmentation.getL3vpnName() : null;
+    public java.util.Optional<String> getL3vpnNameFromElan(ElanInstance elanInfo) {
+        return java.util.Optional.ofNullable(elanInfo).map(elan -> elan.getAugmentation(EvpnAugmentation.class))
+                .map(EvpnAugmentation::getL3vpnName);
     }
 
-    public static String getEvpnNameFromElan(ElanInstance elanInfo) {
-        EvpnAugmentation evpnAugmentation = elanInfo.getAugmentation(EvpnAugmentation.class);
-        return evpnAugmentation != null ? evpnAugmentation.getEvpnName() : null;
+    public static java.util.Optional<String> getEvpnNameFromElan(ElanInstance elanInfo) {
+        return java.util.Optional.ofNullable(elanInfo).map(elan -> elan.getAugmentation(EvpnAugmentation.class))
+                .map(EvpnAugmentation::getEvpnName);
     }
 
-    public String getEVpnRd(ElanInstance elanInfo) {
-        String evpnName = getEvpnNameFromElan(elanInfo);
-        if (evpnName == null) {
-            LOG.error("getEVpnRd : evpnName is NULL for elanInfo {}", elanInfo);
+    public String getEvpnRd(ElanInstance elanInfo) {
+        java.util.Optional<String> evpnName = getEvpnNameFromElan(elanInfo);
+        if (!evpnName.isPresent()) {
+            LOG.error("getEvpnRd : evpnName is NULL for elanInfo {}", elanInfo);
             return null;
         }
-        return vpnManager.getVpnRd(broker, evpnName);
+        return vpnManager.getVpnRd(broker, evpnName.get());
     }
 
     public void advertisePrefix(ElanInstance elanInfo, String macAddress, String prefix,
                                  String interfaceName, BigInteger dpnId) {
-        String rd = getEVpnRd(elanInfo);
+        String rd = getEvpnRd(elanInfo);
         advertisePrefix(elanInfo, rd, macAddress, prefix, interfaceName, dpnId);
     }
 
@@ -175,11 +185,11 @@ public class EvpnUtils {
         long l2vni = elanInfo.getSegmentationId();
         long l3vni = 0;
         String gatewayMacAddr = null;
-        String l3VpName = getL3vpnNameFromElan(elanInfo);
-        if (l3VpName != null) {
-            VpnInstance l3VpnInstance = vpnManager.getVpnInstance(broker, l3VpName);
+        java.util.Optional<String> l3VpName = getL3vpnNameFromElan(elanInfo);
+        if (l3VpName.isPresent()) {
+            VpnInstance l3VpnInstance = vpnManager.getVpnInstance(broker, l3VpName.get());
             l3vni = l3VpnInstance.getL3vni();
-            Optional<String> gatewayMac = getGatewayMacAddressForInterface(l3VpName, interfaceName, prefix);
+            Optional<String> gatewayMac = getGatewayMacAddressForInterface(l3VpName.get(), interfaceName, prefix);
             gatewayMacAddr = gatewayMac.isPresent() ? gatewayMac.get() : null;
         }
         LOG.info("Advertising routes with rd {},  macAddress {}, prefix {}, nextHop {},"
@@ -201,14 +211,18 @@ public class EvpnUtils {
     }
 
     public void withdrawEvpnRT2Routes(EvpnAugmentation evpnAugmentation, String elanName) {
-        List<MacEntry> macEntries = elanUtils.getElanMacEntries(elanName);
-        if (macEntries == null || macEntries.isEmpty()) {
-            LOG.trace("withdrawEvpnRT2Routes : macEntries  is empty for elan {} ", elanName);
+        if (evpnAugmentation == null || evpnAugmentation.getEvpnName() == null) {
             return;
         }
-        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
-        String rd = getEVpnRd(elanInfo);
+        String evpnName = evpnAugmentation.getEvpnName();
+        String rd = vpnManager.getVpnRd(broker, evpnName);
         if (rd == null) {
+            LOG.debug("withdrawEvpnRT2Routes : rd is null ", elanName);
+            return;
+        }
+        List<MacEntry> macEntries = elanUtils.getElanMacEntries(elanName);
+        if (macEntries == null || macEntries.isEmpty()) {
+            LOG.debug("withdrawEvpnRT2Routes : macEntries  is empty for elan {} ", elanName);
             return;
         }
         for (MacEntry macEntry : macEntries) {
@@ -219,7 +233,7 @@ public class EvpnUtils {
     }
 
     public void withdrawPrefix(ElanInstance elanInfo, String prefix) {
-        String rd = getEVpnRd(elanInfo);
+        String rd = getEvpnRd(elanInfo);
         if (rd == null) {
             return;
         }
