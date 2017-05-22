@@ -22,6 +22,30 @@
       "revId": "e1f6ed0187a7650931207acaa5d8c8ff5ef04a03",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba068154_2b78808e",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-22T08:41:11Z",
+      "side": 1,
+      "message": "hello Sridhar,\nyes, this is ipv4-public-subnet.\nI am about to push a new version of this document.\nit will be fixed.\nsorry for delay",
+      "parentUuid": "ba068154_d44ff390",
+      "range": {
+        "startLine": 346,
+        "startChar": 67,
+        "endLine": 346,
+        "endChar": 85
+      },
+      "revId": "e1f6ed0187a7650931207acaa5d8c8ff5ef04a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
