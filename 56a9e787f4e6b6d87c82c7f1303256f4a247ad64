@@ -143,6 +143,24 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_c26c9239",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-05-23T17:32:46Z",
+      "side": 1,
+      "message": "+1 better to add a new listener in aclservice, but can be later.",
+      "parentUuid": "7af0899e_a2c0667d",
+      "revId": "56a9e787f4e6b6d87c82c7f1303256f4a247ad64",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_d74576b4",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
         "patchSetId": 1
