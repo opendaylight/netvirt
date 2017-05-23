@@ -27,4 +27,5 @@
   <service ref="aclServiceUtilFacade"
         interface="org.opendaylight.netvirt.aclservice.api.utils.IAclServiceUtil" />
 
+  <odl:notification-listener ref="aclVpnChangeListener" />
 </blueprint>
