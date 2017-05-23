@@ -35,6 +35,7 @@ import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
@@ -87,15 +88,19 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
      * @param interfaceName the interface name
      */
     @Override
-    protected void bindService(String interfaceName) {
-        int flowPriority = AclConstants.INGRESS_ACL_DEFAULT_FLOW_PRIORITY;
-
+    public void bindService(String interfaceName, Long vpnId) {
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
-        Long elanTag = AclServiceUtils.getElanIdFromInterface(interfaceName, dataBroker);
-        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getElanTagMetadata(elanTag),
-                MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
+        if (vpnId != null) {
+            instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
+                    MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
+        } else {
+            Long elanTag = AclServiceUtils.getElanIdFromInterface(interfaceName, dataBroker);
+            instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getElanTagMetadata(elanTag),
+                    MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
+        }
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.EGRESS_ACL_TABLE, ++instructionKey));
+        int flowPriority = AclConstants.INGRESS_ACL_DEFAULT_FLOW_PRIORITY;
         BoundServices serviceInfo = AclServiceUtils.getBoundServices(
                 String.format("%s.%s.%s", "acl", "ingressacl", interfaceName),
                 ServiceIndex.getIndex(NwConstants.EGRESS_ACL_SERVICE_NAME, NwConstants.EGRESS_ACL_SERVICE_INDEX),
@@ -228,9 +233,9 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
 
     @Override
     protected void writeCurrentAclForRemoteAcls(Uuid acl, int addOrRemove, Long elanTag, AllowedAddressPairs ip,
-            BigInteger aclId) {
+            BigInteger aclId, Long vpnId) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
-        flowMatches.addAll(AclServiceUtils.buildIpAndElanSrcMatch(elanTag, ip, dataBroker));
+        flowMatches.addAll(AclServiceUtils.buildIpAndSrcServiceMatch(elanTag, ip, dataBroker, vpnId));
 
         List<InstructionInfo> instructions = new ArrayList<>();
 
@@ -263,13 +268,13 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
 
     @Override
     protected void writeRemoteAclForCurrentAclForInterface(BigInteger dpId, int addOrRemove, AclInterface inter,
-            BigInteger aclId, Long elanTag) {
+            BigInteger aclId, Long elanTag, Long vpnId) {
         for (AllowedAddressPairs ip : inter.getAllowedAddressPairs()) {
             if (!AclServiceUtils.isNotIpv4AllNetwork(ip)) {
                 continue;
             }
             List<MatchInfoBase> flowMatches = new ArrayList<>();
-            flowMatches.addAll(AclServiceUtils.buildIpAndElanSrcMatch(elanTag, ip, dataBroker));
+            flowMatches.addAll(AclServiceUtils.buildIpAndSrcServiceMatch(elanTag, ip, dataBroker, vpnId));
 
             List<InstructionInfo> instructions = new ArrayList<>();
 

@@ -18,10 +18,15 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.aclservice.api.utils.IAclServiceUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddInterfaceToDpnOnVpnEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OdlL3vpnListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RemoveDpnEvent;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RemoveInterfaceFromDpnOnVpnEvent;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.add._interface.to.dpn.on.vpn.event.AddInterfaceEventData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.add.dpn.event.AddEventData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove._interface.from.dpn.on.vpn.event.RemoveInterfaceEventData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove.dpn.event.RemoveEventData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
@@ -33,10 +38,13 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
     private static final Logger LOG = LoggerFactory.getLogger(DpnInVpnChangeListener.class);
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
+    private final IAclServiceUtil aclServiceUtil;
 
-    public DpnInVpnChangeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager) {
+    public DpnInVpnChangeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager,
+                                  IAclServiceUtil aclServiceUtil) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
+        this.aclServiceUtil = aclServiceUtil;
     }
 
     public void onAddDpnEvent(AddDpnEvent notification) {
@@ -89,6 +97,18 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
             InstanceIdentifier<VpnToDpnList> vpnToDpnId = VpnUtil.getVpnToDpnListIdentifier(rd, curDpn.getDpnId());
             writeTxn.delete(LogicalDatastoreType.OPERATIONAL, vpnToDpnId);
         }
+    }
+
+    @Override
+    public void onAddInterfaceToDpnOnVpnEvent(AddInterfaceToDpnOnVpnEvent notification) {
+        AddInterfaceEventData data = notification.getAddInterfaceEventData();
+        LOG.trace("Ignoring vpn interface {} added on dpn {}", data.getInterfaceName(), data.getDpnId());
+    }
+
+    @Override
+    public void onRemoveInterfaceFromDpnOnVpnEvent(RemoveInterfaceFromDpnOnVpnEvent notification) {
+        RemoveInterfaceEventData data = notification.getRemoveInterfaceEventData();
+        LOG.trace("Ignoring vpn interface {} removed from dpn {}", data.getInterfaceName(), data.getDpnId());
     }
 }
 
