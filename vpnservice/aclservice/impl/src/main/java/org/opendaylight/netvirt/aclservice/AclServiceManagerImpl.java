@@ -89,4 +89,18 @@ public class AclServiceManagerImpl implements AclServiceManager {
             }
         }
     }
+
+    @Override
+    public void updateRemoteAclFilterTable(AclInterface port, int addOrRemove, String vpnName) {
+        for (AclServiceListener aclServiceListener : aclServiceListeners) {
+            aclServiceListener.updateRemoteAclFilterTable(port, addOrRemove, vpnName);
+        }
+    }
+
+    @Override
+    public void bindAclTableForVpn(AclInterface port, String vpnName) {
+        for (AclServiceListener aclServiceListener : aclServiceListeners) {
+            aclServiceListener.bindService(port.getInterfaceId(), vpnName);
+        }
+    }
 }
