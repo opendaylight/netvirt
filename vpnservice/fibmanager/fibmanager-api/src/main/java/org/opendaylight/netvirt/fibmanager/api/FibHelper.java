@@ -183,13 +183,13 @@ public class FibHelper {
 
     /**get String format IP from prefix as x.x.....x/nn.
      * @param prefix the prefix as IPv4 or IPv6 as x.....x/nn
-     * @return null if "/" is unfindable or the IP only as x.x...x from x.x......x/nn
+     * @return prefix if "/" is unfindable or the IP only as x.x...x from x.x......x/nn
      */
     public static String getIpFromPrefix(String prefix) {
         if (prefix == null || prefix.length() < 2) {
             return null;
         }
-        String rep = null;
+        String rep = prefix;
         String[] prefixValues = prefix.split("/");
         if (prefixValues != null && prefixValues.length > 0) {
             rep = prefixValues[0];
@@ -203,6 +203,16 @@ public class FibHelper {
      * @return true if the param subnet contained the prefixToTest false otherwise
      */
     public static boolean isBelongingPrefix(String prefixToTest, String subnet) {
+        return isBelongingPrefixOption(prefixToTest, subnet, true);
+    }
+
+    /**Return true if this prefix or subnet is belonging the specified subnetwork.
+     * @param prefixToTest the prefix which could be in the subnet
+     * @param subnet the subnet that have to contain the prefixToTest to return true
+     * @param exactMatch boolean set to true if exact match is expected
+     * @return true if the param subnet contained the prefixToTest false otherwise
+     */
+    public static boolean isBelongingPrefixOption(String prefixToTest, String subnet, boolean exactMatch) {
         boolean rep = false;
         if (prefixToTest == null || prefixToTest.length() < 7 || subnet == null || subnet.length() < 7) {
             return rep;
@@ -232,7 +242,7 @@ public class FibHelper {
             try {
                 maskPref = Integer.valueOf(maskPrefString);
                 maskSub = Integer.valueOf(maskSubString);
-                if (maskPref != maskSub) {
+                if (exactMatch && maskPref != maskSub) {
                  /*because the mask must be exactly the same between them, the return type is false. This behavior could
                   * be changed to ignored it in including a boolean options to force or not the same mask control*/
                     rep = false;

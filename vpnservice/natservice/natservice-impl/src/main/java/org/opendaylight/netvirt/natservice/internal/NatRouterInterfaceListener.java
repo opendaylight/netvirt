@@ -64,7 +64,7 @@ public class NatRouterInterfaceListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<Interfaces> identifier, Interfaces interfaceInfo) {
-        LOG.trace("add : Add event - key: {}, value: {}", interfaceInfo.getKey(), interfaceInfo);
+        LOG.info("NatRouterInterfaceListener.add : Add event - key: {}, value: {}", interfaceInfo.getKey(), interfaceInfo);
         final String routerId = identifier.firstKeyOf(RouterInterfaces.class).getRouterId().getValue();
         final String interfaceName = interfaceInfo.getInterfaceId();
 
