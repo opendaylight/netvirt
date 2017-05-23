@@ -2417,6 +2417,15 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
     public void installRouterFibEntry(final VrfEntry vrfEntry, BigInteger dpnId, long vpnId, String routerUuid,
                                       String routerInternalIp, MacAddress routerMac, int addOrRemove) {
+
+        // First install L3_GW_MAC_TABLE flows as it's common for both IPv4 and IPv6 address families
+        FlowEntity l3GwMacFlowEntity = buildL3vpnGatewayFlow(dpnId, routerMac.getValue(), vpnId);
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            mdsalManager.installFlow(l3GwMacFlowEntity);
+        } else {
+            mdsalManager.removeFlow(l3GwMacFlowEntity);
+
+        }
         String[] subSplit = routerInternalIp.split("/");
         if (!isIpv4Address(subSplit[0])) {
             // Ping responder using OpenFlow rules is only supported for IPv4, hence skipping.
@@ -2468,16 +2477,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_FIB_TABLE, flowRef, priority, flowRef,
             0, 0, NwConstants.COOKIE_VM_FIB_TABLE, matches, instructions);
 
-
-        FlowEntity l3GwMacFlowEntity = buildL3vpnGatewayFlow(dpnId, routerMac.getValue(), vpnId);
-
         if (addOrRemove == NwConstants.ADD_FLOW) {
             mdsalManager.installFlow(flowEntity);
-            mdsalManager.installFlow(l3GwMacFlowEntity);
         } else {
             mdsalManager.removeFlow(flowEntity);
-            mdsalManager.removeFlow(l3GwMacFlowEntity);
-
         }
     }
 
