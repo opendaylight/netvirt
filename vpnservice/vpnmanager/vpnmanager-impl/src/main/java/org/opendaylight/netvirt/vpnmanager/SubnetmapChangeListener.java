@@ -105,18 +105,19 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         Uuid vpnIdNew = subnetmapUpdate.getVpnId();
         Uuid vpnIdOld = subnetmapOriginal.getVpnId();
         Uuid subnetId = subnetmapUpdate.getId();
-        String elanInstanceName = subnetmapUpdate.getNetworkId().getValue();
         // SubnetRoute for ExternalSubnets is handled in ExternalSubnetVpnInstanceListener.
         // Here we must handle only InternalVpnSubnetRoute and BGPVPNBasedSubnetRoute
-        Network network = VpnUtil.getNeutronNetwork(dataBroker, subnetmapUpdate.getNetworkId());
-        if (network == null) {
-            LOG.info("update: vpnIdNew: {}, vpnIdOld: {}, networkId: {}, subnetId: {}: network was not found",
-                vpnIdNew.getValue(), vpnIdOld.getValue(), elanInstanceName, subnetId.getValue());
+        Network network = null;
+        if (subnetmapUpdate.getNetworkId() == null
+              || (network = VpnUtil.getNeutronNetwork(dataBroker, subnetmapUpdate.getNetworkId())) == null) {
+            LOG.info("update: vpnIdNew: {}, vpnIdOld: {}, subnetId: {}: network was not found",
+                vpnIdNew.getValue(), vpnIdOld.getValue(), subnetId.getValue());
             return;
         }
         if (VpnUtil.getIsExternal(network)) {
             return;
         }
+        String elanInstanceName = subnetmapUpdate.getNetworkId().getValue();
         Long elanTag = getElanTag(elanInstanceName);
         if (elanTag.equals(0L)) {
             LOG.error("update:Unable to fetch elantag from ElanInstance {} and hence not proceeding with "
