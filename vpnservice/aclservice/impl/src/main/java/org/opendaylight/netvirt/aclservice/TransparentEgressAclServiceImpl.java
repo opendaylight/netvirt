@@ -36,7 +36,7 @@ public class TransparentEgressAclServiceImpl extends AbstractEgressAclServiceImp
     }
 
     @Override
-    protected void bindService(String interfaceName) {
+    public void bindService(String interfaceName, Long vpnId) {
         LOG.debug("transparent egress acl service - do nothing");
     }
 
