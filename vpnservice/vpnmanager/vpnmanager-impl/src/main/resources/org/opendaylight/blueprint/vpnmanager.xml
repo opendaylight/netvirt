@@ -26,6 +26,8 @@
              availability="optional" />
   <reference id="entityOwnershipService"
              interface="org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService" />
+  <reference id="aclUtils"
+             interface="org.opendaylight.netvirt.aclservice.api.utils.IAclServiceUtil" />
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
@@ -46,6 +48,7 @@
         class="org.opendaylight.netvirt.vpnmanager.DpnInVpnChangeListener">
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />
+    <argument ref="aclUtils" />
   </bean>
   <service ref="dpnInVpnChangeListener" odl:type="default"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OdlL3vpnListener" />
