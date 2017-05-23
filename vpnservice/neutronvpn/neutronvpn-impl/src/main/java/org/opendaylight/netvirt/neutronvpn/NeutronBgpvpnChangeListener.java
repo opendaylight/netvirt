@@ -137,14 +137,20 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                     return;
                 }
                 Uuid router = null;
+                List<Uuid> routersList = null;
                 if (input.getRouters() != null && !input.getRouters().isEmpty()) {
-                    // currently only one router
-                    router = input.getRouters().get(0);
+                    // try to take all routers
+                    routersList = input.getRouters();
+                }
+                if (routersList.size() > 2) {
+                    LOG.error("Creation of BGPVPN {} failed: maximum allowed number of associated "
+                               + "routers is 2.");
+                    return;
                 }
                 if (!rd.isEmpty()) {
                     try {
                         nvpnManager.createVpn(input.getUuid(), input.getName(), input.getTenantId(), rd,
-                                importRouteTargets, exportRouteTargets, router, input.getNetworks(),
+                                importRouteTargets, exportRouteTargets, routersList, input.getNetworks(),
                                 vpnInstanceType, 0 /*l3vni*/);
                     } catch (Exception e) {
                         LOG.error("Creation of BGPVPN {} failed with error {} ", vpnName, e);
@@ -266,18 +272,29 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
     }
 
     protected void handleRoutersUpdate(Uuid vpnId, List<Uuid> oldRouters, List<Uuid> newRouters) {
+        // for dualstack case we can associate with one VPN instance maximum 2 routers: one with
+        // only IPv4 ports and one with only IPv6 ports, or only one router with IPv4/IPv6 ports
+        // TODO: check router ports ethertype to follow this restriction
         if (newRouters != null && !newRouters.isEmpty()) {
             if (oldRouters != null && !oldRouters.isEmpty()) {
-                if (oldRouters.size() > 1 || newRouters.size() > 1) {
+                if (oldRouters.size() > 2 || newRouters.size() > 2) {
                     VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, vpnId);
-                    if (vpnMap != null && vpnMap.getRouterId() != null) {
-                        LOG.warn("Only single router association to a given bgpvpn is allowed. Kindly disassociate "
-                                + "router {} from vpn {} before proceeding with associate",
-                                vpnMap.getRouterId().getValue(), vpnId.getValue());
+                    if (vpnMap.getRouterIds().size() > 2) {
+                        LOG.debug("Maximum allowed number of associated routers is 2."
+                                  + "VPN: " + vpnId + " is already associated with router: "
+                                  + vpnMap.getRouterIds().get(0).getValue() + " and with router: "
+                                  + vpnMap.getRouterIds().get(1).getValue());
                     }
                 }
-            } else if (validateRouteInfo(newRouters.get(0))) {
-                nvpnManager.associateRouterToVpn(vpnId, newRouters.get(0));
+            } else {
+                if (newRouters.size() > 2) {
+                    LOG.debug("Maximum allowed number of associated routers is 2.");
+                }
+                for (Uuid routerId : newRouters) {
+                    if (validateRouteInfo(routerId)) {
+                        nvpnManager.associateRouterToVpn(vpnId, routerId);
+                    }
+                }
             }
         } else if (oldRouters != null && !oldRouters.isEmpty()) {
                 /* dissociate old router */
