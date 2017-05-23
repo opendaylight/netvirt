@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_aeda17e7",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-23T09:00:36Z",
+      "side": 1,
+      "message": "I do not understand. L2 switching is already supported in ODL. Why do we say that L2 is part of another spec?",
+      "parentUuid": "ba068154_ceb90d17",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_ef87e10d",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -184,6 +202,30 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_8efe3b37",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-23T09:00:36Z",
+      "side": 1,
+      "message": "Sridhar, right now, we have considered only ONE IPv4 and ONE ipv6 address per vNIC. We understand that it is possible to have multiple IPv6 addresses on the same vNIC. This would be considered in a future release.",
+      "parentUuid": "ba068154_cfb65ddc",
+      "range": {
+        "startLine": 35,
+        "startChar": 3,
+        "endLine": 35,
+        "endChar": 17
+      },
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba068154_4fca6d50",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -218,6 +260,29 @@
       "writtenOn": "2017-05-15T09:58:44Z",
       "side": 1,
       "message": "There is a 2 router configs for each listed use-case:\n\n#1. In OpenStack virtual infrastructure we have 2 routers attached to the same L3VPN instance: the 1st with one  IPv4 port and the 2nd with one IPv6 port\n\n#2. In OpenStack virtual infrastructure we have only router attached to L3VPN instance: there are 1 IPv4 port and 1 IPv6 port in this router.",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_0e9a4b14",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-23T09:00:36Z",
+      "side": 1,
+      "message": "I don\u0027t think we need to be talking about UC 1...4. This is already supported in ODL. Bugs in this area need to be separately handled and is not a part of this spec.",
+      "range": {
+        "startLine": 46,
+        "startChar": 2,
+        "endLine": 52,
+        "endChar": 68
+      },
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -802,6 +867,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "ba068154_c20587c3",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_6e9f8f04",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2017-05-23T09:00:36Z",
+      "side": 1,
+      "message": "DHCPv6 is supported not in ODL, but by neutron using neutron-dhcp. \n\nAlternatively, ODL supports SLAAC and DHCPv4 with which IPv6 and IPv4 networks can be auto-configured. \n\nThis needs to be clarified.",
+      "range": {
+        "startLine": 153,
+        "startChar": 0,
+        "endLine": 154,
+        "endChar": 6
+      },
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
