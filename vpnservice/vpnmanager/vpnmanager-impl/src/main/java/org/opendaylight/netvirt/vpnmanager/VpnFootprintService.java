@@ -30,10 +30,18 @@ import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEventBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddInterfaceToDpnOnVpnEvent;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddInterfaceToDpnOnVpnEventBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RemoveDpnEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RemoveDpnEventBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RemoveInterfaceFromDpnOnVpnEvent;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RemoveInterfaceFromDpnOnVpnEventBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.add._interface.to.dpn.on.vpn.event.AddInterfaceEventData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.add._interface.to.dpn.on.vpn.event.AddInterfaceEventDataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.add.dpn.event.AddEventData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.add.dpn.event.AddEventDataBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove._interface.from.dpn.on.vpn.event.RemoveInterfaceEventData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove._interface.from.dpn.on.vpn.event.RemoveInterfaceEventDataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove.dpn.event.RemoveEventData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove.dpn.event.RemoveEventDataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
@@ -87,12 +95,14 @@ public class VpnFootprintService implements IVpnFootprintService {
                 }
                 if (interfaceName != null) {
                     createOrUpdateVpnToDpnListForInterfaceName(vpnId, dpId, interfaceName, vpnName);
+                    publishInterfaceAddedToVpnNotification(interfaceName, dpId, vpnName, vpnId);
                 } else {
                     createOrUpdateVpnToDpnListForIPAddress(vpnId, dpId, ipAddressSourceValuePair, vpnName);
                 }
             } else {
                 if (interfaceName != null) {
                     removeOrUpdateVpnToDpnListForInterfaceName(vpnId, dpId, interfaceName, vpnName);
+                    publishInterfaceRemovedFromVpnNotification(interfaceName, dpId, vpnName, vpnId);
                 } else {
                     removeOrUpdateVpnToDpnListForIpAddress(vpnId, dpId, ipAddressSourceValuePair, vpnName);
                 }
@@ -361,6 +371,54 @@ public class VpnFootprintService implements IVpnFootprintService {
             @Override
             public void onSuccess(Object arg) {
                 LOG.trace("Successful in notifying listeners for remove dpn {} in vpn {} event ", dpnId, vpnName);
+            }
+        });
+    }
+
+    private void publishInterfaceAddedToVpnNotification(String interfaceName, BigInteger dpnId, String vpnName,
+                                                        Long vpnId) {
+        LOG.debug("Sending notification for addition of interface {} on dpn {} for vpn {}", interfaceName,
+                dpnId, vpnName);
+        AddInterfaceEventData data = new AddInterfaceEventDataBuilder().setInterfaceName(interfaceName)
+                .setVpnId(vpnId).setDpnId(dpnId).build();
+        AddInterfaceToDpnOnVpnEvent event = new AddInterfaceToDpnOnVpnEventBuilder()
+                .setAddInterfaceEventData(data).build();
+        final ListenableFuture<? extends Object> eventFuture = notificationPublishService.offerNotification(event);
+        Futures.addCallback(eventFuture, new FutureCallback<Object>() {
+            @Override
+            public void onFailure(Throwable error) {
+                LOG.warn("Error in notifying listeners for add interface {} on dpn {} in vpn {} event ",
+                        interfaceName, dpnId, vpnName, error);
+            }
+
+            @Override
+            public void onSuccess(Object arg) {
+                LOG.trace("Successful in notifying listeners for add interface {} on dpn {} in vpn {} event ",
+                        interfaceName, dpnId, vpnName);
+            }
+        });
+    }
+
+    private void publishInterfaceRemovedFromVpnNotification(String interfaceName, BigInteger dpnId, String vpnName,
+                                                            Long vpnId) {
+        LOG.debug("Sending notification for removal of interface {} from dpn {} for vpn {}", interfaceName,
+                dpnId, vpnName);
+        RemoveInterfaceEventData data = new RemoveInterfaceEventDataBuilder().setInterfaceName(interfaceName)
+                .setVpnId(vpnId).setDpnId(dpnId).build();
+        RemoveInterfaceFromDpnOnVpnEvent event = new RemoveInterfaceFromDpnOnVpnEventBuilder()
+                .setRemoveInterfaceEventData(data).build();
+        final ListenableFuture<? extends Object> eventFuture = notificationPublishService.offerNotification(event);
+        Futures.addCallback(eventFuture, new FutureCallback<Object>() {
+            @Override
+            public void onFailure(Throwable error) {
+                LOG.warn("Error in notifying listeners for removing interface {} from dpn {} in vpn {} event ",
+                        interfaceName, dpnId, vpnName, error);
+            }
+
+            @Override
+            public void onSuccess(Object arg) {
+                LOG.trace("Successful in notifying listeners for removing interface {} from dpn {} in vpn {} event ",
+                        interfaceName, dpnId, vpnName);
             }
         });
     }
