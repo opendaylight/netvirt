@@ -37,6 +37,8 @@ import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
@@ -98,6 +100,12 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
         Long elanTag = AclServiceUtils.getElanIdFromInterface(interfaceName, dataBroker);
         instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getElanTagMetadata(elanTag),
                 MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
+        VpnInterface vpnInterface = VpnHelper.getVpnInterface(dataBroker, interfaceName);
+        if (vpnInterface != null) {
+            Long vpnId = VpnHelper.getVpnId(dataBroker, vpnInterface.getVpnInstanceName());
+            instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
+                    MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
+        }
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.INGRESS_ACL_TABLE, ++instructionKey));
         short serviceIndex = ServiceIndex.getIndex(NwConstants.ACL_SERVICE_NAME, NwConstants.ACL_SERVICE_INDEX);
         BoundServices serviceInfo =
