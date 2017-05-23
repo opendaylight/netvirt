@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_a2e34604",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtilFacade.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-23T16:27:54Z",
+      "side": 1,
+      "message": "Great to know",
+      "parentUuid": "7af0899e_c2dc9277",
+      "revId": "56a9e787f4e6b6d87c82c7f1303256f4a247ad64",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_374afa83",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
         "patchSetId": 1
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "I am doing this to keep the ACL bind services as generic as possible. Passing the params through events will add \"dependent service\" level coupling in the ACL logic, and method signatures. Just want to avoid it.",
       "parentUuid": "7af0899e_374afa83",
+      "revId": "56a9e787f4e6b6d87c82c7f1303256f4a247ad64",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_62e2fe04",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-23T16:27:54Z",
+      "side": 1,
+      "message": "Well you are communicating that an interface got added to a VPN, and so the event must carry at the least vpnName and possibly vpnID.  The dpnId may not be relevant , but doesn\u0027t harm to pass in..\n\nPlease note that source of this caller is vpnEngine and not the consumer.  Source decides what all to supply and the consumer can ignore information that is not required.  The consumer can be any service.\n\nActually we are increasing the coupling other way around as aclservice need to respin calls to vpnHelper to get the same information which we could easily avoid..\n\nThat said, am open to the current change too!",
+      "parentUuid": "7af0899e_e2e38e31",
       "revId": "56a9e787f4e6b6d87c82c7f1303256f4a247ad64",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
