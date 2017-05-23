@@ -32,7 +32,7 @@ public class ConfTransportL3VPNCommand extends OsgiCommandSupport {
     @Override
     protected Object doExecute() throws Exception {
 
-        if (service == null || service.isEmpty() || !service.toUpperCase().equals("L3VPN")) {
+        if (service == null || service.isEmpty() || !"L3VPN".equalsIgnoreCase(service)) {
             session.getConsole().println("Please provide valid input for service ");
             session.getConsole().println(
                 "exec configure-transport-type (-s | --service)  <L3VPN> (-t | --type) <VxLAN/GRE>");
@@ -40,19 +40,19 @@ public class ConfTransportL3VPNCommand extends OsgiCommandSupport {
         }
         if (transportType == null || transportType.isEmpty()
             ||
-            (L3VPNTransportTypes.validateTransportType(transportType.toUpperCase()) == L3VPNTransportTypes.Invalid)) {
+            L3VPNTransportTypes.validateTransportType(transportType.toUpperCase()) == L3VPNTransportTypes.Invalid) {
             session.getConsole().println("Please provide valid input for Transport type");
             return null;
         }
 
         String cachedTransType = fibManager.getConfTransType();
-        if (cachedTransType.equals(transportType.toUpperCase())) {
+        if (cachedTransType.equalsIgnoreCase(transportType)) {
             session.getConsole().println("Transport type already configured as " + cachedTransType);
             return null;
         }
 
-        if ((cachedTransType.equals(L3VPNTransportTypes.Invalid.getTransportType()))
-            || (!fibManager.isVPNConfigured())) {
+        if (cachedTransType.equals(L3VPNTransportTypes.Invalid.getTransportType())
+            || !fibManager.isVPNConfigured()) {
             fibManager.setConfTransType(service, transportType.toUpperCase());
             fibManager.writeConfTransTypeConfigDS();
         } else {
@@ -62,6 +62,4 @@ public class ConfTransportL3VPNCommand extends OsgiCommandSupport {
         }
         return null;
     }
-
-
 }
