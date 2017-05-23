@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_c2dc9277",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtilFacade.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-23T16:15:30Z",
+      "side": 1,
+      "message": "Yes, the notify will call a bind for both the ingress and egress dispatchers",
+      "parentUuid": "7af0899e_42ff0202",
+      "revId": "56a9e787f4e6b6d87c82c7f1303256f4a247ad64",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_374afa83",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-05-23T15:51:39Z",
       "side": 1,
       "message": "all these methods are not necessary if the event sent all of vpnInstanceName, vpnId, interfaceName and dpnId .",
+      "revId": "56a9e787f4e6b6d87c82c7f1303256f4a247ad64",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_e2e38e31",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-23T16:15:30Z",
+      "side": 1,
+      "message": "I am doing this to keep the ACL bind services as generic as possible. Passing the params through events will add \"dependent service\" level coupling in the ACL logic, and method signatures. Just want to avoid it.",
+      "parentUuid": "7af0899e_374afa83",
       "revId": "56a9e787f4e6b6d87c82c7f1303256f4a247ad64",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_a2c0667d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-23T16:15:30Z",
+      "side": 1,
+      "message": "Sure.",
+      "parentUuid": "7af0899e_17653e45",
+      "revId": "56a9e787f4e6b6d87c82c7f1303256f4a247ad64",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_d74576b4",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2017-05-23T15:51:39Z",
       "side": 1,
       "message": "interface add to Vpn as a Notification event here will be more aligned.",
+      "revId": "56a9e787f4e6b6d87c82c7f1303256f4a247ad64",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_026cda9b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-23T16:15:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_d74576b4",
       "revId": "56a9e787f4e6b6d87c82c7f1303256f4a247ad64",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_423702b1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-23T16:15:30Z",
+      "side": 1,
+      "message": "Only the vpnInterfaceName is needed for binding. If other are needed, we can add on a need basis.",
+      "parentUuid": "7af0899e_7735a245",
+      "revId": "56a9e787f4e6b6d87c82c7f1303256f4a247ad64",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_3712fab4",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
         "patchSetId": 1
@@ -98,6 +188,24 @@
       "writtenOn": "2017-05-23T15:51:39Z",
       "side": 1,
       "message": "interface removed from vpn as a name here will be more aligned.",
+      "revId": "56a9e787f4e6b6d87c82c7f1303256f4a247ad64",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_62467e25",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-23T16:15:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_3712fab4",
       "revId": "56a9e787f4e6b6d87c82c7f1303256f4a247ad64",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
