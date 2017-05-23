@@ -18,4 +18,6 @@ public interface IAclServiceUtil {
 
     Map<String, List<MatchInfoBase>> programIpFlow(Matches matches);
 
+    void updateBoundServicesFlow(String interfaceName);
+
 }
