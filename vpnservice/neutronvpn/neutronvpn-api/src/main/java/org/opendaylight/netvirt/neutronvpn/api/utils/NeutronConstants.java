@@ -33,6 +33,7 @@ public class NeutronConstants {
     public static final String VIF_TYPE_OTHER = "other";
     public static final String VIF_TYPE_MACVTAP = "macvtap";
     public static final String VNIC_TYPE_NORMAL = "normal";
+    public static final int NEUTRON_VPN_MAX_ROUTERS_PER_VPN = 2;
 
     public static final Predicate<Port> IS_DHCP_PORT = port -> port != null
             && DEVICE_OWNER_DHCP.equals(port.getDeviceOwner());
