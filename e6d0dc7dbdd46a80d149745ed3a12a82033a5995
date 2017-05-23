@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7af0899e_42c70213",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-05-23T17:32:46Z",
+      "side": 1,
+      "message": "The changes to be done in writeCurrentAclForRemoteAcls and writeRemoteAclForCurrentAclForInterface will be part of this patch? This needs an update on OdlL3vpnListener changes as well. May be if we can make vpnid part of AclInterface we can handle the update scenario  using processInterfaceUpdate.",
+      "revId": "e6d0dc7dbdd46a80d149745ed3a12a82033a5995",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
