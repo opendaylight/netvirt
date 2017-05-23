@@ -32,4 +32,9 @@ public interface AclServiceManager {
     void notify(AclInterface port, AclInterface oldPort, Action action);
 
     void notifyAce(AclInterface port, Action action, String aclName, Ace ace);
+
+    void updateRemoteAclFilterTable(AclInterface port, int addOrRemove, Long vpnId);
+
+    void bindAclTableForVpn(AclInterface port, Long vpnId);
+
 }
