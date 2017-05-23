@@ -75,6 +75,13 @@ public class ShowSubnet extends OsgiCommandSupport {
                 getshowVpnCLIHelp();
             }
         } else if (subnetmap == null && subnetopdata != null) {
+            InstanceIdentifier<SubnetOpData> subOpIdentifier2 = InstanceIdentifier
+                    .builder(SubnetOpData.class).build();
+            Optional<SubnetOpData> optionalSubnetOpData = read(LogicalDatastoreType.OPERATIONAL, subOpIdentifier2);
+            if (!optionalSubnetOpData.isPresent()) {
+                System.out.println("No SubnetmapOpData configured.");
+                return null;
+            }
             InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class)
                 .child(SubnetOpDataEntry.class).build();
             Optional<SubnetOpDataEntry> optionalSubnetOpDataEntries =
