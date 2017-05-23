@@ -171,7 +171,7 @@ public class NexthopManager implements AutoCloseable {
             .build();
         try {
             Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
-            if ((result != null) && (result.get().isSuccessful())) {
+            if (result != null && result.get().isSuccessful()) {
                 LOG.info("Created IdPool for NextHopPointerPool");
             }
         } catch (InterruptedException | ExecutionException e) {
@@ -225,7 +225,7 @@ public class NexthopManager implements AutoCloseable {
     }
 
     protected List<ActionInfo> getEgressActionsForInterface(final String ifName, int actionKey) {
-        List<ActionInfo> listActionInfo = new ArrayList<ActionInfo>();
+        List<ActionInfo> listActionInfo = new ArrayList<>();
         try {
             Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
                 interfaceManager.getEgressActionsForInterface(
@@ -238,7 +238,7 @@ public class NexthopManager implements AutoCloseable {
                 List<org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action> actions =
                     rpcResult.getResult().getAction();
                 for (Action action : actions) {
-                    actionKey = action.getKey().getOrder() + (actionKey++);
+                    actionKey = action.getKey().getOrder() + actionKey++;
                     org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action
                         actionClass = action.getAction();
                     if (actionClass instanceof OutputActionCase) {
@@ -326,7 +326,7 @@ public class NexthopManager implements AutoCloseable {
     public long createLocalNextHop(long vpnId, BigInteger dpnId, String ifName,
             String ipNextHopAddress, String ipPrefixAddress, String gwMacAddress, String jobKey) {
         String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, ipPrefixAddress);
-        String ipAddress = (macAddress != null) ? ipPrefixAddress : ipNextHopAddress;
+        String ipAddress = macAddress != null ? ipPrefixAddress : ipNextHopAddress;
 
         long groupId = createNextHopPointer(getNextHopKey(vpnId, ipAddress));
         if (groupId == 0) {
@@ -342,7 +342,7 @@ public class NexthopManager implements AutoCloseable {
                 LOG.trace("nexthop: {} retrieved for vpnId {}, prefix {}, ifName {} on dpn {}", nexthop, vpnId,
                         ipAddress, ifName, dpnId);
                 if (nexthop == null) {
-                    String encMacAddress = (macAddress == null)
+                    String encMacAddress = macAddress == null
                             ? FibUtil.getMacAddressFromPrefix(dataBroker, ifName, ipAddress) : macAddress;
                     List<BucketInfo> listBucketInfo = new ArrayList<>();
                     List<ActionInfo> listActionInfo = new ArrayList<>();
@@ -498,7 +498,7 @@ public class NexthopManager implements AutoCloseable {
 
     public BigInteger getDpnForPrefix(long vpnId, String prefixIp) {
         VpnNexthop vpnNexthop = getVpnNexthop(vpnId, prefixIp);
-        BigInteger localDpnId = (vpnNexthop == null) ? null : vpnNexthop.getDpnId();
+        BigInteger localDpnId = vpnNexthop == null ? null : vpnNexthop.getDpnId();
         return localDpnId;
     }
 
@@ -519,7 +519,7 @@ public class NexthopManager implements AutoCloseable {
         synchronized (ipPrefixStr.intern()) {
             prefixNh = getVpnNexthop(vpnId, ipPrefixAddress);
         }
-        String ipAddress = (prefixNh != null) ? ipPrefixAddress : ipNextHopAddress;
+        String ipAddress = prefixNh != null ? ipPrefixAddress : ipNextHopAddress;
 
         String nextHopLockStr = vpnId + ipAddress;
         synchronized (nextHopLockStr.intern()) {
@@ -556,7 +556,7 @@ public class NexthopManager implements AutoCloseable {
     @SuppressWarnings("checkstyle:RegexpSinglelineJava")
     public void setConfTransType(String service, String transportType) {
 
-        if (!service.toUpperCase().equals("L3VPN")) {
+        if (!service.equalsIgnoreCase("L3VPN")) {
             System.out.println("Please provide a valid service name. Available value(s): L3VPN");
             LOG.error("Incorrect service {} provided for setting the transport type.", service);
             return;
@@ -712,10 +712,10 @@ public class NexthopManager implements AutoCloseable {
     }
 
     static class AdjacencyResult {
-        private String interfaceName;
-        private Class<? extends InterfaceType> interfaceType;
-        private String nextHopIp;
-        private String prefix;
+        private final String interfaceName;
+        private final Class<? extends InterfaceType> interfaceType;
+        private final String nextHopIp;
+        private final String prefix;
 
         AdjacencyResult(String interfaceName, Class<? extends InterfaceType> interfaceType, String nextHopIp,
                         String prefix) {
@@ -745,7 +745,7 @@ public class NexthopManager implements AutoCloseable {
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + ((interfaceName == null) ? 0 : interfaceName.hashCode());
+            result = prime * result + (interfaceName == null ? 0 : interfaceName.hashCode());
             return result;
         }
 
@@ -785,7 +785,7 @@ public class NexthopManager implements AutoCloseable {
 
     long createNextHopGroups(Long vpnId, String rd, BigInteger dpnId, VrfEntry vrfEntry,
             Routes routes, List<Routes> vpnExtraRoutes) {
-        List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
+        List<BucketInfo> listBucketInfo = new ArrayList<>();
         List<Routes> clonedVpnExtraRoutes  = new ArrayList<>(vpnExtraRoutes);
         if (clonedVpnExtraRoutes.contains(routes)) {
             listBucketInfo.addAll(getBucketsForLocalNexthop(vpnId, dpnId, vrfEntry, routes));
@@ -797,7 +797,7 @@ public class NexthopManager implements AutoCloseable {
 
     private List<BucketInfo> getBucketsForLocalNexthop(Long vpnId, BigInteger dpnId,
             VrfEntry vrfEntry, Routes routes) {
-        List<BucketInfo> listBucketInfo = new CopyOnWriteArrayList<BucketInfo>();
+        List<BucketInfo> listBucketInfo = new CopyOnWriteArrayList<>();
         routes.getNexthopIpList().parallelStream().forEach(nextHopIp -> {
             String localNextHopIP = nextHopIp + NwConstants.IPV4PREFIX;
             Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, nextHopIp
@@ -824,7 +824,7 @@ public class NexthopManager implements AutoCloseable {
 
     private List<BucketInfo> getBucketsForRemoteNexthop(Long vpnId, BigInteger dpnId, VrfEntry vrfEntry, String rd,
             List<Routes> vpnExtraRoutes) {
-        List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
+        List<BucketInfo> listBucketInfo = new ArrayList<>();
         Map<String, List<ActionInfo>> egressActionMap = new HashMap<>();
         vpnExtraRoutes.stream().forEach(vpnExtraRoute -> vpnExtraRoute.getNexthopIpList()
                 .stream().forEach(nextHopIp -> {
@@ -922,7 +922,7 @@ public class NexthopManager implements AutoCloseable {
                                        tunnelStateId).transform(StateTunnelList::getOperState)
                                        .or(TunnelOperStatus.Down);
                     });
-        return tunnelStatus.isPresent() ? ((tunnelStatus.get() == TunnelOperStatus.Up) ? true : false) : false;
+        return tunnelStatus.isPresent() ? tunnelStatus.get() == TunnelOperStatus.Up ? true : false : false;
     }
 
     private List<Action> getEgressActions(String interfaceName, int actionKey) {
