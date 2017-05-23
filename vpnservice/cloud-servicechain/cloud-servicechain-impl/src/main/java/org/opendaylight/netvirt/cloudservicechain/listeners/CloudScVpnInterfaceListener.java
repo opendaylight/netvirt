@@ -58,13 +58,17 @@ public class CloudScVpnInterfaceListener
 
     @Override
     protected void remove(InstanceIdentifier<VpnInterface> key, VpnInterface vpnIfaceRemoved) {
-        String vpnName = vpnIfaceRemoved.getVpnInstanceName();
-        Optional<VpnToPseudoPortData> optScfInfoForVpn = vpnScHandler.getScfInfoForVpn(vpnName);
-        if (!optScfInfoForVpn.isPresent()) {
-            LOG.trace("Vpn {} is not related to ServiceChaining. No further action", vpnName);
-            return;
+        Optional<VpnToPseudoPortData> optScfInfoForVpn = null;
+        for (String vpnName : vpnIfaceRemoved.getVpnInstanceNames()) {
+            optScfInfoForVpn = vpnScHandler.getScfInfoForVpn(vpnName);
+            if (!optScfInfoForVpn.isPresent()) {
+                LOG.trace("Vpn {} is not related to ServiceChaining. No further action", vpnName);
+                continue;
+            }
         }
-
+        if (optScfInfoForVpn == null  || !optScfInfoForVpn.isPresent()) {
+            LOG.trace("No Vpn related to ServiceChaining. No further action");
+        }
         vpnScHandler.unbindScfOnVpnInterface(vpnIfaceRemoved.getKey().getName());
     }
 
@@ -75,14 +79,14 @@ public class CloudScVpnInterfaceListener
 
     @Override
     protected void add(InstanceIdentifier<VpnInterface> key, VpnInterface vpnIfaceAdded) {
-        String vpnName = vpnIfaceAdded.getVpnInstanceName();
-        Optional<VpnToPseudoPortData> optScfInfoForVpn = vpnScHandler.getScfInfoForVpn(vpnName);
-        if (!optScfInfoForVpn.isPresent()) {
-            LOG.trace("Vpn {} is not related to ServiceChaining. No further action", vpnName);
-            return;
+        for (String vpnName :vpnIfaceAdded.getVpnInstanceNames()) {
+            Optional<VpnToPseudoPortData> optScfInfoForVpn = vpnScHandler.getScfInfoForVpn(vpnName);
+            if (!optScfInfoForVpn.isPresent()) {
+                LOG.trace("Vpn {} is not related to ServiceChaining. No further action", vpnName);
+                return;
+            }
+            vpnScHandler.bindScfOnVpnInterface(vpnIfaceAdded.getKey().getName(), optScfInfoForVpn.get().getScfTag());
         }
-
-        vpnScHandler.bindScfOnVpnInterface(vpnIfaceAdded.getKey().getName(), optScfInfoForVpn.get().getScfTag());
     }
 
 }
