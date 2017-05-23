@@ -433,6 +433,22 @@ module odl-l3vpn {
         }
     }
 
+    notification add-interface-to-dpn-on-vpn-event {
+        container add-interface-event-data {
+           uses dpn-in-vpn-event;
+           leaf interface-name { type string; }
+           leaf vpn-id { type uint32; }
+        }
+    }
+
+    notification remove-interface-from-dpn-on-vpn-event {
+        container remove-interface-event-data {
+           uses dpn-in-vpn-event;
+           leaf interface-name { type string; }
+           leaf vpn-id { type uint32; }
+        }
+    }
+
     /*
      * Configured Transport Type for l3vpn service.
      */

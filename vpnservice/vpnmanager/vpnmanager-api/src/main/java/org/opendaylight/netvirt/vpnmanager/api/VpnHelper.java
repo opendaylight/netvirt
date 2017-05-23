@@ -18,8 +18,12 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -50,5 +54,48 @@ public class VpnHelper {
         } else {
             return Collections.emptyList();
         }
+    }
+
+    /**
+     * Retrieves the dataplane identifier of a specific VPN, searching by its
+     * VpnInstance name.
+     *
+     * @param broker dataBroker service reference
+     * @param vpnName Name of the VPN
+     * @return the dataplane identifier of the VPN, the VrfTag.
+     */
+    public static long getVpnId(DataBroker broker, String vpnName) {
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn
+                .id.VpnInstance>
+                id
+                = getVpnInstanceToVpnIdIdentifier(vpnName);
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
+                .VpnInstance>
+                vpnInstance
+                = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        long vpnId = -1;
+        if (vpnInstance.isPresent()) {
+            vpnId = vpnInstance.get().getVpnId();
+        }
+        return vpnId;
+    }
+
+    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911
+            .vpn.instance.to.vpn.id.VpnInstance> getVpnInstanceToVpnIdIdentifier(String vpnName) {
+        return InstanceIdentifier.builder(VpnInstanceToVpnId.class).child(org.opendaylight.yang.gen.v1.urn
+                .opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance.class,
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
+                        .VpnInstanceKey(vpnName)).build();
+    }
+
+    public static VpnInterface getVpnInterface(DataBroker broker, String vpnInterfaceName) {
+        InstanceIdentifier<VpnInterface> id = getVpnInterfaceIdentifier(vpnInterfaceName);
+        Optional<VpnInterface> vpnInterface = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        return vpnInterface.isPresent() ? vpnInterface.get() : null;
+    }
+
+    static InstanceIdentifier<VpnInterface> getVpnInterfaceIdentifier(String vpnInterfaceName) {
+        return InstanceIdentifier.builder(VpnInterfaces.class)
+                .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName)).build();
     }
 }
