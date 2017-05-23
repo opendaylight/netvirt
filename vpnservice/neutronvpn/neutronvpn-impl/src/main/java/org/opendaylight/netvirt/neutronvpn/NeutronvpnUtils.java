@@ -261,14 +261,17 @@ public class NeutronvpnUtils {
             List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
             if (routerId != null) {
                 for (VpnMap vpnMap : allMaps) {
-                    if (routerId.equals(vpnMap.getRouterId())) {
-                        if (externalVpn) {
-                            if (!routerId.equals(vpnMap.getVpnId())) {
-                                return vpnMap.getVpnId();
-                            }
-                        } else {
-                            if (routerId.equals(vpnMap.getVpnId())) {
-                                return vpnMap.getVpnId();
+                    List<Uuid> routerIdsList = vpnMap.getRouterIds();
+                    for (Uuid rtrId : routerIdsList) {
+                        if (routerId.equals(rtrId)) {
+                            if (externalVpn) {
+                                if (!routerId.equals(vpnMap.getVpnId())) {
+                                    return vpnMap.getVpnId();
+                                }
+                            } else {
+                                if (routerId.equals(vpnMap.getVpnId())) {
+                                    return vpnMap.getVpnId();
+                                }
                             }
                         }
                     }
@@ -278,13 +281,13 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    protected static Uuid getRouterforVpn(DataBroker broker, Uuid vpnId) {
+    protected static List<Uuid> getRouterforVpn(DataBroker broker, Uuid vpnId) {
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
                 new VpnMapKey(vpnId)).build();
         Optional<VpnMap> optionalVpnMap = read(broker, LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
         if (optionalVpnMap.isPresent()) {
             VpnMap vpnMap = optionalVpnMap.get();
-            return vpnMap.getRouterId();
+            return vpnMap.getRouterIds();
         }
         return null;
     }
