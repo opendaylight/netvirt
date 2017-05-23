@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_625f9e73",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-23T16:52:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_6e12ef63",
+      "range": {
+        "startLine": 82,
+        "startChar": 81,
+        "endLine": 82,
+        "endChar": 85
+      },
+      "revId": "e1f6ed0187a7650931207acaa5d8c8ff5ef04a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_f11c026d",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 21
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_c253f26a",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-23T16:52:39Z",
+      "side": 1,
+      "message": "added dual stack support.",
+      "parentUuid": "7af0899e_f11c026d",
+      "range": {
+        "startLine": 280,
+        "startChar": 2,
+        "endLine": 308,
+        "endChar": 67
+      },
+      "revId": "e1f6ed0187a7650931207acaa5d8c8ff5ef04a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_112b8e83",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 21
@@ -59,6 +107,30 @@
       "writtenOn": "2017-05-23T09:54:48Z",
       "side": 1,
       "message": "must",
+      "range": {
+        "startLine": 321,
+        "startChar": 45,
+        "endLine": 321,
+        "endChar": 50
+      },
+      "revId": "e1f6ed0187a7650931207acaa5d8c8ff5ef04a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_7799226e",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-23T16:52:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_112b8e83",
       "range": {
         "startLine": 321,
         "startChar": 45,
@@ -118,6 +190,30 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_b7a26a98",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-23T16:52:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba068154_2b78808e",
+      "range": {
+        "startLine": 346,
+        "startChar": 67,
+        "endLine": 346,
+        "endChar": 85
+      },
+      "revId": "e1f6ed0187a7650931207acaa5d8c8ff5ef04a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_91365ee6",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 21
@@ -129,6 +225,30 @@
       "writtenOn": "2017-05-23T09:54:48Z",
       "side": 1,
       "message": "I do not understand why this is required.",
+      "range": {
+        "startLine": 387,
+        "startChar": 0,
+        "endLine": 387,
+        "endChar": 106
+      },
+      "revId": "e1f6ed0187a7650931207acaa5d8c8ff5ef04a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_97cdae60",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-23T16:52:39Z",
+      "side": 1,
+      "message": "this change is what makes feasible the ability to attach to the same subnetmap two VPNs: one internal and one external.\n\nFrom mondays meeting with Vivek, I understood the following:\n- a new change will be put in place to have one VPN interface with 2 VPN instances linked together\n( this is in  l3vpn.yang, container vpn-interfaces, vpn-instance-name will be moved from leaf to leaf-list)\nThis is for the datapath programmation.\n\n- subnetmap structure will be appended a new field externalvpnuuid. this will be for FIB populate in the new external VPN.\n\nIs it your understanding too ?",
+      "parentUuid": "7af0899e_91365ee6",
       "range": {
         "startLine": 387,
         "startChar": 0,
@@ -164,6 +284,30 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_37b67add",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-23T16:52:39Z",
+      "side": 1,
+      "message": "I mean, in addition to import IPv6 information from LAN side, the IPv4 public information will be imported too, but thanks to NAT mechanism already put in place.\n\nAs far as I know ( I did not test it), the public IPv4 address of the router ( on the gateway side) will be populated in the FIB. No ?",
+      "parentUuid": "7af0899e_11526e13",
+      "range": {
+        "startLine": 389,
+        "startChar": 92,
+        "endLine": 390,
+        "endChar": 47
+      },
+      "revId": "e1f6ed0187a7650931207acaa5d8c8ff5ef04a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_71577203",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 21
@@ -175,6 +319,30 @@
       "writtenOn": "2017-05-23T09:54:48Z",
       "side": 1,
       "message": "IPv6 packets NOT matching flows in its VPN will be dropped.",
+      "range": {
+        "startLine": 398,
+        "startChar": 35,
+        "endLine": 398,
+        "endChar": 64
+      },
+      "revId": "e1f6ed0187a7650931207acaa5d8c8ff5ef04a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_d7a9f67c",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-23T16:52:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_71577203",
       "range": {
         "startLine": 398,
         "startChar": 35,
@@ -210,6 +378,30 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_d7d736ec",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-23T16:52:39Z",
+      "side": 1,
+      "message": "question 1:\n private VPN is the one used for inter DC.\nIt is illustrated in config 2 illustrated above of this document, \"VPN private 2\" is the private VPN, while \"VPN internet 2\" is the external VPN.\n\nquestion 2:\nwe do not yet have some code to share.\nThe idea is to replace router-id with vpn-id.",
+      "parentUuid": "7af0899e_3174ca9b",
+      "range": {
+        "startLine": 400,
+        "startChar": 0,
+        "endLine": 404,
+        "endChar": 48
+      },
+      "revId": "e1f6ed0187a7650931207acaa5d8c8ff5ef04a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_b1671aea",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 21
@@ -221,6 +413,30 @@
       "writtenOn": "2017-05-23T09:54:48Z",
       "side": 1,
       "message": "Do we check if the subnet is IPv6 before importing?",
+      "range": {
+        "startLine": 424,
+        "startChar": 0,
+        "endLine": 424,
+        "endChar": 100
+      },
+      "revId": "e1f6ed0187a7650931207acaa5d8c8ff5ef04a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_97f48e88",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-23T16:52:39Z",
+      "side": 1,
+      "message": "because IPv4 importation will be handled by NAT mechanism, IPv4 subnetworks entries will be filtered out.",
+      "parentUuid": "7af0899e_b1671aea",
       "range": {
         "startLine": 424,
         "startChar": 0,
