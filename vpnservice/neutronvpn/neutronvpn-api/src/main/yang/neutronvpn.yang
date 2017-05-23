@@ -125,9 +125,9 @@ module neutronvpn {
              Format is ASN:nn or IP-address:nn.";
         }
 
-        leaf router-id {
+        leaf-list router-ids {
           type    yang:uuid;
-          description "UUID of router ";
+          description "UUID of router(s) ";
         }
 
         leaf-list network-ids {
@@ -178,7 +178,7 @@ module neutronvpn {
                 description "The UUID of the tenant that will own the subnet.";
             }
 
-            leaf router-id {
+            leaf-list router_ids {
               type    yang:uuid;
               description "UUID of router ";
             }
