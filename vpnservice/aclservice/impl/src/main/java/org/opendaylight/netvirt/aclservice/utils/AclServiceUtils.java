@@ -42,6 +42,8 @@ import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
@@ -977,11 +979,18 @@ public final class AclServiceUtils {
                 AclConstants.PacketHandlingType.DENY));
     }
 
-    public static List<? extends MatchInfoBase> buildIpAndElanSrcMatch(long elanTag, AllowedAddressPairs ip,
-            DataBroker dataBroker) {
+    public static List<? extends MatchInfoBase> buildIpAndSrcServiceMatch(long elanTag, AllowedAddressPairs ip,
+            DataBroker dataBroker, String vpnName) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
-        MatchMetadata metadatMatch =
-                new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE);
+        MatchMetadata metadatMatch = null;
+        if (vpnName == null) {
+            metadatMatch =
+                    new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE);
+        } else {
+            Long vpnId = VpnHelper.getVpnId(dataBroker, vpnName);
+            metadatMatch =
+                    new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID);
+        }
         flowMatches.add(metadatMatch);
         if (ip.getIpAddress().getIpAddress() != null) {
             if (ip.getIpAddress().getIpAddress().getIpv4Address() != null) {
@@ -1013,11 +1022,18 @@ public final class AclServiceUtils {
         return flowMatches;
     }
 
-    public static List<? extends MatchInfoBase> buildIpAndElanDstMatch(Long elanTag, AllowedAddressPairs ip,
-            DataBroker dataBroker) {
+    public static List<? extends MatchInfoBase> buildIpAndDstServiceMatch(Long elanTag, AllowedAddressPairs ip,
+            DataBroker dataBroker, String vpnName) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
-        MatchMetadata metadatMatch =
-                new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE);
+        MatchMetadata metadatMatch = null;
+        if (vpnName == null) {
+            metadatMatch =
+                    new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE);
+        } else {
+            Long vpnId = VpnHelper.getVpnId(dataBroker, vpnName);
+            metadatMatch =
+                    new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID);
+        }
         flowMatches.add(metadatMatch);
 
         if (ip.getIpAddress().getIpAddress() != null) {
@@ -1068,5 +1084,14 @@ public final class AclServiceUtils {
             Class<? extends ServiceModeBase> serviceMode) {
         MatchInfoBase lportMatch = buildLPortTagMatch(lportTag, serviceMode);
         InterfaceServiceUtil.mergeMetadataMatchsOrAdd(flowMatches, lportMatch);
+    }
+
+    static AclInterface buildAclInterfaceState(String interfaceId, InterfaceAcl aclInPort) {
+        AclInterface aclInterface = new AclInterface();
+        aclInterface.setInterfaceId(interfaceId);
+        aclInterface.setPortSecurityEnabled(aclInPort.isPortSecurityEnabled());
+        aclInterface.setSecurityGroups(aclInPort.getSecurityGroups());
+        aclInterface.setAllowedAddressPairs(aclInPort.getAllowedAddressPairs());
+        return aclInterface;
     }
 }

@@ -22,8 +22,12 @@ import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.vpn.to.pseudo.port.list.VpnToPseudoPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddInterfaceOnDpnEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OdlL3vpnListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RemoveDpnEvent;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RemoveInterfaceOnDpnEvent;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.add._interface.on.dpn.event.AddInterfaceEventData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove._interface.on.dpn.event.RemoveInterfaceEventData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,4 +108,17 @@ public class VpnToDpnListener implements OdlL3vpnListener {
                                                                    vpnToPseudoPortInfo.getVpnLportTag().intValue(),
                                                                    addOrRemove);
     }
+
+    @Override
+    public void onAddInterfaceOnDpnEvent(AddInterfaceOnDpnEvent notification) {
+        AddInterfaceEventData data = notification.getAddInterfaceEventData();
+        LOG.trace("Ignoring vpn interface {} added on dpn {}", data.getInterfaceName(), data.getDpnId());
+    }
+
+    @Override
+    public void onRemoveInterfaceOnDpnEvent(RemoveInterfaceOnDpnEvent notification) {
+        RemoveInterfaceEventData data = notification.getRemoveInterfaceEventData();
+        LOG.trace("Ignoring vpn interface {} removed from dpn {}", data.getInterfaceName(), data.getDpnId());
+    }
+
 }

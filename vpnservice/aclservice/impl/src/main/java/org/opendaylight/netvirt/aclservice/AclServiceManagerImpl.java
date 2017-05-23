@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.aclservice;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.netvirt.aclservice.api.AclServiceListener;
@@ -87,6 +88,20 @@ public class AclServiceManagerImpl implements AclServiceManager {
             } else if (action == Action.REMOVE) {
                 aclServiceListener.removeAce(port, aclName, ace);
             }
+        }
+    }
+
+    @Override
+    public void updateRemoteAclFilterTable(AclInterface port, int addOrRemove, String vpnName) {
+        for (AclServiceListener aclServiceListener : aclServiceListeners) {
+            aclServiceListener.updateRemoteAclFilterTable(port, addOrRemove, vpnName);
+        }
+    }
+
+    @Override
+    public void bindAclTableForVpn(AclInterface port) {
+        for (AclServiceListener aclServiceListener : aclServiceListeners) {
+            aclServiceListener.bindService(port.getInterfaceId());
         }
     }
 }
