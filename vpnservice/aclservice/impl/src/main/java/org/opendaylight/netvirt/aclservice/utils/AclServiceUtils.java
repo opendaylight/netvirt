@@ -1069,4 +1069,13 @@ public final class AclServiceUtils {
         MatchInfoBase lportMatch = buildLPortTagMatch(lportTag, serviceMode);
         InterfaceServiceUtil.mergeMetadataMatchsOrAdd(flowMatches, lportMatch);
     }
+
+    static AclInterface buildAclInterfaceState(String interfaceId, InterfaceAcl aclInPort) {
+        AclInterface aclInterface = new AclInterface();
+        aclInterface.setInterfaceId(interfaceId);
+        aclInterface.setPortSecurityEnabled(aclInPort.isPortSecurityEnabled());
+        aclInterface.setSecurityGroups(aclInPort.getSecurityGroups());
+        aclInterface.setAllowedAddressPairs(aclInPort.getAllowedAddressPairs());
+        return aclInterface;
+    }
 }
