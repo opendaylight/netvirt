@@ -629,7 +629,13 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 builder.setTenantId(tenantId);
             }
             if (router != null) {
-                builder.setRouterId(router);
+                List<Uuid> routerIdsList = builder.getRouterIds();
+                if (routerIdsList == null || routerIdsList.isEmpty()) {
+                    builder.setRouterIds(Collections.singletonList(router));
+		} else if (routerIdsList != null && !routerIdsList.contains(router)) {
+                    routerIdsList.add(router);
+                    builder.setRouterIds(routerIdsList);
+                }
             }
             if (networks != null) {
                 List<Uuid> nwList = builder.getNetworkIds();
@@ -681,7 +687,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     }
                     return;
                 }
-                vpnMapBuilder.setRouterId(null);
+                List<Uuid> ri = vpnMap.getRouterIds();
+                if (ri != null && ri.size() > 0) {
+                    //we have to delete the routerId to this list
+                    if (ri.contains(routerId)) {
+                        ri.remove(routerId);
+                        vpnMapBuilder.setRouterIds(ri);
+                    }
+                }
             }
             if (networkIds != null) {
                 List<Uuid> vpnNw = vpnMap.getNetworkIds();
@@ -914,20 +927,24 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
      * @param rd Route-distinguisher for the VPN
      * @param irt A list of Import Route Targets
      * @param ert A list of Export Route Targets
-     * @param router UUID of the neutron router the VPN may be associated to
+     * @param routerIdsList A list with neutron router UUIDs to associate with created VPN
      * @param networks UUID of the neutron network the VPN may be associated to
      * @param type Type of the VPN Instance
      * @param l3vni L3VNI for the VPN Instance using VxLAN as the underlay
      * @throws Exception if association of L3VPN failed
      */
     public void createVpn(Uuid vpn, String name, Uuid tenant, List<String> rd, List<String> irt, List<String> ert,
-                            Uuid router, List<Uuid> networks, VpnInstance.Type type, long l3vni)
+                            List<Uuid> routerIdsList, List<Uuid> networks, VpnInstance.Type type, long l3vni)
                                     throws Exception {
 
         IpVersionChoice ipVersChoices = IpVersionChoice.UNDEFINED;
-        IpVersionChoice vers = NeutronvpnUtils.getIpVersionChoicesFromRouterUuid(dataBroker, router);
-        ipVersChoices = ipVersChoices.addVersion(vers);
 
+        if (routerIdsList != null) {
+            for (Uuid routerId : routerIdsList) {
+                IpVersionChoice vers = NeutronvpnUtils.getIpVersionChoicesFromRouterUuid(dataBroker, routerId);
+                ipVersChoices = ipVersChoices.addVersion(vers);
+            }
+        }
         updateVpnInstanceNode(vpn.getValue(), rd, irt, ert, type, l3vni, ipVersChoices);
 
         // Please note that router and networks will be filled into VPNMaps
@@ -935,8 +952,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         // associateNetworksToVpn
         updateVpnMaps(vpn, name, null, tenant, null);
 
-        if (router != null) {
-            associateRouterToVpn(vpn, router);
+        if (routerIdsList != null) {
+            for (Uuid routerId : routerIdsList) {
+                associateRouterToVpn(vpn, routerId);
+            }
         }
         if (networks != null) {
             List<String> failStrings = associateNetworksToVpn(vpn, networks);
@@ -963,6 +982,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         int warningcount = 0;
 
         List<L3vpn> vpns = input.getL3vpn();
+        if (vpns == null) {
+            vpns = new ArrayList();
+        }
         for (L3vpn vpn : vpns) {
             RpcError error = null;
             String msg;
@@ -1001,26 +1023,29 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 warningcount++;
                 continue;
             }
-            if (vpn.getRouterId() != null) {
-                if (NeutronvpnUtils.getNeutronRouter(dataBroker, vpn.getRouterId()) == null) {
-                    msg = String.format("Creation of L3VPN failed for VPN %s due to router not found %s",
-                            vpn.getId().getValue(), vpn.getRouterId().getValue());
-                    LOG.warn(msg);
-                    error = RpcResultBuilder.newWarning(ErrorType.PROTOCOL, "invalid-input", msg);
-                    errorList.add(error);
-                    warningcount++;
-                    continue;
-                }
-                Uuid vpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, vpn.getRouterId(), true);
-                if (vpnId != null) {
-                    msg = String.format("Creation of L3VPN failed for VPN %s due to router %s already associated to "
-                            + "another VPN %s", vpn.getId().getValue(), vpn.getRouterId().getValue(),
+            if (vpn.getRouterIds() != null && !vpn.getRouterIds().isEmpty()) {
+                List<Uuid> routerIdsList = vpn.getRouterIds();
+                for (Uuid routerId : routerIdsList) {
+                    if (NeutronvpnUtils.getNeutronRouter(dataBroker, routerId) == null) {
+                        msg = String.format("Creation of L3VPN failed for VPN %s due to router not found %s",
+                                vpn.getId().getValue(), routerId.getValue());
+                        LOG.warn(msg);
+                        error = RpcResultBuilder.newWarning(ErrorType.PROTOCOL, "invalid-input", msg);
+                        errorList.add(error);
+                        warningcount++;
+                        continue;
+                    }
+                    Uuid vpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerId, true);
+                    if (vpnId != null) {
+                        msg = String.format("Creation of L3VPN failed for VPN %s due to router %s already "
+                                + "associated to " + "another VPN %s", vpn.getId().getValue(), routerId.getValue(),
                                 vpnId.getValue());
-                    LOG.warn(msg);
-                    error = RpcResultBuilder.newWarning(ErrorType.PROTOCOL, "invalid-input", msg);
-                    errorList.add(error);
-                    warningcount++;
-                    continue;
+                        LOG.warn(msg);
+                        error = RpcResultBuilder.newWarning(ErrorType.PROTOCOL, "invalid-input", msg);
+                        errorList.add(error);
+                        warningcount++;
+                        continue;
+                    }
                 }
             }
             if (vpn.getNetworkIds() != null) {
@@ -1050,7 +1075,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             }
             try {
                 createVpn(vpn.getId(), vpn.getName(), vpn.getTenantId(), vpn.getRouteDistinguisher(),
-                        vpn.getImportRT(), vpn.getExportRT(), vpn.getRouterId(), vpn.getNetworkIds(),
+                        vpn.getImportRT(), vpn.getExportRT(), vpn.getRouterIds(), vpn.getNetworkIds(),
                         vpnInstanceType, l3vni);
             } catch (Exception ex) {
                 msg = String.format("Creation of VPN failed for VPN %s", vpn.getId().getValue());
@@ -1169,7 +1194,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         vpnMapIdentifier);
                 if (optionalVpnMap.isPresent()) {
                     VpnMap vpnMap = optionalVpnMap.get();
-                    l3vpn.setRouterId(vpnMap.getRouterId()).setNetworkIds(vpnMap.getNetworkIds())
+                    l3vpn.setRouterIds(vpnMap.getRouterIds()).setNetworkIds(vpnMap.getNetworkIds())
                         .setTenantId(vpnMap.getTenantId()).setName(vpnMap.getName());
                 }
                 l3vpnList.add(l3vpn.build());
@@ -1636,13 +1661,15 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     public void removeVpn(Uuid id) {
         // read VPNMaps
         VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, id);
-        Uuid router = (vpnMap != null) ? vpnMap.getRouterId() : null;
+        List<Uuid> routerIdsList = vpnMap != null ? vpnMap.getRouterIds() : null;
         // dissociate router
-        if (router != null) {
-            dissociateRouterFromVpn(id, router);
+        if (routerIdsList != null && !routerIdsList.isEmpty()) {
+            for (Uuid routerId : routerIdsList) {
+                dissociateRouterFromVpn(id, routerId);
+            }
         }
-        // dissociate networks
-        if (!id.equals(router)) {
+        if (routerIdsList.contains(id)) {
+            // dissociate networks
             dissociateNetworksFromVpn(id, vpnMap.getNetworkIds());
         }
         // remove entire vpnMaps node
@@ -1919,9 +1946,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             if (vpnMap != null) {
                 if (rtr != null) {
                     Uuid extVpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerId, true);
-                    if (vpnMap.getRouterId() != null) {
+                    if (vpnMap.getRouterIds() != null && !vpnMap.getRouterIds().isEmpty()) {
                         returnMsg.append("vpn ").append(vpnId.getValue()).append(" already associated to router ")
-                                .append(vpnMap.getRouterId().getValue());
+                                .append(routerId.getValue());
                     } else if (extVpnId != null) {
                         returnMsg.append("router ").append(routerId.getValue()).append(" already associated to "
                             + "another VPN ").append(extVpnId.getValue());
