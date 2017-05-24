@@ -589,7 +589,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     }
 
     private Set<FixedIps> getFixedIpSet(List<FixedIps> fixedIps) {
-        return java.util.Optional.ofNullable(fixedIps).map(fips -> (Set<FixedIps>) new HashSet<>(fips))
-                .orElse(Collections.emptySet());
+        return fixedIps != null ? new HashSet<>(fixedIps) : Collections.emptySet();
     }
 }

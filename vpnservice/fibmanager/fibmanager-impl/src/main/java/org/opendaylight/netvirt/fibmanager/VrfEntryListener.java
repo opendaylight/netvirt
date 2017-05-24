@@ -2062,17 +2062,18 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                         vrfEntry.getDestPrefix(),
                                         dpnId, rd);
                                 makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx);
-                                java.util.Optional.ofNullable(vrfEntry.getRoutePaths()).ifPresent(routePaths -> {
-                                    routePaths.stream().forEach(routePath -> {
+                                List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
+                                if (routePaths != null) {
+                                    for (RoutePaths routePath : routePaths) {
                                         makeLFibTableEntry(dpnId, routePath.getLabel(), null,
                                                 DEFAULT_FIB_FLOW_PRIORITY,
                                                 NwConstants.DEL_FLOW, tx);
                                         LOG.trace("cleanUpDpnForVpn: Released subnetroute label {} "
-                                                + "for rd {} prefix {}",
+                                                        + "for rd {} prefix {}",
                                                 routePath.getLabel(), rd,
                                                 vrfEntry.getDestPrefix());
-                                    });
-                                });
+                                    }
+                                }
                                 continue;
                             }
                             // ping responder for router interfaces
