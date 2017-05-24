@@ -1491,7 +1491,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         return elanInstance.getAugmentation(EtreeInstance.class) == null;
     }
 
-    private void unbindService(String interfaceName, WriteTransaction tx) {
+    protected void unbindService(String interfaceName, WriteTransaction tx) {
         short elanServiceIndex = ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX);
         InstanceIdentifier<BoundServices> bindServiceId = ElanUtils.buildServiceId(interfaceName, elanServiceIndex);
         Optional<BoundServices> existingElanService = elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
