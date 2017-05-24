@@ -11,7 +11,6 @@ package org.opendaylight.netvirt.sfc.classifier.providers;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -53,23 +52,27 @@ public class NetvirtProvider {
         }
 
         List<String> interfaces = new ArrayList<>();
-        List<Uuid> subnetUuidList = Optional.ofNullable(networkMap.getSubnetIdList()).orElse(Collections.emptyList());
-        for (Uuid subnetUuid : subnetUuidList) {
-            InstanceIdentifier<Subnetmap> subnetId = getSubnetMapIdentifier(subnetUuid);
-            Subnetmap subnet = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetId).orNull();
-            if (subnet == null) {
-                LOG.warn("getLogicalInterfacesFromNeutronNetwork cant get Subnetmap for NW UUID [{}] Subnet UUID [{}]",
-                        nw.getNetworkUuid(), subnetUuid.getValue());
-                continue;
-            }
+        List<Uuid> subnetUuidList = networkMap.getSubnetIdList();
+        if (subnetUuidList != null) {
+            for (Uuid subnetUuid : subnetUuidList) {
+                InstanceIdentifier<Subnetmap> subnetId = getSubnetMapIdentifier(subnetUuid);
+                Subnetmap subnet = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetId).orNull();
+                if (subnet == null) {
+                    LOG.warn(
+                            "getLogicalInterfacesFromNeutronNetwork cant get Subnetmap for NW UUID [{}] Subnet UUID "
+                                    + "[{}]",
+                            nw.getNetworkUuid(), subnetUuid.getValue());
+                    continue;
+                }
 
-            if (subnet.getPortList() == null || subnet.getPortList().isEmpty()) {
-                LOG.warn("getLogicalInterfacesFromNeutronNetwork No ports on Subnet: NW UUID [{}] Subnet UUID [{}]",
-                        nw.getNetworkUuid(), subnetUuid.getValue());
-                continue;
-            }
+                if (subnet.getPortList() == null || subnet.getPortList().isEmpty()) {
+                    LOG.warn("getLogicalInterfacesFromNeutronNetwork No ports on Subnet: NW UUID [{}] Subnet UUID [{}]",
+                            nw.getNetworkUuid(), subnetUuid.getValue());
+                    continue;
+                }
 
-            subnet.getPortList().forEach(portId -> interfaces.add(portId.getValue()));
+                subnet.getPortList().forEach(portId -> interfaces.add(portId.getValue()));
+            }
         }
 
         return interfaces;
