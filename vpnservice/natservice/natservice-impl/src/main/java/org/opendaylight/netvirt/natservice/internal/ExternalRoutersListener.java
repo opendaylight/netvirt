@@ -230,9 +230,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             if (bgpVpnUuid != null) {
                 return;
             }
-            Optional<List<ExternalIps>> externalIps = Optional.of(routers.getExternalIps());
+            List<ExternalIps> externalIps = routers.getExternalIps();
             // Allocate Primary Napt Switch for this router
-            if (routers.isEnableSnat() && externalIps.isPresent() && !externalIps.get().isEmpty()) {
+            if (routers.isEnableSnat() && externalIps != null && !externalIps.isEmpty()) {
                 boolean result = centralizedSwitchScheduler.scheduleCentralizedSwitch(routerName);
             }
             //snatServiceManger.notify(routers, null, Action.ADD);
@@ -1170,10 +1170,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     centralizedSwitchScheduler.scheduleCentralizedSwitch(routerName);
                 }
             }
-            Optional<List<ExternalIps>> originalExternalIp = Optional.of(original.getExternalIps());
-            Optional<List<ExternalIps>> updateExternalIp = Optional.of(update.getExternalIps());
-            if (!originalExternalIp.equals(updateExternalIp)) {
-                if (!originalExternalIp.isPresent() || originalExternalIp.get().isEmpty()) {
+            List<ExternalIps> originalExternalIps = original.getExternalIps();
+            List<ExternalIps> updateExternalIps = update.getExternalIps();
+            if (!Objects.equals(originalExternalIps, updateExternalIps)) {
+                if (originalExternalIps == null || originalExternalIps.isEmpty()) {
                     centralizedSwitchScheduler.scheduleCentralizedSwitch(routerName);
                 }
             }
