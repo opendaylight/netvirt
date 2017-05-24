@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.sfc.classifier.providers;
 
 import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -178,7 +177,6 @@ public class GeniusProvider {
             return Collections.emptyList();
         }
 
-        List<IpAddress> ipList = new ArrayList<>();
         try {
             LOG.debug("getIpFromDpnId: invoking rpc");
             RpcResult<GetEndpointIpForDpnOutput> output = interfaceManagerRpcService.getEndpointIpForDpn(input).get();
@@ -186,13 +184,16 @@ public class GeniusProvider {
                 LOG.error("getIpFromDpnId({}) failed: {}", input, output);
                 return Collections.emptyList();
             }
-            ipList = Optional.ofNullable(output.getResult().getLocalIps()).orElse(Collections.emptyList());
+            List<IpAddress> localIps = output.getResult().getLocalIps();
             LOG.debug("getDpnIdFromInterfaceName({}) succeeded: {}", input, output);
+            if (localIps != null) {
+                return localIps;
+            }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("getDpnIdFromInterfaceName failed to retrieve target interface name: ", e);
         }
 
-        return ipList;
+        return Collections.emptyList();
     }
 
     public Optional<DpnIdType> getDpnIdFromInterfaceName(String interfaceName) {

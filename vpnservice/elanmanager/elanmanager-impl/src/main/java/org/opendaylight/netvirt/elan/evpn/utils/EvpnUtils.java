@@ -8,8 +8,6 @@
 package org.opendaylight.netvirt.elan.evpn.utils;
 
 
-import com.google.common.base.Optional;
-
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -130,11 +128,11 @@ public class EvpnUtils {
         return nexthopIpList.get(0).getIpv4Address().toString();
     }
 
-    public Optional<String> getGatewayMacAddressForInterface(String vpnName, String ifName, String ipAddress) {
+    public String getGatewayMacAddressForInterface(String vpnName, String ifName, String ipAddress) {
         VpnPortipToPort gwPort = vpnManager.getNeutronPortFromVpnPortFixedIp(broker, vpnName, ipAddress);
-        return Optional.of((gwPort != null && gwPort.isSubnetIp())
+        return gwPort != null && gwPort.isSubnetIp()
                 ? gwPort.getMacAddress()
-                : interfaceManager.getInterfaceInfoFromOperationalDataStore(ifName).getMacAddress());
+                : interfaceManager.getInterfaceInfoFromOperationalDataStore(ifName).getMacAddress();
     }
 
     public String getL3vpnNameFromElan(ElanInstance elanInfo) {
@@ -182,8 +180,7 @@ public class EvpnUtils {
         if (l3VpName != null) {
             VpnInstance l3VpnInstance = vpnManager.getVpnInstance(broker, l3VpName);
             l3vni = l3VpnInstance.getL3vni();
-            Optional<String> gatewayMac = getGatewayMacAddressForInterface(l3VpName, interfaceName, prefix);
-            gatewayMacAddr = gatewayMac.isPresent() ? gatewayMac.get() : null;
+            gatewayMacAddr = getGatewayMacAddressForInterface(l3VpName, interfaceName, prefix);
         }
         LOG.info("Advertising routes with rd {},  macAddress {}, prefix {}, nextHop {},"
                         + " vpnLabel {}, l3vni {}, l2vni {}, gatewayMac {}", rd, macAddress, prefix, nextHop,
