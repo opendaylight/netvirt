@@ -15,6 +15,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.cloudservicechain.VPNServiceChainHandler;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.vpn.to.pseudo.port.list.VpnToPseudoPortData;
@@ -58,7 +59,7 @@ public class CloudScVpnInterfaceListener
 
     @Override
     protected void remove(InstanceIdentifier<VpnInterface> key, VpnInterface vpnIfaceRemoved) {
-        String vpnName = vpnIfaceRemoved.getVpnInstanceName();
+        String vpnName = VpnHelper.getFirstVpnNameFromVpnInterface(vpnIfaceRemoved);
         Optional<VpnToPseudoPortData> optScfInfoForVpn = vpnScHandler.getScfInfoForVpn(vpnName);
         if (!optScfInfoForVpn.isPresent()) {
             LOG.trace("Vpn {} is not related to ServiceChaining. No further action", vpnName);
@@ -75,7 +76,7 @@ public class CloudScVpnInterfaceListener
 
     @Override
     protected void add(InstanceIdentifier<VpnInterface> key, VpnInterface vpnIfaceAdded) {
-        String vpnName = vpnIfaceAdded.getVpnInstanceName();
+        String vpnName = VpnHelper.getFirstVpnNameFromVpnInterface(vpnIfaceAdded);
         Optional<VpnToPseudoPortData> optScfInfoForVpn = vpnScHandler.getScfInfoForVpn(vpnName);
         if (!optScfInfoForVpn.isPresent()) {
             LOG.trace("Vpn {} is not related to ServiceChaining. No further action", vpnName);
