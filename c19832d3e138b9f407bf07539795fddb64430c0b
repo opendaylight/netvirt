@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_78462e25",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-24T12:49:09Z",
+      "side": 1,
+      "message": "Aswin, do you feel any change here necessary.. In latest PS 9, we have handled addition/removal of security rules to an existing security group is handled inside applyAce() and remvoveAce().",
+      "parentUuid": "7af0899e_55885b22",
+      "revId": "c19832d3e138b9f407bf07539795fddb64430c0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_75b917e9",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
         "patchSetId": 6
