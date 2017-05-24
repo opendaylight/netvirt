@@ -244,7 +244,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
 
     private void handlePacketToExternalNetwork(Uuid vpnInstanceNameUuid, VpnInterface vmVpnInterface, byte[] dstIp,
             long elanTag) throws UnknownHostException {
-        String routerId = vmVpnInterface.getVpnInstanceName();
+        String routerId = vmVpnInterface.getVpnInstanceName().get(0);
         Routers externalRouter = VpnUtil.getExternalRouter(dataBroker, routerId);
         if (externalRouter == null) {
             VpnManagerCounters.subnet_route_packet_failed.inc();

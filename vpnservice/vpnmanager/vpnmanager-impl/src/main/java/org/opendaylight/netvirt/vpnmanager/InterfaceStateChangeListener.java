@@ -98,7 +98,7 @@ public class InterfaceStateChangeListener
                                 }
                                 final BigInteger dpnId = intfDpnId;
                                 final int ifIndex = intrf.getIfIndex();
-                                if (!vpnInterfaceManager.isVpnInstanceReady(vpnInterface.getVpnInstanceName())) {
+                                if (!vpnInterfaceManager.isVpnInstanceReady(vpnInterface.getVpnInstanceName().get(0))) {
                                     LOG.info("InterfaceStateChangeListener- VpnInstance for vpnInterface {} not ready"
                                             + ", holding on ", vpnInterface.getName());
                                     return futures;
@@ -222,7 +222,7 @@ public class InterfaceStateChangeListener
                             final int ifIndex = update.getIfIndex();
                             final BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(update);
                             if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
-                                if (!vpnInterfaceManager.isVpnInstanceReady(vpnInterface.getVpnInstanceName())) {
+                                if (!vpnInterfaceManager.isVpnInstanceReady(vpnInterface.getVpnInstanceName().get(0))) {
                                     LOG.info("InterfaceStateChangeListener Update - VpnInstance for vpnInterface {}"
                                             + "not ready, holding on", vpnInterface.getName());
                                     return futures;
