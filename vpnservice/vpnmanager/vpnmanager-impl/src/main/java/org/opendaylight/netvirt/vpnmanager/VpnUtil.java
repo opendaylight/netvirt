@@ -1044,12 +1044,12 @@ public class VpnUtil {
     }
 
     public static void scheduleVpnInterfaceForRemoval(DataBroker broker,String interfaceName, BigInteger dpnId,
-                                                      String vpnInstanceName, Boolean isScheduledToRemove,
+                                                      List<String> vpnInstanceName, Boolean isScheduledToRemove,
                                                       WriteTransaction writeOperTxn) {
         InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
         VpnInterface interfaceToUpdate =
             new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(interfaceName)).setName(interfaceName)
-                .setDpnId(dpnId).setVpnInstanceName(Arrays.asList(vpnInstanceName)).setScheduledForRemove(isScheduledToRemove).build();
+                .setDpnId(dpnId).setVpnInstanceName(vpnInstanceName).setScheduledForRemove(isScheduledToRemove).build();
         if (writeOperTxn != null) {
             writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, interfaceId, interfaceToUpdate, true);
         } else {

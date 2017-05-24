@@ -276,10 +276,12 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                             subnetList.add(subnetId);
                         }
                     }
-                    //Populate the map for VpnId-to-Rd
-                    long vpnId = VpnUtil.getVpnId(dataBroker, vpnInterface.getVpnInstanceName().get(0));
-                    rd = VpnUtil.getVpnRd(dataBroker, vpnInterface.getVpnInstanceName().get(0));
-                    vpnIdRdMap.put(vpnId, rd);
+                    for (String vpnInstance : vpnInterface.getVpnInstanceName()) {
+                        //Populate the map for VpnId-to-Rd
+                        long vpnId = VpnUtil.getVpnId(dataBroker, vpnInstance);
+                        rd = VpnUtil.getVpnRd(dataBroker, vpnInstance);
+                        vpnIdRdMap.put(vpnId, rd);
+                    }
                 }
             }
 
@@ -296,22 +298,24 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                     List<Adjacency> adjList = adjacencies != null ? adjacencies.getAdjacency()
                             : Collections.emptyList();
                     String prefix = null;
-                    long vpnId = VpnUtil.getVpnId(dataBroker, vpnInterface.getVpnInstanceName().get(0));
-                    if (vpnIdRdMap.containsKey(vpnId)) {
-                        rd = vpnIdRdMap.get(vpnId);
-                        LOG.trace(" Remote DpnId {} VpnId {} rd {} VpnInterface {}", remoteDpnId, vpnId, rd,
-                            vpnInterface);
-                        for (Adjacency adj : adjList) {
-                            prefix = adj.getIpAddress();
-                            long label = adj.getLabel();
-                            if ((tunnelAction == TunnelAction.TUNNEL_EP_ADD)
-                                && (tunTypeVal == VpnConstants.ITMTunnelLocType.Internal.getValue())) {
-                                fibManager.manageRemoteRouteOnDPN(true, srcDpnId, vpnId, rd, prefix, destTepIp, label);
-                            }
+                    for (String vpnInstance : vpnInterface.getVpnInstanceName()) {
+                        long vpnId = VpnUtil.getVpnId(dataBroker, vpnInstance);
+                        if (vpnIdRdMap.containsKey(vpnId)) {
+                            rd = vpnIdRdMap.get(vpnId);
+                            LOG.trace(" Remote DpnId {} VpnId {} rd {} VpnInterface {}", remoteDpnId, vpnId, rd,
+                                vpnInterface);
+                            for (Adjacency adj : adjList) {
+                                prefix = adj.getIpAddress();
+                                long label = adj.getLabel();
+                                if ((tunnelAction == TunnelAction.TUNNEL_EP_ADD)
+                                    && (tunTypeVal == VpnConstants.ITMTunnelLocType.Internal.getValue())) {
+                                    fibManager.manageRemoteRouteOnDPN(true, srcDpnId, vpnId, rd, prefix, destTepIp, label);
+                                }
 
-                            if ((tunnelAction == TunnelAction.TUNNEL_EP_DELETE)
-                                && (tunTypeVal == VpnConstants.ITMTunnelLocType.Internal.getValue())) {
-                                fibManager.manageRemoteRouteOnDPN(false, srcDpnId, vpnId, rd, prefix, destTepIp, label);
+                                if ((tunnelAction == TunnelAction.TUNNEL_EP_DELETE)
+                                    && (tunTypeVal == VpnConstants.ITMTunnelLocType.Internal.getValue())) {
+                                    fibManager.manageRemoteRouteOnDPN(false, srcDpnId, vpnId, rd, prefix, destTepIp, label);
+                                }
                             }
                         }
                     }
