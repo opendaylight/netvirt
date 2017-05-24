@@ -63,6 +63,7 @@ import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.mdsalutil.packet.TCP;
 import org.opendaylight.genius.mdsalutil.packet.UDP;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.natservice.internal.NaptPacketInHandler.NatPacketProcessingState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -155,8 +156,11 @@ public class NaptEventHandler {
     */
         try {
             Long routerId = naptEntryEvent.getRouterId();
-            LOG.info("NAT Service : handleEvent() entry for IP {}, port {}, routerID {}",
-                naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber(), routerId);
+            LOG.info("NAT Service : handleEvent() entry for {}:{}, routerID {},"
+                    + "TimeElapsed before procesing {}ms,isPktProcessed:{}",
+                    naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber(), routerId,
+                    (System.currentTimeMillis() - naptEntryEvent.getObjectCreationTime()),
+                    naptEntryEvent.isPktProcessed());
             //Get the DPN ID
             BigInteger dpnId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
             long bgpVpnId = NatConstants.INVALID_ID;
@@ -181,46 +185,50 @@ public class NaptEventHandler {
             }
             if (naptEntryEvent.getOperation() == NAPTEntryEvent.Operation.ADD) {
                 LOG.debug("NAT Service : Inside Add operation of NaptEventHandler");
-                // Get the External Gateway MAC Address
-                String extGwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
-                if (extGwMacAddress != null) {
-                    LOG.debug("NAT Service : External Gateway MAC address {} found for External Router ID {}",
-                            extGwMacAddress, routerId);
-                } else {
-                    LOG.error("NAT Service : No External Gateway MAC address found for External Router ID {}",
-                            routerId);
-                    return;
-                }
-                //Get the external network ID from the ExternalRouter model
-                Uuid networkId = NatUtil.getNetworkIdFromRouterId(dataBroker, routerId);
-                if (networkId == null) {
-                    LOG.error("NAT Service : networkId is null");
-                    return;
-                }
 
-                //Get the VPN ID from the ExternalNetworks model
-                Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
-                if (vpnUuid == null) {
-                    LOG.error("NAT Service : vpnUuid is null");
-                    return;
-                }
-                Long vpnId = NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
-
-                //Get the internal IpAddress, internal port number from the event
-                String internalIpAddress = naptEntryEvent.getIpAddress();
-                int internalPort = naptEntryEvent.getPortNumber();
-                SessionAddress internalAddress = new SessionAddress(internalIpAddress, internalPort);
-                NAPTEntryEvent.Protocol protocol = naptEntryEvent.getProtocol();
-
-                //Get the external IP address for the corresponding internal IP address
-                SessionAddress externalAddress =
-                        naptManager.getExternalAddressMapping(routerId, internalAddress, naptEntryEvent.getProtocol());
-                if (externalAddress == null) {
-                    LOG.error("NAT Service : externalAddress is null");
-                    return;
-                }
                 // Build and install the NAPT translation flows in the Outbound and Inbound NAPT tables
                 if (!naptEntryEvent.isPktProcessed()) {
+
+                    // Get the External Gateway MAC Address
+                    String extGwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
+                    if (extGwMacAddress != null) {
+                        LOG.debug("NAT Service : External Gateway MAC address {} found for External Router ID {}",
+                                extGwMacAddress, routerId);
+                    } else {
+                        LOG.error("NAT Service : No External Gateway MAC address found for External Router ID {}",
+                                routerId);
+                        return;
+                    }
+                    //Get the external network ID from the ExternalRouter model
+                    Uuid networkId = NatUtil.getNetworkIdFromRouterId(dataBroker, routerId);
+                    if (networkId == null) {
+                        LOG.error("NAT Service : networkId is null");
+                        return;
+                    }
+
+                    //Get the VPN ID from the ExternalNetworks model
+                    Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
+                    if (vpnUuid == null) {
+                        LOG.error("NAT Service : vpnUuid is null");
+                        return;
+                    }
+                    Long vpnId = NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
+
+                    //Get the internal IpAddress, internal port number from the event
+                    String internalIpAddress = naptEntryEvent.getIpAddress();
+                    int internalPort = naptEntryEvent.getPortNumber();
+                    SessionAddress internalAddress = new SessionAddress(internalIpAddress, internalPort);
+                    NAPTEntryEvent.Protocol protocol = naptEntryEvent.getProtocol();
+
+                    //Get the external IP address for the corresponding internal IP address
+                    SessionAddress externalAddress =
+                            naptManager.getExternalAddressMapping(routerId, internalAddress,
+                                    naptEntryEvent.getProtocol());
+                    if (externalAddress == null) {
+                        LOG.error("NAT Service : externalAddress is null");
+                        return;
+                    }
+
                     Long vpnIdFromExternalSubnet = getVpnIdFromExternalSubnet(dataBroker, routerId,
                             externalAddress.getIpAddress());
                     if (vpnIdFromExternalSubnet != NatConstants.INVALID_ID) {
@@ -250,20 +258,20 @@ public class NaptEventHandler {
                                     Futures.addCallback(JdkFutureAdapters.listenInPoolThread(addFlowResult),
                                             new FutureCallback<RpcResult<AddFlowOutput>>() {
 
-                                                @Override
-                                                public void onSuccess(@Nullable RpcResult<AddFlowOutput> result) {
-                                                    LOG.debug("Configured outbound rule, sending packet out"
-                                                            + "from {} to {}", internalAddress, externalAddress);
-                                                    prepareAndSendPacketOut(naptEntryEvent, finalRouterId);
-                                                }
+                                            @Override
+                                            public void onSuccess(@Nullable RpcResult<AddFlowOutput> result) {
+                                                LOG.debug("Configured outbound rule, sending packet out"
+                                                        + "from {} to {}", internalAddress, externalAddress);
+                                                prepareAndSendPacketOut(naptEntryEvent, finalRouterId);
+                                            }
 
-                                                @Override
-                                                public void onFailure(Throwable throwable) {
-                                                    LOG.error("Error configuring outbound SNAT flows using RPC for "
-                                                                    + "SNAT connection from {} to {}",
-                                                                      internalAddress, externalAddress);
-                                                }
-                                            });
+                                            @Override
+                                            public void onFailure(Throwable throwable) {
+                                                LOG.error("Error configuring outbound SNAT flows using RPC for "
+                                                                + "SNAT connection from {} to {}",
+                                                                  internalAddress, externalAddress);
+                                            }
+                                        });
                                 }
 
                                 @Override
@@ -272,15 +280,24 @@ public class NaptEventHandler {
                                             + " from {} to {}", internalAddress, externalAddress);
                                 }
                             });
+                    String key = naptEntryEvent.getIpAddress() + ":" + naptEntryEvent.getPortNumber();
+                    NatPacketProcessingState state = NaptPacketInHandler.INCOMING_PACKET_MAP.get(key);
+                    state.setFlowInstalledTime(System.currentTimeMillis());
+                } else {
+                    prepareAndSendPacketOut(naptEntryEvent, routerId);
                 }
+                LOG.info("NAT Service : handleNaptEvent() exited for {}:{},routerID:{},"
+                        + "ElapsedTime packet:{}ms,isPktProcessed:{} ",
+                        naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber(), routerId,
+                        (System.currentTimeMillis() - naptEntryEvent.getObjectCreationTime()),
+                        naptEntryEvent.isPktProcessed());
             } else {
                 LOG.debug("NAT Service : Inside delete Operation of NaptEventHandler");
                 removeNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, routerId, naptEntryEvent.getIpAddress(),
                     naptEntryEvent.getPortNumber());
+                LOG.info("NAT Service : handleNaptEvent() exited for removeEvent for IP {}, port {}, routerID : {}",
+                        naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber(), routerId);
             }
-
-            LOG.info("NAT Service : handleNaptEvent() exited for IP {}, port {}, routerID : {}",
-                naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber(), routerId);
         } catch (Exception e) {
             LOG.error("NAT Service :Exception in NaptEventHandler.handleEvent() payload {}", naptEntryEvent, e);
         }
@@ -361,8 +378,8 @@ public class NaptEventHandler {
             SessionAddress actualSourceAddress, SessionAddress translatedSourceAddress,
             NAPTEntryEvent.Protocol protocol, String extGwMacAddress,
             boolean sendRpc) {
-        LOG.debug("NAT Service : Build and install NAPT flows in InBound and OutBound tables for "
-            + "dpnId {} and routerId {}", dpnId, routerId);
+        LOG.debug("NAT Service : Build and install NAPT flows for table {} for "
+            + "dpnId {} and routerId {}", tableId, dpnId, routerId);
         //Build the flow for replacing the actual IP and port with the translated IP and port.
         int idleTimeout = 0;
         if (tableId == NwConstants.OUTBOUND_NAPT_TABLE) {
@@ -374,8 +391,7 @@ public class NaptEventHandler {
         } else {
             intranetVpnId = routerId;
         }
-        LOG.debug("NAT Service : Intranet VPN ID {}", intranetVpnId);
-        LOG.debug("NAT Service : Router ID {}", routerId);
+        LOG.debug("NAT Service : Intranet VPN ID {} Router ID {}", intranetVpnId, routerId);
         String translatedIp = translatedSourceAddress.getIpAddress();
         int translatedPort = translatedSourceAddress.getPortNumber();
         String actualIp = actualSourceAddress.getIpAddress();
@@ -408,11 +424,20 @@ public class NaptEventHandler {
             NodeRef nodeRef = getNodeRef(dpnId);
             FlowRef flowRef = getFlowRef(dpnId, flow);
             AddFlowInput addFlowInput = new AddFlowInputBuilder(flow).setFlowRef(flowRef).setNode(nodeRef).build();
+            long startTime = System.currentTimeMillis();
             addFlowResult = salFlowServiceRpc.addFlow(addFlowInput);
+            LOG.debug("NAT Service : Time elapsed for salFlowServiceRpc table {}: {}ms ", tableId,
+                    (System.currentTimeMillis() - startTime));
          // Keep flow installation through MDSAL as well to be able to handle switch failures
+            startTime = System.currentTimeMillis();
             mdsalManager.installFlow(snatFlowEntity);
+            LOG.debug("NAT Service : Time elapsed for installFlow table {}: {}ms ", tableId,
+                    (System.currentTimeMillis() - startTime));
         } else {
+            long startTime = System.currentTimeMillis();
             mdsalManager.syncInstallFlow(snatFlowEntity, 1);
+            LOG.debug("NAT Service : Time elapsed for syncInstallFlow table {}: {}ms ", tableId,
+                    (System.currentTimeMillis() - startTime));
         }
         LOG.trace("NAT Service : Exited buildAndInstallNatflows");
 
@@ -560,7 +585,9 @@ public class NaptEventHandler {
         FlowEntity snatFlowEntity = NatUtil.buildFlowEntity(dpnId, tableId, switchFlowRef);
         LOG.debug("NAT Service : Remove the flow in the table {} for the switch with the DPN ID {}",
             NwConstants.INBOUND_NAPT_TABLE, dpnId);
+        long startTime = System.currentTimeMillis();
         mdsalManager.removeFlow(snatFlowEntity);
+        LOG.debug("NAT Service : Time Taken for removeFlow:{}ms", (System.currentTimeMillis() - startTime));
 
     }
 
