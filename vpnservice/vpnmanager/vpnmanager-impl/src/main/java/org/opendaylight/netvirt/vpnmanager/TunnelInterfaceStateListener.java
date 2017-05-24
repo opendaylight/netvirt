@@ -283,8 +283,8 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                         }
                     }
                     //Populate the map for VpnId-to-Rd
-                    long vpnId = VpnUtil.getVpnId(dataBroker, vpnInterface.getVpnInstanceName());
-                    rd = VpnUtil.getVpnRd(dataBroker, vpnInterface.getVpnInstanceName());
+                    long vpnId = VpnUtil.getVpnId(dataBroker, vpnInterface.getVpnInstanceName().get(0));
+                    rd = VpnUtil.getVpnRd(dataBroker, vpnInterface.getVpnInstanceName().get(0));
                     vpnIdRdMap.put(vpnId, rd);
                 }
             }
@@ -302,7 +302,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                     List<Adjacency> adjList = adjacencies != null ? adjacencies.getAdjacency()
                             : Collections.emptyList();
                     String prefix = null;
-                    long vpnId = VpnUtil.getVpnId(dataBroker, vpnInterface.getVpnInstanceName());
+                    long vpnId = VpnUtil.getVpnId(dataBroker, vpnInterface.getVpnInstanceName().get(0));
                     if (vpnIdRdMap.containsKey(vpnId)) {
                         rd = vpnIdRdMap.get(vpnId);
                         LOG.trace(" Remote DpnId {} VpnId {} rd {} VpnInterface {}", remoteDpnId, vpnId, rd,
