@@ -134,7 +134,7 @@ public class FederationVpnInterfaceTransformer implements FederationPluginTransf
         }
 
         VpnInterfaceBuilder vpnInterfaceBuilder = new VpnInterfaceBuilder(vpnInterface);
-        vpnInterfaceBuilder.setVpnInstanceName(vpnId);
+        vpnInterfaceBuilder.setVpnInstanceName(Collections.singletonList(vpnId));
         vpnInterfaceBuilder.addAugmentation(VpnShadowProperties.class,
                 new VpnShadowPropertiesBuilder(vpnInterfaceBuilder.getAugmentation(VpnShadowProperties.class))
                         .setShadow(true).setGenerationNumber(generationNumber).setRemoteIp(remoteIp).build());
