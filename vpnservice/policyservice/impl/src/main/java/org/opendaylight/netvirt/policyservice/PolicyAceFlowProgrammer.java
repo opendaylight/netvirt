@@ -203,7 +203,10 @@ public class PolicyAceFlowProgrammer {
             return Optional.of(new PolicyAceFlowWrapper(flowName, /* isPartial */ true));
         }
 
-        BigInteger dpId = Optional.fromNullable(interfaceManager.getDpnForInterface(interfaceName)).or(BigInteger.ZERO);
+        BigInteger dpId = interfaceManager.getDpnForInterface(interfaceName);
+        if (dpId == null) {
+            dpId = BigInteger.ZERO;
+        }
         return Optional.of(new PolicyAceFlowWrapper(flowName, matches, flowPriority, dpId));
     }
 

@@ -8,10 +8,10 @@
 
 package org.opendaylight.netvirt.policyservice.listeners;
 
+import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.PolicyProfiles;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.policy.profiles.PolicyProfile;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.policy.profiles.policy.profile.PolicyAclRule;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.policy.profiles.policy.profile.policy.acl.rule.AceRule;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -163,20 +164,19 @@ public class PolicyProfileChangeListener
         }
 
         aclRules.forEach(aclRule -> {
-            Optional.ofNullable(aclRule.getAceRule()).map(aceRules -> {
+            List<AceRule> aceRules = aclRule.getAceRule();
+            if (aceRules != null) {
                 aceRules.forEach(aceRule -> {
-                    com.google.common.base.Optional<Ace> policyAceOpt = policyServiceUtil
-                            .getPolicyAce(aclRule.getAclName(), aceRule.getRuleName());
+                    Optional<Ace> policyAceOpt =
+                            policyServiceUtil.getPolicyAce(aclRule.getAclName(), aceRule.getRuleName());
                     if (policyAceOpt.isPresent()) {
                         aceFlowProgrammer.programAceFlows(policyAceOpt.get(), policyClassifier, dpIds,
                                 addOrRemove);
                     }
                 });
-                return aceRules;
-            }).orElseGet(() -> {
+            } else {
                 LOG.debug("No ACE rules found for ACL {}", aclRule.getAclName());
-                return null;
-            });
+            }
         });
     }
 

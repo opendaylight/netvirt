@@ -33,12 +33,12 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Actions;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.NetvirtsfcAclActions;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.NeutronNetwork;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.RedirectToSfc;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -78,9 +78,10 @@ public class ConfigurationClassifierImpl implements ClassifierState {
 
     public List<Acl> readAcls() {
         InstanceIdentifier<AccessLists> aclsIID = InstanceIdentifier.builder(AccessLists.class).build();
-        AccessLists acls = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, aclsIID).orNull();
+        com.google.common.base.Optional<AccessLists> acls =
+                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, aclsIID);
         LOG.trace("Acls read from datastore: {}", acls);
-        return Optional.ofNullable(acls).map(AccessLists::getAcl).orElse(Collections.emptyList());
+        return acls.transform(AccessLists::getAcl).or(Collections.emptyList());
     }
 
     public Set<ClassifierRenderableEntry> getEntries(Ace ace) {
@@ -94,11 +95,12 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             return Collections.emptySet();
         }
 
-        RenderedServicePath rsp =  Optional.ofNullable(ace.getActions())
-                .map(actions -> actions.getAugmentation(RedirectToSfc.class))
-                .map(NetvirtsfcAclActions::getRspName)
-                .flatMap(sfcProvider::getRenderedServicePath)
-                .orElse(null);
+        Actions actions = ace.getActions();
+        RenderedServicePath rsp = null;
+        if (actions != null) {
+            rsp = sfcProvider.getRenderedServicePath(actions.getAugmentation(RedirectToSfc.class).getRspName())
+                    .orElse(null);
+        }
 
         if (Objects.isNull(rsp)) {
             LOG.trace("Ace has no valid SFC redirect action");

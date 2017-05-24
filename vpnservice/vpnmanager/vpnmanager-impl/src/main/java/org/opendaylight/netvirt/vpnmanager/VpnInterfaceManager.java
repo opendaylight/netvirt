@@ -619,7 +619,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 String vpnPrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
                 synchronized (vpnPrefixKey.intern()) {
                     java.util.Optional<String> rdToAllocate = VpnUtil
-                            .allocateRdForExtraRouteAndUpdateUsedRdsMap(dataBroker, vpnId, Optional.absent(),
+                            .allocateRdForExtraRouteAndUpdateUsedRdsMap(dataBroker, vpnId, null,
                             prefix, vpnName, nextHop.getNextHopIpList().get(0), dpnId, writeOperTxn);
                     if (rdToAllocate.isPresent()) {
                         rd = rdToAllocate.get();
@@ -1241,13 +1241,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     }
 
     private Optional<String> getGatewayMacAddressForInterface(String vpnName, String ifName, String ipAddress) {
-        Optional<String> routerGwMac = Optional.absent();
         VpnPortipToPort gwPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnName, ipAddress);
         //Check if a router gateway interface is available for the subnet gw is so then use Router interface
         // else use connected interface
-        routerGwMac = Optional.of((gwPort != null && gwPort.isSubnetIp())
+        return Optional.of((gwPort != null && gwPort.isSubnetIp())
                 ? gwPort.getMacAddress() : InterfaceUtils.getMacAddressForInterface(dataBroker, ifName).get());
-        return routerGwMac;
     }
 
     private Optional<String> getMacAddressForSubnetIp(String vpnName, String ifName, String ipAddress) {
@@ -1576,7 +1574,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 String vpnPrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
                 synchronized (vpnPrefixKey.intern()) {
                     java.util.Optional<String> rdToAllocate = VpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(
-                            dataBroker, vpnId, Optional.absent(), prefix, vpnName, nh, dpnId, writeOperTxn);
+                            dataBroker, vpnId, null, prefix, vpnName, nh, dpnId, writeOperTxn);
                     if (rdToAllocate.isPresent()) {
                         input.setRd(rdToAllocate.get());
                         operationalAdjacency = populator.createOperationalAdjacency(input);
@@ -1593,19 +1591,20 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     if (encapType.equals(VrfEntryBase.EncapType.Mplsgre)) {
                         final Adjacency opAdjacency = new AdjacencyBuilder(operationalAdjacency).build();
                         List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
-                        vpnsToImportRoute.stream().forEach(vpn -> {
-                            java.util.Optional.ofNullable(vpn.getVrfId()).ifPresent(vpnRd -> {
-                                java.util.Optional.ofNullable(VpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(
-                                    dataBroker, vpn.getVpnId(), Optional.fromNullable(vpnId), prefix,
-                                    VpnUtil.getVpnName(dataBroker, vpn.getVpnId()), nh, dpnId,
-                                    writeOperTxn)).ifPresent(rdsToAllocate -> {
-                                        addExtraRoute(VpnUtil.getVpnName(dataBroker, vpn.getVpnId()),
-                                            adj.getIpAddress(), nh, rdsToAllocate.get(),
-                                            currVpnIntf.getVpnInstanceName(), (int) opAdjacency.getLabel().intValue(),
-                                            l3vni, RouteOrigin.SELF_IMPORTED,
-                                            currVpnIntf.getName(), opAdjacency, encapType, writeConfigTxn);
-                                    });
-                            });
+                        vpnsToImportRoute.forEach(vpn -> {
+                            if (vpn.getVrfId() != null) {
+                                VpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(
+                                        dataBroker, vpn.getVpnId(), vpnId, prefix,
+                                        VpnUtil.getVpnName(dataBroker, vpn.getVpnId()), nh, dpnId,
+                                        writeOperTxn)
+                                        .ifPresent(
+                                            rds -> addExtraRoute(VpnUtil.getVpnName(dataBroker, vpn.getVpnId()),
+                                                    adj.getIpAddress(), nh, rds,
+                                                    currVpnIntf.getVpnInstanceName(),
+                                                    opAdjacency.getLabel().intValue(),
+                                                    l3vni, RouteOrigin.SELF_IMPORTED,
+                                                    currVpnIntf.getName(), opAdjacency, encapType, writeConfigTxn));
+                            }
                         });
                     }
                 }
@@ -1679,11 +1678,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     List<VpnInstanceOpDataEntry> vpnsToImportRoute =
                                             getVpnsImportingMyRoute(currVpnIntf.getVpnInstanceName());
                                     for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
-                                        java.util.Optional.ofNullable(vpn.getVrfId()).ifPresent(vpnRd -> {
+                                        String vpnRd = vpn.getVrfId();
+                                        if (vpnRd != null) {
                                             delExtraRoute(currVpnIntf.getVpnInstanceName(), adj.getIpAddress(), nh,
                                                     vpnRd, currVpnIntf.getVpnInstanceName(),
                                                     currVpnIntf.getName(), writeConfigTxn);
-                                        });
+                                        }
                                     }
                                 }
                             }
