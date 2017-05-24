@@ -12,6 +12,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -201,7 +202,8 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencyList);
                 VpnInterface newVpnIntf =
                         new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(vpnInterface))
-                        .setName(vpnInterface).setVpnInstanceName(vpnName).addAugmentation(Adjacencies.class, aug)
+                        .setName(vpnInterface).setVpnInstanceName(Arrays.asList(vpnName))
+                        .addAugmentation(Adjacencies.class, aug)
                         .build();
                 VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfId, newVpnIntf);
                 LOG.debug(" Successfully stored subnetroute Adjacency into VpnInterface {}", vpnInterface);
@@ -239,7 +241,8 @@ public class ArpNotificationHandler implements OdlArputilListener {
                     Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencyList);
                     VpnInterface newVpnIntf =
                         new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(vpnInterface)).setName(
-                            vpnInterface).setVpnInstanceName(vpnName).addAugmentation(Adjacencies.class, aug).build();
+                            vpnInterface).setVpnInstanceName(Arrays.asList(vpnName))
+                            .addAugmentation(Adjacencies.class, aug).build();
                     VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfId, newVpnIntf);
                     LOG.debug(" Successfully stored subnetroute Adjacency into VpnInterface {}", vpnInterface);
                 }
