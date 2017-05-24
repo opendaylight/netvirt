@@ -393,16 +393,16 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         } else if (existingElanInterfaceMac.isPresent()) {
             // Interface does not exist in ConfigDS, so lets remove everything
             // about that interface related to Elan
-            java.util.Optional.ofNullable(existingElanInterfaceMac.get().getMacEntry())
-                .ifPresent(macEntries -> macEntries.stream().forEach(macEntry -> {
+            List<MacEntry> macEntries = existingElanInterfaceMac.get().getMacEntry();
+            if (macEntries != null) {
+                for (MacEntry macEntry : macEntries) {
                     PhysAddress macAddress = macEntry.getMacAddress();
-                    Optional<MacEntry> macEntryOptional = elanUtils.getMacEntryForElanInstance(elanName,
-                            macAddress);
-                    if (macEntryOptional.isPresent()) {
+                    if (elanUtils.getMacEntryForElanInstance(elanName, macAddress).isPresent()) {
                         tx.delete(LogicalDatastoreType.OPERATIONAL,
                                 ElanUtils.getMacEntryOperationalDataPath(elanName, macAddress));
                     }
-                }));
+                }
+            }
         }
         if (existingElanInterfaceMac.isPresent()) {
             tx.delete(LogicalDatastoreType.OPERATIONAL, elanInterfaceId);
