@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_d8f802c7",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/DpnInVpnChangeListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-24T13:13:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_b892569d",
+      "revId": "d6088fd0e69821231cd1befabf914de53cf2f770",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_78aaaed5",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/DpnInVpnChangeListener.java",
         "patchSetId": 9
@@ -30,6 +48,24 @@
       "writtenOn": "2017-05-24T12:49:09Z",
       "side": 1,
       "message": "can we please avoid the same name for classes.  Can this be named as ACLVpnChangeListener.",
+      "revId": "d6088fd0e69821231cd1befabf914de53cf2f770",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_b8f536cd",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/DpnInVpnChangeListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-24T13:13:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_78aaaed5",
       "revId": "d6088fd0e69821231cd1befabf914de53cf2f770",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_f8ffbea8",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/DpnInVpnChangeListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-24T13:13:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_f8b5fe31",
+      "revId": "d6088fd0e69821231cd1befabf914de53cf2f770",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_58825253",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/DpnInVpnChangeListener.java",
         "patchSetId": 9
@@ -64,6 +118,24 @@
       "writtenOn": "2017-05-24T12:49:09Z",
       "side": 1,
       "message": "ditto comment",
+      "revId": "d6088fd0e69821231cd1befabf914de53cf2f770",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_383146a3",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/DpnInVpnChangeListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-24T13:13:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_58825253",
       "revId": "d6088fd0e69821231cd1befabf914de53cf2f770",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_181a8a17",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/listeners/VpnToDpnListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-24T13:13:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_b8c0967d",
+      "revId": "d6088fd0e69821231cd1befabf914de53cf2f770",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_d8dc8277",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
         "patchSetId": 9
@@ -98,6 +188,24 @@
       "writtenOn": "2017-05-24T12:49:09Z",
       "side": 1,
       "message": "indentation.",
+      "revId": "d6088fd0e69821231cd1befabf914de53cf2f770",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_38d82653",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-24T13:13:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_d8dc8277",
       "revId": "d6088fd0e69821231cd1befabf914de53cf2f770",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_78e2ae04",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 9
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-24T13:13:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_b8d9b685",
+      "revId": "d6088fd0e69821231cd1befabf914de53cf2f770",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_98f31a0a",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
         "patchSetId": 9
@@ -138,6 +264,24 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_18f1eacd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-24T13:13:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_98f31a0a",
+      "revId": "d6088fd0e69821231cd1befabf914de53cf2f770",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_78f8eee5",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
         "patchSetId": 9
@@ -149,6 +293,24 @@
       "writtenOn": "2017-05-24T12:49:09Z",
       "side": 1,
       "message": "ditto here.",
+      "revId": "d6088fd0e69821231cd1befabf914de53cf2f770",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_f8edfef0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-24T13:13:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_78f8eee5",
       "revId": "d6088fd0e69821231cd1befabf914de53cf2f770",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
