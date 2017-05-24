@@ -19,6 +19,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
@@ -91,10 +92,12 @@ public class InterfaceStateChangeListener
                             }
                             final BigInteger dpnId = intfDpnId;
                             final int ifIndex = intrf.getIfIndex();
-                            if (!vpnInterfaceManager.isVpnInstanceReady(vpnInterface.getVpnInstanceName())) {
+                            if (!vpnInterfaceManager.isVpnInstanceReady(VpnHelper
+                                    .getFirstVpnNameFromVpnInterface(vpnInterface))) {
                                 LOG.info("VPN Interface add event - intfName {} onto vpnName {} "
                                                 + "running oper-driven, VpnInstance not ready, holding on",
-                                        vpnInterface.getName(), vpnInterface.getVpnInstanceName());
+                                        vpnInterface.getName(),
+                                        VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
                                 return futures;
                             }
                             LOG.info("VPN Interface add event - intfName {} onto vpnName {} running oper-driven",
@@ -157,7 +160,7 @@ public class InterfaceStateChangeListener
                             }
                             final int ifIndex = intrf.getIfIndex();
                             LOG.info("VPN Interface remove event - intfName {} onto vpnName {} running oper-driven",
-                                    vpnInterface.getName(), vpnInterface.getVpnInstanceName());
+                                    vpnInterface.getName(), VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
                             vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, intrf,
                                     vpnInterface, false, writeConfigTxn, writeOperTxn, writeInvTxn);
                             ListenableFuture<Void> operFuture = writeOperTxn.submit();
@@ -219,18 +222,21 @@ public class InterfaceStateChangeListener
                             if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
                                 LOG.info("VPN Interface update event - intfName {} onto vpnName {} running "
                                         + " oper-driven UP", vpnInterface.getName(),
-                                        vpnInterface.getVpnInstanceName());
-                                if (!vpnInterfaceManager.isVpnInstanceReady(vpnInterface.getVpnInstanceName())) {
+                                        VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
+                                if (!vpnInterfaceManager.isVpnInstanceReady(VpnHelper
+                                      .getFirstVpnNameFromVpnInterface(vpnInterface))) {
                                     LOG.info("VPN Interface update event - intfName {} onto vpnName {} "
                                                     + "running oper-driven UP, VpnInstance not ready, holding on",
-                                            vpnInterface.getName(), vpnInterface.getVpnInstanceName());
+                                             vpnInterface.getName(),
+                                             VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
                                     return futures;
                                 }
                                 vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex,
                                         true, writeConfigTxn, writeOperTxn, writeInvTxn, update);
                             } else if (update.getOperStatus().equals(Interface.OperStatus.Down)) {
                                 LOG.info("VPN Interface update event - intfName {} onto vpnName {} running oper-driven"
-                                        + " DOWN", vpnInterface.getName(), vpnInterface.getVpnInstanceName());
+                                     + " DOWN", vpnInterface.getName(),
+                                     VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
                                 InstanceIdentifier<VpnInterface> id = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
                                 Optional<VpnInterface> optVpnInterface =
                                         VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
