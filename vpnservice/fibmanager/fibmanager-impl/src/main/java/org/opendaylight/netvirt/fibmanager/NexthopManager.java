@@ -407,8 +407,7 @@ public class NexthopManager implements AutoCloseable {
         RpcResult<AddGroupOutput> rpcResult = null;
         try {
             rpcResult = groupStats.get();
-            if (Optional.fromNullable(rpcResult).isPresent() && rpcResult.isSuccessful()
-                    && Optional.fromNullable(rpcResult.getResult()).isPresent()) {
+            if (rpcResult != null && rpcResult.isSuccessful() && rpcResult.getResult() != null) {
                 LOG.info("Group {} with key {} has been successfully installed directly on dpn {}.", groupId,
                         nextHopKey, dpnId);
             } else {
@@ -912,17 +911,16 @@ public class NexthopManager implements AutoCloseable {
     }
 
     private boolean isTunnelUp(String dcGwIp, BigInteger dpnId) {
-        java.util.Optional<Object> tunnelStatus =
-                java.util.Optional.ofNullable(getTunnelRemoteNextHopPointer(dpnId, dcGwIp)).map(
-                    tunnelName -> {
-                        InstanceIdentifier<StateTunnelList> tunnelStateId =
-                                InstanceIdentifier.builder(TunnelsState.class).child(
-                                       StateTunnelList.class, new StateTunnelListKey(tunnelName)).build();
-                        return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                                       tunnelStateId).transform(StateTunnelList::getOperState)
-                                       .or(TunnelOperStatus.Down);
-                    });
-        return tunnelStatus.isPresent() ? ((tunnelStatus.get() == TunnelOperStatus.Up) ? true : false) : false;
+        String tunnelName = getTunnelRemoteNextHopPointer(dpnId, dcGwIp);
+        if (tunnelName != null) {
+            InstanceIdentifier<StateTunnelList> tunnelStateId =
+                    InstanceIdentifier.builder(TunnelsState.class).child(
+                            StateTunnelList.class, new StateTunnelListKey(tunnelName)).build();
+            return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, tunnelStateId)
+                    .transform(StateTunnelList::getOperState)
+                    .or(TunnelOperStatus.Down) == TunnelOperStatus.Up;
+        }
+        return false;
     }
 
     private List<Action> getEgressActions(String interfaceName, int actionKey) {
