@@ -185,6 +185,7 @@ public class ElanUtils {
     private static Map<String, ElanInstance> elanInstanceLocalCache = new ConcurrentHashMap<>();
     private static Map<String, ElanInterface> elanInterfaceLocalCache = new ConcurrentHashMap<>();
     private static Map<String, Set<DpnInterfaces>> elanInstancToDpnsCache = new ConcurrentHashMap<>();
+    private static Map<String, Set<String>> elanInstanceToInterfacesCache = new ConcurrentHashMap<>();
 
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
@@ -2193,5 +2194,17 @@ public class ElanUtils {
             return Collections.emptyList();
         }
         return macTable.getMacEntry();
+    }
+
+    public static void addElanInterfaceToElanInstanceCache(String elanInstanceName, String elanInterfaceName) {
+        elanInstanceToInterfacesCache.computeIfAbsent(elanInstanceName, key -> new HashSet<>()).add(elanInterfaceName);
+    }
+
+    public static void removeElanInterfaceToElanInstanceCache(String elanInstanceName, String interfaceName) {
+        elanInstanceToInterfacesCache.computeIfAbsent(elanInstanceName, key -> new HashSet<>()).remove(interfaceName);
+    }
+
+    public static Set<String> getElanInterfaces(String elanInstanceName) {
+        return elanInstanceToInterfacesCache.remove(elanInstanceName);
     }
 }

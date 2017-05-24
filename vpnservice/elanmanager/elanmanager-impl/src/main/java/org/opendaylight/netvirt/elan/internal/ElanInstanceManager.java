@@ -13,6 +13,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -31,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
@@ -104,6 +107,20 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
             ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
                     ElanUtils.getElanInfoEntriesOperationalDataPath(elanTag));
         }
+        ElanUtils.getElanInterfaces(elanName).stream().forEach(elanInterfaceName -> {
+            DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
+            dataStoreJobCoordinator.enqueueJob("INTERFACE-" + elanInterfaceName, () -> {
+                WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
+                LOG.info("Deleting the elanInterface present under ConfigDS:{}", elanInterfaceName);
+                ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
+                        ElanUtils.getElanInterfaceConfigurationDataPathId(elanInterfaceName));
+                elanInterfaceManager.unbindService(elanInterfaceName, writeConfigTxn);
+                ElanUtils.removeElanInterfaceToElanInstanceCache(elanName, elanInterfaceName);
+                LOG.info("unbind the Interface:{} service bounded to Elan:{}", elanInterfaceName, elanName);
+                futures.add(writeConfigTxn.submit());
+                return futures;
+            }, ElanConstants.JOB_MAX_RETRIES);
+        });
         // Release tag
         ElanUtils.releaseId(idManager, ElanConstants.ELAN_ID_POOL_NAME, elanName);
         if (deletedElan.getAugmentation(EtreeInstance.class) != null) {

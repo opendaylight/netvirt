@@ -403,6 +403,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         if (!isInterfaceStateRemoved) {
             unbindService(interfaceName, tx);
         }
+        ElanUtils.removeElanInterfaceToElanInstanceCache(elanName, interfaceName);
         deleteElanInterfaceFromConfigDS(interfaceName, tx);
         futures.add(ElanUtils.waitForTransactionToComplete(tx));
         futures.add(ElanUtils.waitForTransactionToComplete(deleteFlowGroupTx));
@@ -548,6 +549,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             unProcessedElanInterfaces.put(elanInstanceName, elanInterfaces);
             return;
         }
+        ElanUtils.addElanInterfaceToElanInstanceCache(elanInstanceName, interfaceName);
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         InterfaceAddWorkerOnElan addWorker = new InterfaceAddWorkerOnElan(elanInstanceName, elanInterfaceAdded,
                 interfaceInfo, elanInstance, this);
@@ -1483,7 +1485,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         return elanInstance.getAugmentation(EtreeInstance.class) == null;
     }
 
-    private void unbindService(String interfaceName, WriteTransaction tx) {
+    protected void unbindService(String interfaceName, WriteTransaction tx) {
         short elanServiceIndex = ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX);
         InstanceIdentifier<BoundServices> bindServiceId = ElanUtils.buildServiceId(interfaceName, elanServiceIndex);
         Optional<BoundServices> existingElanService = elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
