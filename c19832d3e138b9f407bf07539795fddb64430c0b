@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_55885b22",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-24T11:37:39Z",
+      "side": 1,
+      "message": "Thanks Aswin. I fixed it.",
+      "parentUuid": "7af0899e_0806bb20",
+      "revId": "c19832d3e138b9f407bf07539795fddb64430c0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_75b917e9",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2017-05-24T10:19:26Z",
       "side": 1,
       "message": "since there is an overlap of vpn-id in the meta-bits over the elan-tag, we cannot have both of them written :(.",
+      "revId": "c19832d3e138b9f407bf07539795fddb64430c0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_358dcf32",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-24T11:37:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_75b917e9",
       "revId": "c19832d3e138b9f407bf07539795fddb64430c0b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_15fc133e",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractIngressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-24T11:37:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_75d637c7",
+      "range": {
+        "startLine": 97,
+        "startChar": 8,
+        "endLine": 100,
+        "endChar": 14
+      },
+      "revId": "c19832d3e138b9f407bf07539795fddb64430c0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_b5ab7fd5",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
         "patchSetId": 6
@@ -70,6 +130,24 @@
       "writtenOn": "2017-05-24T09:54:17Z",
       "side": 1,
       "message": "these two methods will need to be retained to address Aswin\u0027s comment on handling addition/removal of security-group-rule.",
+      "revId": "c19832d3e138b9f407bf07539795fddb64430c0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_9582c3fe",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-24T11:37:39Z",
+      "side": 1,
+      "message": "Sure",
+      "parentUuid": "7af0899e_b5ab7fd5",
       "revId": "c19832d3e138b9f407bf07539795fddb64430c0b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -93,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_75ed978b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-24T11:37:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_e3543023",
+      "revId": "c19832d3e138b9f407bf07539795fddb64430c0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_4331c40a",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
         "patchSetId": 6
@@ -104,6 +200,24 @@
       "writtenOn": "2017-05-24T09:54:17Z",
       "side": 1,
       "message": "better to name this as onAddInterfaceToDpnOnVpnEvent() and also have the notificatoin as AddInterfaceToDpnOnVpnEvent.",
+      "revId": "c19832d3e138b9f407bf07539795fddb64430c0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_d501eb3a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-24T11:37:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_4331c40a",
       "revId": "c19832d3e138b9f407bf07539795fddb64430c0b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -127,6 +241,24 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_b5fedf36",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-24T11:37:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_23363804",
+      "revId": "c19832d3e138b9f407bf07539795fddb64430c0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_c32494c8",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
         "patchSetId": 6
@@ -144,6 +276,24 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_154ed3c1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-24T11:37:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_c32494c8",
+      "revId": "c19832d3e138b9f407bf07539795fddb64430c0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_75aab7d5",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/resources/org/opendaylight/blueprint/vpnmanager.xml",
         "patchSetId": 6
@@ -155,6 +305,24 @@
       "writtenOn": "2017-05-24T09:54:17Z",
       "side": 1,
       "message": "this coupling may not be necessary as per my comments in DpnInVpnChangeListener.",
+      "revId": "c19832d3e138b9f407bf07539795fddb64430c0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_d57bab27",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/resources/org/opendaylight/blueprint/vpnmanager.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-24T11:37:39Z",
+      "side": 1,
+      "message": "Sure.",
+      "parentUuid": "7af0899e_75aab7d5",
       "revId": "c19832d3e138b9f407bf07539795fddb64430c0b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
