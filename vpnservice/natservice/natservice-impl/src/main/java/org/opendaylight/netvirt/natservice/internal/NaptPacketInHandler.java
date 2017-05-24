@@ -9,7 +9,13 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.primitives.Ints;
 import java.math.BigInteger;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.liblldp.NetUtils;
@@ -29,12 +35,26 @@ import org.slf4j.LoggerFactory;
 public class NaptPacketInHandler implements PacketProcessingListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(NaptPacketInHandler.class);
-    private static final HashSet<String> INCOMING_PACKET_MAP = new HashSet<>();
-    private final EventDispatcher naptEventdispatcher;
+    public static final HashMap<String,NatPacketProcessingState> INCOMING_PACKET_MAP = new HashMap<>();
+    private final NaptEventHandler naptEventHandler;
+    private ExecutorService firstPacketExecutorService;
+    private ExecutorService retryPacketExecutorService;
 
     @Inject
-    public NaptPacketInHandler(final EventDispatcher eventDispatcher) {
-        this.naptEventdispatcher = eventDispatcher;
+    public NaptPacketInHandler(NaptEventHandler naptEventHandler) {
+        this.naptEventHandler = naptEventHandler;
+    }
+
+    @PostConstruct
+    public void init() {
+        firstPacketExecutorService = Executors.newFixedThreadPool(25);
+        retryPacketExecutorService = Executors.newFixedThreadPool(25);
+    }
+
+    @PreDestroy
+    public void close() {
+        firstPacketExecutorService.shutdown();
+        retryPacketExecutorService.shutdown();
     }
 
     @Override
@@ -96,29 +116,49 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                 }
 
                 if (internalIPAddress != null) {
+                    BigInteger metadata = packetReceived.getMatch().getMetadata().getMetadata();
+                    routerId = MetaDataUtil.getNatRouterIdFromMetadata(metadata);
+                    if (routerId <= 0) {
+                        LOG.error("NAT Service : Router ID is invalid");
+                        return;
+                    }
                     String sourceIPPortKey = internalIPAddress + ":" + portNumber;
                     LOG.debug("NAT Service : sourceIPPortKey {} mapping maintained in the map", sourceIPPortKey);
-                    if (!INCOMING_PACKET_MAP.contains(sourceIPPortKey)) {
-                        INCOMING_PACKET_MAP.add(internalIPAddress + portNumber);
+                    if (!INCOMING_PACKET_MAP.containsKey(sourceIPPortKey)) {
+                        INCOMING_PACKET_MAP.put(sourceIPPortKey,
+                                new NatPacketProcessingState(System.currentTimeMillis(), -1));
                         LOG.trace("NAT Service : Processing new Packet");
-                        BigInteger metadata = packetReceived.getMatch().getMetadata().getMetadata();
-                        routerId = MetaDataUtil.getNatRouterIdFromMetadata(metadata);
-                        if (routerId <= 0) {
-                            LOG.error("NAT Service : Router ID is invalid");
-                            return;
-                        }
+
                         //send to Event Queue
-                        LOG.trace("NAT Service : Creating NaptEvent for routerId {} and sourceIp {} and Port {}",
-                            routerId, internalIPAddress, portNumber);
                         NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress, portNumber, routerId,
                             operation, protocol, packetReceived, false);
-                        naptEventdispatcher.addNaptEvent(naptEntryEvent);
-                        LOG.trace("NAT Service : PacketInHandler sent event to NaptEventHandler");
+                        LOG.trace("NAT Service : First Packet IN Queue Size : {}",
+                                ((ThreadPoolExecutor)firstPacketExecutorService).getQueue().size());
+                        firstPacketExecutorService.execute(new Runnable() {
+                            public void run() {
+                                naptEventHandler.handleEvent(naptEntryEvent);
+                            }
+                        });
                     } else {
                         LOG.trace("NAT Service : Packet already processed");
                         NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress, portNumber, routerId,
                             operation, protocol, packetReceived, true);
-                        LOG.trace("NAT Service : PacketInHandler sent event to NaptEventHandler");
+                        LOG.trace("NAT Service : Retry Packet IN Queue Size : {}",
+                                ((ThreadPoolExecutor)retryPacketExecutorService).getQueue().size());
+                        retryPacketExecutorService.execute(new Runnable() {
+                            public void run() {
+                                NatPacketProcessingState state = INCOMING_PACKET_MAP.get(sourceIPPortKey);
+                                long firstPacketInTime = state.getFirstPacketInTime();
+                                long flowInstalledTime = state.getFlowInstalledTime();
+                                if (flowInstalledTime == -1 &&
+                                        (System.currentTimeMillis() - firstPacketInTime) > 10000) {
+                                    LOG.trace("NAT Service : Flow not installed even after 10sec.Drop Packet");
+                                    removeIncomingPacketMap(sourceIPPortKey);
+                                    return;
+                                }
+                                naptEventHandler.handleEvent(naptEntryEvent);
+                            }
+                        });
                     }
                 } else {
                     LOG.error("Nullpointer exception in retrieving internalIPAddress");
@@ -132,5 +172,31 @@ public class NaptPacketInHandler implements PacketProcessingListener {
     public void removeIncomingPacketMap(String sourceIPPortKey) {
         INCOMING_PACKET_MAP.remove(sourceIPPortKey);
         LOG.debug("NAT Service : sourceIPPortKey {} mapping is removed from map", sourceIPPortKey);
+    }
+
+    protected class NatPacketProcessingState {
+        long firstPacketInTime;
+        long flowInstalledTime;
+
+        public NatPacketProcessingState(long firstPacketInTime, long flowInstalledTime) {
+            this.firstPacketInTime = firstPacketInTime;
+            this.flowInstalledTime = flowInstalledTime;
+        }
+
+        public long getFirstPacketInTime() {
+            return firstPacketInTime;
+        }
+
+        public void setFirstPacketInTime(long firstPacketInTime) {
+            this.firstPacketInTime = firstPacketInTime;
+        }
+
+        public long getFlowInstalledTime() {
+            return flowInstalledTime;
+        }
+
+        public void setFlowInstalledTime(long flowInstalledTime) {
+            this.flowInstalledTime = flowInstalledTime;
+        }
     }
 }

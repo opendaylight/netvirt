@@ -16,35 +16,39 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class EventDispatcher implements Runnable {
+public class EventDispatcher {
     private static final Logger LOG = LoggerFactory.getLogger(EventDispatcher.class);
-    private final BlockingQueue<NAPTEntryEvent> eventQueue;
+    private final BlockingQueue<NAPTEntryEvent> removeFlowQueue;
     private final NaptEventHandler naptEventHandler;
 
     @Inject
     public EventDispatcher(final NaptEventHandler naptEventHandler) {
         this.naptEventHandler = naptEventHandler;
-        this.eventQueue = new ArrayBlockingQueue<>(NatConstants.EVENT_QUEUE_LENGTH);
+        this.removeFlowQueue = new ArrayBlockingQueue<>(NatConstants.EVENT_QUEUE_LENGTH);
     }
 
     @PostConstruct
     public void init() {
-        new Thread(this).start();
+        FlowRemoveThread flowRemoveThread = new FlowRemoveThread();
+        new Thread(flowRemoveThread).start();
     }
 
-    public void addNaptEvent(NAPTEntryEvent naptEntryEvent) {
-        LOG.trace("NAT Service : Adding event to eventQueue which is of size {} and remaining capacity {}",
-                eventQueue.size(), eventQueue.remainingCapacity());
-        this.eventQueue.add(naptEntryEvent);
+    public void addFlowRemovedNaptEvent(NAPTEntryEvent naptEntryEvent) {
+        LOG.trace("NAT Service : Adding Flow Removed event to eventQueue which is of size {} and remaining capacity {}",
+                removeFlowQueue.size(), removeFlowQueue.remainingCapacity());
+        this.removeFlowQueue.add(naptEntryEvent);
     }
 
-    public void run() {
-        while (true) {
-            try {
-                NAPTEntryEvent event = eventQueue.take();
-                naptEventHandler.handleEvent(event);
-            } catch (InterruptedException e) {
-                LOG.error("NAT Service : EventDispatcher : Error in handling the event queue: ", e);
+    private class FlowRemoveThread implements Runnable {
+        public void run() {
+            while (true) {
+                try {
+                    LOG.trace("NAT Service : Inside FlowRemoveThread");
+                    NAPTEntryEvent event = removeFlowQueue.take();
+                    naptEventHandler.handleEvent(event);
+                } catch (InterruptedException e) {
+                    LOG.error("NAT Service : EventDispatcher : Error in handling the flow removed event queue: ", e);
+                }
             }
         }
     }

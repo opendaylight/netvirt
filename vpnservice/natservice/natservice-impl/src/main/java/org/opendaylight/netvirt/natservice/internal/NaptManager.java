@@ -514,35 +514,31 @@ public class NaptManager {
         return id;
     }
 
-    protected SessionAddress checkIpPortMap(long segmentId, String internalIpPort,
-                                            NAPTEntryEvent.Protocol protocol) {
+    private SessionAddress checkIpPortMap(long segmentId, String internalIpPort,
+            NAPTEntryEvent.Protocol protocol) {
         LOG.debug("NAPT Service : checkIpPortMap called with segmentId {} and internalIpPort {}",
-            segmentId, internalIpPort);
+                segmentId, internalIpPort);
         ProtocolTypes protocolType = NatUtil.getProtocolType(protocol);
         // check if ip-port-map node is there
-        InstanceIdentifierBuilder<IntextIpProtocolType> idBuilder =
-            InstanceIdentifier.builder(IntextIpPortMap.class)
+        InstanceIdentifierBuilder<IpPortMap> idBuilder =
+                InstanceIdentifier.builder(IntextIpPortMap.class)
                 .child(IpPortMapping.class, new IpPortMappingKey(segmentId))
-                .child(IntextIpProtocolType.class, new IntextIpProtocolTypeKey(protocolType));
-        InstanceIdentifier<IntextIpProtocolType> id = idBuilder.build();
-        Optional<IntextIpProtocolType> intextIpProtocolType =
-            MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
-        if (intextIpProtocolType.isPresent()) {
-            List<IpPortMap> ipPortMaps = intextIpProtocolType.get().getIpPortMap();
-            for (IpPortMap ipPortMap : ipPortMaps) {
-                if (ipPortMap.getIpPortInternal().equals(internalIpPort)) {
-                    LOG.debug("NAPT Service : IpPortMap : {}", ipPortMap);
-                    SessionAddress externalIpPort = new SessionAddress(ipPortMap.getIpPortExternal().getIpAddress(),
-                        ipPortMap.getIpPortExternal().getPortNum());
-                    LOG.debug("NAPT Service : checkIpPortMap returning successfully externalIP {} and port {}",
-                        externalIpPort.getIpAddress(), externalIpPort.getPortNumber());
-                    return externalIpPort;
-                }
-            }
+                .child(IntextIpProtocolType.class, new IntextIpProtocolTypeKey(protocolType))
+                .child(IpPortMap.class, new IpPortMapKey(internalIpPort));
+        InstanceIdentifier<IpPortMap> id = idBuilder.build();
+        Optional<IpPortMap> ipPortMapType =
+                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        if (ipPortMapType.isPresent()) {
+            LOG.debug("NAPT Service : checkIpPortMap : {}", ipPortMapType.get());
+            SessionAddress externalIpPort = new SessionAddress(ipPortMapType.get().getIpPortExternal().getIpAddress(),
+                    ipPortMapType.get().getIpPortExternal().getPortNum());
+            LOG.debug("NAPT Service : checkIpPortMap returning successfully externalIP {} and port {}",
+                    externalIpPort.getIpAddress(), externalIpPort.getPortNumber());
+            return externalIpPort;
         }
         // return null if not found
         LOG.error("NAPT Service : no-entry in checkIpPortMap, returning NULL [should be OK] for "
-            + "segmentId {} and internalIPPort {}", segmentId, internalIpPort);
+                + "segmentId {} and internalIPPort {}", segmentId, internalIpPort);
         return null;
     }
 
