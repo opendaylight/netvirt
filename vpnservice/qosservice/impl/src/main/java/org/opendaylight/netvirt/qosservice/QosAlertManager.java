@@ -377,8 +377,7 @@ public final class QosAlertManager implements Runnable {
             } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Exception {} occurred with node {} Direct-Statistics get", e, dpn);
             }
-            if (Optional.fromNullable(rpcResult).isPresent() && rpcResult.isSuccessful()
-                    && Optional.fromNullable(rpcResult.getResult()).isPresent()) {
+            if (rpcResult != null && rpcResult.isSuccessful() && rpcResult.getResult() != null) {
 
                 GetNodeConnectorStatisticsOutput nodeConnectorStatisticsOutput = rpcResult.getResult();
 

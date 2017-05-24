@@ -11,7 +11,6 @@ package org.opendaylight.netvirt.policyservice;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -22,6 +21,7 @@ import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.netvirt.policyservice.util.PolicyServiceFlowUtil;
 import org.opendaylight.netvirt.policyservice.util.PolicyServiceUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay.network.DpnToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay.network.dpn.to._interface.TunnelInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,19 +123,14 @@ public class PolicyRouteGroupProgrammer {
             for (int idx = 0; idx < underlayNetworks.size(); idx++) {
                 final int bucketId = idx;
                 String underlayNetwork = underlayNetworks.get(idx);
-                Optional.ofNullable(policyServiceUtil.getUnderlayNetworkDpnToInterfaces(underlayNetwork))
-                        .map(dpnToInterfaceList -> {
-                            dpnToInterfaceList.forEach(dpnToInterfaces -> {
-                                BigInteger dpId = dpnToInterfaces.getDpId();
-                                List<TunnelInterface> tunnelInterfaces = dpnToInterfaces.getTunnelInterface();
-                                programPolicyClassifierGroupBuckets(policyClassifier, tunnelInterfaces, dpId, bucketId,
-                                        addOrRemove, tx);
-                            });
-                            return dpnToInterfaceList;
-                        }).orElseGet(() -> {
-                            LOG.debug("No DpnToInterface found for underlay network {}", underlayNetwork);
-                            return null;
-                        });
+                List<DpnToInterface> dpnToInterfaceList =
+                        policyServiceUtil.getUnderlayNetworkDpnToInterfaces(underlayNetwork);
+                dpnToInterfaceList.forEach(dpnToInterface -> {
+                    BigInteger dpId = dpnToInterface.getDpId();
+                    List<TunnelInterface> tunnelInterfaces = dpnToInterface.getTunnelInterface();
+                    programPolicyClassifierGroupBuckets(policyClassifier, tunnelInterfaces, dpId, bucketId,
+                            addOrRemove, tx);
+                });
             }
             return Collections.singletonList(tx.submit());
         });

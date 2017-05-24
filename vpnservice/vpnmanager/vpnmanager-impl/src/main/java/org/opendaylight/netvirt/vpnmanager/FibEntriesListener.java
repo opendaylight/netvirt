@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -90,12 +89,13 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
     }
 
     private void addLabelToVpnInstance(String rd, List<RoutePaths> routePaths) {
-        List<Long> labels = routePaths.stream().map(routePath -> routePath.getLabel()).distinct()
+        List<Long> labels = routePaths.stream().map(RoutePaths::getLabel).distinct()
                             .collect(Collectors.toList());
         VpnInstanceOpDataEntry vpnInstanceOpData = vpnInstanceListener.getVpnInstanceOpData(rd);
-        Optional.ofNullable(vpnInstanceOpData).map(vpn -> {
-            List<Long> routeIds = vpn.getRouteEntryId() == null ? new ArrayList<>() : vpn.getRouteEntryId();
-            labels.stream().forEach(label -> {
+        if (vpnInstanceOpData != null) {
+            List<Long> routeIds = vpnInstanceOpData.getRouteEntryId() == null ? new ArrayList<>()
+                    : vpnInstanceOpData.getRouteEntryId();
+            labels.forEach(label -> {
                 LOG.debug("Adding label to vpn info - {}", label);
                 if (!routeIds.contains(label)) {
                     routeIds.add(label);
@@ -103,37 +103,33 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
             });
             TransactionUtil.asyncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
                     VpnUtil.getVpnInstanceOpDataIdentifier(rd),
-                    new VpnInstanceOpDataEntryBuilder(vpn).setRouteEntryId(routeIds).build(),
+                    new VpnInstanceOpDataEntryBuilder(vpnInstanceOpData).setRouteEntryId(routeIds).build(),
                     TransactionUtil.DEFAULT_CALLBACK);
-            return vpn;
-        }).orElseGet(() -> {
+        } else {
             LOG.warn("No VPN Instance found for RD: {}", rd);
-            return null;
-        });
+        }
     }
 
     private void removeLabelFromVpnInstance(String rd, List<RoutePaths> routePaths) {
-        List<Long> labels = routePaths.stream().map(routePath -> routePath.getLabel()).distinct()
+        List<Long> labels = routePaths.stream().map(RoutePaths::getLabel).distinct()
                 .collect(Collectors.toList());
         VpnInstanceOpDataEntry vpnInstanceOpData = vpnInstanceListener.getVpnInstanceOpData(rd);
-        Optional.ofNullable(vpnInstanceOpData).map(vpn -> {
+        if (vpnInstanceOpData != null) {
             List<Long> routeIds = vpnInstanceOpData.getRouteEntryId();
             if (routeIds == null) {
                 LOG.debug("Fib Route entry is empty.");
-                return vpn;
+            } else {
+                LOG.debug("Removing label from vpn info - {}", labels);
+                routeIds.removeAll(labels);
+                TransactionUtil.asyncWrite(
+                        dataBroker,
+                        LogicalDatastoreType.OPERATIONAL,
+                        VpnUtil.getVpnInstanceOpDataIdentifier(rd),
+                        new VpnInstanceOpDataEntryBuilder(vpnInstanceOpData).setRouteEntryId(
+                                routeIds).build(), TransactionUtil.DEFAULT_CALLBACK);
             }
-            LOG.debug("Removing label from vpn info - {}", labels);
-            routeIds.removeAll(labels);
-            TransactionUtil.asyncWrite(
-                    dataBroker,
-                    LogicalDatastoreType.OPERATIONAL,
-                    VpnUtil.getVpnInstanceOpDataIdentifier(rd),
-                    new VpnInstanceOpDataEntryBuilder(vpnInstanceOpData).setRouteEntryId(
-                            routeIds).build(), TransactionUtil.DEFAULT_CALLBACK);
-            return vpn;
-        }).orElseGet(() -> {
+        } else {
             LOG.warn("No VPN Instance found for RD: {}", rd);
-            return null;
-        });
+        }
     }
 }

@@ -579,42 +579,35 @@ public class FibUtil {
         List<String> usedRds = VpnExtraRouteHelper.getUsedRds(broker, vpnId, prefix);
         // To identify the rd to be removed, iterate through the allocated rds for the prefix and check
         // which rd is allocated for the particular OVS.
-        java.util.Optional<String> rdToRemove = usedRds.stream()
-                .map(usedRd -> {
-                    Optional<Routes> vpnExtraRoutes = VpnExtraRouteHelper
-                            .getVpnExtraroutes(broker, vpnName, usedRd, prefix);
-                    // Since all the nexthops under one OVS will be present under one rd, only 1 nexthop is read
-                    // to identify the OVS
-                    return vpnExtraRoutes.isPresent() ? new ImmutablePair<String, String>(
-                            vpnExtraRoutes.get().getNexthopIpList().get(0),
-                            usedRd) : new ImmutablePair<String, String>("", "");
-                })
-                .filter(pair -> {
-                    if (pair.getLeft().isEmpty()) {
-                        return false;
+        for (String usedRd : usedRds) {
+            Optional<Routes> vpnExtraRoutes = VpnExtraRouteHelper
+                    .getVpnExtraroutes(broker, vpnName, usedRd, prefix);
+            if (vpnExtraRoutes.isPresent()) {
+                // Since all the nexthops under one OVS will be present under one rd, only 1 nexthop is read
+                // to identify the OVS
+                Prefixes prefixToInterface = getPrefixToInterface(broker, vpnId,
+                        getIpPrefix(vpnExtraRoutes.get().getNexthopIpList().get(0)));
+                if (prefixToInterface != null && tunnelIpRemoved
+                        .equals(getEndpointIpAddressForDPN(broker, prefixToInterface.getDpnId()))) {
+                    Optional<Routes> optRoutes =
+                            VpnExtraRouteHelper.getVpnExtraroutes(broker, vpnName, usedRd, prefix);
+                    if (!optRoutes.isPresent()) {
+                        break;
                     }
-                    Prefixes prefixToInterface = getPrefixToInterface(broker, vpnId, getIpPrefix(pair.getLeft()));
-                    return prefixToInterface != null ? tunnelIpRemoved
-                            .equals(getEndpointIpAddressForDPN(broker, prefixToInterface.getDpnId())) : false;
-                })
-                .map(pair -> pair.getRight()).findFirst();
-        if (!rdToRemove.isPresent()) {
-            return;
+                    String nextHopRemoved = optRoutes.get().getNexthopIpList().get(0);
+                    Prefixes prefixToInterface = getPrefixToInterface(broker, vpnId, getIpPrefix(nextHopRemoved));
+                    if (prefixToInterface != null) {
+                        writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                                getAdjacencyIdentifier(prefixToInterface.getVpnInterfaceName(), prefix));
+                    }
+                    writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                            VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, usedRd, prefix));
+                    writeOperTxn.delete(LogicalDatastoreType.CONFIGURATION,
+                            VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix, nextHopRemoved));
+                    break;
+                }
+            }
         }
-        Optional<Routes> optRoutes = VpnExtraRouteHelper.getVpnExtraroutes(broker, vpnName, rdToRemove.get(), prefix);
-        if (!optRoutes.isPresent()) {
-            return;
-        }
-        String nextHopRemoved = optRoutes.get().getNexthopIpList().get(0);
-        Prefixes prefixToInterface = getPrefixToInterface(broker, vpnId, getIpPrefix(nextHopRemoved));
-        if (prefixToInterface != null) {
-            writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                    getAdjacencyIdentifier(prefixToInterface.getVpnInterfaceName(), prefix));
-        }
-        writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, rdToRemove.get(), prefix));
-        writeOperTxn.delete(LogicalDatastoreType.CONFIGURATION,
-                VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix, nextHopRemoved));
     }
 
     private static String getEndpointIpAddressForDPN(DataBroker broker, BigInteger dpnId) {

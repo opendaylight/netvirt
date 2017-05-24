@@ -86,8 +86,7 @@ public class CounterRetriever {
             return null;
         }
 
-        if (Optional.fromNullable(rpcResult).isPresent() && rpcResult.isSuccessful()
-                && Optional.fromNullable(rpcResult.getResult()).isPresent()) {
+        if (rpcResult != null && rpcResult.isSuccessful() && rpcResult.getResult() != null) {
             GetNodeConnectorStatisticsOutput nodeConnectorStatsOutput = rpcResult.getResult();
             return createNodeConnectorResultMapDirect(nodeConnectorStatsOutput, nodeConnectorId);
         } else {
@@ -118,8 +117,7 @@ public class CounterRetriever {
                 }
                 RpcResult<GetNodeConnectorStatisticsOutput> currentResult =
                         completableCurrentResult.get().getNodeConnectorStatisticsOutput();
-                if (Optional.fromNullable(currentResult).isPresent() && currentResult.isSuccessful()
-                        && Optional.fromNullable(currentResult.getResult()).isPresent()) {
+                if (currentResult != null && currentResult.isSuccessful() && currentResult.getResult() != null) {
                     GetNodeConnectorStatisticsOutput nodeConnectorStatsOutput = currentResult.getResult();
                     countersResults.add(createNodeConnectorResultMapDirect(nodeConnectorStatsOutput,
                             completableCurrentResult.get().getNodeConnectrId()));
@@ -162,7 +160,7 @@ public class CounterRetriever {
             GetNodeConnectorStatisticsOutput nodeConnectorStatsOutput, NodeConnectorId nodeConnectorId) {
         List<NodeConnectorStatisticsAndPortNumberMap> nodeConnectorUpdates =
                 nodeConnectorStatsOutput.getNodeConnectorStatisticsAndPortNumberMap();
-        if (!Optional.fromNullable(nodeConnectorUpdates).isPresent() || nodeConnectorUpdates.isEmpty()) {
+        if (nodeConnectorUpdates == null || nodeConnectorUpdates.isEmpty()) {
             CounterRetrieverCounters.failed_getting_result_map_for_node_connector.inc();
             LOG.warn("Unable to retrieve statistics info for node connector");
             return null;
@@ -220,8 +218,7 @@ public class CounterRetriever {
             return null;
         }
 
-        if (Optional.fromNullable(rpcResult).isPresent() && rpcResult.isSuccessful()
-                && Optional.fromNullable(rpcResult.getResult()).isPresent()) {
+        if (rpcResult != null && rpcResult.isSuccessful() && rpcResult.getResult() != null) {
             GetFlowStatisticsOutput flowStatsOutput = rpcResult.getResult();
             return createSwitchFlowResultMapDirect(flowStatsOutput);
         } else {
@@ -233,7 +230,7 @@ public class CounterRetriever {
 
     private CounterResultDataStructure createSwitchFlowResultMapDirect(GetFlowStatisticsOutput flowStatsOutput) {
         List<FlowAndStatisticsMapList> flowUpdates = flowStatsOutput.getFlowAndStatisticsMapList();
-        if (!Optional.fromNullable(flowUpdates).isPresent() || flowUpdates.isEmpty()) {
+        if (flowUpdates == null || flowUpdates.isEmpty()) {
             LOG.warn("Unable to retrieve flows statistics info");
             return null;
         }
