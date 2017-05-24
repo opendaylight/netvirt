@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2015 - 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
@@ -101,10 +102,10 @@ public class InterfaceStateChangeListener
                                 }
                                 final BigInteger dpnId = intfDpnId;
                                 final int ifIndex = intrf.getIfIndex();
-                                if (!vpnInterfaceManager.isVpnInstanceReady(vpnInterface.getVpnInstanceName())) {
+                                if (!vpnInterfaceManager.isVpnInstanceReady(vpnInterface.getVpnInstanceName().get(0))) {
                                     LOG.info("VPN Interface add event - intfName {} onto vpnName {} "
                                                     + "running oper-driven, VpnInstance not ready, holding on",
-                                            vpnInterface.getName(), vpnInterface.getVpnInstanceName());
+                                              vpnInterface.getName(), vpnInterface.getVpnInstanceName().get(0));
                                     return futures;
                                 }
                                 LOG.info("VPN Interface add event - intfName {} onto vpnName {} running oper-driven",
@@ -235,10 +236,10 @@ public class InterfaceStateChangeListener
                                 LOG.info("VPN Interface update event - intfName {} onto vpnName {} running "
                                         + " oper-driven UP", vpnInterface.getName(),
                                         vpnInterface.getVpnInstanceName());
-                                if (!vpnInterfaceManager.isVpnInstanceReady(vpnInterface.getVpnInstanceName())) {
+                                if (!vpnInterfaceManager.isVpnInstanceReady(vpnInterface.getVpnInstanceName().get(0))) {
                                     LOG.info("VPN Interface update event - intfName {} onto vpnName {} "
                                                     + "running oper-driven UP, VpnInstance not ready, holding on",
-                                            vpnInterface.getName(), vpnInterface.getVpnInstanceName());
+                                             vpnInterface.getName(), vpnInterface.getVpnInstanceName().get(0));
                                     return futures;
                                 }
                                 vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex,

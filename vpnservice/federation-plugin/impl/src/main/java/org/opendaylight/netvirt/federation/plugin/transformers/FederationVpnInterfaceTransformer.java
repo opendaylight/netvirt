@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.federation.plugin.transformers;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Arrays;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -134,7 +135,7 @@ public class FederationVpnInterfaceTransformer implements FederationPluginTransf
         }
 
         VpnInterfaceBuilder vpnInterfaceBuilder = new VpnInterfaceBuilder(vpnInterface);
-        vpnInterfaceBuilder.setVpnInstanceName(vpnId);
+        vpnInterfaceBuilder.setVpnInstanceName(Arrays.asList(vpnId));
         vpnInterfaceBuilder.addAugmentation(VpnShadowProperties.class,
                 new VpnShadowPropertiesBuilder(vpnInterfaceBuilder.getAugmentation(VpnShadowProperties.class))
                         .setShadow(true).setGenerationNumber(generationNumber).setRemoteIp(remoteIp).build());
