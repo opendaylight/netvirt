@@ -188,6 +188,7 @@ public class ElanUtils {
     private static Map<String, ElanInstance> elanInstanceLocalCache = new ConcurrentHashMap<>();
     private static Map<String, ElanInterface> elanInterfaceLocalCache = new ConcurrentHashMap<>();
     private static Map<String, Set<DpnInterfaces>> elanInstancToDpnsCache = new ConcurrentHashMap<>();
+    private static Map<String, Set<String>> elanInstanceToInterfacesCache = new ConcurrentHashMap<>();
 
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
@@ -2224,7 +2225,7 @@ public class ElanUtils {
     public boolean isTunnelInLogicalGroup(String interfaceName, DataBroker broker) {
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
             .ietf.interfaces.rev140508.interfaces.Interface configIface =
-                        interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
+            interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
         IfTunnel ifTunnel = configIface.getAugmentation(IfTunnel.class);
         if (ifTunnel != null && ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)) {
             ParentRefs refs = configIface.getAugmentation(ParentRefs.class);
@@ -2233,5 +2234,20 @@ public class ElanUtils {
             }
         }
         return false;
+    }
+
+    public static void addElanInterfaceToElanInstanceCache(String elanInstanceName, String elanInterfaceName) {
+        elanInstanceToInterfacesCache.computeIfAbsent(elanInstanceName, key -> new HashSet<>()).add(elanInterfaceName);
+    }
+
+    public static void removeElanInterfaceToElanInstanceCache(String elanInstanceName, String interfaceName) {
+        Set<String> elanInterfaces = elanInstanceToInterfacesCache.get(elanInstanceName);
+        if (!elanInterfaces.isEmpty()) {
+            elanInterfaces.remove(interfaceName);
+        }
+    }
+
+    public static Set<String> removeAndGetElanInterfaces(String elanInstanceName) {
+        return elanInstanceToInterfacesCache.remove(elanInstanceName);
     }
 }
