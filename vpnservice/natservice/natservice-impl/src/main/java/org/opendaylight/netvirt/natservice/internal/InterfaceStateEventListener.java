@@ -27,6 +27,7 @@ import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -239,7 +240,7 @@ public class InterfaceStateEventListener
         if (vpnInterface != null) {
             //getVpnName
             try {
-                vpnName = vpnInterface.getVpnInstanceName();
+                vpnName = VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface);
                 LOG.debug("getRouterIdForPort: Retrieved VpnName {}", vpnName);
             } catch (Exception e) {
                 LOG.error("getRouterIdForPort : Unable to get vpnname for vpninterface {}", vpnInterface, e);
