@@ -18,6 +18,7 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
@@ -98,7 +99,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                 Optional<VpnInterface> cfgVpnInterface = VpnUtil.read(dataBroker,
                                         LogicalDatastoreType.CONFIGURATION, id);
                                 if (cfgVpnInterface.isPresent()) {
-                                    String vpnName = cfgVpnInterface.get().getVpnInstanceName();
+                                    String vpnName = VpnHelper.getFirstVpnNameFromVpnInterface(cfgVpnInterface.get());
                                     vpnSubnetRouteHandler.onInterfaceUp(dpnId, intrf.getName(),
                                                       subnetId, vpnName);
                                 }
@@ -159,7 +160,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                             Optional<VpnInterface> cfgVpnInterface = VpnUtil.read(dataBroker,
                                     LogicalDatastoreType.CONFIGURATION, id);
                             if (cfgVpnInterface.isPresent()) {
-                                String vpnName = cfgVpnInterface.get().getVpnInstanceName();
+                                String vpnName = VpnHelper.getFirstVpnNameFromVpnInterface(cfgVpnInterface.get());
                                 vpnSubnetRouteHandler.onInterfaceDown(dpnId, intrf.getName(), subnetId, vpnName);
                             }
                         }
@@ -218,7 +219,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                             if (!cfgVpnInterface.isPresent()) {
                                 return futures;
                             }
-                            String vpnName = cfgVpnInterface.get().getVpnInstanceName();
+                            String vpnName = VpnHelper.getFirstVpnNameFromVpnInterface(cfgVpnInterface.get());
                             if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
                                 LOG.info("SubnetRouteInterfaceListener update: Received port UP event"
                                        + " for interface {} vpnName {}", update.getName(), vpnName);

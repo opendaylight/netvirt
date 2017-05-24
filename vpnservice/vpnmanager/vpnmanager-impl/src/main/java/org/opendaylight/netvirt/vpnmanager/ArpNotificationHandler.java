@@ -192,6 +192,8 @@ public class ArpNotificationHandler implements OdlArputilListener {
             String nextHopIpAddr = null;
             String nextHopMacAddress = null;
             String ip = srcPrefix.getIpv4Address().getValue();
+            List<String> listVpn = new ArrayList<>();
+            listVpn.add(vpnName);
             if (interfaceManager.isExternalInterface(vpnInterface)) {
                 String subnetId = getSubnetId(vpnName, dstPrefix.getIpv4Address().getValue());
                 if (subnetId == null) {
@@ -210,11 +212,25 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 adjacencyList.add(newAdjBuilder.build());
 
                 Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencyList);
-                VpnInterface newVpnIntf =
+                Optional<VpnInterface> optionalVpnInterface =
+                    VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfId);
+                VpnInterface newVpnIntf;
+                if (optionalVpnInterface.isPresent()) {
+                    newVpnIntf =
+                        new VpnInterfaceBuilder(optionalVpnInterface.get())
+                            .setKey(new VpnInterfaceKey(vpnInterface))
+                            .setName(vpnInterface).setVpnInstanceNames(listVpn)
+                            .addAugmentation(Adjacencies.class, aug)
+                            .build();
+                    VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfId, newVpnIntf);
+                } else {
+                    newVpnIntf =
                         new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(vpnInterface))
-                        .setName(vpnInterface).setVpnInstanceName(vpnName).addAugmentation(Adjacencies.class, aug)
-                        .build();
-                VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfId, newVpnIntf);
+                            .setName(vpnInterface).setVpnInstanceNames(listVpn)
+                            .addAugmentation(Adjacencies.class, aug)
+                            .build();
+                    VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfId, newVpnIntf);
+                }
                 LOG.debug(" Successfully stored subnetroute Adjacency into VpnInterface {}", vpnInterface);
                 return;
             }
@@ -248,10 +264,26 @@ public class ArpNotificationHandler implements OdlArputilListener {
                     }
                     adjacencyList.add(newAdjBuilder.build());
                     Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencyList);
-                    VpnInterface newVpnIntf =
-                        new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(vpnInterface)).setName(
-                            vpnInterface).setVpnInstanceName(vpnName).addAugmentation(Adjacencies.class, aug).build();
-                    VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfId, newVpnIntf);
+                    Optional<VpnInterface> optionalVpnInterface =
+                        VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfId);
+                    VpnInterface newVpnIntf;
+                    if (optionalVpnInterface.isPresent()) {
+                        newVpnIntf =
+                            new VpnInterfaceBuilder(optionalVpnInterface.get())
+                                .setKey(new VpnInterfaceKey(vpnInterface)).setName(
+                                vpnInterface).setVpnInstanceNames(listVpn)
+                                .addAugmentation(Adjacencies.class, aug).build();
+                        VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                 vpnIfId, newVpnIntf);
+                    } else {
+                        newVpnIntf =
+                            new VpnInterfaceBuilder()
+                                .setKey(new VpnInterfaceKey(vpnInterface)).setName(
+                                vpnInterface).setVpnInstanceNames(listVpn)
+                                .addAugmentation(Adjacencies.class, aug).build();
+                        VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                 vpnIfId, newVpnIntf);
+                    }
                     LOG.debug(" Successfully stored subnetroute Adjacency into VpnInterface {}", vpnInterface);
                 }
             }
