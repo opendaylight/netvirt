@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -771,7 +771,6 @@ public class VpnUtil {
                 LOG.error("Error in Datastore operation", error);
             }
 
-            ;
         };
 
     public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
@@ -1519,7 +1518,7 @@ public class VpnUtil {
     }
 
     static java.util.Optional<String> allocateRdForExtraRouteAndUpdateUsedRdsMap(
-            DataBroker dataBroker, long vpnId, Optional<Long> parentVpnId, String prefix, String vpnName,
+            DataBroker dataBroker, long vpnId, @Nullable Long parentVpnId, String prefix, String vpnName,
             String nextHop, BigInteger dpnId, WriteTransaction writeOperTxn) {
         //Check if rd is already allocated for this extraroute behind the same VM. If yes, reuse it.
         //This is particularly useful during reboot scenarios.
@@ -1531,33 +1530,22 @@ public class VpnUtil {
 
         //Check if rd is already allocated for this extraroute behind the same CSS. If yes, reuse it
         List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, prefix);
-        java.util.Optional<String> rdToAllocate = usedRds.stream()
-                .map(usedRd -> {
-                    Optional<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getVpnExtraroutes(dataBroker,
-                            vpnName, usedRd, prefix);
-                    return vpnExtraRoutes.isPresent() ? new ImmutablePair<>(
-                            vpnExtraRoutes.get().getNexthopIpList().get(0),
-                            usedRd) : new ImmutablePair<>("", "");
-                })
-                .filter(pair -> {
-                    if (pair.getLeft().isEmpty()) {
-                        return false;
-                    }
-                    Optional<Prefixes> prefixToInterface;
-                    //In case of VPN importing the routes, the interface is not present in the VPN
-                    //and has to be fetched from the VPN from which it imports
-                    if (parentVpnId.isPresent()) {
-                        prefixToInterface = getPrefixToInterface(dataBroker, parentVpnId.get(), pair.getLeft());
-                    } else {
-                        prefixToInterface = getPrefixToInterface(dataBroker, vpnId, pair.getLeft());
-                    }
-                    return prefixToInterface.isPresent() ? dpnId.equals(prefixToInterface.get().getDpnId()) : false;
-                }).map(pair -> pair.getRight()).findFirst();
-        if (rdToAllocate.isPresent()) {
-            syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                    VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix, nextHop),
-                    getRdsBuilder(nextHop, rdToAllocate.get()).build());
-            return rdToAllocate;
+        for (String usedRd : usedRds) {
+            Optional<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getVpnExtraroutes(dataBroker,
+                    vpnName, usedRd, prefix);
+            if (vpnExtraRoutes.isPresent()) {
+                String nextHopIp = vpnExtraRoutes.get().getNexthopIpList().get(0);
+                // In case of VPN importing the routes, the interface is not present in the VPN
+                // and has to be fetched from the VPN from which it imports
+                Optional<Prefixes> prefixToInterface =
+                        getPrefixToInterface(dataBroker, parentVpnId != null ? parentVpnId : vpnId, nextHopIp);
+                if (prefixToInterface.isPresent() && dpnId.equals(prefixToInterface.get().getDpnId())) {
+                    syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix, nextHop),
+                            getRdsBuilder(nextHop, usedRd).build());
+                    return java.util.Optional.of(usedRd);
+                }
+            }
         }
         List<String> availableRds = getVpnRdsFromVpnInstanceConfig(dataBroker, vpnName);
         String rd;
