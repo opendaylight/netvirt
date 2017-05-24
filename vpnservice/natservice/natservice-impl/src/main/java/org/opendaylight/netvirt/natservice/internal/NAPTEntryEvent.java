@@ -18,6 +18,7 @@ public class NAPTEntryEvent {
     private Protocol protocol;
     private PacketReceived packetReceived;
     private boolean pktProcessed;
+    private long objectCreationTime;
 
     public PacketReceived getPacketReceived() {
         return packetReceived;
@@ -47,6 +48,10 @@ public class NAPTEntryEvent {
         return protocol;
     }
 
+    public long getObjectCreationTime() {
+        return objectCreationTime;
+    }
+
     NAPTEntryEvent(String ipAddress, int portNumber, Long routerId, Operation op, Protocol protocol,
                    PacketReceived packetReceived, boolean pktProcessed) {
         this.ipAddress = ipAddress;
@@ -56,6 +61,7 @@ public class NAPTEntryEvent {
         this.protocol = protocol;
         this.packetReceived = packetReceived;
         this.pktProcessed = pktProcessed;
+        this.objectCreationTime = System.currentTimeMillis();
     }
 
     public enum Operation {
