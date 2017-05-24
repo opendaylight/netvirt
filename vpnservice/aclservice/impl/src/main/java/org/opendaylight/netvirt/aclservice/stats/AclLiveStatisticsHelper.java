@@ -80,13 +80,13 @@ public final class AclLiveStatisticsHelper {
             AclPortStatsBuilder aclStatsBuilder = new AclPortStatsBuilder().setInterfaceName(interfaceName);
 
             Interface interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, interfaceName);
-            if (!Optional.fromNullable(interfaceState).isPresent()) {
+            if (interfaceState == null) {
                 String errMsg = "Interface not found in datastore.";
                 addError(lstAclPortStats, aclStatsBuilder, errMsg);
                 continue;
             }
             BigInteger dpId = AclServiceUtils.getDpIdFromIterfaceState(interfaceState);
-            if (!Optional.fromNullable(dpId).isPresent()) {
+            if (dpId == null) {
                 String errMsg = "Failed to find device for the interface.";
                 addError(lstAclPortStats, aclStatsBuilder, errMsg);
                 continue;
@@ -114,8 +114,7 @@ public final class AclLiveStatisticsHelper {
                 LOG.error("Exception occurred during get flow statistics for interface {}", interfaceName, e);
             }
 
-            if (Optional.fromNullable(rpcResult).isPresent() && rpcResult.isSuccessful()
-                    && Optional.fromNullable(rpcResult.getResult()).isPresent()) {
+            if (rpcResult != null && rpcResult.isSuccessful() && rpcResult.getResult() != null) {
                 GetFlowStatisticsOutput flowStatsOutput = rpcResult.getResult();
                 getAclDropStats(direction, aclStatsBuilder, flowStatsOutput);
                 lstAclPortStats.add(aclStatsBuilder.build());
@@ -137,7 +136,7 @@ public final class AclLiveStatisticsHelper {
             RpcResult<GetFlowStatisticsOutput> rpcResult) {
         LOG.error("Unable to retrieve drop counts due to error: {}", rpcResult);
         String errMsg = "Unable to retrieve drop counts due to error: ";
-        if (Optional.fromNullable(rpcResult).isPresent() && Optional.fromNullable(rpcResult.getErrors()).isPresent()) {
+        if (rpcResult != null && rpcResult.getErrors() != null) {
             for (RpcError error : rpcResult.getErrors()) {
                 errMsg += error.getMessage();
                 break;
@@ -159,7 +158,7 @@ public final class AclLiveStatisticsHelper {
     private static void getAclDropStats(Direction direction, AclPortStatsBuilder aclStatsBuilder,
             GetFlowStatisticsOutput flowStatsOutput) {
         List<FlowAndStatisticsMapList> flowAndStatisticsMapList = flowStatsOutput.getFlowAndStatisticsMapList();
-        if (!Optional.fromNullable(flowAndStatisticsMapList).isPresent() || flowAndStatisticsMapList.isEmpty()) {
+        if (flowAndStatisticsMapList == null || flowAndStatisticsMapList.isEmpty()) {
             String errMsg = "Unable to retrieve drop counts as interface is not configured for statistics collection.";
             aclStatsBuilder.setError(new ErrorBuilder().setErrorMessage(errMsg).build());
             return;
