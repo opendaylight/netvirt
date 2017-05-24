@@ -806,7 +806,8 @@ public final class AclServiceUtils {
     public static Long getVpnIdFromInterface(DataBroker broker, String vpnInterfaceName) {
         VpnInterface vpnInterface = VpnHelper.getVpnInterface(broker, vpnInterfaceName);
         if (vpnInterface != null) {
-            return VpnHelper.getVpnId(broker, vpnInterface.getVpnInstanceName());
+            return VpnHelper.getVpnId(broker,
+                    VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
         }
         return null;
     }
