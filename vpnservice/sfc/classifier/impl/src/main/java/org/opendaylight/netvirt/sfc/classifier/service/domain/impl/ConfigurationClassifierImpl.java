@@ -89,7 +89,7 @@ public class ConfigurationClassifierImpl implements ClassifierState {
 
         Matches matches = ace.getMatches();
 
-        if (Objects.isNull(matches)) {
+        if (matches == null) {
             LOG.trace("Ace has no matches");
             return Collections.emptySet();
         }
@@ -100,7 +100,7 @@ public class ConfigurationClassifierImpl implements ClassifierState {
                 .flatMap(sfcProvider::getRenderedServicePath)
                 .orElse(null);
 
-        if (Objects.isNull(rsp)) {
+        if (rsp == null) {
             LOG.trace("Ace has no valid SFC redirect action");
             return Collections.emptySet();
         }
@@ -108,7 +108,7 @@ public class ConfigurationClassifierImpl implements ClassifierState {
         Long nsp = rsp.getPathId();
         Short nsi = rsp.getStartingIndex();
 
-        if (Objects.isNull(nsp) || Objects.isNull(nsi)) {
+        if (nsp == null || nsi == null) {
             LOG.trace("RSP has no valid NSI or NSP");
             return Collections.emptySet();
         }
@@ -117,7 +117,7 @@ public class ConfigurationClassifierImpl implements ClassifierState {
                 .flatMap(geniusProvider::getIpFromInterfaceName)
                 .orElse(null);
 
-        if (Objects.isNull(firstHopIp)) {
+        if (firstHopIp == null) {
             LOG.trace("Could not acquire a valid first RSP hop destination ip");
             return Collections.emptySet();
         }
