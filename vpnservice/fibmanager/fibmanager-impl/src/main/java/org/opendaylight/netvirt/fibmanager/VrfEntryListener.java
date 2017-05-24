@@ -61,6 +61,7 @@ import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
@@ -1283,7 +1284,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 }
             }
             if (optvpnInterface.isPresent()) {
-                long associatedVpnId = FibUtil.getVpnId(dataBroker, optvpnInterface.get().getVpnInstanceName());
+                long associatedVpnId = FibUtil.getVpnId(dataBroker, VpnHelper
+                                      .getFirstVpnNameFromVpnInterface(optvpnInterface.get()));
                 if (vpnId != associatedVpnId) {
                     LOG.warn("Prefixes {} are associated with different vpn instance with id : {} rather than {}",
                         vrfEntry.getDestPrefix(), associatedVpnId, vpnId);

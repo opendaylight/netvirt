@@ -61,6 +61,8 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNames;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNames.AssociatedSubnetType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
@@ -884,8 +886,13 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
                             vpnIfIdentifier);
             if (optionalVpnInterface.isPresent()) {
+                VpnInstanceNames vpnInstance = VpnHelper
+                    .getVpnInterfaceVpnInstanceNames(vpnId.getValue(), AssociatedSubnetType.V4AndV6Subnets);
+                List<VpnInstanceNames> listVpn = optionalVpnInterface.get().getVpnInstanceNames();
+                listVpn.clear();
+                listVpn.add(vpnInstance);
                 VpnInterfaceBuilder vpnIfBuilder = new VpnInterfaceBuilder(optionalVpnInterface.get())
-                        .setVpnInstanceName(vpnId.getValue());
+                                      .setVpnInstanceNames(listVpn);
                 LOG.debug("Updating vpn interface {}", infName);
                 if (!isBeingAssociated) {
                     Adjacencies adjs = vpnIfBuilder.getAugmentation(Adjacencies.class);
@@ -921,7 +928,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     NeutronvpnUtils.createVpnPortFixedIpToPort(dataBroker, vpnId.getValue(), ipValue, infName, port
                             .getMacAddress().getValue(), isSubnetIp, writeConfigTxn);
                 }
-                writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIfBuilder
+                writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIfBuilder
                         .build());
             } else {
                 LOG.error("VPN Interface {} not found", infName);
@@ -2457,10 +2464,16 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
 
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
-        VpnInterfaceBuilder vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName))
-                .setName(infName)
-                .setVpnInstanceName(vpnId.getValue())
-                .setRouterInterface(isRouterInterface);
+        VpnInterfaceBuilder vpnb;
+        VpnInstanceNames vpnInstance = VpnHelper
+               .getVpnInterfaceVpnInstanceNames(vpnId.getValue(), AssociatedSubnetType.V4AndV6Subnets);
+        List<VpnInstanceNames> listVpn = new ArrayList<>();
+        listVpn.clear();
+        listVpn.add(vpnInstance);
+        vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName))
+            .setName(infName)
+            .setVpnInstanceNames(listVpn)
+            .setRouterInterface(isRouterInterface);
         if (adjacencies != null) {
             vpnb.addAugmentation(Adjacencies.class, adjacencies);
         }
