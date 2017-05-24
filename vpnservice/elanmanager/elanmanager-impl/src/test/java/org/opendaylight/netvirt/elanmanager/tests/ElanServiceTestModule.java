@@ -18,6 +18,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
 import org.opendaylight.infrautils.inject.guice.testutils.AbstractGuiceJsr250Module;
 import org.opendaylight.lockmanager.LockManager;
+import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
 import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -62,6 +63,7 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         bind2ToInstance(IInterfaceManager.class, TestInterfaceManager.class, TestInterfaceManager.newInstance());
         bind(ItmRpcService.class).toInstance(Mockito.mock(ItmRpcService.class)); // new ItmManagerRpcService();
         bind(ElanStatusMonitor.class).toInstance(Mockito.mock(ElanStatusMonitor.class));
+        bind(EvpnUtils.class).toInstance(Mockito.mock(EvpnUtils.class));
         bind(EntityOwnershipService.class).toInstance(Mockito.mock(EntityOwnershipService.class));
     }
 

@@ -275,6 +275,13 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>qosservice-impl</artifactId>
+      <version>${project.version}</version>
+      <type>cfg</type>
+      <classifier>config</classifier>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>aclservice-api</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -403,7 +410,7 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>ovsdb-ui-bundle</artifactId>
-      <version>${ovsdb.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>

@@ -172,7 +172,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                         internalIp, externalIp);
                     //Inform BGP
                     long l3vni = 0;
-                    if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                    if (elanService.isOpenStackVniSemanticsEnforced()) {
                         l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
                     }
                     NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, subnetId,
@@ -263,7 +263,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         String floatingIpPortMacAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
         if (floatingIpPortMacAddress != null) {
             WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, subnetId.getValue(), floatingIpPortMacAddress,
+            String networkVpnName =  NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
+            vpnManager.setupSubnetMacIntoVpnInstance(networkVpnName, subnetId.getValue(), floatingIpPortMacAddress,
                     dpnId, writeTx, NwConstants.DEL_FLOW);
             vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerId, Collections.singletonList(externalIp),
                 floatingIpPortMacAddress, dpnId, networkId, writeTx, NwConstants.DEL_FLOW);
@@ -305,8 +306,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                  *  floating IP then do not remove INTERNAL_TUNNEL_TABLE (table=36) -> PDNAT_TABLE (table=25) flow entry
                  */
                     Boolean removeTunnelFlow = Boolean.TRUE;
-                    if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
-                        if (NatUtil.isFloatingIpPresentForDpn(dataBroker, dpnId, rd, vpnName, externalIp)) {
+                    if (elanService.isOpenStackVniSemanticsEnforced()) {
+                        if (NatUtil.isFloatingIpPresentForDpn(dataBroker, dpnId, rd, vpnName, externalIp, false)) {
                             removeTunnelFlow = Boolean.FALSE;
                         }
                     }
@@ -372,7 +373,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         // Increased the 36->25 flow priority. If SNAT is also configured on the same
         // DPN, then the traffic will be hijacked to DNAT and if there are no DNAT match,
         // then handled back to using using flow 25->44(which will be installed as part of SNAT)
-        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+        if (elanService.isOpenStackVniSemanticsEnforced()) {
             mkMatches.add(new MatchTunnelId(NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, serviceId)));
             flowPriority = 6;
         } else {

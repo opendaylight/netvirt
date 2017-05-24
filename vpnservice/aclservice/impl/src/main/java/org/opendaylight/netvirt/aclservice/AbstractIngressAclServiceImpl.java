@@ -230,7 +230,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
     protected void writeCurrentAclForRemoteAcls(Uuid acl, int addOrRemove, Long elanTag, AllowedAddressPairs ip,
             BigInteger aclId) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
-        flowMatches.addAll(AclServiceUtils.buildIpAndElanDstMatch(elanTag, ip, dataBroker));
+        flowMatches.addAll(AclServiceUtils.buildIpAndElanSrcMatch(elanTag, ip, dataBroker));
 
         List<InstructionInfo> instructions = new ArrayList<>();
 
@@ -241,8 +241,9 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
         instructions.add(new InstructionGotoTable(getIngressAclFilterTable()));
 
         String flowNameAdded = "Acl_Filter_Ingress_" + new String(ip.getIpAddress().getValue()) + "_" + elanTag;
+        LOG.warn((addOrRemove == 0 ? "ADD" : "REMOVE") + flowNameAdded);
 
-        Map<String, Set<AclInterface>> mapAclWithPortSet = aclDataUtil.getRemoteAclInterfaces(acl);
+        Map<String, Set<AclInterface>> mapAclWithPortSet = aclDataUtil.getAllRemoteAclInterfaces();
         Set<BigInteger> dpns = collectDpns(mapAclWithPortSet);
         for (BigInteger dpId : dpns) {
             LOG.debug("writing rule for ip {} and rlanId {} in ingress acl remote table {}", getIpPrefixOrAddress(ip),
@@ -253,11 +254,11 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
     }
 
     protected short getIngressAclFilterTable() {
-        return NwConstants.INGRESS_ACL_FILTER_TABLE;
+        return NwConstants.EGRESS_ACL_FILTER_TABLE;
     }
 
     protected short getIngressAclRemoteAclTable() {
-        return NwConstants.INGRESS_ACL_REMOTE_ACL_TABLE;
+        return NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE;
     }
 
     @Override
@@ -268,7 +269,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
                 continue;
             }
             List<MatchInfoBase> flowMatches = new ArrayList<>();
-            flowMatches.addAll(AclServiceUtils.buildIpAndElanDstMatch(elanTag, ip, dataBroker));
+            flowMatches.addAll(AclServiceUtils.buildIpAndElanSrcMatch(elanTag, ip, dataBroker));
 
             List<InstructionInfo> instructions = new ArrayList<>();
 

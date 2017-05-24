@@ -40,7 +40,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 
-
 import org.apache.thrift.TException;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
@@ -53,22 +52,9 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.batching.DefaultBatchHandler;
 import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.AddressFamiliesReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.AsIdReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.BgpReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.ConfigServerReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.EbgpMultihopReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.GracefulRestartReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.LoggingReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.MultipathReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.NeighborsReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.NetworksReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.RouteCleanup;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.UpdateSourceReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.VrfMaxpathReactor;
-import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.VrfsReactor;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.commands.ClearBgpCli;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarms;
@@ -85,6 +71,7 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
 import org.opendaylight.netvirt.bgpmanager.thrift.server.BgpThriftService;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.BgpControlPlaneType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.EncapType;
@@ -127,6 +114,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.macvrfentries.MacVrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
@@ -143,6 +131,7 @@ public class BgpConfigurationManager {
     private static DataBroker dataBroker;
     private static FibDSWriter fibDSWriter;
     public static IBgpManager bgpManager;
+    private static IVpnLinkService vpnLinkService;
     private final BundleContext bundleContext;
     private static Bgp config;
     private static BgpRouter bgpRouter;
@@ -232,6 +221,11 @@ public class BgpConfigurationManager {
     //static IITMProvider itmProvider;
     //map<rd, map<prefix/len:nexthop, label>>
     private static Map<String, Map<String, Long>> staledFibEntriesMap = new ConcurrentHashMap<>();
+    //map<rd, map<mac, l2vni>>
+    private static Map<String, Map<String, Long>> staledMacEntriesMap = new ConcurrentHashMap<>();
+
+    //map<rd, map<tep-ip, list<mac, l2vni>>>
+    private static Map<String, Map<String, Map<String, Long>>> rt2TepMap = new ConcurrentHashMap<>();
 
     static final String BGP_ENTITY_TYPE_FOR_OWNERSHIP = "bgp";
     static final String BGP_ENTITY_NAME = "bgp";
@@ -239,6 +233,7 @@ public class BgpConfigurationManager {
     static int totalStaledCount = 0;
     static int totalCleared = 0;
     static int totalExternalRoutes = 0;
+    static int totalExternalMacRoutes = 0;
 
     private static final Class[] REACTORS = {
         ConfigServerReactor.class, AsIdReactor.class,
@@ -256,10 +251,12 @@ public class BgpConfigurationManager {
     public BgpConfigurationManager(final DataBroker dataBroker,
             final EntityOwnershipService entityOwnershipService,
             final FibDSWriter fibDSWriter,
+            final IVpnLinkService vpnLinkSrvce,
             final BundleContext bundleContext)
             throws InterruptedException, ExecutionException, TimeoutException {
         BgpConfigurationManager.dataBroker = dataBroker;
         BgpConfigurationManager.fibDSWriter = fibDSWriter;
+        BgpConfigurationManager.vpnLinkService = vpnLinkService;
         this.bundleContext = bundleContext;
         String updatePort = getProperty(UPDATE_PORT, DEF_UPORT);
         cHostStartup = getProperty(CONFIG_HOST, DEF_CHOST);
@@ -345,7 +342,7 @@ public class BgpConfigurationManager {
         return (property == null ? def : property);
     }
 
-    boolean ignoreClusterDcnEventForFollower() {
+    static boolean ignoreClusterDcnEventForFollower() {
         return !EntityOwnerUtils.amIEntityOwner(BGP_ENTITY_TYPE_FOR_OWNERSHIP, BGP_ENTITY_NAME);
     }
 
@@ -1073,6 +1070,8 @@ public class BgpConfigurationManager {
                         : label.intValue();
                 int l3vni = (val.getL3vni() == null) ? qbgpConstants.LBL_NO_LABEL
                         : val.getL3vni().intValue();
+                int l2vni = (val.getL2vni() == null) ? qbgpConstants.LBL_NO_LABEL
+                        : val.getL2vni().intValue();
 
                 BgpControlPlaneType protocolType = val.getBgpControlPlaneType();
                 int ethernetTag = val.getEthtag().intValue();
@@ -1080,9 +1079,10 @@ public class BgpConfigurationManager {
                 String macaddress = val.getMacaddress();
                 EncapType encapType = val.getEncapType();
                 String routerMac = val.getRoutermac();
+                int afiInt = testValueAFI(pfxlen);
 
                 try {
-                    br.addPrefix(rd, pfxlen, nh, lbl, l3vni, BgpUtil.convertToThriftProtocolType(protocolType),
+                    br.addPrefix(rd, pfxlen, nh, lbl, l3vni, l2vni, BgpUtil.convertToThriftProtocolType(protocolType),
                             ethernetTag, esi, macaddress, BgpUtil.convertToThriftEncapType(encapType), routerMac);
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
@@ -1112,6 +1112,7 @@ public class BgpConfigurationManager {
                 }
                 Long label = val.getLabel();
                 int lbl = (label == null) ? 0 : label.intValue();
+                int  afiInt = testValueAFI(pfxlen);
                 if (rd == null && lbl > 0) {
                     //LU prefix is being deleted.
                     rd = Integer.toString(lbl);
@@ -1123,6 +1124,24 @@ public class BgpConfigurationManager {
                 }
             }
         }
+
+        /**get the value AFI from a prefix as "x.x.x.x/x".
+         *
+         * @param pfxlen the prefix to get an afi
+         * @return the afi value as you are need
+         */
+        public  int  testValueAFI(String pfxlen) {
+            int afiNew = af_afi.AFI_IP.getValue();
+            try {
+                String ipOnly = pfxlen.substring(0, pfxlen.lastIndexOf("/"));
+                java.net.Inet6Address.getByName(ipOnly);
+                afiNew = af_afi.AFI_IPV6.getValue();
+            } catch (java.net.UnknownHostException e) {
+                //ce n'est pas de l'ipv6
+            }
+            return afiNew;
+        }
+
 
         @Override
         protected void update(final InstanceIdentifier<Networks> iid,
@@ -1607,41 +1626,46 @@ public class BgpConfigurationManager {
             return;
         }
         while (bsh.getState() != bsh.DONE) {
-            Routes routes = null;
-            try {
-                routes = bgpRouter.doRibSync(bsh);
-            } catch (TException | BgpRouterException e) {
-                LOG.error("Route sync aborted, exception when syncing", e);
-                return;
-            }
-            Iterator<Update> updates = routes.getUpdatesIterator();
-            while (updates.hasNext()) {
-                Update update = updates.next();
-                Map<String, Map<String, Long>> staleFibRdMap = BgpConfigurationManager.getStaledFibEntriesMap();
-                String rd = update.getRd();
-                String nexthop = update.getNexthop();
+            for (af_afi afi : af_afi.values()) {
+                Routes routes = null;
+                try {
+                    routes = bgpRouter.doRibSync(bsh, afi);
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("Route sync aborted, exception when syncing", e);
+                    return;
+                }
+                Iterator<Update> updates = routes.getUpdatesIterator();
+                while (updates.hasNext()) {
+                    Update update = updates.next();
+                    Map<String, Map<String, Long>> staleFibRdMap = BgpConfigurationManager.getStaledFibEntriesMap();
+                    String rd = update.getRd();
+                    String nexthop = update.getNexthop();
 
-                // TODO: decide correct label here
-                int label = update.getL3label();
+                    // TODO: decide correct label here
+                    int label = update.getL3label();
+                    int l2label = update.getL2label();
 
-                String prefix = update.getPrefix();
-                int plen = update.getPrefixlen();
+                    String prefix = update.getPrefix();
+                    int plen = update.getPrefixlen();
 
 
-                // TODO: protocol type will not be available in "update"
-                // use "rd" to query vrf table and obtain the protocol_type. Currently using PROTOCOL_EVPN as default.
-                onUpdatePushRoute(
-                        protocol_type.PROTOCOL_EVPN,
-                        rd,
-                        prefix,
-                        plen,
-                        nexthop,
-                        update.getEthtag(),
-                        update.getEsi(),
-                        update.getMacaddress(),
-                        label,
-                        update.getRoutermac()
-                );
+                    // TODO: protocol type will not be available in "update"
+                    // use "rd" to query vrf table and obtain the protocol_type.
+                    // Currently using PROTOCOL_EVPN as default.
+                    onUpdatePushRoute(
+                           protocol_type.PROTOCOL_EVPN,
+                           rd,
+                           prefix,
+                           plen,
+                           nexthop,
+                           update.getEthtag(),
+                           update.getEsi(),
+                           update.getMacaddress(),
+                           label,
+                           l2label,
+                           update.getRoutermac(),
+                           afi);
+                }
             }
         }
         try {
@@ -1649,6 +1673,26 @@ public class BgpConfigurationManager {
             bgpRouter.endRibSync(bsh);
         } catch (TException | BgpRouterException e) {
             // Ignored?
+        }
+    }
+
+    public static void addTepToElanDS(String rd, String tepIp, String mac, Long l2vni) {
+        boolean needUpdate = addToRt2TepMap(rd, tepIp, mac, l2vni);
+        if (needUpdate) {
+            LOG.info("Adding tepIp {} with RD {} to ELan DS", tepIp, rd);
+            BgpUtil.addTepToElanInstance(dataBroker, rd, tepIp);
+        } else {
+            LOG.debug("Skipping the Elan update for RT2 from tep {} rd {}", tepIp, rd);
+        }
+    }
+
+    public static void deleteTepfromElanDS(String rd, String tepIp, String mac) {
+        boolean needUpdate = deleteFromRt2TepMap(rd, tepIp, mac);
+        if (needUpdate) {
+            LOG.info("Deleting tepIp {} with RD {} to ELan DS", tepIp, rd);
+            BgpUtil.deleteTepFromElanInstance(dataBroker, rd, tepIp);
+        } else {
+            LOG.debug("Skipping the Elan update for RT2 withdraw from tep {} rd {}", tepIp, rd);
         }
     }
 
@@ -1671,21 +1715,32 @@ public class BgpConfigurationManager {
                                          String esi,
                                          String macaddress,
                                          int label,
-                                         String routermac)
+                                         int l2label,
+                                         String routermac,
+                                         af_afi afi)
             throws InterruptedException, ExecutionException, TimeoutException {
         boolean addroute = false;
+        boolean macupdate = false;
         long l3vni = 0L;
         VrfEntry.EncapType encapType = VrfEntry.EncapType.Mplsgre;
         if (protocolType.equals(protocol_type.PROTOCOL_EVPN)) {
             encapType = VrfEntry.EncapType.Vxlan;
             VpnInstanceOpDataEntry vpnInstanceOpDataEntry = BgpUtil.getVpnInstanceOpData(dataBroker, rd);
             if (vpnInstanceOpDataEntry != null) {
-                l3vni = vpnInstanceOpDataEntry.getL3vni();
+                if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
+                    LOG.info("Got RT2 route for RD {} l3label {} l2label {} from tep {} with mac {} remote RD {}",
+                            vpnInstanceOpDataEntry.getVpnInstanceName(), label, l2label, nextHop, macaddress, rd);
+                    addTepToElanDS(rd, nextHop, macaddress, (long)l2label);
+                    macupdate = true;
+                } else {
+                    l3vni = vpnInstanceOpDataEntry.getL3vni();
+                }
             } else {
                 LOG.error("No corresponding vpn instance found for rd {}. Aborting.", rd);
                 return;
             }
         }
+
         if (!staledFibEntriesMap.isEmpty()) {
             // restart Scenario, as MAP is not empty.
             Map<String, Long> map = staledFibEntriesMap.get(rd);
@@ -1708,12 +1763,71 @@ public class BgpConfigurationManager {
             LOG.debug("Route add ** {} ** {}/{} ** {} ** {} ", rd, prefix, plen, nextHop, label);
             addroute = true;
         }
-        if (addroute) {
-            LOG.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
+        if (macupdate) {
+            LOG.info("ADD: Adding Mac Fib entry rd {} mac{} nexthop {} l2vni {}", rd, macaddress, nextHop, l2label);
+            fibDSWriter.addMacEntryToDS(rd, macaddress, prefix, Collections.singletonList(nextHop),
+                    encapType, l2label, routermac, RouteOrigin.BGP);
+            LOG.info("ADD: Added Mac Fib entry rd {} prefix {} nexthop {} label {}", rd, macaddress, nextHop, l2label);
+        } else if (addroute) {
+            LOG.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {} afi {}",
+                    rd, prefix, nextHop, label, afi);
             // TODO: modify addFibEntryToDS signature
-            fibDSWriter.addFibEntryToDS(rd, macaddress, prefix + "/" + plen, Collections.singletonList(nextHop),
-                    encapType, label, l3vni, routermac, RouteOrigin.BGP);
+            List<String> nextHopList = Collections.singletonList(nextHop);
+            fibDSWriter.addFibEntryToDS(rd, macaddress, prefix + "/" + plen, nextHopList, encapType, label, l3vni,
+                                        routermac, RouteOrigin.BGP);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
+            String vpnName = BgpUtil.getVpnNameFromRd(dataBroker, rd);
+            if (vpnName != null) {
+                vpnLinkService.leakRouteIfNeeded(vpnName, prefix, nextHopList, label, RouteOrigin.BGP,
+                                                 NwConstants.ADD_FLOW);
+            }
+        }
+    }
+
+    public static void onUpdateWithdrawRoute(protocol_type protocolType,
+                                             String rd,
+                                             String prefix,
+                                             int plen,
+                                             String nextHop,
+                                             String macaddress)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        long vni = 0L;
+        boolean macupdate = false;
+        if (protocolType.equals(protocol_type.PROTOCOL_EVPN)) {
+            VpnInstanceOpDataEntry vpnInstanceOpDataEntry = BgpUtil.getVpnInstanceOpData(dataBroker, rd);
+            if (vpnInstanceOpDataEntry != null) {
+                vni = vpnInstanceOpDataEntry.getL3vni();
+                if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
+                    LOG.debug("Got RT2 withdraw for RD %s from tep %s with mac %s remote RD %s",
+                            vpnInstanceOpDataEntry.getVpnInstanceName(), vni, nextHop, macaddress, rd);
+                    deleteTepfromElanDS(rd, nextHop, macaddress);
+                    LOG.debug("For rd %s. skipping fib update", rd);
+                    macupdate = true;
+                }
+            } else {
+                LOG.error("No corresponding vpn instance found for rd {}. Aborting.", rd);
+                return;
+            }
+        }
+        if (macupdate) {
+            LOG.info("Removing Mac Fib entry rd {} mac{} nexthop {} ", rd, macaddress, nextHop);
+            fibDSWriter.removeMacEntryFromDS(rd, macaddress);
+            LOG.info("Removed Mac Fib entry rd {} prefix {} nexthop {} ", rd, macaddress, nextHop);
+        } else {
+            LOG.info("REMOVE: Removing Fib entry rd {} prefix {}", rd, prefix);
+            fibDSWriter.removeOrUpdateFibEntryFromDS(rd, prefix + "/" + plen, nextHop);
+            LOG.info("REMOVE: Removed Fib entry rd {} prefix {}", rd, prefix);
+        }
+    }
+
+    //TODO: below function is for testing purpose with cli
+    public static void onUpdateWithdrawRoute(String rd, String prefix, int plen, String nexthop) {
+        LOG.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
+        fibDSWriter.removeOrUpdateFibEntryFromDS(rd, prefix + "/" + plen, nexthop);
+        String vpnName = BgpUtil.getVpnNameFromRd(dataBroker, rd);
+        if (vpnName != null) {
+            vpnLinkService.leakRouteIfNeeded(vpnName, prefix, null /*nextHopList*/, 0 /*INVALID_LABEL*/,
+                                             RouteOrigin.BGP, NwConstants.DEL_FLOW);
         }
     }
 
@@ -1897,6 +2011,9 @@ public class BgpConfigurationManager {
                     Long label = net.getLabel();
                     int lbl = (label == null) ? 0 : label.intValue();
                     int l3vni = (net.getL3vni() == null) ? 0 : net.getL3vni().intValue();
+                    int l2vni = (net.getL2vni() == null) ? 0 : net.getL2vni().intValue();
+                    Long afi = net.getAfi();
+                    int afint = (afi == null) ? (int) af_afi.AFI_IP.getValue() : afi.intValue();
                     if (rd == null && lbl > 0) {
                         //LU prefix is being deleted.
                         rd = Integer.toString(lbl);
@@ -1910,7 +2027,8 @@ public class BgpConfigurationManager {
                     String routerMac = net.getRoutermac();
 
                     try {
-                        br.addPrefix(rd, pfxlen, nh, lbl, l3vni, BgpUtil.convertToThriftProtocolType(protocolType),
+                        br.addPrefix(rd, pfxlen, nh, lbl, l3vni, l2vni,
+                                BgpUtil.convertToThriftProtocolType(protocolType),
                                 ethernetTag, esi, macaddress, BgpUtil.convertToThriftEncapType(encapType), routerMac);
                     } catch (Exception e) {
                         LOG.error("Replay:addPfx() received exception", e);
@@ -1970,7 +2088,7 @@ public class BgpConfigurationManager {
         BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, iid);
     }
 
-    public synchronized void startConfig(String bgpHost, int thriftPort) {
+    public void startConfig(String bgpHost, int thriftPort) {
         InstanceIdentifier.InstanceIdentifierBuilder<ConfigServer> iib =
                 InstanceIdentifier.builder(Bgp.class).child(ConfigServer.class);
         InstanceIdentifier<ConfigServer> iid = iib.build();
@@ -1980,7 +2098,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void startBgp(long as, String routerId, int spt, boolean fbit) {
+    public void startBgp(long as, String routerId, int spt, boolean fbit) {
         IpAddress rid = (routerId == null) ? null : new IpAddress(routerId.toCharArray());
         Long staleTime = (long) spt;
         InstanceIdentifier.InstanceIdentifierBuilder<AsId> iib =
@@ -1993,7 +2111,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void addLogging(String fileName, String logLevel) {
+    public void addLogging(String fileName, String logLevel) {
         InstanceIdentifier.InstanceIdentifierBuilder<Logging> iib =
                 InstanceIdentifier.builder(Bgp.class).child(Logging.class);
         InstanceIdentifier<Logging> iid = iib.build();
@@ -2002,7 +2120,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void addGracefulRestart(int staleTime) {
+    public void addGracefulRestart(int staleTime) {
         InstanceIdentifier.InstanceIdentifierBuilder<GracefulRestart> iib =
                 InstanceIdentifier.builder(Bgp.class).child(GracefulRestart.class);
         InstanceIdentifier<GracefulRestart> iid = iib.build();
@@ -2011,7 +2129,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void addNeighbor(
+    public void addNeighbor(
             String nbrIp, long remoteAs, @Nullable final TcpMd5SignaturePasswordType md5Secret) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<Neighbors> iib =
@@ -2027,7 +2145,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     } // public addNeighbor(nbrIp, remoteAs, md5Secret)
 
-    public synchronized void addUpdateSource(String nbrIp, String srcIp) {
+    public void addUpdateSource(String nbrIp, String srcIp) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         Ipv4Address srcAddr = new Ipv4Address(srcIp);
         InstanceIdentifier.InstanceIdentifierBuilder<UpdateSource> iib =
@@ -2040,7 +2158,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void addEbgpMultihop(String nbrIp, int hops) {
+    public void addEbgpMultihop(String nbrIp, int hops) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<EbgpMultihop> iib =
                 InstanceIdentifier.builder(Bgp.class)
@@ -2052,7 +2170,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void addAddressFamily(String nbrIp, int afi, int safi) {
+    public void addAddressFamily(String nbrIp, int afi, int safi) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<AddressFamilies> iib =
                 InstanceIdentifier.builder(Bgp.class)
@@ -2064,17 +2182,15 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void addPrefix(String rd, String macAddress, String pfx, List<String> nhList,
-              VrfEntry.EncapType encapType, long lbl, long l3vni, long l2vni, String gatewayMac, int addressFamily) {
+    public void addPrefix(String rd, String macAddress, String pfx, List<String> nhList,
+              VrfEntry.EncapType encapType, long lbl, long l3vni, long l2vni, String gatewayMac) {
         for (String nh : nhList) {
             Ipv4Address nexthop = nh != null ? new Ipv4Address(nh) : null;
             Long label = lbl;
-            Long afi = (long) addressFamily;
             InstanceIdentifier<Networks> iid = InstanceIdentifier.builder(Bgp.class)
                     .child(Networks.class, new NetworksKey(pfx, rd)).build();
             NetworksBuilder networksBuilder = new NetworksBuilder().setRd(rd).setPrefixLen(pfx).setNexthop(nexthop)
-                                                .setLabel(label).setEthtag(BgpConstants.DEFAULT_ETH_TAG)
-                                                .setAfi(afi);
+                                                .setLabel(label).setEthtag(BgpConstants.DEFAULT_ETH_TAG);
             buildVpnEncapSpecificInfo(networksBuilder, encapType, label, l3vni, l2vni, macAddress, gatewayMac);
             update(iid, networksBuilder.build());
         }
@@ -2092,7 +2208,7 @@ public class BgpConfigurationManager {
     }
 
     // TODO: add LayerType as arg - supports command
-    public synchronized void addVrf(String rd, List<String> irts, List<String> erts, LayerType layerType) {
+    public void addVrf(String rd, List<String> irts, List<String> erts, LayerType layerType) {
         InstanceIdentifier.InstanceIdentifierBuilder<Vrfs> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Vrfs.class, new VrfsKey(rd));
@@ -2107,28 +2223,28 @@ public class BgpConfigurationManager {
         }
     }
 
-    public synchronized void stopConfig() {
+    public void stopConfig() {
         InstanceIdentifier.InstanceIdentifierBuilder<ConfigServer> iib =
                 InstanceIdentifier.builder(Bgp.class).child(ConfigServer.class);
         InstanceIdentifier<ConfigServer> iid = iib.build();
         delete(iid);
     }
 
-    public synchronized void stopBgp() {
+    public void stopBgp() {
         InstanceIdentifier.InstanceIdentifierBuilder<AsId> iib =
                 InstanceIdentifier.builder(Bgp.class).child(AsId.class);
         InstanceIdentifier<AsId> iid = iib.build();
         delete(iid);
     }
 
-    public synchronized void delLogging() {
+    public void delLogging() {
         InstanceIdentifier.InstanceIdentifierBuilder<Logging> iib =
                 InstanceIdentifier.builder(Bgp.class).child(Logging.class);
         InstanceIdentifier<Logging> iid = iib.build();
         delete(iid);
     }
 
-    public synchronized void delGracefulRestart() {
+    public void delGracefulRestart() {
         InstanceIdentifier.InstanceIdentifierBuilder<GracefulRestart> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(GracefulRestart.class);
@@ -2136,7 +2252,7 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    public synchronized void delNeighbor(String nbrIp) {
+    public void delNeighbor(String nbrIp) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<Neighbors> iib =
                 InstanceIdentifier.builder(Bgp.class)
@@ -2145,7 +2261,7 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    public synchronized void delUpdateSource(String nbrIp) {
+    public void delUpdateSource(String nbrIp) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<UpdateSource> iib =
                 InstanceIdentifier.builder(Bgp.class)
@@ -2155,7 +2271,7 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    public synchronized void delEbgpMultihop(String nbrIp) {
+    public void delEbgpMultihop(String nbrIp) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<EbgpMultihop> iib =
                 InstanceIdentifier.builder(Bgp.class)
@@ -2165,7 +2281,7 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    public synchronized void delAddressFamily(String nbrIp, int afi, int safi) {
+    public void delAddressFamily(String nbrIp, int afi, int safi) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<AddressFamilies> iib =
                 InstanceIdentifier.builder(Bgp.class)
@@ -2175,7 +2291,7 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    public synchronized void delPrefix(String rd, String pfx, int afi) {
+    public void delPrefix(String rd, String pfx) {
         InstanceIdentifier.InstanceIdentifierBuilder<Networks> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Networks.class, new NetworksKey(pfx, rd));
@@ -2183,7 +2299,7 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    public synchronized void delVrf(String rd) {
+    public void delVrf(String rd) {
         InstanceIdentifier.InstanceIdentifierBuilder<Vrfs> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Vrfs.class, new VrfsKey(rd));
@@ -2191,7 +2307,7 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    public synchronized void setMultipathStatus(af_afi afi, af_safi safi, boolean enable) {
+    public void setMultipathStatus(af_afi afi, af_safi safi, boolean enable) {
         long lafi = afi.getValue();
         long lsafi = safi.getValue();
 
@@ -2205,7 +2321,7 @@ public class BgpConfigurationManager {
         update(iib.build(), dto);
     }
 
-    public synchronized void multipaths(String rd, int maxpath) {
+    public void multipaths(String rd, int maxpath) {
         InstanceIdentifier.InstanceIdentifierBuilder<VrfMaxpath> iib =
                 InstanceIdentifier
                         .builder(Bgp.class)
@@ -2323,6 +2439,7 @@ public class BgpConfigurationManager {
      */
     public static void deleteExternalFibRoutes() {
         totalExternalRoutes = 0;
+        totalExternalMacRoutes = 0;
         try {
             /*
             * at the time FIB route deletion, Wait till all PENDING write transaction
@@ -2354,17 +2471,24 @@ public class BgpConfigurationManager {
                 List<VrfTables> staleVrfTables = fibEntries.get().getVrfTables();
                 for (VrfTables vrfTable : staleVrfTables) {
                     rd = vrfTable.getRouteDistinguisher();
-                    if (vrfTable.getVrfEntry() == null) {
-                        LOG.error("deleteExternalFibRoutes::getVrfEntry is null");
-                        continue;
-                    }
-                    for (VrfEntry vrfEntry : vrfTable.getVrfEntry()) {
-                        if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
-                            //route cleanup is only meant for the routes learned through BGP.
-                            continue;
+                    if (vrfTable.getVrfEntry() != null) {
+                        for (VrfEntry vrfEntry : vrfTable.getVrfEntry()) {
+                            if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
+                                //route cleanup is only meant for the routes learned through BGP.
+                                continue;
+                            }
+                            totalExternalRoutes++;
+                            fibDSWriter.removeFibEntryFromDS(rd, vrfEntry.getDestPrefix());
                         }
-                        totalExternalRoutes++;
-                        fibDSWriter.removeFibEntryFromDS(rd, vrfEntry.getDestPrefix());
+                    } else if (vrfTable.getMacVrfEntry() != null) {
+                        for (MacVrfEntry macEntry : vrfTable.getMacVrfEntry()) {
+                            if (RouteOrigin.value(macEntry.getOrigin()) != RouteOrigin.BGP) {
+                                //route cleanup is only meant for the routes learned through BGP.
+                                continue;
+                            }
+                            totalExternalMacRoutes++;
+                            fibDSWriter.removeMacEntryFromDS(rd, macEntry.getMac());
+                        }
                     }
                 }
             } else {
@@ -2373,7 +2497,7 @@ public class BgpConfigurationManager {
         } catch (InterruptedException | ReadFailedException e) {
             LOG.error("deleteExternalFibRoutes:: error ", e);
         }
-        LOG.debug("deleted {} fib entries ", totalExternalRoutes);
+        LOG.debug("deleted {} fib entries {} mac entries", totalExternalRoutes, totalExternalMacRoutes);
     }
 
     //map<rd, map<prefix/len:nexthop, label>>
@@ -2381,10 +2505,63 @@ public class BgpConfigurationManager {
         return staledFibEntriesMap;
     }
 
-    //TODO: below function is for testing purpose with cli
-    public static void onUpdateWithdrawRoute(String rd, String prefix, int plen, String nexthop) {
-        LOG.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
-        fibDSWriter.removeOrUpdateFibEntryFromDS(rd, prefix + "/" + plen, nexthop);
+    public static Map<String, Map<String, Long>> getStaledMacEntriesMap() {
+        return staledMacEntriesMap;
+    }
+
+    public static Map<String, Map<String, Map<String, Long>>> getRt2TepMap() {
+        return rt2TepMap;
+    }
+
+    public static boolean addToRt2TepMap(String rd, String tepIp, String mac, Long l2vni) {
+        boolean isFirstMacUpdateFromTep = false;
+        if (getRt2TepMap().containsKey(rd)) {
+            if (getRt2TepMap().get(rd).containsKey(tepIp)) {
+                LOG.debug("RT2 with mac {} l2vni {} from existing rd {} and tep-ip {}. No Elan DS write required",
+                        mac, l2vni, rd, tepIp);
+                getRt2TepMap().get(rd).get(tepIp).put(mac, l2vni);
+            } else {
+                LOG.debug("RT2 with mac {} l2vni {} from existing rd {} and new tep-ip {}",
+                        mac, rd, tepIp);
+                isFirstMacUpdateFromTep = true;
+                Map<String, Long> macList = new HashMap<>();
+                macList.put(mac, l2vni);
+                getRt2TepMap().get(rd).put(tepIp, macList);
+            }
+        } else {
+            LOG.debug("RT2 with mac {} l2vni {} from new rd {} and tep ip {}",
+                    mac, l2vni, rd, tepIp);
+            isFirstMacUpdateFromTep = true;
+            Map<String, Long> macList = new HashMap<>();
+            macList.put(mac, l2vni);
+            Map<String, Map<String, Long>> tepIpMacMap = new HashMap<>();
+            tepIpMacMap.put(tepIp, macList);
+            getRt2TepMap().put(rd, tepIpMacMap);
+        }
+        return isFirstMacUpdateFromTep;
+    }
+
+    public static boolean deleteFromRt2TepMap(String rd, String tepIp, String mac) {
+        boolean isLastMacUpdateFromTep = false;
+        LOG.debug("RT2 withdraw with rd {} mac {} tep-ip {} ", rd, mac, tepIp);
+        if (getRt2TepMap().containsKey(rd)) {
+            if (getRt2TepMap().get(rd).containsKey(tepIp)) {
+                if (getRt2TepMap().get(rd).get(tepIp).containsKey(mac)) {
+                    LOG.debug("RT2 Withdraw : Removing the mac {} from Map", mac);
+                    getRt2TepMap().get(rd).get(tepIp).remove(mac);
+                    if (getRt2TepMap().get(rd).get(tepIp).isEmpty()) {
+                        isLastMacUpdateFromTep = true;
+                        LOG.debug("RT2 Withdraw : Removing the tep-ip {} from Map", tepIp);
+                        getRt2TepMap().get(rd).remove(tepIp);
+                        if (getRt2TepMap().get(rd).isEmpty()) {
+                            LOG.debug("RT2 Withdraw : Removing the rd {} from Map", rd);
+                            getRt2TepMap().remove(rd);
+                        }
+                    }
+                }
+            }
+        }
+        return isLastMacUpdateFromTep;
     }
 
     public boolean isBgpConnected() {

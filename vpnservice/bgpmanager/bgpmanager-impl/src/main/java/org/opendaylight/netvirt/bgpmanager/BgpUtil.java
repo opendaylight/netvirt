@@ -23,8 +23,10 @@ import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.batching.ActionableResource;
 import org.opendaylight.genius.utils.batching.ActionableResourceImpl;
@@ -34,7 +36,17 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.encap_type;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.BgpControlPlaneType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.EncapType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTeps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTepsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTepsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.EvpnRdToNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetwork;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetworkKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -54,6 +66,29 @@ public class BgpUtil {
     private static int txChainAttempts = 0;
 
     private static BlockingQueue<ActionableResource> bgpResourcesBufferQ = new LinkedBlockingQueue<>();
+
+    /** get a translation from prefix ipv6 to afi<br>.
+    * "ffff::1/128" sets afi as 2 because is an IPv6 value
+    * @param argPrefix ip address as ipv4 or ipv6
+    * @return afi 1 for ipv4 2 for ipv2
+    */
+    public static int getAFItranslatedfromPrefix(String argPrefix) {
+        int retValue = 1;//default afiValue is 1 (= ipv4)
+        try {
+            if (argPrefix == null) {
+                return retValue;
+            }
+            String ipValue =  argPrefix;
+            if (argPrefix.lastIndexOf("/") > 0) { /*then the prefix includes mask definition*/
+                ipValue =  argPrefix.substring(0, argPrefix.lastIndexOf("/"));
+            }
+            java.net.Inet6Address.getByName(ipValue);
+        } catch (java.net.UnknownHostException e) {
+            /*if exception is catched then the prefix is not an IPv6*/
+            retValue = 1;//default afiValue is 1 (= ipv4)
+        }
+        return retValue;
+    }
 
     // return number of pending Write Transactions with BGP-Util (no read)
     public static int getGetPendingWrTransaction() {
@@ -137,21 +172,40 @@ public class BgpUtil {
 
     // Convert ProtocolType to thrift protocol_type
     public static protocol_type convertToThriftProtocolType(BgpControlPlaneType protocolType) {
-        // TODO: add implementation
-        return protocol_type.PROTOCOL_ANY;
+        switch (protocolType) {
+            case PROTOCOLLU:
+                return protocol_type.PROTOCOL_LU;
+            case PROTOCOLL3VPN:
+                return protocol_type.PROTOCOL_L3VPN;
+            case PROTOCOLEVPN:
+                return protocol_type.PROTOCOL_EVPN;
+            default:
+                return protocol_type.PROTOCOL_ANY;
+        }
     }
 
     // Convert EncapType to thrift encap_type
     public static encap_type convertToThriftEncapType(EncapType encapType) {
-        // TODO: add implementation
-        return encap_type.MPLS;
+        switch (encapType) {
+            case L2TPV3OVERIP:
+                return encap_type.L2TPV3_OVER_IP;
+            case GRE:
+                return encap_type.GRE;
+            case IPINIP:
+                return encap_type.IP_IN_IP;
+            case VXLAN:
+                return encap_type.VXLAN;
+            case MPLS:
+            default:
+                return encap_type.MPLS;
+        }
     }
 
     static VpnInstanceOpDataEntry getVpnInstanceOpData(DataBroker broker, String rd) throws InterruptedException,
             ExecutionException, TimeoutException {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = getVpnInstanceOpDataIdentifier(rd);
         Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = MDSALUtil.read(broker,
-                LogicalDatastoreType.OPERATIONAL, id);
+                LogicalDatastoreType.CONFIGURATION, id);
         if (vpnInstanceOpData.isPresent()) {
             return vpnInstanceOpData.get();
         }
@@ -161,6 +215,76 @@ public class BgpUtil {
     public static InstanceIdentifier<VpnInstanceOpDataEntry> getVpnInstanceOpDataIdentifier(String rd) {
         return InstanceIdentifier.builder(VpnInstanceOpData.class)
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd)).build();
+    }
+
+    static String getElanNamefromRd(DataBroker broker, String rd)  {
+        InstanceIdentifier<EvpnRdToNetwork> id = getEvpnRdToNetworkIdentifier(rd);
+        Optional<EvpnRdToNetwork> evpnRdToNetworkOpData = MDSALUtil.read(broker,
+                LogicalDatastoreType.OPERATIONAL, id);
+        if (evpnRdToNetworkOpData.isPresent()) {
+            return evpnRdToNetworkOpData.get().getNetworkId();
+        }
+        return null;
+    }
+
+    public static InstanceIdentifier<EvpnRdToNetwork> getEvpnRdToNetworkIdentifier(String rd) {
+        return InstanceIdentifier.builder(EvpnRdToNetworks.class)
+                .child(EvpnRdToNetwork.class, new EvpnRdToNetworkKey(rd)).build();
+    }
+
+    public static void addTepToElanInstance(DataBroker broker, String rd, String tepIp) {
+        if (rd == null || tepIp == null) {
+            LOG.error("addTepToElanInstance : Null parameters returning");
+            return;
+        }
+        String elanName = getElanNamefromRd(broker, rd);
+        if (elanName == null) {
+            LOG.error("Elan null while processing RT2 for RD {}", rd);
+            return;
+        }
+        LOG.debug("Adding tepIp {} to elan {}", tepIp, elanName);
+        InstanceIdentifier<ExternalTeps> externalTepsId = getExternalTepsIdentifier(elanName, tepIp);
+        ExternalTepsBuilder externalTepsBuilder = new ExternalTepsBuilder();
+        ExternalTepsKey externalTepsKey = externalTepsId.firstKeyOf(ExternalTeps.class);
+        externalTepsBuilder.setKey(externalTepsKey);
+        externalTepsBuilder.setTepIp(externalTepsKey.getTepIp());
+        BgpUtil.update(dataBroker, LogicalDatastoreType.CONFIGURATION, externalTepsId, externalTepsBuilder.build());
+    }
+
+    public static void deleteTepFromElanInstance(DataBroker broker, String rd, String tepIp) {
+        if (rd == null || tepIp == null) {
+            LOG.error("deleteTepFromElanInstance : Null parameters returning");
+            return;
+        }
+        String elanName = getElanNamefromRd(broker, rd);
+        if (elanName == null) {
+            LOG.error("Elan null while processing RT2 withdraw for RD {}", rd);
+            return;
+        }
+        LOG.debug("Deleting tepIp {} from elan {}", tepIp, elanName);
+        InstanceIdentifier<ExternalTeps> externalTepsId = getExternalTepsIdentifier(elanName, tepIp);
+        BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, externalTepsId);
+    }
+
+    public static InstanceIdentifier<ExternalTeps> getExternalTepsIdentifier(String elanInstanceName, String tepIp) {
+        IpAddress tepAdress = (tepIp == null) ? null : new IpAddress(tepIp.toCharArray());
+        return InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class,
+                new ElanInstanceKey(elanInstanceName)).child(ExternalTeps.class,
+                new ExternalTepsKey(tepAdress)).build();
+    }
+
+    public static String getVpnNameFromRd(DataBroker dataBroker2, String rd) {
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.create(VpnInstanceOpData.class)
+                                                                          .child(VpnInstanceOpDataEntry.class,
+                                                                                 new VpnInstanceOpDataEntryKey(rd));
+        try {
+            Optional<VpnInstanceOpDataEntry> vpnInstanceOpData =
+                SingleTransactionDataBroker.syncReadOptional(dataBroker2, LogicalDatastoreType.OPERATIONAL, id);
+            return vpnInstanceOpData.isPresent() ? vpnInstanceOpData.get().getVpnInstanceName() : null;
+        } catch (ReadFailedException e) {
+            LOG.warn("Exception while retrieving VpnInstance name for RD {}", rd, e);
+        }
+        return null;
     }
 }
 

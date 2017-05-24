@@ -8,14 +8,23 @@
 package org.opendaylight.netvirt.elan.utils;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.MapDifference.ValueDifference;
+import com.google.common.collect.Maps;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -29,6 +38,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.met
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.DpnEndpoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfoKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.dpn.teps.info.tunnel.end.points.TzMembership;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.TransportZones;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.TransportZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.TransportZoneBuilder;
@@ -38,6 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.SubnetsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.Vteps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.VtepsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.VtepsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces;
@@ -52,7 +67,7 @@ public class TransportZoneNotificationUtil {
     private static final String TUNNEL_PORT = "tunnel_port";
     private static final String LOCAL_IP = "local_ip";
     private static final String LOCAL_IPS = "local_ips";
-    private static final String IP_NETWORK_ZONE_NAME_DELIMITER = "-";
+    private static final char IP_NETWORK_ZONE_NAME_DELIMITER = '-';
     private static final String ALL_SUBNETS_GW = "0.0.0.0";
     private static final String ALL_SUBNETS = "0.0.0.0/0";
     private final DataBroker dataBroker;
@@ -103,22 +118,27 @@ public class TransportZoneNotificationUtil {
         return tzb.build();
     }
 
-    private void updateTransportZone(TransportZone zone, BigInteger dpnId) throws TransactionCommitFailedException {
+    private void updateTransportZone(TransportZone zone, BigInteger dpnId, WriteTransaction tx)
+            throws TransactionCommitFailedException {
         InstanceIdentifier<TransportZone> path = InstanceIdentifier.builder(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zone.getZoneName())).build();
 
-        SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, path, zone);
+        if (tx == null) {
+            SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, path, zone);
+        } else {
+            tx.merge(LogicalDatastoreType.CONFIGURATION, path, zone);
+        }
         LOG.info("Transport zone {} updated due to dpn {} handling.", zone.getZoneName(), dpnId);
     }
 
     public void updateTransportZone(String zoneNamePrefix, BigInteger dpnId) {
         Map<String, String> localIps = getDpnLocalIps(dpnId);
         if (localIps != null && !localIps.isEmpty()) {
-            LOG.debug("Will use local_ips for transport zone update for dpn {} and zone name prefix {}",
-                    dpnId, zoneNamePrefix);
+            LOG.debug("Will use local_ips for transport zone update for dpn {} and zone name prefix {}", dpnId,
+                    zoneNamePrefix);
             for (String localIp : localIps.keySet()) {
                 String underlayNetworkName = localIps.get(localIp);
-                String zoneName = zoneNamePrefix + IP_NETWORK_ZONE_NAME_DELIMITER + underlayNetworkName;
+                String zoneName = getTzNameForUnderlayNetwork(zoneNamePrefix, underlayNetworkName);
                 updateTransportZone(zoneName, dpnId, localIp);
             }
         } else {
@@ -126,8 +146,12 @@ public class TransportZoneNotificationUtil {
         }
     }
 
-    @SuppressWarnings("checkstyle:IllegalCatch")
     private void updateTransportZone(String zoneName, BigInteger dpnId, String localIp) {
+        updateTransportZone(zoneName, dpnId, localIp, null);
+    }
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    private void updateTransportZone(String zoneName, BigInteger dpnId, String localIp, WriteTransaction tx) {
         InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zoneName));
 
@@ -140,13 +164,162 @@ public class TransportZoneNotificationUtil {
 
         try {
             if (addVtep(zone, ALL_SUBNETS, dpnId, localIp)) {
-                updateTransportZone(zone, dpnId);
+                updateTransportZone(zone, dpnId, tx);
             }
         } catch (Exception e) {
             LOG.error("Failed to add tunnels for dpn {} in zone {}", dpnId, zoneName, e);
         }
     }
 
+    /**
+     * Update transport zones based on local_ips TEP ips mapping to underlay
+     * networks.<br>
+     * Deleted local_ips will be removed from the VTEP list of the corresponding
+     * transport zones.<br>
+     * Added local_ips will be added to all transport zones currently associated
+     * with the TEP<br>
+     * local_ips for whom the underlay network mapping has been changed will be
+     * updated in the VTEP lists of the corresponding transport zones.
+     *
+     * @param origNode
+     *            original OVS node
+     * @param updatedNode
+     *            updated OVS node
+     * @param managerNodeId
+     *            uuid of the OVS manager node
+     */
+    public void handleOvsdbNodeUpdate(Node origNode, Node updatedNode, String managerNodeId) {
+        Map<String,
+                String> origLocalIpMap = java.util.Optional
+                        .ofNullable(elanBridgeManager.getOpenvswitchOtherConfigMap(origNode, LOCAL_IPS))
+                        .orElse(Collections.emptyMap());
+        Map<String,
+                String> updatedLocalIpMap = java.util.Optional
+                        .ofNullable(elanBridgeManager.getOpenvswitchOtherConfigMap(updatedNode, LOCAL_IPS))
+                        .orElse(Collections.emptyMap());
+        MapDifference<String, String> mapDiff = Maps.difference(origLocalIpMap, updatedLocalIpMap);
+        if (mapDiff.areEqual()) {
+            return;
+        }
+
+        java.util.Optional<BigInteger> dpIdOpt = elanBridgeManager.getDpIdFromManagerNodeId(managerNodeId);
+        if (!dpIdOpt.isPresent()) {
+            LOG.debug("No DPN id found for node {}", managerNodeId);
+            return;
+        }
+
+        BigInteger dpId = dpIdOpt.get();
+        Optional<DPNTEPsInfo> dpnTepsInfoOpt = getDpnTepsInfo(dpId);
+        if (!dpnTepsInfoOpt.isPresent()) {
+            LOG.debug("No DPNTEPsInfo found for DPN id {}", dpId);
+            return;
+        }
+
+        List<TunnelEndPoints> tunnelEndPoints = dpnTepsInfoOpt.get().getTunnelEndPoints();
+        if (tunnelEndPoints == null || tunnelEndPoints.isEmpty()) {
+            LOG.debug("No tunnel endpoints defined for DPN id {}", dpId);
+            return;
+        }
+
+        Set<String> zonePrefixes = new HashSet<>();
+        Map<String, List<String>> tepTzMap = tunnelEndPoints.stream().collect(Collectors
+                .toMap(tep -> String.valueOf(tep.getIpAddress().getValue()), tep -> getTepTransportZoneNames(tep)));
+        LOG.trace("Transport zone prefixes {}", tepTzMap);
+
+        WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+        handleRemovedLocalIps(mapDiff.entriesOnlyOnLeft(), dpId, zonePrefixes, tepTzMap, tx);
+        handleChangedLocalIps(mapDiff.entriesDiffering(), dpId, zonePrefixes, tepTzMap, tx);
+        handleAddedLocalIps(mapDiff.entriesOnlyOnRight(), dpId, zonePrefixes, tx);
+        tx.submit();
+    }
+
+    private void handleAddedLocalIps(Map<String, String> addedEntries, BigInteger dpId, Set<String> zonePrefixes,
+            WriteTransaction tx) {
+        if (addedEntries == null || addedEntries.isEmpty()) {
+            LOG.trace("No added local_ips found for DPN {}", dpId);
+            return;
+        }
+
+        LOG.debug("Added local_ips {} on DPN {}", addedEntries.keySet(), dpId);
+        addedEntries.forEach((ipAddress, underlayNetworkName) -> {
+            zonePrefixes.forEach(zonePrefix -> {
+                String zoneName = getTzNameForUnderlayNetwork(zonePrefix, underlayNetworkName);
+                updateTransportZone(zoneName, dpId, ipAddress, tx);
+            });
+        });
+    }
+
+    private void handleChangedLocalIps(Map<String, ValueDifference<String>> changedEntries, BigInteger dpId,
+            Set<String> zonePrefixes, Map<String, List<String>> tepTzMap, WriteTransaction tx) {
+        if (changedEntries == null || changedEntries.isEmpty()) {
+            LOG.trace("No changed local_ips found for DPN {}", dpId);
+            return;
+        }
+
+        LOG.debug("Changing underlay network mapping for local_ips {} on DPN {}", changedEntries.keySet(), dpId);
+        changedEntries.forEach((ipAddress, underlayNetworkDiff) -> {
+            java.util.Optional.ofNullable(tepTzMap.get(ipAddress)).map(zoneNames -> {
+                zoneNames.forEach(zoneName -> {
+                    String removedUnderlayNetwork = underlayNetworkDiff.leftValue();
+                    String addedUnderlayNetwork = underlayNetworkDiff.rightValue();
+                    Optional<String> zonePrefixOpt = getZonePrefixForUnderlayNetwork(zoneName, removedUnderlayNetwork);
+                    if (zonePrefixOpt.isPresent()) {
+                        String zonePrefix = zonePrefixOpt.get();
+                        removeVtep(zoneName, dpId, ipAddress, tx);
+                        zonePrefixes.add(zonePrefix);
+                        String newZoneName = getTzNameForUnderlayNetwork(zonePrefix, addedUnderlayNetwork);
+                        updateTransportZone(newZoneName, dpId, ipAddress, tx);
+                    }
+                });
+                return zoneNames;
+            });
+        });
+    }
+
+    private void handleRemovedLocalIps(Map<String, String> removedEntries, BigInteger dpId, Set<String> zonePrefixes,
+            Map<String, List<String>> tepTzMap, WriteTransaction tx) {
+        if (removedEntries == null || removedEntries.isEmpty()) {
+            LOG.trace("No removed local_ips found on DPN {}", dpId);
+            return;
+        }
+
+        LOG.debug("Removed local_ips {} for DPN {}", removedEntries.keySet(), dpId);
+        removedEntries.forEach((ipAddress, underlayNetworkName) -> {
+            java.util.Optional.ofNullable(tepTzMap.get(ipAddress)).map(zoneNames -> {
+                zoneNames.forEach(zoneName -> {
+                    Optional<String> zonePrefix = getZonePrefixForUnderlayNetwork(zoneName, underlayNetworkName);
+                    if (zonePrefix.isPresent()) {
+                        removeVtep(zoneName, dpId, ipAddress, tx);
+                        zonePrefixes.add(zonePrefix.get());
+                    }
+                });
+                return zoneNames;
+            });
+        });
+    }
+
+    private List<String> getTepTransportZoneNames(TunnelEndPoints tep) {
+        List<TzMembership> tzMembershipList = tep.getTzMembership();
+        if (tzMembershipList == null) {
+            LOG.debug("No TZ membership exist for TEP ip {}", tep.getIpAddress().getValue());
+            return Collections.emptyList();
+        }
+
+        return tzMembershipList.stream().map(tzMembership -> tzMembership.getZoneName()).distinct()
+                .collect(Collectors.toList());
+    }
+
+    private Optional<DPNTEPsInfo> getDpnTepsInfo(BigInteger dpId) {
+        InstanceIdentifier<DPNTEPsInfo> identifier = InstanceIdentifier.builder(DpnEndpoints.class)
+                .child(DPNTEPsInfo.class, new DPNTEPsInfoKey(dpId)).build();
+        try {
+            return SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    identifier);
+        } catch (ReadFailedException e) {
+            LOG.warn("Failed to read DPNTEPsInfo for DPN id {}", dpId);
+            return Optional.absent();
+        }
+    }
 
     /**
      * Tries to add a vtep for a transport zone.
@@ -164,15 +337,30 @@ public class TransportZoneNotificationUtil {
         if (localIp != null) {
             Optional<IpAddress> nodeIp = Optional.of(new IpAddress(localIp.toCharArray()));
             if (nodeIp.isPresent()) {
-                VtepsBuilder vtepsBuilder =
-                        new VtepsBuilder().setDpnId(dpnId).setIpAddress(nodeIp.get()).setPortname(TUNNEL_PORT)
-                        .setOptionOfTunnel(elanConfig.isUseOfTunnels());
+                VtepsBuilder vtepsBuilder = new VtepsBuilder().setDpnId(dpnId).setIpAddress(nodeIp.get())
+                        .setPortname(TUNNEL_PORT).setOptionOfTunnel(elanConfig.isUseOfTunnels());
                 subnets.getVteps().add(vtepsBuilder.build());
                 return true;
             }
         }
 
         return false;
+    }
+
+    private void removeVtep(String zoneName, BigInteger dpId, String localIp, WriteTransaction tx) {
+        InstanceIdentifier<Vteps> path = InstanceIdentifier.builder(TransportZones.class)
+                .child(TransportZone.class, new TransportZoneKey(zoneName))
+                .child(Subnets.class, new SubnetsKey(new IpPrefix(ALL_SUBNETS.toCharArray())))
+                .child(Vteps.class, new VtepsKey(dpId, TUNNEL_PORT)).build();
+        if (tx == null) {
+            try {
+                SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
+            } catch (TransactionCommitFailedException e) {
+                LOG.error("Failed to remove VTEP {} from transport-zone {} for DPN {}", localIp, zoneName, dpId);
+            }
+        } else {
+            tx.delete(LogicalDatastoreType.CONFIGURATION, path);
+        }
     }
 
     // search for relevant subnets for the given subnetIP, add one if it is
@@ -242,9 +430,8 @@ public class TransportZoneNotificationUtil {
             return Optional.absent();
         }
 
-        InstanceIdentifier<Node> nodeId =
-                ((InstanceIdentifier<OvsdbBridgeAugmentation>) bridgeRefEntry.getBridgeReference().getValue())
-                        .firstIdentifierOf(Node.class);
+        InstanceIdentifier<Node> nodeId = ((InstanceIdentifier<OvsdbBridgeAugmentation>) bridgeRefEntry
+                .getBridgeReference().getValue()).firstIdentifierOf(Node.class);
 
         // FIXME: Read this through a cache
         Node node = mdsalUtils.read(LogicalDatastoreType.OPERATIONAL, nodeId);
@@ -255,5 +442,14 @@ public class TransportZoneNotificationUtil {
         }
 
         return Optional.of(node);
+    }
+
+    private String getTzNameForUnderlayNetwork(String zoneNamePrefix, String underlayNetworkName) {
+        return zoneNamePrefix + IP_NETWORK_ZONE_NAME_DELIMITER + underlayNetworkName;
+    }
+
+    private Optional<String> getZonePrefixForUnderlayNetwork(String zoneName, String underlayNetworkName) {
+        String[] zoneParts = zoneName.split(IP_NETWORK_ZONE_NAME_DELIMITER + underlayNetworkName);
+        return zoneParts != null && zoneParts.length == 2 ? Optional.of(zoneParts[0]) : Optional.absent();
     }
 }

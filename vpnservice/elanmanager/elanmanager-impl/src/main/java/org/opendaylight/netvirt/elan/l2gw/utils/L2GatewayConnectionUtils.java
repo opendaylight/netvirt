@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.elan.l2gw.utils;
 
+import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
@@ -161,7 +163,7 @@ public class L2GatewayConnectionUtils {
             });
             return;
         }
-        if (!ElanUtils.isVxlan(elanInstance) && !ElanUtils.isVxlanSegment(elanInstance)) {
+        if (!isVxlanNetworkOrVxlanSegment(elanInstance)) {
             LOG.error("Neutron network with id {} is not VxlanNetwork", networkUuid.getValue());
         } else {
             Uuid l2GatewayId = input.getL2gatewayId();

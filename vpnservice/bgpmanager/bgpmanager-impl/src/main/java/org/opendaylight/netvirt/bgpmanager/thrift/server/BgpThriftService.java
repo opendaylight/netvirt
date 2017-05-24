@@ -9,6 +9,9 @@
 package org.opendaylight.netvirt.bgpmanager.thrift.server;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.server.ServerContext;
@@ -24,6 +27,7 @@ import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager;
 import org.opendaylight.netvirt.bgpmanager.FibDSWriter;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.BgpUpdater;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.slf4j.Logger;
@@ -130,9 +134,10 @@ public class BgpThriftService {
                                       int ethtag,
                                       String esi,
                                       String macaddress,
-                                      int l2label,
                                       int l3label,
-                                      String routermac) {
+                                      int l2label,
+                                      String routermac,
+                                      af_afi afi) {
             try {
                 LOGGER.debug("Update on push route : rd {} prefix {} plen {}", rd, prefix, plen);
 
@@ -147,7 +152,9 @@ public class BgpThriftService {
                         esi,
                         macaddress,
                         l3label,
-                        routermac);
+                        l2label,
+                        routermac,
+                        afi);
 
             } catch (Throwable e) {
                 LOGGER.error("failed to handle update route ", e);
@@ -162,12 +169,25 @@ public class BgpThriftService {
                                           int ethtag,
                                           String esi,
                                           String macaddress,
+                                          int l3label,
                                           int l2label,
-                                          int l3label) {
-            LOGGER.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
-            LOGGER.info("REMOVE: Removing Fib entry rd {} prefix {} nexthop {}", rd, prefix, nexthop);
-            fibDSWriter.removeOrUpdateFibEntryFromDS(rd, prefix + "/" + plen, nexthop);
-            LOGGER.info("REMOVE: Removed Fib entry rd {} prefix {} nexthop {}", rd, prefix, nexthop);
+                                          af_afi afi) {
+            try {
+                LOGGER.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
+                BgpConfigurationManager.onUpdateWithdrawRoute(
+                        protocolType,
+                        rd,
+                        prefix,
+                        plen,
+                        nexthop,
+                        macaddress);
+            } catch (InterruptedException e1) {
+                LOGGER.error("Interrupted exception for withdraw route", e1);
+            } catch (ExecutionException e2) {
+                LOGGER.error("Execution exception for withdraw route", e2);
+            } catch (TimeoutException e3) {
+                LOGGER.error("Timeout exception for withdraw route", e3);
+            }
         }
 
         public void onStartConfigResyncNotification() {

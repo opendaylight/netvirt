@@ -22,16 +22,19 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.sfc.classifier.providers.GeniusProvider;
 import org.opendaylight.netvirt.sfc.classifier.providers.NetvirtProvider;
+import org.opendaylight.netvirt.sfc.classifier.providers.OpenFlow13Provider;
 import org.opendaylight.netvirt.sfc.classifier.providers.SfcProvider;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.ClassifierEntry;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierRenderableEntry;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierState;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.rendered.service.paths.RenderedServicePath;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.sfc.sff.logical.rev160620.DpnIdType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.NetvirtsfcAclActions;
@@ -147,7 +150,13 @@ public class ConfigurationClassifierImpl implements ClassifierState {
                         destinationIp));
             });
             entries.add(ClassifierEntry.buildNodeEntry(nodeId));
-            entries.add(ClassifierEntry.buildPathEntry(nodeIdListEntry.getKey(), nsp, destinationIp));
+
+            // Get the nodeIp from the NodeId
+            DpnIdType dpnIdType = new DpnIdType(OpenFlow13Provider.getDpnIdFromNodeId(nodeId));
+            List<IpAddress> nodeIps = geniusProvider.getIpFromDpnId(dpnIdType);
+            String nodeIp = nodeIps.isEmpty() ? null : nodeIps.get(0).getIpv4Address().getValue();
+            entries.add(ClassifierEntry.buildPathEntry(nodeIdListEntry.getKey(), nsp, nodeIp));
+
             // Egress services must bind to egress ports. Since we dont know before-hand what
             // the egress ports will be, we will bind on all switch ports. If the packet
             // doesnt have NSH, it will be returned to the the egress dispatcher table.

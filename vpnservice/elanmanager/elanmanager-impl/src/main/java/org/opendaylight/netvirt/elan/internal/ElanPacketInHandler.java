@@ -26,6 +26,7 @@ import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
+import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -53,12 +54,15 @@ public class ElanPacketInHandler implements PacketProcessingListener {
     private final IInterfaceManager interfaceManager;
     private final ElanUtils elanUtils;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
+    private final EvpnUtils evpnUtils;
 
-    public ElanPacketInHandler(DataBroker dataBroker, final IInterfaceManager interfaceManager, ElanUtils elanUtils) {
+    public ElanPacketInHandler(DataBroker dataBroker, final IInterfaceManager interfaceManager, ElanUtils elanUtils,
+                               EvpnUtils evpnUtils) {
         broker = dataBroker;
         this.interfaceManager = interfaceManager;
         this.elanUtils = elanUtils;
         this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
+        this.evpnUtils = evpnUtils;
     }
 
     @Override
@@ -112,7 +116,12 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                             .setControllerLearnedForwardingEntryTimestamp(timeStamp)
                             .setIsStaticAddress(false).build();
                 }
-
+                if (srcIpAddress.isPresent()) {
+                    String prefix = srcIpAddress.get().getIpv4Address().getValue();
+                    InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
+                    ElanInstance elanInstance = elanUtils.getElanInstanceByName(broker, elanName);
+                    evpnUtils.advertisePrefix(elanInstance, macAddress, prefix, interfaceName, interfaceInfo.getDpId());
+                }
                 final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 enqueueJobForMacSpecificTasks(macAddress, elanTag, interfaceName, elanName, physAddress, oldMacEntry,
                         newMacEntry, isVlanOrFlatProviderIface, portDataStoreCoordinator);

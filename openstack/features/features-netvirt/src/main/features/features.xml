@@ -40,8 +40,4 @@
     <bundle>mvn:org.opendaylight.netvirt/utils.neutron-utils/{{VERSION}}</bundle>
   </feature>
 
-  <feature name="odl-ovsdb-ui" description="OpenDaylight :: OVSDB :: DLUX Integration Plugin" version='${project.version}'>
-    <feature version="${dlux.version}">odl-dlux-core</feature>
-    <bundle>mvn:org.opendaylight.netvirt/ovsdb-ui-bundle/{{VERSION}}</bundle>
-  </feature>
 </features>

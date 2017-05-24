@@ -307,7 +307,8 @@ public class InterVpnLinkCache {
 
     public static List<InterVpnLinkDataComposite> getAllInterVpnLinks() {
         ConcurrentHashMap<String, InterVpnLinkDataComposite> cache =
-                (ConcurrentHashMap<String, InterVpnLinkDataComposite>) CacheUtil.getCache(UUID_2_IVPNLINK_CACHE_NAME);
+                (ConcurrentHashMap<String, InterVpnLinkDataComposite>)
+                    CacheUtil.getCache(IVPNLINK_NAME_2_IVPNLINK_CACHE_NAME);
         return (cache == null) ? Collections.emptyList()
                 : Collections.list(cache.elements());
     }

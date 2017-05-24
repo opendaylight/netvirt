@@ -38,9 +38,9 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
-import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
@@ -96,7 +96,7 @@ public class NaptSwitchHA {
     private final VpnRpcService vpnService;
     private final FibRpcService fibService;
     private final IFibManager fibManager;
-    private final INeutronVpnManager nvpnManager;
+    private final IElanService elanManager;
     private List<String> externalIpsCache;
     private HashMap<String, Long> externalIpsLabel;
     private final EvpnNaptSwitchHA evpnNaptSwitchHA;
@@ -115,7 +115,7 @@ public class NaptSwitchHA {
                         final FibRpcService fibService,
                         final IFibManager fibManager,
                         final EvpnNaptSwitchHA evpnNaptSwitchHA,
-                        final INeutronVpnManager nvpnManager,
+                        final IElanService elanManager,
                         final SnatServiceManager natServiceManager,
                         final NatserviceConfig config) {
         this.dataBroker = dataBroker;
@@ -130,7 +130,7 @@ public class NaptSwitchHA {
         this.fibService = fibService;
         this.fibManager = fibManager;
         this.evpnNaptSwitchHA = evpnNaptSwitchHA;
-        this.nvpnManager = nvpnManager;
+        this.elanManager = elanManager;
         this.natServiceManager = natServiceManager;
         if (config != null) {
             this.natMode = config.getNatMode();
@@ -261,10 +261,12 @@ public class NaptSwitchHA {
         }
 
         //Remove Fib entries,tables 20->44 ,36-> 44
+        String gwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
         if (externalIpsLabel != null && !externalIpsLabel.isEmpty()) {
             for (String externalIp : externalIpsLabel.keySet()) {
                 Long label = externalIpsLabel.get(externalIp);
-                externalRouterListener.delFibTsAndReverseTraffic(naptSwitch, routerId, externalIp, vpnName, label);
+                externalRouterListener.delFibTsAndReverseTraffic(naptSwitch, routerId, externalIp, vpnName, label,
+                        gwMacAddress);
                 LOG.debug("Successfully removed fib entries in old naptswitch {} for router {} and "
                         + "externalIps {} label {}", naptSwitch, routerId, externalIp, label);
             }
@@ -274,7 +276,7 @@ public class NaptSwitchHA {
                 Uuid networkId = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
                 if (networkId != null) {
                     externalRouterListener.clearFibTsAndReverseTraffic(naptSwitch, routerId, networkId,
-                            externalIps, null);
+                            externalIps, null, gwMacAddress);
                     LOG.debug("Successfully removed fib entries in old naptswitch {} for "
                             + "router {} with networkId {} and externalIps {}", naptSwitch, routerId, networkId,
                             externalIps);
@@ -784,8 +786,8 @@ public class NaptSwitchHA {
 
         if (addordel == NatConstants.ADD_FLOW) {
             List<ActionInfo> actionsInfo = new ArrayList<>();
-            long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, nvpnManager, idManager,
-                                                                        routerVpnId, routerName);
+            long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, elanManager, idManager, routerVpnId,
+                    routerName);
             actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(tunnelId)));
             LOG.debug("Setting the tunnel to the list of action infos {}", actionsInfo);
             actionsInfo.add(new ActionGroup(groupId));
@@ -952,11 +954,12 @@ public class NaptSwitchHA {
             if (extNwProvType == null) {
                 return;
             }
+            String gwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
             if (extNwProvType == ProviderTypes.VXLAN) {
                 for (String externalIp : removedExternalIps) {
                     externalRouterListener.clearBgpRoutes(externalIp, vpnName);
                     externalRouterListener.delFibTsAndReverseTraffic(naptSwitch, routerId, externalIp, vpnName,
-                            NatConstants.DEFAULT_LABEL_VALUE);
+                            NatConstants.DEFAULT_LABEL_VALUE, gwMacAddress);
                     LOG.debug("NAT Service: Successfully removed fib entry for externalIp {} for routerId {} "
                                     + "on NAPT switch {} ", externalIp, routerId, naptSwitch);
                 }
@@ -975,7 +978,8 @@ public class NaptSwitchHA {
                         continue;
                     }
                     externalRouterListener.clearBgpRoutes(externalIp, vpnName);
-                    externalRouterListener.delFibTsAndReverseTraffic(naptSwitch, routerId, externalIp, vpnName, label);
+                    externalRouterListener.delFibTsAndReverseTraffic(naptSwitch, routerId, externalIp, vpnName, label,
+                            gwMacAddress);
                     LOG.debug("Successfully removed fib entries in switch {} for router {} and externalIps {}",
                             naptSwitch, routerId, externalIp);
                 }

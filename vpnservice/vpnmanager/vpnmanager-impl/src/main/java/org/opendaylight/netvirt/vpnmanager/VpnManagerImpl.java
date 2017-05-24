@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
@@ -22,11 +21,11 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
-import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
@@ -36,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -119,11 +119,6 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
-    public void setFibManager(IFibManager fibManager) {
-
-    }
-
-    @Override
     public void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
         int label,RouteOrigin origin) {
         LOG.info("Adding extra route with destination {}, nextHop {}, label{} and origin {}",
@@ -170,7 +165,7 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void setupRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
-            WriteTransaction writeTx, int addOrRemove) {
+            String subnetVpnName, WriteTransaction writeTx, int addOrRemove) {
         if (routerGwMac == null) {
             LOG.warn("Failed to handle router GW flow in GW-MAC table. MAC address is missing for router-id {}",
                     routerName);
@@ -195,8 +190,7 @@ public class VpnManagerImpl implements IVpnManager {
             submit = true;
             writeTx = dataBroker.newWriteOnlyTransaction();
         }
-
-        setupSubnetMacIntoVpnInstance(vpnId.getValue(), null, routerGwMac, dpnId, writeTx,
+        setupSubnetMacIntoVpnInstance(vpnId.getValue(), subnetVpnName, routerGwMac, dpnId, writeTx,
                 addOrRemove);
         if (submit) {
             writeTx.submit();
@@ -271,6 +265,11 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
+    public String getPrimaryRdFromVpnInstance(VpnInstance vpnInstance) {
+        return VpnUtil.getPrimaryRd(vpnInstance);
+    }
+
+    @Override
     public List<MatchInfoBase> getEgressMatchesForVpn(String vpnName) {
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
         if (vpnId == VpnConstants.INVALID_ID) {
@@ -318,4 +317,15 @@ public class VpnManagerImpl implements IVpnManager {
         vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmap, isBgpVpn);
     }
 
+    public VpnInstance getVpnInstance(DataBroker broker, String vpnInstanceName) {
+        return VpnUtil.getVpnInstance(broker, vpnInstanceName);
+    }
+
+    public String getVpnRd(DataBroker broker, String vpnName) {
+        return VpnUtil.getVpnRd(broker, vpnName);
+    }
+
+    public VpnPortipToPort getNeutronPortFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp) {
+        return VpnUtil.getNeutronPortFromVpnPortFixedIp(broker, vpnName, fixedIp);
+    }
 }

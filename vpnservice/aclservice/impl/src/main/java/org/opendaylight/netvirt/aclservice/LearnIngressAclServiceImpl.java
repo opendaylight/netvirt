@@ -126,4 +126,14 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
                 0,
                 LearnCommonAclServiceImpl.getUdpLearnActionMatches()));
     }
+
+    @Override
+    protected short getIngressAclFilterTable() {
+        return NwConstants.INGRESS_LEARN_ACL_FILTER_TABLE;
+    }
+
+    @Override
+    protected short getIngressAclRemoteAclTable() {
+        return NwConstants.INGRESS_LEARN_ACL_REMOTE_ACL_TABLE;
+    }
 }

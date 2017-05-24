@@ -28,6 +28,7 @@ module odl-l3vpn {
             leaf label { type uint32; config "false"; } /* optional */
             leaf mac_address {type string;} /* optional */
             leaf subnet_id {type yang:uuid;} /* optional */
+            leaf subnet_gateway_mac_address {type string; config "false";} /* optional */
             leaf vrf-id { type string; config "false"; }
             leaf phys-network-func {
                 type boolean;
@@ -150,11 +151,10 @@ module odl-l3vpn {
     }
 
     container evpn-rd-to-networks {
-        config false;
         description "Holds the networks to which given evpn is attached";
         list evpn-rd-to-network {
-           key vrf-id;
-           leaf vrf-id {
+           key rd;
+           leaf rd {
              type string;
            }
            leaf network-id {

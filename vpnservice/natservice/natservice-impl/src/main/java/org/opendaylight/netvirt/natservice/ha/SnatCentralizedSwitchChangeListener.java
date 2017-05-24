@@ -9,8 +9,6 @@
 package org.opendaylight.netvirt.natservice.ha;
 
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -38,18 +36,15 @@ public class SnatCentralizedSwitchChangeListener
     private static final Logger LOG = LoggerFactory.getLogger(SnatCentralizedSwitchChangeListener.class);
     private final DataBroker dataBroker;
     private final SnatServiceManager snatServiceManger;
-
-    /** TODO This shall be a temporary map, the attributes consumed in Snat Service can be made
-     * later a part of RouterToNaptSwitch model.
-     */
-    private final Map<String,Routers> routerMap = new HashMap<>();
+    private final NatDataUtil natDataUtil;
 
     @Inject
     public SnatCentralizedSwitchChangeListener(final DataBroker dataBroker,
-            final SnatServiceManager snatServiceManger) {
+            final SnatServiceManager snatServiceManger, NatDataUtil natDataUtil) {
         super(RouterToNaptSwitch.class, SnatCentralizedSwitchChangeListener.class);
         this.dataBroker = dataBroker;
         this.snatServiceManger = snatServiceManger;
+        this.natDataUtil = natDataUtil;
     }
 
     @Override
@@ -68,8 +63,9 @@ public class SnatCentralizedSwitchChangeListener
     protected void remove(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
         LOG.debug("Deleting ", routerToNaptSwitch);
         BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
-        Routers router =   routerMap.get(routerToNaptSwitch.getRouterName());
+        Routers router =   natDataUtil.getRouter(routerToNaptSwitch.getRouterName());
         snatServiceManger.notify(router, primarySwitchId, null, SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
+        natDataUtil.removeFromRouterMap(router);
     }
 
     @Override
@@ -78,7 +74,7 @@ public class SnatCentralizedSwitchChangeListener
         LOG.debug("Updating old {} new {}", origRouterToNaptSwitch, updatedRouterToNaptSwitch);
         BigInteger primarySwitchId = origRouterToNaptSwitch.getPrimarySwitchId();
         Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, origRouterToNaptSwitch.getRouterName());
-        routerMap.put(router.getRouterName(), router);
+        natDataUtil.updateRouterMap(router);
         snatServiceManger.notify(router, primarySwitchId, null, SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
     }
 
@@ -87,7 +83,7 @@ public class SnatCentralizedSwitchChangeListener
         LOG.debug("Adding ", routerToNaptSwitch);
         BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
         Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerToNaptSwitch.getRouterName());
-        routerMap.put(router.getRouterName(), router);
+        natDataUtil.addtoRouterMap(router);
         snatServiceManger.notify(router, primarySwitchId, null, SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
     }
 

@@ -147,6 +147,7 @@ public class NeutronvpnUtils {
     public static ConcurrentHashMap<Uuid, QosPolicy> qosPolicyMap = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<Uuid, HashMap<Uuid, Port>> qosPortsMap = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<Uuid, HashMap<Uuid, Network>> qosNetworksMap = new ConcurrentHashMap<>();
+
     private static final Set<Class<? extends NetworkTypeBase>> SUPPORTED_NETWORK_TYPES = Sets.newConcurrentHashSet();
 
     private static long LOCK_WAIT_TIME = 10L;
@@ -183,7 +184,7 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    protected static VpnMap getVpnMap(DataBroker broker, Uuid id) {
+    public static VpnMap getVpnMap(DataBroker broker, Uuid id) {
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
                 new VpnMapKey(id)).build();
         Optional<VpnMap> optionalVpnMap = read(broker, LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
@@ -1008,7 +1009,7 @@ public class NeutronvpnUtils {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
+    public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
                                                    InstanceIdentifier<T> path) {
         ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
         Optional<T> result = Optional.absent();
@@ -1199,7 +1200,7 @@ public class NeutronvpnUtils {
         return ret;
     }
 
-    static List<String> getExistingRDs(DataBroker broker) {
+    public static List<String> getExistingRDs(DataBroker broker) {
         List<String> existingRDs = new ArrayList<>();
         InstanceIdentifier<VpnInstances> path = InstanceIdentifier.builder(VpnInstances.class).build();
         Optional<VpnInstances> vpnInstancesOptional =
@@ -1258,4 +1259,5 @@ public class NeutronvpnUtils {
     public static boolean isNotEmpty(Collection collection) {
         return (!isEmpty(collection));
     }
+
 }

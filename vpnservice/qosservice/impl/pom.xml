@@ -60,7 +60,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>org.apache.karaf.shell.console</artifactId>
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.configadmin</artifactId>
+            <version>1.8.14</version>
+        </dependency>
     </dependencies>
 
 
@@ -79,8 +83,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
               <configuration>
                 <artifacts>
                   <artifact>
-                    <file>${project.build.directory}/classes/initial/netvirt-qosalert-config.xml</file>
+                    <file>${project.build.directory}/classes/initial/netvirt-qosservice-config.xml</file>
                     <type>xml</type>
+                    <classifier>config</classifier>
+                  </artifact>
+                  <artifact>
+                    <file>${project.build.directory}/classes/initial/qosservice.cfg</file>
+                    <type>cfg</type>
                     <classifier>config</classifier>
                   </artifact>
                 </artifacts>

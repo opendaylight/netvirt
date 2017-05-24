@@ -136,8 +136,6 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         } else if (isPortSecurityEnable) {
             // Acls has been updated, find added/removed Acls and act accordingly.
             processInterfaceUpdate(portBefore, portAfter);
-            updateRemoteAclFilterTable(portBefore, NwConstants.DEL_FLOW);
-            updateRemoteAclFilterTable(portAfter, NwConstants.ADD_FLOW);
         }
 
         return result;
@@ -169,11 +167,13 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         // So we need to remove all rules and install them from 0, and we cannot handle only the delta.
         updateCustomRules(dpId, portAfter.getLPortTag(), portBefore.getSecurityGroups(), NwConstants.DEL_FLOW,
                 portAfter.getInterfaceId(), portAfter.getAllowedAddressPairs());
+        updateRemoteAclFilterTable(portBefore, NwConstants.DEL_FLOW);
 
         updateAclInterfaceInCache(portAfter);
 
         updateCustomRules(dpId, portAfter.getLPortTag(), portAfter.getSecurityGroups(), NwConstants.ADD_FLOW,
                 portAfter.getInterfaceId(), portAfter.getAllowedAddressPairs());
+        updateRemoteAclFilterTable(portAfter, NwConstants.ADD_FLOW);
     }
 
     private void updateAclInterfaceInCache(AclInterface aclInterfaceNew) {
@@ -411,14 +411,12 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     }
 
     protected void updateRemoteAclFilterTable(AclInterface port, int addOrRemove) {
-        if (addOrRemove == NwConstants.DEL_FLOW && AclServiceUtils.isMoreThanOneAcl(port)) {
-            LOG.debug("Port {} with more than one SG ({}). Don't remove from ACL filter table", port.getInterfaceId(),
-                    port.getSecurityGroups().size());
-        } else if (port.getSecurityGroups().isEmpty()) {
-            LOG.debug("Port {} with no SG.", port.getInterfaceId(),
-                    port.getSecurityGroups().size());
-        } else {
-            Uuid sg = port.getSecurityGroups().get(0);
+        if (port.getSecurityGroups() == null) {
+            LOG.debug("Port {} without SGs", port.getInterfaceId());
+            return;
+        }
+
+        for (Uuid sg : port.getSecurityGroups()) {
             updateRemoteAclFilterTableForSg(port, sg, addOrRemove);
         }
     }
@@ -431,16 +429,22 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             LOG.debug("Can't find elan id for port {} ", port.getInterfaceId());
             return;
         }
-        for (AllowedAddressPairs ip : port.getAllowedAddressPairs()) {
-            if (!AclServiceUtils.isNotIpv4AllNetwork(ip)) {
-                continue;
+
+        if (AclServiceUtils.exactlyOneAcl(port)) {
+            for (AllowedAddressPairs ip : port.getAllowedAddressPairs()) {
+                if (!AclServiceUtils.isNotIpv4AllNetwork(ip)) {
+                    continue;
+                }
+                writeCurrentAclForRemoteAcls(acl, addOrRemove, elanTag, ip, aclId);
             }
-            writeCurrentAclForRemoteAcls(acl, addOrRemove, elanTag, ip, aclId);
+        } else {
+            LOG.debug("Port {} with more than one SG ({}). Don't change ACL filter table", port.getInterfaceId(),
+                    port.getSecurityGroups().size());
         }
-        writeRemoteAclsForCurrentAcl(acl, port.getDpId(), addOrRemove);
+        writeRemoteAclsForCurrentAcl(acl, port.getDpId(), addOrRemove, port.getInterfaceId());
     }
 
-    private void writeRemoteAclsForCurrentAcl(Uuid sgUuid, BigInteger dpId, int addOrRemove) {
+    private void writeRemoteAclsForCurrentAcl(Uuid sgUuid, BigInteger dpId, int addOrRemove, String ignorePort) {
         if (dpId == null) {
             LOG.warn("trying to write to null dpnId");
             return;
@@ -463,14 +467,22 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                 continue;
             }
             for (AclInterface inter : interfaceList) {
-                BigInteger aclId = aclServiceUtils.buildAclId(aceAttr.getRemoteGroupId());
-
-                Long elanTag = AclServiceUtils.getElanIdFromInterface(inter.getInterfaceId(), dataBroker);
-                if (elanTag == null) {
-                    LOG.warn("Can't find elan id for port {} ", inter.getInterfaceId());
+                if (ignorePort.equals(inter.getInterfaceId())) {
                     continue;
                 }
-                writeRemoteAclForCurrentAclForInterface(dpId, addOrRemove, inter, aclId, elanTag);
+                if (AclServiceUtils.exactlyOneAcl(inter)) {
+                    BigInteger aclId = aclServiceUtils.buildAclId(aceAttr.getRemoteGroupId());
+
+                    Long elanTag = AclServiceUtils.getElanIdFromInterface(inter.getInterfaceId(), dataBroker);
+                    if (elanTag == null) {
+                        LOG.warn("Can't find elan id for port {} ", inter.getInterfaceId());
+                        continue;
+                    }
+                    writeRemoteAclForCurrentAclForInterface(dpId, addOrRemove, inter, aclId, elanTag);
+                } else {
+                    LOG.debug("Port {} with more than one SG ({}). Don't change ACL filter table",
+                            inter.getInterfaceId(), inter.getSecurityGroups().size());
+                }
             }
         }
     }

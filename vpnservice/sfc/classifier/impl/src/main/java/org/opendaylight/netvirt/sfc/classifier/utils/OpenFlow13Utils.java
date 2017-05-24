@@ -47,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.ge
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.general.rev140714.general.extension.list.grouping.ExtensionListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.DstChoice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxNshMdtypeCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxNshNpCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxNshc1CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxNshc2CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxNsiCaseBuilder;
@@ -76,6 +77,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.ni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.NxAugMatchNodesNodeTableFlow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.NxAugMatchNodesNodeTableFlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.NxmNxEncapEthTypeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.NxmNxNshMdtypeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.NxmNxNshc1Key;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.NxmNxNshc2Key;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.NxmNxNsiKey;
@@ -84,6 +86,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.ni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.NxmNxTunGpeNpKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.NxmNxTunIpv4DstKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.nxm.nx.encap.eth.type.grouping.NxmNxEncapEthTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.nxm.nx.nsh.mdtype.grouping.NxmNxNshMdtypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.nxm.nx.nshc._1.grouping.NxmNxNshc1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.nxm.nx.nshc._2.grouping.NxmNxNshc2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.nxm.nx.nsi.grouping.NxmNxNsiBuilder;
@@ -162,6 +165,12 @@ public final class OpenFlow13Utils {
         addExtension(match, NxmNxReg0Key.class, am);
     }
 
+    public static void addMatchNshMdtype(MatchBuilder match, short mdType) {
+        NxAugMatchNodesNodeTableFlow amNsp = new NxAugMatchNodesNodeTableFlowBuilder()
+                .setNxmNxNshMdtype(new NxmNxNshMdtypeBuilder().setValue(mdType).build()).build();
+        addExtension(match, NxmNxNshMdtypeKey.class, amNsp);
+    }
+
     private static void addExtension(MatchBuilder match, Class<? extends ExtensionKey> extensionKey,
                                      NxAugMatchNodesNodeTableFlow am) {
         GeneralAugMatchNodesNodeTableFlow existingAugmentations = match
@@ -199,10 +208,26 @@ public final class OpenFlow13Utils {
         return ab.build();
     }
 
+    public static Action createActionNxLoadTunId(long value, int order) {
+        ActionBuilder ab = createActionBuilder(order);
+        ab.setAction(nxLoadRegAction(new DstNxTunIdCaseBuilder().setNxTunId(Boolean.TRUE).build(),
+                BigInteger.valueOf(value), 31, false));
+
+        return ab.build();
+    }
+
     public static Action createActionNxLoadNshMdtype(short value, int order) {
         ActionBuilder ab = createActionBuilder(order);
         ab.setAction(nxLoadRegAction(new DstNxNshMdtypeCaseBuilder().setNxNshMdtype(Boolean.TRUE).build(),
             BigInteger.valueOf(value), 7, false));
+
+        return ab.build();
+    }
+
+    public static Action createActionNxLoadNp(short value, int order) {
+        ActionBuilder ab = createActionBuilder(order);
+        ab.setAction(nxLoadRegAction(new DstNxNshNpCaseBuilder().setNxNshNp(Boolean.TRUE).build(),
+                BigInteger.valueOf(value), 7, false));
 
         return ab.build();
     }

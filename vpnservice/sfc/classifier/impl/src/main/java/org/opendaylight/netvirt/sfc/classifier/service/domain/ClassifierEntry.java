@@ -16,6 +16,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 
+/**
+ * A generic {@link ClassifierRenderableEntry} implementation that supports all
+ * the different render types.
+ */
 public final class ClassifierEntry implements ClassifierRenderableEntry {
 
     private enum EntryType {
@@ -34,9 +38,10 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
     private final Long nsp;
     private final Short nsi;
     private final String destinationIp;
+    private final String nodeIp;
 
     private ClassifierEntry(EntryType entryType, NodeId node, InterfaceKey interfaceKey, String connector,
-                            Matches matches, Long nsp, Short nsi, String destinationIp) {
+                            Matches matches, Long nsp, Short nsi, String destinationIp, String nodeIp) {
 
         this.entryType = entryType;
         this.node = node;
@@ -46,6 +51,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
         this.nsp = nsp;
         this.nsi = nsi;
         this.destinationIp = destinationIp;
+        this.nodeIp = nodeIp;
     }
 
     @Override
@@ -58,7 +64,8 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 matches,
                 nsp,
                 nsi,
-                destinationIp);
+                destinationIp,
+                nodeIp);
     }
 
     @Override
@@ -80,7 +87,8 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 && Objects.equals(matches, other.matches)
                 && Objects.equals(nsp, other.nsp)
                 && Objects.equals(nsi, other.nsi)
-                && Objects.equals(destinationIp, other.destinationIp);
+                && Objects.equals(destinationIp, other.destinationIp)
+                && Objects.equals(nodeIp, other.nodeIp);
     }
 
     @Override
@@ -94,6 +102,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 .add("nsp", nsp)
                 .add("nsi", nsi)
                 .add("destinationIp", destinationIp)
+                .add("nodeIp", nodeIp)
                 .toString();
     }
 
@@ -107,7 +116,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 classifierEntryRenderer.renderIngress(interfaceKey);
                 break;
             case PATH_ENTRY_TYPE:
-                classifierEntryRenderer.renderPath(node, nsp, destinationIp);
+                classifierEntryRenderer.renderPath(node, nsp, nodeIp);
                 break;
             case MATCH_ENTRY_TYPE:
                 classifierEntryRenderer.renderMatch(node, connector, matches, nsp, nsi, destinationIp);
@@ -129,7 +138,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 classifierEntryRenderer.suppressIngress(interfaceKey);
                 break;
             case PATH_ENTRY_TYPE:
-                classifierEntryRenderer.suppressPath(node, nsp, destinationIp);
+                classifierEntryRenderer.suppressPath(node, nsp, nodeIp);
                 break;
             case MATCH_ENTRY_TYPE:
                 classifierEntryRenderer.suppressMatch(node, connector, matches, nsp, nsi, destinationIp);
@@ -141,29 +150,66 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
         }
     }
 
+    /**
+     * Build a {@code ClassifierEntry} supporting an ingress render type.
+     *
+     * @param interfaceKey the ingress interface.
+     * @return the {@code ClassifierEntry}.
+     */
     public static ClassifierEntry buildIngressEntry(InterfaceKey interfaceKey) {
         return new ClassifierEntry(EntryType.INGRESS_INTERFACE_ENTRY_TYPE, null, interfaceKey, null, null, null,
-                null, null);
+                null, null, null);
     }
 
+    /**
+     * Build a {@code ClassifierEntry} supporting an node render type.
+     *
+     * @param node the classifier node identifier.
+     * @return the {@code ClassifierEntry}.
+     */
     public static ClassifierEntry buildNodeEntry(NodeId node) {
         return new ClassifierEntry(EntryType.NODE_ENTRY_TYPE, node, null, null, null, null,
-                null, null);
+                null, null, null);
     }
 
-    public static ClassifierEntry buildPathEntry(NodeId node, Long nsp, String destinationIp) {
+    /**
+     * Build a {@code ClassifierEntry} supporting a path render type.
+     *
+     * @param node the classifier node identifier.
+     * @param nsp the path identifier.
+     * @param nodeIp the ip address of this node.
+     * @return the {@code ClassifierEntry}.
+     */
+    public static ClassifierEntry buildPathEntry(NodeId node, Long nsp, String nodeIp) {
         return new ClassifierEntry(EntryType.PATH_ENTRY_TYPE, node, null, null, null, nsp,
-                null, destinationIp);
+                null, null, nodeIp);
     }
 
+    /**
+     * Build a {@code ClassifierEntry} supporting an match render type.
+     *
+     * @param node the classifier node identifier.
+     * @param connector the node connector for the ingress interface.
+     * @param matches the ACL matches.
+     * @param nsp the path identifier.
+     * @param nsi the initial path index.
+     * @param destinationIp the ip address of the first service function.
+     * @return the {@code ClassifierEntry}.
+     */
     public static ClassifierEntry buildMatchEntry(NodeId node, String connector, Matches matches, Long nsp, Short nsi,
             String destinationIp) {
         return new ClassifierEntry(EntryType.MATCH_ENTRY_TYPE, node, null, connector, matches, nsp,
-                nsi, destinationIp);
+                nsi, destinationIp, null);
     }
 
+    /**
+     * Build a {@code ClassifierEntry} supporting an egress render type.
+     *
+     * @param interfaceKey the egress interface key.
+     * @return the {@code ClassifierEntry}.
+     */
     public static ClassifierEntry buildEgressEntry(InterfaceKey interfaceKey) {
         return new ClassifierEntry(EntryType.EGRESS_INTERFACE_ENTRY_TYPE, null, interfaceKey, null, null, null,
-                null, null);
+                null, null, null);
     }
 }

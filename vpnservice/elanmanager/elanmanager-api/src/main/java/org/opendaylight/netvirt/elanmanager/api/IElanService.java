@@ -52,6 +52,8 @@ public interface IElanService extends IEtreeService {
 
     void createExternalElanNetwork(ElanInstance elanInstance);
 
+    void updateExternalElanNetwork(ElanInstance elanInstance);
+
     void createExternalElanNetworks(Node node);
 
     void updateExternalElanNetworks(Node origNode, Node updatedNode);
@@ -71,5 +73,7 @@ public interface IElanService extends IEtreeService {
     void handleKnownL3DmacAddress(String macAddress, String elanInstanceName, int addOrRemove);
 
     List<MatchInfoBase> getEgressMatchesForElanInstance(String elanInstanceName);
+
+    Boolean isOpenStackVniSemanticsEnforced();
 
 }

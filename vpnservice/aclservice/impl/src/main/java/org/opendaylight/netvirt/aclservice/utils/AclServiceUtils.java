@@ -23,6 +23,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
@@ -557,10 +558,6 @@ public final class AclServiceUtils {
         MatchInfoBase ipv6Match = MatchEthernetType.IPV6;
         for (String flowName : flowMatchesMap.keySet()) {
             List<MatchInfoBase> flows = flowMatchesMap.get(flowName);
-
-            List<MatchInfoBase> matchInfoBaseList = addFlowMatchForAclId(remoteAclId, flows);
-            String flowId = flowName + "_remoteACL_id_" + remoteAclId.getValue();
-            updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
             for (AclInterface port : interfaceList) {
                 if (port.getInterfaceId().equals(ignoreInterfaceId)) {
                     continue;
@@ -571,12 +568,17 @@ public final class AclServiceUtils {
                             "port {} is in only one SG. "
                                     + "Doesn't adding it's IPs {} to matches (handled in acl id match)",
                             port.getLPortTag(), port.getAllowedAddressPairs());
+                    List<MatchInfoBase> matchInfoBaseList = addFlowMatchForAclId(remoteAclId, flows);
+                    String flowId = flowName + "_remoteACL_id_" + remoteAclId.getValue();
+                    updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
                     continue;
                 }
                 // get allow address pair
                 List<AllowedAddressPairs> allowedAddressPair = port.getAllowedAddressPairs();
                 // iterate over allow address pair and update match type
                 for (AllowedAddressPairs aap : allowedAddressPair) {
+                    List<MatchInfoBase> matchInfoBaseList;
+                    String flowId;
                     if (flows.contains(ipv4Match) && isIPv4Address(aap) && isNotIpv4AllNetwork(aap)) {
                         matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
                         flowId = flowName + "_ipv4_remoteACL_interface_aap_" + getAapFlowId(aap);
@@ -1050,15 +1052,21 @@ public final class AclServiceUtils {
         return flowMatches;
     }
 
-    public static boolean isMoreThanOneAcl(AclInterface port) {
-        return port.getSecurityGroups().size() > 1;
+    public static boolean exactlyOneAcl(AclInterface port) {
+        return (port.getSecurityGroups() != null) && (port.getSecurityGroups().size() == 1);
     }
 
     public static boolean isOfAclInterest(Acl acl) {
         List<Ace> aceList = acl.getAccessListEntries().getAce();
-        if (aceList != null) {
+        if ((aceList != null) && !aceList.isEmpty()) {
             return (aceList.get(0).getAugmentation(SecurityRuleAttr.class) != null);
         }
         return false;
+    }
+
+    public static void addLportTagMetadataMatch(int lportTag, List<MatchInfoBase> flowMatches,
+            Class<? extends ServiceModeBase> serviceMode) {
+        MatchInfoBase lportMatch = buildLPortTagMatch(lportTag, serviceMode);
+        InterfaceServiceUtil.mergeMetadataMatchsOrAdd(flowMatches, lportMatch);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2015 - 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -115,21 +115,27 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         }
         NeutronvpnUtils.addToPortCache(input);
 
+        String portStatus = NeutronUtils.PORT_STATUS_DOWN;
         if (!Strings.isNullOrEmpty(input.getDeviceOwner()) && !Strings.isNullOrEmpty(input.getDeviceId())) {
             if (input.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF)) {
                 handleRouterInterfaceAdded(input);
+                NeutronUtils.createPortStatus(input.getUuid().getValue(), NeutronUtils.PORT_STATUS_ACTIVE, dataBroker);
                 return;
             }
             if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(input.getDeviceOwner())) {
                 handleRouterGatewayUpdated(input);
+                portStatus = NeutronUtils.PORT_STATUS_ACTIVE;
             } else if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(input.getDeviceOwner())) {
                 handleFloatingIpPortUpdated(null, input);
+                portStatus = NeutronUtils.PORT_STATUS_ACTIVE;
             }
 
             if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
                 handleNeutronPortCreated(input);
             }
         }
+
+        NeutronUtils.createPortStatus(input.getUuid().getValue(), portStatus, dataBroker);
     }
 
     @Override
@@ -144,6 +150,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             return;
         }
         NeutronvpnUtils.removeFromPortCache(input);
+        NeutronUtils.deletePortStatus(input.getUuid().getValue(), dataBroker);
 
         if (!Strings.isNullOrEmpty(input.getDeviceOwner()) && !Strings.isNullOrEmpty(input.getDeviceId())) {
             if (input.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF)) {
@@ -264,14 +271,18 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     String ipValue = String.valueOf(portIP.getIpAddress().getValue());
                     nvpnManager.updateSubnetNodeWithFixedIp(portIP.getSubnetId(), routerId,
                             routerPort.getUuid(), ipValue, routerPort.getMacAddress().getValue());
+                    nvpnManager.createVpnInterface(vpnId, routerId, routerPort, null);
                     nvpnManager.addSubnetToVpn(vpnId, portIP.getSubnetId());
                     nvpnNatManager.handleSubnetsForExternalRouter(routerId, dataBroker);
+                    WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                    String portInterfaceName = createOfPortInterface(routerPort, wrtConfigTxn);
+                    createElanInterface(routerPort, portInterfaceName, wrtConfigTxn);
+                    wrtConfigTxn.submit();
                     PhysAddress mac = new PhysAddress(routerPort.getMacAddress().getValue());
                     LOG.trace("NeutronPortChangeListener Add Subnet Gateway IP {} MAC {} Interface {} VPN {}",
                             ipValue, routerPort.getMacAddress(),
                             routerPort.getUuid().getValue(), vpnId.getValue());
-                    // ping responder for router interfaces
-                    nvpnManager.createVpnInterface(vpnId, routerId, routerPort, null);
+
                 }
             } else {
                 LOG.error("Neutron network {} corresponding to router interface port {} for neutron router {} already"
@@ -298,6 +309,10 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 nvpnManager.removeSubnetFromVpn(vpnId, portIP.getSubnetId());
                 nvpnManager.updateSubnetNodeWithFixedIp(portIP.getSubnetId(), null,
                         null, null, null);
+                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                deleteElanInterface(routerPort.getUuid().getValue(), wrtConfigTxn);
+                deleteOfPortInterface(routerPort, wrtConfigTxn);
+                wrtConfigTxn.submit();
                 nvpnNatManager.handleSubnetsForExternalRouter(routerId, dataBroker);
                 String ipValue = String.valueOf(portIP.getIpAddress().getValue());
                 NeutronvpnUtils.removeVpnPortFixedIpToPort(dataBroker, vpnId.getValue(),
@@ -543,6 +558,12 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 .setName(name).setStaticMacEntries(staticMacEntries).setKey(new ElanInterfaceKey(name)).build();
         wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, id, elanInterface);
         LOG.debug("Creating new ELan Interface {}", elanInterface);
+    }
+
+    private void deleteElanInterface(String name, WriteTransaction wrtConfigTxn) {
+        InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
+                .class, new ElanInterfaceKey(name)).build();
+        wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, id);
     }
 
     // TODO Clean up the exception handling

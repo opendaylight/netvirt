@@ -228,7 +228,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     protected void writeCurrentAclForRemoteAcls(Uuid acl, int addOrRemove, Long elanTag, AllowedAddressPairs ip,
             BigInteger aclId) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
-        flowMatches.addAll(AclServiceUtils.buildIpAndElanSrcMatch(elanTag, ip, dataBroker));
+        flowMatches.addAll(AclServiceUtils.buildIpAndElanDstMatch(elanTag, ip, dataBroker));
 
         List<InstructionInfo> instructions = new ArrayList<>();
 
@@ -240,7 +240,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
 
         String flowNameAdded = "Acl_Filter_Egress_" + new String(ip.getIpAddress().getValue()) + "_" + elanTag;
 
-        Map<String, Set<AclInterface>> mapAclWithPortSet = aclDataUtil.getRemoteAclInterfaces(acl);
+        Map<String, Set<AclInterface>> mapAclWithPortSet = aclDataUtil.getAllRemoteAclInterfaces();
         Set<BigInteger> dpns = collectDpns(mapAclWithPortSet);
         for (BigInteger dpId : dpns) {
             LOG.debug("writing rule for ip {} and rlanId {} in egress acl remote table {}", getIpPrefixOrAddress(ip),
@@ -251,11 +251,11 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     }
 
     protected short getEgressAclFilterTable() {
-        return NwConstants.EGRESS_ACL_FILTER_TABLE;
+        return NwConstants.INGRESS_ACL_FILTER_TABLE;
     }
 
     protected short getEgressAclRemoteAclTable() {
-        return NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE;
+        return NwConstants.INGRESS_ACL_REMOTE_ACL_TABLE;
     }
 
     @Override
@@ -266,7 +266,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
                 continue;
             }
             List<MatchInfoBase> flowMatches = new ArrayList<>();
-            flowMatches.addAll(AclServiceUtils.buildIpAndElanSrcMatch(elanTag, ip, dataBroker));
+            flowMatches.addAll(AclServiceUtils.buildIpAndElanDstMatch(elanTag, ip, dataBroker));
 
             List<InstructionInfo> instructions = new ArrayList<>();
 

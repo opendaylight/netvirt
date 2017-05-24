@@ -14,6 +14,10 @@
     interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
   <reference id="interfaceManager"
     interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
+  <reference id="vpnManager"
+             interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" availability="optional"/>
+  <reference id="bgpManager"
+             interface="org.opendaylight.netvirt.bgpmanager.api.IBgpManager" availability="optional"/>
 
   <odl:rpc-service id="odlInterfaceRpcService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService" />
@@ -74,6 +78,7 @@
     <argument ref="dataBroker" />
     <argument ref="interfaceManager" />
     <argument ref="elanUtils" />
+    <argument ref="evpnUtils" />
   </bean>
   <odl:notification-listener ref="elanPacketInHandler" />
 
@@ -82,8 +87,16 @@
     <argument ref="dataBroker" />
     <argument ref="interfaceManager" />
     <argument ref="elanUtils" />
+    <argument ref="evpnUtils" />
   </bean>
   <odl:notification-listener ref="elanSmacFlowEventListener" />
+
+  <bean id="elanExtnTepListener"
+        class="org.opendaylight.netvirt.elan.internal.ElanExtnTepListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="elanInterfaceManager" />
+  </bean>
 
   <bean id="elanUtils" class="org.opendaylight.netvirt.elan.utils.ElanUtils"
     destroy-method="close">
@@ -95,6 +108,7 @@
     <argument ref="elanInterfaceManager" />
     <argument ref="entityOwnershipService" />
     <argument ref="interfaceManager" />
+    <argument ref="elanConfig" />
   </bean>
 
   <bean id="elanStatisticsImpl"
@@ -186,7 +200,7 @@
 
   <bean id="l2GatewayConnectionListener"
     class="org.opendaylight.netvirt.elan.l2gw.listeners.L2GatewayConnectionListener"
-    destroy-method="close">
+    init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="elanUtils" />
   </bean>
@@ -243,6 +257,7 @@
     <argument ref="elanConfig" />
     <argument ref="elanBridgeManager" />
     <argument ref="elanService" />
+    <argument ref = "transportZoneNotificationUtil"/>
   </bean>
 
   <bean id="elanGroupListener"
@@ -253,7 +268,7 @@
     <argument ref="entityOwnershipService" />
   </bean>
 
-  <bean id="TransportZoneNotificationUtil"
+  <bean id="transportZoneNotificationUtil"
     class="org.opendaylight.netvirt.elan.utils.TransportZoneNotificationUtil">
     <argument ref="dataBroker" />
     <argument ref="interfaceManager" />
@@ -268,7 +283,7 @@
     <argument ref="dataBroker" />
     <argument ref="interfaceManager" />
     <argument ref="elanConfig" />
-    <argument ref="TransportZoneNotificationUtil" />
+    <argument ref="transportZoneNotificationUtil" />
   </bean>
 
   <bean id="VpnDpnToTransportZoneListener"
@@ -277,9 +292,8 @@
     <argument ref="dataBroker" />
     <argument ref="interfaceManager" />
     <argument ref="elanConfig" />
-    <argument ref="TransportZoneNotificationUtil" />
+    <argument ref="transportZoneNotificationUtil" />
   </bean>
-
   <bean id="l2gwService"
         class="org.opendaylight.netvirt.elan.l2gw.utils.L2gwServiceProvider"
         init-method="init">
@@ -294,8 +308,57 @@
   <bean id="elanInstanceListener"
         class="org.opendaylight.netvirt.elan.l2gw.listeners.ElanInstanceListener"
         init-method="init" destroy-method="close">
+  <argument ref="dataBroker" />
+  <argument ref="elanUtils" />
+
+  </bean>
+
+  <bean id="evpnUtils" class="org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="interfaceManager" />
+    <argument ref="elanUtils" />
+    <argument ref="itmRpcService" />
+    <property name="vpnManager" ref="vpnManager"/>
+    <property name="bgpManager" ref="bgpManager"/>
+  </bean>
+
+  <bean id="evpnMacVrfUtils"
+        class="org.opendaylight.netvirt.elan.evpn.utils.EvpnMacVrfUtils">
     <argument ref="dataBroker" />
     <argument ref="elanUtils" />
+    <argument ref="idManagerService" />
+    <argument ref="elanEvpnFlowUtils" />
+    <argument ref="mdsalUtils" />
+  </bean>
+
+  <bean id="elanEvpnFlowUtils"
+        class="org.opendaylight.netvirt.elan.evpn.utils.ElanEvpnFlowUtils">
+    <argument ref="mdsalUtils" />
+    <argument ref="elanUtils" />
+  </bean>
+
+  <bean id="macVrfEntryListener" class="org.opendaylight.netvirt.elan.evpn.listeners.MacVrfEntryListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="elanUtils" />
+    <argument ref="mdsalUtils" />
+    <argument ref="evpnMacVrfUtils" />
+    <argument ref="elanEvpnFlowUtils" />
+  </bean>
+
+  <bean id="elanMacEntryListener" class="org.opendaylight.netvirt.elan.evpn.listeners.ElanMacEntryListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="elanUtils" />
+    <argument ref="evpnUtils" />
+  </bean>
+
+  <bean id="elanDpnInterfacesListener" class="org.opendaylight.netvirt.elan.internal.ElanDpnInterfacesListener"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="interfaceManager" />
+    <argument ref="elanService" />
   </bean>
 
 </blueprint>

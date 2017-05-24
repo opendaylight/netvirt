@@ -73,4 +73,9 @@ public class AclServiceStatelessTest extends AclServiceTestBase {
 
     }
 
+    @Override
+    void newInterfaceWithMultipleAclCheck() {
+        // TODO: To be handled
+    }
+
 }

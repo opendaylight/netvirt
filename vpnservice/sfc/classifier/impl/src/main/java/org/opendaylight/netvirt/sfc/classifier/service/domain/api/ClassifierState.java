@@ -10,6 +10,10 @@ package org.opendaylight.netvirt.sfc.classifier.service.domain.api;
 
 import java.util.Set;
 
+/**
+ * The classifier state defined by a collection of {@link
+ * ClassifierRenderableEntry}.
+ */
 public interface ClassifierState {
     Set<ClassifierRenderableEntry> getAllEntries();
 }

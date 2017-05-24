@@ -29,7 +29,6 @@
         <module>features4-netvirt</module>
         <module>odl-ovsdb-openstack</module>
         <module>odl-ovsdb-openstack-it</module>
-        <module>odl-ovsdb-ui</module>
     </modules>
 
     <!--

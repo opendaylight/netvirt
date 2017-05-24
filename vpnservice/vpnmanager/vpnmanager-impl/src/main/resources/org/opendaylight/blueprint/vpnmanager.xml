@@ -76,6 +76,7 @@
     <argument ref="vpnFootprintService" />
     <argument ref="interfaceManager" />
     <argument ref="vpnManager" />
+    <argument ref="interVpnLinkService" />
   </bean>
 
   <bean id="interfaceStateChangeListener"
@@ -110,13 +111,6 @@
     <argument ref="neutronVpnService" />
     <argument ref="interfaceManager" />
     <argument ref="entityOwnershipService" />
-  </bean>
-
-  <bean id="subnetMacHandler"
-        class="org.opendaylight.netvirt.vpnmanager.SubnetMacHandler"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
   </bean>
 
   <bean id="subnetRoutePacketInHandler"

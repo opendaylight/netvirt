@@ -23,12 +23,12 @@ public class FederatedMappings {
 
     public FederatedMappings(List<FederatedNetworkPair> federatedNetworkPairs,
         List<FederatedAclPair> aclsPairs) {
-        federatedNetworkPairs.stream()
-            .forEach((pair) -> producerToConsumerNetworkMap.put(pair.producerNetworkId, pair.consumerNetworkId));
-        federatedNetworkPairs.stream()
-                .forEach((pair) -> producerToConsumerSubnetMap.put(pair.producerSubnetId, pair.consumerSubnetId));
-        federatedNetworkPairs.stream()
-                .forEach((pair) -> producerToConsumerTenantMap.put(pair.producerTenantId, pair.consumerTenantId));
+        federatedNetworkPairs.stream().forEach(
+            (pair) -> producerToConsumerNetworkMap.put(pair.getProducerNetworkId(), pair.getConsumerNetworkId()));
+        federatedNetworkPairs.stream().forEach(
+            (pair) -> producerToConsumerSubnetMap.put(pair.getProducerSubnetId(), pair.getConsumerSubnetId()));
+        federatedNetworkPairs.stream().forEach(
+            (pair) -> producerToConsumerTenantMap.put(pair.getProducerTenantId(), pair.getConsumerTenantId()));
         if (aclsPairs != null) {
             aclsPairs.stream().forEach(
                 (pair) -> producerToConsumerAclsMap.put(pair.producerAclId, pair.consumerAclId));

@@ -93,6 +93,7 @@ public class BgpRouter {
         public int l3label;
         public encap_type thriftEncapType;
         public String routermac;
+        public af_afi afi;
 
         BgpOp() {
             strs = new String[3];
@@ -202,6 +203,8 @@ public class BgpRouter {
             case PFX:
                 // order of args is different in addPrefix(), hence the
                 // seeming out-of-order-ness of string indices
+                afi = af_afi.findByValue(org.opendaylight.netvirt.bgpmanager.BgpUtil
+                        .getAFItranslatedfromPrefix(op.strs[1]));
                 result = bop.add
                         ? bgpClient.pushRoute(
                                 op.thriftProtocolType,
@@ -211,10 +214,11 @@ public class BgpRouter {
                                 op.ethernetTag,
                                 op.esi,
                                 op.macAddress,
-                                op.l2label,
                                 op.l3label,
+                                op.l2label,
                                 op.thriftEncapType,
-                                op.routermac)
+                                op.routermac,
+                                afi)
 
                         : bgpClient.withdrawRoute(
                         op.thriftProtocolType,
@@ -222,7 +226,8 @@ public class BgpRouter {
                         op.strs[0],//rd
                         op.ethernetTag,
                         op.esi,
-                        op.macAddress);
+                        op.macAddress,
+                        afi);
                 break;
             case LOG:
                 result = bgpClient.setLogConfig(op.strs[0], op.strs[1]);
@@ -333,6 +338,7 @@ public class BgpRouter {
                                        String nexthop,
                                        int label,
                                        int l3vni,
+                                       int l2vni,
                                        protocol_type protocolType,
                                        int ethtag,
                                        String esi,
@@ -349,6 +355,7 @@ public class BgpRouter {
         bop.ints[0] = label;
         if (protocolType.equals(protocol_type.PROTOCOL_EVPN) && encapType.equals(encap_type.VXLAN)) {
             bop.l3label = l3vni; //L3VPN Over VxLan
+            bop.l2label = l2vni;
         } else {
             bop.l3label = label; // L3VPN Over MPLSGRE
         }
@@ -404,7 +411,7 @@ public class BgpRouter {
         return 0;
     }
 
-    public Routes doRibSync(BgpSyncHandle handle) throws TException, BgpRouterException {
+    public Routes doRibSync(BgpSyncHandle handle, af_afi afi) throws TException, BgpRouterException {
         if (bgpClient == null) {
             throw new BgpRouterException(BgpRouterException.BGP_ERR_NOT_INITED);
         }
@@ -418,8 +425,9 @@ public class BgpRouter {
         handle.setState(BgpSyncHandle.ITERATING);
         int winSize = handle.getMaxCount() * handle.getRouteSize();
 
+
         // TODO: receive correct protocol_type here, currently populating with dummy protocol type
-        Routes outRoutes = bgpClient.getRoutes(protocol_type.PROTOCOL_ANY, op, winSize);
+        Routes outRoutes = bgpClient.getRoutes(protocol_type.PROTOCOL_ANY, op, winSize, afi);
         if (outRoutes.errcode != 0) {
             return outRoutes;
         }

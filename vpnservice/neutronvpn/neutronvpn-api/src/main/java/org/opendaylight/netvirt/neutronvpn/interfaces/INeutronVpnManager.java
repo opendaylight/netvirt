@@ -44,7 +44,5 @@ public interface INeutronVpnManager {
 
     String getOpenDaylightVniRangesConfig();
 
-    Boolean getEnforceOpenstackSemanticsConfig();
-
 }
 

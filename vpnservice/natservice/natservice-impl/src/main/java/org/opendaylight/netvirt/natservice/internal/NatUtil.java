@@ -33,6 +33,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -50,11 +51,15 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
-import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -117,8 +122,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalIpsCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
@@ -247,19 +255,19 @@ public class NatUtil {
         return vpnId;
     }
 
-    public static Long getVpnId(DataBroker broker, long routerId) {
+    public static Long getNetworkVpnIdFromRouterId(DataBroker broker, long routerId) {
         //Get the external network ID from the ExternalRouter model
         Uuid networkId = NatUtil.getNetworkIdFromRouterId(broker, routerId);
         if (networkId == null) {
             LOG.error("NAT Service : networkId is null");
-            return null;
+            return NatConstants.INVALID_ID;
         }
 
         //Get the VPN ID from the ExternalNetworks model
         Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(broker, networkId);
         if (vpnUuid == null) {
             LOG.error("NAT Service : vpnUuid is null");
-            return null;
+            return NatConstants.INVALID_ID;
         }
         Long vpnId = NatUtil.getVpnId(broker, vpnUuid.getValue());
         return vpnId;
@@ -380,7 +388,7 @@ public class NatUtil {
     public static ProviderTypes getProviderTypefromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
         Optional<Networks> networkData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
-        if ((networkData.isPresent()) && (networkData.get() != null)) {
+        if (networkData.isPresent() && networkData.get() != null) {
             return networkData.get().getProviderNetworkType();
         }
         return null;
@@ -479,45 +487,26 @@ public class NatUtil {
         return vpnId;
     }
 
-    public static FlowEntity buildFlowEntity(BigInteger dpnId, short tableId, BigInteger cookie) {
-        FlowEntity flowEntity = new FlowEntity(dpnId);
-        flowEntity.setTableId(tableId);
-        flowEntity.setCookie(cookie);
-        return flowEntity;
-    }
-
-    public static FlowEntity buildFlowEntity(BigInteger dpnId, short tableId, String flowId,
-                                             int priority, String flowName,
-                                             BigInteger cookie, List<MatchInfo> listMatchInfo) {
-
-        FlowEntity flowEntity = new FlowEntity(dpnId);
-        flowEntity.setTableId(tableId);
-        flowEntity.setFlowId(flowId);
-        flowEntity.setPriority(priority);
-        flowEntity.setFlowName(flowName);
-        flowEntity.setCookie(cookie);
-        flowEntity.setMatchInfoList(listMatchInfo);
-        return flowEntity;
-    }
-
     public static FlowEntity buildFlowEntity(BigInteger dpnId, short tableId, BigInteger cookie, String flowId) {
-        FlowEntity flowEntity = new FlowEntity(dpnId);
-        flowEntity.setTableId(tableId);
-        flowEntity.setCookie(cookie);
-        flowEntity.setFlowId(flowId);
-        return flowEntity;
+        return new FlowEntityBuilder()
+                .setDpnId(dpnId)
+                .setTableId(tableId)
+                .setCookie(cookie)
+                .setFlowId(flowId)
+                .build();
     }
 
     public static FlowEntity buildFlowEntity(BigInteger dpnId, short tableId, String flowId) {
-        FlowEntity flowEntity = new FlowEntity(dpnId);
-        flowEntity.setTableId(tableId);
-        flowEntity.setFlowId(flowId);
-        return flowEntity;
+        return new FlowEntityBuilder()
+                .setDpnId(dpnId)
+                .setTableId(tableId)
+                .setFlowId(flowId)
+                .build();
     }
 
     public static long getIpAddress(byte[] rawIpAddress) {
-        return (((rawIpAddress[0] & 0xFF) << (3 * 8)) + ((rawIpAddress[1] & 0xFF) << (2 * 8))
-            + ((rawIpAddress[2] & 0xFF) << (1 * 8)) + (rawIpAddress[3] & 0xFF)) & 0xffffffffL;
+        return ((rawIpAddress[0] & 0xFF) << 3 * 8) + ((rawIpAddress[1] & 0xFF) << 2 * 8)
+            + ((rawIpAddress[2] & 0xFF) << 1 * 8) + (rawIpAddress[3] & 0xFF) & 0xffffffffL;
     }
 
     public static String getEndpointIpAddressForDPN(DataBroker broker, BigInteger dpnId) {
@@ -687,10 +676,11 @@ public class NatUtil {
             fibManager.addOrUpdateFibEntry(broker, rd, macAddress, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, (int)label, l3vni /*l3vni*/,
                     null /*gatewayMacAddress*/, parentVpnRd, origin, null /*writeTxn*/);
-            if ((rd != null) && (!rd.equalsIgnoreCase(vpnName))) {
+            if (rd != null && !rd.equalsIgnoreCase(vpnName)) {
             /* Publish to Bgp only if its an INTERNET VPN */
                 bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),
-                        VrfEntry.EncapType.Mplsgre, (int) label, 0 /*l3vni*/, 0 /*l2vni*/, null /*gatewayMac*/);
+                        VrfEntry.EncapType.Mplsgre, (int) label, 0 /*l3vni*/, 0 /*l2vni*/,
+                        null /*gatewayMac*/);
             }
             LOG.info("NAT Service : ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd,
                     prefix, nextHopIp, label);
@@ -1654,7 +1644,7 @@ public class NatUtil {
             long ipLo = ipToLong(InetAddress.getByName(start));
             long ipHi = ipToLong(InetAddress.getByName(end));
             long ipToTest = ipToLong(InetAddress.getByName(ipAddress));
-            return (ipToTest >= ipLo && ipToTest <= ipHi);
+            return ipToTest >= ipLo && ipToTest <= ipHi;
         } catch (UnknownHostException e) {
             LOG.error("NAT Service : isIpInSubnet failed for IP {}. Exception {}", ipAddress, e.getMessage());
             return false;
@@ -1668,7 +1658,7 @@ public class NatUtil {
 
         Set<Uuid> subnetsSet = externalIps.stream().map(externalIp -> externalIp.getSubnetId())
                 .collect(Collectors.toSet());
-        return new ArrayList<Uuid>(subnetsSet);
+        return new ArrayList<>(subnetsSet);
     }
 
     public static List<Uuid> getExternalSubnetIdsForRouter(DataBroker dataBroker, String routerName) {
@@ -1725,10 +1715,12 @@ public class NatUtil {
 
     protected static Uuid getExternalSubnetForRouterExternalIp(DataBroker dataBroker, String externalIpAddress,
             Routers router) {
+        externalIpAddress = externalIpAddress.contains("/32") ? externalIpAddress :
+            externalIpAddress + "/32" ;
         List<ExternalIps> externalIps = router.getExternalIps();
         for (ExternalIps extIp : externalIps) {
-            String extIpString = extIp.getIpAddress().contains("/32") ? (extIp.getIpAddress() + "/32") :
-                extIp.getIpAddress();
+            String extIpString = extIp.getIpAddress().contains("/32") ? extIp.getIpAddress() :
+                extIp.getIpAddress() + "/32" ;
             if (extIpString.equals(externalIpAddress)) {
                 return extIp.getSubnetId();
             }
@@ -1766,9 +1758,9 @@ public class NatUtil {
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
     }
 
-    public static long getTunnelIdForNonNaptToNaptFlow(DataBroker dataBroker, INeutronVpnManager nvpnManager,
+    public static long getTunnelIdForNonNaptToNaptFlow(DataBroker dataBroker, IElanService elanManager,
             IdManagerService idManager, long routerId, String routerName) {
-        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+        if (elanManager.isOpenStackVniSemanticsEnforced()) {
             // Router VNI will be set as tun_id if OpenStackSemantics is enabled
             return NatOverVxlanUtil.getRouterVni(idManager, routerName, routerId).longValue();
         } else {
@@ -1812,7 +1804,8 @@ public class NatUtil {
     }
 
     public static Boolean isFloatingIpPresentForDpn(DataBroker dataBroker, BigInteger dpnId, String rd,
-                                                           String vpnName, String externalIp) {
+                                                    String vpnName, String externalIp,
+                                                    Boolean isMoreThanOneFipCheckOnDpn) {
         InstanceIdentifier<VpnToDpnList> id = getVpnToDpnListIdentifier(rd, dpnId);
         Optional<VpnToDpnList> dpnInVpn = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         if (dpnInVpn.isPresent()) {
@@ -1820,10 +1813,19 @@ public class NatUtil {
                     vpnName, dpnId, rd, externalIp);
             List<IpAddresses> ipAddressList = dpnInVpn.get().getIpAddresses();
             if (ipAddressList.size() > 0) {
+                int floatingIpPresentCount = 0;
                 for (IpAddresses ipAddress: ipAddressList) {
                     if (!ipAddress.getIpAddress().equals(externalIp)
                             && IpAddresses.IpAddressSource.FloatingIP.equals(ipAddress.getIpAddressSource())) {
-                        return Boolean.TRUE;
+                        floatingIpPresentCount++;
+                        //Add tunnel table check
+                        if (isMoreThanOneFipCheckOnDpn && floatingIpPresentCount > 1) {
+                            return Boolean.TRUE;
+                        }
+                        //Remove tunnel table check
+                        if (!isMoreThanOneFipCheckOnDpn) {
+                            return Boolean.TRUE;
+                        }
                     }
                 }
             } else {
@@ -1838,5 +1840,142 @@ public class NatUtil {
         return InstanceIdentifier.builder(VpnInstanceOpData.class)
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd))
                 .child(VpnToDpnList.class, new VpnToDpnListKey(dpnId)).build();
+    }
+
+    public static void createOrUpdateVpnToDpnList(DataBroker dataBroker, long vpnId, BigInteger dpnId, String intfName,
+            String vpnName) {
+        String primaryRd = getPrimaryRd(dataBroker, vpnName);
+        Boolean newDpnOnVpn = Boolean.FALSE;
+
+        synchronized (vpnName.intern()) {
+            WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+            InstanceIdentifier<VpnToDpnList> id = getVpnToDpnListIdentifier(primaryRd, dpnId);
+            Optional<VpnToDpnList> dpnInVpn = read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance
+                .op.data.entry.vpn.to.dpn.list.VpnInterfaces vpnInterface = new VpnInterfacesBuilder()
+                .setInterfaceName(intfName).build();
+
+            if (dpnInVpn.isPresent()) {
+                VpnToDpnList vpnToDpnList = dpnInVpn.get();
+                List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn
+                    .instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces> vpnInterfaces = vpnToDpnList
+                    .getVpnInterfaces();
+                if (vpnInterfaces == null) {
+                    vpnInterfaces = new ArrayList<>();
+                }
+                vpnInterfaces.add(vpnInterface);
+                VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder(vpnToDpnList);
+                vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setVpnInterfaces(vpnInterfaces);
+
+                writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, vpnToDpnListBuilder.build(), true);
+                /* If earlier state was inactive, it is considered new DPN coming back to the
+                 * same VPN
+                 */
+                if (vpnToDpnList.getDpnState() == VpnToDpnList.DpnState.Inactive) {
+                    newDpnOnVpn = Boolean.TRUE;
+                }
+            } else {
+                List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn
+                    .instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces>
+                    vpnInterfaces = new ArrayList<>();
+                vpnInterfaces.add(vpnInterface);
+                VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder().setDpnId(dpnId);
+                vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setVpnInterfaces(vpnInterfaces);
+
+                writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, vpnToDpnListBuilder.build(), true);
+                newDpnOnVpn = Boolean.TRUE;
+            }
+        }
+    }
+
+    public static void removeOrUpdateVpnToDpnList(DataBroker dataBroker, long vpnId, BigInteger dpnId, String intfName,
+            String vpnName) {
+        Boolean lastDpnOnVpn = Boolean.FALSE;
+        String rd = getVpnRd(dataBroker, vpnName);
+        synchronized (vpnName.intern()) {
+            InstanceIdentifier<VpnToDpnList> id = getVpnToDpnListIdentifier(rd, dpnId);
+            VpnToDpnList dpnInVpn = read(dataBroker, LogicalDatastoreType.OPERATIONAL, id).orNull();
+            if (dpnInVpn == null) {
+                LOG.error("removeOrUpdateVpnToDpnList: Could not find DpnToVpn map for VPN=[name={} rd={} id={}]"
+                    + " and dpnId={}", vpnName, rd, id, dpnId);
+                return;
+            }
+            List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn
+                .instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces> vpnInterfaces = dpnInVpn.getVpnInterfaces();
+            if (vpnInterfaces == null) {
+                LOG.error("Could not find vpnInterfaces for DpnInVpn map for VPN=[name={} rd={} id={}] and dpnId={}",
+                         vpnName, rd, id, dpnId);
+                return;
+            }
+
+            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn
+                .instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces currVpnInterface = new VpnInterfacesBuilder()
+                .setInterfaceName(intfName).build();
+            if (vpnInterfaces.remove(currVpnInterface)) {
+                WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+                if (vpnInterfaces.isEmpty()) {
+                    List<IpAddresses> ipAddresses = dpnInVpn.getIpAddresses();
+                    VpnToDpnListBuilder dpnInVpnBuilder = new VpnToDpnListBuilder(dpnInVpn).setVpnInterfaces(null);
+                    if (ipAddresses == null || ipAddresses.isEmpty()) {
+                        dpnInVpnBuilder.setDpnState(VpnToDpnList.DpnState.Inactive);
+                        lastDpnOnVpn = Boolean.TRUE;
+                    } else {
+                        LOG.warn("vpn interfaces are empty but ip addresses are present for the vpn {} in dpn {}",
+                                 vpnName, dpnId);
+                    }
+                    writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, dpnInVpnBuilder.build(), true);
+
+                } else {
+                    writeTxn.delete(LogicalDatastoreType.OPERATIONAL, id.child(org.opendaylight.yang.gen.v1.urn
+                            .opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry
+                            .vpn.to.dpn.list.VpnInterfaces.class, new VpnInterfacesKey(intfName)));
+                }
+            }
+        } // Ends synchronized block
+
+       /* if (lastDpnOnVpn) {
+            LOG.debug("Sending cleanup event for dpn {} in VPN {}", dpnId, vpnName);
+            fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd, new DpnEnterExitVpnWorker(dpnId, vpnName, rd,
+                false  exited ));
+        }*/
+    }
+
+    public static String getPrimaryRd(DataBroker dataBroker, String vpnName) {
+        InstanceIdentifier<VpnInstance> id  = getVpnInstanceIdentifier(vpnName);
+        Optional<VpnInstance> vpnInstance = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        if (vpnInstance.isPresent()) {
+            return getPrimaryRd(vpnInstance.get());
+        }
+        return vpnName;
+    }
+
+    public static String getPrimaryRd(VpnInstance vpnInstance) {
+        List<String> rds = null;
+        if (vpnInstance != null) {
+            rds = getListOfRdsFromVpnInstance(vpnInstance);
+        }
+        return rds == null || rds.isEmpty() ? vpnInstance.getVpnInstanceName() : rds.get(0);
+    }
+
+    public static InstanceIdentifier<VpnInstance> getVpnInstanceIdentifier(String vpnName) {
+        return InstanceIdentifier.builder(VpnInstances.class)
+            .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+    }
+
+    public static List<String> getListOfRdsFromVpnInstance(VpnInstance vpnInstance) {
+        VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
+        return vpnConfig.getRouteDistinguisher() != null ? new ArrayList<>(
+                vpnConfig.getRouteDistinguisher()) : new ArrayList<>();
+    }
+
+    public static long getVpnIdFromExternalSubnet(DataBroker dataBroker, String routerName, String externalIpAddress) {
+        if (routerName != null) {
+            Routers extRouter = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
+            if (extRouter != null) {
+                return getExternalSubnetVpnIdForRouterExternalIp(dataBroker, externalIpAddress, extRouter);
+            }
+        }
+
+        return NatConstants.INVALID_ID;
     }
 }

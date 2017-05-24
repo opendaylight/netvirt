@@ -95,9 +95,4 @@ public class NeutronvpnManagerImpl implements INeutronVpnManager {
     public String getOpenDaylightVniRangesConfig() {
         return nvManager.getOpenDaylightVniRangesConfig();
     }
-
-    @Override
-    public Boolean getEnforceOpenstackSemanticsConfig() {
-        return nvManager.getEnforceOpenstackSemanticsConfig();
-    }
 }

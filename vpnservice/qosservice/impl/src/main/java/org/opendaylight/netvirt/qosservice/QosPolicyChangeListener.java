@@ -162,12 +162,14 @@ public class QosPolicyChangeListener extends AsyncDataTreeChangeListenerBase<Qos
             for (Network network : QosNeutronUtils.qosNetworksMap.get(qosUuid).values()) {
                 QosNeutronUtils.handleNeutronNetworkQosUpdate(dataBroker, odlInterfaceRpcService,
                         neutronVpnManager, mdsalUtils, network, qosUuid);
+                QosAlertManager.addToQosAlertCache(network);
             }
         }
 
         if (QosNeutronUtils.qosPortsMap.get(qosUuid) != null
                 && !QosNeutronUtils.qosPortsMap.get(qosUuid).isEmpty()) {
             for (Port port : QosNeutronUtils.qosPortsMap.get(qosUuid).values()) {
+                QosAlertManager.addToQosAlertCache(port);
                 final DataStoreJobCoordinator portDataStoreCoordinator =
                         DataStoreJobCoordinator.getInstance();
                 portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
@@ -228,6 +230,7 @@ public class QosPolicyChangeListener extends AsyncDataTreeChangeListenerBase<Qos
         if (QosNeutronUtils.qosNetworksMap.get(qosUuid) != null
                 && !QosNeutronUtils.qosNetworksMap.get(qosUuid).isEmpty()) {
             for (Network network : QosNeutronUtils.qosNetworksMap.get(qosUuid).values()) {
+                QosAlertManager.removeFromQosAlertCache(network);
                 QosNeutronUtils.handleNeutronNetworkQosBwRuleRemove(dataBroker, odlInterfaceRpcService,
                         neutronVpnManager, network, zeroBwLimitRule);
             }
@@ -236,6 +239,7 @@ public class QosPolicyChangeListener extends AsyncDataTreeChangeListenerBase<Qos
         if (QosNeutronUtils.qosPortsMap.get(qosUuid) != null
                 && !QosNeutronUtils.qosPortsMap.get(qosUuid).isEmpty()) {
             for (Port port : QosNeutronUtils.qosPortsMap.get(qosUuid).values()) {
+                QosAlertManager.removeFromQosAlertCache(port);
                 final DataStoreJobCoordinator portDataStoreCoordinator =
                         DataStoreJobCoordinator.getInstance();
                 portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {

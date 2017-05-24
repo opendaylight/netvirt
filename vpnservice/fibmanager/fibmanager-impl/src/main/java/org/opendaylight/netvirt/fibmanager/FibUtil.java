@@ -10,12 +10,10 @@ package org.opendaylight.netvirt.fibmanager;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
+import static org.opendaylight.netvirt.fibmanager.VrfEntryListener.isOpenStackVniSemanticsEnforced;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -26,10 +24,9 @@ import java.util.concurrent.Future;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
@@ -41,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -51,10 +49,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.Dpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.BucketId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.Buckets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.BucketsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.buckets.Bucket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.buckets.BucketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.GroupKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.extraroute.rds.DestPrefixesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.extraroute.rds.DestPrefixesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
@@ -83,15 +92,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkStateKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -99,50 +103,6 @@ import org.slf4j.LoggerFactory;
 
 public class FibUtil {
     private static final Logger LOG = LoggerFactory.getLogger(FibUtil.class);
-
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
-                                                          InstanceIdentifier<T> path) {
-
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
-
-        Optional<T> result = Optional.absent();
-        try {
-            result = tx.read(datastoreType, path).get();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        return result;
-    }
-
-    static <T extends DataObject> void asyncWrite(DataBroker broker, LogicalDatastoreType datastoreType,
-                                                  InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.merge(datastoreType, path, data, true);
-        Futures.addCallback(tx.submit(), callback);
-    }
-
-    static <T extends DataObject> void syncWrite(DataBroker broker, LogicalDatastoreType datastoreType,
-                                                 InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.put(datastoreType, path, data, true);
-        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
-        try {
-            futures.get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error writing to datastore (path, data) : ({}, {})", path, data, e);
-            throw new RuntimeException(e.getMessage());
-        }
-    }
-
-    static <T extends DataObject> void delete(DataBroker broker, LogicalDatastoreType datastoreType,
-                                              InstanceIdentifier<T> path) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.delete(datastoreType, path);
-        Futures.addCallback(tx.submit(), DEFAULT_CALLBACK);
-    }
 
     static InstanceIdentifier<Adjacency> getAdjacencyIdentifier(String vpnInterfaceName, String ipAddress) {
         return InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang
@@ -210,7 +170,7 @@ public class FibUtil {
 
     static Optional<VpnInstanceOpDataEntry> getVpnInstanceOpData(DataBroker broker, String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = getVpnInstanceOpDataIdentifier(rd);
-        return read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        return MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
     }
 
     static String getNextHopLabelKey(String rd, String prefix) {
@@ -219,13 +179,13 @@ public class FibUtil {
     }
 
     static Prefixes getPrefixToInterface(DataBroker broker, Long vpnId, String ipPrefix) {
-        Optional<Prefixes> localNextHopInfoData = read(broker, LogicalDatastoreType.OPERATIONAL,
+        Optional<Prefixes> localNextHopInfoData = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
             getPrefixToInterfaceIdentifier(vpnId, ipPrefix));
         return localNextHopInfoData.isPresent() ? localNextHopInfoData.get() : null;
     }
 
     static String getMacAddressFromPrefix(DataBroker broker, String ifName, String ipPrefix) {
-        Optional<Adjacency> adjacencyData = read(broker, LogicalDatastoreType.OPERATIONAL,
+        Optional<Adjacency> adjacencyData = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
             getAdjacencyIdentifier(ifName, ipPrefix));
         return adjacencyData.isPresent() ? adjacencyData.get().getMacAddress() : null;
     }
@@ -255,7 +215,7 @@ public class FibUtil {
     public static long getVpnId(DataBroker broker, String vpnName) {
 
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        return read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVpnId).or(-1L);
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVpnId).or(-1L);
     }
 
     /**
@@ -269,53 +229,6 @@ public class FibUtil {
         return getVpnInstanceOpData(broker, rd).transform(VpnInstanceOpDataEntry::getVpnInstanceName);
     }
 
-    static List<InterVpnLink> getAllInterVpnLinks(DataBroker broker) {
-        InstanceIdentifier<InterVpnLinks> interVpnLinksIid = InstanceIdentifier.builder(InterVpnLinks.class).build();
-
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, interVpnLinksIid).transform(
-            InterVpnLinks::getInterVpnLink).or(new ArrayList<>());
-    }
-
-    /**
-     * Returns the instance identifier for a given vpnLinkName.
-     *
-     * @param vpnLinkName The vpn link name
-     * @return InstanceIdentifier
-     */
-    public static InstanceIdentifier<InterVpnLinkState> getInterVpnLinkStateIid(String vpnLinkName) {
-        return InstanceIdentifier.builder(InterVpnLinkStates.class)
-            .child(InterVpnLinkState.class, new InterVpnLinkStateKey(vpnLinkName)).build();
-    }
-
-    /**
-     * Checks if the InterVpnLink is in Active state.
-     *
-     * @param broker The DataBroker
-     * @param vpnLinkName The vpn linkname
-     * @return The link state
-     */
-    public static boolean isInterVpnLinkActive(DataBroker broker, String vpnLinkName) {
-        Optional<InterVpnLinkState> interVpnLinkState = getInterVpnLinkState(broker, vpnLinkName);
-        if (!interVpnLinkState.isPresent()) {
-            LOG.warn("Could not find Operative State for InterVpnLink {}", vpnLinkName);
-            return false;
-        }
-
-        return interVpnLinkState.get().getState().equals(InterVpnLinkState.State.Active);
-    }
-
-    /**
-     * Checks if the state of the interVpnLink.
-     *
-     * @param broker The DataBroker
-     * @param vpnLinkName The vpn linkname
-     * @return The link state
-     */
-    public static Optional<InterVpnLinkState> getInterVpnLinkState(DataBroker broker, String vpnLinkName) {
-        InstanceIdentifier<InterVpnLinkState> vpnLinkStateIid = getInterVpnLinkStateIid(vpnLinkName);
-        return read(broker, LogicalDatastoreType.CONFIGURATION, vpnLinkStateIid);
-    }
-
     /**
      * Obtains the route-distinguisher for a given vpn-name.
      *
@@ -325,7 +238,7 @@ public class FibUtil {
      */
     public static String getVpnRd(DataBroker broker, String vpnName) {
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        return read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVrfId).orNull();
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVrfId).orNull();
     }
 
     public static int getUniqueId(IdManagerService idManager, String poolName, String idKey) {
@@ -345,42 +258,15 @@ public class FibUtil {
         return 0;
     }
 
-    static final FutureCallback<Void> DEFAULT_CALLBACK =
-        new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(Void result) {
-                LOG.debug("Success in Datastore operation");
-            }
-
-            @Override
-            public void onFailure(Throwable error) {
-                LOG.error("Error in Datastore operation", error);
-            }
-
-            ;
-        };
-
     public static String getVpnNameFromId(DataBroker broker, long vpnId) {
         InstanceIdentifier<VpnIds> id = getVpnIdToVpnInstanceIdentifier(vpnId);
-        return read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnIds::getVpnInstanceName).orNull();
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnIds::getVpnInstanceName)
+                .orNull();
     }
 
     static InstanceIdentifier<VpnIds> getVpnIdToVpnInstanceIdentifier(long vpnId) {
         return InstanceIdentifier.builder(VpnIdToVpnInstance.class)
             .child(VpnIds.class, new VpnIdsKey(vpnId)).build();
-    }
-
-    public static <T extends DataObject> void syncUpdate(DataBroker broker, LogicalDatastoreType datastoreType,
-                                                         InstanceIdentifier<T> path, T data) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.put(datastoreType, path, data, true);
-        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
-        try {
-            futures.get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error writing to datastore (path, data) : ({}, {})", path, data, e);
-            throw new RuntimeException(e.getMessage());
-        }
     }
 
     // TODO Clean up the exception handling
@@ -607,8 +493,7 @@ public class FibUtil {
         if (writeConfigTxn != null) {
             writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTablesBuilder.build());
         } else {
-            syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTablesBuilder.build(),
-                FibUtil.DEFAULT_CALLBACK);
+            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTablesBuilder.build());
         }
 
     }
@@ -622,7 +507,7 @@ public class FibUtil {
         if (writeConfigTxn != null) {
             writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vrfTableId);
         } else {
-            delete(broker, LogicalDatastoreType.CONFIGURATION, vrfTableId);
+            MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, vrfTableId);
         }
     }
 
@@ -670,7 +555,7 @@ public class FibUtil {
         .state.Interface getInterfaceStateFromOperDS(DataBroker dataBroker, String interfaceName) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
             .interfaces.state.Interface> ifStateId = buildStateInterfaceId(interfaceName);
-        Optional<Interface> ifStateOptional = FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, ifStateId);
+        Optional<Interface> ifStateOptional = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, ifStateId);
         if (ifStateOptional.isPresent()) {
             return ifStateOptional.get();
         }
@@ -683,7 +568,7 @@ public class FibUtil {
     }
 
     public static void updateUsedRdAndVpnToExtraRoute(WriteTransaction writeOperTxn, DataBroker broker,
-                                                      String nextHopToRemove, String primaryRd, String prefix) {
+                                                      String tunnelIpRemoved, String primaryRd, String prefix) {
         Optional<VpnInstanceOpDataEntry> optVpnInstance = getVpnInstanceOpData(broker, primaryRd);
         if (!optVpnInstance.isPresent()) {
             return;
@@ -709,7 +594,7 @@ public class FibUtil {
                         return false;
                     }
                     Prefixes prefixToInterface = getPrefixToInterface(broker, vpnId, getIpPrefix(pair.getLeft()));
-                    return prefixToInterface != null ? nextHopToRemove
+                    return prefixToInterface != null ? tunnelIpRemoved
                             .equals(getEndpointIpAddressForDPN(broker, prefixToInterface.getDpnId())) : false;
                 })
                 .map(pair -> pair.getRight()).findFirst();
@@ -720,18 +605,16 @@ public class FibUtil {
         if (!optRoutes.isPresent()) {
             return;
         }
-        Prefixes prefixToInterface = getPrefixToInterface(broker, vpnId,
-                getIpPrefix(optRoutes.get().getNexthopIpList().get(0)));
+        String nextHopRemoved = optRoutes.get().getNexthopIpList().get(0);
+        Prefixes prefixToInterface = getPrefixToInterface(broker, vpnId, getIpPrefix(nextHopRemoved));
         if (prefixToInterface != null) {
             writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
                     getAdjacencyIdentifier(prefixToInterface.getVpnInterfaceName(), prefix));
         }
         writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
                 VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, rdToRemove.get(), prefix));
-        usedRds.remove(rdToRemove.get());
-        writeOperTxn.put(LogicalDatastoreType.CONFIGURATION,
-                VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix),
-                getDestPrefixesBuilder(prefix, usedRds).build());
+        writeOperTxn.delete(LogicalDatastoreType.CONFIGURATION,
+                VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix, nextHopRemoved));
     }
 
     private static String getEndpointIpAddressForDPN(DataBroker broker, BigInteger dpnId) {
@@ -739,7 +622,7 @@ public class FibUtil {
         String nextHopIp = null;
         InstanceIdentifier<DPNTEPsInfo> tunnelInfoId =
             InstanceIdentifier.builder(DpnEndpoints.class).child(DPNTEPsInfo.class, new DPNTEPsInfoKey(dpnId)).build();
-        Optional<DPNTEPsInfo> tunnelInfo = read(broker, LogicalDatastoreType.CONFIGURATION, tunnelInfoId);
+        Optional<DPNTEPsInfo> tunnelInfo = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, tunnelInfoId);
         if (tunnelInfo.isPresent()) {
             List<TunnelEndPoints> nexthopIpList = tunnelInfo.get().getTunnelEndPoints();
             if (nexthopIpList != null && !nexthopIpList.isEmpty()) {
@@ -747,10 +630,6 @@ public class FibUtil {
             }
         }
         return nextHopIp;
-    }
-
-    public static DestPrefixesBuilder getDestPrefixesBuilder(String destPrefix, List<String> rd) {
-        return new DestPrefixesBuilder().setKey(new DestPrefixesKey(destPrefix)).setDestPrefix(destPrefix).setRds(rd);
     }
 
     public static String getIpPrefix(String prefix) {
@@ -790,7 +669,7 @@ public class FibUtil {
 
     public static List<String> getNextHopAddresses(DataBroker broker, String rd, String prefix) {
         InstanceIdentifier<VrfEntry> vrfEntryId = getNextHopIdentifier(rd, prefix);
-        Optional<VrfEntry> vrfEntry = read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        Optional<VrfEntry> vrfEntry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
         if (vrfEntry.isPresent()) {
             return FibHelper.getNextHopListFromRoutePaths(vrfEntry.get());
         } else {
@@ -800,7 +679,7 @@ public class FibUtil {
 
     public static Optional<String> getGatewayMac(DataBroker dataBroker, String rd, String localNextHopIP) {
         InstanceIdentifier<VrfEntry> vrfEntryId = getNextHopIdentifier(rd, localNextHopIP);
-        Optional<VrfEntry> vrfEntry = read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        Optional<VrfEntry> vrfEntry = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
         if (vrfEntry.isPresent()) {
             return Optional.fromNullable(vrfEntry.get().getGatewayMacAddress());
         } else {
@@ -811,7 +690,7 @@ public class FibUtil {
     public static Subnetmap getSubnetMap(DataBroker broker, Uuid subnetId) {
         InstanceIdentifier<Subnetmap> subnetmapId = InstanceIdentifier.builder(Subnetmaps.class)
             .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
-        return read(broker, LogicalDatastoreType.CONFIGURATION, subnetmapId).orNull();
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, subnetmapId).orNull();
     }
 
     public static String getGreLbGroupKey(List<String> availableDcGws) {
@@ -879,7 +758,7 @@ public class FibUtil {
     public static Optional<Nexthops> getNexthops(DataBroker dataBroker, String nextHopKey) {
         InstanceIdentifier<Nexthops> nextHopsId = InstanceIdentifier.builder(L3vpnLbNexthops.class)
                 .child(Nexthops.class, new NexthopsKey(nextHopKey)).build();
-        return read(dataBroker, LogicalDatastoreType.OPERATIONAL, nextHopsId);
+        return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, nextHopsId);
     }
 
     public static Optional<DpnLbNexthops> getDpnLbNexthops(DataBroker dataBroker, BigInteger dpnId,
@@ -887,6 +766,70 @@ public class FibUtil {
         InstanceIdentifier<DpnLbNexthops> id = InstanceIdentifier.builder(DpidL3vpnLbNexthops.class)
                 .child(DpnLbNexthops.class, new DpnLbNexthopsKey(destinationIp, dpnId))
                 .build();
-        return read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+    }
+
+    protected static boolean isVxlanNetworkAndInternalRouterVpn(DataBroker dataBroker, Uuid subnetId, String
+            vpnInstanceName, String rd) {
+        if (vpnInstanceName.equals(rd)) {
+            Subnetmap subnetmap = getSubnetMap(dataBroker, subnetId);
+            if (subnetmap != null) {
+                return subnetmap.getNetworkType() == NetworkAttributes.NetworkType.VXLAN;
+            }
+        }
+        return false;
+    }
+
+    protected static java.util.Optional<Long> getVniForVxlanNetwork(DataBroker dataBroker, Uuid subnetId) {
+        Subnetmap subnetmap = getSubnetMap(dataBroker, subnetId);
+        if (subnetmap != null && subnetmap.getNetworkType() == NetworkAttributes.NetworkType.VXLAN) {
+            return java.util.Optional.of(subnetmap.getSegmentationId());
+        }
+        return java.util.Optional.empty();
+    }
+
+    protected static boolean enforceVxlanDatapathSemanticsforInternalRouterVpn(DataBroker dataBroker, Uuid subnetId,
+                                                                               long vpnId, String rd) {
+        return (isOpenStackVniSemanticsEnforced
+                && isVxlanNetworkAndInternalRouterVpn(dataBroker, subnetId, getVpnNameFromId(dataBroker, vpnId), rd));
+    }
+
+    protected static boolean enforceVxlanDatapathSemanticsforInternalRouterVpn(DataBroker dataBroker, Uuid subnetId,
+                                                                               String vpnName, String rd) {
+        return (isOpenStackVniSemanticsEnforced
+                && isVxlanNetworkAndInternalRouterVpn(dataBroker, subnetId, vpnName, rd));
+    }
+
+    static NodeRef buildNodeRef(BigInteger dpId) {
+        return new NodeRef(InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, new NodeKey(new NodeId("openflow:" + dpId))).build());
+    }
+
+    static InstanceIdentifier<Group> buildGroupInstanceIdentifier(long groupId, BigInteger dpId) {
+        InstanceIdentifier<Group> groupInstanceId = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, new NodeKey(new NodeId("openflow:" + dpId))).augmentation(FlowCapableNode.class)
+                .child(Group.class, new GroupKey(new GroupId(groupId))).build();
+        return groupInstanceId;
+    }
+
+    static Buckets buildBuckets(List<BucketInfo> listBucketInfo) {
+        long index = 0;
+        BucketsBuilder bucketsBuilder = new BucketsBuilder();
+        if (listBucketInfo != null) {
+            List<Bucket> bucketList = new ArrayList<>();
+
+            for (BucketInfo bucketInfo : listBucketInfo) {
+                BucketBuilder bucketBuilder = new BucketBuilder();
+                bucketBuilder.setAction(bucketInfo.buildActions());
+                bucketBuilder.setWeight(bucketInfo.getWeight());
+                bucketBuilder.setBucketId(new BucketId(index++));
+                bucketBuilder.setWeight(bucketInfo.getWeight()).setWatchPort(bucketInfo.getWatchPort())
+                        .setWatchGroup(bucketInfo.getWatchGroup());
+                bucketList.add(bucketBuilder.build());
+            }
+
+            bucketsBuilder.setBucket(bucketList);
+        }
+        return bucketsBuilder.build();
     }
 }
