@@ -104,6 +104,20 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
             ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
                     ElanUtils.getElanInfoEntriesOperationalDataPath(elanTag));
         }
+        ElanUtils.getElanInterfaces(elanName).stream().forEach(elanInterfaceName -> {
+            DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
+            dataStoreJobCoordinator.enqueueJob("INTERFACE-" + elanInterfaceName, () -> {
+                WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
+                LOG.info("Deleting the elanInterface present under ConfigDS:{}", elanInterfaceName);
+                ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
+                        ElanUtils.getElanInterfaceConfigurationDataPathId(elanInterfaceName));
+                elanInterfaceManager.unbindService(elanInterfaceName, writeConfigTxn);
+                ElanUtils.removeElanInterfaceToElanInstanceCache(elanName, elanInterfaceName);
+                LOG.info("unbind the Interface:{} service bounded to Elan:{}", elanInterfaceName, elanName);
+                futures.add(writeConfigTxn.submit());
+                return futures;
+            }, ElanConstants.JOB_MAX_RETRIES);
+        });
         // Release tag
         ElanUtils.releaseId(idManager, ElanConstants.ELAN_ID_POOL_NAME, elanName);
         if (deletedElan.getAugmentation(EtreeInstance.class) != null) {
