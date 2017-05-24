@@ -177,7 +177,7 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener {
             //Create an NAPT event and place it in the queue.
             NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(externalIpAddress, externalPortNumber,
                 routerId, NAPTEntryEvent.Operation.DELETE, protocol, null, false);
-            naptEventdispatcher.addNaptEvent(naptEntryEvent);
+            naptEventdispatcher.addFlowRemovedNaptEvent(naptEntryEvent);
 
             //Get the DPN ID from the Node
             InstanceIdentifier<Node> nodeRef = flowRemoved.getNode().getValue().firstIdentifierOf(Node.class);
@@ -190,7 +190,10 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener {
             LOG.debug("NaptFlowRemovedEventHandler : DPN ID {}, Metadata {}, SwitchFlowRef {}, "
                 + "internalIpv4HostAddress{}", dpnId, routerId, switchFlowRef, internalIpv4AddressAsString);
             FlowEntity snatFlowEntity = NatUtil.buildFlowEntity(dpnId, tableId, switchFlowRef);
+            long startTime = System.currentTimeMillis();
             mdsalManager.removeFlow(snatFlowEntity);
+            LOG.debug("NaptFlowRemovedEventHandler : Time taken for removeNatFlows:{}ms",
+                    (System.currentTimeMillis() - startTime));
 
             LOG.debug("Received flow removed notification due to idleTimeout of flow from switch for flowref {}",
                 switchFlowRef);
