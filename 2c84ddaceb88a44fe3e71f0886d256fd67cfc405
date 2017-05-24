@@ -16,6 +16,24 @@
       "revId": "2c84ddaceb88a44fe3e71f0886d256fd67cfc405",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_ab85deae",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/ACLVpnChangeListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-24T16:21:59Z",
+      "side": 1,
+      "message": "Service binding will happen twice. Once by ACL with elan-id and then later triggered via ACLVpnChangeListener with the vpnId.\n\nWe have to furhter troubleshoot why the patch is not having required effect.",
+      "parentUuid": "7af0899e_0b9fd260",
+      "revId": "2c84ddaceb88a44fe3e71f0886d256fd67cfc405",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
