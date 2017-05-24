@@ -98,4 +98,13 @@ public class VpnHelper {
         return InstanceIdentifier.builder(VpnInterfaces.class)
                 .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName)).build();
     }
+
+    public static String getFirstVpnNameFromVpnInterface(final VpnInterface original) {
+        List optList = original.getVpnInstanceName();
+        if (optList != null) {
+            return original.getVpnInstanceName().get(0);
+        } else {
+            return null;
+        }
+    }
 }
