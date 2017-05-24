@@ -32,6 +32,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -283,8 +284,8 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                         }
                     }
                     //Populate the map for VpnId-to-Rd
-                    long vpnId = VpnUtil.getVpnId(dataBroker, vpnInterface.getVpnInstanceName());
-                    rd = VpnUtil.getVpnRd(dataBroker, vpnInterface.getVpnInstanceName());
+                    long vpnId = VpnUtil.getVpnId(dataBroker, VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
+                    rd = VpnUtil.getVpnRd(dataBroker, VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
                     vpnIdRdMap.put(vpnId, rd);
                 }
             }
@@ -302,7 +303,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                     List<Adjacency> adjList = adjacencies != null ? adjacencies.getAdjacency()
                             : Collections.emptyList();
                     String prefix = null;
-                    long vpnId = VpnUtil.getVpnId(dataBroker, vpnInterface.getVpnInstanceName());
+                    long vpnId = VpnUtil.getVpnId(dataBroker, VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
                     if (vpnIdRdMap.containsKey(vpnId)) {
                         rd = vpnIdRdMap.get(vpnId);
                         LOG.trace(" Remote DpnId {} VpnId {} rd {} VpnInterface {}", remoteDpnId, vpnId, rd,
