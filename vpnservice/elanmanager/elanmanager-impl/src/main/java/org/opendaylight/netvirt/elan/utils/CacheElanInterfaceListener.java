@@ -59,11 +59,15 @@ public class CacheElanInterfaceListener implements ClusteredDataTreeChangeListen
             switch (mod.getModificationType()) {
                 case DELETE:
                     ElanUtils.removeElanInterfaceFromCache(mod.getDataBefore().getName());
+                    ElanUtils.removeElanInterfaceToElanInstanceCache(mod.getDataBefore().getElanInstanceName(),
+                            mod.getDataBefore().getName());
                     break;
                 case SUBTREE_MODIFIED:
                 case WRITE:
                     ElanInterface elanInterface = mod.getDataAfter();
                     ElanUtils.addElanInterfaceIntoCache(elanInterface.getName(), elanInterface);
+                    ElanUtils.addElanInterfaceToElanInstanceCache(elanInterface.getElanInstanceName(),
+                            elanInterface.getName());
                     break;
                 default:
                     throw new IllegalArgumentException("Unhandled modification type " + mod.getModificationType());
