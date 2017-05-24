@@ -201,6 +201,13 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                             }
                         }
                         if (!dpnId.equals(BigInteger.ZERO)) {
+                            InstanceIdentifier<VpnInterface> id = VpnUtil
+                                    .getVpnInterfaceIdentifier(interfaceName);
+                            Optional<VpnInterface> cfgVpnInterface = VpnUtil.read(dataBroker,
+                                    LogicalDatastoreType.CONFIGURATION, id);
+                            if (!cfgVpnInterface.isPresent()) {
+                                return futures;
+                            }
                             if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
                                 LOG.info("{} update: Received port UP event for interface {} in subnets {}",
                                         LOGGING_PREFIX, update.getName(), subnetIdList);
