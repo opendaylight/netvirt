@@ -73,10 +73,10 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
         if (this == obj) {
             return true;
         }
-        if (Objects.isNull(obj)) {
+        if (obj == null) {
             return false;
         }
-        if (!Objects.equals(obj.getClass(), ClassifierEntry.class)) {
+        if (!ClassifierEntry.class.equals(obj.getClass())) {
             return false;
         }
         ClassifierEntry other = (ClassifierEntry) obj;
