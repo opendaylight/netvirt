@@ -53,6 +53,7 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -210,7 +211,8 @@ public class VpnUtil {
 
     static VpnInterface getVpnInterface(String intfName, String vpnName, Adjacencies aug, BigInteger dpnId,
         Boolean isSheduledForRemove) {
-        return new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(intfName)).setVpnInstanceName(vpnName).setDpnId(
+        return new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(intfName))
+            .setVpnInstanceNames(Collections.singletonList(vpnName)).setDpnId(
             dpnId)
             .setScheduledForRemove(isSheduledForRemove).addAugmentation(Adjacencies.class, aug)
             .build();
@@ -744,7 +746,8 @@ public class VpnUtil {
         Optional<VpnInterface> optConfiguredVpnInterface = read(broker, LogicalDatastoreType.CONFIGURATION,
                 interfaceId);
         if (optConfiguredVpnInterface.isPresent()) {
-            vpnOptional = Optional.of(optConfiguredVpnInterface.get().getVpnInstanceName());
+            vpnOptional = Optional.of(VpnHelper.getFirstVpnNameFromVpnInterface(
+                          optConfiguredVpnInterface.get()));
         }
         return vpnOptional;
     }
@@ -1053,7 +1056,8 @@ public class VpnUtil {
         InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
         VpnInterface interfaceToUpdate =
             new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(interfaceName)).setName(interfaceName)
-                .setDpnId(dpnId).setVpnInstanceName(vpnInstanceName).setScheduledForRemove(isScheduledToRemove).build();
+                .setDpnId(dpnId).setVpnInstanceNames(Collections.singletonList(vpnInstanceName))
+                .setScheduledForRemove(isScheduledToRemove).build();
         if (writeOperTxn != null) {
             writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, interfaceId, interfaceToUpdate, true);
         } else {
@@ -1383,9 +1387,9 @@ public class VpnUtil {
 
     public static boolean isVpnIntfPresentInVpnToDpnList(DataBroker broker, VpnInterface vpnInterface) {
         BigInteger dpnId = vpnInterface.getDpnId();
-        String rd = VpnUtil.getVpnRd(broker, vpnInterface.getVpnInstanceName());
+        String rd = VpnUtil.getVpnRd(broker, VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
         LOG.trace("isVpnIntfPresentInVpnToDpnList: GOT rd {} for VpnInterface {}  VpnInstance {} ", rd ,
-                vpnInterface.getName(), vpnInterface.getVpnInstanceName());
+                 vpnInterface.getName(), VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
         VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpDataFromCache(broker, rd);
         if (vpnInstanceOpData != null) {
             LOG.trace("isVpnIntfPresentInVpnToDpnList: GOT VpnInstanceOp {} for rd {} ", vpnInstanceOpData, rd);
@@ -1396,7 +1400,8 @@ public class VpnUtil {
                         return dpn.getVpnInterfaces().contains(vpnInterface.getName());
                     }
                     LOG.info("isVpnIntfPresentInVpnToDpnList: VpnInterface {} not present in DpnId {} vpn {}",
-                            vpnInterface.getName(), dpn.getDpnId(), vpnInterface.getVpnInstanceName());
+                            vpnInterface.getName(), dpn.getDpnId(),
+                            VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
                 }
             }
         }

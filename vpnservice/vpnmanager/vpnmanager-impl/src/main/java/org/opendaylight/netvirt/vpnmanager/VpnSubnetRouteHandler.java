@@ -362,7 +362,7 @@ public class VpnSubnetRouteHandler {
                 if (!sm.isPresent()) {
                     LOG.error("{} onSubnetDeletedFromVpn: Stale ports removal: Unable to retrieve subnetmap entry"
                             + " for subnet {} subnetIp {} vpnName {}", LOGGING_PREFIX, subnetId.getValue(),
-                            optionalSubs.get().getSubnetCidr(), optionalSubs.get().getVpnName());
+                            subnetOpDataEntry.getSubnetCidr(), subnetOpDataEntry.getVpnName());
                 } else {
                     Subnetmap subMap = sm.get();
                     List<Uuid> portList = subMap.getPortList();
@@ -374,17 +374,18 @@ public class VpnSubnetRouteHandler {
                             LOG.trace("{} onSubnetDeletedFromVpn: Deleting portOpData entry for port {}"
                                     + " from subnet {} subnetIp {} vpnName {} TaskState()",
                                     LOGGING_PREFIX, port.getValue(), subnetId.getValue(),
-                                    optionalSubs.get().getSubnetCidr(), optionalSubs.get().getVpnName(),
-                                    optionalSubs.get().getRouteAdvState());
+                                    subnetOpDataEntry.getSubnetCidr(), subnetOpDataEntry.getVpnName(),
+                                    subnetOpDataEntry.getRouteAdvState());
                             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
                         }
                     }
                 }
 
                 SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(subnetOpDataEntry);
+                String rd = subOpBuilder.getVrfId();
                 //Withdraw the routes for all the interfaces on this subnet
                 //Remove subnet route entry from FIB
-                deleteSubnetRouteFromFib(subOpBuilder.getVrfId(), subnetIp, vpnName, isBgpVpn);
+                deleteSubnetRouteFromFib(rd, subnetIp, vpnName, isBgpVpn);
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
                 LOG.info("{} onSubnetDeletedFromVpn: Removed subnetopdataentry successfully from Datastore"
                         + " for subnet {} subnetIp {} vpnName {} rd {}", LOGGING_PREFIX, subnetId.getValue(), subnetIp,
