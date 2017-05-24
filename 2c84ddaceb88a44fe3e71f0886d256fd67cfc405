@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7af0899e_0b9fd260",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/ACLVpnChangeListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-05-24T15:38:25Z",
+      "side": 1,
+      "message": "Is the expectation that bind happen will twice? Once when port is created and then on this listener when the interface is added to the list? if so wouldn\u0027t it create race condition?",
+      "revId": "2c84ddaceb88a44fe3e71f0886d256fd67cfc405",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
