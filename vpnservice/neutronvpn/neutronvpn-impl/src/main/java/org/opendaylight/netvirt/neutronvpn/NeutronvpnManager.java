@@ -912,8 +912,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
                             vpnIfIdentifier);
             if (optionalVpnInterface.isPresent()) {
+                List<String> listVpn = optionalVpnInterface.get().getVpnInstanceNames();
+                listVpn.clear();
+                listVpn.add(vpnId.getValue());
                 VpnInterfaceBuilder vpnIfBuilder = new VpnInterfaceBuilder(optionalVpnInterface.get())
-                        .setVpnInstanceName(vpnId.getValue());
+                                      .setVpnInstanceNames(listVpn);
                 LOG.debug("Updating vpn interface {}", infName);
                 if (!isBeingAssociated) {
                     Adjacencies adjs = vpnIfBuilder.getAugmentation(Adjacencies.class);
@@ -949,7 +952,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     NeutronvpnUtils.createVpnPortFixedIpToPort(dataBroker, vpnId.getValue(), ipValue, infName, port
                             .getMacAddress().getValue(), isSubnetIp, writeConfigTxn);
                 }
-                writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIfBuilder
+                writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIfBuilder
                         .build());
             } else {
                 LOG.error("VPN Interface {} not found", infName);
@@ -2485,10 +2488,13 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
 
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
-        VpnInterfaceBuilder vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName))
-                .setName(infName)
-                .setVpnInstanceName(vpnId.getValue())
-                .setRouterInterface(isRouterInterface);
+        VpnInterfaceBuilder vpnb;
+        List<String> listVpn = new ArrayList<>();
+        listVpn.add(vpnId.getValue());
+        vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName))
+            .setName(infName)
+            .setVpnInstanceNames(listVpn)
+            .setRouterInterface(isRouterInterface);
         if (adjacencies != null) {
             vpnb.addAugmentation(Adjacencies.class, adjacencies);
         }
