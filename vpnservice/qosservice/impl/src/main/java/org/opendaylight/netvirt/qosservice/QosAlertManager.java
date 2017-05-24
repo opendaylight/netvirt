@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.qosservice;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import java.math.BigInteger;
@@ -376,8 +375,7 @@ public final class QosAlertManager implements Runnable {
             } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Exception {} occurred with node {} Direct-Statistics get", e, dpn);
             }
-            if (Optional.fromNullable(rpcResult).isPresent() && rpcResult.isSuccessful()
-                    && Optional.fromNullable(rpcResult.getResult()).isPresent()) {
+            if (rpcResult != null && rpcResult.isSuccessful() && rpcResult.getResult() != null) {
 
                 GetNodeConnectorStatisticsOutput nodeConnectorStatisticsOutput = rpcResult.getResult();
 

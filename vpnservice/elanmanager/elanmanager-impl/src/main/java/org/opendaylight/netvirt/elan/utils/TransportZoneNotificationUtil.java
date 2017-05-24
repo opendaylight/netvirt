@@ -258,8 +258,9 @@ public class TransportZoneNotificationUtil {
 
         LOG.debug("Changing underlay network mapping for local_ips {} on DPN {}", changedEntries.keySet(), dpId);
         changedEntries.forEach((ipAddress, underlayNetworkDiff) -> {
-            java.util.Optional.ofNullable(tepTzMap.get(ipAddress)).map(zoneNames -> {
-                zoneNames.forEach(zoneName -> {
+            List<String> zoneNames = tepTzMap.get(ipAddress);
+            if (zoneNames != null) {
+                for (String zoneName : zoneNames) {
                     String removedUnderlayNetwork = underlayNetworkDiff.leftValue();
                     String addedUnderlayNetwork = underlayNetworkDiff.rightValue();
                     Optional<String> zonePrefixOpt = getZonePrefixForUnderlayNetwork(zoneName, removedUnderlayNetwork);
@@ -270,9 +271,8 @@ public class TransportZoneNotificationUtil {
                         String newZoneName = getTzNameForUnderlayNetwork(zonePrefix, addedUnderlayNetwork);
                         updateTransportZone(newZoneName, dpId, ipAddress, tx);
                     }
-                });
-                return zoneNames;
-            });
+                }
+            }
         });
     }
 
@@ -285,16 +285,16 @@ public class TransportZoneNotificationUtil {
 
         LOG.debug("Removed local_ips {} for DPN {}", removedEntries.keySet(), dpId);
         removedEntries.forEach((ipAddress, underlayNetworkName) -> {
-            java.util.Optional.ofNullable(tepTzMap.get(ipAddress)).map(zoneNames -> {
-                zoneNames.forEach(zoneName -> {
+            List<String> zoneNames = tepTzMap.get(ipAddress);
+            if (zoneNames != null) {
+                for (String zoneName : zoneNames) {
                     Optional<String> zonePrefix = getZonePrefixForUnderlayNetwork(zoneName, underlayNetworkName);
                     if (zonePrefix.isPresent()) {
                         removeVtep(zoneName, dpId, ipAddress, tx);
                         zonePrefixes.add(zonePrefix.get());
                     }
-                });
-                return zoneNames;
-            });
+                }
+            }
         });
     }
 
@@ -335,13 +335,11 @@ public class TransportZoneNotificationUtil {
         }
 
         if (localIp != null) {
-            Optional<IpAddress> nodeIp = Optional.of(new IpAddress(localIp.toCharArray()));
-            if (nodeIp.isPresent()) {
-                VtepsBuilder vtepsBuilder = new VtepsBuilder().setDpnId(dpnId).setIpAddress(nodeIp.get())
-                        .setPortname(TUNNEL_PORT).setOptionOfTunnel(elanConfig.isUseOfTunnels());
-                subnets.getVteps().add(vtepsBuilder.build());
-                return true;
-            }
+            IpAddress nodeIp = new IpAddress(localIp.toCharArray());
+            VtepsBuilder vtepsBuilder = new VtepsBuilder().setDpnId(dpnId).setIpAddress(nodeIp)
+                    .setPortname(TUNNEL_PORT).setOptionOfTunnel(elanConfig.isUseOfTunnels());
+            subnets.getVteps().add(vtepsBuilder.build());
+            return true;
         }
 
         return false;
@@ -450,6 +448,6 @@ public class TransportZoneNotificationUtil {
 
     private Optional<String> getZonePrefixForUnderlayNetwork(String zoneName, String underlayNetworkName) {
         String[] zoneParts = zoneName.split(IP_NETWORK_ZONE_NAME_DELIMITER + underlayNetworkName);
-        return zoneParts != null && zoneParts.length == 2 ? Optional.of(zoneParts[0]) : Optional.absent();
+        return zoneParts.length == 2 ? Optional.of(zoneParts[0]) : Optional.absent();
     }
 }

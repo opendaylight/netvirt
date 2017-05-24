@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -380,14 +381,15 @@ public class PolicyServiceUtil {
         return aclType != null && aclType.isAssignableFrom(PolicyAcl.class);
     }
 
+    @Nonnull
     public List<DpnToInterface> getUnderlayNetworkDpnToInterfaces(String underlayNetwork) {
         InstanceIdentifier<UnderlayNetwork> identifier = InstanceIdentifier.create(UnderlayNetworks.class)
                 .child(UnderlayNetwork.class, new UnderlayNetworkKey(underlayNetwork));
         try {
-            Optional<UnderlayNetwork> optUnderlayNetwork = SingleTransactionDataBroker.syncReadOptional(dataBroker,
-                    LogicalDatastoreType.OPERATIONAL, identifier);
-            return optUnderlayNetwork.isPresent() ? optUnderlayNetwork.get().getDpnToInterface()
-                    : Collections.emptyList();
+            return SingleTransactionDataBroker
+                    .syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL, identifier)
+                    .transform(UnderlayNetwork::getDpnToInterface)
+                    .or(Collections.emptyList());
         } catch (ReadFailedException e) {
             LOG.warn("Failed to get DPNs for underlay network {}", underlayNetwork);
             return Collections.emptyList();
@@ -505,9 +507,12 @@ public class PolicyServiceUtil {
             return Optional.absent();
         }
 
-        java.util.Optional<String> vlanMemberNameOpt = vlanMemberInterfaces.stream()
-                .filter(iface -> isVlanMemberInterface(iface, vlanId)).findFirst().map(iface -> iface.getName());
-        return vlanMemberNameOpt.isPresent() ? Optional.of(vlanMemberNameOpt.get()) : Optional.absent();
+        return vlanMemberInterfaces.stream()
+                .filter(iface -> isVlanMemberInterface(iface, vlanId))
+                .findFirst()
+                .map(Interface::getName)
+                .map(Optional::of)
+                .orElseGet(Optional::absent);
     }
 
     private boolean isVlanMemberInterface(Interface iface, VlanId vlanId) {

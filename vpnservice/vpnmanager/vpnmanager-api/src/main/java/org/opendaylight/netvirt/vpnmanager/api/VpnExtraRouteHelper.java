@@ -140,7 +140,8 @@ public class VpnExtraRouteHelper {
     public static java.util.Optional<String> getRdAllocatedForExtraRoute(DataBroker broker,
             long vpnId, String destPrefix, String nextHop) {
         InstanceIdentifier<AllocatedRds> usedRdsId = getUsedRdsIdentifier(vpnId, destPrefix, nextHop);
-        Optional<AllocatedRds> rds = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, usedRdsId);
-        return rds.isPresent() ? java.util.Optional.ofNullable(rds.get().getRd()) : java.util.Optional.empty();
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, usedRdsId)
+                .transform(AllocatedRds::getRd).transform(java.util.Optional::ofNullable)
+                .or(java.util.Optional.empty());
     }
 }
