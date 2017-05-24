@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_75b917e9",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-24T10:19:26Z",
+      "side": 1,
+      "message": "since there is an overlap of vpn-id in the meta-bits over the elan-tag, we cannot have both of them written :(.",
+      "revId": "c19832d3e138b9f407bf07539795fddb64430c0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_b5ab7fd5",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
         "patchSetId": 6
