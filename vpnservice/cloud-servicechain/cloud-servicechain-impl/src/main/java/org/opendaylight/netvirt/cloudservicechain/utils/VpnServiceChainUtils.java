@@ -346,25 +346,24 @@ public class VpnServiceChainUtils {
     public static void programLFibEntriesForSCF(IMdsalApiManager mdsalMgr, BigInteger dpId, List<VrfEntry> vrfEntries,
             int lportTag, int addOrRemove) {
         LOG.trace("programLFibEntriesForSCF:  dpId={}  lportTag={}  addOrRemove={}", dpId, lportTag, addOrRemove);
-        java.util.Optional.ofNullable(vrfEntries).ifPresent(entries -> {
-            entries.stream()
-                    .forEach(vrfEntry -> vrfEntry.getRoutePaths()
-                            .stream()
-                            .forEach(routePath -> {
-                                Long label = routePath.getLabel();
-                                String nextHop = routePath.getNexthopAddress();
-                                FlowEntity flowEntity = buildLFibVpnPseudoPortFlow(dpId, label, nextHop, lportTag);
-                                if (addOrRemove == NwConstants.ADD_FLOW) {
-                                    mdsalMgr.installFlow(flowEntity);
-                                } else {
-                                    mdsalMgr.removeFlow(flowEntity);
-                                }
-                                LOG.debug(
-                                        "LFIBEntry for label={}, destination={}, nexthop={} {} successfully in dpn={}",
-                                        label, vrfEntry.getDestPrefix(), nextHop,
-                                        addOrRemove == NwConstants.DEL_FLOW ? "removed" : "installed", dpId);
-                            }));
-        });
+        if (vrfEntries != null) {
+            vrfEntries.forEach(vrfEntry -> vrfEntry.getRoutePaths()
+                    .stream()
+                    .forEach(routePath -> {
+                        Long label = routePath.getLabel();
+                        String nextHop = routePath.getNexthopAddress();
+                        FlowEntity flowEntity = buildLFibVpnPseudoPortFlow(dpId, label, nextHop, lportTag);
+                        if (addOrRemove == NwConstants.ADD_FLOW) {
+                            mdsalMgr.installFlow(flowEntity);
+                        } else {
+                            mdsalMgr.removeFlow(flowEntity);
+                        }
+                        LOG.debug(
+                                "LFIBEntry for label={}, destination={}, nexthop={} {} successfully in dpn={}",
+                                label, vrfEntry.getDestPrefix(), nextHop,
+                                addOrRemove == NwConstants.DEL_FLOW ? "removed" : "installed", dpId);
+                    }));
+        }
     }
 
     /**

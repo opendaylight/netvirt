@@ -10,8 +10,8 @@ package org.opendaylight.netvirt.neutronvpn;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -75,35 +75,40 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
     protected void add(InstanceIdentifier<Trunk> identifier, Trunk input) {
         Preconditions.checkNotNull(input.getPortId());
         LOG.trace("Adding Trunk : key: {}, value={}", identifier, input);
-        Optional.ofNullable(input.getSubPorts()).ifPresent(subPorts
-            -> subPorts.parallelStream().forEach(subPort
-                -> createSubPortInterface(input, subPort)));
+        List<SubPorts> subPorts = input.getSubPorts();
+        if (subPorts != null) {
+            subPorts.forEach(subPort -> createSubPortInterface(input, subPort));
+        }
     }
 
     @Override
     protected void remove(InstanceIdentifier<Trunk> identifier, Trunk input) {
         Preconditions.checkNotNull(input.getPortId());
         LOG.trace("Removing Trunk : key: {}, value={}", identifier, input);
-        Optional.ofNullable(input.getSubPorts()).ifPresent(subPorts
-            -> subPorts.parallelStream().forEach(subPort
-                -> deleteSubPortInterface(subPort)));
+        List<SubPorts> subPorts = input.getSubPorts();
+        if (subPorts != null) {
+            subPorts.forEach(this::deleteSubPortInterface);
+        }
     }
 
     @Override
     protected void update(InstanceIdentifier<Trunk> identifier, Trunk original, Trunk update) {
-        List<SubPorts> added = new ArrayList<>();
-        List<SubPorts> deleted = new ArrayList<>();
-        Optional<List<SubPorts>> updateOptional = Optional.ofNullable(update.getSubPorts());
-        Optional<List<SubPorts>> originalOptional = Optional.ofNullable(original.getSubPorts());
+        List<SubPorts> updatedSubPorts = update.getSubPorts();
+        if (updatedSubPorts == null) {
+            updatedSubPorts = Collections.emptyList();
+        }
+        List<SubPorts> originalSubPorts = original.getSubPorts();
+        if (originalSubPorts == null) {
+            originalSubPorts = Collections.emptyList();
+        }
+        List<SubPorts> added = new ArrayList<>(updatedSubPorts);
+        added.removeAll(originalSubPorts);
+        List<SubPorts> deleted = new ArrayList<>(originalSubPorts);
+        deleted.removeAll(updatedSubPorts);
 
-        updateOptional.ifPresent(subPorts -> added.addAll(subPorts));
-        originalOptional.ifPresent(subPorts -> deleted.addAll(subPorts));
-
-        originalOptional.ifPresent(subPorts -> added.removeAll(subPorts));
-        updateOptional.ifPresent(subPorts -> deleted.removeAll(subPorts));
         LOG.trace("Updating Trunk : key: {}. subPortsAdded={}, subPortsDeleted={}", identifier, added, deleted);
-        deleted.parallelStream().forEach(subPort -> deleteSubPortInterface(subPort));
-        added.parallelStream().forEach(subPort -> createSubPortInterface(update, subPort));
+        deleted.forEach(this::deleteSubPortInterface);
+        added.forEach(subPort -> createSubPortInterface(update, subPort));
     }
 
     private void createSubPortInterface(Trunk trunk, SubPorts subPort) {

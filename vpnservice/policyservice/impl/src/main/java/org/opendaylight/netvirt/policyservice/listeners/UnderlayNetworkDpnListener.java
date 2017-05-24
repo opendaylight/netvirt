@@ -26,6 +26,8 @@ import org.opendaylight.netvirt.policyservice.PolicyRouteGroupProgrammer;
 import org.opendaylight.netvirt.policyservice.util.PolicyServiceUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.UnderlayNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.policy.profiles.policy.profile.PolicyAclRule;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.policy.profiles.policy.profile.policy.acl.rule.AceRule;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.UnderlayNetwork;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay.network.DpnToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks.underlay.network.PolicyProfile;
@@ -110,10 +112,14 @@ public class UnderlayNetworkDpnListener
             return;
         }
 
-        List<TunnelInterface> origTunnelInterfaces = Optional.ofNullable(origDpnToInterface.getTunnelInterface())
-                .orElse(Collections.emptyList());
-        List<TunnelInterface> updatedTunnelInterfaces = Optional.ofNullable(updatedDpnToInterface.getTunnelInterface())
-                .orElse(Collections.emptyList());
+        List<TunnelInterface> origTunnelInterfaces = origDpnToInterface.getTunnelInterface();
+        if (origTunnelInterfaces == null) {
+            origTunnelInterfaces = Collections.emptyList();
+        }
+        List<TunnelInterface> updatedTunnelInterfaces = updatedDpnToInterface.getTunnelInterface();
+        if (updatedTunnelInterfaces == null) {
+            updatedTunnelInterfaces = Collections.emptyList();
+        }
         List<TunnelInterface> removedTunnelInterfaces = new ArrayList<>(origTunnelInterfaces);
         removedTunnelInterfaces.removeAll(updatedTunnelInterfaces);
         List<TunnelInterface> addedTunnelInterfaces = new ArrayList<>(updatedTunnelInterfaces);
@@ -154,22 +160,21 @@ public class UnderlayNetworkDpnListener
             List<TunnelInterface> tunnelInterfaces, BigInteger dpId, int addOrRemove) {
         profiles.forEach(profile -> {
             String policyClassifier = profile.getPolicyClassifier();
-            Optional.ofNullable(policyServiceUtil.getUnderlayNetworksForClassifier(policyClassifier))
-                    .map(underlayNetworks -> {
-                        int bucketId = underlayNetworks.indexOf(underlayNetwork);
-                        if (bucketId != -1) {
-                            routeGroupProgramer.programPolicyClassifierGroupBuckets(policyClassifier, tunnelInterfaces,
-                                    dpId, bucketId, addOrRemove);
-                        } else {
-                            LOG.warn("Policy classifier {} routes do not contain {}", policyClassifier,
-                                    underlayNetwork);
-                        }
-                        return underlayNetworks;
-                    }).orElseGet(() -> {
-                        LOG.warn("No underlay networks found for classifier {} while populating {} flows",
-                                policyClassifier, underlayNetwork);
-                        return null;
-                    });
+            List<String> underlayNetworks =
+                    policyServiceUtil.getUnderlayNetworksForClassifier(policyClassifier);
+            if (underlayNetworks != null) {
+                int bucketId = underlayNetworks.indexOf(underlayNetwork);
+                if (bucketId != -1) {
+                    routeGroupProgramer.programPolicyClassifierGroupBuckets(policyClassifier, tunnelInterfaces,
+                            dpId, bucketId, addOrRemove);
+                } else {
+                    LOG.warn("Policy classifier {} routes do not contain {}", policyClassifier,
+                            underlayNetwork);
+                }
+            } else {
+                LOG.warn("No underlay networks found for classifier {} while populating {} flows",
+                        policyClassifier, underlayNetwork);
+            }
         });
     }
 
@@ -178,9 +183,12 @@ public class UnderlayNetworkDpnListener
         profiles.forEach(profile -> {
             String policyClassifier = profile.getPolicyClassifier();
 
-            Optional.ofNullable(policyServiceUtil.getPolicyClassifierAclRules(policyClassifier)).ifPresent(aclRules -> {
-                aclRules.forEach(aclRule -> {
-                    Optional.ofNullable(aclRule.getAceRule()).map(aceRules -> {
+            List<PolicyAclRule> policyClassifierAclRules =
+                    policyServiceUtil.getPolicyClassifierAclRules(policyClassifier);
+            if (policyClassifierAclRules != null) {
+                policyClassifierAclRules.forEach(aclRule -> {
+                    List<AceRule> aceRules = aclRule.getAceRule();
+                    if (aceRules != null) {
                         aceRules.forEach(aceRule -> {
                             com.google.common.base.Optional<Ace> policyAceOpt = policyServiceUtil
                                     .getPolicyAce(aclRule.getAclName(), aceRule.getRuleName());
@@ -190,13 +198,11 @@ public class UnderlayNetworkDpnListener
                                 LOG.warn("Failed to get ACL {} rule {}", aclRule.getAclName(), aceRule.getRuleName());
                             }
                         });
-                        return aceRules;
-                    }).orElseGet(() -> {
+                    } else {
                         LOG.debug("No ACE rule found for policy ACL {}", aclRule.getAclName());
-                        return null;
-                    });
+                    }
                 });
-            });
+            }
         });
     }
 

@@ -14,7 +14,6 @@ import static java.util.stream.Collectors.toList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -37,13 +36,13 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdenti
 public class FibHelper {
 
     public static RoutePaths buildRoutePath(String nextHop, Long label) {
-        return Optional.ofNullable(label).map(lbl -> {
-            return new RoutePathsBuilder().setKey(new RoutePathsKey(nextHop)).setLabel(lbl)
-                    .setNexthopAddress(nextHop).build();
-        }).orElseGet(() -> {
-            return new RoutePathsBuilder().setKey(new RoutePathsKey(nextHop))
-                    .setNexthopAddress(nextHop).build();
-        });
+        RoutePathsBuilder builder = new RoutePathsBuilder()
+                .setKey(new RoutePathsKey(nextHop))
+                .setNexthopAddress(nextHop);
+        if (label != null) {
+            builder.setLabel(label);
+        }
+        return builder.build();
     }
 
     public static VrfEntryBuilder getVrfEntryBuilder(String prefix, RouteOrigin origin, String parentVpnRd) {
@@ -107,8 +106,9 @@ public class FibHelper {
     }
 
     public static void sortIpAddress(List<RoutePaths> routePathList) {
-        Optional.ofNullable(routePathList).ifPresent(
-            routePaths -> routePaths.sort(comparing(RoutePaths::getNexthopAddress)));
+        if (routePathList != null) {
+            routePathList.sort(comparing(RoutePaths::getNexthopAddress));
+        }
     }
 
     public static InstanceIdentifier<RoutePaths> getRoutePathsIdentifier(String rd, String prefix, String nh) {
