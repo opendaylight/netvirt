@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.elan.evpn.utils;
 
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -171,6 +172,10 @@ public class EvpnUtils {
             LOG.error("Failed to get the dpn tep ip for dpn {}", dpnId);
             return;
         }
+        if (Strings.isNullOrEmpty(macAddress)) {
+            LOG.warn("in EvpnUtils: macaddress is %s; Not advertising; bailing out", macAddress);
+            return;
+        }
         int vpnLabel = 0;
         long l2vni = elanInfo.getSegmentationId();
         long l3vni = 0;
@@ -227,7 +232,14 @@ public class EvpnUtils {
     }
 
     public void withdrawPrefix(ElanInstance elanInfo, MacEntry macEntry) {
-        withdrawPrefix(elanInfo, macEntry.getIpPrefix().getIpv4Address().getValue());
+        // below log line is for debugging. will remove after 1st iteration
+        LOG.debug("EvpnUtils: MacEntry is %s %s", macEntry, elanInfo);
+        String macaddress = macEntry.getIpPrefix().getIpv4Address().getValue();
+        if (Strings.isNullOrEmpty(macaddress)) {
+            LOG.warn("in EvpnUtils: macEntry IP address is %s; bailing out", macaddress);
+            return;
+        } else {
+            withdrawPrefix(elanInfo, macEntry.getIpPrefix().getIpv4Address().getValue());
+        }
     }
-
 }
