@@ -12,7 +12,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <parent>
     <groupId>org.opendaylight.mdsal</groupId>
     <artifactId>binding-parent</artifactId>
-    <version>0.10.0-SNAPSHOT</version>
+    <version>0.10.1-SNAPSHOT</version>
     <relativePath/>
   </parent>
 
@@ -20,16 +20,16 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>binding-parent</artifactId>
   <name>ODL :: netvirt :: ${project.artifactId}</name>
-  <version>0.4.0-SNAPSHOT</version>
+  <version>0.4.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <properties>
-    <controller.mdsal.version>1.5.0-SNAPSHOT</controller.mdsal.version>
-    <genius.version>0.2.0-SNAPSHOT</genius.version>
-    <mdsal.model.version>0.10.0-SNAPSHOT</mdsal.model.version>
-    <model.bgp.version>2013.07.15.10-SNAPSHOT</model.bgp.version>
-    <neutron.version>0.8.0-SNAPSHOT</neutron.version>
-    <yangtools.version>1.1.0-SNAPSHOT</yangtools.version>
+    <controller.mdsal.version>1.5.1-SNAPSHOT</controller.mdsal.version>
+    <genius.version>0.2.1-SNAPSHOT</genius.version>
+    <mdsal.model.version>0.10.1-SNAPSHOT</mdsal.model.version>
+    <model.bgp.version>2013.07.15.10.1-SNAPSHOT</model.bgp.version>
+    <neutron.version>0.8.1-SNAPSHOT</neutron.version>
+    <yangtools.version>1.1.1-SNAPSHOT</yangtools.version>
   </properties>
 
   <build>
