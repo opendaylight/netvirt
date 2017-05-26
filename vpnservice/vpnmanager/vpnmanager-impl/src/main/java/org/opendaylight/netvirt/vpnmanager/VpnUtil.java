@@ -1650,9 +1650,8 @@ public class VpnUtil {
         return serviceInfo;
     }
 
-    static void unbindService(DataBroker dataBroker, final String vpnInterfaceName, boolean isInterfaceStateDown,
-                               boolean isConfigRemoval) {
-        if (!isInterfaceStateDown && isConfigRemoval) {
+    static void unbindService(DataBroker dataBroker, final String vpnInterfaceName, boolean isInterfaceStateDown) {
+        if (!isInterfaceStateDown) {
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             dataStoreCoordinator.enqueueJob(vpnInterfaceName,
                 () -> {

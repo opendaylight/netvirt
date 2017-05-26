@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -62,6 +62,8 @@ public class InterfaceStateChangeListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
+        LOG.info("VPN Interface add event - intfName {} from InterfaceStateChangeListener",
+                intrf.getName());
         try {
             if (intrf != null && (intrf.getType() != null) && !intrf.getType().equals(Tunnel.class)) {
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
@@ -74,6 +76,7 @@ public class InterfaceStateChangeListener
 
                         final String interfaceName = intrf.getName();
                         LOG.info("Detected interface add event for interface {}", interfaceName);
+
                         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
                                 .interfaces.Interface configInterface =
                                 InterfaceUtils.getInterface(dataBroker, interfaceName);
@@ -99,10 +102,13 @@ public class InterfaceStateChangeListener
                                 final BigInteger dpnId = intfDpnId;
                                 final int ifIndex = intrf.getIfIndex();
                                 if (!vpnInterfaceManager.isVpnInstanceReady(vpnInterface.getVpnInstanceName())) {
-                                    LOG.info("InterfaceStateChangeListener- VpnInstance for vpnInterface {} not ready"
-                                            + ", holding on ", vpnInterface.getName());
+                                    LOG.info("VPN Interface add event - intfName {} onto vpnName {} "
+                                                    + "running oper-driven, VpnInstance not ready, holding on",
+                                            vpnInterface.getName(), vpnInterface.getVpnInstanceName());
                                     return futures;
                                 }
+                                LOG.info("VPN Interface add event - intfName {} onto vpnName {} running oper-driven",
+                                        vpnInterface.getName(), vpnInterface.getVpnInstanceName());
                                 vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex, false,
                                         writeConfigTxn, writeOperTxn, writeInvTxn, intrf);
                                 ListenableFuture<Void> operFuture = writeOperTxn.submit();
@@ -135,9 +141,18 @@ public class InterfaceStateChangeListener
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
         final String interfaceName = intrf.getName();
-        LOG.info("Detected interface remove event for interface {}", interfaceName);
+        BigInteger dpId = BigInteger.ZERO;
+        LOG.info("VPN Interface remove event - intfName {} from InterfaceStateChangeListener",
+                intrf.getName());
         try {
             if (intrf != null && (intrf.getType() != null) && !intrf.getType().equals(Tunnel.class)) {
+                try {
+                    dpId = InterfaceUtils.getDpIdFromInterface(intrf);
+                } catch (Exception e) {
+                    LOG.error("Unable to retrieve dpnId from interface operational data store for interface"
+                            + " {}. Fetching from vpn interface op data store. ", interfaceName, e);
+                }
+                final BigInteger inputDpId = dpId;
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
                     () -> {
@@ -146,23 +161,20 @@ public class InterfaceStateChangeListener
                         WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
 
-                        BigInteger dpId;
                         InstanceIdentifier<VpnInterface> id = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
                         Optional<VpnInterface> optVpnInterface =
                                 VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
                         if (optVpnInterface.isPresent()) {
                             final VpnInterface vpnInterface = optVpnInterface.get();
-                            try {
-                                dpId = InterfaceUtils.getDpIdFromInterface(intrf);
-                            } catch (Exception e) {
-                                LOG.error("Unable to retrieve dpnId from interface operational data store for interface"
-                                        + " {}. Fetching from vpn interface op data store. ", interfaceName, e);
-                                dpId = vpnInterface.getDpnId();
+                            BigInteger dpnId = inputDpId;
+                            if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
+                                dpnId = vpnInterface.getDpnId();
                             }
-                            final BigInteger dpnId = dpId;
                             final int ifIndex = intrf.getIfIndex();
-                            vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, false, false,
-                                    writeConfigTxn, writeOperTxn, writeInvTxn, intrf);
+                            LOG.info("VPN Interface remove event - intfName {} onto vpnName {} running oper-driven",
+                                    vpnInterface.getName(), vpnInterface.getVpnInstanceName());
+                            vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, intrf,
+                                    vpnInterface, false, writeConfigTxn, writeOperTxn, writeInvTxn);
                             ListenableFuture<Void> operFuture = writeOperTxn.submit();
                             try {
                                 operFuture.get();
@@ -191,9 +203,8 @@ public class InterfaceStateChangeListener
     protected void update(InstanceIdentifier<Interface> identifier,
         Interface original, Interface update) {
         final String interfaceName = update.getName();
-        LOG.info("Detected interface update event for interface {}", interfaceName);
-        LOG.trace("Detected interface update event for interface {} - Old: {}, New: {}",
-                interfaceName, original, update);
+        LOG.info("VPN Interface update event - intfName {} from InterfaceStateChangeListener",
+                update.getName());
         try {
             OperStatus originalOperStatus = original.getOperStatus();
             OperStatus updateOperStatus = update.getOperStatus();
@@ -215,23 +226,39 @@ public class InterfaceStateChangeListener
                         WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
                         WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
-
                         final VpnInterface vpnInterface =
                                 VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
                         if (vpnInterface != null) {
                             final int ifIndex = update.getIfIndex();
                             final BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(update);
                             if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
+                                LOG.info("VPN Interface update event - intfName {} onto vpnName {} running "
+                                        + " oper-driven UP", vpnInterface.getName(),
+                                        vpnInterface.getVpnInstanceName());
                                 if (!vpnInterfaceManager.isVpnInstanceReady(vpnInterface.getVpnInstanceName())) {
-                                    LOG.info("InterfaceStateChangeListener Update - VpnInstance for vpnInterface {}"
-                                            + "not ready, holding on", vpnInterface.getName());
+                                    LOG.info("VPN Interface update event - intfName {} onto vpnName {} "
+                                                    + "running oper-driven UP, VpnInstance not ready, holding on",
+                                            vpnInterface.getName(), vpnInterface.getVpnInstanceName());
                                     return futures;
                                 }
                                 vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex,
                                         true, writeConfigTxn, writeOperTxn, writeInvTxn, update);
                             } else if (update.getOperStatus().equals(Interface.OperStatus.Down)) {
-                                vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, true,
-                                        false, writeConfigTxn, writeOperTxn, writeInvTxn, update);
+                                LOG.info("VPN Interface update event - intfName {} onto vpnName {} running oper-driven"
+                                        + " DOWN", vpnInterface.getName(), vpnInterface.getVpnInstanceName());
+                                InstanceIdentifier<VpnInterface> id = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
+                                Optional<VpnInterface> optVpnInterface =
+                                        VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+                                if (optVpnInterface.isPresent()) {
+                                    VpnInterface vpnOpInterface = optVpnInterface.get();
+                                    vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, update,
+                                            vpnOpInterface, true, writeConfigTxn, writeOperTxn,
+                                            writeInvTxn);
+                                } else {
+                                    LOG.error("InterfaceStateChangeListener Update DOWN - vpnInterface {}"
+                                            + " not available, ignoring event", vpnInterface.getName());
+                                    return futures;
+                                }
                             }
                             ListenableFuture<Void> operFuture = writeOperTxn.submit();
                             try {
