@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7af0899e_25aab270",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1113,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-05-27T13:09:07Z",
+      "side": 1,
+      "message": "how is transactioncommitfailed exception for clustered scenarios handled?",
+      "revId": "ab98661f5d352dbc8136171165c32cc903ceba74",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
