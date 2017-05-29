@@ -32,10 +32,16 @@ import org.opendaylight.genius.utils.batching.ActionableResourceImpl;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.batching.ResourceHandler;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.encap_type;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.BgpControlPlaneType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.EncapType;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.LayerType;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Vrfs;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.VrfsKey;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfs.AddressFamiliesVrf;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -51,6 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -280,6 +287,35 @@ public class BgpUtil {
     public static String getVpnNameFromRd(DataBroker dataBroker2, String rd) {
         VpnInstanceOpDataEntry vpnInstanceOpData = getVpnInstanceOpData(dataBroker2, rd);
         return (vpnInstanceOpData != null) ? vpnInstanceOpData.getVpnInstanceName() : null;
+    }
+
+    /** get the vrf with the RouterDistinguisher pass in param.
+     * @param rd is the RouteDistinguisher of vrf
+     * @return the vrf of rd or null if no exist
+     */
+    public static Vrfs getVrfFromRd(String rd) {
+        Vrfs vrfs = null;
+        KeyedInstanceIdentifier<Vrfs, VrfsKey> id = InstanceIdentifier.create(Bgp.class)
+                .child(Vrfs.class, new VrfsKey(rd));
+        Optional<Vrfs> vrfsFromDs = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        if (vrfsFromDs.isPresent()) {
+            vrfs = vrfsFromDs.get();
+        }
+        return vrfs;
+    }
+
+    /** get layerType used from an AddressFamiliesVrf.
+     * @param adf is the AddressFamiliesVrf from which the layer is asked.
+     * @return the layerType to reach from the argument addressFamilyVrf or null if not found
+     */
+    public static LayerType getLayerType(AddressFamiliesVrf adf) {
+        LayerType layerTypeValue = null;
+        if (adf.getSafi() == af_safi.SAFI_EVPN.getValue()) {
+            layerTypeValue = LayerType.LAYER2;
+        } else if (adf.getSafi() == af_safi.SAFI_MPLS_VPN.getValue()) {
+            layerTypeValue = LayerType.LAYER3;
+        }
+        return layerTypeValue;
     }
 }
 
