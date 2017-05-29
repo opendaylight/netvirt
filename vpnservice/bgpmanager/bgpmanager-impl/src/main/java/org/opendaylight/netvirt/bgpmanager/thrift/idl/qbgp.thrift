@@ -154,8 +154,8 @@ service BgpConfigurator {
      */
     i32 setPeerSecret(1:string ipAddress, 2:string rfc2385_sharedSecret),
     i32 deletePeer(1:string ipAddress)
-    i32 addVrf(1:layer_type l_type, 2:string rd, 3:list<string> irts, 4:list<string> erts),
-    i32 delVrf(1:string rd),
+    i32 addVrf(1:layer_type l_type, 2:string rd, 3:list<string> irts, 4:list<string> erts, 5:af_afi afi, 6:af_safi safi),
+    i32 delVrf(1:string rd, 2:af_afi afi, 3:af_safi safi),
     /*
     * pushRoute:
     * IPv6 is now supported through af_afi parameter, 'af_afi': indicates whether prefix is IPv4 or IPv6.
