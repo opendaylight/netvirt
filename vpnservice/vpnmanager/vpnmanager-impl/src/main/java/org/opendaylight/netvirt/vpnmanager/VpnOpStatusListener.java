@@ -85,16 +85,12 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
             DataStoreJobCoordinator djc = DataStoreJobCoordinator.getInstance();
             djc.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {
                 WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-
                 // Clean up VpnInstanceToVpnId from Config DS
                 VpnUtil.removeVpnIdToVpnInstance(dataBroker, vpnId, writeTxn);
                 VpnUtil.removeVpnInstanceToVpnId(dataBroker, vpnName, writeTxn);
                 LOG.trace("Removed vpnIdentifier for  rd{} vpnname {}", primaryRd, vpnName);
                 // Clean up FIB Entries Config DS
                 fibManager.removeVrfTable(dataBroker, primaryRd, null);
-                if (VpnUtil.isBgpVpn(vpnName, primaryRd)) {
-                    rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(rd, false));
-                }
                 // Clean up VPNExtraRoutes Operational DS
                 InstanceIdentifier<Vpn> vpnToExtraroute = VpnExtraRouteHelper.getVpnToExtrarouteVpnIdentifier(vpnName);
                 Optional<Vpn> optVpnToExtraroute = VpnUtil.read(dataBroker,
