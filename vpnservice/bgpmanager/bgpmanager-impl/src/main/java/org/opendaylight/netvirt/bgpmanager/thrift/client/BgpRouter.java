@@ -96,6 +96,7 @@ public class BgpRouter {
         public String routermac;
         public af_afi afi;
         public int delayEOR;
+        public af_safi safi;
 
         BgpOp() {
             strs = new String[3];
@@ -318,14 +319,16 @@ public class BgpRouter {
         dispatch(bop);
     }
 
-    public synchronized void addVrf(LayerType layerType, String rd, List<String> irts, List<String> erts)
-            throws TException, BgpRouterException {
+    public synchronized void addVrf(LayerType layerType, String rd, List<String> irts, List<String> erts,
+            long afi, long safi) throws TException, BgpRouterException {
         bop.thriftLayerType = layerType == LayerType.LAYER2 ? layer_type.LAYER_2 : layer_type.LAYER_3;
         bop.type = Optype.VRF;
         bop.add = true;
         bop.strs[0] = rd;
         bop.irts = irts;
         bop.erts = erts;
+        bop.afi = af_afi.findByValue((int)afi);
+        bop.safi = af_safi.findByValue((int)safi);
         LOG.debug("Adding BGP VRF rd: {} ", rd);
         dispatch(bop);
     }
