@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 @Command(scope = "odl", name = "configure-bgp", description = "")
 public class ConfigureBgpCli extends OsgiCommandSupport {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigureBgpCli.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigureBgpCli.class);
 
     private static BgpManager bgpManager;
     private static BgpConfigurationManager bgpConfigurationManager;
