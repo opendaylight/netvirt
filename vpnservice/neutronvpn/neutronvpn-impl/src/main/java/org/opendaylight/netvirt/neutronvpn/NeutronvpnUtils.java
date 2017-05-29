@@ -35,6 +35,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
@@ -93,6 +94,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
@@ -152,6 +155,26 @@ public class NeutronvpnUtils {
 
     private static long LOCK_WAIT_TIME = 10L;
     private static TimeUnit secUnit = TimeUnit.SECONDS;
+
+    /**this enum is used to make a choice between IPv4 or IPv6 or both.
+     */
+    public enum IpVersionChoice {
+        IPV4(4),
+        IPV6(6),
+        IPV4AND6(10);
+        public final int choice;
+
+        IpVersionChoice(int value) {
+            choice = value;
+        }
+
+        public boolean isIpVersionChosen(IpVersionChoice arg) {
+            if (this.choice == 10 || this.choice == arg.choice) {
+                return true;
+            }
+            return false;
+        }
+    }
 
     static {
         registerSupportedNetworkType(NetworkTypeFlat.class);
@@ -1258,6 +1281,34 @@ public class NeutronvpnUtils {
 
     public static boolean isNotEmpty(Collection collection) {
         return (!isEmpty(collection));
+    }
+
+    /**this method check if the vpn used IPv6 or/and IPv4.
+     * @param dataBroker to search data
+     * @param vpn Uuid of the vpn from which get the version.
+     * @return the IP(s) versions used from this vpnUuid. default is IPv4
+     */
+    public static IpVersionChoice getIpVersionChoicesFromVpnUuid(DataBroker dataBroker, Uuid vpn) {
+        IpVersionChoice rep = NeutronvpnUtils.IpVersionChoice.IPV4;
+        boolean ipv4choice = false;
+        boolean ipv6choice = false;
+        List<Uuid> subnetIdsList = NeutronvpnUtils.getSubnetsforVpn(dataBroker, vpn);
+        for (Uuid snId: subnetIdsList) {
+            final Subnet sn = NeutronvpnUtils.getNeutronSubnet(dataBroker, snId);
+            if (sn.getIpVersion() == IpVersionV6.class) {
+                rep = IpVersionChoice.IPV6;
+                ipv6choice = true;
+            }
+            if (sn.getIpVersion() == IpVersionV4.class) {
+                rep = IpVersionChoice.IPV4;
+                ipv4choice = true;
+            }
+            if (ipv4choice && ipv6choice) {
+                rep = IpVersionChoice.IPV4AND6;
+                break;
+            }
+        }
+        return rep;
     }
 
 }
