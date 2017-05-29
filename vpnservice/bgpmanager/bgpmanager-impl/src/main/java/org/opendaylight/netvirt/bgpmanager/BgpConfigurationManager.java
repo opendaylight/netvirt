@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -72,10 +73,10 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
 import org.opendaylight.netvirt.bgpmanager.thrift.server.BgpThriftService;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.BgpControlPlaneType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.EncapType;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.LayerType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.TcpMd5SignaturePasswordType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsId;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsIdBuilder;
@@ -107,6 +108,8 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.EbgpMultihopBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.UpdateSource;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.UpdateSourceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfs.AddressFamiliesVrf;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfs.AddressFamiliesVrfBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.tcp.security.option.grouping.TcpSecurityOption;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.tcp.security.option.grouping.tcp.security.option.TcpMd5SignatureOption;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.tcp.security.option.grouping.tcp.security.option.TcpMd5SignatureOptionBuilder;
@@ -120,6 +123,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,6 +166,10 @@ public class BgpConfigurationManager {
     private long staleCleanupTime = 0;
     private static final int DS_RETRY_COOUNT = 100; //100 retries, each after WAIT_TIME_BETWEEN_EACH_TRY_MILLIS seconds
     private static final long WAIT_TIME_BETWEEN_EACH_TRY_MILLIS = 1000L; //one second sleep after every retry
+    /** this map store the new address families to send to quagga.
+     * when it is sended you must clear it. */
+    public static ConcurrentHashMap<Vrfs, List<AddressFamiliesVrf>> mapNewAdFamily
+        = new ConcurrentHashMap<>();
 
     public String getBgpSdncMipIp() {
         return getProperty(BGP_SDNC_MIP, DEF_BGP_SDNC_MIP);
@@ -1181,6 +1190,10 @@ public class BgpConfigurationManager {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
+            if (val == null) {
+                LOG.error("Unable to process add because val is null");
+                return;
+            }
             LOG.debug("received add Vrfs config val {}", val.getRd());
             synchronized (BgpConfigurationManager.this) {
                 String rd = val.getRd();
@@ -1191,8 +1204,23 @@ public class BgpConfigurationManager {
                     return;
                 }
                 try {
-                    br.addVrf(val.getLayerType(), rd, val.getImportRts(),
-                            val.getExportRts());
+                    List<AddressFamiliesVrf> adfList = val.getAddressFamiliesVrf() != null
+                            ? val.getAddressFamiliesVrf() : new ArrayList<AddressFamiliesVrf>();
+                    for (AddressFamiliesVrf adf : adfList) {
+                        List<AddressFamiliesVrf> adfListMap = mapNewAdFamily.get(val) != null
+                                ? mapNewAdFamily.get(val) : new ArrayList<AddressFamiliesVrf>();
+
+                        br.addVrf(BgpUtil.getLayerType(adf), rd, val.getImportRts(),
+                            val.getExportRts(), adf.getAfi(), adf.getSafi());
+                        for (AddressFamiliesVrf data : adfListMap) {
+                            if (data != null && data.equals(adf)) {
+                                adfListMap.remove(data);
+                                if (adfListMap.isEmpty()) {
+                                    mapNewAdFamily.remove(val);
+                                }
+                            }
+                        }
+                    }
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
                 }
@@ -1224,7 +1252,10 @@ public class BgpConfigurationManager {
                     return;
                 }
                 try {
-                    br.delVrf(rd);
+                    mapNewAdFamily.remove(val);// remove in the map the vrf in waiting for advertise quagga
+                    for (AddressFamiliesVrf s : val.getAddressFamiliesVrf()) {
+                        br.delVrf(rd);
+                    }
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} Delete received exception; {}", YANG_OBJ, DEL_WARN, e);
                 }
@@ -1234,11 +1265,69 @@ public class BgpConfigurationManager {
         @Override
         protected void update(InstanceIdentifier<Vrfs> iid,
                 Vrfs oldval, Vrfs newval) {
+            if (oldval != null && newval != null) {
+                LOG.debug("received update Vrfs config val {}, VRFS: Update getting triggered for VRFS rd {}",
+                        newval.getRd(), oldval.getRd());
+            } else {
+                LOG.debug("received update Vrfs config val {}, VRFS: Update getting triggered for VRFS rd {}",
+                        newval, oldval);
+            }
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
-            LOG.debug("VRFS: Update getting triggered for VRFS rd {}", oldval.getRd());
-            LOG.error(YANG_OBJ + UPD_WARN);
+            boolean suppressAction = false;
+            List<AddressFamiliesVrf> adFamilyVrfToDel = new ArrayList();
+            List<AddressFamiliesVrf> adFamilyVrfToAdd = new ArrayList();
+            List<AddressFamiliesVrf> oldlistAdFamilies = null;
+            List<AddressFamiliesVrf> newlistAdFamilies = null;
+            if (oldval != null) {
+                oldlistAdFamilies = oldval.getAddressFamiliesVrf() == null
+                        ? new ArrayList<AddressFamiliesVrf>() : oldval.getAddressFamiliesVrf();
+            }
+            if (newval != null) {
+                newlistAdFamilies = newval.getAddressFamiliesVrf() == null
+                        ? new ArrayList<AddressFamiliesVrf>() : newval.getAddressFamiliesVrf();
+            }
+            /*find old AddressFamily to remove from new configuration*/
+            for (AddressFamiliesVrf adVrf : oldlistAdFamilies) {
+                if (!newlistAdFamilies.contains(adVrf)) {
+                    adFamilyVrfToDel.add(adVrf);
+                }
+            }
+            /*find new AddressFamily to add to unexisting configuration*/
+            for (AddressFamiliesVrf adVrf : newlistAdFamilies) {
+                if (!oldlistAdFamilies.contains(adVrf)) {
+                    adFamilyVrfToAdd.add(adVrf);
+                }
+            }
+            String rd = newval.getRd();
+            BgpRouter br = getClient(YANG_OBJ);
+            if (br == null) {
+                LOG.error("{} Unable to process add for rd {}; {}", YANG_OBJ, rd,
+                        BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
+                return;
+            }
+            if (adFamilyVrfToAdd.size() > 0) {
+                for (AddressFamiliesVrf adfvrf : adFamilyVrfToAdd) {
+                    try {
+                        LOG.debug("call addVRf rd {} afi {} safi {}", rd, adfvrf.getAfi(), adfvrf.getSafi());
+                        br.addVrf(BgpUtil.getLayerType(adfvrf), rd, newval.getImportRts(),
+                                 newval.getExportRts(), adfvrf.getAfi(), adfvrf.getSafi());
+                    } catch (TException | BgpRouterException e) {
+                        LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
+                    }
+                }
+            }
+            if (adFamilyVrfToDel.size() > 0) {
+                for (AddressFamiliesVrf adfToDel : adFamilyVrfToDel) {
+                    try {
+                        LOG.debug("call delVRf rd {} afi {} safi {}", rd, adfToDel.getAfi(), adfToDel.getSafi());
+                        br.delVrf(rd, adfToDel.getAfi(), adfToDel.getSafi());
+                    } catch (TException | BgpRouterException e) {
+                        LOG.error("{} delVrf received exception; {}", YANG_OBJ, ADD_WARN, e);
+                    }
+                }
+            }
         }
     }
 
@@ -1988,11 +2077,14 @@ public class BgpConfigurationManager {
             }
 
             List<Vrfs> vrfs = config.getVrfs();
-            if (vrfs != null) {
-                for (Vrfs vrf : vrfs) {
+            if (vrfs == null) {
+                vrfs = new ArrayList();
+            }
+            for (Vrfs vrf : vrfs) {
+                for (AddressFamiliesVrf adf : vrf.getAddressFamiliesVrf()) {
                     try {
-                        br.addVrf(vrf.getLayerType(), vrf.getRd(), vrf.getImportRts(),
-                                vrf.getExportRts());
+                        br.addVrf(BgpUtil.getLayerType(adf), vrf.getRd(), vrf.getImportRts(),
+                                  vrf.getExportRts(), adf.getAfi(), adf.getSafi());
                     } catch (TException | BgpRouterException e) {
                         LOG.error("Replay:addVrf() received exception", e);
                     }
@@ -2205,13 +2297,40 @@ public class BgpConfigurationManager {
     }
 
     // TODO: add LayerType as arg - supports command
-    public void addVrf(String rd, List<String> irts, List<String> erts, LayerType layerType) {
-        InstanceIdentifier.InstanceIdentifierBuilder<Vrfs> iib =
-                InstanceIdentifier.builder(Bgp.class)
-                        .child(Vrfs.class, new VrfsKey(rd));
+    public void addVrf(String rd, List<String> irts, List<String> erts, AddressFamily addressFamily) {
+        Vrfs vrf = BgpUtil.getVrfFromRd(rd);
+        List<AddressFamiliesVrf> adfList = new ArrayList<>(1);
+        if (vrf != null) {
+            adfList = vrf.getAddressFamiliesVrf();
+        }
+        AddressFamiliesVrfBuilder adfBuilder = new AddressFamiliesVrfBuilder();
+        if (addressFamily.equals(addressFamily.IPV4)) {
+            adfBuilder.setAfi((long) af_afi.AFI_IP.getValue());
+            adfBuilder.setSafi((long) af_safi.SAFI_MPLS_VPN.getValue());
+        } else if (addressFamily.equals(addressFamily.IPV6)) {
+            adfBuilder.setAfi((long) af_afi.AFI_IPV6.getValue());
+            adfBuilder.setSafi((long) af_safi.SAFI_MPLS_VPN.getValue());
+        } else if (addressFamily.equals(addressFamily.L2VPN)) {
+            adfBuilder.setAfi((long) af_afi.AFI_IP.getValue());
+            adfBuilder.setSafi((long) af_safi.SAFI_EVPN.getValue());
+        } else {
+            return;
+        }
+        AddressFamiliesVrf adf = adfBuilder.build();
+        adfList.add(adf);
+        InstanceIdentifier.InstanceIdentifierBuilder<Vrfs> iib = InstanceIdentifier.builder(Bgp.class)
+                .child(Vrfs.class, new VrfsKey(rd));
         InstanceIdentifier<Vrfs> iid = iib.build();
         Vrfs dto = new VrfsBuilder().setRd(rd).setImportRts(irts)
-                .setExportRts(erts).setLayerType(layerType).build();
+            .setExportRts(erts).setAddressFamiliesVrf(adfList).build();
+
+        List<AddressFamiliesVrf> listAdFamilies = mapNewAdFamily.get(dto);
+        if (listAdFamilies != null) {
+            listAdFamilies.add(adf);
+        } else {
+            mapNewAdFamily.put(dto, adfList);
+        }
+
         try {
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, iid, dto);
         } catch (TransactionCommitFailedException e) {
@@ -2296,12 +2415,70 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    public void delVrf(String rd) {
+    public boolean delVrf(String rd, AddressFamily addressFamily) {
+        if (addressFamily == null) {
+            return false;
+        }
+        AddressFamiliesVrfBuilder adfBuilder = new AddressFamiliesVrfBuilder();
+        if (addressFamily.equals(addressFamily.IPV4)) {
+            adfBuilder.setAfi((long) af_afi.AFI_IP.getValue());
+            adfBuilder.setSafi((long) af_safi.SAFI_MPLS_VPN.getValue());
+        } else if (addressFamily.equals(addressFamily.IPV6)) {
+            adfBuilder.setAfi((long) af_afi.AFI_IPV6.getValue());
+            adfBuilder.setSafi((long) af_safi.SAFI_MPLS_VPN.getValue());
+        } else if (addressFamily.equals(addressFamily.L2VPN)) {
+            adfBuilder.setAfi((long) af_afi.AFI_IP.getValue());
+            adfBuilder.setSafi((long) af_safi.SAFI_EVPN.getValue());
+        } else {
+            return false;
+        }
+        Vrfs vrfOriginal = BgpUtil.getVrfFromRd(rd);
+        if (vrfOriginal == null) {
+            LOG.debug("delVrf is calling but any vrf with this rd {] is existing. step aborded", rd);
+            return false;
+        }
+
         InstanceIdentifier.InstanceIdentifierBuilder<Vrfs> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Vrfs.class, new VrfsKey(rd));
+
         InstanceIdentifier<Vrfs> iid = iib.build();
-        delete(iid);
+
+        @SuppressWarnings("static-access")
+        InstanceIdentifier<Bgp> iid3 = iid.builder(Bgp.class).build();
+        KeyedInstanceIdentifier<Multipath, MultipathKey> iid4 = iid3
+            .child(Multipath.class,
+                new MultipathKey(adfBuilder.getAfi(), adfBuilder.getSafi()));
+        InstanceIdentifier<Bgp> iid6 = iid4.create(Bgp.class);
+        InstanceIdentifierBuilder<Vrfs> iib3 = iid6.child(Vrfs.class, new VrfsKey(rd)).builder();
+        InstanceIdentifier<Vrfs> iidFinal = iib3.build();
+
+        //** update or delete the vrfs with the rest of AddressFamilies already present in the last list
+        AddressFamiliesVrf adfToDel = adfBuilder.build();
+        List<AddressFamiliesVrf> adfListOriginal = vrfOriginal.getAddressFamiliesVrf() == null
+                ? new ArrayList<AddressFamiliesVrf>() : vrfOriginal.getAddressFamiliesVrf();
+        List<AddressFamiliesVrf> adfListToRemoveFromOriginal = new ArrayList();
+        adfListOriginal.forEach(adf -> {
+            if (adf.equals(adfToDel)) {
+                //adfListOriginal.remove(adfToDel);
+                adfListToRemoveFromOriginal.add(adfToDel);
+            }
+        });
+        for (AddressFamiliesVrf adfToRemove : adfListToRemoveFromOriginal) {
+            adfListOriginal.remove(adfToRemove);
+            try {
+                SingleTransactionDataBroker.syncWrite(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, iid, vrfOriginal);
+            } catch (TransactionCommitFailedException e) {
+                LOG.error("Error updating VRF to datastore", e);
+                throw new RuntimeException(e);
+            }
+        }
+        if (adfListOriginal.isEmpty()) {
+            delete(iidFinal);
+            return true;
+        }
+        return false;
     }
 
     public void setMultipathStatus(af_afi afi, af_safi safi, boolean enable) {
