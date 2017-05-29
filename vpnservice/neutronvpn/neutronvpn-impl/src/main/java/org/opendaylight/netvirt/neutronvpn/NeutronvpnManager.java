@@ -36,6 +36,7 @@ import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.evpn.manager.NeutronEvpnManager;
 import org.opendaylight.netvirt.neutronvpn.evpn.utils.NeutronEvpnUtils;
@@ -52,6 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv4FamilyBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv6FamilyBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
@@ -449,8 +451,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
         VpnInstance vpnInstance = vpnInstanceConfig.get();
         VpnInstanceBuilder updateVpnInstanceBuilder = new VpnInstanceBuilder(vpnInstance);
-        Ipv4FamilyBuilder ipv4FamilyBuilder = new Ipv4FamilyBuilder(vpnInstance.getIpv4Family());
-        updateVpnInstanceBuilder.setIpv4Family(ipv4FamilyBuilder.setRouteDistinguisher(rds).build());
+        if (vpnInstance.getIpv4Family() != null) {
+            Ipv4FamilyBuilder ipv4FamilyBuilder = new Ipv4FamilyBuilder(vpnInstance.getIpv4Family());
+            updateVpnInstanceBuilder.setIpv4Family(ipv4FamilyBuilder.setRouteDistinguisher(rds).build());
+        }
+        if (vpnInstance.getIpv6Family() != null) {
+            Ipv6FamilyBuilder ipv6FamilyBuilder = new Ipv6FamilyBuilder(vpnInstance.getIpv6Family());
+            updateVpnInstanceBuilder.setIpv6Family(ipv6FamilyBuilder.setRouteDistinguisher(rds).build());
+        }
         LOG.debug("Updating Config vpn-instance: {} with the list of RDs: {}", vpnInstanceId,rds);
         try {
             SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier,
@@ -462,8 +470,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private void updateVpnInstanceNode(String vpnName, List<String> rd, List<String> irt, List<String> ert,
-                                       VpnInstance.Type type, long l3vni) {
+    public void updateVpnInstanceNode(String vpnName, List<String> rd, List<String> irt, List<String> ert,
+                                       VpnInstance.Type type, long l3vni, IpVersionChoice ipVersion) {
         VpnInstanceBuilder builder = null;
         List<VpnTarget> vpnTargetList = new ArrayList<>();
         boolean isLockAcquired = false;
@@ -514,12 +522,20 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             VpnTargets vpnTargets = new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
 
             Ipv4FamilyBuilder ipv4vpnBuilder = new Ipv4FamilyBuilder().setVpnTargets(vpnTargets);
+            Ipv6FamilyBuilder ipv6vpnBuilder = new Ipv6FamilyBuilder().setVpnTargets(vpnTargets);
 
             if (rd != null && !rd.isEmpty()) {
                 ipv4vpnBuilder.setRouteDistinguisher(rd);
+                ipv6vpnBuilder.setRouteDistinguisher(rd);
             }
 
-            VpnInstance newVpn = builder.setIpv4Family(ipv4vpnBuilder.build()).build();
+            VpnInstance newVpn = null;
+            if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
+                newVpn = builder.setIpv4Family(ipv4vpnBuilder.build()).build();
+            }
+            if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
+                newVpn = builder.setIpv6Family(ipv6vpnBuilder.build()).build();
+            }
             isLockAcquired = NeutronvpnUtils.lock(vpnName);
             LOG.debug("Creating/Updating vpn-instance for {} ", vpnName);
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier, newVpn);
@@ -827,8 +843,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     public void createL3InternalVpn(Uuid vpn, String name, Uuid tenant, List<String> rd, List<String> irt,
                                     List<String> ert, Uuid router, List<Uuid> networks) {
 
+        IpVersionChoice ipVersChoices = NeutronvpnUtils.getIpVersionChoicesFromRouterUuid(dataBroker, router);
+
         // Update VPN Instance node
-        updateVpnInstanceNode(vpn.getValue(), rd, irt, ert, VpnInstance.Type.L3, 0 /*l3vni*/);
+        updateVpnInstanceNode(vpn.getValue(), rd, irt, ert, VpnInstance.Type.L3, 0 /*l3vni*/, ipVersChoices);
 
         // Update local vpn-subnet DS
         updateVpnMaps(vpn, name, router, tenant, networks);
@@ -871,8 +889,13 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                             Uuid router, List<Uuid> networks, VpnInstance.Type type, long l3vni)
                                     throws Exception {
 
-        // Update VPN Instance node
-        updateVpnInstanceNode(vpn.getValue(), rd, irt, ert, type, l3vni);
+        IpVersionChoice ipVersChoices = IpVersionChoice.UNDEFINED;
+        for (Uuid routerUuid : routerIdsList) {
+            IpVersionChoice vers = NeutronvpnUtils.getIpVersionChoicesFromRouterUuid(dataBroker, routerUuid);
+            ipVersChoices = ipVersChoices.addVersion(vers);
+        }
+
+        updateVpnInstanceNode(vpn.getValue(), rd, irt, ert, type, l3vni, ipVersChoices);
 
         // Please note that router and networks will be filled into VPNMaps
         // by subsequent calls here to associateRouterToVpn and
