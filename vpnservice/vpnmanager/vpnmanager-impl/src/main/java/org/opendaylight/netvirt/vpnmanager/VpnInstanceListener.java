@@ -492,8 +492,19 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             if rd is null, then its either a router vpn instance (or) a vlan external network vpn instance.
             if rd is non-null, then it is a bgpvpn instance
              */
-            VpnAfConfig config = vpnInstance.getIpv4Family();
-            List<String> rd = config.getRouteDistinguisher();
+            VpnAfConfig configV4 = vpnInstance.getIpv4Family();
+            VpnAfConfig configV6 = vpnInstance.getIpv6Family();
+            VpnAfConfig config = null;
+            if (configV4 != null) {
+                config = configV4;
+            } else if (configV6 != null) {
+                config = configV6;
+            }
+            List<String> rd = null;
+            if (config != null) {
+                rd = config.getRouteDistinguisher();
+            }
+
             if ((rd == null) || addBgpVrf(voids)) {
                 notifyTask();
                 vpnInterfaceManager.vpnInstanceIsReady(vpnName);
@@ -535,7 +546,19 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         // TODO Clean up the exception handling
         @SuppressWarnings("checkstyle:IllegalCatch")
         private boolean addBgpVrf(List<Void> voids) {
-            VpnAfConfig config = vpnInstance.getIpv4Family();
+            VpnAfConfig config = null;
+            VpnAfConfig configV4 = vpnInstance.getIpv4Family();
+            VpnAfConfig configV6 = vpnInstance.getIpv6Family();
+            if (configV4 != null) {
+                config = configV4;
+            } else if (configV6 != null) {
+                config = configV6;
+            } else if (config == null) {
+                return false;
+            }
+
+            Type type = vpnInstance.getType();
+            VpnAfConfig configIPv6 = vpnInstance.getIpv6Family();
             List<String> rds = config.getRouteDistinguisher();
             String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
             List<VpnTarget> vpnTargetList = config.getVpnTargets().getVpnTarget();
@@ -560,6 +583,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 LOG.error("vpn target list is empty, cannot add BGP VPN {} VRF {}", this.vpnName, primaryRd);
                 return false;
             }
+
             //Advertise all the rds and check if primary Rd advertisement fails
             long primaryRdAddFailed = rds.parallelStream().filter(rd -> {
                 try {
