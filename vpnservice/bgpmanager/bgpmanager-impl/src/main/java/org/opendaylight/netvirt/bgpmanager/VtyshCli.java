@@ -28,8 +28,6 @@ public class VtyshCli extends OsgiCommandSupport {
     @Option(name = "--cmd", description = "command to run", required = true, multiValued = false)
     String cmd = null;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(VtyshCli.class);
-
     private static int serverPort = 2605;
     private static String serverName = "localhost";
     private static int handlerModule = 0;
@@ -180,8 +178,8 @@ public class VtyshCli extends OsgiCommandSupport {
                 socket.close();
                 return;
             }
-            if ((ip == (int) gt) || (ip == (int) hashChar)) {
-                if (ip == (int) gt) {
+            if (ip == gt || ip == hashChar) {
+                if (ip == gt) {
                     sb.append(gt);
                 } else {
                     sb.append(hashChar);
@@ -212,7 +210,7 @@ public class VtyshCli extends OsgiCommandSupport {
                 socket.close();
                 return;
             }
-            if ((ip == (int) gt) || (ip == (int) hashChar)) {
+            if (ip == gt || ip == hashChar) {
                 break;
             } else if (ip == -1) {
                 session.getConsole().println(sb.toString());
