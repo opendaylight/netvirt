@@ -22,6 +22,8 @@ public class Vrf extends OsgiCommandSupport {
     private static final String RD = "--rd";
     private static final String IR = "--import-rts";
     private static final String ER = "--export-rts";
+    private static final String AFI = "--afi";
+    private static final String SAFI = "--safi";
 
     @Argument(name = "add|del", description = "The desired operation",
             required = true, multiValued = false)
@@ -42,10 +44,20 @@ public class Vrf extends OsgiCommandSupport {
             required = false, multiValued = true)
     private List<String> erts = null;
 
+    @Option(name = AFI, aliases = {"-a"},
+            description = "AFI 1=IPv4, 2=IPv6",
+            required = false, multiValued = false)
+    private String afi = null;
+
+    @Option(name = SAFI, aliases = {"-s"},
+            description = "SAFI type, 5=mpls, 6=evpn",
+            required = false, multiValued = false)
+    private String safi = null;
+
     private Object usage() {
         session.getConsole().println(
                 "usage: bgp-vrf [" + RD + " rd] [<" + IR + " | " + ER + "> rt1] .. [<" + IR + " | " + ER
-                        + "> rtN] <add|del>");
+                        + "> rtN] [" + AFI + " afi] [" + SAFI + " safi] <add|del>");
         return null;
     }
 
@@ -55,6 +67,8 @@ public class Vrf extends OsgiCommandSupport {
             return null;
         }
         BgpManager bm = Commands.getBgpManager();
+        long afiVal = afi != null ? Long.valueOf(afi) : 1L;
+        long safiVal = safi != null ? Long.valueOf(safi) : 5L;
         switch (action) {
             case "add":
                 if (rd == null || irts == null || erts == null) {
@@ -63,7 +77,7 @@ public class Vrf extends OsgiCommandSupport {
                 }
                 // check: rd exists? rd & rt's in format?
                 LayerType layerType = LayerType.LAYER3;
-                bm.addVrf(rd, irts, erts, layerType);
+                bm.addVrf(rd, irts, erts, layerType, afiVal, safiVal);
                 break;
             case "del":
                 if (rd == null) {
@@ -74,7 +88,7 @@ public class Vrf extends OsgiCommandSupport {
                     session.getConsole().println("error: some option(s) not needed; ignored");
                 }
                 // check: rd exists? in format?
-                bm.deleteVrf(rd, true);
+                bm.deleteVrf(rd, true, afiVal, safiVal);
                 break;
             default:
                 return usage();
