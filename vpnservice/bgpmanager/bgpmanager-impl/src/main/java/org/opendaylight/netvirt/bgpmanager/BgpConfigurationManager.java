@@ -1253,7 +1253,7 @@ public class BgpConfigurationManager {
                 try {
                     mapNewAdFamily.remove(val);// remove in the map the vrf in waiting for advertise quagga
                     for (AddressFamiliesVrf s : val.getAddressFamiliesVrf()) {
-                        br.delVrf(rd);
+                        br.delVrf(rd, s.getAfi(), s.getSafi());
                     }
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} Delete received exception; {}", YANG_OBJ, DEL_WARN, e);
