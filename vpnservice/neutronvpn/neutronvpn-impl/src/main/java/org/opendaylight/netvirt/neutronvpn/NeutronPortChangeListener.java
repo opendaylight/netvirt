@@ -30,8 +30,10 @@ import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
@@ -50,6 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMappingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMappingKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
@@ -495,6 +498,18 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 LOG.info("Adding VPN Interface for port {}", portupdate.getUuid().getValue());
                 nvpnManager.createVpnInterface(newVpnId, portupdate, wrtConfigTxn);
                 futures.add(wrtConfigTxn.submit());
+                // update IpFamily
+                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnInstance vpnInstance =
+                    NeutronvpnUtils.getVpnInstance(dataBroker, newVpnId);
+                if (vpnInstance != null) {
+                    LOG.trace("Update vpn {} with new subnets.", newVpnId.toString());
+                    IpVersionChoice ipVersChoices = NeutronvpnUtils.getIpVersionChoicesFromVpnId(dataBroker, newVpnId);
+                    List<java.lang.String> rd = vpnInstance.getRouteDistinguisher();
+                    List<java.lang.String> irt = vpnInstance.getImportRT();
+                    List<java.lang.String> ert = vpnInstance.getExportRT();
+                    String vpnName = vpnInstance.getName();
+                    nvpnManager.updateVpnInstanceNode(vpnName, rd, irt, ert, VpnInstance.Type.L3, 0 /*l3vni*/, ipVersChoices);
+                }
             }
             return futures;
         });
