@@ -25,10 +25,8 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 
 @Command(scope = "odl", name = "configure-bgp", description = "")
 public class ConfigureBgpCli extends OsgiCommandSupport {
-
     private static BgpManager bgpManager;
     private static BgpConfigurationManager bgpConfigurationManager;
-
 
     private static final long AS_MIN = 0;
     private static final long AS_MAX = 4294967295L;//2^32-1

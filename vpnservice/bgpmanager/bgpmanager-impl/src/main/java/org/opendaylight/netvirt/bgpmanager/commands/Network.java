@@ -30,6 +30,7 @@ public class Network extends OsgiCommandSupport {
     private static final String AFI = "--afi";
 
     private static final Logger LOG = LoggerFactory.getLogger(Network.class);
+
     @Argument(name = "add|del", description = "The desired operation",
             required = true, multiValued = false)
     private final String action = null;
