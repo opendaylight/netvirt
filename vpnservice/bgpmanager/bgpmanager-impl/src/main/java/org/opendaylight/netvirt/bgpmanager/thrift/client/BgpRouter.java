@@ -62,7 +62,9 @@ public class BgpRouter {
         int l3label;
         encap_type thriftEncapType;
         String routermac;
+        public af_afi afi;
         int delayEOR;
+        public af_safi safi;
 
         BgpOp() {
             strs = new String[3];
@@ -263,8 +265,8 @@ public class BgpRouter {
                 break;
             case VRF:
                 result = bop.add
-                        ? bgpClient.addVrf(op.thriftLayerType, op.strs[0], op.irts, op.erts)
-                        : bgpClient.delVrf(op.strs[0]);
+                           ? bgpClient.addVrf(op.thriftLayerType, op.strs[0], op.irts, op.erts, op.afi, op.safi)
+                           : bgpClient.delVrf(op.strs[0], op.afi, op.safi);
                 break;
             case PFX:
                 // order of args is different in addPrefix(), hence the
@@ -394,10 +396,12 @@ public class BgpRouter {
         dispatch(bop);
     }
 
-    public synchronized void delVrf(String rd) throws TException, BgpRouterException {
+    public synchronized void delVrf(String rd, long afi, long safi) throws TException, BgpRouterException {
         bop.type = Optype.VRF;
         bop.add = false;
         bop.strs[0] = rd;
+        bop.afi = af_afi.findByValue((int)afi);
+        bop.safi = af_safi.findByValue((int)safi);
         LOG.debug("Deleting BGP VRF rd: {} " + rd);
         dispatch(bop);
     }
