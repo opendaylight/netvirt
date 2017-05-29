@@ -42,12 +42,13 @@ import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.LayerType;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance.Type;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.ExternalTunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.external.tunnel.list.ExternalTunnel;
@@ -75,6 +76,10 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     private final IFibManager fibManager;
     private final VpnOpDataSyncer vpnOpDataNotifier;
     private final IMdsalApiManager mdsalManager;
+    private final int afiIpv4 = 1;
+    private final int afiIpv6 = 2;
+    private final int safiMplsVpn = 5;
+    private final int safiEvpn = 6;
 
     public VpnInstanceListener(final DataBroker dataBroker, final IBgpManager bgpManager,
         final IdManagerService idManager, final VpnInterfaceManager vpnInterfaceManager, final IFibManager fibManager,
@@ -253,7 +258,13 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         @Override
         public List<ListenableFuture<Void>> call() {
             final String vpnName = vpnInstance.getVpnInstanceName();
-            final List<String> rds = vpnInstance.getIpv4Family().getRouteDistinguisher();
+            List<String> rds = null;
+            if (vpnInstance.getIpv4Family() != null) {
+                rds = vpnInstance.getIpv4Family().getRouteDistinguisher();
+            }
+            if (rds == null && vpnInstance.getIpv6Family() != null) {
+                rds = vpnInstance.getIpv6Family().getRouteDistinguisher();
+            }
             String primaryRd = VpnUtil.getPrimaryRd(vpnInstance);
             final long vpnId = VpnUtil.getVpnId(broker, vpnName);
             WriteTransaction writeTxn = broker.newWriteOnlyTransaction();
@@ -267,8 +278,21 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             synchronized (vpnName.intern()) {
                 fibManager.removeVrfTable(broker, primaryRd, null);
             }
+            boolean doIpv4 = vpnInstance.getIpv4Family() != null;
+            boolean doIpv6 = vpnInstance.getIpv6Family() != null;
+            int safi = (vpnInstance.getType().compareTo(Type.L3) == 0
+                && !VpnUtil.isL3VpnOverVxLan(vpnInstance.getL3vni())) ? safiMplsVpn : safiEvpn;
             if (VpnUtil.isBgpVpn(vpnName, primaryRd)) {
-                rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(rd, false));
+                if (doIpv4) {
+                    rds.parallelStream().forEach(rd -> {
+                        bgpManager.deleteVrf(rd, false, AddressFamily.IPV4);
+                    });
+                }
+                if (doIpv6) {
+                    rds.parallelStream().forEach(rd -> {
+                        bgpManager.deleteVrf(rd, false, AddressFamily.IPV6);
+                    });
+                }
             }
             // Clean up VPNExtraRoutes Operational DS
             InstanceIdentifier<Vpn> vpnToExtraroute = VpnExtraRouteHelper.getVpnToExtrarouteVpnIdentifier(vpnName);
@@ -547,9 +571,22 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             //Advertise all the rds and check if primary Rd advertisement fails
             long primaryRdAddFailed = rds.parallelStream().filter(rd -> {
                 try {
-                    LayerType layerType = (vpnInstance.getType() == VpnInstance.Type.L2) ? LayerType.LAYER2 :
-                            LayerType.LAYER3;
-                    bgpManager.addVrf(rd, irtList, ertList, layerType);
+                    int safi = (vpnInstance.getType().compareTo(Type.L3) == 0
+                        && !VpnUtil.isL3VpnOverVxLan(vpnInstance.getL3vni())) ? safiMplsVpn : safiEvpn;
+
+                    if (vpnInstance.getIpv4Family() != null) {
+                        if (vpnInstance.getType() != VpnInstance.Type.L2) {
+                            bgpManager.addVrf(rd, irtList, ertList, AddressFamily.IPV4);
+                        } else {
+                            bgpManager.addVrf(rd, irtList, ertList, AddressFamily.L2VPN);
+                        }
+                    }
+                    if (vpnInstance.getIpv6Family() != null) {
+                        if (vpnInstance.getType() != VpnInstance.Type.L2) {
+                            bgpManager.addVrf(rd, irtList, ertList, AddressFamily.IPV6);
+                            // No addVRF LAYER2 for IPv6
+                        }
+                    }
                 } catch (Exception e) {
                     LOG.error("Exception when adding VRF {} to BGP {}. Exception {}", rd, vpnName, e);
                     return rd.equals(primaryRd);
