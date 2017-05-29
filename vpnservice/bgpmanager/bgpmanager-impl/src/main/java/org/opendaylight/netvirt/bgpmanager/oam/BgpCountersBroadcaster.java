@@ -20,19 +20,19 @@ import org.slf4j.LoggerFactory;
  */
 public class BgpCountersBroadcaster extends NotificationBroadcasterSupport implements BgpCountersBroadcasterMBean  {
     public Map<String, String> bgpCountersMap = new HashMap<>();
-    private static final Logger LOGGER = LoggerFactory.getLogger(BgpCountersBroadcaster.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BgpCountersBroadcaster.class);
 
     public Map<String, String> retrieveCounterMap() {
-        LOGGER.trace("Polled retrieveCounterMap");
+        LOG.trace("Polled retrieveCounterMap");
         Map<String, String> countersVal = new HashMap<>(bgpCountersMap);
         for (Map.Entry<String, String> entry : countersVal.entrySet()) {
-            LOGGER.trace(entry.getKey() + ", Value from MBean= " + entry.getValue());
+            LOG.trace(entry.getKey() + ", Value from MBean= " + entry.getValue());
         }
         return countersVal;
     }
 
     public void setBgpCountersMap(Map fetchedCountersMap) {
-        LOGGER.trace("putAll");
+        LOG.trace("putAll");
         bgpCountersMap.clear();
         bgpCountersMap.putAll(fetchedCountersMap);
     }
