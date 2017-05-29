@@ -175,8 +175,8 @@ public class VtyshCli extends OsgiCommandSupport {
                 socket.close();
                 return;
             }
-            if ((ip == (int) gt) || (ip == (int) hashChar)) {
-                if (ip == (int) gt) {
+            if (ip == gt || ip == hashChar) {
+                if (ip == gt) {
                     sb.append(gt);
                 } else {
                     sb.append(hashChar);
@@ -207,7 +207,7 @@ public class VtyshCli extends OsgiCommandSupport {
                 socket.close();
                 return;
             }
-            if ((ip == (int) gt) || (ip == (int) hashChar)) {
+            if (ip == gt || ip == hashChar) {
                 break;
             } else if (ip == -1) {
                 session.getConsole().println(sb.toString());

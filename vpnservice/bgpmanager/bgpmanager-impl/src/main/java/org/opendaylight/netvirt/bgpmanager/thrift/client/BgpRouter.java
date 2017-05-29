@@ -32,7 +32,7 @@ public class BgpRouter {
     private static TProtocol protocol;
     private static BgpConfigurator.Client bgpClient = null;
     boolean isConnected = false;
-    private static final Logger LOGGER = LoggerFactory.getLogger(BgpRouter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BgpRouter.class);
     public int startBGPresult = Integer.MIN_VALUE;
     public String bgpHost = null;
     public int bgpHostPort = 0;
@@ -127,13 +127,13 @@ public class BgpRouter {
             isConnected = true;
             setLastConnectedTS(System.currentTimeMillis());
         } catch (TTransportException tte) {
-            LOGGER.error("Failed connecting to " + msgPiece + "; Exception: " + tte);
+            LOG.error("Failed connecting to " + msgPiece + "; Exception: " + tte);
             isConnected = false;
             return false;
         }
         protocol = new TBinaryProtocol(transport);
         bgpClient = new BgpConfigurator.Client(protocol);
-        LOGGER.info("Connected to " + msgPiece);
+        LOG.info("Connected to " + msgPiece);
         return true;
     }
 
@@ -173,10 +173,10 @@ public class BgpRouter {
         switch (op.type) {
             case START:
                 setStartTS(System.currentTimeMillis());
-                LOGGER.debug("startBgp thrift call for AsId {}", op.asNumber);
+                LOG.debug("startBgp thrift call for AsId {}", op.asNumber);
                 result = bgpClient.startBgp(op.asNumber, op.strs[0],
                         BgpOp.IGNORE, BgpOp.IGNORE, BgpOp.IGNORE, op.ints[0], op.add);
-                LOGGER.debug("Result of startBgp thrift call for AsId {} : {}", op.asNumber, result);
+                LOG.debug("Result of startBgp thrift call for AsId {} : {}", op.asNumber, result);
                 startBGPresult = result;
                 break;
             case STOP:
@@ -275,7 +275,7 @@ public class BgpRouter {
         bop.asNumber = asNum;
         bop.ints[0] = stalepathTime;
         bop.strs[0] = rtrId;
-        LOGGER.debug("Starting BGP with as number {} and router ID {} StalePathTime: {}", asNum, rtrId, stalepathTime);
+        LOG.debug("Starting BGP with as number {} and router ID {} StalePathTime: {}", asNum, rtrId, stalepathTime);
         dispatch(bop);
     }
 
@@ -283,16 +283,16 @@ public class BgpRouter {
             throws TException, BgpRouterException {
         bop.type = Optype.STOP;
         bop.asNumber = asNum;
-        LOGGER.debug("Stopping BGP with as number {}", asNum);
+        LOG.debug("Stopping BGP with as number {}", asNum);
         dispatch(bop);
     }
 
     public synchronized void addNeighbor(String nbrIp, long nbrAsNum, @Nullable String md5Secret)
             throws TException, BgpRouterException {
         if (md5Secret == null) {
-            LOGGER.debug("Adding BGP Neighbor {} with as number {} ", nbrIp, nbrAsNum);
+            LOG.debug("Adding BGP Neighbor {} with as number {} ", nbrIp, nbrAsNum);
         } else {
-            LOGGER.debug("Adding BGP Neighbor {} with as number {} and MD5 secret {}", nbrIp, nbrAsNum, md5Secret);
+            LOG.debug("Adding BGP Neighbor {} with as number {} and MD5 secret {}", nbrIp, nbrAsNum, md5Secret);
         }
         bop.type = Optype.NBR;
         bop.add = true;
@@ -306,7 +306,7 @@ public class BgpRouter {
         bop.type = Optype.NBR;
         bop.add = false;
         bop.strs[0] = nbrIp;
-        LOGGER.debug("Deleting BGP Neighbor {} ", nbrIp);
+        LOG.debug("Deleting BGP Neighbor {} ", nbrIp);
         dispatch(bop);
     }
 
@@ -318,7 +318,7 @@ public class BgpRouter {
         bop.strs[0] = rd;
         bop.irts = irts;
         bop.erts = erts;
-        LOGGER.debug("Adding BGP VRF rd: {} ", rd);
+        LOG.debug("Adding BGP VRF rd: {} ", rd);
         dispatch(bop);
     }
 
@@ -326,7 +326,7 @@ public class BgpRouter {
         bop.type = Optype.VRF;
         bop.add = false;
         bop.strs[0] = rd;
-        LOGGER.debug("Deleting BGP VRF rd: {} " + rd);
+        LOG.debug("Deleting BGP VRF rd: {} " + rd);
         dispatch(bop);
     }
 
@@ -366,7 +366,7 @@ public class BgpRouter {
         bop.thriftEncapType = encapType;
         bop.routermac = routermac;
 
-        LOGGER.debug("Adding BGP route - rd:{} prefix:{} nexthop:{} label:{} ", rd ,prefix, nexthop, label);
+        LOG.debug("Adding BGP route - rd:{} prefix:{} nexthop:{} label:{} ", rd ,prefix, nexthop, label);
         dispatch(bop);
     }
 
@@ -375,7 +375,7 @@ public class BgpRouter {
         bop.add = false;
         bop.strs[0] = rd;
         bop.strs[1] = prefix;
-        LOGGER.debug("Deleting BGP route - rd:{} prefix:{} ", rd, prefix);
+        LOG.debug("Deleting BGP route - rd:{} prefix:{} ", rd, prefix);
         dispatch(bop);
     }
 
@@ -442,7 +442,7 @@ public class BgpRouter {
         bop.type = Optype.LOG;
         bop.strs[0] = fileName;
         bop.strs[1] = debugLevel;
-        LOGGER.debug("Setting Log file to BGP VRF rd: {} ", fileName, debugLevel);
+        LOG.debug("Setting Log file to BGP VRF rd: {} ", fileName, debugLevel);
         dispatch(bop);
     }
 
@@ -451,7 +451,7 @@ public class BgpRouter {
         bop.add = true;
         bop.strs[0] = nbrIp;
         bop.ints[0] = nhops;
-        LOGGER.debug("ebgp-multihop set for peer {}, num hops = {}",
+        LOG.debug("ebgp-multihop set for peer {}, num hops = {}",
                 nbrIp, nhops);
         dispatch(bop);
     }
@@ -460,7 +460,7 @@ public class BgpRouter {
         bop.type = Optype.MHOP;
         bop.add = false;
         bop.strs[0] = nbrIp;
-        LOGGER.debug("ebgp-multihop deleted for peer {}", nbrIp);
+        LOG.debug("ebgp-multihop deleted for peer {}", nbrIp);
         dispatch(bop);
     }
 
@@ -469,7 +469,7 @@ public class BgpRouter {
         bop.add = true;
         bop.strs[0] = nbrIp;
         bop.strs[1] = srcIp;
-        LOGGER.debug("update-source added for peer {}, src-ip = {}",
+        LOG.debug("update-source added for peer {}, src-ip = {}",
                 nbrIp, srcIp);
         dispatch(bop);
     }
@@ -478,7 +478,7 @@ public class BgpRouter {
         bop.type = Optype.SRC;
         bop.add = false;
         bop.strs[0] = nbrIp;
-        LOGGER.debug("update-source deleted for peer {}", nbrIp);
+        LOG.debug("update-source deleted for peer {}", nbrIp);
         dispatch(bop);
     }
 
@@ -489,7 +489,7 @@ public class BgpRouter {
         bop.strs[0] = nbrIp;
         bop.ints[0] = afi.getValue();
         bop.ints[1] = safi.getValue();
-        LOGGER.debug("addr family added for peer {}, afi = {}, safi = {}",
+        LOG.debug("addr family added for peer {}, afi = {}, safi = {}",
                 nbrIp, bop.ints[0], bop.ints[1]);
         dispatch(bop);
     }
@@ -501,7 +501,7 @@ public class BgpRouter {
         bop.strs[0] = nbrIp;
         bop.ints[0] = afi.getValue();
         bop.ints[1] = safi.getValue();
-        LOGGER.debug("addr family deleted for peer {}, afi = {}, safi = {}",
+        LOG.debug("addr family deleted for peer {}, afi = {}, safi = {}",
                 nbrIp, bop.ints[0], bop.ints[1]);
         dispatch(bop);
     }
@@ -510,7 +510,7 @@ public class BgpRouter {
         bop.type = Optype.GR;
         bop.add = true;
         bop.ints[0] = stalepathTime;
-        LOGGER.debug("graceful restart added, stale-path-time = {}",
+        LOG.debug("graceful restart added, stale-path-time = {}",
                 stalepathTime);
         dispatch(bop);
     }
@@ -518,14 +518,14 @@ public class BgpRouter {
     public synchronized void delGracefulRestart() throws TException, BgpRouterException {
         bop.type = Optype.GR;
         bop.add = false;
-        LOGGER.debug("graceful restart deleted");
+        LOG.debug("graceful restart deleted");
         dispatch(bop);
     }
 
     public synchronized void enableMultipath(af_afi afi, af_safi safi) throws TException, BgpRouterException {
         bop.type = Optype.MP;
         bop.add = true;
-        LOGGER.debug("Enabling multipath for afi: " + afi.getValue() + " safi: " + safi.getValue());
+        LOG.debug("Enabling multipath for afi: " + afi.getValue() + " safi: " + safi.getValue());
         bop.ints[0] = afi.getValue();
         bop.ints[1] = safi.getValue();
         dispatch(bop);
@@ -534,7 +534,7 @@ public class BgpRouter {
     public synchronized void disableMultipath(af_afi afi, af_safi safi) throws TException, BgpRouterException {
         bop.type = Optype.MP;
         bop.add = false;
-        LOGGER.debug("Disabling multipath for afi: " + afi.getValue() + " safi: " + safi.getValue());
+        LOG.debug("Disabling multipath for afi: " + afi.getValue() + " safi: " + safi.getValue());
         bop.ints[0] = afi.getValue();
         bop.ints[1] = safi.getValue();
         dispatch(bop);
