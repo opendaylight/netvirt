@@ -153,6 +153,26 @@ public class NeutronvpnUtils {
     private static long LOCK_WAIT_TIME = 10L;
     private static TimeUnit secUnit = TimeUnit.SECONDS;
 
+    /**this enum is used to make a choice between IPv4 or IPv6 or both.
+     */
+    public enum IpVersionChoice {
+        IPV4(4),
+        IPV6(6),
+        IPV4AND6(10);
+        public final int choice;
+
+        IpVersionChoice(int value) {
+            choice = value;
+        }
+
+        public boolean isIpVersionChosen(IpVersionChoice arg) {
+            if (this.choice == 10 || this.choice == arg.choice) {
+                return true;
+            }
+            return false;
+        }
+    }
+
     static {
         registerSupportedNetworkType(NetworkTypeFlat.class);
         registerSupportedNetworkType(NetworkTypeVlan.class);
