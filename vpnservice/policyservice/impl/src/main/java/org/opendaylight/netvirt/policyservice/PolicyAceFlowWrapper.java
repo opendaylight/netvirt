@@ -16,6 +16,9 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 
 public class PolicyAceFlowWrapper {
 
+    public static boolean PARTIAL = true;
+    public static boolean COMPLETE = false;
+
     private String flowName;
     private List<MatchInfoBase> matches;
     private int priority;
