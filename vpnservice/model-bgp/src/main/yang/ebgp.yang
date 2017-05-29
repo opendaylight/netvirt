@@ -210,9 +210,16 @@ module ebgp {
     leaf rd {
       type string;
     }
-    leaf layer-type {
-      type layer_type;
-      mandatory "true";
+    list address-families-vrf {
+      key "afi safi";
+      leaf afi {
+        type uint32;
+        mandatory "true";
+      }
+      leaf safi {
+        type uint32;
+        mandatory "true";
+      }
     }
     leaf-list import-rts {
       type string;
@@ -238,6 +245,31 @@ module ebgp {
         {
           value "2";
           description "VRF represents an IP-VRF.";
+        }
+      }
+    }
+
+  typedef address_family
+    {
+      description
+        "This value represents the address family
+        a VRF entry supports";
+      type enumeration
+      {
+        enum IPV_4
+        {
+          value "1";
+          description "VRF represents IPv4 VRF.";
+        }
+        enum IPV_6
+        {
+          value "2";
+          description "VRF represents an IPv6-VRF.";
+        }
+        enum L2VPN
+        {
+          value "3";
+          description "VRF represents a MAC-VRF.";
         }
       }
     }
