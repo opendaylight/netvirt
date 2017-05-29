@@ -176,15 +176,13 @@ public class HwvtepTerminationPointListener
                 if (isL2GatewayConfigured(l2GwDevice)) {
                     List<L2gatewayConnection> l2GwConns = L2GatewayConnectionUtils.getAssociatedL2GwConnections(broker,
                             l2GwDevice.getL2GatewayIds());
-                    if (l2GwConns != null) {
-                        String newPortId = portAdded.getTpId().getValue();
-                        NodeId hwvtepNodeId = new NodeId(l2GwDevice.getHwvtepNodeId());
-                        List<VlanBindings> vlanBindings = getVlanBindings(l2GwConns, hwvtepNodeId, psName, newPortId);
-                        List<ListenableFuture<Void>> futures = new ArrayList<>();
-                        futures.add(elanL2GatewayUtils.updateVlanBindingsInL2GatewayDevice(hwvtepNodeId, psName,
-                                newPortId, vlanBindings));
-                        return futures;
-                    }
+                    String newPortId = portAdded.getTpId().getValue();
+                    NodeId hwvtepNodeId = new NodeId(l2GwDevice.getHwvtepNodeId());
+                    List<VlanBindings> vlanBindings = getVlanBindings(l2GwConns, hwvtepNodeId, psName, newPortId);
+                    List<ListenableFuture<Void>> futures = new ArrayList<>();
+                    futures.add(elanL2GatewayUtils.updateVlanBindingsInL2GatewayDevice(hwvtepNodeId, psName,
+                            newPortId, vlanBindings));
+                    return futures;
                 }
             } else {
                 LOG.error("{} details are not present in L2Gateway Cache", psName);

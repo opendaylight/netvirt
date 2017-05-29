@@ -50,14 +50,12 @@ public class ElanInstanceListener extends AsyncDataTreeChangeListenerBase<ElanIn
         LOG.info("Elan instance {} deleted from Operational tree ", del);
         List<L2gatewayConnection> l2gatewayConnections = L2GatewayConnectionUtils.getL2GwConnectionsByElanName(this
                 .broker, del.getElanInstanceName());
-        if (l2gatewayConnections != null) {
-            LOG.info("L2Gatewconnection {} to be deleted as part of Elan Instance deletion {} ", l2gatewayConnections,
-                    del);
-            for (L2gatewayConnection l2gatewayConnection : l2gatewayConnections) {
-                l2GatewayConnectionUtils.deleteL2GatewayConnection(l2gatewayConnection);
-            }
-            LOG.info("L2Gatewconnection {} delet task submitted Successfully", l2gatewayConnections);
+        LOG.info("L2Gatewconnection {} to be deleted as part of Elan Instance deletion {} ", l2gatewayConnections,
+                del);
+        for (L2gatewayConnection l2gatewayConnection : l2gatewayConnections) {
+            l2GatewayConnectionUtils.deleteL2GatewayConnection(l2gatewayConnection);
         }
+        LOG.info("L2Gatewconnection {} delete task submitted successfully", l2gatewayConnections);
 
     }
 
