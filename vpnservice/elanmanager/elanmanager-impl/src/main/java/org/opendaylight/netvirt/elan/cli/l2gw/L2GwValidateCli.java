@@ -148,10 +148,8 @@ public class L2GwValidateCli extends OsgiCommandSupport {
         }
         l2gatewayConnections = L2GatewayConnectionUtils.getAllL2gatewayConnections(dataBroker);
         l2gateways = L2GatewayConnectionUtils.getL2gatewayList(dataBroker);
-        if (l2gateways != null) {
-            for (L2gateway l2gateway : l2gateways) {
-                uuidToL2Gateway.put(l2gateway.getUuid(), l2gateway);
-            }
+        for (L2gateway l2gateway : l2gateways) {
+            uuidToL2Gateway.put(l2gateway.getUuid(), l2gateway);
         }
     }
 
