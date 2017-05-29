@@ -1194,7 +1194,7 @@ public class BgpConfigurationManager {
                 }
                 try {
                     br.addVrf(val.getLayerType(), rd, val.getImportRts(),
-                              val.getExportRts());
+                              val.getExportRts(), vrf.afi, vrf.safi);
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
                 }
@@ -1226,7 +1226,7 @@ public class BgpConfigurationManager {
                     return;
                 }
                 try {
-                    br.delVrf(rd);
+                    br.delVrf(rd, val.afi, val.safi);
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} Delete received exception; {}", YANG_OBJ, DEL_WARN, e);
                 }
