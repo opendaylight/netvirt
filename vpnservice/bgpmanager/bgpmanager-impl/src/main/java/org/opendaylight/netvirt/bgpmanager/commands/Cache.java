@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.EbgpMultihop;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.UpdateSource;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfs.AddressFamiliesVrf;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 
 @Command(scope = "odl", name = "bgp-cache",
@@ -205,6 +206,9 @@ public class Cache extends OsgiCommandSupport {
                     ps.printf("\n\t\t%s  ", ERSTR);
                     for (String rt : vrf.getExportRts()) {
                         ps.printf("%s ", rt);
+                    }
+                    for (AddressFamiliesVrf adf : vrf.getAddressFamiliesVrf()) {
+                        ps.printf("\n\t\tafi %d safi %d", adf.getAfi(), adf.getSafi());
                     }
                     ps.printf("\n");
                 }
