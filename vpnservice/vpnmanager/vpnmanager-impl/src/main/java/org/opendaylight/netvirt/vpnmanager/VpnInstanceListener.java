@@ -472,7 +472,20 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             if rd is null, then its either a router vpn instance (or) a vlan external network vpn instance.
             if rd is non-null, then it is a bgpvpn instance
              */
-            VpnAfConfig config = vpnInstance.getIpv4Family();
+            VpnAfConfig configv4 = vpnInstance.getIpv4Family();
+            VpnAfConfig configv6 = vpnInstance.getIpv6Family();
+            VpnAfConfig config;
+	    if (configv4) {
+		config = config4;
+	    } else if (config6) {
+                config = config6;
+	    }
+            if (config not found) {
+		// return;
+		return;
+	    }
+	       
+	    // if config not found, 
             List<String> rd = config.getRouteDistinguisher();
             if ((rd == null) || addBgpVrf(voids)) {
                 notifyTask();
@@ -515,7 +528,22 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         // TODO Clean up the exception handling
         @SuppressWarnings("checkstyle:IllegalCatch")
         private boolean addBgpVrf(List<Void> voids) {
-            VpnAfConfig config = vpnInstance.getIpv4Family();
+            VpnAfConfig config;
+            VpnAfConfig configv4 = vpnInstance.getIpv4Family();
+            VpnAfConfig configv6 = vpnInstance.getIpv6Family();
+            VpnAfConfig config;
+	    if (configv4) {
+		config = config4;
+	    } else if (config6) {
+                config = config6;
+	    }
+            if (config not found) {
+		// return;
+		return;
+	    }
+
+	    enum Type = vpnInstance.getType();
+            VpnAfConfig configIPv6 = vpnInstance.getIpv6Family();
             List<String> rds = config.getRouteDistinguisher();
             String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
             List<VpnTarget> vpnTargetList = config.getVpnTargets().getVpnTarget();
@@ -540,10 +568,18 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 LOG.error("vpn target list is empty, cannot add BGP VPN {} VRF {}", this.vpnName, primaryRd);
                 return false;
             }
+	    if (vpnType == L3)
+		safi = SAFI_MPLS_VPN;
+	    else
+		safi = SAFI_EVPN
+	    
             //Advertise all the rds and check if primary Rd advertisement fails
             long primaryRdAddFailed = rds.parallelStream().filter(rd -> {
                 try {
-                    bgpManager.addVrf(rd, irtList, ertList, LayerType.LAYER3);
+		    if (configIPv6)
+			bgpManager.addVrf(AFI_IPV6, safi, rd, irtList, ertList, LayerType.LAYER3);
+		    if (configIPv4)
+			bgpManager.addVrf(AFI_IPV6, safi, rd, irtList, ertList, LayerType.LAYER3);
                 } catch (Exception e) {
                     LOG.error("Exception when adding VRF {} to BGP {}. Exception {}", rd, vpnName, e);
                     return rd.equals(primaryRd);
