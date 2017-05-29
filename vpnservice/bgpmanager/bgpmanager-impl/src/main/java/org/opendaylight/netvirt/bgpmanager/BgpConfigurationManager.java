@@ -1225,7 +1225,7 @@ public class BgpConfigurationManager {
                     return;
                 }
                 try {
-                    br.delVrf(rd);
+                    br.delVrf(rd, val.getAfi(), val.getSafi());
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} Delete received exception; {}", YANG_OBJ, DEL_WARN, e);
                 }
