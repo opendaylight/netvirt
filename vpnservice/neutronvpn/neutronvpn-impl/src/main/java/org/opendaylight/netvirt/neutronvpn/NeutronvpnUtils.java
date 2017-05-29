@@ -12,6 +12,10 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Sets;
 import java.math.BigInteger;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -35,6 +40,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
@@ -192,6 +198,25 @@ public class NeutronvpnUtils {
             return optionalVpnMap.get();
         }
         LOG.error("getVpnMap failed, VPN {} not present", id.getValue());
+        return null;
+    }
+
+    public static org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnInstance
+        getVpnInstance(DataBroker broker, Uuid vpnId) {
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnInstance> id =
+            InstanceIdentifier.create(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602
+                    .VpnInstance.class);
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnInstance> vpnInstance =
+            read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        Set<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnInstance> rep =
+            vpnInstance.asSet();
+        org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnInstance[] tabVpnInstance =
+            (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnInstance[]) rep.toArray();
+        for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnInstance vpn: tabVpnInstance) {
+            if (vpn.getId() == vpnId){
+                return vpn;
+            }
+        }
         return null;
     }
 
@@ -1271,4 +1296,102 @@ public class NeutronvpnUtils {
         return (!isEmpty(collection));
     }
 
+    /**Method to get an ipVersionChosen as IPV4 and/or IPV6 or undefined from the subnetmaps of the router.
+     * @param dataBroker to get informations from data store
+     * @param routerUuid the Uuid for witch find out the IP version associated
+     * @return an IpVersionChoice used by the router from its attached subnetmaps. IpVersionChoice.UNDEFINED if any
+     */
+    public static IpVersionChoice getIpVersionChoicesFromRouterUuid(DataBroker dataBroker, Uuid routerUuid) {
+        IpVersionChoice rep = IpVersionChoice.UNDEFINED;
+        if (routerUuid == null) {
+            return null;
+        }
+        List<Subnetmap> subnetmapList = NeutronvpnUtils.getNeutronRouterSubnetMaps(dataBroker, routerUuid);
+        if (subnetmapList.isEmpty()) {
+            return null;
+        }
+        for (Subnetmap sn : subnetmapList) {
+            if (sn.getSubnetIp() != null) {
+                IpVersionChoice ipVers = getIpVersion(sn.getSubnetIp());
+                if (rep.choice != ipVers.choice) {
+                    rep.addVersion(ipVers);
+                }
+                if (rep.choice == rep.IPV4AND6.choice) {
+                    return rep;
+                }
+            }
+        }
+        return rep;
+    }
+
+    /**Method to get an ipVersionChosen as IPV4 and/or IPV6 or undefined from the subnetmaps of a vpn instance.
+     * @param dataBroker to get informations from data store
+     * @param vpnId the Uuid for which find out the IP version associated
+     * @return an IpVersionChoice used by the vpn instance from its attached subnetmaps. IpVersionChoice.UNDEFINED if any
+     */
+    public static IpVersionChoice getIpVersionChoicesFromVpnId(DataBroker dataBroker, Uuid vpnId) {
+        IpVersionChoice rep = IpVersionChoice.UNDEFINED;
+        if (vpnId == null) {
+            return null;
+        }
+        List<Uuid> vpnSubnetIdsList = getSubnetsforVpn(dataBroker, vpnId);
+        if (vpnSubnetIdsList.isEmpty()) {
+            return rep;
+        }
+        for (Uuid snId : vpnSubnetIdsList) {
+            Subnetmap sn =  getSubnetmap(dataBroker, snId);
+            IpVersionChoice ipVers = getIpVersion(sn.getSubnetIp());
+            if (rep.choice != ipVers.choice) {
+                rep.addVersion(ipVers);
+            }
+            if (rep.choice == rep.IPV4AND6.choice) {
+                return rep;
+            }
+        }
+        return rep;
+    }
+
+    /**This method return the list of Subnetmap associated to the router or a empty list if any.
+     * @param broker the data broker to get information
+     * @param routerId the Uuid of router for witch subnetmap is find out
+     * @return a list of Subnetmap associated to the router. it could be empty if any
+     */
+    protected static List<Subnetmap> getNeutronRouterSubnetMaps(DataBroker broker, Uuid routerUuid) {
+        List<Subnetmap> subnetIdList = new ArrayList<>();
+        Optional<Subnetmaps> subnetMaps = read(broker, LogicalDatastoreType.CONFIGURATION,
+            InstanceIdentifier.builder(Subnetmaps.class).build());
+        if (subnetMaps.isPresent() && subnetMaps.get().getSubnetmap() != null) {
+            for (Subnetmap subnetmap : subnetMaps.get().getSubnetmap()) {
+                if (routerUuid.equals(subnetmap.getRouterId())) {
+                    subnetIdList.add(subnetmap);
+                }
+            }
+        }
+        return subnetIdList;
+    }
+
+    /**Get IpVersionChoice from String IP like x.x.x.x or an representation IPv6.
+     * @param ipAddress String of an representation IP address V4 or V6
+     * @return the IpVersionChoice of the version or IpVersionChoice.UNDEFINED if any
+     */
+    public static IpVersionChoice getIpVersion(String ipAddress) {
+        IpVersionChoice ipchoice = IpVersionChoice.UNDEFINED;
+        try {
+            InetAddress address = InetAddress.getByName(ipAddress);
+            if (address instanceof Inet4Address) {
+                return IpVersionChoice.IPV4;
+            }
+        } catch (UnknownHostException | SecurityException e) {
+            ipchoice = IpVersionChoice.UNDEFINED;
+        }
+        try {
+            InetAddress address = InetAddress.getByName(ipAddress);
+            if (address instanceof Inet6Address) {
+                return IpVersionChoice.IPV6;
+            }
+        } catch (UnknownHostException | SecurityException e) {
+            ipchoice = IpVersionChoice.UNDEFINED;
+        }
+        return ipchoice;
+    }
 }
