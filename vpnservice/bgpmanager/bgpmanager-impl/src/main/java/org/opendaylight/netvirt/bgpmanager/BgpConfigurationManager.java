@@ -1331,7 +1331,7 @@ public class BgpConfigurationManager {
             for (AddressFamiliesVrf adfToDel : adFamilyVrfToDel) {
                 try {
                     LOG.debug("call delVRf rd {} afi {} safi {}", rd, adfToDel.getAfi(), adfToDel.getSafi());
-                    br.delVrf(rd);
+                    br.delVrf(rd, adfToDel.getAfi(), adfToDel.getSafi());
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} delVrf received exception; {}", YANG_OBJ, ADD_WARN, e);
                 }
