@@ -185,6 +185,9 @@ public class ElanUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanUtils.class);
 
+    private static final boolean SH_FLAG_SET = true;
+    private static final boolean SH_FLAG_UNSET = false;
+
     private static Map<String, ElanInstance> elanInstanceLocalCache = new ConcurrentHashMap<>();
     private static Map<String, ElanInterface> elanInterfaceLocalCache = new ConcurrentHashMap<>();
     private static Map<String, Set<DpnInterfaces>> elanInstancToDpnsCache = new ConcurrentHashMap<>();
@@ -1736,7 +1739,7 @@ public class ElanUtils {
      */
     private static Flow buildDmacFlowDropIfPacketComingFromTunnel(BigInteger dpnId, String extDeviceNodeId,
             Long elanTag, String dstMacAddress) {
-        List<MatchInfo> mkMatches = buildMatchesForElanTagShFlagAndDstMac(elanTag, /* shFlag */ true, dstMacAddress);
+        List<MatchInfo> mkMatches = buildMatchesForElanTagShFlagAndDstMac(elanTag, SH_FLAG_SET, dstMacAddress);
         List<Instruction> mkInstructions = MDSALUtil.buildInstructionsDrop();
         String flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpnId, extDeviceNodeId, dstMacAddress,
                 elanTag, true);
