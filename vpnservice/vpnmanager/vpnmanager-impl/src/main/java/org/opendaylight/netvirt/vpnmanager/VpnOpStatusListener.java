@@ -21,6 +21,8 @@ import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -85,7 +87,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
             DataStoreJobCoordinator djc = DataStoreJobCoordinator.getInstance();
             djc.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {
                 WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-
+                VpnInstance vpnInstance = VpnUtil.getVpnInstance(dataBroker, vpnName);
                 // Clean up VpnInstanceToVpnId from Config DS
                 VpnUtil.removeVpnIdToVpnInstance(dataBroker, vpnId, writeTxn);
                 VpnUtil.removeVpnInstanceToVpnId(dataBroker, vpnName, writeTxn);
@@ -93,7 +95,19 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 // Clean up FIB Entries Config DS
                 fibManager.removeVrfTable(dataBroker, primaryRd, null);
                 if (VpnUtil.isBgpVpn(vpnName, primaryRd)) {
-                    rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(rd, false));
+                    if (vpnInstance.getIpv4Family() != null) {
+                        if (vpnInstance.getType() != VpnInstance.Type.L2) {
+                            rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(rd, false, AddressFamily.L2VPN));
+                        } else {
+                            rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(rd, false, AddressFamily.IPV4));
+                        }
+                    }
+                    if (vpnInstance.getIpv6Family() != null) {
+                        if (vpnInstance.getType() != VpnInstance.Type.L2) {
+                            rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(rd, false, AddressFamily.IPV6));
+                            // No addVRF LAYER2 for IPv6
+                        }
+                    }
                 }
                 // Clean up VPNExtraRoutes Operational DS
                 InstanceIdentifier<Vpn> vpnToExtraroute = VpnExtraRouteHelper.getVpnToExtrarouteVpnIdentifier(vpnName);
