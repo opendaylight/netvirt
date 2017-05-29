@@ -14,7 +14,7 @@ import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.LayerType;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.AddressFamily;
 
 @Command(scope = "odl", name = "bgp-vrf",
         description = "Add or delete BGP VRFs")
@@ -22,6 +22,7 @@ public class Vrf extends OsgiCommandSupport {
     private static final String RD = "--rd";
     private static final String IR = "--import-rts";
     private static final String ER = "--export-rts";
+    private static final String ADDRF = "--addr-family";
 
     @Argument(name = "add|del", description = "The desired operation",
             required = true, multiValued = false)
@@ -42,10 +43,16 @@ public class Vrf extends OsgiCommandSupport {
             required = false, multiValued = true)
     private List<String> erts = null;
 
+
+    @Option(name = ADDRF, aliases = {"-af"},
+            description = "AddressFamily IPV4 or IPV6 or L2VPN (IPv(4 or 6) is on MPLS, L2VPN uses IPV4)",
+            required = false, multiValued = false)
+    private String addrf = null;
+
     private Object usage() {
         session.getConsole().println(
                 "usage: bgp-vrf [" + RD + " rd] [<" + IR + " | " + ER + "> rt1] .. [<" + IR + " | " + ER
-                        + "> rtN] <add|del>");
+                        + "> rtN] [" + ADDRF + " AddressFamily] <add|del>");
         return null;
     }
 
@@ -55,6 +62,16 @@ public class Vrf extends OsgiCommandSupport {
             return null;
         }
         BgpManager bm = Commands.getBgpManager();
+        AddressFamily af = null;
+        if (addrf.compareToIgnoreCase("IPV_4") == 0) {
+            af = AddressFamily.IPV4;
+        } else if (addrf.compareToIgnoreCase("IPV_6") == 0) {
+            af = AddressFamily.IPV6;
+        } else if (addrf.compareToIgnoreCase("L2VPN") == 0) {
+            af = AddressFamily.L2VPN;
+        } else {
+            return usage();
+        }
         switch (action) {
             case "add":
                 if (rd == null || irts == null || erts == null) {
@@ -62,8 +79,7 @@ public class Vrf extends OsgiCommandSupport {
                     return null;
                 }
                 // check: rd exists? rd & rt's in format?
-                LayerType layerType = LayerType.LAYER3;
-                bm.addVrf(rd, irts, erts, layerType);
+                bm.addVrf(rd, irts, erts, af);
                 break;
             case "del":
                 if (rd == null) {
@@ -74,7 +90,7 @@ public class Vrf extends OsgiCommandSupport {
                     session.getConsole().println("error: some option(s) not needed; ignored");
                 }
                 // check: rd exists? in format?
-                bm.deleteVrf(rd, true);
+                bm.deleteVrf(rd, true, af);
                 break;
             default:
                 return usage();
