@@ -80,9 +80,15 @@ public class DhcpNeutronPortListener
         if (del.getDeviceOwner().equals("network:dhcp")) {
             String networkId = del.getNetworkId().getValue();
             List<FixedIps> fixedIps = del.getFixedIps();
-            String dhcpIp = String.valueOf(fixedIps.get(0).getIpAddress().getValue());
-            String dhcpMac = del.getMacAddress().getValue();
-            delArpResponderForElanDpns(networkId,dhcpMac,dhcpIp);
+            for (FixedIps ip :fixedIps){
+                if (ip.getIpAddress().getIpv4Address() != null) {
+                    String dhcpIp = ip.getIpAddress().getIpv4Address().getValue();
+                    String dhcpMac = del.getMacAddress().getValue();
+                    delArpResponderForElanDpns(networkId,dhcpMac,dhcpIp);
+                    break;
+                }
+            }
+
             final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             portDataStoreCoordinator.enqueueJob("PORT- " + del.getUuid().getValue(), () -> {
                 WriteTransaction wrtConfigTxn = broker.newWriteOnlyTransaction();
@@ -131,10 +137,6 @@ public class DhcpNeutronPortListener
     protected void add(InstanceIdentifier<Port> identifier, Port add) {
         LOG.trace("Port added {}", add);
         if (add.getDeviceOwner().equals("network:dhcp")) {
-            String networkId = add.getNetworkId().getValue();
-            List<FixedIps> fixedIps = add.getFixedIps();
-            String dhcpIp = String.valueOf(fixedIps.get(0).getIpAddress().getValue());
-            String dhcpMac = add.getMacAddress().getValue();
             final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             portDataStoreCoordinator.enqueueJob("PORT- " + add.getUuid().getValue(), () -> {
                 WriteTransaction wrtConfigTxn = broker.newWriteOnlyTransaction();
@@ -143,7 +145,16 @@ public class DhcpNeutronPortListener
                 futures.add(wrtConfigTxn.submit());
                 return futures;
             });
-            addArpResponderForElanDpns(networkId,dhcpMac,dhcpIp);
+            String networkId = add.getNetworkId().getValue();
+            List<FixedIps> fixedIps = add.getFixedIps();
+            for (FixedIps ip : fixedIps){
+                if (ip.getIpAddress().getIpv4Address() != null) {
+                    String dhcpIp = ip.getIpAddress().getIpv4Address().getValue();
+                    String dhcpMac = add.getMacAddress().getValue();
+                    addArpResponderForElanDpns(networkId,dhcpMac,dhcpIp);
+                    break;
+                }
+            }
         }
         if (!isVnicTypeDirectOrMacVtap(add)) {
             return;
@@ -201,7 +212,7 @@ public class DhcpNeutronPortListener
                 LOG.trace("Installing DHCP ARPResponder Flows for DPN {}",dpnId);
                 Optional<String> dpnInterface = DhcpServiceUtils.getAvailableDpnInterface(broker, dpnId, networkId);
                 if (dpnInterface.isPresent()) {
-                    elanService.addArpResponderFlow(dpnId, dpnInterface.get(), ipAddress, macAddress, java.util.Optional.empty());
+                    elanService.addArpResponderFlow(dpnId, dpnInterface.get(), ipAddress, macAddress, java.util.Optional.empty(),false);
                 }
             }
         }

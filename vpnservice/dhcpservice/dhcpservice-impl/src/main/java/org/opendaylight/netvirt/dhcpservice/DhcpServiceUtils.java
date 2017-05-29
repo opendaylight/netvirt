@@ -65,6 +65,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
@@ -346,23 +347,30 @@ public class DhcpServiceUtils {
     protected static void createNetworkDhcpPortData(DataBroker broker,Port port, WriteTransaction tx){
         LOG.trace("Adding NetworkPortData entry for network {}", port.getNetworkId().getValue());
         InstanceIdentifier<NetworkToDhcpport> identifier = buildNetworktoDhcpPort(port.getNetworkId().getValue());
-        String ipAddress = port.getFixedIps().get(0).getIpAddress().getIpv4Address().toString();
-        NetworkToDhcpportBuilder builder = new NetworkToDhcpportBuilder().
-                setKey(new NetworkToDhcpportKey(port.getNetworkId().getValue())).
-                setPortNetworkid(port.getNetworkId().getValue()).
-                setPortName(port.getUuid().getValue()).setMacAddress(port.getMacAddress().getValue()).
-                setPortFixedip(ipAddress);
-        try {
-            if (tx != null) {
-                tx.put(LogicalDatastoreType.CONFIGURATION, identifier, builder.build());
-            } else {
-                MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, identifier, builder.build());
+        List<FixedIps> fixedIps = port.getFixedIps();
+        for(FixedIps ip : fixedIps){
+            if (ip.getIpAddress().getIpv4Address() != null) {
+                String ipAddress = ip.getIpAddress().getIpv4Address().getValue();
+                NetworkToDhcpportBuilder builder = new NetworkToDhcpportBuilder().
+                        setKey(new NetworkToDhcpportKey(port.getNetworkId().getValue())).
+                        setPortNetworkid(port.getNetworkId().getValue()).
+                        setPortName(port.getUuid().getValue()).setMacAddress(port.getMacAddress().getValue()).
+                        setPortFixedip(ipAddress);
+                try {
+                    if (tx != null) {
+                        tx.put(LogicalDatastoreType.CONFIGURATION, identifier, builder.build());
+                    } else {
+                        MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, identifier, builder.build());
+                    }
+                    LOG.trace("Adding to NetworktoDhcpPort network {}  mac {}",port.getNetworkId().getValue(),
+                            port.getMacAddress().getValue());
+                } catch (Exception e){
+                    LOG.error("Failure while creating NetworkToDhcpPort map for network {}.", port.getNetworkId(),e);
+                }
+                break;
             }
-            LOG.trace("Adding to NetworktoDhcpPort network {}  mac {}",port.getNetworkId().getValue(),
-                    port.getMacAddress().getValue());
-        } catch (Exception e){
-            LOG.error("Failure while creating NetworkToDhcpPort map for network {}.", port.getNetworkId(),e);
         }
+
 
     }
 

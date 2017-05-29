@@ -254,8 +254,8 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
 
     private void setupTableMissArpCheckFlow(BigInteger dpnId) {
         mdsalManager.installFlow(dpnId,
-                MDSALUtil.buildFlowEntity(dpnId, NwConstants.ARP_CHECK_TABLE,
-                        String.valueOf("L2.ELAN." + NwConstants.ARP_CHECK_TABLE), NwConstants.TABLE_MISS_PRIORITY,
+                MDSALUtil.buildFlowEntity(dpnId, (short) 43,
+                        String.valueOf("L2.ELAN." + 43), NwConstants.TABLE_MISS_PRIORITY,
                         ArpResponderConstant.DROP_FLOW_NAME.value(), 0, 0, NwConstants.COOKIE_ARP_RESPONDER,
                         new ArrayList<MatchInfo>(),
                         Collections.singletonList(new InstructionGotoTable(NwConstants.ELAN_BASE_TABLE))));
@@ -274,11 +274,11 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         final List<ActionInfo> actionInfos = Collections
                 .singletonList(new ActionGroup(ArpResponderUtil.retrieveStandardArpResponderGroupId(idManagerService)));
         final List<InstructionInfo> instructions = Collections.singletonList(new InstructionApplyActions(actionInfos));
-        final FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ARP_CHECK_TABLE,
-                getFlowRefForArpFlows(dpId, NwConstants.ARP_CHECK_TABLE, NwConstants.ARP_REQUEST),
+        final FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, (short) 43,
+                getFlowRefForArpFlows(dpId, (short) 43, NwConstants.ARP_REQUEST),
                 NwConstants.DEFAULT_ARP_FLOW_PRIORITY, "ARP Check Table Arp Rquest flow", 0, 0,
                 new BigInteger("1080000", 16), matches, instructions);
-        LOG.trace("Invoking MDSAL to install Arp Rquest Match Flow for table {}", NwConstants.ARP_CHECK_TABLE);
+        LOG.trace("Invoking MDSAL to install Arp Rquest Match Flow for table {}", 43);
         mdsalManager.installFlow(dpId, flowEntity);
     }
 
@@ -290,11 +290,11 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         actionsInfos.add(new ActionPuntToController());
         actionsInfos.add(new ActionNxResubmit(NwConstants.ELAN_BASE_TABLE));
         final List<InstructionInfo> instructions = Collections.singletonList(new InstructionApplyActions(actionsInfos));
-        final FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ARP_CHECK_TABLE,
-                getFlowRefForArpFlows(dpId, NwConstants.ARP_CHECK_TABLE, NwConstants.ARP_REPLY),
+        final FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, (short) 43,
+                getFlowRefForArpFlows(dpId, (short) 43, NwConstants.ARP_REPLY),
                 NwConstants.DEFAULT_ARP_FLOW_PRIORITY, "L3GwMac Arp Reply", 0, 0, new BigInteger("1080000", 16),
                 matches, instructions);
-        LOG.trace("Invoking MDSAL to install  Arp Reply Match Flow for Table {} ", NwConstants.ARP_CHECK_TABLE);
+        LOG.trace("Invoking MDSAL to install  Arp Reply Match Flow for Table {} ", 43);
         mdsalManager.installFlow(dpId, flowEntity);
     }
 

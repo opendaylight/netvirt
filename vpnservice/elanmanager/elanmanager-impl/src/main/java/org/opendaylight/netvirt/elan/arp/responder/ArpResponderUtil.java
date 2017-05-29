@@ -208,7 +208,43 @@ public class ArpResponderUtil {
         // overridden in table=0
         actions.add(new ActionNxLoadInPort(BigInteger.ZERO).buildAction(actionCounter++));
         actions.add(new ActionNxResubmit(NwConstants.ELAN_BASE_TABLE).buildAction(actionCounter));
-//        actions.addAll(getEgressActionsForInterface(ifaceMgrRpcService, vpnInterface, actionCounter));
+        //actions.addAll(getEgressActionsForInterface(ifaceMgrRpcService, vpnInterface, actionCounter));
+        LOG.trace("Total Number of actions is {}", actionCounter);
+        return actions;
+
+    }
+    
+    /**
+     * Get List of actions for ARP Responder Flows.
+     *
+     * <p>Actions consists of all the ARP actions from
+     * and Egress Actions Retrieved for External Interface
+     *
+     * @param ifaceMgrRpcService Interface manager RPC reference to invoke RPC to get Egress actions for the interface
+     * @param vpnInterface VPN Interface for which flow to be installed
+     * @param ipAddress Gateway IP Address
+     * @param macAddress Gateway MacAddress
+     * @return List of ARP Responder Actions actions
+     */
+    public static List<Action> getExternalActions(
+        final IInterfaceManager ifaceMgrRpcService,
+        final String vpnInterface, final String ipAddress,
+        final String macAddress) {
+
+        final List<Action> actions = new ArrayList<>();
+        int actionCounter = 0;
+        actions.add(new ActionMoveSourceDestinationEth().buildAction(actionCounter++));
+        actions.add(new ActionSetFieldEthernetSource(new MacAddress(macAddress)).buildAction(actionCounter++));
+        actions.add(new ActionSetArpOp(NwConstants.ARP_REPLY).buildAction(actionCounter++));
+        actions.add(new ActionMoveShaToTha().buildAction(actionCounter++));
+        actions.add(new ActionMoveSpaToTpa().buildAction(actionCounter++));
+        actions.add(new ActionLoadMacToSha(new MacAddress(macAddress)).buildAction(actionCounter++));
+        actions.add(new ActionLoadIpToSpa(ipAddress).buildAction(actionCounter++));
+        // A temporary fix until to send packet to incoming port by loading IN_PORT with zero, until in_port is
+        // overridden in table=0
+        actions.add(new ActionNxLoadInPort(BigInteger.ZERO).buildAction(actionCounter++));
+        //actions.add(new ActionNxResubmit(NwConstants.ELAN_BASE_TABLE).buildAction(actionCounter));
+        actions.addAll(getEgressActionsForInterface(ifaceMgrRpcService, vpnInterface, actionCounter));
         LOG.trace("Total Number of actions is {}", actionCounter);
         return actions;
 
@@ -227,7 +263,7 @@ public class ArpResponderUtil {
             final String extInterfaceName, final String ipAddress, final String macAddress) {
         Short tableId = null;
         final List<Instruction> instructions = new ArrayList<>();
-        final List<Action> actions = getActions(ifaceMgrRpcService, extInterfaceName, ipAddress, macAddress);
+        final List<Action> actions = getExternalActions(ifaceMgrRpcService, extInterfaceName, ipAddress, macAddress);
         for (final Iterator<Action> iterator = actions.iterator(); iterator.hasNext();) {
             final org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action actionClass = iterator
                     .next().getAction();

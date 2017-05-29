@@ -114,6 +114,7 @@ public class DhcpInterfaceEventListener
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface add) {
         String interfaceName = add.getName();
+        LOG.trace("DhcpInterfaceAddJob to be created for interface {}", interfaceName);
         List<String> ofportIds = add.getLowerLayerIf();
         if (ofportIds == null || ofportIds.isEmpty()) {
             return;

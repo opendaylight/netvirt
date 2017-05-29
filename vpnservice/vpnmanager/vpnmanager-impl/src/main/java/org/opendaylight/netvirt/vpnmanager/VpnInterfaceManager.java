@@ -1227,7 +1227,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                       final long vpnId, final String ifName, final Uuid subnetId,
                                       final String subnetGwMac, final String gwIp, final WriteTransaction writeInvTxn) {
         LOG.trace("Creating the ARP Responder flow for VPN Interface {}",ifName);
-        elanService.addArpResponderFlow(dpId, ifName, gwIp, subnetGwMac, java.util.Optional.of(lportTag));
+        elanService.addArpResponderFlow(dpId, ifName, gwIp, subnetGwMac, java.util.Optional.of(lportTag),false);
     }
 
     private Optional<String> getGatewayMacAddressForInterface(String vpnName, String ifName, String ipAddress) {

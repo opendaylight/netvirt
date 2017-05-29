@@ -818,8 +818,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
     @Override
     public void addArpResponderFlow(final BigInteger dpnId, final String ingressInterfaceName, final String ipAddress,
-            final String macAddress, final java.util.Optional<Integer> lportTag) {
-        elanUtils.addArpResponderFlow(dpnId, ingressInterfaceName, ipAddress, macAddress, lportTag);
+            final String macAddress, final java.util.Optional<Integer> lportTag, boolean isFloatingIp) {
+        elanUtils.addArpResponderFlow(dpnId, ingressInterfaceName, ipAddress, macAddress, lportTag,isFloatingIp);
 
     }
 

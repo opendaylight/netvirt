@@ -75,7 +75,7 @@ public class DhcpManager {
 
     @PostConstruct
     public void init() {
-        LOG.trace("Achuth Netvirt DHCP Manager Init .... "+config.isControllerDhcpEnabled());
+        LOG.trace("Netvirt DHCP Manager Init .... "+config.isControllerDhcpEnabled());
         if (config.isControllerDhcpEnabled()) {
             dhcpInterfaceEventListener =
                     new DhcpInterfaceEventListener(this, broker, dhcpExternalTunnelManager, interfaceManager, elanService);
