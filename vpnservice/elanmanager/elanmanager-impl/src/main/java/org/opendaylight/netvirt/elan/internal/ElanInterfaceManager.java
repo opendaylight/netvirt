@@ -133,6 +133,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private ElanUtils elanUtils;
 
     private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
+    private static final boolean SH_FLAG_SET = true;
+    private static final boolean SH_FLAG_UNSET = false;
 
     private final Map<String, ConcurrentLinkedQueue<ElanInterface>>
         unProcessedElanInterfaces = new ConcurrentHashMap<>();
@@ -1414,12 +1416,12 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private void removeUnknownDmacFlow(BigInteger dpId, ElanInstance elanInfo, WriteTransaction deleteFlowGroupTx,
             long elanTag) {
         Flow flow = new FlowBuilder().setId(new FlowId(getUnknownDmacFlowRef(NwConstants.ELAN_UNKNOWN_DMAC_TABLE,
-                elanTag, /* SH flag */ false))).setTableId(NwConstants.ELAN_UNKNOWN_DMAC_TABLE).build();
+                elanTag, SH_FLAG_UNSET))).setTableId(NwConstants.ELAN_UNKNOWN_DMAC_TABLE).build();
         mdsalManager.removeFlowToTx(dpId, flow, deleteFlowGroupTx);
 
         if (isVxlanNetworkOrVxlanSegment(elanInfo)) {
             Flow flow2 = new FlowBuilder().setId(new FlowId(getUnknownDmacFlowRef(NwConstants.ELAN_UNKNOWN_DMAC_TABLE,
-                    elanTag, /* SH flag */ true))).setTableId(NwConstants.ELAN_UNKNOWN_DMAC_TABLE)
+                    elanTag, SH_FLAG_SET))).setTableId(NwConstants.ELAN_UNKNOWN_DMAC_TABLE)
                     .build();
             mdsalManager.removeFlowToTx(dpId, flow2, deleteFlowGroupTx);
         }
@@ -1503,11 +1505,11 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     }
 
     private String getFlowRef(long tableId, long elanTag) {
-        return new StringBuffer().append(tableId).append(elanTag).toString();
+        return String.valueOf(tableId) + elanTag;
     }
 
     private String getUnknownDmacFlowRef(long tableId, long elanTag, boolean shFlag) {
-        return new StringBuffer().append(tableId).append(elanTag).append(shFlag).toString();
+        return String.valueOf(tableId) + elanTag + shFlag;
     }
 
     private List<Action> getInterfacePortActions(InterfaceInfo interfaceInfo) {
