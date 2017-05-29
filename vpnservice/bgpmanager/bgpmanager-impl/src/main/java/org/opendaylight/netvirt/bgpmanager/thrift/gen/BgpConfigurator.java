@@ -40,9 +40,9 @@ public class BgpConfigurator {
 
     public int deletePeer(String ipAddress) throws org.apache.thrift.TException;
 
-    public int addVrf(layer_type l_type, String rd, List<String> irts, List<String> erts) throws org.apache.thrift.TException;
+    public int addVrf(layer_type l_type, String rd, List<String> irts, List<String> erts, af_afi afi, af_safi safi) throws org.apache.thrift.TException;
 
-    public int delVrf(String rd) throws org.apache.thrift.TException;
+    public int delVrf(String rd, af_afi afi, af_safi safi) throws org.apache.thrift.TException;
 
     public int pushRoute(protocol_type p_type, String prefix, String nexthop, String rd, int ethtag, String esi, String macaddress, int l3label, int l2label, encap_type enc_type, String routermac, af_afi afi) throws org.apache.thrift.TException;
 
@@ -92,9 +92,9 @@ public class BgpConfigurator {
 
     public void deletePeer(String ipAddress, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void addVrf(layer_type l_type, String rd, List<String> irts, List<String> erts, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void addVrf(layer_type l_type, String rd, List<String> irts, List<String> erts, af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void delVrf(String rd, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void delVrf(String rd, af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void pushRoute(protocol_type p_type, String prefix, String nexthop, String rd, int ethtag, String esi, String macaddress, int l3label, int l2label, encap_type enc_type, String routermac, af_afi afi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
@@ -283,19 +283,21 @@ public class BgpConfigurator {
     }
 
     @Override
-	public int addVrf(layer_type l_type, String rd, List<String> irts, List<String> erts) throws org.apache.thrift.TException
+        public int addVrf(layer_type l_type, String rd, List<String> irts, List<String> erts, af_afi afi, af_safi safi) throws org.apache.thrift.TException
     {
-      send_addVrf(l_type, rd, irts, erts);
+      send_addVrf(l_type, rd, irts, erts, afi, safi);
       return recv_addVrf();
     }
 
-    public void send_addVrf(layer_type l_type, String rd, List<String> irts, List<String> erts) throws org.apache.thrift.TException
+    public void send_addVrf(layer_type l_type, String rd, List<String> irts, List<String> erts, af_afi afi, af_safi safi) throws org.apache.thrift.TException
     {
       addVrf_args args = new addVrf_args();
       args.setL_type(l_type);
       args.setRd(rd);
       args.setIrts(irts);
       args.setErts(erts);
+      args.setAfi(afi);
+      args.setSafi(safi);
       sendBase("addVrf", args);
     }
 
@@ -310,16 +312,18 @@ public class BgpConfigurator {
     }
 
     @Override
-	public int delVrf(String rd) throws org.apache.thrift.TException
+        public int delVrf(String rd, af_afi afi, af_safi safi) throws org.apache.thrift.TException
     {
-      send_delVrf(rd);
+      send_delVrf(rd, afi, safi);
       return recv_delVrf();
     }
 
-    public void send_delVrf(String rd) throws org.apache.thrift.TException
+    public void send_delVrf(String rd, af_afi afi, af_safi safi) throws org.apache.thrift.TException
     {
       delVrf_args args = new delVrf_args();
       args.setRd(rd);
+      args.setAfi(afi);
+      args.setSafi(safi);
       sendBase("delVrf", args);
     }
 
@@ -981,24 +985,28 @@ public class BgpConfigurator {
     }
 
     @Override
-	public void addVrf(layer_type l_type, String rd, List<String> irts, List<String> erts, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+        public void addVrf(layer_type l_type, String rd, List<String> irts, List<String> erts, af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      addVrf_call method_call = new addVrf_call(l_type, rd, irts, erts, resultHandler, this, ___protocolFactory, ___transport);
+      addVrf_call method_call = new addVrf_call(l_type, rd, irts, erts, afi, safi, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
 
     public static class addVrf_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private final layer_type l_type;
-      private final String rd;
-      private final List<String> irts;
-      private final List<String> erts;
-      public addVrf_call(layer_type l_type, String rd, List<String> irts, List<String> erts, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      private layer_type l_type;
+      private String rd;
+      private List<String> irts;
+      private List<String> erts;
+      private af_afi afi;
+      private af_safi safi;
+      public addVrf_call(layer_type l_type, String rd, List<String> irts, List<String> erts, af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.l_type = l_type;
         this.rd = rd;
         this.irts = irts;
         this.erts = erts;
+        this.afi = afi;
+        this.safi = safi;
       }
 
       @Override
@@ -1009,6 +1017,8 @@ public class BgpConfigurator {
         args.setRd(rd);
         args.setIrts(irts);
         args.setErts(erts);
+        args.setAfi(afi);
+        args.setSafi(safi);
         args.write(prot);
         prot.writeMessageEnd();
       }
@@ -1024,18 +1034,22 @@ public class BgpConfigurator {
     }
 
     @Override
-	public void delVrf(String rd, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+        public void delVrf(String rd, af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      delVrf_call method_call = new delVrf_call(rd, resultHandler, this, ___protocolFactory, ___transport);
+      delVrf_call method_call = new delVrf_call(rd, afi, safi, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
 
     public static class delVrf_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private final String rd;
-      public delVrf_call(String rd, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      private String rd;
+      private af_afi afi;
+      private af_safi safi;
+      public delVrf_call(String rd, af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.rd = rd;
+        this.afi = afi;
+        this.safi = safi;
       }
 
       @Override
@@ -1043,6 +1057,8 @@ public class BgpConfigurator {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("delVrf", org.apache.thrift.protocol.TMessageType.CALL, 0));
         delVrf_args args = new delVrf_args();
         args.setRd(rd);
+        args.setAfi(afi);
+        args.setSafi(safi);
         args.write(prot);
         prot.writeMessageEnd();
       }
@@ -1891,7 +1907,7 @@ public class BgpConfigurator {
       @Override
 	public addVrf_result getResult(I iface, addVrf_args args) throws org.apache.thrift.TException {
         addVrf_result result = new addVrf_result();
-        result.success = iface.addVrf(args.l_type, args.rd, args.irts, args.erts);
+        result.success = iface.addVrf(args.l_type, args.rd, args.irts, args.erts, args.afi, args.safi);
         result.setSuccessIsSet(true);
         return result;
       }
@@ -1915,7 +1931,7 @@ public class BgpConfigurator {
       @Override
 	public delVrf_result getResult(I iface, delVrf_args args) throws org.apache.thrift.TException {
         delVrf_result result = new delVrf_result();
-        result.success = iface.delVrf(args.rd);
+        result.success = iface.delVrf(args.rd, args.afi, args.safi);
         result.setSuccessIsSet(true);
         return result;
       }
@@ -2703,8 +2719,8 @@ public class BgpConfigurator {
       }
 
       @Override
-	public void start(I iface, addVrf_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
-        iface.addVrf(args.l_type, args.rd, args.irts, args.erts,resultHandler);
+        public void start(I iface, addVrf_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+        iface.addVrf(args.l_type, args.rd, args.irts, args.erts, args.afi, args.safi,resultHandler);
       }
     }
 
@@ -2761,8 +2777,8 @@ public class BgpConfigurator {
       }
 
       @Override
-	public void start(I iface, delVrf_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
-        iface.delVrf(args.rd,resultHandler);
+        public void start(I iface, delVrf_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+        iface.delVrf(args.rd, args.afi, args.safi,resultHandler);
       }
     }
 
@@ -8284,6 +8300,8 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField RD_FIELD_DESC = new org.apache.thrift.protocol.TField("rd", org.apache.thrift.protocol.TType.STRING, (short)2);
     private static final org.apache.thrift.protocol.TField IRTS_FIELD_DESC = new org.apache.thrift.protocol.TField("irts", org.apache.thrift.protocol.TType.LIST, (short)3);
     private static final org.apache.thrift.protocol.TField ERTS_FIELD_DESC = new org.apache.thrift.protocol.TField("erts", org.apache.thrift.protocol.TType.LIST, (short)4);
+    private static final org.apache.thrift.protocol.TField AFI_FIELD_DESC = new org.apache.thrift.protocol.TField("afi", org.apache.thrift.protocol.TType.I32, (short)5);
+    private static final org.apache.thrift.protocol.TField SAFI_FIELD_DESC = new org.apache.thrift.protocol.TField("safi", org.apache.thrift.protocol.TType.I32, (short)6);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
@@ -8299,6 +8317,8 @@ public class BgpConfigurator {
     public String rd; // required
     public List<String> irts; // required
     public List<String> erts; // required
+    public af_afi afi; // required
+    public af_safi safi; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -8309,7 +8329,9 @@ public class BgpConfigurator {
       L_TYPE((short)1, "l_type"),
       RD((short)2, "rd"),
       IRTS((short)3, "irts"),
-      ERTS((short)4, "erts");
+      ERTS((short)4, "erts"),
+      AFI((short)5, "afi"),
+      SAFI((short)6, "safi");
 
       private static final Map<String, _Fields> byName = new HashMap<>();
 
@@ -8332,6 +8354,10 @@ public class BgpConfigurator {
             return IRTS;
           case 4: // ERTS
             return ERTS;
+          case 5: // AFI
+            return AFI;
+          case 6: // SAFI
+            return SAFI;
           default:
             return null;
         }
@@ -8389,6 +8415,10 @@ public class BgpConfigurator {
       tmpMap.put(_Fields.ERTS, new org.apache.thrift.meta_data.FieldMetaData("erts", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST,
               new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
+      tmpMap.put(_Fields.AFI, new org.apache.thrift.meta_data.FieldMetaData("afi", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, af_afi.class)));
+      tmpMap.put(_Fields.SAFI, new org.apache.thrift.meta_data.FieldMetaData("safi", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, af_safi.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(addVrf_args.class, metaDataMap);
     }
@@ -8400,13 +8430,17 @@ public class BgpConfigurator {
       layer_type l_type,
       String rd,
       List<String> irts,
-      List<String> erts)
+      List<String> erts,
+      af_afi afi,
+      af_safi safi)
     {
       this();
       this.l_type = l_type;
       this.rd = rd;
       this.irts = irts;
       this.erts = erts;
+      this.afi = afi;
+      this.safi = safi;
     }
 
     /**
@@ -8427,6 +8461,12 @@ public class BgpConfigurator {
         List<String> __this__erts = new ArrayList<>(other.erts);
         this.erts = __this__erts;
       }
+      if (other.isSetAfi()) {
+        this.afi = other.afi;
+      }
+      if (other.isSetSafi()) {
+        this.safi = other.safi;
+      }
     }
 
     @Override
@@ -8440,6 +8480,8 @@ public class BgpConfigurator {
       this.rd = null;
       this.irts = null;
       this.erts = null;
+      this.afi = null;
+      this.safi = null;
     }
 
     /**
@@ -8576,8 +8618,54 @@ public class BgpConfigurator {
       }
     }
 
+    public af_afi getAfi() {
+      return this.afi;
+    }
+
+    public addVrf_args setAfi(af_afi afi) {
+      this.afi = afi;
+      return this;
+    }
+
+    public void unsetAfi() {
+      this.afi = null;
+    }
+
+    public boolean isSetAfi() {
+      return this.afi != null;
+    }
+
+    public void setAfiIsSet(boolean value) {
+      if (!value) {
+        this.afi = null;
+      }
+    }
+
+    public af_safi getSafi() {
+      return this.safi;
+    }
+
+    public addVrf_args setSafi(af_safi safi) {
+      this.safi = safi;
+      return this;
+    }
+
+    public void unsetSafi() {
+      this.safi = null;
+    }
+
+    public boolean isSetSafi() {
+      return this.safi != null;
+    }
+
+    public void setSafiIsSet(boolean value) {
+      if (!value) {
+        this.safi = null;
+      }
+    }
+
     @Override
-	public void setFieldValue(_Fields field, Object value) {
+        public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case L_TYPE:
         if (value == null) {
@@ -8611,6 +8699,22 @@ public class BgpConfigurator {
         }
         break;
 
+      case AFI:
+        if (value == null) {
+          unsetAfi();
+        } else {
+          setAfi((af_afi)value);
+        }
+        break;
+
+      case SAFI:
+        if (value == null) {
+          unsetSafi();
+        } else {
+          setSafi((af_safi)value);
+        }
+        break;
+
       }
     }
 
@@ -8628,6 +8732,12 @@ public class BgpConfigurator {
 
       case ERTS:
         return getErts();
+
+      case AFI:
+        return getAfi();
+
+      case SAFI:
+        return getSafi();
 
       }
       throw new IllegalStateException();
@@ -8649,6 +8759,10 @@ public class BgpConfigurator {
         return isSetIrts();
       case ERTS:
         return isSetErts();
+      case AFI:
+        return isSetAfi();
+      case SAFI:
+        return isSetSafi();
       }
       throw new IllegalStateException();
     }
@@ -8713,6 +8827,24 @@ public class BgpConfigurator {
 		}
       }
 
+      boolean this_present_afi = true && this.isSetAfi();
+      boolean that_present_afi = true && that.isSetAfi();
+      if (this_present_afi || that_present_afi) {
+        if (!(this_present_afi && that_present_afi))
+          return false;
+        if (!this.afi.equals(that.afi))
+          return false;
+      }
+
+      boolean this_present_safi = true && this.isSetSafi();
+      boolean that_present_safi = true && that.isSetSafi();
+      if (this_present_safi || that_present_safi) {
+        if (!(this_present_safi && that_present_safi))
+          return false;
+        if (!this.safi.equals(that.safi))
+          return false;
+      }
+
       return true;
     }
 
@@ -8765,6 +8897,26 @@ public class BgpConfigurator {
       }
       if (isSetErts()) {
         lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.erts, other.erts);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetAfi()).compareTo(other.isSetAfi());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetAfi()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.afi, other.afi);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetSafi()).compareTo(other.isSetSafi());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetSafi()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.safi, other.safi);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -8827,6 +8979,22 @@ public class BgpConfigurator {
         sb.append("null");
       } else {
         sb.append(this.erts);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("afi:");
+      if (this.afi == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.afi);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("safi:");
+      if (this.safi == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.safi);
       }
       first = false;
       sb.append(")");
@@ -8926,6 +9094,22 @@ public class BgpConfigurator {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
+            case 5: // AFI
+              if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+                struct.afi = af_afi.findByValue(iprot.readI32());
+                struct.setAfiIsSet(true);
+              } else {
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 6: // SAFI
+              if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+                struct.safi = af_safi.findByValue(iprot.readI32());
+                struct.setSafiIsSet(true);
+              } else {
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -8976,6 +9160,16 @@ public class BgpConfigurator {
           }
           oprot.writeFieldEnd();
         }
+        if (struct.afi != null) {
+          oprot.writeFieldBegin(AFI_FIELD_DESC);
+          oprot.writeI32(struct.afi.getValue());
+          oprot.writeFieldEnd();
+        }
+        if (struct.safi != null) {
+          oprot.writeFieldBegin(SAFI_FIELD_DESC);
+          oprot.writeI32(struct.safi.getValue());
+          oprot.writeFieldEnd();
+        }
         oprot.writeFieldStop();
         oprot.writeStructEnd();
       }
@@ -9007,7 +9201,13 @@ public class BgpConfigurator {
         if (struct.isSetErts()) {
           optionals.set(3);
         }
-        oprot.writeBitSet(optionals, 4);
+        if (struct.isSetAfi()) {
+          optionals.set(4);
+        }
+        if (struct.isSetSafi()) {
+          optionals.set(5);
+        }
+        oprot.writeBitSet(optionals, 6);
         if (struct.isSetL_type()) {
           oprot.writeI32(struct.l_type.getValue());
         }
@@ -9031,13 +9231,19 @@ public class BgpConfigurator {
               oprot.writeString(_iter17);
             }
           }
+        if (struct.isSetAfi()) {
+          oprot.writeI32(struct.afi.getValue());
+        }
+        if (struct.isSetSafi()) {
+          oprot.writeI32(struct.safi.getValue());
+        }
         }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, addVrf_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(4);
+        BitSet incoming = iprot.readBitSet(6);
         if (incoming.get(0)) {
           struct.l_type = layer_type.findByValue(iprot.readI32());
           struct.setL_typeIsSet(true);
@@ -9071,6 +9277,14 @@ public class BgpConfigurator {
             }
           }
           struct.setErtsIsSet(true);
+        }
+        if (incoming.get(4)) {
+          struct.afi = af_afi.findByValue(iprot.readI32());
+          struct.setAfiIsSet(true);
+        }
+        if (incoming.get(5)) {
+          struct.safi = af_safi.findByValue(iprot.readI32());
+          struct.setSafiIsSet(true);
         }
       }
     }
@@ -9455,6 +9669,8 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("delVrf_args");
 
     private static final org.apache.thrift.protocol.TField RD_FIELD_DESC = new org.apache.thrift.protocol.TField("rd", org.apache.thrift.protocol.TType.STRING, (short)1);
+    private static final org.apache.thrift.protocol.TField AFI_FIELD_DESC = new org.apache.thrift.protocol.TField("afi", org.apache.thrift.protocol.TType.I32, (short)2);
+    private static final org.apache.thrift.protocol.TField SAFI_FIELD_DESC = new org.apache.thrift.protocol.TField("safi", org.apache.thrift.protocol.TType.I32, (short)3);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
@@ -9463,10 +9679,14 @@ public class BgpConfigurator {
     }
 
     public String rd; // required
+    public af_afi afi; // required
+    public af_safi safi; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-      RD((short)1, "rd");
+      RD((short)1, "rd"),
+      AFI((short)2, "afi"),
+      SAFI((short)3, "safi");
 
       private static final Map<String, _Fields> byName = new HashMap<>();
 
@@ -9483,6 +9703,10 @@ public class BgpConfigurator {
         switch(fieldId) {
           case 1: // RD
             return RD;
+          case 2: // AFI
+            return AFI;
+          case 3: // SAFI
+            return SAFI;
           default:
             return null;
         }
@@ -9532,6 +9756,10 @@ public class BgpConfigurator {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
       tmpMap.put(_Fields.RD, new org.apache.thrift.meta_data.FieldMetaData("rd", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.AFI, new org.apache.thrift.meta_data.FieldMetaData("afi", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, af_afi.class)));
+      tmpMap.put(_Fields.SAFI, new org.apache.thrift.meta_data.FieldMetaData("safi", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, af_safi.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(delVrf_args.class, metaDataMap);
     }
@@ -9540,10 +9768,14 @@ public class BgpConfigurator {
     }
 
     public delVrf_args(
-      String rd)
+      String rd,
+      af_afi afi,
+      af_safi safi)
     {
       this();
       this.rd = rd;
+      this.afi = afi;
+      this.safi = safi;
     }
 
     /**
@@ -9552,6 +9784,12 @@ public class BgpConfigurator {
     public delVrf_args(delVrf_args other) {
       if (other.isSetRd()) {
         this.rd = other.rd;
+      }
+      if (other.isSetAfi()) {
+        this.afi = other.afi;
+      }
+      if (other.isSetSafi()) {
+        this.safi = other.safi;
       }
     }
 
@@ -9563,6 +9801,8 @@ public class BgpConfigurator {
     @Override
     public void clear() {
       this.rd = null;
+      this.afi = null;
+      this.safi = null;
     }
 
     public String getRd() {
@@ -9589,14 +9829,78 @@ public class BgpConfigurator {
       }
     }
 
+    public af_afi getAfi() {
+      return this.afi;
+    }
+
+    public delVrf_args setAfi(af_afi afi) {
+      this.afi = afi;
+      return this;
+    }
+
+    public void unsetAfi() {
+      this.afi = null;
+    }
+
+    /** Returns true if field afi is set (has been assigned a value) and false otherwise */
+    public boolean isSetAfi() {
+      return this.afi != null;
+    }
+
+    public void setAfiIsSet(boolean value) {
+      if (!value) {
+        this.afi = null;
+      }
+    }
+
+    public af_safi getSafi() {
+      return this.safi;
+    }
+
+    public delVrf_args setSafi(af_safi safi) {
+      this.safi = safi;
+      return this;
+    }
+
+    public void unsetSafi() {
+      this.safi = null;
+    }
+
+    /** Returns true if field safi is set (has been assigned a value) and false otherwise */
+    public boolean isSetSafi() {
+      return this.safi != null;
+    }
+
+    public void setSafiIsSet(boolean value) {
+      if (!value) {
+        this.safi = null;
+      }
+    }
+
     @Override
-	public void setFieldValue(_Fields field, Object value) {
+        public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case RD:
         if (value == null) {
           unsetRd();
         } else {
           setRd((String)value);
+        }
+        break;
+
+      case AFI:
+        if (value == null) {
+          unsetAfi();
+        } else {
+          setAfi((af_afi)value);
+        }
+        break;
+
+      case SAFI:
+        if (value == null) {
+          unsetSafi();
+        } else {
+          setSafi((af_safi)value);
         }
         break;
 
@@ -9608,6 +9912,12 @@ public class BgpConfigurator {
       switch (field) {
       case RD:
         return getRd();
+
+      case AFI:
+        return getAfi();
+
+      case SAFI:
+        return getSafi();
 
       }
       throw new IllegalStateException();
@@ -9623,6 +9933,10 @@ public class BgpConfigurator {
       switch (field) {
       case RD:
         return isSetRd();
+      case AFI:
+        return isSetAfi();
+      case SAFI:
+        return isSetSafi();
       }
       throw new IllegalStateException();
     }
@@ -9654,6 +9968,24 @@ public class BgpConfigurator {
 		}
       }
 
+      boolean this_present_afi = true && this.isSetAfi();
+      boolean that_present_afi = true && that.isSetAfi();
+      if (this_present_afi || that_present_afi) {
+        if (!(this_present_afi && that_present_afi))
+          return false;
+        if (!this.afi.equals(that.afi))
+          return false;
+      }
+
+      boolean this_present_safi = true && this.isSetSafi();
+      boolean that_present_safi = true && that.isSetSafi();
+      if (this_present_safi || that_present_safi) {
+        if (!(this_present_safi && that_present_safi))
+          return false;
+        if (!this.safi.equals(that.safi))
+          return false;
+      }
+
       return true;
     }
 
@@ -9676,6 +10008,26 @@ public class BgpConfigurator {
       }
       if (isSetRd()) {
         lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.rd, other.rd);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetAfi()).compareTo(other.isSetAfi());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetAfi()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.afi, other.afi);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetSafi()).compareTo(other.isSetSafi());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetSafi()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.safi, other.safi);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -9708,6 +10060,22 @@ public class BgpConfigurator {
         sb.append("null");
       } else {
         sb.append(this.rd);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("afi:");
+      if (this.afi == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.afi);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("safi:");
+      if (this.safi == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.safi);
       }
       first = false;
       sb.append(")");
@@ -9763,6 +10131,22 @@ public class BgpConfigurator {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
+            case 2: // AFI
+              if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+                struct.afi = af_afi.findByValue(iprot.readI32());
+                struct.setAfiIsSet(true);
+              } else {
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 3: // SAFI
+              if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+                struct.safi = af_safi.findByValue(iprot.readI32());
+                struct.setSafiIsSet(true);
+              } else {
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -9782,6 +10166,16 @@ public class BgpConfigurator {
         if (struct.rd != null) {
           oprot.writeFieldBegin(RD_FIELD_DESC);
           oprot.writeString(struct.rd);
+          oprot.writeFieldEnd();
+        }
+        if (struct.afi != null) {
+          oprot.writeFieldBegin(AFI_FIELD_DESC);
+          oprot.writeI32(struct.afi.getValue());
+          oprot.writeFieldEnd();
+        }
+        if (struct.safi != null) {
+          oprot.writeFieldBegin(SAFI_FIELD_DESC);
+          oprot.writeI32(struct.safi.getValue());
           oprot.writeFieldEnd();
         }
         oprot.writeFieldStop();
@@ -9806,19 +10200,39 @@ public class BgpConfigurator {
         if (struct.isSetRd()) {
           optionals.set(0);
         }
-        oprot.writeBitSet(optionals, 1);
+        if (struct.isSetAfi()) {
+          optionals.set(1);
+        }
+        if (struct.isSetSafi()) {
+          optionals.set(2);
+        }
+        oprot.writeBitSet(optionals, 3);
         if (struct.isSetRd()) {
           oprot.writeString(struct.rd);
+        }
+        if (struct.isSetAfi()) {
+          oprot.writeI32(struct.afi.getValue());
+        }
+        if (struct.isSetSafi()) {
+          oprot.writeI32(struct.safi.getValue());
         }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, delVrf_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(1);
+        BitSet incoming = iprot.readBitSet(3);
         if (incoming.get(0)) {
           struct.rd = iprot.readString();
           struct.setRdIsSet(true);
+        }
+        if (incoming.get(1)) {
+          struct.afi = af_afi.findByValue(iprot.readI32());
+          struct.setAfiIsSet(true);
+        }
+        if (incoming.get(2)) {
+          struct.safi = af_safi.findByValue(iprot.readI32());
+          struct.setSafiIsSet(true);
         }
       }
     }
