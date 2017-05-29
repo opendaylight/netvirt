@@ -1296,7 +1296,7 @@ public class BgpConfigurationManager {
                     List<AddressFamiliesVrf> adf = mapNewAdFamily.get(rd);
                     adf = adf != null ? adf : new ArrayList<>();
                     for (AddressFamiliesVrf s : val.getAddressFamiliesVrf()) {
-                        br.delVrf(rd);
+                        br.delVrf(rd, s.getAfi(), s.getSafi());
                         adf.remove(s);// remove in the map the vrf in waiting for advertise quagga
                     }
                     if (adf.isEmpty()) {
@@ -1365,7 +1365,7 @@ public class BgpConfigurationManager {
             for (AddressFamiliesVrf adfToDel : adFamilyVrfToDel) {
                 try {
                     LOG.debug("call delVRf rd {} afi {} safi {}", rd, adfToDel.getAfi(), adfToDel.getSafi());
-                    br.delVrf(rd);
+                    br.delVrf(rd, adfToDel.getAfi(), adfToDel.getSafi());
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} delVrf received exception; {}", YANG_OBJ, ADD_WARN, e);
                 }
