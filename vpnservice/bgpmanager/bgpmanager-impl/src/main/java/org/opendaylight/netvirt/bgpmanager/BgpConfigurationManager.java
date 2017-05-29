@@ -119,6 +119,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1189,7 +1191,7 @@ public class BgpConfigurationManager {
                 }
                 try {
                     br.addVrf(val.getLayerType(), rd, val.getImportRts(),
-                            val.getExportRts());
+                        val.getExportRts(), val.getAfi(), val.getSafi());
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
                 }
@@ -1989,7 +1991,7 @@ public class BgpConfigurationManager {
                 for (Vrfs vrf : vrfs) {
                     try {
                         br.addVrf(vrf.getLayerType(), vrf.getRd(), vrf.getImportRts(),
-                                vrf.getExportRts());
+                                  vrf.getExportRts(), vrf.getAfi(), vrf.getSafi());
                     } catch (TException | BgpRouterException e) {
                         LOG.error("Replay:addVrf() received exception", e);
                     }
@@ -2202,13 +2204,13 @@ public class BgpConfigurationManager {
     }
 
     // TODO: add LayerType as arg - supports command
-    public void addVrf(String rd, List<String> irts, List<String> erts, LayerType layerType) {
+    public void addVrf(String rd, List<String> irts, List<String> erts, LayerType layerType, int afi, int safi) {
         InstanceIdentifier.InstanceIdentifierBuilder<Vrfs> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Vrfs.class, new VrfsKey(rd));
         InstanceIdentifier<Vrfs> iid = iib.build();
         Vrfs dto = new VrfsBuilder().setRd(rd).setImportRts(irts)
-                .setExportRts(erts).setLayerType(layerType).build();
+            .setExportRts(erts).setLayerType(layerType).setAfi(Long.valueOf(afi)).setSafi(Long.valueOf(safi)).build();
         try {
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, iid, dto);
         } catch (TransactionCommitFailedException e) {
@@ -2293,12 +2295,23 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    public void delVrf(String rd) {
+    public void delVrf(String rd, int afi, int safi) {
         InstanceIdentifier.InstanceIdentifierBuilder<Vrfs> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Vrfs.class, new VrfsKey(rd));
+
         InstanceIdentifier<Vrfs> iid = iib.build();
-        delete(iid);
+
+        @SuppressWarnings("static-access")
+        InstanceIdentifier<Bgp> iid3 = iid.builder(Bgp.class).build();
+        KeyedInstanceIdentifier<Multipath, MultipathKey> iid4 = iid3
+            .child(Multipath.class,
+                new MultipathKey(Long.valueOf(afi), Long.valueOf(safi)));
+        InstanceIdentifier<Bgp> iid6 = iid4.create(Bgp.class);
+        InstanceIdentifierBuilder<Vrfs> iib3 = iid6.child(Vrfs.class, new VrfsKey(rd)).builder();
+        InstanceIdentifier<Vrfs> iidFinal = iib3.build();
+
+        delete(iidFinal);
     }
 
     public void setMultipathStatus(af_afi afi, af_safi safi, boolean enable) {

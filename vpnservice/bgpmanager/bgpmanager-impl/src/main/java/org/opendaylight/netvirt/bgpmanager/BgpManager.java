@@ -96,16 +96,16 @@ public class BgpManager implements AutoCloseable, IBgpManager {
 
     @Override
     public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts,
-                       LayerType layerType) throws Exception {
-        bcm.addVrf(rd, new ArrayList<>(importRts), new ArrayList<>(exportRts), layerType);
+            LayerType layerType, long afi, long safi) throws Exception {
+        bcm.addVrf(rd, new ArrayList<>(importRts), new ArrayList<>(exportRts), layerType, (int) afi, (int) safi);
     }
 
     @Override
-    public void deleteVrf(String rd, boolean removeFibTable) {
+    public void deleteVrf(String rd, boolean removeFibTable, long afi, long safi) {
         if (removeFibTable) {
             fibDSWriter.removeVrfFromDS(rd);
         }
-        bcm.delVrf(rd);
+        bcm.delVrf(rd, (int)afi, (int)safi);
     }
 
     @Override
