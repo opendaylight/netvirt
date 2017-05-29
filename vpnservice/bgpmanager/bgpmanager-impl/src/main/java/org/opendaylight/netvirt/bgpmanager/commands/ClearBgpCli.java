@@ -106,18 +106,15 @@ public class ClearBgpCli extends OsgiCommandSupport {
         in = new BufferedReader(new InputStreamReader(session.getKeyboard()));
     }
 
-    private static boolean readPassword(BufferedReader in)
-            throws IOException {
+    private static boolean readPassword(BufferedReader in) throws IOException {
         return readUntilPrompt(in, GT, passwordCheckStr);
     }
 
-    private static boolean readUntilPrompt(BufferedReader in, char promptChar)
-            throws IOException {
+    private static boolean readUntilPrompt(BufferedReader in, char promptChar) throws IOException {
         return readUntilPrompt(in, promptChar, null);
     }
 
-    private static boolean readUntilPrompt(
-            BufferedReader in, char promptChar, String passwordCheckStr)
+    private static boolean readUntilPrompt(BufferedReader in, char promptChar, String passwordCheckStr)
             throws IOException {
         StringBuilder sb = new StringBuilder();
         int ret = 0;

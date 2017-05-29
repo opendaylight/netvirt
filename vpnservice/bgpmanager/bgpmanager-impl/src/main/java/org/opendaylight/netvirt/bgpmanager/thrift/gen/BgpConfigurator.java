@@ -2169,7 +2169,7 @@ public class BgpConfigurator {
   }
 
   public static class AsyncProcessor<I extends AsyncIface> extends org.apache.thrift.TBaseAsyncProcessor<I> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncProcessor.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(AsyncProcessor.class.getName());
     public AsyncProcessor(I iface) {
       super(iface, getProcessMap(new HashMap<String, org.apache.thrift.AsyncProcessFunction<I, ? extends org.apache.thrift.TBase, ?>>()));
     }
@@ -2227,7 +2227,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -2244,7 +2244,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
@@ -2285,7 +2285,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -2302,7 +2302,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
@@ -2343,7 +2343,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -2360,7 +2360,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
@@ -2401,7 +2401,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -2418,7 +2418,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
@@ -2459,7 +2459,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -2476,7 +2476,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
@@ -2517,7 +2517,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -2534,7 +2534,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
@@ -2575,7 +2575,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -2592,7 +2592,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
@@ -2633,7 +2633,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -2650,7 +2650,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
@@ -2691,7 +2691,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -2708,7 +2708,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
@@ -2749,7 +2749,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -2766,7 +2766,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
@@ -2807,7 +2807,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -2824,7 +2824,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
@@ -2865,7 +2865,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -2882,7 +2882,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
@@ -2923,7 +2923,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -2940,7 +2940,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
@@ -2981,7 +2981,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -2998,7 +2998,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
@@ -3039,7 +3039,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -3056,7 +3056,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
@@ -3097,7 +3097,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -3114,7 +3114,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
@@ -3155,7 +3155,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -3172,7 +3172,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
@@ -3213,7 +3213,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -3230,7 +3230,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
@@ -3270,7 +3270,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -3287,7 +3287,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
@@ -3328,7 +3328,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -3345,7 +3345,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
@@ -3386,7 +3386,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -3403,7 +3403,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
@@ -3444,7 +3444,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
-              LOGGER.error("Exception writing to internal frame buffer", e);
+              LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
@@ -3461,7 +3461,7 @@ public class BgpConfigurator {
               fcall.sendResponse(fb,msg,msgType,seqid);
               return;
             } catch (Exception ex) {
-              LOGGER.error("Exception writing to internal frame buffer", ex);
+              LOG.error("Exception writing to internal frame buffer", ex);
             }
             fb.close();
           }
