@@ -15,9 +15,11 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -84,17 +86,19 @@ public class L2GatewayConnectionUtils {
         return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst).orNull();
     }
 
+    @Nonnull
     public static List<L2gateway> getL2gatewayList(DataBroker broker) {
         InstanceIdentifier<L2gateways> inst = InstanceIdentifier.create(Neutron.class).child(L2gateways.class);
         return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst).transform(
-                L2gateways::getL2gateway).orNull();
+                L2gateways::getL2gateway).or(Collections.emptyList());
     }
 
+    @Nonnull
     public static List<L2gatewayConnection> getAllL2gatewayConnections(DataBroker broker) {
         InstanceIdentifier<L2gatewayConnections> inst = InstanceIdentifier.create(Neutron.class)
                 .child(L2gatewayConnections.class);
         return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst).transform(
-                L2gatewayConnections::getL2gatewayConnection).orNull();
+                L2gatewayConnections::getL2gatewayConnection).or(Collections.emptyList());
     }
 
     /**
@@ -106,16 +110,14 @@ public class L2GatewayConnectionUtils {
      *            the l2 gateway ids
      * @return the associated l2 gw connections
      */
+    @Nonnull
     public static List<L2gatewayConnection> getAssociatedL2GwConnections(DataBroker broker, Set<Uuid> l2GatewayIds) {
-        List<L2gatewayConnection> l2GwConnections = null;
         List<L2gatewayConnection> allL2GwConns = getAllL2gatewayConnections(broker);
-        if (allL2GwConns != null) {
-            l2GwConnections = new ArrayList<>();
-            for (Uuid l2GatewayId : l2GatewayIds) {
-                for (L2gatewayConnection l2GwConn : allL2GwConns) {
-                    if (l2GwConn.getL2gatewayId().equals(l2GatewayId)) {
-                        l2GwConnections.add(l2GwConn);
-                    }
+        List<L2gatewayConnection> l2GwConnections = new ArrayList<>();
+        for (Uuid l2GatewayId : l2GatewayIds) {
+            for (L2gatewayConnection l2GwConn : allL2GwConns) {
+                if (l2GwConn.getL2gatewayId().equals(l2GatewayId)) {
+                    l2GwConnections.add(l2GwConn);
                 }
             }
         }
@@ -131,14 +133,13 @@ public class L2GatewayConnectionUtils {
      *            the elan Name
      * @return the associated l2 gw connection with elan
      */
+    @Nonnull
     public static List<L2gatewayConnection> getL2GwConnectionsByElanName(DataBroker broker, String elanName) {
         List<L2gatewayConnection> allL2GwConns = getAllL2gatewayConnections(broker);
         List<L2gatewayConnection> elanL2GateWayConnections = new ArrayList<>();
-        if (allL2GwConns != null) {
-            for (L2gatewayConnection l2GwConn : allL2GwConns) {
-                if (l2GwConn.getNetworkId().getValue().equalsIgnoreCase(elanName)) {
-                    elanL2GateWayConnections.add(l2GwConn);
-                }
+        for (L2gatewayConnection l2GwConn : allL2GwConns) {
+            if (l2GwConn.getNetworkId().getValue().equalsIgnoreCase(elanName)) {
+                elanL2GateWayConnections.add(l2GwConn);
             }
         }
         return elanL2GateWayConnections;

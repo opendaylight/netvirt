@@ -54,13 +54,11 @@ public class L2gwServiceProvider extends AbstractLifecycle implements IL2gwServi
 
         List<L2gatewayConnection> l2GwConns = L2GatewayConnectionUtils.getAssociatedL2GwConnections(
                 dataBroker, l2GwDevice.getL2GatewayIds());
-        if (l2GwConns != null) {
-            LOG.debug("L2GatewayConnections associated for {} physical switch", psName);
-            for (L2gatewayConnection l2GwConn : l2GwConns) {
-                LOG.trace("L2GatewayConnection {} changes executed on physical switch {}",
-                        l2GwConn.getL2gatewayId(), psName);
-                elanUtils.getL2GatewayConnectionUtils().addL2GatewayConnection(l2GwConn, psName);
-            }
+        LOG.debug("L2GatewayConnections associated for {} physical switch", psName);
+        for (L2gatewayConnection l2GwConn : l2GwConns) {
+            LOG.trace("L2GatewayConnection {} changes executed on physical switch {}",
+                    l2GwConn.getL2gatewayId(), psName);
+            elanUtils.getL2GatewayConnectionUtils().addL2GatewayConnection(l2GwConn, psName);
         }
     }
 
