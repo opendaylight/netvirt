@@ -437,7 +437,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void updateVpnInstanceNode(String vpnName, List<String> rd, List<String> irt, List<String> ert,
-                                       VpnInstance.Type type, long l3vni) {
+                                       VpnInstance.Type type, long l3vni, boolean Ipv4On, boolean Ipv6On) {
         VpnInstanceBuilder builder = null;
         List<VpnTarget> vpnTargetList = new ArrayList<>();
         boolean isLockAcquired = false;
@@ -487,13 +487,16 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
             VpnTargets vpnTargets = new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
 
+	    // if router is
             Ipv4FamilyBuilder ipv4vpnBuilder = new Ipv4FamilyBuilder().setVpnTargets(vpnTargets);
 
             if (rd != null && !rd.isEmpty()) {
                 ipv4vpnBuilder.setRouteDistinguisher(rd);
             }
-
-            VpnInstance newVpn = builder.setIpv4Family(ipv4vpnBuilder.build()).build();
+	    if (Ipv4On)
+		VpnInstance newVpn = builder.setIpv4Family(ipv4vpnBuilder.build()).build();
+	    if (Ipv6On)
+		VpnInstance newVpn = builder.setIpv6Family(ipv4vpnBuilder.build()).build();
             isLockAcquired = NeutronvpnUtils.lock(vpnName);
             LOG.debug("Creating/Updating vpn-instance for {} ", vpnName);
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier, newVpn);
@@ -842,7 +845,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                             Uuid router, List<Uuid> networks, VpnInstance.Type type, long l3vni) throws Exception {
 
         // Update VPN Instance node
-        updateVpnInstanceNode(vpn.getValue(), rd, irt, ert, type, l3vni);
+        updateVpnInstanceNode(vpn.getValue(), rd, irt, ert, type, l3vni, IPv4enabledonRouterorNetworks?, IPv6enabledonRouterorNetworks?);
 
         // Please note that router and networks will be filled into VPNMaps
         // by subsequent calls here to associateRouterToVpn and
