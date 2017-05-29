@@ -16,10 +16,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 
 public interface IBgpManager {
 
-    void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts, LayerType layerType)
+
+    /**
+     * Create one VPN table
+     * afi parameter takes one of those values: 1 ( AFI_IP), or 2 ( AFI_IP6)
+     * safi parameter takes one of those values : 5 ( SAFI_MPLS_VPN) or 6 ( SAFI_EVPN)
+     */
+    void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts, LayerType layerType, long afi, long safi)
             throws Exception;
 
-    void deleteVrf(String rd, boolean removeFibTable);
+    /**
+     * Delete onv VPN table
+     * afi parameter takes one of those values: 1 ( AFI_IP), or 2 ( AFI_IP6)
+     * safi parameter takes one of those values : 5 ( SAFI_MPLS_VPN) or 6 ( SAFI_EVPN)
+     */
+    void deleteVrf(String rd, boolean removeFibTable, long afi, long safi);
 
     /**
      * Adds one or more routes, as many as nexthops provided, in a BGP neighbour. It persists VrfEntry in datastore
@@ -65,3 +76,26 @@ public interface IBgpManager {
 
     void bgpRestarted();
 }
+
+public enum af_safi implements org.apache.thrift.TEnum {
+	SAFI_MPLS_VPN(5),
+	SAFI_EVPN(6);
+
+    private final int value;
+
+    private af_safi(int value) {
+	this.value = value;
+    }
+
+
+    public enum af_afi implements org.apache.thrift.TEnum {
+	AFI_IP(1),
+	    AFI_IPV6(2),
+
+	private final int value;
+
+	private af_afi(int value) {
+	    this.value = value;
+	}
+
+	

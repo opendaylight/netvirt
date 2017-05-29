@@ -1194,7 +1194,7 @@ public class BgpConfigurationManager {
                 }
                 try {
                     br.addVrf(val.getLayerType(), rd, val.getImportRts(),
-                            val.getExportRts());
+                              val.getExportRts());
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
                 }
@@ -1995,7 +1995,7 @@ public class BgpConfigurationManager {
                 for (Vrfs vrf : vrfs) {
                     try {
                         br.addVrf(vrf.getLayerType(), vrf.getRd(), vrf.getImportRts(),
-                                vrf.getExportRts());
+                                  vrf.getExportRts(), vrf.afi, vrf.safi);
                     } catch (TException | BgpRouterException e) {
                         LOG.error("Replay:addVrf() received exception", e);
                     }
@@ -2208,13 +2208,13 @@ public class BgpConfigurationManager {
     }
 
     // TODO: add LayerType as arg - supports command
-    public void addVrf(String rd, List<String> irts, List<String> erts, LayerType layerType) {
+    public void addVrf(String rd, List<String> irts, List<String> erts, LayerType layerType, Uint32 afi, Uint32 safi) {
         InstanceIdentifier.InstanceIdentifierBuilder<Vrfs> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Vrfs.class, new VrfsKey(rd));
         InstanceIdentifier<Vrfs> iid = iib.build();
         Vrfs dto = new VrfsBuilder().setRd(rd).setImportRts(irts)
-                .setExportRts(erts).setLayerType(layerType).build();
+                        .setExportRts(erts).setLayerType(layerType).setAfi(afi).setSafi(safi).build();
         try {
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, iid, dto);
         } catch (TransactionCommitFailedException e) {
@@ -2299,10 +2299,11 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    public void delVrf(String rd) {
+    public void delVrf(String rd, Bgp_af_afi afi, Bgp_af_safi safi) {
         InstanceIdentifier.InstanceIdentifierBuilder<Vrfs> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Vrfs.class, new VrfsKey(rd));
+	//                        .child(AddressFamilies.class, new AddressFamiliesKey((long) afi, (long) safi));
         InstanceIdentifier<Vrfs> iid = iib.build();
         delete(iid);
     }
