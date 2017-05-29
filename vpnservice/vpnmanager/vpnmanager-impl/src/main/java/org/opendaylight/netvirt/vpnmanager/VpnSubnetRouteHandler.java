@@ -28,9 +28,15 @@ import org.opendaylight.netvirt.vpnmanager.populator.input.L3vpnInput;
 import org.opendaylight.netvirt.vpnmanager.populator.intfc.VpnPopulator;
 import org.opendaylight.netvirt.vpnmanager.populator.registry.L3vpnRegistry;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTargetBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTargetKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTargetBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTargetkey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
@@ -43,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
@@ -110,13 +117,21 @@ public class VpnSubnetRouteHandler {
                       subnetId);
             return;
         }
-
-        //TODO(vivek): Change this to use more granularized lock at subnetId level
+        String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
+        if (isBgpVpn && !VpnUtil.isBgpVpn(vpnName, primaryRd)) {
+            LOG.error("onSubnetAddedToVpn: The VPN Instance name {} does not have RD", vpnName);
+            return;
+        }
+        VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, primaryRd);
+        
+	//TODO(vivek): Change this to use more granularized lock at subnetId level
         try {
+            Subnetmap subMap = null;
+            InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
+                InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
+                    new SubnetOpDataEntryKey(subnetId)).build();
             VpnUtil.lockSubnet(lockManager, subnetId.getValue());
             try {
-                Subnetmap subMap = null;
-
                 // Please check if subnetId belongs to an External Network
                 InstanceIdentifier<Subnetmap> subMapid =
                     InstanceIdentifier.builder(Subnetmaps.class).child(Subnetmap.class,
@@ -141,12 +156,8 @@ public class VpnSubnetRouteHandler {
                     }
                 }
                 //Create and add SubnetOpDataEntry object for this subnet to the SubnetOpData container
-                InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
-                    InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
-                        new SubnetOpDataEntryKey(subnetId)).build();
-                Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(dataBroker,
-                        LogicalDatastoreType.OPERATIONAL,
-                        subOpIdentifier);
+                Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                    subOpIdentifier);
                 if (optionalSubs.isPresent()) {
                     LOG.error("onSubnetAddedToVpn: SubnetOpDataEntry for subnet {} already detected to be present",
                         subnetId.getValue());
@@ -160,22 +171,32 @@ public class VpnSubnetRouteHandler {
                     new SubnetOpDataEntryBuilder().setKey(new SubnetOpDataEntryKey(subnetId));
                 subOpBuilder.setSubnetId(subnetId);
                 subOpBuilder.setSubnetCidr(subnetIp);
-                String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
-
-                if (isBgpVpn && !VpnUtil.isBgpVpn(vpnName, primaryRd)) {
-                    LOG.error("onSubnetAddedToVpn: The VPN Instance name {} does not have RD", vpnName);
-                    return;
-                }
-
                 subOpBuilder.setVrfId(primaryRd);
                 subOpBuilder.setVpnName(vpnName);
                 subOpBuilder.setSubnetToDpn(new ArrayList<>());
                 subOpBuilder.setRouteAdvState(TaskState.Idle);
                 subOpBuilder.setElanTag(elanTag);
-                Long l3Vni = VpnUtil.getVpnInstanceOpData(dataBroker, primaryRd).getL3vni();
-                subOpBuilder.setL3vni(l3Vni);
+                subOpBuilder.setL3vni(vpnInstanceOpData.getL3vni());
+                SubnetOpDataEntry subOpEntry = subOpBuilder.build();
+                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
+                LOG.info("onSubnetAddedToVpn: Added subnetopdataentry to OP Datastore for subnet {}",
+                        subnetId.getValue());
+            } catch (Exception ex) {
+                LOG.error("Creation of SubnetOpDataEntry for subnet {} failed ", subnetId.getValue(), ex);
+            } finally {
+                VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
+            }
 
-                // First recover set of ports available in this subnet
+            //In second critical section , Port-Op-Data will be updated.
+            VpnUtil.lockSubnet(lockManager, subnetId.getValue());
+            try {
+                BigInteger dpnId = null;
+                SubnetToDpn subDpn = null;
+                Map<BigInteger, SubnetToDpn> subDpnMap = new HashMap<BigInteger, SubnetToDpn>();
+                Optional<SubnetOpDataEntry> optionalSubs = VpnUtil
+                    .read(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
+                SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(optionalSubs.get())
+                    .setKey(new SubnetOpDataEntryKey(subnetId));
                 List<Uuid> portList = subMap.getPortList();
                 if (portList != null) {
                     for (Uuid port : portList) {
@@ -222,6 +243,49 @@ public class VpnSubnetRouteHandler {
                 LOG.error("Creation of SubnetOpDataEntry for subnet {} failed", subnetId.getValue(), ex);
             } finally {
                 VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
+            }
+            // update IpFamily for VPN
+            if (isBgpVpn) {
+                List<VpnTarget> vpnTargetList = new ArrayList<>();
+                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance
+                    .op.data.entry.VpnTargets opVpnTargets = vpnInstanceOpData.getVpnTargets();
+                if (opVpnTargets != null) {
+                    List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn
+                        .instance.op.data.entry.vpntargets.VpnTarget> opVpnTargetList = opVpnTargets.getVpnTarget();
+                    if (opVpnTargetList != null) {
+                        for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
+                                 .vpn.instance.op.data.entry.vpntargets.VpnTarget opVpnTarget : opVpnTargetList) {
+                            VpnTargetBuilder vpnTargetBuilder =
+                                new VpnTargetBuilder().setKey(new VpnTargetKey(opVpnTarget.getKey().getVrfRTValue()))
+                                    .setVrfRTType(VpnTarget.VrfRTType.forValue(opVpnTarget.getVrfRTType()
+                                        .getIntValue()))
+                                    .setVrfRTValue(org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn
+                                        .rev140815.vpn.af.config.vpntargets.VpnTarget(opVpnTarget.getVrfRTValue()));
+                            vpnTargetList.add(vpnTargetBuilder.build());
+                        }
+                    }
+                }
+            } else {
+                List<VpnTarget> vpnTargetList = new ArrayList<>();
+                VpnTargets vpnTargets = new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
+            }
+            VpnInstance vpnInstance = VpnUtil.getVpnInstance(dataBroker, vpnName);
+            VpnInstanceBuilder vpnInstanceBuilder = new VpnInstanceBuilder(vpnInstance);
+            IpVersionChoice ipVersion = NeutronvpnUtils.getIpVersion(subnetIp);
+            if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
+                Ipv4FamilyBuilder ipv4vpnBuilder = new Ipv4FamilyBuilder().setVpnTargets(vpnTargets);
+                vpnInstanceBuilder.setIpv4Family(ipv4vpnBuilder.build()).build();
+            }
+            if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
+                Ipv6FamilyBuilder ipv4vpnBuilder = new Ipv6FamilyBuilder().setVpnTargets(vpnTargets);
+                vpnInstanceBuilder.setIpv4Family(ipv6vpnBuilder.build()).build();
+            }
+            LOG.debug("Updating Config vpn-instance: {} with the IpFamilies: {}", ipVersion.toString());
+            try {
+                SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier,
+                    vpnInstanceBuilder.build());
+            } catch (TransactionCommitFailedException ex) {
+                LOG.error("Error configuring feature ", ex);
             }
         } catch (Exception e) {
             LOG.error("Unable to handle subnet {} added to vpn {} {}", subnetIp, vpnName, e);
