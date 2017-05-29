@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_e0ed4af1",
+        "filename": "vpnservice/bgpmanager/bgpmanager-api/src/main/java/org/opendaylight/netvirt/bgpmanager/api/IBgpManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-29T17:04:38Z",
+      "side": 1,
+      "message": "Remove empty trailing line, pls",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 1
+      },
+      "revId": "102558e9190b1c17676b5f9aaf62beb6a5d20f3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
