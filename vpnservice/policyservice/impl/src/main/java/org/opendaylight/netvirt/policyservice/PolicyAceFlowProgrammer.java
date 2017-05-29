@@ -190,7 +190,7 @@ public class PolicyAceFlowProgrammer {
             Optional<String> vlanMemberInterfaceOpt = policyServiceUtil.getVlanMemberInterface(interfaceName, vlanId);
             if (!vlanMemberInterfaceOpt.isPresent()) {
                 LOG.debug("Vlan member {} missing for trunk {}", vlanId.getValue(), interfaceName);
-                return Optional.of(new PolicyAceFlowWrapper(flowName, /* isPartial*/ true));
+                return Optional.of(new PolicyAceFlowWrapper(flowName, PolicyAceFlowWrapper.PARTIAL));
             }
 
             interfaceName = vlanMemberInterfaceOpt.get();
@@ -200,7 +200,7 @@ public class PolicyAceFlowProgrammer {
         List<MatchInfoBase> matches = policyFlowUtil.getIngressInterfaceMatches(interfaceName);
         if (matches == null || matches.isEmpty()) {
             LOG.debug("Failed to get ingress interface {} matches", interfaceName);
-            return Optional.of(new PolicyAceFlowWrapper(flowName, /* isPartial */ true));
+            return Optional.of(new PolicyAceFlowWrapper(flowName, PolicyAceFlowWrapper.PARTIAL));
         }
 
         BigInteger dpId = Optional.fromNullable(interfaceManager.getDpnForInterface(interfaceName)).or(BigInteger.ZERO);
@@ -219,7 +219,7 @@ public class PolicyAceFlowProgrammer {
             String flowName = "L2VPN_" + serviceName;
             List<MatchInfoBase> elanMatches = policyFlowUtil.getElanInstanceMatches(serviceName);
             if (elanMatches == null || elanMatches.isEmpty()) {
-                return Optional.of(new PolicyAceFlowWrapper(flowName, /* isPartial */ true));
+                return Optional.of(new PolicyAceFlowWrapper(flowName, PolicyAceFlowWrapper.PARTIAL));
             }
 
             return Optional.of(new PolicyAceFlowWrapper(flowName, elanMatches,
@@ -230,7 +230,7 @@ public class PolicyAceFlowProgrammer {
             String flowName = "L3VPN_" + serviceName;
             List<MatchInfoBase> vpnMatches = policyFlowUtil.getVpnInstanceMatches(serviceName);
             if (vpnMatches == null || vpnMatches.isEmpty()) {
-                return Optional.of(new PolicyAceFlowWrapper(flowName, /* isPartial */ true));
+                return Optional.of(new PolicyAceFlowWrapper(flowName, PolicyAceFlowWrapper.PARTIAL));
             }
 
             return Optional.of(new PolicyAceFlowWrapper(flowName, vpnMatches,
