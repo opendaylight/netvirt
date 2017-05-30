@@ -201,11 +201,10 @@ public class BgpUtil {
         }
     }
 
-    static VpnInstanceOpDataEntry getVpnInstanceOpData(DataBroker broker, String rd) throws InterruptedException,
-            ExecutionException, TimeoutException {
+    static VpnInstanceOpDataEntry getVpnInstanceOpData(DataBroker broker, String rd)  {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = getVpnInstanceOpDataIdentifier(rd);
         Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = MDSALUtil.read(broker,
-                LogicalDatastoreType.CONFIGURATION, id);
+                LogicalDatastoreType.OPERATIONAL, id);
         if (vpnInstanceOpData.isPresent()) {
             return vpnInstanceOpData.get();
         }
@@ -274,17 +273,8 @@ public class BgpUtil {
     }
 
     public static String getVpnNameFromRd(DataBroker dataBroker2, String rd) {
-        InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.create(VpnInstanceOpData.class)
-                                                                          .child(VpnInstanceOpDataEntry.class,
-                                                                                 new VpnInstanceOpDataEntryKey(rd));
-        try {
-            Optional<VpnInstanceOpDataEntry> vpnInstanceOpData =
-                SingleTransactionDataBroker.syncReadOptional(dataBroker2, LogicalDatastoreType.OPERATIONAL, id);
-            return vpnInstanceOpData.isPresent() ? vpnInstanceOpData.get().getVpnInstanceName() : null;
-        } catch (ReadFailedException e) {
-            LOG.warn("Exception while retrieving VpnInstance name for RD {}", rd, e);
-        }
-        return null;
+        VpnInstanceOpDataEntry vpnInstanceOpData = getVpnInstanceOpData(dataBroker2, rd);
+        return (vpnInstanceOpData != null) ? vpnInstanceOpData.getVpnInstanceName() : null;
     }
 }
 
