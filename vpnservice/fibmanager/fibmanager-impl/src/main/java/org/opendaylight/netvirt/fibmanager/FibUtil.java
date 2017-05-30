@@ -16,6 +16,9 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 import java.math.BigInteger;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,8 +29,18 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
+import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Destination;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.utils.batching.SubTransaction;
+import org.opendaylight.genius.utils.batching.SubTransactionImpl;
 import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -38,6 +51,11 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.TableKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -60,6 +78,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
@@ -102,6 +121,9 @@ import org.slf4j.LoggerFactory;
 
 public class FibUtil {
     private static final Logger LOG = LoggerFactory.getLogger(FibUtil.class);
+    private static final String FLOWID_PREFIX = "L3.";
+    private static final BigInteger COOKIE_VM_FIB_TABLE =  new BigInteger("8000003", 16);
+    private static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
 
     static InstanceIdentifier<Adjacency> getAdjacencyIdentifier(String vpnInterfaceName, String ipAddress) {
         return InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang
@@ -170,6 +192,15 @@ public class FibUtil {
     static Optional<VpnInstanceOpDataEntry> getVpnInstanceOpData(DataBroker broker, String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = getVpnInstanceOpDataIdentifier(rd);
         return MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
+    }
+
+    static VpnInstanceOpDataEntry getVpnInstance(DataBroker dataBroker, String rd) {
+        InstanceIdentifier<VpnInstanceOpDataEntry> id =
+                InstanceIdentifier.create(VpnInstanceOpData.class)
+                        .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd));
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData =
+                MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        return vpnInstanceOpData.isPresent() ? vpnInstanceOpData.get() : null;
     }
 
     static String getNextHopLabelKey(String rd, String prefix) {
@@ -815,4 +846,102 @@ public class FibUtil {
         }
         return bucketsBuilder.build();
     }
+
+    static String getFlowRef(BigInteger dpnId, short tableId, long label, int priority) {
+        return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR + label
+                + NwConstants.FLOWID_SEPARATOR + priority;
+    }
+
+    static String getFlowRef(BigInteger dpnId, short tableId, String rd, int priority, InetAddress destPrefix) {
+        return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR + rd
+                + NwConstants.FLOWID_SEPARATOR + priority + NwConstants.FLOWID_SEPARATOR + destPrefix.getHostAddress();
+    }
+
+    static Node buildDpnNode(BigInteger dpnId) {
+        NodeId nodeId = new NodeId("openflow:" + dpnId);
+        Node nodeDpn = new NodeBuilder().setId(nodeId).setKey(new NodeKey(nodeId)).build();
+
+        return nodeDpn;
+    }
+
+    static void makeConnectedRoute(final DataBroker dataBroker, BigInteger dpId, long vpnId, VrfEntry vrfEntry,
+                                   String rd, List<InstructionInfo> instructions, int addOrRemove, WriteTransaction tx,
+                                   List<SubTransaction> txnObjects) {
+        Boolean wrTxPresent = true;
+        if (tx == null) {
+            wrTxPresent = false;
+            tx = dataBroker.newWriteOnlyTransaction();
+        }
+
+        LOG.trace("makeConnectedRoute: vrfEntry {}", vrfEntry);
+        String[] values = vrfEntry.getDestPrefix().split("/");
+        String ipAddress = values[0];
+        int prefixLength = (values.length == 1) ? 0 : Integer.parseInt(values[1]);
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            LOG.debug("Adding route to DPN {} for rd {} prefix {} ", dpId, rd, vrfEntry.getDestPrefix());
+        } else {
+            LOG.debug("Removing route from DPN {} for rd {} prefix {}", dpId, rd, vrfEntry.getDestPrefix());
+        }
+        InetAddress destPrefix;
+        try {
+            destPrefix = InetAddress.getByName(ipAddress);
+        } catch (UnknownHostException e) {
+            LOG.error("Failed to get destPrefix for prefix {} ", vrfEntry.getDestPrefix(), e);
+            return;
+        }
+
+        List<MatchInfo> matches = new ArrayList<>();
+
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+
+        if (destPrefix instanceof Inet4Address) {
+            matches.add(MatchEthernetType.IPV4);
+            if (prefixLength != 0) {
+                matches.add(new MatchIpv4Destination(destPrefix.getHostAddress(), Integer.toString(prefixLength)));
+            }
+        } else {
+            matches.add(MatchEthernetType.IPV6);
+            if (prefixLength != 0) {
+                matches.add(new MatchIpv6Destination(destPrefix.getHostAddress() + "/" + prefixLength));
+            }
+        }
+
+        int priority = DEFAULT_FIB_FLOW_PRIORITY + prefixLength;
+        String flowRef = getFlowRef(dpId, NwConstants.L3_FIB_TABLE, rd, priority, destPrefix);
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_FIB_TABLE, flowRef, priority,
+                flowRef, 0, 0,
+                COOKIE_VM_FIB_TABLE, matches, instructions);
+        Flow flow = flowEntity.getFlowBuilder().build();
+        String flowId = flowEntity.getFlowId();
+        FlowKey flowKey = new FlowKey(new FlowId(flowId));
+        Node nodeDpn = buildDpnNode(dpId);
+
+        InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
+                .child(Table.class, new TableKey(flow.getTableId())).child(Flow.class, flowKey).build();
+
+        if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
+            SubTransaction subTransaction = new SubTransactionImpl();
+            if (addOrRemove == NwConstants.ADD_FLOW) {
+                subTransaction.setInstanceIdentifier(flowInstanceId);
+                subTransaction.setInstance(flow);
+                subTransaction.setAction(SubTransaction.CREATE);
+            } else {
+                subTransaction.setInstanceIdentifier(flowInstanceId);
+                subTransaction.setAction(SubTransaction.DELETE);
+            }
+            txnObjects.add(subTransaction);
+        }
+
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            tx.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flow, true);
+        } else {
+            tx.delete(LogicalDatastoreType.CONFIGURATION, flowInstanceId);
+        }
+
+        if (!wrTxPresent) {
+            tx.submit();
+        }
+    }
+
 }
