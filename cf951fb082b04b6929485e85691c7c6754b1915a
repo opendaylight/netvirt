@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_c16770e9",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 22
+      },
+      "lineNbr": 565,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-30T19:35:14Z",
+      "side": 1,
+      "message": "no.\nthis line is to illustrate what happens if routing or inter-dc is configured.\nAs the destination ip address does not match, the following line will be used.\n\nSo to answer your question, the packet does not go out there.\n\nthe next line will be set with following implementation:\nhttps://git.opendaylight.org/gerrit/#/c/57412/\nhttps://git.opendaylight.org/gerrit/#/c/57413/",
+      "parentUuid": "3afa9182_06206ef6",
+      "range": {
+        "startLine": 565,
+        "startChar": 1,
+        "endLine": 565,
+        "endChar": 124
+      },
+      "revId": "cf951fb082b04b6929485e85691c7c6754b1915a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_84728fe3",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 22
@@ -36,6 +60,30 @@
       "writtenOn": "2017-05-30T06:05:30Z",
       "side": 1,
       "message": "There is a REST api \"restconf/config/ebgp:bgp/config-server/\"",
+      "range": {
+        "startLine": 641,
+        "startChar": 25,
+        "endLine": 641,
+        "endChar": 65
+      },
+      "revId": "cf951fb082b04b6929485e85691c7c6754b1915a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_61731cb2",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 22
+      },
+      "lineNbr": 641,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-05-30T19:35:14Z",
+      "side": 1,
+      "message": "The sentence meaning was about the need to configure etc/custom.properties.\n\nThe REST API about starting BGP is known.",
+      "parentUuid": "7af0899e_84728fe3",
       "range": {
         "startLine": 641,
         "startChar": 25,
