@@ -49,6 +49,75 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_c0248ec8",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-05-30T06:05:30Z",
+      "side": 1,
+      "message": "This implies, we have to generate two MPLS labels for each VPN? Additional processing power? Will this increase number of flow-rules in CSS/OVS?",
+      "range": {
+        "startLine": 161,
+        "startChar": 24,
+        "endLine": 161,
+        "endChar": 85
+      },
+      "revId": "e1f6ed0187a7650931207acaa5d8c8ff5ef04a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_a02182b6",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-05-30T06:05:30Z",
+      "side": 1,
+      "message": "are we updating both import and export RT\u0027s with same? IMO, ipmort-rt\u0027s is not required (may have duplicate entries and increases processing of fib-entries).",
+      "range": {
+        "startLine": 193,
+        "startChar": 5,
+        "endLine": 193,
+        "endChar": 41
+      },
+      "revId": "e1f6ed0187a7650931207acaa5d8c8ff5ef04a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_002fb6a2",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-05-30T06:05:30Z",
+      "side": 1,
+      "message": "why would dc-gwy require to know about \"vpn1\"?",
+      "range": {
+        "startLine": 225,
+        "startChar": 0,
+        "endLine": 226,
+        "endChar": 37
+      },
+      "revId": "e1f6ed0187a7650931207acaa5d8c8ff5ef04a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_f11c026d",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 21
