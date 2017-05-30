@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7af0899e_84728fe3",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 22
+      },
+      "lineNbr": 641,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-05-30T06:05:30Z",
+      "side": 1,
+      "message": "There is a REST api \"restconf/config/ebgp:bgp/config-server/\"",
+      "range": {
+        "startLine": 641,
+        "startChar": 25,
+        "endLine": 641,
+        "endChar": 65
+      },
+      "revId": "cf951fb082b04b6929485e85691c7c6754b1915a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
