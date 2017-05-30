@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_fb54dbcb",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-30T07:30:49Z",
+      "side": 1,
+      "message": "Can you please make a small change here as well? Use the existing BgpUtil.getVpnInstanceOpData() method to get the data intead of building the Iid and reading again here.",
+      "range": {
+        "startLine": 276,
+        "startChar": 25,
+        "endLine": 276,
+        "endChar": 40
+      },
+      "revId": "041868e429dca7738a5bfff51b622d663c42b3ff",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_1b3c4793",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 550,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-30T07:30:49Z",
+      "side": 1,
+      "message": "You can directly use this.vpnInstance.getType() here instead of fetching the vpnInstance again.",
+      "range": {
+        "startLine": 550,
+        "startChar": 44,
+        "endLine": 550,
+        "endChar": 83
+      },
+      "revId": "041868e429dca7738a5bfff51b622d663c42b3ff",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_5b46cf24",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1722,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-05-30T07:30:49Z",
+      "side": 1,
+      "message": "Method not required",
+      "range": {
+        "startLine": 1721,
+        "startChar": 25,
+        "endLine": 1722,
+        "endChar": 54
+      },
+      "revId": "041868e429dca7738a5bfff51b622d663c42b3ff",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
