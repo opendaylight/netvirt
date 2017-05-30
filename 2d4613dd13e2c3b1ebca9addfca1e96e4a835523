@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_26c12ae5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceOpListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-30T15:22:19Z",
+      "side": 1,
+      "message": "same thing, right now we still have a deal only with the first VPN instance name",
+      "range": {
+        "startLine": 74,
+        "startChar": 31,
+        "endLine": 74,
+        "endChar": 63
+      },
+      "revId": "2d4613dd13e2c3b1ebca9addfca1e96e4a835523",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_e68f22cb",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 747,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-30T15:22:19Z",
+      "side": 1,
+      "message": "You should check all VPN instances names",
+      "range": {
+        "startLine": 747,
+        "startChar": 92,
+        "endLine": 747,
+        "endChar": 98
+      },
+      "revId": "2d4613dd13e2c3b1ebca9addfca1e96e4a835523",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_46bc366d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1379,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-05-30T15:22:19Z",
+      "side": 1,
+      "message": "here you should have a cycle to treat all VPN interfaces names within",
+      "range": {
+        "startLine": 1379,
+        "startChar": 79,
+        "endLine": 1379,
+        "endChar": 87
+      },
+      "revId": "2d4613dd13e2c3b1ebca9addfca1e96e4a835523",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
