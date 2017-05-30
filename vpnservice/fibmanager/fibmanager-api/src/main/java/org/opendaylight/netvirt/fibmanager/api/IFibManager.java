@@ -28,12 +28,6 @@ public interface IFibManager {
     void populateExternalRoutesOnDpn(BigInteger localDpnId, long vpnId, String rd,
                                      String localNextHopIp, String remoteNextHopIp);
 
-    void cleanUpInternalRoutesOnDpn(BigInteger dpnId, long vpnId, String rd,
-                                    String localNextHopIp, String remoteNextHopIp);
-
-    void populateInternalRoutesOnDpn(BigInteger localDpnId, long vpnId, String rd,
-                                     String localNextHopIp, String remoteNextHopIp);
-
     void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd,
                           FutureCallback<List<Void>> callback);
 
