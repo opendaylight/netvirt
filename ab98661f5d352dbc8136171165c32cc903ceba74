@@ -16,6 +16,24 @@
       "revId": "ab98661f5d352dbc8136171165c32cc903ceba74",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_46b6f6dd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1113,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-05-30T13:52:00Z",
+      "side": 1,
+      "message": "Through scheduledToRemove flag that will be set by only one of the PLs, that claim to unbind the service for VPN.",
+      "parentUuid": "7af0899e_25aab270",
+      "revId": "ab98661f5d352dbc8136171165c32cc903ceba74",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
