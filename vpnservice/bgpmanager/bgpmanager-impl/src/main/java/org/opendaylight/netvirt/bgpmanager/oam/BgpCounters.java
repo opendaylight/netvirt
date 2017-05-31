@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 public class BgpCounters extends TimerTask {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BgpCounters.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BgpCounters.class);
     private static BgpCountersBroadcaster bgpStatsBroadcaster = null;
     private MBeanServer bgpStatsServer = null;
     private Map<String, String> countersMap = new HashMap<>();
@@ -56,7 +56,7 @@ public class BgpCounters extends TimerTask {
     @Override
     public void run() {
         try {
-            LOGGER.debug("Fetching counters from BGP");
+            LOG.debug("Fetching counters from BGP");
             resetCounters();
             fetchCmdOutputs("cmd_ip_bgp_summary.txt", "show ip bgp summary");
             fetchCmdOutputs("cmd_bgp_ipv4_unicast_statistics.txt", "show bgp ipv4 unicast statistics");
@@ -65,7 +65,7 @@ public class BgpCounters extends TimerTask {
             parseIpBgpSummary();
             parseIpBgpVpnv4All();
             parseIpBgpVpnv6All();
-            if (LOGGER.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 dumpCounters();
             }
             if (bgpStatsBroadcaster == null) {
@@ -75,22 +75,22 @@ public class BgpCounters extends TimerTask {
                     bgpStatsServer = ManagementFactory.getPlatformMBeanServer();
                     ObjectName bgpStatsObj = new ObjectName("SDNC.PM:type=BgpCountersBroadcaster");
                     bgpStatsServer.registerMBean(bgpStatsBroadcaster, bgpStatsObj);
-                    LOGGER.info("BGP Counters MBean Registered :::");
+                    LOG.info("BGP Counters MBean Registered :::");
                 } catch (JMException e) {
-                    LOGGER.error("Adding a NotificationBroadcaster failed.", e);
+                    LOG.error("Adding a NotificationBroadcaster failed.", e);
                     return;
                 }
             }
             bgpStatsBroadcaster.setBgpCountersMap(countersMap);
-            LOGGER.debug("Finished updating the counters from BGP");
+            LOG.debug("Finished updating the counters from BGP");
         } catch (IOException e) {
-            LOGGER.error("Failed to publish bgp counters ", e);
+            LOG.error("Failed to publish bgp counters ", e);
         }
     }
 
     private void dumpCounters() {
         for (Map.Entry<String, String> entry : countersMap.entrySet()) {
-            LOGGER.debug("{}, Value = {}", entry.getKey(), entry.getValue());
+            LOG.debug("{}, Value = {}", entry.getKey(), entry.getValue());
         }
     }
 
@@ -107,7 +107,7 @@ public class BgpCounters extends TimerTask {
             char[] cbuf = new char[10];
             while (!sb.toString().contains("Password:")) {
                 if ((read = fromRouter.read(cbuf)) == -1) {
-                    LOGGER.error("Connection closed by BGPd.");
+                    LOG.error("Connection closed by BGPd.");
                     return;
                 }
                 sb.append(cbuf, 0, read);
@@ -122,7 +122,7 @@ public class BgpCounters extends TimerTask {
             while (prompt == null) {
                 switch (read = fromRouter.read()) {
                     case -1:
-                        LOGGER.error("Connection closed by BGPd, read {}", sb.toString());
+                        LOG.error("Connection closed by BGPd, read {}", sb.toString());
                         return;
                     case '>':
                         // Fall through
@@ -142,7 +142,7 @@ public class BgpCounters extends TimerTask {
             // Wait for '#'
             while ((read = fromRouter.read()) != '#') {
                 if (read == -1) {
-                    LOGGER.error("Connection closed by BGPd, read {}", sb.toString());
+                    LOG.error("Connection closed by BGPd, read {}", sb.toString());
                     return;
                 }
             }
@@ -169,11 +169,11 @@ public class BgpCounters extends TimerTask {
             // Store in the file
             toFile.write(sb.toString().trim());
         } catch (UnknownHostException e) {
-            LOGGER.error("Unknown host {}", bgpSdncMip, e);
+            LOG.error("Unknown host {}", bgpSdncMip, e);
         } catch (SocketTimeoutException e) {
-            LOGGER.error("Socket timeout", e);
+            LOG.error("Socket timeout", e);
         } catch (IOException e) {
-            LOGGER.error("I/O error", e);
+            LOG.error("I/O error", e);
         }
     }
 
@@ -238,7 +238,7 @@ public class BgpCounters extends TimerTask {
                 }
             }
         } catch (IOException e) {
-            LOGGER.error("Could not process the file {}", file.getAbsolutePath());
+            LOG.error("Could not process the file {}", file.getAbsolutePath());
         }
     }
     /*
@@ -269,7 +269,7 @@ public class BgpCounters extends TimerTask {
                 }
             }
         } catch (IOException e) {
-            LOGGER.error("Could not process the file {}", file.getAbsolutePath());
+            LOG.error("Could not process the file {}", file.getAbsolutePath());
             return;
         }
         countersMap.put(BgpConstants.BGP_COUNTER_TOTAL_PFX, totPfx);
@@ -302,7 +302,7 @@ public class BgpCounters extends TimerTask {
                 inputStrs.add(scanner.nextLine());
             }
         } catch (IOException e) {
-            LOGGER.error("Could not process the file {}", file.getAbsolutePath());
+            LOG.error("Could not process the file {}", file.getAbsolutePath());
             return;
         }
         for (int i = 0; i < inputStrs.size(); i++) {
@@ -316,7 +316,7 @@ public class BgpCounters extends TimerTask {
         /*populate the "BgpTotalPrefixes" counter by combining
         the prefixes that are calculated per RD basis*/
         int bgpTotalPfxs = calculateBgpTotalPrefixes();
-        LOGGER.trace("BGP Total Prefixes:{}",bgpTotalPfxs);
+        LOG.trace("BGP Total Prefixes:{}",bgpTotalPfxs);
         countersMap.put(BgpConstants.BGP_COUNTER_TOTAL_PFX,String.valueOf(bgpTotalPfxs));
     }
 
@@ -347,7 +347,7 @@ public class BgpCounters extends TimerTask {
                 inputStrs.add(scanner.nextLine());
             }
         } catch (IOException e) {
-            LOGGER.error("Could not process the file {}", file.getAbsolutePath());
+            LOG.error("Could not process the file {}", file.getAbsolutePath());
             return;
         }
         for (int i = 0; i < inputStrs.size(); i++) {
@@ -421,14 +421,14 @@ public class BgpCounters extends TimerTask {
             boolean startEntries = false;
             while (scanner.hasNextLine()) {
                 String str = scanner.nextLine();
-                LOGGER.trace("str is:: {}", str);
+                LOG.trace("str is:: {}", str);
                 if (str.contains("State/PfxRcd")) {
                     startEntries = true;
                 } else if (startEntries) {
                     String[] result = str.split("\\s+");
                     if (result.length > 9) {
                         String strIp = result[0].trim();
-                        LOGGER.trace("strIp " + strIp);
+                        LOG.trace("strIp " + strIp);
 
                         if (!validate(strIp, afi)) {
                             break;
@@ -439,7 +439,7 @@ public class BgpCounters extends TimerTask {
                 }
             }
         } catch (IOException e) {
-            LOGGER.trace("Could not process the file {}", file.getAbsolutePath());
+            LOG.trace("Could not process the file {}", file.getAbsolutePath());
             return null;
         }
 
