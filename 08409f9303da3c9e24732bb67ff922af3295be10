@@ -1,0 +1,435 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_73e2cf04",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpInterfaceEventListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "this check is repeated twice. Have member variable like Predicate\u003cPort\u003e and do the test here.",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_33bfa7d2",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "remove tab",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_53887322",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "guard against null for del.getDeviceOwner()",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_338de732",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "do you require for loop here ? anyway fixedIps is with single ip now.",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_b391d754",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "there is no guarantee that dpn list is populated during neutron port add event handling. Are you ensuring arp entries are programmed when dpn is added later in elan (as per of interface state dcn handling) ?",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_538fd323",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "you could remove this if check. this should get optimized in runtime.",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_33bb27c6",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "This is like bloating elan implementation to other modules. Can you try to use IElanService for this ? there are already methods in ElanUtils which can be used to implement the API",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_73b5afcc",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "Have a method getNetworkToDhcpport(Port, ipAddress)",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_13c42b3f",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "this breaks the need for using for loop. either use get(0) on the FixedIps or have a method which returns list of non nullable fixed ips and iterate over it.",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_d3c9035c",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "you could simply return MDSALUtil.read(broker,LogicalDatastoreType.CONFIGURATION,id);",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_53dd1314",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "change it Optional\u003cBigInteger\u003e",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_33e207d6",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "just catch Exception here",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_532b53eb",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "what is the purpose of this method ?",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_33304756",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "you can still form materialized path using elanInstanceName and dpId to find list of interface under a dpn.\nalso this should be exposed from IElanService.",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_9335bb48",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceAddJob.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "add space after ,\nsame comment for other places too.",
+      "range": {
+        "startLine": 109,
+        "startChar": 95,
+        "endLine": 109,
+        "endChar": 96
+      },
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_733acf37",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceRemoveJob.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "us string constant for network:dhcp and also reuse the predicate",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_d33e2329",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/arp/responder/ArpResponderUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "why do you make it as final ? this is already effectively final",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_1349cbd0",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/arp/responder/ArpResponderUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "remove the trailing space.",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_93e81b7e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/arp/responder/ArpResponderUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "the code from 238-244 is same as previous method. so this can be replaced with TriFunction. Define a functional interface which takes actionCounter, macAdress amd ipAddress and returns List\u003cActions\u003e",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_d301033b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/arp/responder/ArpResponderUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "avoid using final if it really required",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_339a0715",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "Lists.asList(....)",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_13fc2b3e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "just use + to concatenate strings which internally uses StringBuilder",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_73a48f57",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 2227,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "just call with getElanInterfaceByElanInterfaceName",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_939f7b03",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 2229,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "change method name to getFlowId",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_d388e3c8",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 2237,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T10:59:17Z",
+      "side": 1,
+      "message": "remove tabs",
+      "revId": "08409f9303da3c9e24732bb67ff922af3295be10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
