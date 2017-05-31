@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -34,7 +34,7 @@ public class ClearBgpCli extends OsgiCommandSupport {
     static char HASH_PROMPT = '#';
     static char GT = '>';
 
-    static final Logger LOGGER = LoggerFactory.getLogger(ClearBgpCli.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ClearBgpCli.class);
 
     @Argument(name = "neighbor-ip", description = "neighbor ip to be cleared", required = false, multiValued = false)
     String nbr = "";
@@ -47,6 +47,7 @@ public class ClearBgpCli extends OsgiCommandSupport {
         serverName = hostAddr;
     }
 
+    @Override
     protected Object doExecute() throws Exception {
         if (nbr.isEmpty()) {
             session.getConsole().println("enter neighbor ip to be cleared");
@@ -85,7 +86,7 @@ public class ClearBgpCli extends OsgiCommandSupport {
 
             out.println(vtyPassword);
             out.println("enable");
-            LOGGER.trace("reading until HASH sign");
+            LOG.trace("reading until HASH sign");
             readUntilPrompt(in, HASH_PROMPT);
 
             out.println(clearCommand);
@@ -138,5 +139,4 @@ public class ClearBgpCli extends OsgiCommandSupport {
         sb.setLength(0);
         return true;
     }
-
 }
