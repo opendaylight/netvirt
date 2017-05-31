@@ -29,37 +29,37 @@ public class Network extends OsgiCommandSupport {
     private static final String LB = "--label";
     private static final String AFI = "--afi";
 
-    static final Logger LOGGER = LoggerFactory.getLogger(Network.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Network.class);
     @Argument(name = "add|del", description = "The desired operation",
             required = true, multiValued = false)
-    private String action = null;
+    private final String action = null;
 
     @Option(name = RD, aliases = {"-r"},
             description = "Route distinguisher",
             required = false, multiValued = false)
-    private String rd = null;
+    private final String rd = null;
 
     @Option(name = PFX, aliases = {"-p"},
             description = "prefix/length",
             required = false, multiValued = false)
-    private String pfx = null;
+    private final String pfx = null;
 
     @Option(name = NH, aliases = {"-n"},
             description = "Nexthop",
             required = false, multiValued = true)
-    private List<String> nh = null;
+    private final List<String> nh = null;
 
     @Option(name = LB, aliases = {"-l"},
             description = "Label",
             required = false, multiValued = false)
-    private String lbl = null;
+    private final String lbl = null;
 
     @Option(name = AFI, aliases = {"-a"},
             description = "Address Family",
             required = false, multiValued = false)
-    private String afi = "1";
+    private final String afi = "1";
 
-    private RouteOrigin staticOrigin = RouteOrigin.STATIC;
+    private final RouteOrigin staticOrigin = RouteOrigin.STATIC;
 
     private Object usage() {
         session.getConsole().println(
@@ -103,10 +103,10 @@ public class Network extends OsgiCommandSupport {
                     session.getConsole().println("error: " + AFI + " must be 1 (IPv4) or 2 (IPv6). Default is 1");
                     return null;
                 }
-                LOGGER.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {}", rd, pfx, nh, label);
+                LOG.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {}", rd, pfx, nh, label);
                 bm.addPrefix(rd, null /*maAddress*/, pfx, nh,
                         VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/, staticOrigin);
-                LOGGER.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, pfx, nh, label);
+                LOG.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, pfx, nh, label);
                 break;
             case "del":
                 if (pfx == null) {
@@ -121,9 +121,9 @@ public class Network extends OsgiCommandSupport {
                     session.getConsole().println("error: " + AFI + " must be 1 (IPv4) or 2 (IPv6). Default is 1");
                     return null;
                 }
-                LOGGER.info("REMOVE: Removing Fib entry rd {} prefix {}", rd, pfx);
+                LOG.info("REMOVE: Removing Fib entry rd {} prefix {}", rd, pfx);
                 bm.deletePrefix(rd, pfx);
-                LOGGER.info("REMOVE: Removed Fib entry rd {} prefix {}", rd, pfx);
+                LOG.info("REMOVE: Removed Fib entry rd {} prefix {}", rd, pfx);
                 break;
             default:
                 return usage();
