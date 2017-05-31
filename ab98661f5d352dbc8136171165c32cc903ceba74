@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "3afa9182_4131c00a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-05-31T06:14:07Z",
+      "side": 1,
+      "message": "have local variables for vpn interface and instance name and use it.",
+      "revId": "ab98661f5d352dbc8136171165c32cc903ceba74",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_25aab270",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 1
