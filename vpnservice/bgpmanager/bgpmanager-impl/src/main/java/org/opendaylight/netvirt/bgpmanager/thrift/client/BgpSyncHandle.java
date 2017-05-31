@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 public class BgpSyncHandle {
     private static BgpSyncHandle handle = null;
-    private static final Logger LOGGER = LoggerFactory.getLogger(BgpSyncHandle.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BgpSyncHandle.class);
     private int more;
     private int state;
 
@@ -51,12 +51,12 @@ public class BgpSyncHandle {
         try {
             sockBufSz = skt.getReceiveBufferSize();
         } catch (SocketException s) {
-            LOGGER.warn("Socket Exception while retrieving default socket buffer size");
+            LOG.warn("Socket Exception while retrieving default socket buffer size");
         }
         try {
             skt.close();
         } catch (IOException e) {
-            LOGGER.warn("IO Exception while closing socket for retrieving default socket buffer size");
+            LOG.warn("IO Exception while closing socket for retrieving default socket buffer size");
         }
         return sockBufSz / getRouteSize();
     }
