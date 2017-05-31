@@ -11,7 +11,6 @@ import org.apache.thrift.scheme.StandardScheme;
 
 import org.apache.thrift.scheme.TupleScheme;
 import org.apache.thrift.protocol.TTupleProtocol;
-import org.apache.thrift.protocol.TProtocolException;
 import org.apache.thrift.EncodingUtils;
 import org.apache.thrift.TException;
 import org.apache.thrift.async.AsyncMethodCallback;
@@ -21,13 +20,9 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.EnumMap;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.EnumSet;
 import java.util.Collections;
 import java.util.BitSet;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,10 +127,12 @@ public class BgpConfigurator {
   public static class Client extends org.apache.thrift.TServiceClient implements Iface {
     public static class Factory implements org.apache.thrift.TServiceClientFactory<Client> {
       public Factory() {}
-      public Client getClient(org.apache.thrift.protocol.TProtocol prot) {
+      @Override
+	public Client getClient(org.apache.thrift.protocol.TProtocol prot) {
         return new Client(prot);
       }
-      public Client getClient(org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) {
+      @Override
+	public Client getClient(org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) {
         return new Client(iprot, oprot);
       }
     }
@@ -149,7 +146,8 @@ public class BgpConfigurator {
       super(iprot, oprot);
     }
 
-    public int startBgp(long asNumber, String routerId, int port, int holdTime, int keepAliveTime, int stalepathTime, boolean announceFlush) throws org.apache.thrift.TException
+    @Override
+	public int startBgp(long asNumber, String routerId, int port, int holdTime, int keepAliveTime, int stalepathTime, boolean announceFlush) throws org.apache.thrift.TException
     {
       send_startBgp(asNumber, routerId, port, holdTime, keepAliveTime, stalepathTime, announceFlush);
       return recv_startBgp();
@@ -178,7 +176,8 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "startBgp failed: unknown result");
     }
 
-    public int stopBgp(long asNumber) throws org.apache.thrift.TException
+    @Override
+	public int stopBgp(long asNumber) throws org.apache.thrift.TException
     {
       send_stopBgp(asNumber);
       return recv_stopBgp();
@@ -201,7 +200,8 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "stopBgp failed: unknown result");
     }
 
-    public int createPeer(String ipAddress, long asNumber) throws org.apache.thrift.TException
+    @Override
+	public int createPeer(String ipAddress, long asNumber) throws org.apache.thrift.TException
     {
       send_createPeer(ipAddress, asNumber);
       return recv_createPeer();
@@ -225,7 +225,8 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "createPeer failed: unknown result");
     }
 
-    public int setPeerSecret(String ipAddress, String rfc2385_sharedSecret) throws org.apache.thrift.TException
+    @Override
+	public int setPeerSecret(String ipAddress, String rfc2385_sharedSecret) throws org.apache.thrift.TException
     {
       send_setPeerSecret(ipAddress, rfc2385_sharedSecret);
       return recv_setPeerSecret();
@@ -249,7 +250,8 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "setPeerSecret failed: unknown result");
     }
 
-    public int deletePeer(String ipAddress) throws org.apache.thrift.TException
+    @Override
+	public int deletePeer(String ipAddress) throws org.apache.thrift.TException
     {
       send_deletePeer(ipAddress);
       return recv_deletePeer();
@@ -272,7 +274,8 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "deletePeer failed: unknown result");
     }
 
-    public int addVrf(layer_type l_type, String rd, List<String> irts, List<String> erts) throws org.apache.thrift.TException
+    @Override
+	public int addVrf(layer_type l_type, String rd, List<String> irts, List<String> erts) throws org.apache.thrift.TException
     {
       send_addVrf(l_type, rd, irts, erts);
       return recv_addVrf();
@@ -298,7 +301,8 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "addVrf failed: unknown result");
     }
 
-    public int delVrf(String rd) throws org.apache.thrift.TException
+    @Override
+	public int delVrf(String rd) throws org.apache.thrift.TException
     {
       send_delVrf(rd);
       return recv_delVrf();
@@ -321,7 +325,8 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "delVrf failed: unknown result");
     }
 
-    public int pushRoute(protocol_type p_type, String prefix, String nexthop, String rd, int ethtag, String esi, String macaddress, int l3label, int l2label, encap_type enc_type, String routermac, af_afi afi) throws org.apache.thrift.TException
+    @Override
+	public int pushRoute(protocol_type p_type, String prefix, String nexthop, String rd, int ethtag, String esi, String macaddress, int l3label, int l2label, encap_type enc_type, String routermac, af_afi afi) throws org.apache.thrift.TException
     {
       send_pushRoute(p_type, prefix, nexthop, rd, ethtag, esi, macaddress, l3label, l2label, enc_type, routermac, afi);
       return recv_pushRoute();
@@ -355,7 +360,8 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "pushRoute failed: unknown result");
     }
 
-    public int withdrawRoute(protocol_type p_type, String prefix, String rd, int ethtag, String esi, String macaddress, af_afi afi) throws org.apache.thrift.TException
+    @Override
+	public int withdrawRoute(protocol_type p_type, String prefix, String rd, int ethtag, String esi, String macaddress, af_afi afi) throws org.apache.thrift.TException
     {
       send_withdrawRoute(p_type, prefix, rd, ethtag, esi, macaddress, afi);
       return recv_withdrawRoute();
@@ -384,7 +390,8 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "withdrawRoute failed: unknown result");
     }
 
-    public int setEbgpMultihop(String peerIp, int nHops) throws org.apache.thrift.TException
+    @Override
+	public int setEbgpMultihop(String peerIp, int nHops) throws org.apache.thrift.TException
     {
       send_setEbgpMultihop(peerIp, nHops);
       return recv_setEbgpMultihop();
@@ -408,7 +415,8 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "setEbgpMultihop failed: unknown result");
     }
 
-    public int unsetEbgpMultihop(String peerIp) throws org.apache.thrift.TException
+    @Override
+	public int unsetEbgpMultihop(String peerIp) throws org.apache.thrift.TException
     {
       send_unsetEbgpMultihop(peerIp);
       return recv_unsetEbgpMultihop();
@@ -431,7 +439,8 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "unsetEbgpMultihop failed: unknown result");
     }
 
-    public int setUpdateSource(String peerIp, String srcIp) throws org.apache.thrift.TException
+    @Override
+	public int setUpdateSource(String peerIp, String srcIp) throws org.apache.thrift.TException
     {
       send_setUpdateSource(peerIp, srcIp);
       return recv_setUpdateSource();
@@ -455,7 +464,8 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "setUpdateSource failed: unknown result");
     }
 
-    public int unsetUpdateSource(String peerIp) throws org.apache.thrift.TException
+    @Override
+	public int unsetUpdateSource(String peerIp) throws org.apache.thrift.TException
     {
       send_unsetUpdateSource(peerIp);
       return recv_unsetUpdateSource();
@@ -478,7 +488,8 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "unsetUpdateSource failed: unknown result");
     }
 
-    public int enableAddressFamily(String peerIp, af_afi afi, af_safi safi) throws org.apache.thrift.TException
+    @Override
+	public int enableAddressFamily(String peerIp, af_afi afi, af_safi safi) throws org.apache.thrift.TException
     {
       send_enableAddressFamily(peerIp, afi, safi);
       return recv_enableAddressFamily();
@@ -503,7 +514,8 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "enableAddressFamily failed: unknown result");
     }
 
-    public int disableAddressFamily(String peerIp, af_afi afi, af_safi safi) throws org.apache.thrift.TException
+    @Override
+	public int disableAddressFamily(String peerIp, af_afi afi, af_safi safi) throws org.apache.thrift.TException
     {
       send_disableAddressFamily(peerIp, afi, safi);
       return recv_disableAddressFamily();
@@ -528,7 +540,8 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "disableAddressFamily failed: unknown result");
     }
 
-    public int setLogConfig(String logFileName, String logLevel) throws org.apache.thrift.TException
+    @Override
+	public int setLogConfig(String logFileName, String logLevel) throws org.apache.thrift.TException
     {
       send_setLogConfig(logFileName, logLevel);
       return recv_setLogConfig();
@@ -552,7 +565,8 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "setLogConfig failed: unknown result");
     }
 
-    public int enableGracefulRestart(int stalepathTime) throws org.apache.thrift.TException
+    @Override
+	public int enableGracefulRestart(int stalepathTime) throws org.apache.thrift.TException
     {
       send_enableGracefulRestart(stalepathTime);
       return recv_enableGracefulRestart();
@@ -575,7 +589,8 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "enableGracefulRestart failed: unknown result");
     }
 
-    public int disableGracefulRestart() throws org.apache.thrift.TException
+    @Override
+	public int disableGracefulRestart() throws org.apache.thrift.TException
     {
       send_disableGracefulRestart();
       return recv_disableGracefulRestart();
@@ -597,7 +612,8 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "disableGracefulRestart failed: unknown result");
     }
 
-    public Routes getRoutes(protocol_type p_type, int optype, int winSize, af_afi afi) throws org.apache.thrift.TException
+    @Override
+	public Routes getRoutes(protocol_type p_type, int optype, int winSize, af_afi afi) throws org.apache.thrift.TException
     {
       send_getRoutes(p_type, optype, winSize, afi);
       return recv_getRoutes();
@@ -623,7 +639,8 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getRoutes failed: unknown result");
     }
 
-    public int enableMultipath(af_afi afi, af_safi safi) throws org.apache.thrift.TException
+    @Override
+	public int enableMultipath(af_afi afi, af_safi safi) throws org.apache.thrift.TException
     {
       send_enableMultipath(afi, safi);
       return recv_enableMultipath();
@@ -647,7 +664,8 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "enableMultipath failed: unknown result");
     }
 
-    public int disableMultipath(af_afi afi, af_safi safi) throws org.apache.thrift.TException
+    @Override
+	public int disableMultipath(af_afi afi, af_safi safi) throws org.apache.thrift.TException
     {
       send_disableMultipath(afi, safi);
       return recv_disableMultipath();
@@ -671,7 +689,8 @@ public class BgpConfigurator {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "disableMultipath failed: unknown result");
     }
 
-    public int multipaths(String rd, int maxPath) throws org.apache.thrift.TException
+    @Override
+	public int multipaths(String rd, int maxPath) throws org.apache.thrift.TException
     {
       send_multipaths(rd, maxPath);
       return recv_multipaths();
@@ -698,13 +717,14 @@ public class BgpConfigurator {
   }
   public static class AsyncClient extends org.apache.thrift.async.TAsyncClient implements AsyncIface {
     public static class Factory implements org.apache.thrift.async.TAsyncClientFactory<AsyncClient> {
-      private org.apache.thrift.async.TAsyncClientManager clientManager;
-      private org.apache.thrift.protocol.TProtocolFactory protocolFactory;
+      private final org.apache.thrift.async.TAsyncClientManager clientManager;
+      private final org.apache.thrift.protocol.TProtocolFactory protocolFactory;
       public Factory(org.apache.thrift.async.TAsyncClientManager clientManager, org.apache.thrift.protocol.TProtocolFactory protocolFactory) {
         this.clientManager = clientManager;
         this.protocolFactory = protocolFactory;
       }
-      public AsyncClient getAsyncClient(org.apache.thrift.transport.TNonblockingTransport transport) {
+      @Override
+	public AsyncClient getAsyncClient(org.apache.thrift.transport.TNonblockingTransport transport) {
         return new AsyncClient(protocolFactory, clientManager, transport);
       }
     }
@@ -713,7 +733,8 @@ public class BgpConfigurator {
       super(protocolFactory, clientManager, transport);
     }
 
-    public void startBgp(long asNumber, String routerId, int port, int holdTime, int keepAliveTime, int stalepathTime, boolean announceFlush, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void startBgp(long asNumber, String routerId, int port, int holdTime, int keepAliveTime, int stalepathTime, boolean announceFlush, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       startBgp_call method_call = new startBgp_call(asNumber, routerId, port, holdTime, keepAliveTime, stalepathTime, announceFlush, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -721,13 +742,13 @@ public class BgpConfigurator {
     }
 
     public static class startBgp_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private long asNumber;
-      private String routerId;
-      private int port;
-      private int holdTime;
-      private int keepAliveTime;
-      private int stalepathTime;
-      private boolean announceFlush;
+      private final long asNumber;
+      private final String routerId;
+      private final int port;
+      private final int holdTime;
+      private final int keepAliveTime;
+      private final int stalepathTime;
+      private final boolean announceFlush;
       public startBgp_call(long asNumber, String routerId, int port, int holdTime, int keepAliveTime, int stalepathTime, boolean announceFlush, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.asNumber = asNumber;
@@ -739,7 +760,8 @@ public class BgpConfigurator {
         this.announceFlush = announceFlush;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("startBgp", org.apache.thrift.protocol.TMessageType.CALL, 0));
         startBgp_args args = new startBgp_args();
         args.setAsNumber(asNumber);
@@ -759,11 +781,12 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_startBgp();
+        return new Client(prot).recv_startBgp();
       }
     }
 
-    public void stopBgp(long asNumber, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void stopBgp(long asNumber, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       stopBgp_call method_call = new stopBgp_call(asNumber, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -771,13 +794,14 @@ public class BgpConfigurator {
     }
 
     public static class stopBgp_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private long asNumber;
+      private final long asNumber;
       public stopBgp_call(long asNumber, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.asNumber = asNumber;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("stopBgp", org.apache.thrift.protocol.TMessageType.CALL, 0));
         stopBgp_args args = new stopBgp_args();
         args.setAsNumber(asNumber);
@@ -791,11 +815,12 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_stopBgp();
+        return new Client(prot).recv_stopBgp();
       }
     }
 
-    public void createPeer(String ipAddress, long asNumber, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void createPeer(String ipAddress, long asNumber, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       createPeer_call method_call = new createPeer_call(ipAddress, asNumber, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -803,15 +828,16 @@ public class BgpConfigurator {
     }
 
     public static class createPeer_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private String ipAddress;
-      private long asNumber;
+      private final String ipAddress;
+      private final long asNumber;
       public createPeer_call(String ipAddress, long asNumber, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.ipAddress = ipAddress;
         this.asNumber = asNumber;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("createPeer", org.apache.thrift.protocol.TMessageType.CALL, 0));
         createPeer_args args = new createPeer_args();
         args.setIpAddress(ipAddress);
@@ -826,11 +852,12 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_createPeer();
+        return new Client(prot).recv_createPeer();
       }
     }
 
-    public void setPeerSecret(String ipAddress, String rfc2385_sharedSecret, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void setPeerSecret(String ipAddress, String rfc2385_sharedSecret, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       setPeerSecret_call method_call = new setPeerSecret_call(ipAddress, rfc2385_sharedSecret, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -838,15 +865,16 @@ public class BgpConfigurator {
     }
 
     public static class setPeerSecret_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private String ipAddress;
-      private String rfc2385_sharedSecret;
+      private final String ipAddress;
+      private final String rfc2385_sharedSecret;
       public setPeerSecret_call(String ipAddress, String rfc2385_sharedSecret, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.ipAddress = ipAddress;
         this.rfc2385_sharedSecret = rfc2385_sharedSecret;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("setPeerSecret", org.apache.thrift.protocol.TMessageType.CALL, 0));
         setPeerSecret_args args = new setPeerSecret_args();
         args.setIpAddress(ipAddress);
@@ -861,11 +889,12 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_setPeerSecret();
+        return new Client(prot).recv_setPeerSecret();
       }
     }
 
-    public void deletePeer(String ipAddress, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void deletePeer(String ipAddress, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       deletePeer_call method_call = new deletePeer_call(ipAddress, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -873,13 +902,14 @@ public class BgpConfigurator {
     }
 
     public static class deletePeer_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private String ipAddress;
+      private final String ipAddress;
       public deletePeer_call(String ipAddress, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.ipAddress = ipAddress;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("deletePeer", org.apache.thrift.protocol.TMessageType.CALL, 0));
         deletePeer_args args = new deletePeer_args();
         args.setIpAddress(ipAddress);
@@ -893,11 +923,12 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_deletePeer();
+        return new Client(prot).recv_deletePeer();
       }
     }
 
-    public void addVrf(layer_type l_type, String rd, List<String> irts, List<String> erts, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void addVrf(layer_type l_type, String rd, List<String> irts, List<String> erts, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       addVrf_call method_call = new addVrf_call(l_type, rd, irts, erts, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -905,10 +936,10 @@ public class BgpConfigurator {
     }
 
     public static class addVrf_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private layer_type l_type;
-      private String rd;
-      private List<String> irts;
-      private List<String> erts;
+      private final layer_type l_type;
+      private final String rd;
+      private final List<String> irts;
+      private final List<String> erts;
       public addVrf_call(layer_type l_type, String rd, List<String> irts, List<String> erts, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.l_type = l_type;
@@ -917,7 +948,8 @@ public class BgpConfigurator {
         this.erts = erts;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("addVrf", org.apache.thrift.protocol.TMessageType.CALL, 0));
         addVrf_args args = new addVrf_args();
         args.setL_type(l_type);
@@ -934,11 +966,12 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_addVrf();
+        return new Client(prot).recv_addVrf();
       }
     }
 
-    public void delVrf(String rd, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void delVrf(String rd, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       delVrf_call method_call = new delVrf_call(rd, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -946,13 +979,14 @@ public class BgpConfigurator {
     }
 
     public static class delVrf_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private String rd;
+      private final String rd;
       public delVrf_call(String rd, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.rd = rd;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("delVrf", org.apache.thrift.protocol.TMessageType.CALL, 0));
         delVrf_args args = new delVrf_args();
         args.setRd(rd);
@@ -966,11 +1000,12 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_delVrf();
+        return new Client(prot).recv_delVrf();
       }
     }
 
-    public void pushRoute(protocol_type p_type, String prefix, String nexthop, String rd, int ethtag, String esi, String macaddress, int l3label, int l2label, encap_type enc_type, String routermac, af_afi afi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void pushRoute(protocol_type p_type, String prefix, String nexthop, String rd, int ethtag, String esi, String macaddress, int l3label, int l2label, encap_type enc_type, String routermac, af_afi afi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       pushRoute_call method_call = new pushRoute_call(p_type, prefix, nexthop, rd, ethtag, esi, macaddress, l3label, l2label, enc_type, routermac, afi, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -978,18 +1013,18 @@ public class BgpConfigurator {
     }
 
     public static class pushRoute_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private protocol_type p_type;
-      private String prefix;
-      private String nexthop;
-      private String rd;
-      private int ethtag;
-      private String esi;
-      private String macaddress;
-      private int l3label;
-      private int l2label;
-      private encap_type enc_type;
-      private String routermac;
-      private af_afi afi;
+      private final protocol_type p_type;
+      private final String prefix;
+      private final String nexthop;
+      private final String rd;
+      private final int ethtag;
+      private final String esi;
+      private final String macaddress;
+      private final int l3label;
+      private final int l2label;
+      private final encap_type enc_type;
+      private final String routermac;
+      private final af_afi afi;
       public pushRoute_call(protocol_type p_type, String prefix, String nexthop, String rd, int ethtag, String esi, String macaddress, int l3label, int l2label, encap_type enc_type, String routermac, af_afi afi, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.p_type = p_type;
@@ -1006,7 +1041,8 @@ public class BgpConfigurator {
         this.afi = afi;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("pushRoute", org.apache.thrift.protocol.TMessageType.CALL, 0));
         pushRoute_args args = new pushRoute_args();
         args.setP_type(p_type);
@@ -1031,11 +1067,12 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_pushRoute();
+        return new Client(prot).recv_pushRoute();
       }
     }
 
-    public void withdrawRoute(protocol_type p_type, String prefix, String rd, int ethtag, String esi, String macaddress, af_afi afi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void withdrawRoute(protocol_type p_type, String prefix, String rd, int ethtag, String esi, String macaddress, af_afi afi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       withdrawRoute_call method_call = new withdrawRoute_call(p_type, prefix, rd, ethtag, esi, macaddress, afi, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -1043,13 +1080,13 @@ public class BgpConfigurator {
     }
 
     public static class withdrawRoute_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private protocol_type p_type;
-      private String prefix;
-      private String rd;
-      private int ethtag;
-      private String esi;
-      private String macaddress;
-      private af_afi afi;
+      private final protocol_type p_type;
+      private final String prefix;
+      private final String rd;
+      private final int ethtag;
+      private final String esi;
+      private final String macaddress;
+      private final af_afi afi;
       public withdrawRoute_call(protocol_type p_type, String prefix, String rd, int ethtag, String esi, String macaddress, af_afi afi, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.p_type = p_type;
@@ -1061,7 +1098,8 @@ public class BgpConfigurator {
         this.afi = afi;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("withdrawRoute", org.apache.thrift.protocol.TMessageType.CALL, 0));
         withdrawRoute_args args = new withdrawRoute_args();
         args.setP_type(p_type);
@@ -1081,11 +1119,12 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_withdrawRoute();
+        return new Client(prot).recv_withdrawRoute();
       }
     }
 
-    public void setEbgpMultihop(String peerIp, int nHops, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void setEbgpMultihop(String peerIp, int nHops, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       setEbgpMultihop_call method_call = new setEbgpMultihop_call(peerIp, nHops, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -1093,15 +1132,16 @@ public class BgpConfigurator {
     }
 
     public static class setEbgpMultihop_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private String peerIp;
-      private int nHops;
+      private final String peerIp;
+      private final int nHops;
       public setEbgpMultihop_call(String peerIp, int nHops, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.peerIp = peerIp;
         this.nHops = nHops;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("setEbgpMultihop", org.apache.thrift.protocol.TMessageType.CALL, 0));
         setEbgpMultihop_args args = new setEbgpMultihop_args();
         args.setPeerIp(peerIp);
@@ -1116,11 +1156,12 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_setEbgpMultihop();
+        return new Client(prot).recv_setEbgpMultihop();
       }
     }
 
-    public void unsetEbgpMultihop(String peerIp, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void unsetEbgpMultihop(String peerIp, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       unsetEbgpMultihop_call method_call = new unsetEbgpMultihop_call(peerIp, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -1128,13 +1169,14 @@ public class BgpConfigurator {
     }
 
     public static class unsetEbgpMultihop_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private String peerIp;
+      private final String peerIp;
       public unsetEbgpMultihop_call(String peerIp, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.peerIp = peerIp;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("unsetEbgpMultihop", org.apache.thrift.protocol.TMessageType.CALL, 0));
         unsetEbgpMultihop_args args = new unsetEbgpMultihop_args();
         args.setPeerIp(peerIp);
@@ -1148,11 +1190,12 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_unsetEbgpMultihop();
+        return new Client(prot).recv_unsetEbgpMultihop();
       }
     }
 
-    public void setUpdateSource(String peerIp, String srcIp, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void setUpdateSource(String peerIp, String srcIp, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       setUpdateSource_call method_call = new setUpdateSource_call(peerIp, srcIp, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -1160,15 +1203,16 @@ public class BgpConfigurator {
     }
 
     public static class setUpdateSource_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private String peerIp;
-      private String srcIp;
+      private final String peerIp;
+      private final String srcIp;
       public setUpdateSource_call(String peerIp, String srcIp, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.peerIp = peerIp;
         this.srcIp = srcIp;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("setUpdateSource", org.apache.thrift.protocol.TMessageType.CALL, 0));
         setUpdateSource_args args = new setUpdateSource_args();
         args.setPeerIp(peerIp);
@@ -1183,11 +1227,12 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_setUpdateSource();
+        return new Client(prot).recv_setUpdateSource();
       }
     }
 
-    public void unsetUpdateSource(String peerIp, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void unsetUpdateSource(String peerIp, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       unsetUpdateSource_call method_call = new unsetUpdateSource_call(peerIp, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -1195,13 +1240,14 @@ public class BgpConfigurator {
     }
 
     public static class unsetUpdateSource_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private String peerIp;
+      private final String peerIp;
       public unsetUpdateSource_call(String peerIp, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.peerIp = peerIp;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("unsetUpdateSource", org.apache.thrift.protocol.TMessageType.CALL, 0));
         unsetUpdateSource_args args = new unsetUpdateSource_args();
         args.setPeerIp(peerIp);
@@ -1215,11 +1261,12 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_unsetUpdateSource();
+        return new Client(prot).recv_unsetUpdateSource();
       }
     }
 
-    public void enableAddressFamily(String peerIp, af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void enableAddressFamily(String peerIp, af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       enableAddressFamily_call method_call = new enableAddressFamily_call(peerIp, afi, safi, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -1227,9 +1274,9 @@ public class BgpConfigurator {
     }
 
     public static class enableAddressFamily_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private String peerIp;
-      private af_afi afi;
-      private af_safi safi;
+      private final String peerIp;
+      private final af_afi afi;
+      private final af_safi safi;
       public enableAddressFamily_call(String peerIp, af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.peerIp = peerIp;
@@ -1237,7 +1284,8 @@ public class BgpConfigurator {
         this.safi = safi;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("enableAddressFamily", org.apache.thrift.protocol.TMessageType.CALL, 0));
         enableAddressFamily_args args = new enableAddressFamily_args();
         args.setPeerIp(peerIp);
@@ -1253,11 +1301,12 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_enableAddressFamily();
+        return new Client(prot).recv_enableAddressFamily();
       }
     }
 
-    public void disableAddressFamily(String peerIp, af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void disableAddressFamily(String peerIp, af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       disableAddressFamily_call method_call = new disableAddressFamily_call(peerIp, afi, safi, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -1265,9 +1314,9 @@ public class BgpConfigurator {
     }
 
     public static class disableAddressFamily_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private String peerIp;
-      private af_afi afi;
-      private af_safi safi;
+      private final String peerIp;
+      private final af_afi afi;
+      private final af_safi safi;
       public disableAddressFamily_call(String peerIp, af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.peerIp = peerIp;
@@ -1275,7 +1324,8 @@ public class BgpConfigurator {
         this.safi = safi;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("disableAddressFamily", org.apache.thrift.protocol.TMessageType.CALL, 0));
         disableAddressFamily_args args = new disableAddressFamily_args();
         args.setPeerIp(peerIp);
@@ -1291,11 +1341,12 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_disableAddressFamily();
+        return new Client(prot).recv_disableAddressFamily();
       }
     }
 
-    public void setLogConfig(String logFileName, String logLevel, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void setLogConfig(String logFileName, String logLevel, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       setLogConfig_call method_call = new setLogConfig_call(logFileName, logLevel, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -1303,15 +1354,16 @@ public class BgpConfigurator {
     }
 
     public static class setLogConfig_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private String logFileName;
-      private String logLevel;
+      private final String logFileName;
+      private final String logLevel;
       public setLogConfig_call(String logFileName, String logLevel, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.logFileName = logFileName;
         this.logLevel = logLevel;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("setLogConfig", org.apache.thrift.protocol.TMessageType.CALL, 0));
         setLogConfig_args args = new setLogConfig_args();
         args.setLogFileName(logFileName);
@@ -1326,11 +1378,12 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_setLogConfig();
+        return new Client(prot).recv_setLogConfig();
       }
     }
 
-    public void enableGracefulRestart(int stalepathTime, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void enableGracefulRestart(int stalepathTime, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       enableGracefulRestart_call method_call = new enableGracefulRestart_call(stalepathTime, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -1338,13 +1391,14 @@ public class BgpConfigurator {
     }
 
     public static class enableGracefulRestart_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private int stalepathTime;
+      private final int stalepathTime;
       public enableGracefulRestart_call(int stalepathTime, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.stalepathTime = stalepathTime;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("enableGracefulRestart", org.apache.thrift.protocol.TMessageType.CALL, 0));
         enableGracefulRestart_args args = new enableGracefulRestart_args();
         args.setStalepathTime(stalepathTime);
@@ -1358,11 +1412,12 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_enableGracefulRestart();
+        return new Client(prot).recv_enableGracefulRestart();
       }
     }
 
-    public void disableGracefulRestart(org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void disableGracefulRestart(org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       disableGracefulRestart_call method_call = new disableGracefulRestart_call(resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -1374,7 +1429,8 @@ public class BgpConfigurator {
         super(client, protocolFactory, transport, resultHandler, false);
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("disableGracefulRestart", org.apache.thrift.protocol.TMessageType.CALL, 0));
         disableGracefulRestart_args args = new disableGracefulRestart_args();
         args.write(prot);
@@ -1387,11 +1443,12 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_disableGracefulRestart();
+        return new Client(prot).recv_disableGracefulRestart();
       }
     }
 
-    public void getRoutes(protocol_type p_type, int optype, int winSize, af_afi afi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void getRoutes(protocol_type p_type, int optype, int winSize, af_afi afi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       getRoutes_call method_call = new getRoutes_call(p_type, optype, winSize, afi, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -1399,10 +1456,10 @@ public class BgpConfigurator {
     }
 
     public static class getRoutes_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private protocol_type p_type;
-      private int optype;
-      private int winSize;
-      private af_afi afi;
+      private final protocol_type p_type;
+      private final int optype;
+      private final int winSize;
+      private final af_afi afi;
       public getRoutes_call(protocol_type p_type, int optype, int winSize, af_afi afi, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.p_type = p_type;
@@ -1411,7 +1468,8 @@ public class BgpConfigurator {
         this.afi = afi;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getRoutes", org.apache.thrift.protocol.TMessageType.CALL, 0));
         getRoutes_args args = new getRoutes_args();
         args.setP_type(p_type);
@@ -1428,11 +1486,12 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_getRoutes();
+        return new Client(prot).recv_getRoutes();
       }
     }
 
-    public void enableMultipath(af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void enableMultipath(af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       enableMultipath_call method_call = new enableMultipath_call(afi, safi, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -1440,15 +1499,16 @@ public class BgpConfigurator {
     }
 
     public static class enableMultipath_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private af_afi afi;
-      private af_safi safi;
+      private final af_afi afi;
+      private final af_safi safi;
       public enableMultipath_call(af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.afi = afi;
         this.safi = safi;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("enableMultipath", org.apache.thrift.protocol.TMessageType.CALL, 0));
         enableMultipath_args args = new enableMultipath_args();
         args.setAfi(afi);
@@ -1463,11 +1523,12 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_enableMultipath();
+        return new Client(prot).recv_enableMultipath();
       }
     }
 
-    public void disableMultipath(af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void disableMultipath(af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       disableMultipath_call method_call = new disableMultipath_call(afi, safi, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -1475,15 +1536,16 @@ public class BgpConfigurator {
     }
 
     public static class disableMultipath_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private af_afi afi;
-      private af_safi safi;
+      private final af_afi afi;
+      private final af_safi safi;
       public disableMultipath_call(af_afi afi, af_safi safi, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.afi = afi;
         this.safi = safi;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("disableMultipath", org.apache.thrift.protocol.TMessageType.CALL, 0));
         disableMultipath_args args = new disableMultipath_args();
         args.setAfi(afi);
@@ -1498,11 +1560,12 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_disableMultipath();
+        return new Client(prot).recv_disableMultipath();
       }
     }
 
-    public void multipaths(String rd, int maxPath, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    @Override
+	public void multipaths(String rd, int maxPath, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
       multipaths_call method_call = new multipaths_call(rd, maxPath, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
@@ -1510,15 +1573,16 @@ public class BgpConfigurator {
     }
 
     public static class multipaths_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private String rd;
-      private int maxPath;
+      private final String rd;
+      private final int maxPath;
       public multipaths_call(String rd, int maxPath, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.rd = rd;
         this.maxPath = maxPath;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      @Override
+	public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("multipaths", org.apache.thrift.protocol.TMessageType.CALL, 0));
         multipaths_args args = new multipaths_args();
         args.setRd(rd);
@@ -1533,14 +1597,14 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_multipaths();
+        return new Client(prot).recv_multipaths();
       }
     }
 
   }
 
   public static class Processor<I extends Iface> extends org.apache.thrift.TBaseProcessor<I> implements org.apache.thrift.TProcessor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(Processor.class.getName());
     public Processor(I iface) {
       super(iface, getProcessMap(new HashMap<String, org.apache.thrift.ProcessFunction<I, ? extends org.apache.thrift.TBase>>()));
     }
@@ -1580,15 +1644,18 @@ public class BgpConfigurator {
         super("startBgp");
       }
 
-      public startBgp_args getEmptyArgsInstance() {
+      @Override
+	public startBgp_args getEmptyArgsInstance() {
         return new startBgp_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public startBgp_result getResult(I iface, startBgp_args args) throws org.apache.thrift.TException {
+      @Override
+	public startBgp_result getResult(I iface, startBgp_args args) throws org.apache.thrift.TException {
         startBgp_result result = new startBgp_result();
         result.success = iface.startBgp(args.asNumber, args.routerId, args.port, args.holdTime, args.keepAliveTime, args.stalepathTime, args.announceFlush);
         result.setSuccessIsSet(true);
@@ -1601,15 +1668,18 @@ public class BgpConfigurator {
         super("stopBgp");
       }
 
-      public stopBgp_args getEmptyArgsInstance() {
+      @Override
+	public stopBgp_args getEmptyArgsInstance() {
         return new stopBgp_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public stopBgp_result getResult(I iface, stopBgp_args args) throws org.apache.thrift.TException {
+      @Override
+	public stopBgp_result getResult(I iface, stopBgp_args args) throws org.apache.thrift.TException {
         stopBgp_result result = new stopBgp_result();
         result.success = iface.stopBgp(args.asNumber);
         result.setSuccessIsSet(true);
@@ -1622,15 +1692,18 @@ public class BgpConfigurator {
         super("createPeer");
       }
 
-      public createPeer_args getEmptyArgsInstance() {
+      @Override
+	public createPeer_args getEmptyArgsInstance() {
         return new createPeer_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public createPeer_result getResult(I iface, createPeer_args args) throws org.apache.thrift.TException {
+      @Override
+	public createPeer_result getResult(I iface, createPeer_args args) throws org.apache.thrift.TException {
         createPeer_result result = new createPeer_result();
         result.success = iface.createPeer(args.ipAddress, args.asNumber);
         result.setSuccessIsSet(true);
@@ -1643,15 +1716,18 @@ public class BgpConfigurator {
         super("setPeerSecret");
       }
 
-      public setPeerSecret_args getEmptyArgsInstance() {
+      @Override
+	public setPeerSecret_args getEmptyArgsInstance() {
         return new setPeerSecret_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public setPeerSecret_result getResult(I iface, setPeerSecret_args args) throws org.apache.thrift.TException {
+      @Override
+	public setPeerSecret_result getResult(I iface, setPeerSecret_args args) throws org.apache.thrift.TException {
         setPeerSecret_result result = new setPeerSecret_result();
         result.success = iface.setPeerSecret(args.ipAddress, args.rfc2385_sharedSecret);
         result.setSuccessIsSet(true);
@@ -1664,15 +1740,18 @@ public class BgpConfigurator {
         super("deletePeer");
       }
 
-      public deletePeer_args getEmptyArgsInstance() {
+      @Override
+	public deletePeer_args getEmptyArgsInstance() {
         return new deletePeer_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public deletePeer_result getResult(I iface, deletePeer_args args) throws org.apache.thrift.TException {
+      @Override
+	public deletePeer_result getResult(I iface, deletePeer_args args) throws org.apache.thrift.TException {
         deletePeer_result result = new deletePeer_result();
         result.success = iface.deletePeer(args.ipAddress);
         result.setSuccessIsSet(true);
@@ -1685,15 +1764,18 @@ public class BgpConfigurator {
         super("addVrf");
       }
 
-      public addVrf_args getEmptyArgsInstance() {
+      @Override
+	public addVrf_args getEmptyArgsInstance() {
         return new addVrf_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public addVrf_result getResult(I iface, addVrf_args args) throws org.apache.thrift.TException {
+      @Override
+	public addVrf_result getResult(I iface, addVrf_args args) throws org.apache.thrift.TException {
         addVrf_result result = new addVrf_result();
         result.success = iface.addVrf(args.l_type, args.rd, args.irts, args.erts);
         result.setSuccessIsSet(true);
@@ -1706,15 +1788,18 @@ public class BgpConfigurator {
         super("delVrf");
       }
 
-      public delVrf_args getEmptyArgsInstance() {
+      @Override
+	public delVrf_args getEmptyArgsInstance() {
         return new delVrf_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public delVrf_result getResult(I iface, delVrf_args args) throws org.apache.thrift.TException {
+      @Override
+	public delVrf_result getResult(I iface, delVrf_args args) throws org.apache.thrift.TException {
         delVrf_result result = new delVrf_result();
         result.success = iface.delVrf(args.rd);
         result.setSuccessIsSet(true);
@@ -1727,15 +1812,18 @@ public class BgpConfigurator {
         super("pushRoute");
       }
 
-      public pushRoute_args getEmptyArgsInstance() {
+      @Override
+	public pushRoute_args getEmptyArgsInstance() {
         return new pushRoute_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public pushRoute_result getResult(I iface, pushRoute_args args) throws org.apache.thrift.TException {
+      @Override
+	public pushRoute_result getResult(I iface, pushRoute_args args) throws org.apache.thrift.TException {
         pushRoute_result result = new pushRoute_result();
         result.success = iface.pushRoute(args.p_type, args.prefix, args.nexthop, args.rd, args.ethtag, args.esi, args.macaddress, args.l3label, args.l2label, args.enc_type, args.routermac, args.afi);
         result.setSuccessIsSet(true);
@@ -1748,15 +1836,18 @@ public class BgpConfigurator {
         super("withdrawRoute");
       }
 
-      public withdrawRoute_args getEmptyArgsInstance() {
+      @Override
+	public withdrawRoute_args getEmptyArgsInstance() {
         return new withdrawRoute_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public withdrawRoute_result getResult(I iface, withdrawRoute_args args) throws org.apache.thrift.TException {
+      @Override
+	public withdrawRoute_result getResult(I iface, withdrawRoute_args args) throws org.apache.thrift.TException {
         withdrawRoute_result result = new withdrawRoute_result();
         result.success = iface.withdrawRoute(args.p_type, args.prefix, args.rd, args.ethtag, args.esi, args.macaddress, args.afi);
         result.setSuccessIsSet(true);
@@ -1769,15 +1860,18 @@ public class BgpConfigurator {
         super("setEbgpMultihop");
       }
 
-      public setEbgpMultihop_args getEmptyArgsInstance() {
+      @Override
+	public setEbgpMultihop_args getEmptyArgsInstance() {
         return new setEbgpMultihop_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public setEbgpMultihop_result getResult(I iface, setEbgpMultihop_args args) throws org.apache.thrift.TException {
+      @Override
+	public setEbgpMultihop_result getResult(I iface, setEbgpMultihop_args args) throws org.apache.thrift.TException {
         setEbgpMultihop_result result = new setEbgpMultihop_result();
         result.success = iface.setEbgpMultihop(args.peerIp, args.nHops);
         result.setSuccessIsSet(true);
@@ -1790,15 +1884,18 @@ public class BgpConfigurator {
         super("unsetEbgpMultihop");
       }
 
-      public unsetEbgpMultihop_args getEmptyArgsInstance() {
+      @Override
+	public unsetEbgpMultihop_args getEmptyArgsInstance() {
         return new unsetEbgpMultihop_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public unsetEbgpMultihop_result getResult(I iface, unsetEbgpMultihop_args args) throws org.apache.thrift.TException {
+      @Override
+	public unsetEbgpMultihop_result getResult(I iface, unsetEbgpMultihop_args args) throws org.apache.thrift.TException {
         unsetEbgpMultihop_result result = new unsetEbgpMultihop_result();
         result.success = iface.unsetEbgpMultihop(args.peerIp);
         result.setSuccessIsSet(true);
@@ -1811,15 +1908,18 @@ public class BgpConfigurator {
         super("setUpdateSource");
       }
 
-      public setUpdateSource_args getEmptyArgsInstance() {
+      @Override
+	public setUpdateSource_args getEmptyArgsInstance() {
         return new setUpdateSource_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public setUpdateSource_result getResult(I iface, setUpdateSource_args args) throws org.apache.thrift.TException {
+      @Override
+	public setUpdateSource_result getResult(I iface, setUpdateSource_args args) throws org.apache.thrift.TException {
         setUpdateSource_result result = new setUpdateSource_result();
         result.success = iface.setUpdateSource(args.peerIp, args.srcIp);
         result.setSuccessIsSet(true);
@@ -1832,15 +1932,18 @@ public class BgpConfigurator {
         super("unsetUpdateSource");
       }
 
-      public unsetUpdateSource_args getEmptyArgsInstance() {
+      @Override
+	public unsetUpdateSource_args getEmptyArgsInstance() {
         return new unsetUpdateSource_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public unsetUpdateSource_result getResult(I iface, unsetUpdateSource_args args) throws org.apache.thrift.TException {
+      @Override
+	public unsetUpdateSource_result getResult(I iface, unsetUpdateSource_args args) throws org.apache.thrift.TException {
         unsetUpdateSource_result result = new unsetUpdateSource_result();
         result.success = iface.unsetUpdateSource(args.peerIp);
         result.setSuccessIsSet(true);
@@ -1853,15 +1956,18 @@ public class BgpConfigurator {
         super("enableAddressFamily");
       }
 
-      public enableAddressFamily_args getEmptyArgsInstance() {
+      @Override
+	public enableAddressFamily_args getEmptyArgsInstance() {
         return new enableAddressFamily_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public enableAddressFamily_result getResult(I iface, enableAddressFamily_args args) throws org.apache.thrift.TException {
+      @Override
+	public enableAddressFamily_result getResult(I iface, enableAddressFamily_args args) throws org.apache.thrift.TException {
         enableAddressFamily_result result = new enableAddressFamily_result();
         result.success = iface.enableAddressFamily(args.peerIp, args.afi, args.safi);
         result.setSuccessIsSet(true);
@@ -1874,15 +1980,18 @@ public class BgpConfigurator {
         super("disableAddressFamily");
       }
 
-      public disableAddressFamily_args getEmptyArgsInstance() {
+      @Override
+	public disableAddressFamily_args getEmptyArgsInstance() {
         return new disableAddressFamily_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public disableAddressFamily_result getResult(I iface, disableAddressFamily_args args) throws org.apache.thrift.TException {
+      @Override
+	public disableAddressFamily_result getResult(I iface, disableAddressFamily_args args) throws org.apache.thrift.TException {
         disableAddressFamily_result result = new disableAddressFamily_result();
         result.success = iface.disableAddressFamily(args.peerIp, args.afi, args.safi);
         result.setSuccessIsSet(true);
@@ -1895,15 +2004,18 @@ public class BgpConfigurator {
         super("setLogConfig");
       }
 
-      public setLogConfig_args getEmptyArgsInstance() {
+      @Override
+	public setLogConfig_args getEmptyArgsInstance() {
         return new setLogConfig_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public setLogConfig_result getResult(I iface, setLogConfig_args args) throws org.apache.thrift.TException {
+      @Override
+	public setLogConfig_result getResult(I iface, setLogConfig_args args) throws org.apache.thrift.TException {
         setLogConfig_result result = new setLogConfig_result();
         result.success = iface.setLogConfig(args.logFileName, args.logLevel);
         result.setSuccessIsSet(true);
@@ -1916,15 +2028,18 @@ public class BgpConfigurator {
         super("enableGracefulRestart");
       }
 
-      public enableGracefulRestart_args getEmptyArgsInstance() {
+      @Override
+	public enableGracefulRestart_args getEmptyArgsInstance() {
         return new enableGracefulRestart_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public enableGracefulRestart_result getResult(I iface, enableGracefulRestart_args args) throws org.apache.thrift.TException {
+      @Override
+	public enableGracefulRestart_result getResult(I iface, enableGracefulRestart_args args) throws org.apache.thrift.TException {
         enableGracefulRestart_result result = new enableGracefulRestart_result();
         result.success = iface.enableGracefulRestart(args.stalepathTime);
         result.setSuccessIsSet(true);
@@ -1937,15 +2052,18 @@ public class BgpConfigurator {
         super("disableGracefulRestart");
       }
 
-      public disableGracefulRestart_args getEmptyArgsInstance() {
+      @Override
+	public disableGracefulRestart_args getEmptyArgsInstance() {
         return new disableGracefulRestart_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public disableGracefulRestart_result getResult(I iface, disableGracefulRestart_args args) throws org.apache.thrift.TException {
+      @Override
+	public disableGracefulRestart_result getResult(I iface, disableGracefulRestart_args args) throws org.apache.thrift.TException {
         disableGracefulRestart_result result = new disableGracefulRestart_result();
         result.success = iface.disableGracefulRestart();
         result.setSuccessIsSet(true);
@@ -1958,15 +2076,18 @@ public class BgpConfigurator {
         super("getRoutes");
       }
 
-      public getRoutes_args getEmptyArgsInstance() {
+      @Override
+	public getRoutes_args getEmptyArgsInstance() {
         return new getRoutes_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public getRoutes_result getResult(I iface, getRoutes_args args) throws org.apache.thrift.TException {
+      @Override
+	public getRoutes_result getResult(I iface, getRoutes_args args) throws org.apache.thrift.TException {
         getRoutes_result result = new getRoutes_result();
         result.success = iface.getRoutes(args.p_type, args.optype, args.winSize, args.afi);
         return result;
@@ -1978,15 +2099,18 @@ public class BgpConfigurator {
         super("enableMultipath");
       }
 
-      public enableMultipath_args getEmptyArgsInstance() {
+      @Override
+	public enableMultipath_args getEmptyArgsInstance() {
         return new enableMultipath_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public enableMultipath_result getResult(I iface, enableMultipath_args args) throws org.apache.thrift.TException {
+      @Override
+	public enableMultipath_result getResult(I iface, enableMultipath_args args) throws org.apache.thrift.TException {
         enableMultipath_result result = new enableMultipath_result();
         result.success = iface.enableMultipath(args.afi, args.safi);
         result.setSuccessIsSet(true);
@@ -1999,15 +2123,18 @@ public class BgpConfigurator {
         super("disableMultipath");
       }
 
-      public disableMultipath_args getEmptyArgsInstance() {
+      @Override
+	public disableMultipath_args getEmptyArgsInstance() {
         return new disableMultipath_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public disableMultipath_result getResult(I iface, disableMultipath_args args) throws org.apache.thrift.TException {
+      @Override
+	public disableMultipath_result getResult(I iface, disableMultipath_args args) throws org.apache.thrift.TException {
         disableMultipath_result result = new disableMultipath_result();
         result.success = iface.disableMultipath(args.afi, args.safi);
         result.setSuccessIsSet(true);
@@ -2020,15 +2147,18 @@ public class BgpConfigurator {
         super("multipaths");
       }
 
-      public multipaths_args getEmptyArgsInstance() {
+      @Override
+	public multipaths_args getEmptyArgsInstance() {
         return new multipaths_args();
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public multipaths_result getResult(I iface, multipaths_args args) throws org.apache.thrift.TException {
+      @Override
+	public multipaths_result getResult(I iface, multipaths_args args) throws org.apache.thrift.TException {
         multipaths_result result = new multipaths_result();
         result.success = iface.multipaths(args.rd, args.maxPath);
         result.setSuccessIsSet(true);
@@ -2079,14 +2209,17 @@ public class BgpConfigurator {
         super("startBgp");
       }
 
-      public startBgp_args getEmptyArgsInstance() {
+      @Override
+	public startBgp_args getEmptyArgsInstance() {
         return new startBgp_args();
       }
 
-      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Integer>() { 
-          public void onComplete(Integer o) {
+        return new AsyncMethodCallback<Integer>() {
+          @Override
+		public void onComplete(Integer o) {
             startBgp_result result = new startBgp_result();
             result.success = o;
             result.setSuccessIsSet(true);
@@ -2098,7 +2231,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             startBgp_result result = new startBgp_result();
@@ -2117,11 +2251,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, startBgp_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      @Override
+	public void start(I iface, startBgp_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.startBgp(args.asNumber, args.routerId, args.port, args.holdTime, args.keepAliveTime, args.stalepathTime, args.announceFlush,resultHandler);
       }
     }
@@ -2131,14 +2267,17 @@ public class BgpConfigurator {
         super("stopBgp");
       }
 
-      public stopBgp_args getEmptyArgsInstance() {
+      @Override
+	public stopBgp_args getEmptyArgsInstance() {
         return new stopBgp_args();
       }
 
-      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Integer>() { 
-          public void onComplete(Integer o) {
+        return new AsyncMethodCallback<Integer>() {
+          @Override
+		public void onComplete(Integer o) {
             stopBgp_result result = new stopBgp_result();
             result.success = o;
             result.setSuccessIsSet(true);
@@ -2150,7 +2289,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             stopBgp_result result = new stopBgp_result();
@@ -2169,11 +2309,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, stopBgp_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      @Override
+	public void start(I iface, stopBgp_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.stopBgp(args.asNumber,resultHandler);
       }
     }
@@ -2183,14 +2325,17 @@ public class BgpConfigurator {
         super("createPeer");
       }
 
-      public createPeer_args getEmptyArgsInstance() {
+      @Override
+	public createPeer_args getEmptyArgsInstance() {
         return new createPeer_args();
       }
 
-      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Integer>() { 
-          public void onComplete(Integer o) {
+        return new AsyncMethodCallback<Integer>() {
+          @Override
+		public void onComplete(Integer o) {
             createPeer_result result = new createPeer_result();
             result.success = o;
             result.setSuccessIsSet(true);
@@ -2202,7 +2347,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             createPeer_result result = new createPeer_result();
@@ -2221,11 +2367,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, createPeer_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      @Override
+	public void start(I iface, createPeer_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.createPeer(args.ipAddress, args.asNumber,resultHandler);
       }
     }
@@ -2235,14 +2383,17 @@ public class BgpConfigurator {
         super("setPeerSecret");
       }
 
-      public setPeerSecret_args getEmptyArgsInstance() {
+      @Override
+	public setPeerSecret_args getEmptyArgsInstance() {
         return new setPeerSecret_args();
       }
 
-      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Integer>() { 
-          public void onComplete(Integer o) {
+        return new AsyncMethodCallback<Integer>() {
+          @Override
+		public void onComplete(Integer o) {
             setPeerSecret_result result = new setPeerSecret_result();
             result.success = o;
             result.setSuccessIsSet(true);
@@ -2254,7 +2405,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             setPeerSecret_result result = new setPeerSecret_result();
@@ -2273,11 +2425,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, setPeerSecret_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      @Override
+	public void start(I iface, setPeerSecret_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.setPeerSecret(args.ipAddress, args.rfc2385_sharedSecret,resultHandler);
       }
     }
@@ -2287,14 +2441,17 @@ public class BgpConfigurator {
         super("deletePeer");
       }
 
-      public deletePeer_args getEmptyArgsInstance() {
+      @Override
+	public deletePeer_args getEmptyArgsInstance() {
         return new deletePeer_args();
       }
 
-      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Integer>() { 
-          public void onComplete(Integer o) {
+        return new AsyncMethodCallback<Integer>() {
+          @Override
+		public void onComplete(Integer o) {
             deletePeer_result result = new deletePeer_result();
             result.success = o;
             result.setSuccessIsSet(true);
@@ -2306,7 +2463,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             deletePeer_result result = new deletePeer_result();
@@ -2325,11 +2483,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, deletePeer_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      @Override
+	public void start(I iface, deletePeer_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.deletePeer(args.ipAddress,resultHandler);
       }
     }
@@ -2339,14 +2499,17 @@ public class BgpConfigurator {
         super("addVrf");
       }
 
-      public addVrf_args getEmptyArgsInstance() {
+      @Override
+	public addVrf_args getEmptyArgsInstance() {
         return new addVrf_args();
       }
 
-      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Integer>() { 
-          public void onComplete(Integer o) {
+        return new AsyncMethodCallback<Integer>() {
+          @Override
+		public void onComplete(Integer o) {
             addVrf_result result = new addVrf_result();
             result.success = o;
             result.setSuccessIsSet(true);
@@ -2358,7 +2521,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             addVrf_result result = new addVrf_result();
@@ -2377,11 +2541,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, addVrf_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      @Override
+	public void start(I iface, addVrf_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.addVrf(args.l_type, args.rd, args.irts, args.erts,resultHandler);
       }
     }
@@ -2391,14 +2557,17 @@ public class BgpConfigurator {
         super("delVrf");
       }
 
-      public delVrf_args getEmptyArgsInstance() {
+      @Override
+	public delVrf_args getEmptyArgsInstance() {
         return new delVrf_args();
       }
 
-      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Integer>() { 
-          public void onComplete(Integer o) {
+        return new AsyncMethodCallback<Integer>() {
+          @Override
+		public void onComplete(Integer o) {
             delVrf_result result = new delVrf_result();
             result.success = o;
             result.setSuccessIsSet(true);
@@ -2410,7 +2579,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             delVrf_result result = new delVrf_result();
@@ -2429,11 +2599,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, delVrf_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      @Override
+	public void start(I iface, delVrf_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.delVrf(args.rd,resultHandler);
       }
     }
@@ -2443,14 +2615,17 @@ public class BgpConfigurator {
         super("pushRoute");
       }
 
-      public pushRoute_args getEmptyArgsInstance() {
+      @Override
+	public pushRoute_args getEmptyArgsInstance() {
         return new pushRoute_args();
       }
 
-      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Integer>() { 
-          public void onComplete(Integer o) {
+        return new AsyncMethodCallback<Integer>() {
+          @Override
+		public void onComplete(Integer o) {
             pushRoute_result result = new pushRoute_result();
             result.success = o;
             result.setSuccessIsSet(true);
@@ -2462,7 +2637,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             pushRoute_result result = new pushRoute_result();
@@ -2481,11 +2657,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, pushRoute_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      @Override
+	public void start(I iface, pushRoute_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.pushRoute(args.p_type, args.prefix, args.nexthop, args.rd, args.ethtag, args.esi, args.macaddress, args.l3label, args.l2label, args.enc_type, args.routermac, args.afi,resultHandler);
       }
     }
@@ -2495,14 +2673,17 @@ public class BgpConfigurator {
         super("withdrawRoute");
       }
 
-      public withdrawRoute_args getEmptyArgsInstance() {
+      @Override
+	public withdrawRoute_args getEmptyArgsInstance() {
         return new withdrawRoute_args();
       }
 
-      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Integer>() { 
-          public void onComplete(Integer o) {
+        return new AsyncMethodCallback<Integer>() {
+          @Override
+		public void onComplete(Integer o) {
             withdrawRoute_result result = new withdrawRoute_result();
             result.success = o;
             result.setSuccessIsSet(true);
@@ -2514,7 +2695,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             withdrawRoute_result result = new withdrawRoute_result();
@@ -2533,11 +2715,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, withdrawRoute_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      @Override
+	public void start(I iface, withdrawRoute_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.withdrawRoute(args.p_type, args.prefix, args.rd, args.ethtag, args.esi, args.macaddress, args.afi,resultHandler);
       }
     }
@@ -2547,14 +2731,17 @@ public class BgpConfigurator {
         super("setEbgpMultihop");
       }
 
-      public setEbgpMultihop_args getEmptyArgsInstance() {
+      @Override
+	public setEbgpMultihop_args getEmptyArgsInstance() {
         return new setEbgpMultihop_args();
       }
 
-      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Integer>() { 
-          public void onComplete(Integer o) {
+        return new AsyncMethodCallback<Integer>() {
+          @Override
+		public void onComplete(Integer o) {
             setEbgpMultihop_result result = new setEbgpMultihop_result();
             result.success = o;
             result.setSuccessIsSet(true);
@@ -2566,7 +2753,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             setEbgpMultihop_result result = new setEbgpMultihop_result();
@@ -2585,11 +2773,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, setEbgpMultihop_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      @Override
+	public void start(I iface, setEbgpMultihop_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.setEbgpMultihop(args.peerIp, args.nHops,resultHandler);
       }
     }
@@ -2599,14 +2789,17 @@ public class BgpConfigurator {
         super("unsetEbgpMultihop");
       }
 
-      public unsetEbgpMultihop_args getEmptyArgsInstance() {
+      @Override
+	public unsetEbgpMultihop_args getEmptyArgsInstance() {
         return new unsetEbgpMultihop_args();
       }
 
-      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Integer>() { 
-          public void onComplete(Integer o) {
+        return new AsyncMethodCallback<Integer>() {
+          @Override
+		public void onComplete(Integer o) {
             unsetEbgpMultihop_result result = new unsetEbgpMultihop_result();
             result.success = o;
             result.setSuccessIsSet(true);
@@ -2618,7 +2811,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             unsetEbgpMultihop_result result = new unsetEbgpMultihop_result();
@@ -2637,11 +2831,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, unsetEbgpMultihop_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      @Override
+	public void start(I iface, unsetEbgpMultihop_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.unsetEbgpMultihop(args.peerIp,resultHandler);
       }
     }
@@ -2651,14 +2847,17 @@ public class BgpConfigurator {
         super("setUpdateSource");
       }
 
-      public setUpdateSource_args getEmptyArgsInstance() {
+      @Override
+	public setUpdateSource_args getEmptyArgsInstance() {
         return new setUpdateSource_args();
       }
 
-      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Integer>() { 
-          public void onComplete(Integer o) {
+        return new AsyncMethodCallback<Integer>() {
+          @Override
+		public void onComplete(Integer o) {
             setUpdateSource_result result = new setUpdateSource_result();
             result.success = o;
             result.setSuccessIsSet(true);
@@ -2670,7 +2869,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             setUpdateSource_result result = new setUpdateSource_result();
@@ -2689,11 +2889,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, setUpdateSource_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      @Override
+	public void start(I iface, setUpdateSource_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.setUpdateSource(args.peerIp, args.srcIp,resultHandler);
       }
     }
@@ -2703,14 +2905,17 @@ public class BgpConfigurator {
         super("unsetUpdateSource");
       }
 
-      public unsetUpdateSource_args getEmptyArgsInstance() {
+      @Override
+	public unsetUpdateSource_args getEmptyArgsInstance() {
         return new unsetUpdateSource_args();
       }
 
-      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Integer>() { 
-          public void onComplete(Integer o) {
+        return new AsyncMethodCallback<Integer>() {
+          @Override
+		public void onComplete(Integer o) {
             unsetUpdateSource_result result = new unsetUpdateSource_result();
             result.success = o;
             result.setSuccessIsSet(true);
@@ -2722,7 +2927,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             unsetUpdateSource_result result = new unsetUpdateSource_result();
@@ -2741,11 +2947,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, unsetUpdateSource_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      @Override
+	public void start(I iface, unsetUpdateSource_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.unsetUpdateSource(args.peerIp,resultHandler);
       }
     }
@@ -2755,14 +2963,17 @@ public class BgpConfigurator {
         super("enableAddressFamily");
       }
 
-      public enableAddressFamily_args getEmptyArgsInstance() {
+      @Override
+	public enableAddressFamily_args getEmptyArgsInstance() {
         return new enableAddressFamily_args();
       }
 
-      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Integer>() { 
-          public void onComplete(Integer o) {
+        return new AsyncMethodCallback<Integer>() {
+          @Override
+		public void onComplete(Integer o) {
             enableAddressFamily_result result = new enableAddressFamily_result();
             result.success = o;
             result.setSuccessIsSet(true);
@@ -2774,7 +2985,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             enableAddressFamily_result result = new enableAddressFamily_result();
@@ -2793,11 +3005,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, enableAddressFamily_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      @Override
+	public void start(I iface, enableAddressFamily_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.enableAddressFamily(args.peerIp, args.afi, args.safi,resultHandler);
       }
     }
@@ -2807,14 +3021,17 @@ public class BgpConfigurator {
         super("disableAddressFamily");
       }
 
-      public disableAddressFamily_args getEmptyArgsInstance() {
+      @Override
+	public disableAddressFamily_args getEmptyArgsInstance() {
         return new disableAddressFamily_args();
       }
 
-      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Integer>() { 
-          public void onComplete(Integer o) {
+        return new AsyncMethodCallback<Integer>() {
+          @Override
+		public void onComplete(Integer o) {
             disableAddressFamily_result result = new disableAddressFamily_result();
             result.success = o;
             result.setSuccessIsSet(true);
@@ -2826,7 +3043,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             disableAddressFamily_result result = new disableAddressFamily_result();
@@ -2845,11 +3063,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, disableAddressFamily_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      @Override
+	public void start(I iface, disableAddressFamily_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.disableAddressFamily(args.peerIp, args.afi, args.safi,resultHandler);
       }
     }
@@ -2859,14 +3079,17 @@ public class BgpConfigurator {
         super("setLogConfig");
       }
 
-      public setLogConfig_args getEmptyArgsInstance() {
+      @Override
+	public setLogConfig_args getEmptyArgsInstance() {
         return new setLogConfig_args();
       }
 
-      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Integer>() { 
-          public void onComplete(Integer o) {
+        return new AsyncMethodCallback<Integer>() {
+          @Override
+		public void onComplete(Integer o) {
             setLogConfig_result result = new setLogConfig_result();
             result.success = o;
             result.setSuccessIsSet(true);
@@ -2878,7 +3101,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             setLogConfig_result result = new setLogConfig_result();
@@ -2897,11 +3121,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, setLogConfig_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      @Override
+	public void start(I iface, setLogConfig_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.setLogConfig(args.logFileName, args.logLevel,resultHandler);
       }
     }
@@ -2911,14 +3137,17 @@ public class BgpConfigurator {
         super("enableGracefulRestart");
       }
 
-      public enableGracefulRestart_args getEmptyArgsInstance() {
+      @Override
+	public enableGracefulRestart_args getEmptyArgsInstance() {
         return new enableGracefulRestart_args();
       }
 
-      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Integer>() { 
-          public void onComplete(Integer o) {
+        return new AsyncMethodCallback<Integer>() {
+          @Override
+		public void onComplete(Integer o) {
             enableGracefulRestart_result result = new enableGracefulRestart_result();
             result.success = o;
             result.setSuccessIsSet(true);
@@ -2930,7 +3159,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             enableGracefulRestart_result result = new enableGracefulRestart_result();
@@ -2949,11 +3179,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, enableGracefulRestart_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      @Override
+	public void start(I iface, enableGracefulRestart_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.enableGracefulRestart(args.stalepathTime,resultHandler);
       }
     }
@@ -2963,14 +3195,17 @@ public class BgpConfigurator {
         super("disableGracefulRestart");
       }
 
-      public disableGracefulRestart_args getEmptyArgsInstance() {
+      @Override
+	public disableGracefulRestart_args getEmptyArgsInstance() {
         return new disableGracefulRestart_args();
       }
 
-      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Integer>() { 
-          public void onComplete(Integer o) {
+        return new AsyncMethodCallback<Integer>() {
+          @Override
+		public void onComplete(Integer o) {
             disableGracefulRestart_result result = new disableGracefulRestart_result();
             result.success = o;
             result.setSuccessIsSet(true);
@@ -2982,7 +3217,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             disableGracefulRestart_result result = new disableGracefulRestart_result();
@@ -3001,11 +3237,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, disableGracefulRestart_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      @Override
+	public void start(I iface, disableGracefulRestart_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.disableGracefulRestart(resultHandler);
       }
     }
@@ -3015,14 +3253,17 @@ public class BgpConfigurator {
         super("getRoutes");
       }
 
-      public getRoutes_args getEmptyArgsInstance() {
+      @Override
+	public getRoutes_args getEmptyArgsInstance() {
         return new getRoutes_args();
       }
 
-      public AsyncMethodCallback<Routes> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Routes> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Routes>() { 
-          public void onComplete(Routes o) {
+        return new AsyncMethodCallback<Routes>() {
+          @Override
+		public void onComplete(Routes o) {
             getRoutes_result result = new getRoutes_result();
             result.success = o;
             try {
@@ -3033,7 +3274,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             getRoutes_result result = new getRoutes_result();
@@ -3052,11 +3294,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, getRoutes_args args, org.apache.thrift.async.AsyncMethodCallback<Routes> resultHandler) throws TException {
+      @Override
+	public void start(I iface, getRoutes_args args, org.apache.thrift.async.AsyncMethodCallback<Routes> resultHandler) throws TException {
         iface.getRoutes(args.p_type, args.optype, args.winSize, args.afi,resultHandler);
       }
     }
@@ -3066,14 +3310,17 @@ public class BgpConfigurator {
         super("enableMultipath");
       }
 
-      public enableMultipath_args getEmptyArgsInstance() {
+      @Override
+	public enableMultipath_args getEmptyArgsInstance() {
         return new enableMultipath_args();
       }
 
-      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Integer>() { 
-          public void onComplete(Integer o) {
+        return new AsyncMethodCallback<Integer>() {
+          @Override
+		public void onComplete(Integer o) {
             enableMultipath_result result = new enableMultipath_result();
             result.success = o;
             result.setSuccessIsSet(true);
@@ -3085,7 +3332,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             enableMultipath_result result = new enableMultipath_result();
@@ -3104,11 +3352,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, enableMultipath_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      @Override
+	public void start(I iface, enableMultipath_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.enableMultipath(args.afi, args.safi,resultHandler);
       }
     }
@@ -3118,14 +3368,17 @@ public class BgpConfigurator {
         super("disableMultipath");
       }
 
-      public disableMultipath_args getEmptyArgsInstance() {
+      @Override
+	public disableMultipath_args getEmptyArgsInstance() {
         return new disableMultipath_args();
       }
 
-      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Integer>() { 
-          public void onComplete(Integer o) {
+        return new AsyncMethodCallback<Integer>() {
+          @Override
+		public void onComplete(Integer o) {
             disableMultipath_result result = new disableMultipath_result();
             result.success = o;
             result.setSuccessIsSet(true);
@@ -3137,7 +3390,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             disableMultipath_result result = new disableMultipath_result();
@@ -3156,11 +3410,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, disableMultipath_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      @Override
+	public void start(I iface, disableMultipath_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.disableMultipath(args.afi, args.safi,resultHandler);
       }
     }
@@ -3170,14 +3426,17 @@ public class BgpConfigurator {
         super("multipaths");
       }
 
-      public multipaths_args getEmptyArgsInstance() {
+      @Override
+	public multipaths_args getEmptyArgsInstance() {
         return new multipaths_args();
       }
 
-      public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      @Override
+	public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Integer>() { 
-          public void onComplete(Integer o) {
+        return new AsyncMethodCallback<Integer>() {
+          @Override
+		public void onComplete(Integer o) {
             multipaths_result result = new multipaths_result();
             result.success = o;
             result.setSuccessIsSet(true);
@@ -3189,7 +3448,8 @@ public class BgpConfigurator {
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+		public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             multipaths_result result = new multipaths_result();
@@ -3208,11 +3468,13 @@ public class BgpConfigurator {
         };
       }
 
-      protected boolean isOneway() {
+      @Override
+	protected boolean isOneway() {
         return false;
       }
 
-      public void start(I iface, multipaths_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      @Override
+	public void start(I iface, multipaths_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
         iface.multipaths(args.rd, args.maxPath,resultHandler);
       }
     }
@@ -3230,7 +3492,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField STALEPATH_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("stalepathTime", org.apache.thrift.protocol.TType.I32, (short)6);
     private static final org.apache.thrift.protocol.TField ANNOUNCE_FLUSH_FIELD_DESC = new org.apache.thrift.protocol.TField("announceFlush", org.apache.thrift.protocol.TType.BOOL, (short)7);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new startBgp_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new startBgp_argsTupleSchemeFactory());
@@ -3254,7 +3516,7 @@ public class BgpConfigurator {
       STALEPATH_TIME((short)6, "stalepathTime"),
       ANNOUNCE_FLUSH((short)7, "announceFlush");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -3292,7 +3554,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -3311,11 +3575,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -3330,20 +3596,20 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.AS_NUMBER, new org.apache.thrift.meta_data.FieldMetaData("asNumber", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.AS_NUMBER, new org.apache.thrift.meta_data.FieldMetaData("asNumber", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-      tmpMap.put(_Fields.ROUTER_ID, new org.apache.thrift.meta_data.FieldMetaData("routerId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.ROUTER_ID, new org.apache.thrift.meta_data.FieldMetaData("routerId", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.PORT, new org.apache.thrift.meta_data.FieldMetaData("port", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.PORT, new org.apache.thrift.meta_data.FieldMetaData("port", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-      tmpMap.put(_Fields.HOLD_TIME, new org.apache.thrift.meta_data.FieldMetaData("holdTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.HOLD_TIME, new org.apache.thrift.meta_data.FieldMetaData("holdTime", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-      tmpMap.put(_Fields.KEEP_ALIVE_TIME, new org.apache.thrift.meta_data.FieldMetaData("keepAliveTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.KEEP_ALIVE_TIME, new org.apache.thrift.meta_data.FieldMetaData("keepAliveTime", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-      tmpMap.put(_Fields.STALEPATH_TIME, new org.apache.thrift.meta_data.FieldMetaData("stalepathTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.STALEPATH_TIME, new org.apache.thrift.meta_data.FieldMetaData("stalepathTime", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-      tmpMap.put(_Fields.ANNOUNCE_FLUSH, new org.apache.thrift.meta_data.FieldMetaData("announceFlush", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.ANNOUNCE_FLUSH, new org.apache.thrift.meta_data.FieldMetaData("announceFlush", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(startBgp_args.class, metaDataMap);
@@ -3393,7 +3659,8 @@ public class BgpConfigurator {
       this.announceFlush = other.announceFlush;
     }
 
-    public startBgp_args deepCopy() {
+    @Override
+	public startBgp_args deepCopy() {
       return new startBgp_args(this);
     }
 
@@ -3576,7 +3843,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ANNOUNCEFLUSH_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case AS_NUMBER:
         if (value == null) {
@@ -3637,7 +3905,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case AS_NUMBER:
         return Long.valueOf(getAsNumber());
@@ -3665,7 +3934,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -3691,78 +3961,95 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof startBgp_args)
-        return this.equals((startBgp_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof startBgp_args) {
+		return this.equals((startBgp_args)that);
+	}
       return false;
     }
 
     public boolean equals(startBgp_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_asNumber = true;
       boolean that_present_asNumber = true;
       if (this_present_asNumber || that_present_asNumber) {
-        if (!(this_present_asNumber && that_present_asNumber))
-          return false;
-        if (this.asNumber != that.asNumber)
-          return false;
+        if (!(this_present_asNumber && that_present_asNumber)) {
+			return false;
+		}
+        if (this.asNumber != that.asNumber) {
+			return false;
+		}
       }
 
       boolean this_present_routerId = true && this.isSetRouterId();
       boolean that_present_routerId = true && that.isSetRouterId();
       if (this_present_routerId || that_present_routerId) {
-        if (!(this_present_routerId && that_present_routerId))
-          return false;
-        if (!this.routerId.equals(that.routerId))
-          return false;
+        if (!(this_present_routerId && that_present_routerId)) {
+			return false;
+		}
+        if (!this.routerId.equals(that.routerId)) {
+			return false;
+		}
       }
 
       boolean this_present_port = true;
       boolean that_present_port = true;
       if (this_present_port || that_present_port) {
-        if (!(this_present_port && that_present_port))
-          return false;
-        if (this.port != that.port)
-          return false;
+        if (!(this_present_port && that_present_port)) {
+			return false;
+		}
+        if (this.port != that.port) {
+			return false;
+		}
       }
 
       boolean this_present_holdTime = true;
       boolean that_present_holdTime = true;
       if (this_present_holdTime || that_present_holdTime) {
-        if (!(this_present_holdTime && that_present_holdTime))
-          return false;
-        if (this.holdTime != that.holdTime)
-          return false;
+        if (!(this_present_holdTime && that_present_holdTime)) {
+			return false;
+		}
+        if (this.holdTime != that.holdTime) {
+			return false;
+		}
       }
 
       boolean this_present_keepAliveTime = true;
       boolean that_present_keepAliveTime = true;
       if (this_present_keepAliveTime || that_present_keepAliveTime) {
-        if (!(this_present_keepAliveTime && that_present_keepAliveTime))
-          return false;
-        if (this.keepAliveTime != that.keepAliveTime)
-          return false;
+        if (!(this_present_keepAliveTime && that_present_keepAliveTime)) {
+			return false;
+		}
+        if (this.keepAliveTime != that.keepAliveTime) {
+			return false;
+		}
       }
 
       boolean this_present_stalepathTime = true;
       boolean that_present_stalepathTime = true;
       if (this_present_stalepathTime || that_present_stalepathTime) {
-        if (!(this_present_stalepathTime && that_present_stalepathTime))
-          return false;
-        if (this.stalepathTime != that.stalepathTime)
-          return false;
+        if (!(this_present_stalepathTime && that_present_stalepathTime)) {
+			return false;
+		}
+        if (this.stalepathTime != that.stalepathTime) {
+			return false;
+		}
       }
 
       boolean this_present_announceFlush = true;
       boolean that_present_announceFlush = true;
       if (this_present_announceFlush || that_present_announceFlush) {
-        if (!(this_present_announceFlush && that_present_announceFlush))
-          return false;
-        if (this.announceFlush != that.announceFlush)
-          return false;
+        if (!(this_present_announceFlush && that_present_announceFlush)) {
+			return false;
+		}
+        if (this.announceFlush != that.announceFlush) {
+			return false;
+		}
       }
 
       return true;
@@ -3854,15 +4141,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -3874,7 +4164,9 @@ public class BgpConfigurator {
       sb.append("asNumber:");
       sb.append(this.asNumber);
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("routerId:");
       if (this.routerId == null) {
         sb.append("null");
@@ -3882,23 +4174,33 @@ public class BgpConfigurator {
         sb.append(this.routerId);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("port:");
       sb.append(this.port);
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("holdTime:");
       sb.append(this.holdTime);
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("keepAliveTime:");
       sb.append(this.keepAliveTime);
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("stalepathTime:");
       sb.append(this.stalepathTime);
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("announceFlush:");
       sb.append(this.announceFlush);
       first = false;
@@ -3930,20 +4232,22 @@ public class BgpConfigurator {
     }
 
     private static class startBgp_argsStandardSchemeFactory implements SchemeFactory {
-      public startBgp_argsStandardScheme getScheme() {
+      @Override
+	public startBgp_argsStandardScheme getScheme() {
         return new startBgp_argsStandardScheme();
       }
     }
 
     private static class startBgp_argsStandardScheme extends StandardScheme<startBgp_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, startBgp_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, startBgp_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -3951,7 +4255,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
                 struct.asNumber = iprot.readI64();
                 struct.setAsNumberIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -3959,7 +4263,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.routerId = iprot.readString();
                 struct.setRouterIdIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -3967,7 +4271,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.port = iprot.readI32();
                 struct.setPortIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -3975,7 +4279,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.holdTime = iprot.readI32();
                 struct.setHoldTimeIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -3983,7 +4287,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.keepAliveTime = iprot.readI32();
                 struct.setKeepAliveTimeIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -3991,7 +4295,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.stalepathTime = iprot.readI32();
                 struct.setStalepathTimeIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -3999,7 +4303,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
                 struct.announceFlush = iprot.readBool();
                 struct.setAnnounceFlushIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -4014,7 +4318,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, startBgp_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, startBgp_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -4048,7 +4353,8 @@ public class BgpConfigurator {
     }
 
     private static class startBgp_argsTupleSchemeFactory implements SchemeFactory {
-      public startBgp_argsTupleScheme getScheme() {
+      @Override
+	public startBgp_argsTupleScheme getScheme() {
         return new startBgp_argsTupleScheme();
       }
     }
@@ -4146,7 +4452,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new startBgp_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new startBgp_resultTupleSchemeFactory());
@@ -4158,7 +4464,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -4184,7 +4490,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -4203,11 +4511,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -4217,8 +4527,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(startBgp_result.class, metaDataMap);
@@ -4243,7 +4553,8 @@ public class BgpConfigurator {
       this.success = other.success;
     }
 
-    public startBgp_result deepCopy() {
+    @Override
+	public startBgp_result deepCopy() {
       return new startBgp_result(this);
     }
 
@@ -4276,7 +4587,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -4289,7 +4601,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return Integer.valueOf(getSuccess());
@@ -4299,7 +4612,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -4313,24 +4627,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof startBgp_result)
-        return this.equals((startBgp_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof startBgp_result) {
+		return this.equals((startBgp_result)that);
+	}
       return false;
     }
 
     public boolean equals(startBgp_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true;
       boolean that_present_success = true;
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (this.success != that.success)
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (this.success != that.success) {
+			return false;
+		}
       }
 
       return true;
@@ -4362,15 +4681,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -4410,20 +4732,22 @@ public class BgpConfigurator {
     }
 
     private static class startBgp_resultStandardSchemeFactory implements SchemeFactory {
-      public startBgp_resultStandardScheme getScheme() {
+      @Override
+	public startBgp_resultStandardScheme getScheme() {
         return new startBgp_resultStandardScheme();
       }
     }
 
     private static class startBgp_resultStandardScheme extends StandardScheme<startBgp_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, startBgp_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, startBgp_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -4431,7 +4755,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.success = iprot.readI32();
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -4446,7 +4770,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, startBgp_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, startBgp_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -4462,7 +4787,8 @@ public class BgpConfigurator {
     }
 
     private static class startBgp_resultTupleSchemeFactory implements SchemeFactory {
-      public startBgp_resultTupleScheme getScheme() {
+      @Override
+	public startBgp_resultTupleScheme getScheme() {
         return new startBgp_resultTupleScheme();
       }
     }
@@ -4500,7 +4826,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField AS_NUMBER_FIELD_DESC = new org.apache.thrift.protocol.TField("asNumber", org.apache.thrift.protocol.TType.I64, (short)1);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new stopBgp_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new stopBgp_argsTupleSchemeFactory());
@@ -4512,7 +4838,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       AS_NUMBER((short)1, "asNumber");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -4538,7 +4864,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -4557,11 +4885,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -4571,8 +4901,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.AS_NUMBER, new org.apache.thrift.meta_data.FieldMetaData("asNumber", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.AS_NUMBER, new org.apache.thrift.meta_data.FieldMetaData("asNumber", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(stopBgp_args.class, metaDataMap);
@@ -4597,7 +4927,8 @@ public class BgpConfigurator {
       this.asNumber = other.asNumber;
     }
 
-    public stopBgp_args deepCopy() {
+    @Override
+	public stopBgp_args deepCopy() {
       return new stopBgp_args(this);
     }
 
@@ -4630,7 +4961,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ASNUMBER_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case AS_NUMBER:
         if (value == null) {
@@ -4643,7 +4975,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case AS_NUMBER:
         return Long.valueOf(getAsNumber());
@@ -4653,7 +4986,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -4667,24 +5001,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof stopBgp_args)
-        return this.equals((stopBgp_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof stopBgp_args) {
+		return this.equals((stopBgp_args)that);
+	}
       return false;
     }
 
     public boolean equals(stopBgp_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_asNumber = true;
       boolean that_present_asNumber = true;
       if (this_present_asNumber || that_present_asNumber) {
-        if (!(this_present_asNumber && that_present_asNumber))
-          return false;
-        if (this.asNumber != that.asNumber)
-          return false;
+        if (!(this_present_asNumber && that_present_asNumber)) {
+			return false;
+		}
+        if (this.asNumber != that.asNumber) {
+			return false;
+		}
       }
 
       return true;
@@ -4716,15 +5055,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -4764,20 +5106,22 @@ public class BgpConfigurator {
     }
 
     private static class stopBgp_argsStandardSchemeFactory implements SchemeFactory {
-      public stopBgp_argsStandardScheme getScheme() {
+      @Override
+	public stopBgp_argsStandardScheme getScheme() {
         return new stopBgp_argsStandardScheme();
       }
     }
 
     private static class stopBgp_argsStandardScheme extends StandardScheme<stopBgp_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, stopBgp_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, stopBgp_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -4785,7 +5129,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
                 struct.asNumber = iprot.readI64();
                 struct.setAsNumberIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -4800,7 +5144,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, stopBgp_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, stopBgp_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -4814,7 +5159,8 @@ public class BgpConfigurator {
     }
 
     private static class stopBgp_argsTupleSchemeFactory implements SchemeFactory {
-      public stopBgp_argsTupleScheme getScheme() {
+      @Override
+	public stopBgp_argsTupleScheme getScheme() {
         return new stopBgp_argsTupleScheme();
       }
     }
@@ -4852,7 +5198,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new stopBgp_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new stopBgp_resultTupleSchemeFactory());
@@ -4864,7 +5210,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -4890,7 +5236,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -4909,11 +5257,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -4923,8 +5273,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(stopBgp_result.class, metaDataMap);
@@ -4949,7 +5299,8 @@ public class BgpConfigurator {
       this.success = other.success;
     }
 
-    public stopBgp_result deepCopy() {
+    @Override
+	public stopBgp_result deepCopy() {
       return new stopBgp_result(this);
     }
 
@@ -4982,7 +5333,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -4995,7 +5347,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return Integer.valueOf(getSuccess());
@@ -5005,7 +5358,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -5019,24 +5373,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof stopBgp_result)
-        return this.equals((stopBgp_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof stopBgp_result) {
+		return this.equals((stopBgp_result)that);
+	}
       return false;
     }
 
     public boolean equals(stopBgp_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true;
       boolean that_present_success = true;
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (this.success != that.success)
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (this.success != that.success) {
+			return false;
+		}
       }
 
       return true;
@@ -5068,15 +5427,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -5116,20 +5478,22 @@ public class BgpConfigurator {
     }
 
     private static class stopBgp_resultStandardSchemeFactory implements SchemeFactory {
-      public stopBgp_resultStandardScheme getScheme() {
+      @Override
+	public stopBgp_resultStandardScheme getScheme() {
         return new stopBgp_resultStandardScheme();
       }
     }
 
     private static class stopBgp_resultStandardScheme extends StandardScheme<stopBgp_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, stopBgp_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, stopBgp_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -5137,7 +5501,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.success = iprot.readI32();
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -5152,7 +5516,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, stopBgp_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, stopBgp_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -5168,7 +5533,8 @@ public class BgpConfigurator {
     }
 
     private static class stopBgp_resultTupleSchemeFactory implements SchemeFactory {
-      public stopBgp_resultTupleScheme getScheme() {
+      @Override
+	public stopBgp_resultTupleScheme getScheme() {
         return new stopBgp_resultTupleScheme();
       }
     }
@@ -5207,7 +5573,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField IP_ADDRESS_FIELD_DESC = new org.apache.thrift.protocol.TField("ipAddress", org.apache.thrift.protocol.TType.STRING, (short)1);
     private static final org.apache.thrift.protocol.TField AS_NUMBER_FIELD_DESC = new org.apache.thrift.protocol.TField("asNumber", org.apache.thrift.protocol.TType.I64, (short)2);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new createPeer_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new createPeer_argsTupleSchemeFactory());
@@ -5221,7 +5587,7 @@ public class BgpConfigurator {
       IP_ADDRESS((short)1, "ipAddress"),
       AS_NUMBER((short)2, "asNumber");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -5249,7 +5615,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -5268,11 +5636,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -5282,10 +5652,10 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.IP_ADDRESS, new org.apache.thrift.meta_data.FieldMetaData("ipAddress", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.IP_ADDRESS, new org.apache.thrift.meta_data.FieldMetaData("ipAddress", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.AS_NUMBER, new org.apache.thrift.meta_data.FieldMetaData("asNumber", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.AS_NUMBER, new org.apache.thrift.meta_data.FieldMetaData("asNumber", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(createPeer_args.class, metaDataMap);
@@ -5315,7 +5685,8 @@ public class BgpConfigurator {
       this.asNumber = other.asNumber;
     }
 
-    public createPeer_args deepCopy() {
+    @Override
+	public createPeer_args deepCopy() {
       return new createPeer_args(this);
     }
 
@@ -5373,7 +5744,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ASNUMBER_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case IP_ADDRESS:
         if (value == null) {
@@ -5394,7 +5766,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case IP_ADDRESS:
         return getIpAddress();
@@ -5407,7 +5780,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -5423,33 +5797,40 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof createPeer_args)
-        return this.equals((createPeer_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof createPeer_args) {
+		return this.equals((createPeer_args)that);
+	}
       return false;
     }
 
     public boolean equals(createPeer_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_ipAddress = true && this.isSetIpAddress();
       boolean that_present_ipAddress = true && that.isSetIpAddress();
       if (this_present_ipAddress || that_present_ipAddress) {
-        if (!(this_present_ipAddress && that_present_ipAddress))
-          return false;
-        if (!this.ipAddress.equals(that.ipAddress))
-          return false;
+        if (!(this_present_ipAddress && that_present_ipAddress)) {
+			return false;
+		}
+        if (!this.ipAddress.equals(that.ipAddress)) {
+			return false;
+		}
       }
 
       boolean this_present_asNumber = true;
       boolean that_present_asNumber = true;
       if (this_present_asNumber || that_present_asNumber) {
-        if (!(this_present_asNumber && that_present_asNumber))
-          return false;
-        if (this.asNumber != that.asNumber)
-          return false;
+        if (!(this_present_asNumber && that_present_asNumber)) {
+			return false;
+		}
+        if (this.asNumber != that.asNumber) {
+			return false;
+		}
       }
 
       return true;
@@ -5491,15 +5872,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -5515,7 +5899,9 @@ public class BgpConfigurator {
         sb.append(this.ipAddress);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("asNumber:");
       sb.append(this.asNumber);
       first = false;
@@ -5547,20 +5933,22 @@ public class BgpConfigurator {
     }
 
     private static class createPeer_argsStandardSchemeFactory implements SchemeFactory {
-      public createPeer_argsStandardScheme getScheme() {
+      @Override
+	public createPeer_argsStandardScheme getScheme() {
         return new createPeer_argsStandardScheme();
       }
     }
 
     private static class createPeer_argsStandardScheme extends StandardScheme<createPeer_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, createPeer_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, createPeer_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -5568,7 +5956,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.ipAddress = iprot.readString();
                 struct.setIpAddressIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -5576,7 +5964,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
                 struct.asNumber = iprot.readI64();
                 struct.setAsNumberIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -5591,7 +5979,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, createPeer_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, createPeer_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -5610,7 +5999,8 @@ public class BgpConfigurator {
     }
 
     private static class createPeer_argsTupleSchemeFactory implements SchemeFactory {
-      public createPeer_argsTupleScheme getScheme() {
+      @Override
+	public createPeer_argsTupleScheme getScheme() {
         return new createPeer_argsTupleScheme();
       }
     }
@@ -5658,7 +6048,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new createPeer_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new createPeer_resultTupleSchemeFactory());
@@ -5670,7 +6060,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -5696,7 +6086,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -5715,11 +6107,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -5729,8 +6123,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(createPeer_result.class, metaDataMap);
@@ -5755,7 +6149,8 @@ public class BgpConfigurator {
       this.success = other.success;
     }
 
-    public createPeer_result deepCopy() {
+    @Override
+	public createPeer_result deepCopy() {
       return new createPeer_result(this);
     }
 
@@ -5788,7 +6183,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -5801,7 +6197,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return Integer.valueOf(getSuccess());
@@ -5811,7 +6208,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -5825,24 +6223,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof createPeer_result)
-        return this.equals((createPeer_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof createPeer_result) {
+		return this.equals((createPeer_result)that);
+	}
       return false;
     }
 
     public boolean equals(createPeer_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true;
       boolean that_present_success = true;
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (this.success != that.success)
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (this.success != that.success) {
+			return false;
+		}
       }
 
       return true;
@@ -5874,15 +6277,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -5922,20 +6328,22 @@ public class BgpConfigurator {
     }
 
     private static class createPeer_resultStandardSchemeFactory implements SchemeFactory {
-      public createPeer_resultStandardScheme getScheme() {
+      @Override
+	public createPeer_resultStandardScheme getScheme() {
         return new createPeer_resultStandardScheme();
       }
     }
 
     private static class createPeer_resultStandardScheme extends StandardScheme<createPeer_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, createPeer_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, createPeer_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -5943,7 +6351,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.success = iprot.readI32();
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -5958,7 +6366,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, createPeer_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, createPeer_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -5974,7 +6383,8 @@ public class BgpConfigurator {
     }
 
     private static class createPeer_resultTupleSchemeFactory implements SchemeFactory {
-      public createPeer_resultTupleScheme getScheme() {
+      @Override
+	public createPeer_resultTupleScheme getScheme() {
         return new createPeer_resultTupleScheme();
       }
     }
@@ -6013,7 +6423,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField IP_ADDRESS_FIELD_DESC = new org.apache.thrift.protocol.TField("ipAddress", org.apache.thrift.protocol.TType.STRING, (short)1);
     private static final org.apache.thrift.protocol.TField RFC2385_SHARED_SECRET_FIELD_DESC = new org.apache.thrift.protocol.TField("rfc2385_sharedSecret", org.apache.thrift.protocol.TType.STRING, (short)2);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new setPeerSecret_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new setPeerSecret_argsTupleSchemeFactory());
@@ -6027,7 +6437,7 @@ public class BgpConfigurator {
       IP_ADDRESS((short)1, "ipAddress"),
       RFC2385_SHARED_SECRET((short)2, "rfc2385_sharedSecret");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -6055,7 +6465,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -6074,11 +6486,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -6086,10 +6500,10 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.IP_ADDRESS, new org.apache.thrift.meta_data.FieldMetaData("ipAddress", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.IP_ADDRESS, new org.apache.thrift.meta_data.FieldMetaData("ipAddress", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.RFC2385_SHARED_SECRET, new org.apache.thrift.meta_data.FieldMetaData("rfc2385_sharedSecret", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.RFC2385_SHARED_SECRET, new org.apache.thrift.meta_data.FieldMetaData("rfc2385_sharedSecret", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(setPeerSecret_args.class, metaDataMap);
@@ -6119,7 +6533,8 @@ public class BgpConfigurator {
       }
     }
 
-    public setPeerSecret_args deepCopy() {
+    @Override
+	public setPeerSecret_args deepCopy() {
       return new setPeerSecret_args(this);
     }
 
@@ -6177,7 +6592,8 @@ public class BgpConfigurator {
       }
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case IP_ADDRESS:
         if (value == null) {
@@ -6198,7 +6614,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case IP_ADDRESS:
         return getIpAddress();
@@ -6211,7 +6628,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -6227,33 +6645,40 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof setPeerSecret_args)
-        return this.equals((setPeerSecret_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof setPeerSecret_args) {
+		return this.equals((setPeerSecret_args)that);
+	}
       return false;
     }
 
     public boolean equals(setPeerSecret_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_ipAddress = true && this.isSetIpAddress();
       boolean that_present_ipAddress = true && that.isSetIpAddress();
       if (this_present_ipAddress || that_present_ipAddress) {
-        if (!(this_present_ipAddress && that_present_ipAddress))
-          return false;
-        if (!this.ipAddress.equals(that.ipAddress))
-          return false;
+        if (!(this_present_ipAddress && that_present_ipAddress)) {
+			return false;
+		}
+        if (!this.ipAddress.equals(that.ipAddress)) {
+			return false;
+		}
       }
 
       boolean this_present_rfc2385_sharedSecret = true && this.isSetRfc2385_sharedSecret();
       boolean that_present_rfc2385_sharedSecret = true && that.isSetRfc2385_sharedSecret();
       if (this_present_rfc2385_sharedSecret || that_present_rfc2385_sharedSecret) {
-        if (!(this_present_rfc2385_sharedSecret && that_present_rfc2385_sharedSecret))
-          return false;
-        if (!this.rfc2385_sharedSecret.equals(that.rfc2385_sharedSecret))
-          return false;
+        if (!(this_present_rfc2385_sharedSecret && that_present_rfc2385_sharedSecret)) {
+			return false;
+		}
+        if (!this.rfc2385_sharedSecret.equals(that.rfc2385_sharedSecret)) {
+			return false;
+		}
       }
 
       return true;
@@ -6295,15 +6720,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -6319,7 +6747,9 @@ public class BgpConfigurator {
         sb.append(this.ipAddress);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("rfc2385_sharedSecret:");
       if (this.rfc2385_sharedSecret == null) {
         sb.append("null");
@@ -6353,20 +6783,22 @@ public class BgpConfigurator {
     }
 
     private static class setPeerSecret_argsStandardSchemeFactory implements SchemeFactory {
-      public setPeerSecret_argsStandardScheme getScheme() {
+      @Override
+	public setPeerSecret_argsStandardScheme getScheme() {
         return new setPeerSecret_argsStandardScheme();
       }
     }
 
     private static class setPeerSecret_argsStandardScheme extends StandardScheme<setPeerSecret_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, setPeerSecret_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, setPeerSecret_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -6374,7 +6806,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.ipAddress = iprot.readString();
                 struct.setIpAddressIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -6382,7 +6814,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.rfc2385_sharedSecret = iprot.readString();
                 struct.setRfc2385_sharedSecretIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -6397,7 +6829,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, setPeerSecret_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, setPeerSecret_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -6418,7 +6851,8 @@ public class BgpConfigurator {
     }
 
     private static class setPeerSecret_argsTupleSchemeFactory implements SchemeFactory {
-      public setPeerSecret_argsTupleScheme getScheme() {
+      @Override
+	public setPeerSecret_argsTupleScheme getScheme() {
         return new setPeerSecret_argsTupleScheme();
       }
     }
@@ -6466,7 +6900,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new setPeerSecret_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new setPeerSecret_resultTupleSchemeFactory());
@@ -6478,7 +6912,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -6504,7 +6938,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -6523,11 +6959,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -6537,8 +6975,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(setPeerSecret_result.class, metaDataMap);
@@ -6563,7 +7001,8 @@ public class BgpConfigurator {
       this.success = other.success;
     }
 
-    public setPeerSecret_result deepCopy() {
+    @Override
+	public setPeerSecret_result deepCopy() {
       return new setPeerSecret_result(this);
     }
 
@@ -6596,7 +7035,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -6609,7 +7049,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return Integer.valueOf(getSuccess());
@@ -6619,7 +7060,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -6633,24 +7075,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof setPeerSecret_result)
-        return this.equals((setPeerSecret_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof setPeerSecret_result) {
+		return this.equals((setPeerSecret_result)that);
+	}
       return false;
     }
 
     public boolean equals(setPeerSecret_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true;
       boolean that_present_success = true;
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (this.success != that.success)
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (this.success != that.success) {
+			return false;
+		}
       }
 
       return true;
@@ -6682,15 +7129,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -6730,20 +7180,22 @@ public class BgpConfigurator {
     }
 
     private static class setPeerSecret_resultStandardSchemeFactory implements SchemeFactory {
-      public setPeerSecret_resultStandardScheme getScheme() {
+      @Override
+	public setPeerSecret_resultStandardScheme getScheme() {
         return new setPeerSecret_resultStandardScheme();
       }
     }
 
     private static class setPeerSecret_resultStandardScheme extends StandardScheme<setPeerSecret_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, setPeerSecret_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, setPeerSecret_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -6751,7 +7203,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.success = iprot.readI32();
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -6766,7 +7218,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, setPeerSecret_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, setPeerSecret_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -6782,7 +7235,8 @@ public class BgpConfigurator {
     }
 
     private static class setPeerSecret_resultTupleSchemeFactory implements SchemeFactory {
-      public setPeerSecret_resultTupleScheme getScheme() {
+      @Override
+	public setPeerSecret_resultTupleScheme getScheme() {
         return new setPeerSecret_resultTupleScheme();
       }
     }
@@ -6820,7 +7274,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField IP_ADDRESS_FIELD_DESC = new org.apache.thrift.protocol.TField("ipAddress", org.apache.thrift.protocol.TType.STRING, (short)1);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new deletePeer_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new deletePeer_argsTupleSchemeFactory());
@@ -6832,7 +7286,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       IP_ADDRESS((short)1, "ipAddress");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -6858,7 +7312,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -6877,11 +7333,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -6889,8 +7347,8 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.IP_ADDRESS, new org.apache.thrift.meta_data.FieldMetaData("ipAddress", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.IP_ADDRESS, new org.apache.thrift.meta_data.FieldMetaData("ipAddress", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(deletePeer_args.class, metaDataMap);
@@ -6915,7 +7373,8 @@ public class BgpConfigurator {
       }
     }
 
-    public deletePeer_args deepCopy() {
+    @Override
+	public deletePeer_args deepCopy() {
       return new deletePeer_args(this);
     }
 
@@ -6948,7 +7407,8 @@ public class BgpConfigurator {
       }
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case IP_ADDRESS:
         if (value == null) {
@@ -6961,7 +7421,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case IP_ADDRESS:
         return getIpAddress();
@@ -6971,7 +7432,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -6985,24 +7447,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof deletePeer_args)
-        return this.equals((deletePeer_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof deletePeer_args) {
+		return this.equals((deletePeer_args)that);
+	}
       return false;
     }
 
     public boolean equals(deletePeer_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_ipAddress = true && this.isSetIpAddress();
       boolean that_present_ipAddress = true && that.isSetIpAddress();
       if (this_present_ipAddress || that_present_ipAddress) {
-        if (!(this_present_ipAddress && that_present_ipAddress))
-          return false;
-        if (!this.ipAddress.equals(that.ipAddress))
-          return false;
+        if (!(this_present_ipAddress && that_present_ipAddress)) {
+			return false;
+		}
+        if (!this.ipAddress.equals(that.ipAddress)) {
+			return false;
+		}
       }
 
       return true;
@@ -7034,15 +7501,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -7084,20 +7554,22 @@ public class BgpConfigurator {
     }
 
     private static class deletePeer_argsStandardSchemeFactory implements SchemeFactory {
-      public deletePeer_argsStandardScheme getScheme() {
+      @Override
+	public deletePeer_argsStandardScheme getScheme() {
         return new deletePeer_argsStandardScheme();
       }
     }
 
     private static class deletePeer_argsStandardScheme extends StandardScheme<deletePeer_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, deletePeer_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, deletePeer_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -7105,7 +7577,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.ipAddress = iprot.readString();
                 struct.setIpAddressIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -7120,7 +7592,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, deletePeer_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, deletePeer_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -7136,7 +7609,8 @@ public class BgpConfigurator {
     }
 
     private static class deletePeer_argsTupleSchemeFactory implements SchemeFactory {
-      public deletePeer_argsTupleScheme getScheme() {
+      @Override
+	public deletePeer_argsTupleScheme getScheme() {
         return new deletePeer_argsTupleScheme();
       }
     }
@@ -7174,7 +7648,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new deletePeer_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new deletePeer_resultTupleSchemeFactory());
@@ -7186,7 +7660,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -7212,7 +7686,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -7231,11 +7707,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -7245,8 +7723,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(deletePeer_result.class, metaDataMap);
@@ -7271,7 +7749,8 @@ public class BgpConfigurator {
       this.success = other.success;
     }
 
-    public deletePeer_result deepCopy() {
+    @Override
+	public deletePeer_result deepCopy() {
       return new deletePeer_result(this);
     }
 
@@ -7304,7 +7783,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -7317,7 +7797,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return Integer.valueOf(getSuccess());
@@ -7327,7 +7808,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -7341,24 +7823,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof deletePeer_result)
-        return this.equals((deletePeer_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof deletePeer_result) {
+		return this.equals((deletePeer_result)that);
+	}
       return false;
     }
 
     public boolean equals(deletePeer_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true;
       boolean that_present_success = true;
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (this.success != that.success)
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (this.success != that.success) {
+			return false;
+		}
       }
 
       return true;
@@ -7390,15 +7877,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -7438,20 +7928,22 @@ public class BgpConfigurator {
     }
 
     private static class deletePeer_resultStandardSchemeFactory implements SchemeFactory {
-      public deletePeer_resultStandardScheme getScheme() {
+      @Override
+	public deletePeer_resultStandardScheme getScheme() {
         return new deletePeer_resultStandardScheme();
       }
     }
 
     private static class deletePeer_resultStandardScheme extends StandardScheme<deletePeer_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, deletePeer_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, deletePeer_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -7459,7 +7951,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.success = iprot.readI32();
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -7474,7 +7966,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, deletePeer_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, deletePeer_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -7490,7 +7983,8 @@ public class BgpConfigurator {
     }
 
     private static class deletePeer_resultTupleSchemeFactory implements SchemeFactory {
-      public deletePeer_resultTupleScheme getScheme() {
+      @Override
+	public deletePeer_resultTupleScheme getScheme() {
         return new deletePeer_resultTupleScheme();
       }
     }
@@ -7531,14 +8025,14 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField IRTS_FIELD_DESC = new org.apache.thrift.protocol.TField("irts", org.apache.thrift.protocol.TType.LIST, (short)3);
     private static final org.apache.thrift.protocol.TField ERTS_FIELD_DESC = new org.apache.thrift.protocol.TField("erts", org.apache.thrift.protocol.TType.LIST, (short)4);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new addVrf_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new addVrf_argsTupleSchemeFactory());
     }
 
     /**
-     * 
+     *
      * @see layer_type
      */
     public layer_type l_type; // required
@@ -7549,7 +8043,7 @@ public class BgpConfigurator {
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       /**
-       * 
+       *
        * @see layer_type
        */
       L_TYPE((short)1, "l_type"),
@@ -7557,7 +8051,7 @@ public class BgpConfigurator {
       IRTS((short)3, "irts"),
       ERTS((short)4, "erts");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -7589,7 +8083,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -7608,11 +8104,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -7620,16 +8118,16 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.L_TYPE, new org.apache.thrift.meta_data.FieldMetaData("l_type", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.L_TYPE, new org.apache.thrift.meta_data.FieldMetaData("l_type", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, layer_type.class)));
-      tmpMap.put(_Fields.RD, new org.apache.thrift.meta_data.FieldMetaData("rd", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.RD, new org.apache.thrift.meta_data.FieldMetaData("rd", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.IRTS, new org.apache.thrift.meta_data.FieldMetaData("irts", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+      tmpMap.put(_Fields.IRTS, new org.apache.thrift.meta_data.FieldMetaData("irts", org.apache.thrift.TFieldRequirementType.DEFAULT,
+          new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST,
               new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
-      tmpMap.put(_Fields.ERTS, new org.apache.thrift.meta_data.FieldMetaData("erts", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+      tmpMap.put(_Fields.ERTS, new org.apache.thrift.meta_data.FieldMetaData("erts", org.apache.thrift.TFieldRequirementType.DEFAULT,
+          new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST,
               new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(addVrf_args.class, metaDataMap);
@@ -7662,16 +8160,17 @@ public class BgpConfigurator {
         this.rd = other.rd;
       }
       if (other.isSetIrts()) {
-        List<String> __this__irts = new ArrayList<String>(other.irts);
+        List<String> __this__irts = new ArrayList<>(other.irts);
         this.irts = __this__irts;
       }
       if (other.isSetErts()) {
-        List<String> __this__erts = new ArrayList<String>(other.erts);
+        List<String> __this__erts = new ArrayList<>(other.erts);
         this.erts = __this__erts;
       }
     }
 
-    public addVrf_args deepCopy() {
+    @Override
+	public addVrf_args deepCopy() {
       return new addVrf_args(this);
     }
 
@@ -7684,7 +8183,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see layer_type
      */
     public layer_type getL_type() {
@@ -7692,7 +8191,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see layer_type
      */
     public addVrf_args setL_type(layer_type l_type) {
@@ -7740,16 +8239,16 @@ public class BgpConfigurator {
     }
 
     public int getIrtsSize() {
-      return (this.irts == null) ? 0 : this.irts.size();
+      return this.irts == null ? 0 : this.irts.size();
     }
 
     public java.util.Iterator<String> getIrtsIterator() {
-      return (this.irts == null) ? null : this.irts.iterator();
+      return this.irts == null ? null : this.irts.iterator();
     }
 
     public void addToIrts(String elem) {
       if (this.irts == null) {
-        this.irts = new ArrayList<String>();
+        this.irts = new ArrayList<>();
       }
       this.irts.add(elem);
     }
@@ -7779,16 +8278,16 @@ public class BgpConfigurator {
     }
 
     public int getErtsSize() {
-      return (this.erts == null) ? 0 : this.erts.size();
+      return this.erts == null ? 0 : this.erts.size();
     }
 
     public java.util.Iterator<String> getErtsIterator() {
-      return (this.erts == null) ? null : this.erts.iterator();
+      return this.erts == null ? null : this.erts.iterator();
     }
 
     public void addToErts(String elem) {
       if (this.erts == null) {
-        this.erts = new ArrayList<String>();
+        this.erts = new ArrayList<>();
       }
       this.erts.add(elem);
     }
@@ -7817,7 +8316,8 @@ public class BgpConfigurator {
       }
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case L_TYPE:
         if (value == null) {
@@ -7854,7 +8354,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case L_TYPE:
         return getL_type();
@@ -7873,7 +8374,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -7893,51 +8395,62 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof addVrf_args)
-        return this.equals((addVrf_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof addVrf_args) {
+		return this.equals((addVrf_args)that);
+	}
       return false;
     }
 
     public boolean equals(addVrf_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_l_type = true && this.isSetL_type();
       boolean that_present_l_type = true && that.isSetL_type();
       if (this_present_l_type || that_present_l_type) {
-        if (!(this_present_l_type && that_present_l_type))
-          return false;
-        if (!this.l_type.equals(that.l_type))
-          return false;
+        if (!(this_present_l_type && that_present_l_type)) {
+			return false;
+		}
+        if (!this.l_type.equals(that.l_type)) {
+			return false;
+		}
       }
 
       boolean this_present_rd = true && this.isSetRd();
       boolean that_present_rd = true && that.isSetRd();
       if (this_present_rd || that_present_rd) {
-        if (!(this_present_rd && that_present_rd))
-          return false;
-        if (!this.rd.equals(that.rd))
-          return false;
+        if (!(this_present_rd && that_present_rd)) {
+			return false;
+		}
+        if (!this.rd.equals(that.rd)) {
+			return false;
+		}
       }
 
       boolean this_present_irts = true && this.isSetIrts();
       boolean that_present_irts = true && that.isSetIrts();
       if (this_present_irts || that_present_irts) {
-        if (!(this_present_irts && that_present_irts))
-          return false;
-        if (!this.irts.equals(that.irts))
-          return false;
+        if (!(this_present_irts && that_present_irts)) {
+			return false;
+		}
+        if (!this.irts.equals(that.irts)) {
+			return false;
+		}
       }
 
       boolean this_present_erts = true && this.isSetErts();
       boolean that_present_erts = true && that.isSetErts();
       if (this_present_erts || that_present_erts) {
-        if (!(this_present_erts && that_present_erts))
-          return false;
-        if (!this.erts.equals(that.erts))
-          return false;
+        if (!(this_present_erts && that_present_erts)) {
+			return false;
+		}
+        if (!this.erts.equals(that.erts)) {
+			return false;
+		}
       }
 
       return true;
@@ -7999,15 +8512,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -8023,7 +8539,9 @@ public class BgpConfigurator {
         sb.append(this.l_type);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("rd:");
       if (this.rd == null) {
         sb.append("null");
@@ -8031,7 +8549,9 @@ public class BgpConfigurator {
         sb.append(this.rd);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("irts:");
       if (this.irts == null) {
         sb.append("null");
@@ -8039,7 +8559,9 @@ public class BgpConfigurator {
         sb.append(this.irts);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("erts:");
       if (this.erts == null) {
         sb.append("null");
@@ -8073,20 +8595,22 @@ public class BgpConfigurator {
     }
 
     private static class addVrf_argsStandardSchemeFactory implements SchemeFactory {
-      public addVrf_argsStandardScheme getScheme() {
+      @Override
+	public addVrf_argsStandardScheme getScheme() {
         return new addVrf_argsStandardScheme();
       }
     }
 
     private static class addVrf_argsStandardScheme extends StandardScheme<addVrf_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, addVrf_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, addVrf_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -8094,7 +8618,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.l_type = layer_type.findByValue(iprot.readI32());
                 struct.setL_typeIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -8102,7 +8626,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.rd = iprot.readString();
                 struct.setRdIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -8110,7 +8634,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
                   org.apache.thrift.protocol.TList _list8 = iprot.readListBegin();
-                  struct.irts = new ArrayList<String>(_list8.size);
+                  struct.irts = new ArrayList<>(_list8.size);
                   for (int _i9 = 0; _i9 < _list8.size; ++_i9)
                   {
                     String _elem10;
@@ -8120,7 +8644,7 @@ public class BgpConfigurator {
                   iprot.readListEnd();
                 }
                 struct.setIrtsIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -8128,7 +8652,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
                   org.apache.thrift.protocol.TList _list11 = iprot.readListBegin();
-                  struct.erts = new ArrayList<String>(_list11.size);
+                  struct.erts = new ArrayList<>(_list11.size);
                   for (int _i12 = 0; _i12 < _list11.size; ++_i12)
                   {
                     String _elem13;
@@ -8138,7 +8662,7 @@ public class BgpConfigurator {
                   iprot.readListEnd();
                 }
                 struct.setErtsIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -8153,7 +8677,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, addVrf_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, addVrf_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -8198,7 +8723,8 @@ public class BgpConfigurator {
     }
 
     private static class addVrf_argsTupleSchemeFactory implements SchemeFactory {
-      public addVrf_argsTupleScheme getScheme() {
+      @Override
+	public addVrf_argsTupleScheme getScheme() {
         return new addVrf_argsTupleScheme();
       }
     }
@@ -8263,7 +8789,7 @@ public class BgpConfigurator {
         if (incoming.get(2)) {
           {
             org.apache.thrift.protocol.TList _list18 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-            struct.irts = new ArrayList<String>(_list18.size);
+            struct.irts = new ArrayList<>(_list18.size);
             for (int _i19 = 0; _i19 < _list18.size; ++_i19)
             {
               String _elem20;
@@ -8276,7 +8802,7 @@ public class BgpConfigurator {
         if (incoming.get(3)) {
           {
             org.apache.thrift.protocol.TList _list21 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-            struct.erts = new ArrayList<String>(_list21.size);
+            struct.erts = new ArrayList<>(_list21.size);
             for (int _i22 = 0; _i22 < _list21.size; ++_i22)
             {
               String _elem23;
@@ -8296,7 +8822,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new addVrf_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new addVrf_resultTupleSchemeFactory());
@@ -8308,7 +8834,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -8334,7 +8860,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -8353,11 +8881,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -8367,8 +8897,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(addVrf_result.class, metaDataMap);
@@ -8393,7 +8923,8 @@ public class BgpConfigurator {
       this.success = other.success;
     }
 
-    public addVrf_result deepCopy() {
+    @Override
+	public addVrf_result deepCopy() {
       return new addVrf_result(this);
     }
 
@@ -8426,7 +8957,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -8439,7 +8971,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return Integer.valueOf(getSuccess());
@@ -8449,7 +8982,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -8463,24 +8997,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof addVrf_result)
-        return this.equals((addVrf_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof addVrf_result) {
+		return this.equals((addVrf_result)that);
+	}
       return false;
     }
 
     public boolean equals(addVrf_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true;
       boolean that_present_success = true;
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (this.success != that.success)
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (this.success != that.success) {
+			return false;
+		}
       }
 
       return true;
@@ -8512,15 +9051,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -8560,20 +9102,22 @@ public class BgpConfigurator {
     }
 
     private static class addVrf_resultStandardSchemeFactory implements SchemeFactory {
-      public addVrf_resultStandardScheme getScheme() {
+      @Override
+	public addVrf_resultStandardScheme getScheme() {
         return new addVrf_resultStandardScheme();
       }
     }
 
     private static class addVrf_resultStandardScheme extends StandardScheme<addVrf_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, addVrf_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, addVrf_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -8581,7 +9125,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.success = iprot.readI32();
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -8596,7 +9140,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, addVrf_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, addVrf_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -8612,7 +9157,8 @@ public class BgpConfigurator {
     }
 
     private static class addVrf_resultTupleSchemeFactory implements SchemeFactory {
-      public addVrf_resultTupleScheme getScheme() {
+      @Override
+	public addVrf_resultTupleScheme getScheme() {
         return new addVrf_resultTupleScheme();
       }
     }
@@ -8650,7 +9196,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField RD_FIELD_DESC = new org.apache.thrift.protocol.TField("rd", org.apache.thrift.protocol.TType.STRING, (short)1);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new delVrf_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new delVrf_argsTupleSchemeFactory());
@@ -8662,7 +9208,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       RD((short)1, "rd");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -8688,7 +9234,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -8707,11 +9255,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -8719,8 +9269,8 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.RD, new org.apache.thrift.meta_data.FieldMetaData("rd", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.RD, new org.apache.thrift.meta_data.FieldMetaData("rd", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(delVrf_args.class, metaDataMap);
@@ -8745,7 +9295,8 @@ public class BgpConfigurator {
       }
     }
 
-    public delVrf_args deepCopy() {
+    @Override
+	public delVrf_args deepCopy() {
       return new delVrf_args(this);
     }
 
@@ -8778,7 +9329,8 @@ public class BgpConfigurator {
       }
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case RD:
         if (value == null) {
@@ -8791,7 +9343,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case RD:
         return getRd();
@@ -8801,7 +9354,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -8815,24 +9369,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof delVrf_args)
-        return this.equals((delVrf_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof delVrf_args) {
+		return this.equals((delVrf_args)that);
+	}
       return false;
     }
 
     public boolean equals(delVrf_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_rd = true && this.isSetRd();
       boolean that_present_rd = true && that.isSetRd();
       if (this_present_rd || that_present_rd) {
-        if (!(this_present_rd && that_present_rd))
-          return false;
-        if (!this.rd.equals(that.rd))
-          return false;
+        if (!(this_present_rd && that_present_rd)) {
+			return false;
+		}
+        if (!this.rd.equals(that.rd)) {
+			return false;
+		}
       }
 
       return true;
@@ -8864,15 +9423,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -8914,20 +9476,22 @@ public class BgpConfigurator {
     }
 
     private static class delVrf_argsStandardSchemeFactory implements SchemeFactory {
-      public delVrf_argsStandardScheme getScheme() {
+      @Override
+	public delVrf_argsStandardScheme getScheme() {
         return new delVrf_argsStandardScheme();
       }
     }
 
     private static class delVrf_argsStandardScheme extends StandardScheme<delVrf_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, delVrf_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, delVrf_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -8935,7 +9499,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.rd = iprot.readString();
                 struct.setRdIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -8950,7 +9514,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, delVrf_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, delVrf_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -8966,7 +9531,8 @@ public class BgpConfigurator {
     }
 
     private static class delVrf_argsTupleSchemeFactory implements SchemeFactory {
-      public delVrf_argsTupleScheme getScheme() {
+      @Override
+	public delVrf_argsTupleScheme getScheme() {
         return new delVrf_argsTupleScheme();
       }
     }
@@ -9004,7 +9570,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new delVrf_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new delVrf_resultTupleSchemeFactory());
@@ -9016,7 +9582,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -9042,7 +9608,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -9061,11 +9629,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -9075,8 +9645,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(delVrf_result.class, metaDataMap);
@@ -9101,7 +9671,8 @@ public class BgpConfigurator {
       this.success = other.success;
     }
 
-    public delVrf_result deepCopy() {
+    @Override
+	public delVrf_result deepCopy() {
       return new delVrf_result(this);
     }
 
@@ -9134,7 +9705,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -9147,7 +9719,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return Integer.valueOf(getSuccess());
@@ -9157,7 +9730,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -9171,24 +9745,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof delVrf_result)
-        return this.equals((delVrf_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof delVrf_result) {
+		return this.equals((delVrf_result)that);
+	}
       return false;
     }
 
     public boolean equals(delVrf_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true;
       boolean that_present_success = true;
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (this.success != that.success)
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (this.success != that.success) {
+			return false;
+		}
       }
 
       return true;
@@ -9220,15 +9799,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -9268,20 +9850,22 @@ public class BgpConfigurator {
     }
 
     private static class delVrf_resultStandardSchemeFactory implements SchemeFactory {
-      public delVrf_resultStandardScheme getScheme() {
+      @Override
+	public delVrf_resultStandardScheme getScheme() {
         return new delVrf_resultStandardScheme();
       }
     }
 
     private static class delVrf_resultStandardScheme extends StandardScheme<delVrf_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, delVrf_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, delVrf_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -9289,7 +9873,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.success = iprot.readI32();
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -9304,7 +9888,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, delVrf_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, delVrf_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -9320,7 +9905,8 @@ public class BgpConfigurator {
     }
 
     private static class delVrf_resultTupleSchemeFactory implements SchemeFactory {
-      public delVrf_resultTupleScheme getScheme() {
+      @Override
+	public delVrf_resultTupleScheme getScheme() {
         return new delVrf_resultTupleScheme();
       }
     }
@@ -9369,14 +9955,14 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField ROUTERMAC_FIELD_DESC = new org.apache.thrift.protocol.TField("routermac", org.apache.thrift.protocol.TType.STRING, (short)11);
     private static final org.apache.thrift.protocol.TField AFI_FIELD_DESC = new org.apache.thrift.protocol.TField("afi", org.apache.thrift.protocol.TType.I32, (short)12);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new pushRoute_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new pushRoute_argsTupleSchemeFactory());
     }
 
     /**
-     * 
+     *
      * @see protocol_type
      */
     public protocol_type p_type; // required
@@ -9389,13 +9975,13 @@ public class BgpConfigurator {
     public int l3label; // required
     public int l2label; // required
     /**
-     * 
+     *
      * @see encap_type
      */
     public encap_type enc_type; // required
     public String routermac; // required
     /**
-     * 
+     *
      * @see af_afi
      */
     public af_afi afi; // required
@@ -9403,7 +9989,7 @@ public class BgpConfigurator {
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       /**
-       * 
+       *
        * @see protocol_type
        */
       P_TYPE((short)1, "p_type"),
@@ -9416,18 +10002,18 @@ public class BgpConfigurator {
       L3LABEL((short)8, "l3label"),
       L2LABEL((short)9, "l2label"),
       /**
-       * 
+       *
        * @see encap_type
        */
       ENC_TYPE((short)10, "enc_type"),
       ROUTERMAC((short)11, "routermac"),
       /**
-       * 
+       *
        * @see af_afi
        */
       AFI((short)12, "afi");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -9475,7 +10061,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -9494,11 +10082,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -9510,30 +10100,30 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.P_TYPE, new org.apache.thrift.meta_data.FieldMetaData("p_type", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.P_TYPE, new org.apache.thrift.meta_data.FieldMetaData("p_type", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, protocol_type.class)));
-      tmpMap.put(_Fields.PREFIX, new org.apache.thrift.meta_data.FieldMetaData("prefix", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.PREFIX, new org.apache.thrift.meta_data.FieldMetaData("prefix", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.NEXTHOP, new org.apache.thrift.meta_data.FieldMetaData("nexthop", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.NEXTHOP, new org.apache.thrift.meta_data.FieldMetaData("nexthop", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.RD, new org.apache.thrift.meta_data.FieldMetaData("rd", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.RD, new org.apache.thrift.meta_data.FieldMetaData("rd", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.ETHTAG, new org.apache.thrift.meta_data.FieldMetaData("ethtag", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.ETHTAG, new org.apache.thrift.meta_data.FieldMetaData("ethtag", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-      tmpMap.put(_Fields.ESI, new org.apache.thrift.meta_data.FieldMetaData("esi", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.ESI, new org.apache.thrift.meta_data.FieldMetaData("esi", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.MACADDRESS, new org.apache.thrift.meta_data.FieldMetaData("macaddress", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.MACADDRESS, new org.apache.thrift.meta_data.FieldMetaData("macaddress", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.L3LABEL, new org.apache.thrift.meta_data.FieldMetaData("l3label", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.L3LABEL, new org.apache.thrift.meta_data.FieldMetaData("l3label", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-      tmpMap.put(_Fields.L2LABEL, new org.apache.thrift.meta_data.FieldMetaData("l2label", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.L2LABEL, new org.apache.thrift.meta_data.FieldMetaData("l2label", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-      tmpMap.put(_Fields.ENC_TYPE, new org.apache.thrift.meta_data.FieldMetaData("enc_type", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.ENC_TYPE, new org.apache.thrift.meta_data.FieldMetaData("enc_type", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, encap_type.class)));
-      tmpMap.put(_Fields.ROUTERMAC, new org.apache.thrift.meta_data.FieldMetaData("routermac", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.ROUTERMAC, new org.apache.thrift.meta_data.FieldMetaData("routermac", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.AFI, new org.apache.thrift.meta_data.FieldMetaData("afi", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.AFI, new org.apache.thrift.meta_data.FieldMetaData("afi", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, af_afi.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(pushRoute_args.class, metaDataMap);
@@ -9611,7 +10201,8 @@ public class BgpConfigurator {
       }
     }
 
-    public pushRoute_args deepCopy() {
+    @Override
+	public pushRoute_args deepCopy() {
       return new pushRoute_args(this);
     }
 
@@ -9635,7 +10226,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see protocol_type
      */
     public protocol_type getP_type() {
@@ -9643,7 +10234,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see protocol_type
      */
     public pushRoute_args setP_type(protocol_type p_type) {
@@ -9856,7 +10447,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see encap_type
      */
     public encap_type getEnc_type() {
@@ -9864,7 +10455,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see encap_type
      */
     public pushRoute_args setEnc_type(encap_type enc_type) {
@@ -9912,7 +10503,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_afi
      */
     public af_afi getAfi() {
@@ -9920,7 +10511,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_afi
      */
     public pushRoute_args setAfi(af_afi afi) {
@@ -9943,7 +10534,8 @@ public class BgpConfigurator {
       }
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case P_TYPE:
         if (value == null) {
@@ -10044,7 +10636,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case P_TYPE:
         return getP_type();
@@ -10087,7 +10680,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -10123,123 +10717,150 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof pushRoute_args)
-        return this.equals((pushRoute_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof pushRoute_args) {
+		return this.equals((pushRoute_args)that);
+	}
       return false;
     }
 
     public boolean equals(pushRoute_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_p_type = true && this.isSetP_type();
       boolean that_present_p_type = true && that.isSetP_type();
       if (this_present_p_type || that_present_p_type) {
-        if (!(this_present_p_type && that_present_p_type))
-          return false;
-        if (!this.p_type.equals(that.p_type))
-          return false;
+        if (!(this_present_p_type && that_present_p_type)) {
+			return false;
+		}
+        if (!this.p_type.equals(that.p_type)) {
+			return false;
+		}
       }
 
       boolean this_present_prefix = true && this.isSetPrefix();
       boolean that_present_prefix = true && that.isSetPrefix();
       if (this_present_prefix || that_present_prefix) {
-        if (!(this_present_prefix && that_present_prefix))
-          return false;
-        if (!this.prefix.equals(that.prefix))
-          return false;
+        if (!(this_present_prefix && that_present_prefix)) {
+			return false;
+		}
+        if (!this.prefix.equals(that.prefix)) {
+			return false;
+		}
       }
 
       boolean this_present_nexthop = true && this.isSetNexthop();
       boolean that_present_nexthop = true && that.isSetNexthop();
       if (this_present_nexthop || that_present_nexthop) {
-        if (!(this_present_nexthop && that_present_nexthop))
-          return false;
-        if (!this.nexthop.equals(that.nexthop))
-          return false;
+        if (!(this_present_nexthop && that_present_nexthop)) {
+			return false;
+		}
+        if (!this.nexthop.equals(that.nexthop)) {
+			return false;
+		}
       }
 
       boolean this_present_rd = true && this.isSetRd();
       boolean that_present_rd = true && that.isSetRd();
       if (this_present_rd || that_present_rd) {
-        if (!(this_present_rd && that_present_rd))
-          return false;
-        if (!this.rd.equals(that.rd))
-          return false;
+        if (!(this_present_rd && that_present_rd)) {
+			return false;
+		}
+        if (!this.rd.equals(that.rd)) {
+			return false;
+		}
       }
 
       boolean this_present_ethtag = true;
       boolean that_present_ethtag = true;
       if (this_present_ethtag || that_present_ethtag) {
-        if (!(this_present_ethtag && that_present_ethtag))
-          return false;
-        if (this.ethtag != that.ethtag)
-          return false;
+        if (!(this_present_ethtag && that_present_ethtag)) {
+			return false;
+		}
+        if (this.ethtag != that.ethtag) {
+			return false;
+		}
       }
 
       boolean this_present_esi = true && this.isSetEsi();
       boolean that_present_esi = true && that.isSetEsi();
       if (this_present_esi || that_present_esi) {
-        if (!(this_present_esi && that_present_esi))
-          return false;
-        if (!this.esi.equals(that.esi))
-          return false;
+        if (!(this_present_esi && that_present_esi)) {
+			return false;
+		}
+        if (!this.esi.equals(that.esi)) {
+			return false;
+		}
       }
 
       boolean this_present_macaddress = true && this.isSetMacaddress();
       boolean that_present_macaddress = true && that.isSetMacaddress();
       if (this_present_macaddress || that_present_macaddress) {
-        if (!(this_present_macaddress && that_present_macaddress))
-          return false;
-        if (!this.macaddress.equals(that.macaddress))
-          return false;
+        if (!(this_present_macaddress && that_present_macaddress)) {
+			return false;
+		}
+        if (!this.macaddress.equals(that.macaddress)) {
+			return false;
+		}
       }
 
       boolean this_present_l3label = true;
       boolean that_present_l3label = true;
       if (this_present_l3label || that_present_l3label) {
-        if (!(this_present_l3label && that_present_l3label))
-          return false;
-        if (this.l3label != that.l3label)
-          return false;
+        if (!(this_present_l3label && that_present_l3label)) {
+			return false;
+		}
+        if (this.l3label != that.l3label) {
+			return false;
+		}
       }
 
       boolean this_present_l2label = true;
       boolean that_present_l2label = true;
       if (this_present_l2label || that_present_l2label) {
-        if (!(this_present_l2label && that_present_l2label))
-          return false;
-        if (this.l2label != that.l2label)
-          return false;
+        if (!(this_present_l2label && that_present_l2label)) {
+			return false;
+		}
+        if (this.l2label != that.l2label) {
+			return false;
+		}
       }
 
       boolean this_present_enc_type = true && this.isSetEnc_type();
       boolean that_present_enc_type = true && that.isSetEnc_type();
       if (this_present_enc_type || that_present_enc_type) {
-        if (!(this_present_enc_type && that_present_enc_type))
-          return false;
-        if (!this.enc_type.equals(that.enc_type))
-          return false;
+        if (!(this_present_enc_type && that_present_enc_type)) {
+			return false;
+		}
+        if (!this.enc_type.equals(that.enc_type)) {
+			return false;
+		}
       }
 
       boolean this_present_routermac = true && this.isSetRoutermac();
       boolean that_present_routermac = true && that.isSetRoutermac();
       if (this_present_routermac || that_present_routermac) {
-        if (!(this_present_routermac && that_present_routermac))
-          return false;
-        if (!this.routermac.equals(that.routermac))
-          return false;
+        if (!(this_present_routermac && that_present_routermac)) {
+			return false;
+		}
+        if (!this.routermac.equals(that.routermac)) {
+			return false;
+		}
       }
 
       boolean this_present_afi = true && this.isSetAfi();
       boolean that_present_afi = true && that.isSetAfi();
       if (this_present_afi || that_present_afi) {
-        if (!(this_present_afi && that_present_afi))
-          return false;
-        if (!this.afi.equals(that.afi))
-          return false;
+        if (!(this_present_afi && that_present_afi)) {
+			return false;
+		}
+        if (!this.afi.equals(that.afi)) {
+			return false;
+		}
       }
 
       return true;
@@ -10381,15 +11002,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -10405,7 +11029,9 @@ public class BgpConfigurator {
         sb.append(this.p_type);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("prefix:");
       if (this.prefix == null) {
         sb.append("null");
@@ -10413,7 +11039,9 @@ public class BgpConfigurator {
         sb.append(this.prefix);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("nexthop:");
       if (this.nexthop == null) {
         sb.append("null");
@@ -10421,7 +11049,9 @@ public class BgpConfigurator {
         sb.append(this.nexthop);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("rd:");
       if (this.rd == null) {
         sb.append("null");
@@ -10429,11 +11059,15 @@ public class BgpConfigurator {
         sb.append(this.rd);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("ethtag:");
       sb.append(this.ethtag);
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("esi:");
       if (this.esi == null) {
         sb.append("null");
@@ -10441,7 +11075,9 @@ public class BgpConfigurator {
         sb.append(this.esi);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("macaddress:");
       if (this.macaddress == null) {
         sb.append("null");
@@ -10449,15 +11085,21 @@ public class BgpConfigurator {
         sb.append(this.macaddress);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("l3label:");
       sb.append(this.l3label);
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("l2label:");
       sb.append(this.l2label);
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("enc_type:");
       if (this.enc_type == null) {
         sb.append("null");
@@ -10465,7 +11107,9 @@ public class BgpConfigurator {
         sb.append(this.enc_type);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("routermac:");
       if (this.routermac == null) {
         sb.append("null");
@@ -10473,7 +11117,9 @@ public class BgpConfigurator {
         sb.append(this.routermac);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("afi:");
       if (this.afi == null) {
         sb.append("null");
@@ -10509,20 +11155,22 @@ public class BgpConfigurator {
     }
 
     private static class pushRoute_argsStandardSchemeFactory implements SchemeFactory {
-      public pushRoute_argsStandardScheme getScheme() {
+      @Override
+	public pushRoute_argsStandardScheme getScheme() {
         return new pushRoute_argsStandardScheme();
       }
     }
 
     private static class pushRoute_argsStandardScheme extends StandardScheme<pushRoute_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, pushRoute_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, pushRoute_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -10530,7 +11178,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.p_type = protocol_type.findByValue(iprot.readI32());
                 struct.setP_typeIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -10538,7 +11186,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.prefix = iprot.readString();
                 struct.setPrefixIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -10546,7 +11194,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.nexthop = iprot.readString();
                 struct.setNexthopIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -10554,7 +11202,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.rd = iprot.readString();
                 struct.setRdIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -10562,7 +11210,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.ethtag = iprot.readI32();
                 struct.setEthtagIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -10570,7 +11218,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.esi = iprot.readString();
                 struct.setEsiIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -10578,7 +11226,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.macaddress = iprot.readString();
                 struct.setMacaddressIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -10586,7 +11234,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.l3label = iprot.readI32();
                 struct.setL3labelIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -10594,7 +11242,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.l2label = iprot.readI32();
                 struct.setL2labelIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -10602,7 +11250,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.enc_type = encap_type.findByValue(iprot.readI32());
                 struct.setEnc_typeIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -10610,7 +11258,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.routermac = iprot.readString();
                 struct.setRoutermacIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -10618,7 +11266,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.afi = af_afi.findByValue(iprot.readI32());
                 struct.setAfiIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -10633,7 +11281,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, pushRoute_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, pushRoute_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -10698,7 +11347,8 @@ public class BgpConfigurator {
     }
 
     private static class pushRoute_argsTupleSchemeFactory implements SchemeFactory {
-      public pushRoute_argsTupleScheme getScheme() {
+      @Override
+	public pushRoute_argsTupleScheme getScheme() {
         return new pushRoute_argsTupleScheme();
       }
     }
@@ -10846,7 +11496,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new pushRoute_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new pushRoute_resultTupleSchemeFactory());
@@ -10858,7 +11508,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -10884,7 +11534,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -10903,11 +11555,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -10917,8 +11571,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(pushRoute_result.class, metaDataMap);
@@ -10943,7 +11597,8 @@ public class BgpConfigurator {
       this.success = other.success;
     }
 
-    public pushRoute_result deepCopy() {
+    @Override
+	public pushRoute_result deepCopy() {
       return new pushRoute_result(this);
     }
 
@@ -10976,7 +11631,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -10989,7 +11645,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return Integer.valueOf(getSuccess());
@@ -10999,7 +11656,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -11013,24 +11671,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof pushRoute_result)
-        return this.equals((pushRoute_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof pushRoute_result) {
+		return this.equals((pushRoute_result)that);
+	}
       return false;
     }
 
     public boolean equals(pushRoute_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true;
       boolean that_present_success = true;
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (this.success != that.success)
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (this.success != that.success) {
+			return false;
+		}
       }
 
       return true;
@@ -11062,15 +11725,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -11110,20 +11776,22 @@ public class BgpConfigurator {
     }
 
     private static class pushRoute_resultStandardSchemeFactory implements SchemeFactory {
-      public pushRoute_resultStandardScheme getScheme() {
+      @Override
+	public pushRoute_resultStandardScheme getScheme() {
         return new pushRoute_resultStandardScheme();
       }
     }
 
     private static class pushRoute_resultStandardScheme extends StandardScheme<pushRoute_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, pushRoute_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, pushRoute_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -11131,7 +11799,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.success = iprot.readI32();
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -11146,7 +11814,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, pushRoute_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, pushRoute_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -11162,7 +11831,8 @@ public class BgpConfigurator {
     }
 
     private static class pushRoute_resultTupleSchemeFactory implements SchemeFactory {
-      public pushRoute_resultTupleScheme getScheme() {
+      @Override
+	public pushRoute_resultTupleScheme getScheme() {
         return new pushRoute_resultTupleScheme();
       }
     }
@@ -11206,14 +11876,14 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField MACADDRESS_FIELD_DESC = new org.apache.thrift.protocol.TField("macaddress", org.apache.thrift.protocol.TType.STRING, (short)6);
     private static final org.apache.thrift.protocol.TField AFI_FIELD_DESC = new org.apache.thrift.protocol.TField("afi", org.apache.thrift.protocol.TType.I32, (short)7);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new withdrawRoute_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new withdrawRoute_argsTupleSchemeFactory());
     }
 
     /**
-     * 
+     *
      * @see protocol_type
      */
     public protocol_type p_type; // required
@@ -11223,7 +11893,7 @@ public class BgpConfigurator {
     public String esi; // required
     public String macaddress; // required
     /**
-     * 
+     *
      * @see af_afi
      */
     public af_afi afi; // required
@@ -11231,7 +11901,7 @@ public class BgpConfigurator {
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       /**
-       * 
+       *
        * @see protocol_type
        */
       P_TYPE((short)1, "p_type"),
@@ -11241,12 +11911,12 @@ public class BgpConfigurator {
       ESI((short)5, "esi"),
       MACADDRESS((short)6, "macaddress"),
       /**
-       * 
+       *
        * @see af_afi
        */
       AFI((short)7, "afi");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -11284,7 +11954,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -11303,11 +11975,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -11317,20 +11991,20 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.P_TYPE, new org.apache.thrift.meta_data.FieldMetaData("p_type", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.P_TYPE, new org.apache.thrift.meta_data.FieldMetaData("p_type", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, protocol_type.class)));
-      tmpMap.put(_Fields.PREFIX, new org.apache.thrift.meta_data.FieldMetaData("prefix", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.PREFIX, new org.apache.thrift.meta_data.FieldMetaData("prefix", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.RD, new org.apache.thrift.meta_data.FieldMetaData("rd", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.RD, new org.apache.thrift.meta_data.FieldMetaData("rd", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.ETHTAG, new org.apache.thrift.meta_data.FieldMetaData("ethtag", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.ETHTAG, new org.apache.thrift.meta_data.FieldMetaData("ethtag", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-      tmpMap.put(_Fields.ESI, new org.apache.thrift.meta_data.FieldMetaData("esi", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.ESI, new org.apache.thrift.meta_data.FieldMetaData("esi", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.MACADDRESS, new org.apache.thrift.meta_data.FieldMetaData("macaddress", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.MACADDRESS, new org.apache.thrift.meta_data.FieldMetaData("macaddress", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.AFI, new org.apache.thrift.meta_data.FieldMetaData("afi", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.AFI, new org.apache.thrift.meta_data.FieldMetaData("afi", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, af_afi.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(withdrawRoute_args.class, metaDataMap);
@@ -11385,7 +12059,8 @@ public class BgpConfigurator {
       }
     }
 
-    public withdrawRoute_args deepCopy() {
+    @Override
+	public withdrawRoute_args deepCopy() {
       return new withdrawRoute_args(this);
     }
 
@@ -11402,7 +12077,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see protocol_type
      */
     public protocol_type getP_type() {
@@ -11410,7 +12085,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see protocol_type
      */
     public withdrawRoute_args setP_type(protocol_type p_type) {
@@ -11553,7 +12228,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_afi
      */
     public af_afi getAfi() {
@@ -11561,7 +12236,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_afi
      */
     public withdrawRoute_args setAfi(af_afi afi) {
@@ -11584,7 +12259,8 @@ public class BgpConfigurator {
       }
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case P_TYPE:
         if (value == null) {
@@ -11645,7 +12321,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case P_TYPE:
         return getP_type();
@@ -11673,7 +12350,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -11699,78 +12377,95 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof withdrawRoute_args)
-        return this.equals((withdrawRoute_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof withdrawRoute_args) {
+		return this.equals((withdrawRoute_args)that);
+	}
       return false;
     }
 
     public boolean equals(withdrawRoute_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_p_type = true && this.isSetP_type();
       boolean that_present_p_type = true && that.isSetP_type();
       if (this_present_p_type || that_present_p_type) {
-        if (!(this_present_p_type && that_present_p_type))
-          return false;
-        if (!this.p_type.equals(that.p_type))
-          return false;
+        if (!(this_present_p_type && that_present_p_type)) {
+			return false;
+		}
+        if (!this.p_type.equals(that.p_type)) {
+			return false;
+		}
       }
 
       boolean this_present_prefix = true && this.isSetPrefix();
       boolean that_present_prefix = true && that.isSetPrefix();
       if (this_present_prefix || that_present_prefix) {
-        if (!(this_present_prefix && that_present_prefix))
-          return false;
-        if (!this.prefix.equals(that.prefix))
-          return false;
+        if (!(this_present_prefix && that_present_prefix)) {
+			return false;
+		}
+        if (!this.prefix.equals(that.prefix)) {
+			return false;
+		}
       }
 
       boolean this_present_rd = true && this.isSetRd();
       boolean that_present_rd = true && that.isSetRd();
       if (this_present_rd || that_present_rd) {
-        if (!(this_present_rd && that_present_rd))
-          return false;
-        if (!this.rd.equals(that.rd))
-          return false;
+        if (!(this_present_rd && that_present_rd)) {
+			return false;
+		}
+        if (!this.rd.equals(that.rd)) {
+			return false;
+		}
       }
 
       boolean this_present_ethtag = true;
       boolean that_present_ethtag = true;
       if (this_present_ethtag || that_present_ethtag) {
-        if (!(this_present_ethtag && that_present_ethtag))
-          return false;
-        if (this.ethtag != that.ethtag)
-          return false;
+        if (!(this_present_ethtag && that_present_ethtag)) {
+			return false;
+		}
+        if (this.ethtag != that.ethtag) {
+			return false;
+		}
       }
 
       boolean this_present_esi = true && this.isSetEsi();
       boolean that_present_esi = true && that.isSetEsi();
       if (this_present_esi || that_present_esi) {
-        if (!(this_present_esi && that_present_esi))
-          return false;
-        if (!this.esi.equals(that.esi))
-          return false;
+        if (!(this_present_esi && that_present_esi)) {
+			return false;
+		}
+        if (!this.esi.equals(that.esi)) {
+			return false;
+		}
       }
 
       boolean this_present_macaddress = true && this.isSetMacaddress();
       boolean that_present_macaddress = true && that.isSetMacaddress();
       if (this_present_macaddress || that_present_macaddress) {
-        if (!(this_present_macaddress && that_present_macaddress))
-          return false;
-        if (!this.macaddress.equals(that.macaddress))
-          return false;
+        if (!(this_present_macaddress && that_present_macaddress)) {
+			return false;
+		}
+        if (!this.macaddress.equals(that.macaddress)) {
+			return false;
+		}
       }
 
       boolean this_present_afi = true && this.isSetAfi();
       boolean that_present_afi = true && that.isSetAfi();
       if (this_present_afi || that_present_afi) {
-        if (!(this_present_afi && that_present_afi))
-          return false;
-        if (!this.afi.equals(that.afi))
-          return false;
+        if (!(this_present_afi && that_present_afi)) {
+			return false;
+		}
+        if (!this.afi.equals(that.afi)) {
+			return false;
+		}
       }
 
       return true;
@@ -11862,15 +12557,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -11886,7 +12584,9 @@ public class BgpConfigurator {
         sb.append(this.p_type);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("prefix:");
       if (this.prefix == null) {
         sb.append("null");
@@ -11894,7 +12594,9 @@ public class BgpConfigurator {
         sb.append(this.prefix);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("rd:");
       if (this.rd == null) {
         sb.append("null");
@@ -11902,11 +12604,15 @@ public class BgpConfigurator {
         sb.append(this.rd);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("ethtag:");
       sb.append(this.ethtag);
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("esi:");
       if (this.esi == null) {
         sb.append("null");
@@ -11914,7 +12620,9 @@ public class BgpConfigurator {
         sb.append(this.esi);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("macaddress:");
       if (this.macaddress == null) {
         sb.append("null");
@@ -11922,7 +12630,9 @@ public class BgpConfigurator {
         sb.append(this.macaddress);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("afi:");
       if (this.afi == null) {
         sb.append("null");
@@ -11958,20 +12668,22 @@ public class BgpConfigurator {
     }
 
     private static class withdrawRoute_argsStandardSchemeFactory implements SchemeFactory {
-      public withdrawRoute_argsStandardScheme getScheme() {
+      @Override
+	public withdrawRoute_argsStandardScheme getScheme() {
         return new withdrawRoute_argsStandardScheme();
       }
     }
 
     private static class withdrawRoute_argsStandardScheme extends StandardScheme<withdrawRoute_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, withdrawRoute_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, withdrawRoute_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -11979,7 +12691,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.p_type = protocol_type.findByValue(iprot.readI32());
                 struct.setP_typeIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -11987,7 +12699,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.prefix = iprot.readString();
                 struct.setPrefixIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -11995,7 +12707,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.rd = iprot.readString();
                 struct.setRdIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -12003,7 +12715,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.ethtag = iprot.readI32();
                 struct.setEthtagIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -12011,7 +12723,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.esi = iprot.readString();
                 struct.setEsiIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -12019,7 +12731,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.macaddress = iprot.readString();
                 struct.setMacaddressIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -12027,7 +12739,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.afi = af_afi.findByValue(iprot.readI32());
                 struct.setAfiIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -12042,7 +12754,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, withdrawRoute_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, withdrawRoute_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -12086,7 +12799,8 @@ public class BgpConfigurator {
     }
 
     private static class withdrawRoute_argsTupleSchemeFactory implements SchemeFactory {
-      public withdrawRoute_argsTupleScheme getScheme() {
+      @Override
+	public withdrawRoute_argsTupleScheme getScheme() {
         return new withdrawRoute_argsTupleScheme();
       }
     }
@@ -12184,7 +12898,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new withdrawRoute_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new withdrawRoute_resultTupleSchemeFactory());
@@ -12196,7 +12910,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -12222,7 +12936,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -12241,11 +12957,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -12255,8 +12973,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(withdrawRoute_result.class, metaDataMap);
@@ -12281,7 +12999,8 @@ public class BgpConfigurator {
       this.success = other.success;
     }
 
-    public withdrawRoute_result deepCopy() {
+    @Override
+	public withdrawRoute_result deepCopy() {
       return new withdrawRoute_result(this);
     }
 
@@ -12314,7 +13033,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -12327,7 +13047,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return Integer.valueOf(getSuccess());
@@ -12337,7 +13058,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -12351,24 +13073,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof withdrawRoute_result)
-        return this.equals((withdrawRoute_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof withdrawRoute_result) {
+		return this.equals((withdrawRoute_result)that);
+	}
       return false;
     }
 
     public boolean equals(withdrawRoute_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true;
       boolean that_present_success = true;
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (this.success != that.success)
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (this.success != that.success) {
+			return false;
+		}
       }
 
       return true;
@@ -12400,15 +13127,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -12448,20 +13178,22 @@ public class BgpConfigurator {
     }
 
     private static class withdrawRoute_resultStandardSchemeFactory implements SchemeFactory {
-      public withdrawRoute_resultStandardScheme getScheme() {
+      @Override
+	public withdrawRoute_resultStandardScheme getScheme() {
         return new withdrawRoute_resultStandardScheme();
       }
     }
 
     private static class withdrawRoute_resultStandardScheme extends StandardScheme<withdrawRoute_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, withdrawRoute_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, withdrawRoute_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -12469,7 +13201,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.success = iprot.readI32();
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -12484,7 +13216,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, withdrawRoute_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, withdrawRoute_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -12500,7 +13233,8 @@ public class BgpConfigurator {
     }
 
     private static class withdrawRoute_resultTupleSchemeFactory implements SchemeFactory {
-      public withdrawRoute_resultTupleScheme getScheme() {
+      @Override
+	public withdrawRoute_resultTupleScheme getScheme() {
         return new withdrawRoute_resultTupleScheme();
       }
     }
@@ -12539,7 +13273,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField PEER_IP_FIELD_DESC = new org.apache.thrift.protocol.TField("peerIp", org.apache.thrift.protocol.TType.STRING, (short)1);
     private static final org.apache.thrift.protocol.TField N_HOPS_FIELD_DESC = new org.apache.thrift.protocol.TField("nHops", org.apache.thrift.protocol.TType.I32, (short)2);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new setEbgpMultihop_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new setEbgpMultihop_argsTupleSchemeFactory());
@@ -12553,7 +13287,7 @@ public class BgpConfigurator {
       PEER_IP((short)1, "peerIp"),
       N_HOPS((short)2, "nHops");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -12581,7 +13315,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -12600,11 +13336,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -12614,10 +13352,10 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.PEER_IP, new org.apache.thrift.meta_data.FieldMetaData("peerIp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.PEER_IP, new org.apache.thrift.meta_data.FieldMetaData("peerIp", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.N_HOPS, new org.apache.thrift.meta_data.FieldMetaData("nHops", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.N_HOPS, new org.apache.thrift.meta_data.FieldMetaData("nHops", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(setEbgpMultihop_args.class, metaDataMap);
@@ -12647,7 +13385,8 @@ public class BgpConfigurator {
       this.nHops = other.nHops;
     }
 
-    public setEbgpMultihop_args deepCopy() {
+    @Override
+	public setEbgpMultihop_args deepCopy() {
       return new setEbgpMultihop_args(this);
     }
 
@@ -12705,7 +13444,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __NHOPS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case PEER_IP:
         if (value == null) {
@@ -12726,7 +13466,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case PEER_IP:
         return getPeerIp();
@@ -12739,7 +13480,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -12755,33 +13497,40 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof setEbgpMultihop_args)
-        return this.equals((setEbgpMultihop_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof setEbgpMultihop_args) {
+		return this.equals((setEbgpMultihop_args)that);
+	}
       return false;
     }
 
     public boolean equals(setEbgpMultihop_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_peerIp = true && this.isSetPeerIp();
       boolean that_present_peerIp = true && that.isSetPeerIp();
       if (this_present_peerIp || that_present_peerIp) {
-        if (!(this_present_peerIp && that_present_peerIp))
-          return false;
-        if (!this.peerIp.equals(that.peerIp))
-          return false;
+        if (!(this_present_peerIp && that_present_peerIp)) {
+			return false;
+		}
+        if (!this.peerIp.equals(that.peerIp)) {
+			return false;
+		}
       }
 
       boolean this_present_nHops = true;
       boolean that_present_nHops = true;
       if (this_present_nHops || that_present_nHops) {
-        if (!(this_present_nHops && that_present_nHops))
-          return false;
-        if (this.nHops != that.nHops)
-          return false;
+        if (!(this_present_nHops && that_present_nHops)) {
+			return false;
+		}
+        if (this.nHops != that.nHops) {
+			return false;
+		}
       }
 
       return true;
@@ -12823,15 +13572,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -12847,7 +13599,9 @@ public class BgpConfigurator {
         sb.append(this.peerIp);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("nHops:");
       sb.append(this.nHops);
       first = false;
@@ -12879,20 +13633,22 @@ public class BgpConfigurator {
     }
 
     private static class setEbgpMultihop_argsStandardSchemeFactory implements SchemeFactory {
-      public setEbgpMultihop_argsStandardScheme getScheme() {
+      @Override
+	public setEbgpMultihop_argsStandardScheme getScheme() {
         return new setEbgpMultihop_argsStandardScheme();
       }
     }
 
     private static class setEbgpMultihop_argsStandardScheme extends StandardScheme<setEbgpMultihop_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, setEbgpMultihop_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, setEbgpMultihop_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -12900,7 +13656,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.peerIp = iprot.readString();
                 struct.setPeerIpIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -12908,7 +13664,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.nHops = iprot.readI32();
                 struct.setNHopsIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -12923,7 +13679,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, setEbgpMultihop_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, setEbgpMultihop_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -12942,7 +13699,8 @@ public class BgpConfigurator {
     }
 
     private static class setEbgpMultihop_argsTupleSchemeFactory implements SchemeFactory {
-      public setEbgpMultihop_argsTupleScheme getScheme() {
+      @Override
+	public setEbgpMultihop_argsTupleScheme getScheme() {
         return new setEbgpMultihop_argsTupleScheme();
       }
     }
@@ -12990,7 +13748,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new setEbgpMultihop_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new setEbgpMultihop_resultTupleSchemeFactory());
@@ -13002,7 +13760,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -13028,7 +13786,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -13047,11 +13807,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -13061,8 +13823,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(setEbgpMultihop_result.class, metaDataMap);
@@ -13087,7 +13849,8 @@ public class BgpConfigurator {
       this.success = other.success;
     }
 
-    public setEbgpMultihop_result deepCopy() {
+    @Override
+	public setEbgpMultihop_result deepCopy() {
       return new setEbgpMultihop_result(this);
     }
 
@@ -13120,7 +13883,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -13133,7 +13897,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return Integer.valueOf(getSuccess());
@@ -13143,7 +13908,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -13157,24 +13923,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof setEbgpMultihop_result)
-        return this.equals((setEbgpMultihop_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof setEbgpMultihop_result) {
+		return this.equals((setEbgpMultihop_result)that);
+	}
       return false;
     }
 
     public boolean equals(setEbgpMultihop_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true;
       boolean that_present_success = true;
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (this.success != that.success)
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (this.success != that.success) {
+			return false;
+		}
       }
 
       return true;
@@ -13206,15 +13977,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -13254,20 +14028,22 @@ public class BgpConfigurator {
     }
 
     private static class setEbgpMultihop_resultStandardSchemeFactory implements SchemeFactory {
-      public setEbgpMultihop_resultStandardScheme getScheme() {
+      @Override
+	public setEbgpMultihop_resultStandardScheme getScheme() {
         return new setEbgpMultihop_resultStandardScheme();
       }
     }
 
     private static class setEbgpMultihop_resultStandardScheme extends StandardScheme<setEbgpMultihop_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, setEbgpMultihop_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, setEbgpMultihop_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -13275,7 +14051,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.success = iprot.readI32();
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -13290,7 +14066,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, setEbgpMultihop_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, setEbgpMultihop_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -13306,7 +14083,8 @@ public class BgpConfigurator {
     }
 
     private static class setEbgpMultihop_resultTupleSchemeFactory implements SchemeFactory {
-      public setEbgpMultihop_resultTupleScheme getScheme() {
+      @Override
+	public setEbgpMultihop_resultTupleScheme getScheme() {
         return new setEbgpMultihop_resultTupleScheme();
       }
     }
@@ -13344,7 +14122,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField PEER_IP_FIELD_DESC = new org.apache.thrift.protocol.TField("peerIp", org.apache.thrift.protocol.TType.STRING, (short)1);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new unsetEbgpMultihop_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new unsetEbgpMultihop_argsTupleSchemeFactory());
@@ -13356,7 +14134,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       PEER_IP((short)1, "peerIp");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -13382,7 +14160,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -13401,11 +14181,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -13413,8 +14195,8 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.PEER_IP, new org.apache.thrift.meta_data.FieldMetaData("peerIp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.PEER_IP, new org.apache.thrift.meta_data.FieldMetaData("peerIp", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(unsetEbgpMultihop_args.class, metaDataMap);
@@ -13439,7 +14221,8 @@ public class BgpConfigurator {
       }
     }
 
-    public unsetEbgpMultihop_args deepCopy() {
+    @Override
+	public unsetEbgpMultihop_args deepCopy() {
       return new unsetEbgpMultihop_args(this);
     }
 
@@ -13472,7 +14255,8 @@ public class BgpConfigurator {
       }
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case PEER_IP:
         if (value == null) {
@@ -13485,7 +14269,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case PEER_IP:
         return getPeerIp();
@@ -13495,7 +14280,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -13509,24 +14295,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof unsetEbgpMultihop_args)
-        return this.equals((unsetEbgpMultihop_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof unsetEbgpMultihop_args) {
+		return this.equals((unsetEbgpMultihop_args)that);
+	}
       return false;
     }
 
     public boolean equals(unsetEbgpMultihop_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_peerIp = true && this.isSetPeerIp();
       boolean that_present_peerIp = true && that.isSetPeerIp();
       if (this_present_peerIp || that_present_peerIp) {
-        if (!(this_present_peerIp && that_present_peerIp))
-          return false;
-        if (!this.peerIp.equals(that.peerIp))
-          return false;
+        if (!(this_present_peerIp && that_present_peerIp)) {
+			return false;
+		}
+        if (!this.peerIp.equals(that.peerIp)) {
+			return false;
+		}
       }
 
       return true;
@@ -13558,15 +14349,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -13608,20 +14402,22 @@ public class BgpConfigurator {
     }
 
     private static class unsetEbgpMultihop_argsStandardSchemeFactory implements SchemeFactory {
-      public unsetEbgpMultihop_argsStandardScheme getScheme() {
+      @Override
+	public unsetEbgpMultihop_argsStandardScheme getScheme() {
         return new unsetEbgpMultihop_argsStandardScheme();
       }
     }
 
     private static class unsetEbgpMultihop_argsStandardScheme extends StandardScheme<unsetEbgpMultihop_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, unsetEbgpMultihop_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, unsetEbgpMultihop_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -13629,7 +14425,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.peerIp = iprot.readString();
                 struct.setPeerIpIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -13644,7 +14440,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, unsetEbgpMultihop_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, unsetEbgpMultihop_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -13660,7 +14457,8 @@ public class BgpConfigurator {
     }
 
     private static class unsetEbgpMultihop_argsTupleSchemeFactory implements SchemeFactory {
-      public unsetEbgpMultihop_argsTupleScheme getScheme() {
+      @Override
+	public unsetEbgpMultihop_argsTupleScheme getScheme() {
         return new unsetEbgpMultihop_argsTupleScheme();
       }
     }
@@ -13698,7 +14496,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new unsetEbgpMultihop_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new unsetEbgpMultihop_resultTupleSchemeFactory());
@@ -13710,7 +14508,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -13736,7 +14534,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -13755,11 +14555,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -13769,8 +14571,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(unsetEbgpMultihop_result.class, metaDataMap);
@@ -13795,7 +14597,8 @@ public class BgpConfigurator {
       this.success = other.success;
     }
 
-    public unsetEbgpMultihop_result deepCopy() {
+    @Override
+	public unsetEbgpMultihop_result deepCopy() {
       return new unsetEbgpMultihop_result(this);
     }
 
@@ -13828,7 +14631,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -13841,7 +14645,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return Integer.valueOf(getSuccess());
@@ -13851,7 +14656,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -13865,24 +14671,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof unsetEbgpMultihop_result)
-        return this.equals((unsetEbgpMultihop_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof unsetEbgpMultihop_result) {
+		return this.equals((unsetEbgpMultihop_result)that);
+	}
       return false;
     }
 
     public boolean equals(unsetEbgpMultihop_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true;
       boolean that_present_success = true;
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (this.success != that.success)
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (this.success != that.success) {
+			return false;
+		}
       }
 
       return true;
@@ -13914,15 +14725,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -13962,20 +14776,22 @@ public class BgpConfigurator {
     }
 
     private static class unsetEbgpMultihop_resultStandardSchemeFactory implements SchemeFactory {
-      public unsetEbgpMultihop_resultStandardScheme getScheme() {
+      @Override
+	public unsetEbgpMultihop_resultStandardScheme getScheme() {
         return new unsetEbgpMultihop_resultStandardScheme();
       }
     }
 
     private static class unsetEbgpMultihop_resultStandardScheme extends StandardScheme<unsetEbgpMultihop_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, unsetEbgpMultihop_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, unsetEbgpMultihop_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -13983,7 +14799,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.success = iprot.readI32();
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -13998,7 +14814,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, unsetEbgpMultihop_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, unsetEbgpMultihop_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -14014,7 +14831,8 @@ public class BgpConfigurator {
     }
 
     private static class unsetEbgpMultihop_resultTupleSchemeFactory implements SchemeFactory {
-      public unsetEbgpMultihop_resultTupleScheme getScheme() {
+      @Override
+	public unsetEbgpMultihop_resultTupleScheme getScheme() {
         return new unsetEbgpMultihop_resultTupleScheme();
       }
     }
@@ -14053,7 +14871,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField PEER_IP_FIELD_DESC = new org.apache.thrift.protocol.TField("peerIp", org.apache.thrift.protocol.TType.STRING, (short)1);
     private static final org.apache.thrift.protocol.TField SRC_IP_FIELD_DESC = new org.apache.thrift.protocol.TField("srcIp", org.apache.thrift.protocol.TType.STRING, (short)2);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new setUpdateSource_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new setUpdateSource_argsTupleSchemeFactory());
@@ -14067,7 +14885,7 @@ public class BgpConfigurator {
       PEER_IP((short)1, "peerIp"),
       SRC_IP((short)2, "srcIp");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -14095,7 +14913,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -14114,11 +14934,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -14126,10 +14948,10 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.PEER_IP, new org.apache.thrift.meta_data.FieldMetaData("peerIp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.PEER_IP, new org.apache.thrift.meta_data.FieldMetaData("peerIp", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.SRC_IP, new org.apache.thrift.meta_data.FieldMetaData("srcIp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.SRC_IP, new org.apache.thrift.meta_data.FieldMetaData("srcIp", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(setUpdateSource_args.class, metaDataMap);
@@ -14159,7 +14981,8 @@ public class BgpConfigurator {
       }
     }
 
-    public setUpdateSource_args deepCopy() {
+    @Override
+	public setUpdateSource_args deepCopy() {
       return new setUpdateSource_args(this);
     }
 
@@ -14217,7 +15040,8 @@ public class BgpConfigurator {
       }
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case PEER_IP:
         if (value == null) {
@@ -14238,7 +15062,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case PEER_IP:
         return getPeerIp();
@@ -14251,7 +15076,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -14267,33 +15093,40 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof setUpdateSource_args)
-        return this.equals((setUpdateSource_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof setUpdateSource_args) {
+		return this.equals((setUpdateSource_args)that);
+	}
       return false;
     }
 
     public boolean equals(setUpdateSource_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_peerIp = true && this.isSetPeerIp();
       boolean that_present_peerIp = true && that.isSetPeerIp();
       if (this_present_peerIp || that_present_peerIp) {
-        if (!(this_present_peerIp && that_present_peerIp))
-          return false;
-        if (!this.peerIp.equals(that.peerIp))
-          return false;
+        if (!(this_present_peerIp && that_present_peerIp)) {
+			return false;
+		}
+        if (!this.peerIp.equals(that.peerIp)) {
+			return false;
+		}
       }
 
       boolean this_present_srcIp = true && this.isSetSrcIp();
       boolean that_present_srcIp = true && that.isSetSrcIp();
       if (this_present_srcIp || that_present_srcIp) {
-        if (!(this_present_srcIp && that_present_srcIp))
-          return false;
-        if (!this.srcIp.equals(that.srcIp))
-          return false;
+        if (!(this_present_srcIp && that_present_srcIp)) {
+			return false;
+		}
+        if (!this.srcIp.equals(that.srcIp)) {
+			return false;
+		}
       }
 
       return true;
@@ -14335,15 +15168,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -14359,7 +15195,9 @@ public class BgpConfigurator {
         sb.append(this.peerIp);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("srcIp:");
       if (this.srcIp == null) {
         sb.append("null");
@@ -14393,20 +15231,22 @@ public class BgpConfigurator {
     }
 
     private static class setUpdateSource_argsStandardSchemeFactory implements SchemeFactory {
-      public setUpdateSource_argsStandardScheme getScheme() {
+      @Override
+	public setUpdateSource_argsStandardScheme getScheme() {
         return new setUpdateSource_argsStandardScheme();
       }
     }
 
     private static class setUpdateSource_argsStandardScheme extends StandardScheme<setUpdateSource_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, setUpdateSource_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, setUpdateSource_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -14414,7 +15254,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.peerIp = iprot.readString();
                 struct.setPeerIpIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -14422,7 +15262,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.srcIp = iprot.readString();
                 struct.setSrcIpIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -14437,7 +15277,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, setUpdateSource_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, setUpdateSource_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -14458,7 +15299,8 @@ public class BgpConfigurator {
     }
 
     private static class setUpdateSource_argsTupleSchemeFactory implements SchemeFactory {
-      public setUpdateSource_argsTupleScheme getScheme() {
+      @Override
+	public setUpdateSource_argsTupleScheme getScheme() {
         return new setUpdateSource_argsTupleScheme();
       }
     }
@@ -14506,7 +15348,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new setUpdateSource_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new setUpdateSource_resultTupleSchemeFactory());
@@ -14518,7 +15360,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -14544,7 +15386,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -14563,11 +15407,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -14577,8 +15423,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(setUpdateSource_result.class, metaDataMap);
@@ -14603,7 +15449,8 @@ public class BgpConfigurator {
       this.success = other.success;
     }
 
-    public setUpdateSource_result deepCopy() {
+    @Override
+	public setUpdateSource_result deepCopy() {
       return new setUpdateSource_result(this);
     }
 
@@ -14636,7 +15483,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -14649,7 +15497,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return Integer.valueOf(getSuccess());
@@ -14659,7 +15508,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -14673,24 +15523,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof setUpdateSource_result)
-        return this.equals((setUpdateSource_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof setUpdateSource_result) {
+		return this.equals((setUpdateSource_result)that);
+	}
       return false;
     }
 
     public boolean equals(setUpdateSource_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true;
       boolean that_present_success = true;
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (this.success != that.success)
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (this.success != that.success) {
+			return false;
+		}
       }
 
       return true;
@@ -14722,15 +15577,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -14770,20 +15628,22 @@ public class BgpConfigurator {
     }
 
     private static class setUpdateSource_resultStandardSchemeFactory implements SchemeFactory {
-      public setUpdateSource_resultStandardScheme getScheme() {
+      @Override
+	public setUpdateSource_resultStandardScheme getScheme() {
         return new setUpdateSource_resultStandardScheme();
       }
     }
 
     private static class setUpdateSource_resultStandardScheme extends StandardScheme<setUpdateSource_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, setUpdateSource_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, setUpdateSource_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -14791,7 +15651,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.success = iprot.readI32();
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -14806,7 +15666,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, setUpdateSource_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, setUpdateSource_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -14822,7 +15683,8 @@ public class BgpConfigurator {
     }
 
     private static class setUpdateSource_resultTupleSchemeFactory implements SchemeFactory {
-      public setUpdateSource_resultTupleScheme getScheme() {
+      @Override
+	public setUpdateSource_resultTupleScheme getScheme() {
         return new setUpdateSource_resultTupleScheme();
       }
     }
@@ -14860,7 +15722,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField PEER_IP_FIELD_DESC = new org.apache.thrift.protocol.TField("peerIp", org.apache.thrift.protocol.TType.STRING, (short)1);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new unsetUpdateSource_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new unsetUpdateSource_argsTupleSchemeFactory());
@@ -14872,7 +15734,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       PEER_IP((short)1, "peerIp");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -14898,7 +15760,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -14917,11 +15781,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -14929,8 +15795,8 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.PEER_IP, new org.apache.thrift.meta_data.FieldMetaData("peerIp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.PEER_IP, new org.apache.thrift.meta_data.FieldMetaData("peerIp", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(unsetUpdateSource_args.class, metaDataMap);
@@ -14955,7 +15821,8 @@ public class BgpConfigurator {
       }
     }
 
-    public unsetUpdateSource_args deepCopy() {
+    @Override
+	public unsetUpdateSource_args deepCopy() {
       return new unsetUpdateSource_args(this);
     }
 
@@ -14988,7 +15855,8 @@ public class BgpConfigurator {
       }
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case PEER_IP:
         if (value == null) {
@@ -15001,7 +15869,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case PEER_IP:
         return getPeerIp();
@@ -15011,7 +15880,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -15025,24 +15895,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof unsetUpdateSource_args)
-        return this.equals((unsetUpdateSource_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof unsetUpdateSource_args) {
+		return this.equals((unsetUpdateSource_args)that);
+	}
       return false;
     }
 
     public boolean equals(unsetUpdateSource_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_peerIp = true && this.isSetPeerIp();
       boolean that_present_peerIp = true && that.isSetPeerIp();
       if (this_present_peerIp || that_present_peerIp) {
-        if (!(this_present_peerIp && that_present_peerIp))
-          return false;
-        if (!this.peerIp.equals(that.peerIp))
-          return false;
+        if (!(this_present_peerIp && that_present_peerIp)) {
+			return false;
+		}
+        if (!this.peerIp.equals(that.peerIp)) {
+			return false;
+		}
       }
 
       return true;
@@ -15074,15 +15949,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -15124,20 +16002,22 @@ public class BgpConfigurator {
     }
 
     private static class unsetUpdateSource_argsStandardSchemeFactory implements SchemeFactory {
-      public unsetUpdateSource_argsStandardScheme getScheme() {
+      @Override
+	public unsetUpdateSource_argsStandardScheme getScheme() {
         return new unsetUpdateSource_argsStandardScheme();
       }
     }
 
     private static class unsetUpdateSource_argsStandardScheme extends StandardScheme<unsetUpdateSource_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, unsetUpdateSource_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, unsetUpdateSource_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -15145,7 +16025,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.peerIp = iprot.readString();
                 struct.setPeerIpIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -15160,7 +16040,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, unsetUpdateSource_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, unsetUpdateSource_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -15176,7 +16057,8 @@ public class BgpConfigurator {
     }
 
     private static class unsetUpdateSource_argsTupleSchemeFactory implements SchemeFactory {
-      public unsetUpdateSource_argsTupleScheme getScheme() {
+      @Override
+	public unsetUpdateSource_argsTupleScheme getScheme() {
         return new unsetUpdateSource_argsTupleScheme();
       }
     }
@@ -15214,7 +16096,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new unsetUpdateSource_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new unsetUpdateSource_resultTupleSchemeFactory());
@@ -15226,7 +16108,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -15252,7 +16134,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -15271,11 +16155,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -15285,8 +16171,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(unsetUpdateSource_result.class, metaDataMap);
@@ -15311,7 +16197,8 @@ public class BgpConfigurator {
       this.success = other.success;
     }
 
-    public unsetUpdateSource_result deepCopy() {
+    @Override
+	public unsetUpdateSource_result deepCopy() {
       return new unsetUpdateSource_result(this);
     }
 
@@ -15344,7 +16231,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -15357,7 +16245,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return Integer.valueOf(getSuccess());
@@ -15367,7 +16256,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -15381,24 +16271,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof unsetUpdateSource_result)
-        return this.equals((unsetUpdateSource_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof unsetUpdateSource_result) {
+		return this.equals((unsetUpdateSource_result)that);
+	}
       return false;
     }
 
     public boolean equals(unsetUpdateSource_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true;
       boolean that_present_success = true;
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (this.success != that.success)
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (this.success != that.success) {
+			return false;
+		}
       }
 
       return true;
@@ -15430,15 +16325,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -15478,20 +16376,22 @@ public class BgpConfigurator {
     }
 
     private static class unsetUpdateSource_resultStandardSchemeFactory implements SchemeFactory {
-      public unsetUpdateSource_resultStandardScheme getScheme() {
+      @Override
+	public unsetUpdateSource_resultStandardScheme getScheme() {
         return new unsetUpdateSource_resultStandardScheme();
       }
     }
 
     private static class unsetUpdateSource_resultStandardScheme extends StandardScheme<unsetUpdateSource_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, unsetUpdateSource_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, unsetUpdateSource_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -15499,7 +16399,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.success = iprot.readI32();
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -15514,7 +16414,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, unsetUpdateSource_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, unsetUpdateSource_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -15530,7 +16431,8 @@ public class BgpConfigurator {
     }
 
     private static class unsetUpdateSource_resultTupleSchemeFactory implements SchemeFactory {
-      public unsetUpdateSource_resultTupleScheme getScheme() {
+      @Override
+	public unsetUpdateSource_resultTupleScheme getScheme() {
         return new unsetUpdateSource_resultTupleScheme();
       }
     }
@@ -15570,7 +16472,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField AFI_FIELD_DESC = new org.apache.thrift.protocol.TField("afi", org.apache.thrift.protocol.TType.I32, (short)2);
     private static final org.apache.thrift.protocol.TField SAFI_FIELD_DESC = new org.apache.thrift.protocol.TField("safi", org.apache.thrift.protocol.TType.I32, (short)3);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new enableAddressFamily_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new enableAddressFamily_argsTupleSchemeFactory());
@@ -15578,12 +16480,12 @@ public class BgpConfigurator {
 
     public String peerIp; // required
     /**
-     * 
+     *
      * @see af_afi
      */
     public af_afi afi; // required
     /**
-     * 
+     *
      * @see af_safi
      */
     public af_safi safi; // required
@@ -15592,17 +16494,17 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       PEER_IP((short)1, "peerIp"),
       /**
-       * 
+       *
        * @see af_afi
        */
       AFI((short)2, "afi"),
       /**
-       * 
+       *
        * @see af_safi
        */
       SAFI((short)3, "safi");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -15632,7 +16534,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -15651,11 +16555,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -15663,12 +16569,12 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.PEER_IP, new org.apache.thrift.meta_data.FieldMetaData("peerIp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.PEER_IP, new org.apache.thrift.meta_data.FieldMetaData("peerIp", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.AFI, new org.apache.thrift.meta_data.FieldMetaData("afi", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.AFI, new org.apache.thrift.meta_data.FieldMetaData("afi", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, af_afi.class)));
-      tmpMap.put(_Fields.SAFI, new org.apache.thrift.meta_data.FieldMetaData("safi", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.SAFI, new org.apache.thrift.meta_data.FieldMetaData("safi", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, af_safi.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(enableAddressFamily_args.class, metaDataMap);
@@ -15703,7 +16609,8 @@ public class BgpConfigurator {
       }
     }
 
-    public enableAddressFamily_args deepCopy() {
+    @Override
+	public enableAddressFamily_args deepCopy() {
       return new enableAddressFamily_args(this);
     }
 
@@ -15739,7 +16646,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_afi
      */
     public af_afi getAfi() {
@@ -15747,7 +16654,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_afi
      */
     public enableAddressFamily_args setAfi(af_afi afi) {
@@ -15771,7 +16678,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_safi
      */
     public af_safi getSafi() {
@@ -15779,7 +16686,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_safi
      */
     public enableAddressFamily_args setSafi(af_safi safi) {
@@ -15802,7 +16709,8 @@ public class BgpConfigurator {
       }
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case PEER_IP:
         if (value == null) {
@@ -15831,7 +16739,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case PEER_IP:
         return getPeerIp();
@@ -15847,7 +16756,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -15865,42 +16775,51 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof enableAddressFamily_args)
-        return this.equals((enableAddressFamily_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof enableAddressFamily_args) {
+		return this.equals((enableAddressFamily_args)that);
+	}
       return false;
     }
 
     public boolean equals(enableAddressFamily_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_peerIp = true && this.isSetPeerIp();
       boolean that_present_peerIp = true && that.isSetPeerIp();
       if (this_present_peerIp || that_present_peerIp) {
-        if (!(this_present_peerIp && that_present_peerIp))
-          return false;
-        if (!this.peerIp.equals(that.peerIp))
-          return false;
+        if (!(this_present_peerIp && that_present_peerIp)) {
+			return false;
+		}
+        if (!this.peerIp.equals(that.peerIp)) {
+			return false;
+		}
       }
 
       boolean this_present_afi = true && this.isSetAfi();
       boolean that_present_afi = true && that.isSetAfi();
       if (this_present_afi || that_present_afi) {
-        if (!(this_present_afi && that_present_afi))
-          return false;
-        if (!this.afi.equals(that.afi))
-          return false;
+        if (!(this_present_afi && that_present_afi)) {
+			return false;
+		}
+        if (!this.afi.equals(that.afi)) {
+			return false;
+		}
       }
 
       boolean this_present_safi = true && this.isSetSafi();
       boolean that_present_safi = true && that.isSetSafi();
       if (this_present_safi || that_present_safi) {
-        if (!(this_present_safi && that_present_safi))
-          return false;
-        if (!this.safi.equals(that.safi))
-          return false;
+        if (!(this_present_safi && that_present_safi)) {
+			return false;
+		}
+        if (!this.safi.equals(that.safi)) {
+			return false;
+		}
       }
 
       return true;
@@ -15952,15 +16871,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -15976,7 +16898,9 @@ public class BgpConfigurator {
         sb.append(this.peerIp);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("afi:");
       if (this.afi == null) {
         sb.append("null");
@@ -15984,7 +16908,9 @@ public class BgpConfigurator {
         sb.append(this.afi);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("safi:");
       if (this.safi == null) {
         sb.append("null");
@@ -16018,20 +16944,22 @@ public class BgpConfigurator {
     }
 
     private static class enableAddressFamily_argsStandardSchemeFactory implements SchemeFactory {
-      public enableAddressFamily_argsStandardScheme getScheme() {
+      @Override
+	public enableAddressFamily_argsStandardScheme getScheme() {
         return new enableAddressFamily_argsStandardScheme();
       }
     }
 
     private static class enableAddressFamily_argsStandardScheme extends StandardScheme<enableAddressFamily_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, enableAddressFamily_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, enableAddressFamily_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -16039,7 +16967,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.peerIp = iprot.readString();
                 struct.setPeerIpIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -16047,7 +16975,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.afi = af_afi.findByValue(iprot.readI32());
                 struct.setAfiIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -16055,7 +16983,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.safi = af_safi.findByValue(iprot.readI32());
                 struct.setSafiIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -16070,7 +16998,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, enableAddressFamily_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, enableAddressFamily_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -16096,7 +17025,8 @@ public class BgpConfigurator {
     }
 
     private static class enableAddressFamily_argsTupleSchemeFactory implements SchemeFactory {
-      public enableAddressFamily_argsTupleScheme getScheme() {
+      @Override
+	public enableAddressFamily_argsTupleScheme getScheme() {
         return new enableAddressFamily_argsTupleScheme();
       }
     }
@@ -16154,7 +17084,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new enableAddressFamily_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new enableAddressFamily_resultTupleSchemeFactory());
@@ -16166,7 +17096,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -16192,7 +17122,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -16211,11 +17143,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -16225,8 +17159,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(enableAddressFamily_result.class, metaDataMap);
@@ -16251,7 +17185,8 @@ public class BgpConfigurator {
       this.success = other.success;
     }
 
-    public enableAddressFamily_result deepCopy() {
+    @Override
+	public enableAddressFamily_result deepCopy() {
       return new enableAddressFamily_result(this);
     }
 
@@ -16284,7 +17219,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -16297,7 +17233,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return Integer.valueOf(getSuccess());
@@ -16307,7 +17244,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -16321,24 +17259,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof enableAddressFamily_result)
-        return this.equals((enableAddressFamily_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof enableAddressFamily_result) {
+		return this.equals((enableAddressFamily_result)that);
+	}
       return false;
     }
 
     public boolean equals(enableAddressFamily_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true;
       boolean that_present_success = true;
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (this.success != that.success)
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (this.success != that.success) {
+			return false;
+		}
       }
 
       return true;
@@ -16370,15 +17313,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -16418,20 +17364,22 @@ public class BgpConfigurator {
     }
 
     private static class enableAddressFamily_resultStandardSchemeFactory implements SchemeFactory {
-      public enableAddressFamily_resultStandardScheme getScheme() {
+      @Override
+	public enableAddressFamily_resultStandardScheme getScheme() {
         return new enableAddressFamily_resultStandardScheme();
       }
     }
 
     private static class enableAddressFamily_resultStandardScheme extends StandardScheme<enableAddressFamily_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, enableAddressFamily_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, enableAddressFamily_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -16439,7 +17387,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.success = iprot.readI32();
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -16454,7 +17402,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, enableAddressFamily_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, enableAddressFamily_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -16470,7 +17419,8 @@ public class BgpConfigurator {
     }
 
     private static class enableAddressFamily_resultTupleSchemeFactory implements SchemeFactory {
-      public enableAddressFamily_resultTupleScheme getScheme() {
+      @Override
+	public enableAddressFamily_resultTupleScheme getScheme() {
         return new enableAddressFamily_resultTupleScheme();
       }
     }
@@ -16510,7 +17460,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField AFI_FIELD_DESC = new org.apache.thrift.protocol.TField("afi", org.apache.thrift.protocol.TType.I32, (short)2);
     private static final org.apache.thrift.protocol.TField SAFI_FIELD_DESC = new org.apache.thrift.protocol.TField("safi", org.apache.thrift.protocol.TType.I32, (short)3);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new disableAddressFamily_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new disableAddressFamily_argsTupleSchemeFactory());
@@ -16518,12 +17468,12 @@ public class BgpConfigurator {
 
     public String peerIp; // required
     /**
-     * 
+     *
      * @see af_afi
      */
     public af_afi afi; // required
     /**
-     * 
+     *
      * @see af_safi
      */
     public af_safi safi; // required
@@ -16532,17 +17482,17 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       PEER_IP((short)1, "peerIp"),
       /**
-       * 
+       *
        * @see af_afi
        */
       AFI((short)2, "afi"),
       /**
-       * 
+       *
        * @see af_safi
        */
       SAFI((short)3, "safi");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -16572,7 +17522,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -16591,11 +17543,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -16603,12 +17557,12 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.PEER_IP, new org.apache.thrift.meta_data.FieldMetaData("peerIp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.PEER_IP, new org.apache.thrift.meta_data.FieldMetaData("peerIp", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.AFI, new org.apache.thrift.meta_data.FieldMetaData("afi", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.AFI, new org.apache.thrift.meta_data.FieldMetaData("afi", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, af_afi.class)));
-      tmpMap.put(_Fields.SAFI, new org.apache.thrift.meta_data.FieldMetaData("safi", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.SAFI, new org.apache.thrift.meta_data.FieldMetaData("safi", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, af_safi.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(disableAddressFamily_args.class, metaDataMap);
@@ -16643,7 +17597,8 @@ public class BgpConfigurator {
       }
     }
 
-    public disableAddressFamily_args deepCopy() {
+    @Override
+	public disableAddressFamily_args deepCopy() {
       return new disableAddressFamily_args(this);
     }
 
@@ -16679,7 +17634,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_afi
      */
     public af_afi getAfi() {
@@ -16687,7 +17642,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_afi
      */
     public disableAddressFamily_args setAfi(af_afi afi) {
@@ -16711,7 +17666,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_safi
      */
     public af_safi getSafi() {
@@ -16719,7 +17674,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_safi
      */
     public disableAddressFamily_args setSafi(af_safi safi) {
@@ -16742,7 +17697,8 @@ public class BgpConfigurator {
       }
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case PEER_IP:
         if (value == null) {
@@ -16771,7 +17727,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case PEER_IP:
         return getPeerIp();
@@ -16787,7 +17744,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -16805,42 +17763,51 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof disableAddressFamily_args)
-        return this.equals((disableAddressFamily_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof disableAddressFamily_args) {
+		return this.equals((disableAddressFamily_args)that);
+	}
       return false;
     }
 
     public boolean equals(disableAddressFamily_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_peerIp = true && this.isSetPeerIp();
       boolean that_present_peerIp = true && that.isSetPeerIp();
       if (this_present_peerIp || that_present_peerIp) {
-        if (!(this_present_peerIp && that_present_peerIp))
-          return false;
-        if (!this.peerIp.equals(that.peerIp))
-          return false;
+        if (!(this_present_peerIp && that_present_peerIp)) {
+			return false;
+		}
+        if (!this.peerIp.equals(that.peerIp)) {
+			return false;
+		}
       }
 
       boolean this_present_afi = true && this.isSetAfi();
       boolean that_present_afi = true && that.isSetAfi();
       if (this_present_afi || that_present_afi) {
-        if (!(this_present_afi && that_present_afi))
-          return false;
-        if (!this.afi.equals(that.afi))
-          return false;
+        if (!(this_present_afi && that_present_afi)) {
+			return false;
+		}
+        if (!this.afi.equals(that.afi)) {
+			return false;
+		}
       }
 
       boolean this_present_safi = true && this.isSetSafi();
       boolean that_present_safi = true && that.isSetSafi();
       if (this_present_safi || that_present_safi) {
-        if (!(this_present_safi && that_present_safi))
-          return false;
-        if (!this.safi.equals(that.safi))
-          return false;
+        if (!(this_present_safi && that_present_safi)) {
+			return false;
+		}
+        if (!this.safi.equals(that.safi)) {
+			return false;
+		}
       }
 
       return true;
@@ -16892,15 +17859,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -16916,7 +17886,9 @@ public class BgpConfigurator {
         sb.append(this.peerIp);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("afi:");
       if (this.afi == null) {
         sb.append("null");
@@ -16924,7 +17896,9 @@ public class BgpConfigurator {
         sb.append(this.afi);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("safi:");
       if (this.safi == null) {
         sb.append("null");
@@ -16958,20 +17932,22 @@ public class BgpConfigurator {
     }
 
     private static class disableAddressFamily_argsStandardSchemeFactory implements SchemeFactory {
-      public disableAddressFamily_argsStandardScheme getScheme() {
+      @Override
+	public disableAddressFamily_argsStandardScheme getScheme() {
         return new disableAddressFamily_argsStandardScheme();
       }
     }
 
     private static class disableAddressFamily_argsStandardScheme extends StandardScheme<disableAddressFamily_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, disableAddressFamily_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, disableAddressFamily_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -16979,7 +17955,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.peerIp = iprot.readString();
                 struct.setPeerIpIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -16987,7 +17963,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.afi = af_afi.findByValue(iprot.readI32());
                 struct.setAfiIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -16995,7 +17971,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.safi = af_safi.findByValue(iprot.readI32());
                 struct.setSafiIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -17010,7 +17986,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, disableAddressFamily_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, disableAddressFamily_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -17036,7 +18013,8 @@ public class BgpConfigurator {
     }
 
     private static class disableAddressFamily_argsTupleSchemeFactory implements SchemeFactory {
-      public disableAddressFamily_argsTupleScheme getScheme() {
+      @Override
+	public disableAddressFamily_argsTupleScheme getScheme() {
         return new disableAddressFamily_argsTupleScheme();
       }
     }
@@ -17094,7 +18072,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new disableAddressFamily_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new disableAddressFamily_resultTupleSchemeFactory());
@@ -17106,7 +18084,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -17132,7 +18110,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -17151,11 +18131,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -17165,8 +18147,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(disableAddressFamily_result.class, metaDataMap);
@@ -17191,7 +18173,8 @@ public class BgpConfigurator {
       this.success = other.success;
     }
 
-    public disableAddressFamily_result deepCopy() {
+    @Override
+	public disableAddressFamily_result deepCopy() {
       return new disableAddressFamily_result(this);
     }
 
@@ -17224,7 +18207,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -17237,7 +18221,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return Integer.valueOf(getSuccess());
@@ -17247,7 +18232,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -17261,24 +18247,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof disableAddressFamily_result)
-        return this.equals((disableAddressFamily_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof disableAddressFamily_result) {
+		return this.equals((disableAddressFamily_result)that);
+	}
       return false;
     }
 
     public boolean equals(disableAddressFamily_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true;
       boolean that_present_success = true;
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (this.success != that.success)
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (this.success != that.success) {
+			return false;
+		}
       }
 
       return true;
@@ -17310,15 +18301,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -17358,20 +18352,22 @@ public class BgpConfigurator {
     }
 
     private static class disableAddressFamily_resultStandardSchemeFactory implements SchemeFactory {
-      public disableAddressFamily_resultStandardScheme getScheme() {
+      @Override
+	public disableAddressFamily_resultStandardScheme getScheme() {
         return new disableAddressFamily_resultStandardScheme();
       }
     }
 
     private static class disableAddressFamily_resultStandardScheme extends StandardScheme<disableAddressFamily_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, disableAddressFamily_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, disableAddressFamily_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -17379,7 +18375,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.success = iprot.readI32();
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -17394,7 +18390,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, disableAddressFamily_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, disableAddressFamily_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -17410,7 +18407,8 @@ public class BgpConfigurator {
     }
 
     private static class disableAddressFamily_resultTupleSchemeFactory implements SchemeFactory {
-      public disableAddressFamily_resultTupleScheme getScheme() {
+      @Override
+	public disableAddressFamily_resultTupleScheme getScheme() {
         return new disableAddressFamily_resultTupleScheme();
       }
     }
@@ -17449,7 +18447,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField LOG_FILE_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("logFileName", org.apache.thrift.protocol.TType.STRING, (short)1);
     private static final org.apache.thrift.protocol.TField LOG_LEVEL_FIELD_DESC = new org.apache.thrift.protocol.TField("logLevel", org.apache.thrift.protocol.TType.STRING, (short)2);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new setLogConfig_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new setLogConfig_argsTupleSchemeFactory());
@@ -17463,7 +18461,7 @@ public class BgpConfigurator {
       LOG_FILE_NAME((short)1, "logFileName"),
       LOG_LEVEL((short)2, "logLevel");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -17491,7 +18489,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -17510,11 +18510,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -17522,10 +18524,10 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.LOG_FILE_NAME, new org.apache.thrift.meta_data.FieldMetaData("logFileName", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.LOG_FILE_NAME, new org.apache.thrift.meta_data.FieldMetaData("logFileName", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.LOG_LEVEL, new org.apache.thrift.meta_data.FieldMetaData("logLevel", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.LOG_LEVEL, new org.apache.thrift.meta_data.FieldMetaData("logLevel", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(setLogConfig_args.class, metaDataMap);
@@ -17555,7 +18557,8 @@ public class BgpConfigurator {
       }
     }
 
-    public setLogConfig_args deepCopy() {
+    @Override
+	public setLogConfig_args deepCopy() {
       return new setLogConfig_args(this);
     }
 
@@ -17613,7 +18616,8 @@ public class BgpConfigurator {
       }
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case LOG_FILE_NAME:
         if (value == null) {
@@ -17634,7 +18638,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case LOG_FILE_NAME:
         return getLogFileName();
@@ -17647,7 +18652,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -17663,33 +18669,40 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof setLogConfig_args)
-        return this.equals((setLogConfig_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof setLogConfig_args) {
+		return this.equals((setLogConfig_args)that);
+	}
       return false;
     }
 
     public boolean equals(setLogConfig_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_logFileName = true && this.isSetLogFileName();
       boolean that_present_logFileName = true && that.isSetLogFileName();
       if (this_present_logFileName || that_present_logFileName) {
-        if (!(this_present_logFileName && that_present_logFileName))
-          return false;
-        if (!this.logFileName.equals(that.logFileName))
-          return false;
+        if (!(this_present_logFileName && that_present_logFileName)) {
+			return false;
+		}
+        if (!this.logFileName.equals(that.logFileName)) {
+			return false;
+		}
       }
 
       boolean this_present_logLevel = true && this.isSetLogLevel();
       boolean that_present_logLevel = true && that.isSetLogLevel();
       if (this_present_logLevel || that_present_logLevel) {
-        if (!(this_present_logLevel && that_present_logLevel))
-          return false;
-        if (!this.logLevel.equals(that.logLevel))
-          return false;
+        if (!(this_present_logLevel && that_present_logLevel)) {
+			return false;
+		}
+        if (!this.logLevel.equals(that.logLevel)) {
+			return false;
+		}
       }
 
       return true;
@@ -17731,15 +18744,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -17755,7 +18771,9 @@ public class BgpConfigurator {
         sb.append(this.logFileName);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("logLevel:");
       if (this.logLevel == null) {
         sb.append("null");
@@ -17789,20 +18807,22 @@ public class BgpConfigurator {
     }
 
     private static class setLogConfig_argsStandardSchemeFactory implements SchemeFactory {
-      public setLogConfig_argsStandardScheme getScheme() {
+      @Override
+	public setLogConfig_argsStandardScheme getScheme() {
         return new setLogConfig_argsStandardScheme();
       }
     }
 
     private static class setLogConfig_argsStandardScheme extends StandardScheme<setLogConfig_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, setLogConfig_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, setLogConfig_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -17810,7 +18830,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.logFileName = iprot.readString();
                 struct.setLogFileNameIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -17818,7 +18838,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.logLevel = iprot.readString();
                 struct.setLogLevelIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -17833,7 +18853,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, setLogConfig_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, setLogConfig_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -17854,7 +18875,8 @@ public class BgpConfigurator {
     }
 
     private static class setLogConfig_argsTupleSchemeFactory implements SchemeFactory {
-      public setLogConfig_argsTupleScheme getScheme() {
+      @Override
+	public setLogConfig_argsTupleScheme getScheme() {
         return new setLogConfig_argsTupleScheme();
       }
     }
@@ -17902,7 +18924,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new setLogConfig_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new setLogConfig_resultTupleSchemeFactory());
@@ -17914,7 +18936,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -17940,7 +18962,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -17959,11 +18983,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -17973,8 +18999,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(setLogConfig_result.class, metaDataMap);
@@ -17999,7 +19025,8 @@ public class BgpConfigurator {
       this.success = other.success;
     }
 
-    public setLogConfig_result deepCopy() {
+    @Override
+	public setLogConfig_result deepCopy() {
       return new setLogConfig_result(this);
     }
 
@@ -18032,7 +19059,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -18045,7 +19073,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return Integer.valueOf(getSuccess());
@@ -18055,7 +19084,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -18069,24 +19099,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof setLogConfig_result)
-        return this.equals((setLogConfig_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof setLogConfig_result) {
+		return this.equals((setLogConfig_result)that);
+	}
       return false;
     }
 
     public boolean equals(setLogConfig_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true;
       boolean that_present_success = true;
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (this.success != that.success)
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (this.success != that.success) {
+			return false;
+		}
       }
 
       return true;
@@ -18118,15 +19153,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -18166,20 +19204,22 @@ public class BgpConfigurator {
     }
 
     private static class setLogConfig_resultStandardSchemeFactory implements SchemeFactory {
-      public setLogConfig_resultStandardScheme getScheme() {
+      @Override
+	public setLogConfig_resultStandardScheme getScheme() {
         return new setLogConfig_resultStandardScheme();
       }
     }
 
     private static class setLogConfig_resultStandardScheme extends StandardScheme<setLogConfig_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, setLogConfig_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, setLogConfig_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -18187,7 +19227,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.success = iprot.readI32();
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -18202,7 +19242,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, setLogConfig_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, setLogConfig_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -18218,7 +19259,8 @@ public class BgpConfigurator {
     }
 
     private static class setLogConfig_resultTupleSchemeFactory implements SchemeFactory {
-      public setLogConfig_resultTupleScheme getScheme() {
+      @Override
+	public setLogConfig_resultTupleScheme getScheme() {
         return new setLogConfig_resultTupleScheme();
       }
     }
@@ -18256,7 +19298,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField STALEPATH_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("stalepathTime", org.apache.thrift.protocol.TType.I32, (short)1);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new enableGracefulRestart_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new enableGracefulRestart_argsTupleSchemeFactory());
@@ -18268,7 +19310,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       STALEPATH_TIME((short)1, "stalepathTime");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -18294,7 +19336,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -18313,11 +19357,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -18327,8 +19373,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.STALEPATH_TIME, new org.apache.thrift.meta_data.FieldMetaData("stalepathTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.STALEPATH_TIME, new org.apache.thrift.meta_data.FieldMetaData("stalepathTime", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(enableGracefulRestart_args.class, metaDataMap);
@@ -18353,7 +19399,8 @@ public class BgpConfigurator {
       this.stalepathTime = other.stalepathTime;
     }
 
-    public enableGracefulRestart_args deepCopy() {
+    @Override
+	public enableGracefulRestart_args deepCopy() {
       return new enableGracefulRestart_args(this);
     }
 
@@ -18386,7 +19433,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __STALEPATHTIME_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case STALEPATH_TIME:
         if (value == null) {
@@ -18399,7 +19447,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case STALEPATH_TIME:
         return Integer.valueOf(getStalepathTime());
@@ -18409,7 +19458,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -18423,24 +19473,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof enableGracefulRestart_args)
-        return this.equals((enableGracefulRestart_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof enableGracefulRestart_args) {
+		return this.equals((enableGracefulRestart_args)that);
+	}
       return false;
     }
 
     public boolean equals(enableGracefulRestart_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_stalepathTime = true;
       boolean that_present_stalepathTime = true;
       if (this_present_stalepathTime || that_present_stalepathTime) {
-        if (!(this_present_stalepathTime && that_present_stalepathTime))
-          return false;
-        if (this.stalepathTime != that.stalepathTime)
-          return false;
+        if (!(this_present_stalepathTime && that_present_stalepathTime)) {
+			return false;
+		}
+        if (this.stalepathTime != that.stalepathTime) {
+			return false;
+		}
       }
 
       return true;
@@ -18472,15 +19527,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -18520,20 +19578,22 @@ public class BgpConfigurator {
     }
 
     private static class enableGracefulRestart_argsStandardSchemeFactory implements SchemeFactory {
-      public enableGracefulRestart_argsStandardScheme getScheme() {
+      @Override
+	public enableGracefulRestart_argsStandardScheme getScheme() {
         return new enableGracefulRestart_argsStandardScheme();
       }
     }
 
     private static class enableGracefulRestart_argsStandardScheme extends StandardScheme<enableGracefulRestart_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, enableGracefulRestart_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, enableGracefulRestart_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -18541,7 +19601,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.stalepathTime = iprot.readI32();
                 struct.setStalepathTimeIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -18556,7 +19616,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, enableGracefulRestart_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, enableGracefulRestart_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -18570,7 +19631,8 @@ public class BgpConfigurator {
     }
 
     private static class enableGracefulRestart_argsTupleSchemeFactory implements SchemeFactory {
-      public enableGracefulRestart_argsTupleScheme getScheme() {
+      @Override
+	public enableGracefulRestart_argsTupleScheme getScheme() {
         return new enableGracefulRestart_argsTupleScheme();
       }
     }
@@ -18608,7 +19670,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new enableGracefulRestart_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new enableGracefulRestart_resultTupleSchemeFactory());
@@ -18620,7 +19682,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -18646,7 +19708,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -18665,11 +19729,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -18679,8 +19745,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(enableGracefulRestart_result.class, metaDataMap);
@@ -18705,7 +19771,8 @@ public class BgpConfigurator {
       this.success = other.success;
     }
 
-    public enableGracefulRestart_result deepCopy() {
+    @Override
+	public enableGracefulRestart_result deepCopy() {
       return new enableGracefulRestart_result(this);
     }
 
@@ -18738,7 +19805,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -18751,7 +19819,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return Integer.valueOf(getSuccess());
@@ -18761,7 +19830,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -18775,24 +19845,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof enableGracefulRestart_result)
-        return this.equals((enableGracefulRestart_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof enableGracefulRestart_result) {
+		return this.equals((enableGracefulRestart_result)that);
+	}
       return false;
     }
 
     public boolean equals(enableGracefulRestart_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true;
       boolean that_present_success = true;
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (this.success != that.success)
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (this.success != that.success) {
+			return false;
+		}
       }
 
       return true;
@@ -18824,15 +19899,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -18872,20 +19950,22 @@ public class BgpConfigurator {
     }
 
     private static class enableGracefulRestart_resultStandardSchemeFactory implements SchemeFactory {
-      public enableGracefulRestart_resultStandardScheme getScheme() {
+      @Override
+	public enableGracefulRestart_resultStandardScheme getScheme() {
         return new enableGracefulRestart_resultStandardScheme();
       }
     }
 
     private static class enableGracefulRestart_resultStandardScheme extends StandardScheme<enableGracefulRestart_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, enableGracefulRestart_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, enableGracefulRestart_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -18893,7 +19973,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.success = iprot.readI32();
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -18908,7 +19988,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, enableGracefulRestart_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, enableGracefulRestart_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -18924,7 +20005,8 @@ public class BgpConfigurator {
     }
 
     private static class enableGracefulRestart_resultTupleSchemeFactory implements SchemeFactory {
-      public enableGracefulRestart_resultTupleScheme getScheme() {
+      @Override
+	public enableGracefulRestart_resultTupleScheme getScheme() {
         return new enableGracefulRestart_resultTupleScheme();
       }
     }
@@ -18961,7 +20043,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("disableGracefulRestart_args");
 
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new disableGracefulRestart_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new disableGracefulRestart_argsTupleSchemeFactory());
@@ -18972,7 +20054,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
 ;
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -18996,7 +20078,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -19015,17 +20099,19 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(disableGracefulRestart_args.class, metaDataMap);
     }
@@ -19039,7 +20125,8 @@ public class BgpConfigurator {
     public disableGracefulRestart_args(disableGracefulRestart_args other) {
     }
 
-    public disableGracefulRestart_args deepCopy() {
+    @Override
+	public disableGracefulRestart_args deepCopy() {
       return new disableGracefulRestart_args(this);
     }
 
@@ -19047,19 +20134,22 @@ public class BgpConfigurator {
     public void clear() {
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       }
       throw new IllegalStateException();
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -19071,16 +20161,19 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof disableGracefulRestart_args)
-        return this.equals((disableGracefulRestart_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof disableGracefulRestart_args) {
+		return this.equals((disableGracefulRestart_args)that);
+	}
       return false;
     }
 
     public boolean equals(disableGracefulRestart_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       return true;
     }
@@ -19101,15 +20194,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -19144,20 +20240,22 @@ public class BgpConfigurator {
     }
 
     private static class disableGracefulRestart_argsStandardSchemeFactory implements SchemeFactory {
-      public disableGracefulRestart_argsStandardScheme getScheme() {
+      @Override
+	public disableGracefulRestart_argsStandardScheme getScheme() {
         return new disableGracefulRestart_argsStandardScheme();
       }
     }
 
     private static class disableGracefulRestart_argsStandardScheme extends StandardScheme<disableGracefulRestart_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, disableGracefulRestart_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, disableGracefulRestart_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -19172,7 +20270,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, disableGracefulRestart_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, disableGracefulRestart_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -19183,7 +20282,8 @@ public class BgpConfigurator {
     }
 
     private static class disableGracefulRestart_argsTupleSchemeFactory implements SchemeFactory {
-      public disableGracefulRestart_argsTupleScheme getScheme() {
+      @Override
+	public disableGracefulRestart_argsTupleScheme getScheme() {
         return new disableGracefulRestart_argsTupleScheme();
       }
     }
@@ -19208,7 +20308,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new disableGracefulRestart_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new disableGracefulRestart_resultTupleSchemeFactory());
@@ -19220,7 +20320,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -19246,7 +20346,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -19265,11 +20367,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -19279,8 +20383,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(disableGracefulRestart_result.class, metaDataMap);
@@ -19305,7 +20409,8 @@ public class BgpConfigurator {
       this.success = other.success;
     }
 
-    public disableGracefulRestart_result deepCopy() {
+    @Override
+	public disableGracefulRestart_result deepCopy() {
       return new disableGracefulRestart_result(this);
     }
 
@@ -19338,7 +20443,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -19351,7 +20457,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return Integer.valueOf(getSuccess());
@@ -19361,7 +20468,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -19375,24 +20483,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof disableGracefulRestart_result)
-        return this.equals((disableGracefulRestart_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof disableGracefulRestart_result) {
+		return this.equals((disableGracefulRestart_result)that);
+	}
       return false;
     }
 
     public boolean equals(disableGracefulRestart_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true;
       boolean that_present_success = true;
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (this.success != that.success)
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (this.success != that.success) {
+			return false;
+		}
       }
 
       return true;
@@ -19424,15 +20537,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -19472,20 +20588,22 @@ public class BgpConfigurator {
     }
 
     private static class disableGracefulRestart_resultStandardSchemeFactory implements SchemeFactory {
-      public disableGracefulRestart_resultStandardScheme getScheme() {
+      @Override
+	public disableGracefulRestart_resultStandardScheme getScheme() {
         return new disableGracefulRestart_resultStandardScheme();
       }
     }
 
     private static class disableGracefulRestart_resultStandardScheme extends StandardScheme<disableGracefulRestart_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, disableGracefulRestart_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, disableGracefulRestart_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -19493,7 +20611,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.success = iprot.readI32();
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -19508,7 +20626,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, disableGracefulRestart_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, disableGracefulRestart_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -19524,7 +20643,8 @@ public class BgpConfigurator {
     }
 
     private static class disableGracefulRestart_resultTupleSchemeFactory implements SchemeFactory {
-      public disableGracefulRestart_resultTupleScheme getScheme() {
+      @Override
+	public disableGracefulRestart_resultTupleScheme getScheme() {
         return new disableGracefulRestart_resultTupleScheme();
       }
     }
@@ -19565,21 +20685,21 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField WIN_SIZE_FIELD_DESC = new org.apache.thrift.protocol.TField("winSize", org.apache.thrift.protocol.TType.I32, (short)3);
     private static final org.apache.thrift.protocol.TField AFI_FIELD_DESC = new org.apache.thrift.protocol.TField("afi", org.apache.thrift.protocol.TType.I32, (short)4);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new getRoutes_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new getRoutes_argsTupleSchemeFactory());
     }
 
     /**
-     * 
+     *
      * @see protocol_type
      */
     public protocol_type p_type; // required
     public int optype; // required
     public int winSize; // required
     /**
-     * 
+     *
      * @see af_afi
      */
     public af_afi afi; // required
@@ -19587,19 +20707,19 @@ public class BgpConfigurator {
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       /**
-       * 
+       *
        * @see protocol_type
        */
       P_TYPE((short)1, "p_type"),
       OPTYPE((short)2, "optype"),
       WIN_SIZE((short)3, "winSize"),
       /**
-       * 
+       *
        * @see af_afi
        */
       AFI((short)4, "afi");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -19631,7 +20751,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -19650,11 +20772,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -19665,14 +20789,14 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.P_TYPE, new org.apache.thrift.meta_data.FieldMetaData("p_type", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.P_TYPE, new org.apache.thrift.meta_data.FieldMetaData("p_type", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, protocol_type.class)));
-      tmpMap.put(_Fields.OPTYPE, new org.apache.thrift.meta_data.FieldMetaData("optype", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.OPTYPE, new org.apache.thrift.meta_data.FieldMetaData("optype", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-      tmpMap.put(_Fields.WIN_SIZE, new org.apache.thrift.meta_data.FieldMetaData("winSize", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.WIN_SIZE, new org.apache.thrift.meta_data.FieldMetaData("winSize", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-      tmpMap.put(_Fields.AFI, new org.apache.thrift.meta_data.FieldMetaData("afi", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.AFI, new org.apache.thrift.meta_data.FieldMetaData("afi", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, af_afi.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getRoutes_args.class, metaDataMap);
@@ -19711,7 +20835,8 @@ public class BgpConfigurator {
       }
     }
 
-    public getRoutes_args deepCopy() {
+    @Override
+	public getRoutes_args deepCopy() {
       return new getRoutes_args(this);
     }
 
@@ -19726,7 +20851,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see protocol_type
      */
     public protocol_type getP_type() {
@@ -19734,7 +20859,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see protocol_type
      */
     public getRoutes_args setP_type(protocol_type p_type) {
@@ -19804,7 +20929,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_afi
      */
     public af_afi getAfi() {
@@ -19812,7 +20937,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_afi
      */
     public getRoutes_args setAfi(af_afi afi) {
@@ -19835,7 +20960,8 @@ public class BgpConfigurator {
       }
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case P_TYPE:
         if (value == null) {
@@ -19872,7 +20998,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case P_TYPE:
         return getP_type();
@@ -19891,7 +21018,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -19911,51 +21039,62 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof getRoutes_args)
-        return this.equals((getRoutes_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof getRoutes_args) {
+		return this.equals((getRoutes_args)that);
+	}
       return false;
     }
 
     public boolean equals(getRoutes_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_p_type = true && this.isSetP_type();
       boolean that_present_p_type = true && that.isSetP_type();
       if (this_present_p_type || that_present_p_type) {
-        if (!(this_present_p_type && that_present_p_type))
-          return false;
-        if (!this.p_type.equals(that.p_type))
-          return false;
+        if (!(this_present_p_type && that_present_p_type)) {
+			return false;
+		}
+        if (!this.p_type.equals(that.p_type)) {
+			return false;
+		}
       }
 
       boolean this_present_optype = true;
       boolean that_present_optype = true;
       if (this_present_optype || that_present_optype) {
-        if (!(this_present_optype && that_present_optype))
-          return false;
-        if (this.optype != that.optype)
-          return false;
+        if (!(this_present_optype && that_present_optype)) {
+			return false;
+		}
+        if (this.optype != that.optype) {
+			return false;
+		}
       }
 
       boolean this_present_winSize = true;
       boolean that_present_winSize = true;
       if (this_present_winSize || that_present_winSize) {
-        if (!(this_present_winSize && that_present_winSize))
-          return false;
-        if (this.winSize != that.winSize)
-          return false;
+        if (!(this_present_winSize && that_present_winSize)) {
+			return false;
+		}
+        if (this.winSize != that.winSize) {
+			return false;
+		}
       }
 
       boolean this_present_afi = true && this.isSetAfi();
       boolean that_present_afi = true && that.isSetAfi();
       if (this_present_afi || that_present_afi) {
-        if (!(this_present_afi && that_present_afi))
-          return false;
-        if (!this.afi.equals(that.afi))
-          return false;
+        if (!(this_present_afi && that_present_afi)) {
+			return false;
+		}
+        if (!this.afi.equals(that.afi)) {
+			return false;
+		}
       }
 
       return true;
@@ -20017,15 +21156,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -20041,15 +21183,21 @@ public class BgpConfigurator {
         sb.append(this.p_type);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("optype:");
       sb.append(this.optype);
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("winSize:");
       sb.append(this.winSize);
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("afi:");
       if (this.afi == null) {
         sb.append("null");
@@ -20085,20 +21233,22 @@ public class BgpConfigurator {
     }
 
     private static class getRoutes_argsStandardSchemeFactory implements SchemeFactory {
-      public getRoutes_argsStandardScheme getScheme() {
+      @Override
+	public getRoutes_argsStandardScheme getScheme() {
         return new getRoutes_argsStandardScheme();
       }
     }
 
     private static class getRoutes_argsStandardScheme extends StandardScheme<getRoutes_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, getRoutes_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, getRoutes_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -20106,7 +21256,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.p_type = protocol_type.findByValue(iprot.readI32());
                 struct.setP_typeIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -20114,7 +21264,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.optype = iprot.readI32();
                 struct.setOptypeIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -20122,7 +21272,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.winSize = iprot.readI32();
                 struct.setWinSizeIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -20130,7 +21280,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.afi = af_afi.findByValue(iprot.readI32());
                 struct.setAfiIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -20145,7 +21295,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, getRoutes_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, getRoutes_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -20172,7 +21323,8 @@ public class BgpConfigurator {
     }
 
     private static class getRoutes_argsTupleSchemeFactory implements SchemeFactory {
-      public getRoutes_argsTupleScheme getScheme() {
+      @Override
+	public getRoutes_argsTupleScheme getScheme() {
         return new getRoutes_argsTupleScheme();
       }
     }
@@ -20240,7 +21392,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.STRUCT, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new getRoutes_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new getRoutes_resultTupleSchemeFactory());
@@ -20252,7 +21404,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -20278,7 +21430,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -20297,11 +21451,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -20309,8 +21465,8 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Routes.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getRoutes_result.class, metaDataMap);
@@ -20335,7 +21491,8 @@ public class BgpConfigurator {
       }
     }
 
-    public getRoutes_result deepCopy() {
+    @Override
+	public getRoutes_result deepCopy() {
       return new getRoutes_result(this);
     }
 
@@ -20368,7 +21525,8 @@ public class BgpConfigurator {
       }
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -20381,7 +21539,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return getSuccess();
@@ -20391,7 +21550,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -20405,24 +21565,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof getRoutes_result)
-        return this.equals((getRoutes_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof getRoutes_result) {
+		return this.equals((getRoutes_result)that);
+	}
       return false;
     }
 
     public boolean equals(getRoutes_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true && this.isSetSuccess();
       boolean that_present_success = true && that.isSetSuccess();
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (!this.success.equals(that.success))
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (!this.success.equals(that.success)) {
+			return false;
+		}
       }
 
       return true;
@@ -20454,15 +21619,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -20507,20 +21675,22 @@ public class BgpConfigurator {
     }
 
     private static class getRoutes_resultStandardSchemeFactory implements SchemeFactory {
-      public getRoutes_resultStandardScheme getScheme() {
+      @Override
+	public getRoutes_resultStandardScheme getScheme() {
         return new getRoutes_resultStandardScheme();
       }
     }
 
     private static class getRoutes_resultStandardScheme extends StandardScheme<getRoutes_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, getRoutes_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, getRoutes_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -20529,7 +21699,7 @@ public class BgpConfigurator {
                 struct.success = new Routes();
                 struct.success.read(iprot);
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -20544,7 +21714,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, getRoutes_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, getRoutes_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -20560,7 +21731,8 @@ public class BgpConfigurator {
     }
 
     private static class getRoutes_resultTupleSchemeFactory implements SchemeFactory {
-      public getRoutes_resultTupleScheme getScheme() {
+      @Override
+	public getRoutes_resultTupleScheme getScheme() {
         return new getRoutes_resultTupleScheme();
       }
     }
@@ -20600,19 +21772,19 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField AFI_FIELD_DESC = new org.apache.thrift.protocol.TField("afi", org.apache.thrift.protocol.TType.I32, (short)1);
     private static final org.apache.thrift.protocol.TField SAFI_FIELD_DESC = new org.apache.thrift.protocol.TField("safi", org.apache.thrift.protocol.TType.I32, (short)2);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new enableMultipath_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new enableMultipath_argsTupleSchemeFactory());
     }
 
     /**
-     * 
+     *
      * @see af_afi
      */
     public af_afi afi; // required
     /**
-     * 
+     *
      * @see af_safi
      */
     public af_safi safi; // required
@@ -20620,17 +21792,17 @@ public class BgpConfigurator {
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       /**
-       * 
+       *
        * @see af_afi
        */
       AFI((short)1, "afi"),
       /**
-       * 
+       *
        * @see af_safi
        */
       SAFI((short)2, "safi");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -20658,7 +21830,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -20677,11 +21851,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -20689,10 +21865,10 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.AFI, new org.apache.thrift.meta_data.FieldMetaData("afi", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.AFI, new org.apache.thrift.meta_data.FieldMetaData("afi", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, af_afi.class)));
-      tmpMap.put(_Fields.SAFI, new org.apache.thrift.meta_data.FieldMetaData("safi", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.SAFI, new org.apache.thrift.meta_data.FieldMetaData("safi", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, af_safi.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(enableMultipath_args.class, metaDataMap);
@@ -20722,7 +21898,8 @@ public class BgpConfigurator {
       }
     }
 
-    public enableMultipath_args deepCopy() {
+    @Override
+	public enableMultipath_args deepCopy() {
       return new enableMultipath_args(this);
     }
 
@@ -20733,7 +21910,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_afi
      */
     public af_afi getAfi() {
@@ -20741,7 +21918,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_afi
      */
     public enableMultipath_args setAfi(af_afi afi) {
@@ -20765,7 +21942,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_safi
      */
     public af_safi getSafi() {
@@ -20773,7 +21950,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_safi
      */
     public enableMultipath_args setSafi(af_safi safi) {
@@ -20796,7 +21973,8 @@ public class BgpConfigurator {
       }
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case AFI:
         if (value == null) {
@@ -20817,7 +21995,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case AFI:
         return getAfi();
@@ -20830,7 +22009,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -20846,33 +22026,40 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof enableMultipath_args)
-        return this.equals((enableMultipath_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof enableMultipath_args) {
+		return this.equals((enableMultipath_args)that);
+	}
       return false;
     }
 
     public boolean equals(enableMultipath_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_afi = true && this.isSetAfi();
       boolean that_present_afi = true && that.isSetAfi();
       if (this_present_afi || that_present_afi) {
-        if (!(this_present_afi && that_present_afi))
-          return false;
-        if (!this.afi.equals(that.afi))
-          return false;
+        if (!(this_present_afi && that_present_afi)) {
+			return false;
+		}
+        if (!this.afi.equals(that.afi)) {
+			return false;
+		}
       }
 
       boolean this_present_safi = true && this.isSetSafi();
       boolean that_present_safi = true && that.isSetSafi();
       if (this_present_safi || that_present_safi) {
-        if (!(this_present_safi && that_present_safi))
-          return false;
-        if (!this.safi.equals(that.safi))
-          return false;
+        if (!(this_present_safi && that_present_safi)) {
+			return false;
+		}
+        if (!this.safi.equals(that.safi)) {
+			return false;
+		}
       }
 
       return true;
@@ -20914,15 +22101,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -20938,7 +22128,9 @@ public class BgpConfigurator {
         sb.append(this.afi);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("safi:");
       if (this.safi == null) {
         sb.append("null");
@@ -20972,20 +22164,22 @@ public class BgpConfigurator {
     }
 
     private static class enableMultipath_argsStandardSchemeFactory implements SchemeFactory {
-      public enableMultipath_argsStandardScheme getScheme() {
+      @Override
+	public enableMultipath_argsStandardScheme getScheme() {
         return new enableMultipath_argsStandardScheme();
       }
     }
 
     private static class enableMultipath_argsStandardScheme extends StandardScheme<enableMultipath_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, enableMultipath_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, enableMultipath_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -20993,7 +22187,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.afi = af_afi.findByValue(iprot.readI32());
                 struct.setAfiIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -21001,7 +22195,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.safi = af_safi.findByValue(iprot.readI32());
                 struct.setSafiIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -21016,7 +22210,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, enableMultipath_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, enableMultipath_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -21037,7 +22232,8 @@ public class BgpConfigurator {
     }
 
     private static class enableMultipath_argsTupleSchemeFactory implements SchemeFactory {
-      public enableMultipath_argsTupleScheme getScheme() {
+      @Override
+	public enableMultipath_argsTupleScheme getScheme() {
         return new enableMultipath_argsTupleScheme();
       }
     }
@@ -21085,7 +22281,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new enableMultipath_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new enableMultipath_resultTupleSchemeFactory());
@@ -21097,7 +22293,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -21123,7 +22319,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -21142,11 +22340,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -21156,8 +22356,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(enableMultipath_result.class, metaDataMap);
@@ -21182,7 +22382,8 @@ public class BgpConfigurator {
       this.success = other.success;
     }
 
-    public enableMultipath_result deepCopy() {
+    @Override
+	public enableMultipath_result deepCopy() {
       return new enableMultipath_result(this);
     }
 
@@ -21215,7 +22416,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -21228,7 +22430,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return Integer.valueOf(getSuccess());
@@ -21238,7 +22441,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -21252,24 +22456,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof enableMultipath_result)
-        return this.equals((enableMultipath_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof enableMultipath_result) {
+		return this.equals((enableMultipath_result)that);
+	}
       return false;
     }
 
     public boolean equals(enableMultipath_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true;
       boolean that_present_success = true;
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (this.success != that.success)
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (this.success != that.success) {
+			return false;
+		}
       }
 
       return true;
@@ -21301,15 +22510,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -21349,20 +22561,22 @@ public class BgpConfigurator {
     }
 
     private static class enableMultipath_resultStandardSchemeFactory implements SchemeFactory {
-      public enableMultipath_resultStandardScheme getScheme() {
+      @Override
+	public enableMultipath_resultStandardScheme getScheme() {
         return new enableMultipath_resultStandardScheme();
       }
     }
 
     private static class enableMultipath_resultStandardScheme extends StandardScheme<enableMultipath_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, enableMultipath_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, enableMultipath_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -21370,7 +22584,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.success = iprot.readI32();
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -21385,7 +22599,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, enableMultipath_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, enableMultipath_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -21401,7 +22616,8 @@ public class BgpConfigurator {
     }
 
     private static class enableMultipath_resultTupleSchemeFactory implements SchemeFactory {
-      public enableMultipath_resultTupleScheme getScheme() {
+      @Override
+	public enableMultipath_resultTupleScheme getScheme() {
         return new enableMultipath_resultTupleScheme();
       }
     }
@@ -21440,19 +22656,19 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField AFI_FIELD_DESC = new org.apache.thrift.protocol.TField("afi", org.apache.thrift.protocol.TType.I32, (short)1);
     private static final org.apache.thrift.protocol.TField SAFI_FIELD_DESC = new org.apache.thrift.protocol.TField("safi", org.apache.thrift.protocol.TType.I32, (short)2);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new disableMultipath_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new disableMultipath_argsTupleSchemeFactory());
     }
 
     /**
-     * 
+     *
      * @see af_afi
      */
     public af_afi afi; // required
     /**
-     * 
+     *
      * @see af_safi
      */
     public af_safi safi; // required
@@ -21460,17 +22676,17 @@ public class BgpConfigurator {
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       /**
-       * 
+       *
        * @see af_afi
        */
       AFI((short)1, "afi"),
       /**
-       * 
+       *
        * @see af_safi
        */
       SAFI((short)2, "safi");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -21498,7 +22714,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -21517,11 +22735,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -21529,10 +22749,10 @@ public class BgpConfigurator {
     // isset id assignments
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.AFI, new org.apache.thrift.meta_data.FieldMetaData("afi", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.AFI, new org.apache.thrift.meta_data.FieldMetaData("afi", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, af_afi.class)));
-      tmpMap.put(_Fields.SAFI, new org.apache.thrift.meta_data.FieldMetaData("safi", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.SAFI, new org.apache.thrift.meta_data.FieldMetaData("safi", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, af_safi.class)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(disableMultipath_args.class, metaDataMap);
@@ -21562,7 +22782,8 @@ public class BgpConfigurator {
       }
     }
 
-    public disableMultipath_args deepCopy() {
+    @Override
+	public disableMultipath_args deepCopy() {
       return new disableMultipath_args(this);
     }
 
@@ -21573,7 +22794,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_afi
      */
     public af_afi getAfi() {
@@ -21581,7 +22802,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_afi
      */
     public disableMultipath_args setAfi(af_afi afi) {
@@ -21605,7 +22826,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_safi
      */
     public af_safi getSafi() {
@@ -21613,7 +22834,7 @@ public class BgpConfigurator {
     }
 
     /**
-     * 
+     *
      * @see af_safi
      */
     public disableMultipath_args setSafi(af_safi safi) {
@@ -21636,7 +22857,8 @@ public class BgpConfigurator {
       }
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case AFI:
         if (value == null) {
@@ -21657,7 +22879,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case AFI:
         return getAfi();
@@ -21670,7 +22893,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -21686,33 +22910,40 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof disableMultipath_args)
-        return this.equals((disableMultipath_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof disableMultipath_args) {
+		return this.equals((disableMultipath_args)that);
+	}
       return false;
     }
 
     public boolean equals(disableMultipath_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_afi = true && this.isSetAfi();
       boolean that_present_afi = true && that.isSetAfi();
       if (this_present_afi || that_present_afi) {
-        if (!(this_present_afi && that_present_afi))
-          return false;
-        if (!this.afi.equals(that.afi))
-          return false;
+        if (!(this_present_afi && that_present_afi)) {
+			return false;
+		}
+        if (!this.afi.equals(that.afi)) {
+			return false;
+		}
       }
 
       boolean this_present_safi = true && this.isSetSafi();
       boolean that_present_safi = true && that.isSetSafi();
       if (this_present_safi || that_present_safi) {
-        if (!(this_present_safi && that_present_safi))
-          return false;
-        if (!this.safi.equals(that.safi))
-          return false;
+        if (!(this_present_safi && that_present_safi)) {
+			return false;
+		}
+        if (!this.safi.equals(that.safi)) {
+			return false;
+		}
       }
 
       return true;
@@ -21754,15 +22985,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -21778,7 +23012,9 @@ public class BgpConfigurator {
         sb.append(this.afi);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("safi:");
       if (this.safi == null) {
         sb.append("null");
@@ -21812,20 +23048,22 @@ public class BgpConfigurator {
     }
 
     private static class disableMultipath_argsStandardSchemeFactory implements SchemeFactory {
-      public disableMultipath_argsStandardScheme getScheme() {
+      @Override
+	public disableMultipath_argsStandardScheme getScheme() {
         return new disableMultipath_argsStandardScheme();
       }
     }
 
     private static class disableMultipath_argsStandardScheme extends StandardScheme<disableMultipath_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, disableMultipath_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, disableMultipath_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -21833,7 +23071,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.afi = af_afi.findByValue(iprot.readI32());
                 struct.setAfiIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -21841,7 +23079,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.safi = af_safi.findByValue(iprot.readI32());
                 struct.setSafiIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -21856,7 +23094,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, disableMultipath_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, disableMultipath_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -21877,7 +23116,8 @@ public class BgpConfigurator {
     }
 
     private static class disableMultipath_argsTupleSchemeFactory implements SchemeFactory {
-      public disableMultipath_argsTupleScheme getScheme() {
+      @Override
+	public disableMultipath_argsTupleScheme getScheme() {
         return new disableMultipath_argsTupleScheme();
       }
     }
@@ -21925,7 +23165,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new disableMultipath_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new disableMultipath_resultTupleSchemeFactory());
@@ -21937,7 +23177,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -21963,7 +23203,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -21982,11 +23224,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -21996,8 +23240,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(disableMultipath_result.class, metaDataMap);
@@ -22022,7 +23266,8 @@ public class BgpConfigurator {
       this.success = other.success;
     }
 
-    public disableMultipath_result deepCopy() {
+    @Override
+	public disableMultipath_result deepCopy() {
       return new disableMultipath_result(this);
     }
 
@@ -22055,7 +23300,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -22068,7 +23314,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return Integer.valueOf(getSuccess());
@@ -22078,7 +23325,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -22092,24 +23340,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof disableMultipath_result)
-        return this.equals((disableMultipath_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof disableMultipath_result) {
+		return this.equals((disableMultipath_result)that);
+	}
       return false;
     }
 
     public boolean equals(disableMultipath_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true;
       boolean that_present_success = true;
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (this.success != that.success)
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (this.success != that.success) {
+			return false;
+		}
       }
 
       return true;
@@ -22141,15 +23394,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -22189,20 +23445,22 @@ public class BgpConfigurator {
     }
 
     private static class disableMultipath_resultStandardSchemeFactory implements SchemeFactory {
-      public disableMultipath_resultStandardScheme getScheme() {
+      @Override
+	public disableMultipath_resultStandardScheme getScheme() {
         return new disableMultipath_resultStandardScheme();
       }
     }
 
     private static class disableMultipath_resultStandardScheme extends StandardScheme<disableMultipath_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, disableMultipath_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, disableMultipath_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -22210,7 +23468,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.success = iprot.readI32();
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -22225,7 +23483,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, disableMultipath_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, disableMultipath_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -22241,7 +23500,8 @@ public class BgpConfigurator {
     }
 
     private static class disableMultipath_resultTupleSchemeFactory implements SchemeFactory {
-      public disableMultipath_resultTupleScheme getScheme() {
+      @Override
+	public disableMultipath_resultTupleScheme getScheme() {
         return new disableMultipath_resultTupleScheme();
       }
     }
@@ -22280,7 +23540,7 @@ public class BgpConfigurator {
     private static final org.apache.thrift.protocol.TField RD_FIELD_DESC = new org.apache.thrift.protocol.TField("rd", org.apache.thrift.protocol.TType.STRING, (short)1);
     private static final org.apache.thrift.protocol.TField MAX_PATH_FIELD_DESC = new org.apache.thrift.protocol.TField("maxPath", org.apache.thrift.protocol.TType.I32, (short)2);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new multipaths_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new multipaths_argsTupleSchemeFactory());
@@ -22294,7 +23554,7 @@ public class BgpConfigurator {
       RD((short)1, "rd"),
       MAX_PATH((short)2, "maxPath");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -22322,7 +23582,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -22341,11 +23603,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -22355,10 +23619,10 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.RD, new org.apache.thrift.meta_data.FieldMetaData("rd", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.RD, new org.apache.thrift.meta_data.FieldMetaData("rd", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.MAX_PATH, new org.apache.thrift.meta_data.FieldMetaData("maxPath", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.MAX_PATH, new org.apache.thrift.meta_data.FieldMetaData("maxPath", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(multipaths_args.class, metaDataMap);
@@ -22388,7 +23652,8 @@ public class BgpConfigurator {
       this.maxPath = other.maxPath;
     }
 
-    public multipaths_args deepCopy() {
+    @Override
+	public multipaths_args deepCopy() {
       return new multipaths_args(this);
     }
 
@@ -22446,7 +23711,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __MAXPATH_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case RD:
         if (value == null) {
@@ -22467,7 +23733,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case RD:
         return getRd();
@@ -22480,7 +23747,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -22496,33 +23764,40 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof multipaths_args)
-        return this.equals((multipaths_args)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof multipaths_args) {
+		return this.equals((multipaths_args)that);
+	}
       return false;
     }
 
     public boolean equals(multipaths_args that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_rd = true && this.isSetRd();
       boolean that_present_rd = true && that.isSetRd();
       if (this_present_rd || that_present_rd) {
-        if (!(this_present_rd && that_present_rd))
-          return false;
-        if (!this.rd.equals(that.rd))
-          return false;
+        if (!(this_present_rd && that_present_rd)) {
+			return false;
+		}
+        if (!this.rd.equals(that.rd)) {
+			return false;
+		}
       }
 
       boolean this_present_maxPath = true;
       boolean that_present_maxPath = true;
       if (this_present_maxPath || that_present_maxPath) {
-        if (!(this_present_maxPath && that_present_maxPath))
-          return false;
-        if (this.maxPath != that.maxPath)
-          return false;
+        if (!(this_present_maxPath && that_present_maxPath)) {
+			return false;
+		}
+        if (this.maxPath != that.maxPath) {
+			return false;
+		}
       }
 
       return true;
@@ -22564,15 +23839,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -22588,7 +23866,9 @@ public class BgpConfigurator {
         sb.append(this.rd);
       }
       first = false;
-      if (!first) sb.append(", ");
+      if (!first) {
+		sb.append(", ");
+	}
       sb.append("maxPath:");
       sb.append(this.maxPath);
       first = false;
@@ -22620,20 +23900,22 @@ public class BgpConfigurator {
     }
 
     private static class multipaths_argsStandardSchemeFactory implements SchemeFactory {
-      public multipaths_argsStandardScheme getScheme() {
+      @Override
+	public multipaths_argsStandardScheme getScheme() {
         return new multipaths_argsStandardScheme();
       }
     }
 
     private static class multipaths_argsStandardScheme extends StandardScheme<multipaths_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, multipaths_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, multipaths_args struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -22641,7 +23923,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.rd = iprot.readString();
                 struct.setRdIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -22649,7 +23931,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.maxPath = iprot.readI32();
                 struct.setMaxPathIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -22664,7 +23946,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, multipaths_args struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, multipaths_args struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -22683,7 +23966,8 @@ public class BgpConfigurator {
     }
 
     private static class multipaths_argsTupleSchemeFactory implements SchemeFactory {
-      public multipaths_argsTupleScheme getScheme() {
+      @Override
+	public multipaths_argsTupleScheme getScheme() {
         return new multipaths_argsTupleScheme();
       }
     }
@@ -22731,7 +24015,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new multipaths_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new multipaths_resultTupleSchemeFactory());
@@ -22743,7 +24027,7 @@ public class BgpConfigurator {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -22769,7 +24053,9 @@ public class BgpConfigurator {
        */
       public static _Fields findByThriftIdOrThrow(int fieldId) {
         _Fields fields = findByThriftId(fieldId);
-        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        if (fields == null) {
+			throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+		}
         return fields;
       }
 
@@ -22788,11 +24074,13 @@ public class BgpConfigurator {
         _fieldName = fieldName;
       }
 
-      public short getThriftFieldId() {
+      @Override
+	public short getThriftFieldId() {
         return _thriftId;
       }
 
-      public String getFieldName() {
+      @Override
+	public String getFieldName() {
         return _fieldName;
       }
     }
@@ -22802,8 +24090,8 @@ public class BgpConfigurator {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT,
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(multipaths_result.class, metaDataMap);
@@ -22828,7 +24116,8 @@ public class BgpConfigurator {
       this.success = other.success;
     }
 
-    public multipaths_result deepCopy() {
+    @Override
+	public multipaths_result deepCopy() {
       return new multipaths_result(this);
     }
 
@@ -22861,7 +24150,8 @@ public class BgpConfigurator {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SUCCESS_ISSET_ID, value);
     }
 
-    public void setFieldValue(_Fields field, Object value) {
+    @Override
+	public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case SUCCESS:
         if (value == null) {
@@ -22874,7 +24164,8 @@ public class BgpConfigurator {
       }
     }
 
-    public Object getFieldValue(_Fields field) {
+    @Override
+	public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
         return Integer.valueOf(getSuccess());
@@ -22884,7 +24175,8 @@ public class BgpConfigurator {
     }
 
     /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
-    public boolean isSet(_Fields field) {
+    @Override
+	public boolean isSet(_Fields field) {
       if (field == null) {
         throw new IllegalArgumentException();
       }
@@ -22898,24 +24190,29 @@ public class BgpConfigurator {
 
     @Override
     public boolean equals(Object that) {
-      if (that == null)
-        return false;
-      if (that instanceof multipaths_result)
-        return this.equals((multipaths_result)that);
+      if (that == null) {
+		return false;
+	}
+      if (that instanceof multipaths_result) {
+		return this.equals((multipaths_result)that);
+	}
       return false;
     }
 
     public boolean equals(multipaths_result that) {
-      if (that == null)
-        return false;
+      if (that == null) {
+		return false;
+	}
 
       boolean this_present_success = true;
       boolean that_present_success = true;
       if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
-          return false;
-        if (this.success != that.success)
-          return false;
+        if (!(this_present_success && that_present_success)) {
+			return false;
+		}
+        if (this.success != that.success) {
+			return false;
+		}
       }
 
       return true;
@@ -22947,15 +24244,18 @@ public class BgpConfigurator {
       return 0;
     }
 
-    public _Fields fieldForId(int fieldId) {
+    @Override
+	public _Fields fieldForId(int fieldId) {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -22995,20 +24295,22 @@ public class BgpConfigurator {
     }
 
     private static class multipaths_resultStandardSchemeFactory implements SchemeFactory {
-      public multipaths_resultStandardScheme getScheme() {
+      @Override
+	public multipaths_resultStandardScheme getScheme() {
         return new multipaths_resultStandardScheme();
       }
     }
 
     private static class multipaths_resultStandardScheme extends StandardScheme<multipaths_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, multipaths_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void read(org.apache.thrift.protocol.TProtocol iprot, multipaths_result struct) throws org.apache.thrift.TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -23016,7 +24318,7 @@ public class BgpConfigurator {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.success = iprot.readI32();
                 struct.setSuccessIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -23031,7 +24333,8 @@ public class BgpConfigurator {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, multipaths_result struct) throws org.apache.thrift.TException {
+      @Override
+	public void write(org.apache.thrift.protocol.TProtocol oprot, multipaths_result struct) throws org.apache.thrift.TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -23047,7 +24350,8 @@ public class BgpConfigurator {
     }
 
     private static class multipaths_resultTupleSchemeFactory implements SchemeFactory {
-      public multipaths_resultTupleScheme getScheme() {
+      @Override
+	public multipaths_resultTupleScheme getScheme() {
         return new multipaths_resultTupleScheme();
       }
     }
