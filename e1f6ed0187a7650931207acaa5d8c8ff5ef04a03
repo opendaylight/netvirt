@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_81d1e8cf",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-05-31T05:10:02Z",
+      "side": 1,
+      "message": "I will check with vivekanandan, if you get a chance please ask him",
+      "parentUuid": "3afa9182_4174209c",
+      "range": {
+        "startLine": 161,
+        "startChar": 24,
+        "endLine": 161,
+        "endChar": 85
+      },
+      "revId": "e1f6ed0187a7650931207acaa5d8c8ff5ef04a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_a02182b6",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 21
@@ -178,6 +202,30 @@
       "side": 1,
       "message": "the vpn semantic case has been studied in the case you have 2 VPNs, one for inter-dc, and one for external connectivity.\n\nThe hypothesis done assume the DC-GW is the tunnel endpoint for both inter-dc and internet.\nThis is why the configuration of DC-GW knows both VPNs.",
       "parentUuid": "3afa9182_002fb6a2",
+      "range": {
+        "startLine": 225,
+        "startChar": 0,
+        "endLine": 226,
+        "endChar": 37
+      },
+      "revId": "e1f6ed0187a7650931207acaa5d8c8ff5ef04a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_a1d7c4be",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-05-31T05:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_21791494",
       "range": {
         "startLine": 225,
         "startChar": 0,
