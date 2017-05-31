@@ -392,7 +392,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         } else {
             vpnToDpnList = vpnInstance.getVpnToDpnList();
         }
-
         final Long vpnId = vpnInstance.getVpnId();
         final String rd = vrfTableKey.getRouteDistinguisher();
         SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);

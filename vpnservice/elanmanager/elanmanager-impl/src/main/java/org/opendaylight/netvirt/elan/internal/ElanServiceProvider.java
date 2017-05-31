@@ -458,7 +458,6 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         });
     }
 
-
     protected void createExternalElanNetwork(ElanInstance elanInstance, BigInteger dpId) {
         String providerIntfName = bridgeMgr.getProviderInterfaceName(dpId, elanInstance.getPhysicalNetworkName());
         String intfName = providerIntfName + IfmConstants.OF_URI_SEPARATOR + elanInstance.getSegmentationId();
