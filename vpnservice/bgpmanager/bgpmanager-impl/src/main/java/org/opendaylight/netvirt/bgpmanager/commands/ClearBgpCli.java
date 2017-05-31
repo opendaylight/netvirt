@@ -34,7 +34,7 @@ public class ClearBgpCli extends OsgiCommandSupport {
     static char HASH_PROMPT = '#';
     static char GT = '>';
 
-    static final Logger LOGGER = LoggerFactory.getLogger(ClearBgpCli.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ClearBgpCli.class);
 
     @Argument(name = "neighbor-ip", description = "neighbor ip to be cleared", required = false, multiValued = false)
     String nbr = "";
@@ -47,7 +47,8 @@ public class ClearBgpCli extends OsgiCommandSupport {
         serverName = hostAddr;
     }
 
-    protected Object doExecute() throws Exception {
+    @Override
+	protected Object doExecute() throws Exception {
         if (nbr.isEmpty()) {
             session.getConsole().println("enter neighbor ip to be cleared");
             session.getConsole().println("Usage:");
@@ -85,7 +86,7 @@ public class ClearBgpCli extends OsgiCommandSupport {
 
             out.println(vtyPassword);
             out.println("enable");
-            LOGGER.trace("reading until HASH sign");
+            LOG.trace("reading until HASH sign");
             readUntilPrompt(in, HASH_PROMPT);
 
             out.println(clearCommand);
