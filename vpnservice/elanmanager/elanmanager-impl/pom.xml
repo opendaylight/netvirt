@@ -160,6 +160,12 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>testutils</artifactId>
+      <version>${genius.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
