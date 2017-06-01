@@ -63,7 +63,7 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         // Bindings to test infra (fakes & mocks)
         bind(DataBroker.class).toInstance(DataBrokerTestModule.dataBroker());
         bind(IMdsalApiManager.class).toInstance(TestIMdsalApiManager.newInstance());
-        bind2ToInstance(IInterfaceManager.class, TestInterfaceManager.class, TestInterfaceManager.newInstance());
+        bindTypesToInstance(IInterfaceManager.class, TestInterfaceManager.class, TestInterfaceManager.newInstance());
         bind(ItmRpcService.class).toInstance(Mockito.mock(ItmRpcService.class)); // new ItmManagerRpcService();
         bind(ElanStatusMonitor.class).toInstance(Mockito.mock(ElanStatusMonitor.class));
         bind(EvpnUtils.class).toInstance(Mockito.mock(EvpnUtils.class));
@@ -71,20 +71,4 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         bind(INeutronVpnManager.class).toInstance(Mockito.mock(NeutronvpnManagerImpl.class));
     }
 
-    /**
-     * Binds instance to both the interfaceClass as well as the implementationClass.
-     * @param interfaceClass class type of an interface
-     * @param implementationClass  class type of implementing class
-     * @param instance an instance implementing both interfaceClass & implementationClass
-     */
-    // TODO move this up into AbstractGuiceJsr250Module
-    @SuppressWarnings("unchecked")
-    private <T> void bind2ToInstance(Class<T> interfaceClass, Class<? extends T> implementationClass, T instance) {
-        if (implementationClass.equals(interfaceClass)) {
-            throw new IllegalArgumentException("interfaceClass should not be the same as implementationClass: "
-                    + interfaceClass + "; " + implementationClass);
-        }
-        bind(interfaceClass).toInstance(instance);
-        bind((Class<T>) implementationClass).toInstance(instance);
-    }
 }
