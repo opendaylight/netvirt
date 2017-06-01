@@ -2310,9 +2310,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 for (VrfEntry vrfEntry : vrfTable.getVrfEntry()) {
                     List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
                     if (routePaths == null) {
-                        result.add(String.format("   %-7s  %-20s  %-20s  %-7s",
+                        result.add(String.format("   %-7s  %-20s  %-20s  %-7s %-7s",
                                 vrfTable.getRouteDistinguisher(),
-                                vrfEntry.getDestPrefix(), "local", vrfEntry.getOrigin()));
+                                vrfEntry.getDestPrefix(), "local",
+                                "<not set>", vrfEntry.getOrigin()));
                         continue;
                     }
                     for (RoutePaths routePath : routePaths) {
