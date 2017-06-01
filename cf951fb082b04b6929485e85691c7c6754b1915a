@@ -141,6 +141,30 @@
       "revId": "cf951fb082b04b6929485e85691c7c6754b1915a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_87ed758e",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 22
+      },
+      "lineNbr": 641,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-01T06:43:14Z",
+      "side": 1,
+      "message": "I tested yesterday. It seems that you are right.\nMaybe it was not the case in previous ODL versions.\n\nBy default, local BGP speaker (QBGP) will be 127.0.0.1\n\nIf you need to discuss with remote BGP speaker ( QBGP), then you need to customise properties.",
+      "parentUuid": "3afa9182_41c70013",
+      "range": {
+        "startLine": 641,
+        "startChar": 25,
+        "endLine": 641,
+        "endChar": 65
+      },
+      "revId": "cf951fb082b04b6929485e85691c7c6754b1915a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
