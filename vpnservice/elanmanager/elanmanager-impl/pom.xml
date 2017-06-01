@@ -69,11 +69,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.genius</groupId>
-      <artifactId>interfacemanager-impl</artifactId>
-      <version>${genius.version}</version>
-    </dependency>
-    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>dhcpservice-api</artifactId>
       <version>${project.version}</version>
@@ -132,6 +127,12 @@
     <dependency>
       <groupId>org.opendaylight.genius</groupId>
       <artifactId>idmanager-impl</artifactId>
+      <version>${genius.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>interfacemanager-impl</artifactId>
       <version>${genius.version}</version>
       <scope>test</scope>
     </dependency>
