@@ -70,6 +70,48 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <groupId>javax.inject</groupId>
       <artifactId>javax.inject</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.opendaylight.infrautils</groupId>
+      <artifactId>infrautils-testutils</artifactId>
+      <version>${infrautils.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.infrautils</groupId>
+      <artifactId>inject.guice.testutils</artifactId>
+      <version>${infrautils.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.controller</groupId>
+      <artifactId>sal-binding-broker-impl</artifactId>
+      <scope>test</scope>
+      <type>test-jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>mdsalutil-testutils</artifactId>
+      <version>${genius.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>elanmanager-impl</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>idmanager-impl</artifactId>
+      <version>${genius.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>interfacemanager-impl</artifactId>
+      <version>${genius.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
