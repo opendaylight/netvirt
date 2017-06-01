@@ -30,8 +30,9 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
-import org.opendaylight.genius.interfacemanager.IfmUtil;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
@@ -1012,7 +1013,14 @@ public class ElanL2GatewayUtils {
 
     public static Interface getInterfaceFromConfigDS(InterfaceKey interfaceKey, DataBroker dataBroker) {
         InstanceIdentifier<Interface> interfaceId = getInterfaceIdentifier(interfaceKey);
-        return IfmUtil.read(LogicalDatastoreType.CONFIGURATION, interfaceId, dataBroker).orNull();
+        try {
+            return SingleTransactionDataBroker
+                    .syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION, interfaceId).orNull();
+        } catch (ReadFailedException e) {
+            // TODO remove this, and propagate ReadFailedException instead of re-throw RuntimeException
+            LOG.error("getInterfaceFromConfigDS({}) failed", interfaceKey, e);
+            throw new RuntimeException(e);
+        }
     }
 
     /**
