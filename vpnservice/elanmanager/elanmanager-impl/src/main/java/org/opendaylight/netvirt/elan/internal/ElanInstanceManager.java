@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -104,8 +105,8 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
             ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
                     ElanUtils.getElanInfoEntriesOperationalDataPath(elanTag));
         }
-        ElanUtils.removeAndGetElanInterfaces(elanName).stream().forEach(elanInterfaceName -> {
-            DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
+        DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
+        ElanUtils.removeAndGetElanInterfaces(elanName).forEach(elanInterfaceName -> {
             dataStoreJobCoordinator.enqueueJob(elanInterfaceName, () -> {
                 WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
                 LOG.info("Deleting the elanInterface present under ConfigDS:{}", elanInterfaceName);
