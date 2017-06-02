@@ -16,4 +16,10 @@
   <odl:rpc-service id="packetProcessingService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService" />
 
+  <bean id="Ipv6PktHandler"
+    class="org.opendaylight.netvirt.ipv6service.Ipv6PktHandler">
+    <argument ref="packetProcessingService" />
+  </bean>
+  <odl:notification-listener ref="Ipv6PktHandler" />
+
 </blueprint>
