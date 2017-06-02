@@ -28,6 +28,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
@@ -2245,12 +2247,14 @@ public class ElanUtils {
 
     public static void removeElanInterfaceToElanInstanceCache(String elanInstanceName, String interfaceName) {
         Set<String> elanInterfaces = elanInstanceToInterfacesCache.get(elanInstanceName);
-        if (!elanInterfaces.isEmpty()) {
-            elanInterfaces.remove(interfaceName);
+        if (elanInterfaces == null || elanInterfaces.isEmpty()) {
+            return;
         }
+        elanInterfaces.remove(interfaceName);
     }
 
-    public static Set<String> removeAndGetElanInterfaces(String elanInstanceName) {
-        return elanInstanceToInterfacesCache.remove(elanInstanceName);
+    @Nonnull public static Set<String> removeAndGetElanInterfaces(String elanInstanceName) {
+        Set<String> removed = elanInstanceToInterfacesCache.remove(elanInstanceName);
+        return removed != null ? removed : Collections.emptySet();
     }
 }
