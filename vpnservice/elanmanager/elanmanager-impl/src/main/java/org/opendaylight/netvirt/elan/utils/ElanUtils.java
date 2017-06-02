@@ -2242,12 +2242,14 @@ public class ElanUtils {
 
     public static void removeElanInterfaceToElanInstanceCache(String elanInstanceName, String interfaceName) {
         Set<String> elanInterfaces = elanInstanceToInterfacesCache.get(elanInstanceName);
-        if (!elanInterfaces.isEmpty()) {
-            elanInterfaces.remove(interfaceName);
+        if (elanInterfaces == null || elanInterfaces.isEmpty()) {
+            return;
         }
+        elanInterfaces.remove(interfaceName);
     }
 
     public static Set<String> removeAndGetElanInterfaces(String elanInstanceName) {
-        return elanInstanceToInterfacesCache.remove(elanInstanceName);
+        return Optional.fromNullable(elanInstanceToInterfacesCache.remove(elanInstanceName))
+                .or(Collections.emptySet());
     }
 }
