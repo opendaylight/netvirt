@@ -13,6 +13,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -42,6 +44,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("deprecation")
 @Singleton
 public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanInstance, ElanInstanceManager>
         implements AutoCloseable {
@@ -104,20 +107,23 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
             ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
                     ElanUtils.getElanInfoEntriesOperationalDataPath(elanTag));
         }
-        ElanUtils.removeAndGetElanInterfaces(elanName).stream().forEach(elanInterfaceName -> {
+        Set<String> elanInterfaces = ElanUtils.removeAndGetElanInterfaces(elanName);
+        if (elanInterfaces != null) {
             DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
-            dataStoreJobCoordinator.enqueueJob(elanInterfaceName, () -> {
-                WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
-                LOG.info("Deleting the elanInterface present under ConfigDS:{}", elanInterfaceName);
-                ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
-                        ElanUtils.getElanInterfaceConfigurationDataPathId(elanInterfaceName));
-                elanInterfaceManager.unbindService(elanInterfaceName, writeConfigTxn);
-                ElanUtils.removeElanInterfaceToElanInstanceCache(elanName, elanInterfaceName);
-                LOG.info("unbind the Interface:{} service bounded to Elan:{}", elanInterfaceName, elanName);
-                futures.add(writeConfigTxn.submit());
-                return futures;
-            }, ElanConstants.JOB_MAX_RETRIES);
-        });
+            elanInterfaces.stream().forEach(elanInterfaceName -> {
+                dataStoreJobCoordinator.enqueueJob(elanInterfaceName, () -> {
+                    WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
+                    LOG.info("Deleting the elanInterface present under ConfigDS:{}", elanInterfaceName);
+                    ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
+                            ElanUtils.getElanInterfaceConfigurationDataPathId(elanInterfaceName));
+                    elanInterfaceManager.unbindService(elanInterfaceName, writeConfigTxn);
+                    ElanUtils.removeElanInterfaceToElanInstanceCache(elanName, elanInterfaceName);
+                    LOG.info("unbind the Interface:{} service bounded to Elan:{}", elanInterfaceName, elanName);
+                    futures.add(writeConfigTxn.submit());
+                    return futures;
+                }, ElanConstants.JOB_MAX_RETRIES);
+            });
+        }
         // Release tag
         ElanUtils.releaseId(idManager, ElanConstants.ELAN_ID_POOL_NAME, elanName);
         if (deletedElan.getAugmentation(EtreeInstance.class) != null) {
