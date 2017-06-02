@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.ipv6service;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
