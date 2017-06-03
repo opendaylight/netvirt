@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.elan.evpn.listeners;
 
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
