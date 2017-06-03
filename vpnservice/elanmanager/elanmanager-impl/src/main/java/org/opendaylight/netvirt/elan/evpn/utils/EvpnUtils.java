@@ -7,16 +7,13 @@
  */
 package org.opendaylight.netvirt.elan.evpn.utils;
 
-
 import com.google.common.base.Optional;
-
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
