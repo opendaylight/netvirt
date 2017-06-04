@@ -16,6 +16,24 @@
       "revId": "1fde62ce9fa5aea0d82031103042be010809c814",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_1369bc8b",
+        "filename": "vpnservice/ipv6service/impl/src/main/resources/org/opendaylight/blueprint/ipv6service.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-06-04T06:20:35Z",
+      "side": 1,
+      "message": "Thank you @Sam, I\u0027ll do the necessary changes.",
+      "parentUuid": "3afa9182_78ba9fe2",
+      "revId": "1fde62ce9fa5aea0d82031103042be010809c814",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
