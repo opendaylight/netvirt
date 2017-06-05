@@ -422,7 +422,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             return;
         }
 
-        final List<BigInteger> localDpnIdList = createLocalFibEntry(vpnInstance.getVpnId(), rd, vrfEntry);
+        final List<BigInteger> localDpnIdList = createLocalFibEntry(vpnId, rd, vrfEntry);
         if (!localDpnIdList.isEmpty()) {
             if (vpnToDpnList != null) {
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
@@ -733,11 +733,14 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
     private List<BigInteger> createLocalFibEntry(Long vpnId, String rd, VrfEntry vrfEntry) {
         List<BigInteger> returnLocalDpnId = new ArrayList<>();
-        Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
         String localNextHopIP = vrfEntry.getDestPrefix();
+        Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, localNextHopIP);
         String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnId);
         if (localNextHopInfo == null) {
-            List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
+            if (vpnId == null || localNextHopIP == null) {
+                LOG.error("createLocalFibEntry: cannot get usedRds for vpn {} and Prefix {}", vpnId, localNextHopIP);
+            }
+            List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, localNextHopIP);
             List<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getAllVpnExtraRoutes(dataBroker,
                     vpnName, usedRds, localNextHopIP);
             //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
@@ -757,7 +760,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
                         synchronized (label.toString().intern()) {
                             LabelRouteInfo lri = getLabelRouteInfo(label);
-                            if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopAddressList, lri)) {
+                            if (isPrefixAndNextHopPresentInLri(localNextHopIP, nextHopAddressList, lri)) {
                                 Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
                                         FibUtil.getVpnInstanceOpData(dataBroker, rd);
                                 if (vpnInstanceOpDataEntryOptional.isPresent()) {
