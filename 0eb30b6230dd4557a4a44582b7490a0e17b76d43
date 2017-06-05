@@ -284,6 +284,24 @@
     },
     {
       "key": {
+        "uuid": "7af0899e_58fff201",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T08:05:42Z",
+      "side": 1,
+      "message": "#2. the second case seems not to be supported in the scope of this spec",
+      "parentUuid": "ba068154_182d3747",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_0e9a4b14",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 11
@@ -827,6 +845,23 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "ba068154_4272377d",
+      "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7af0899e_7873ceb1",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T08:05:42Z",
+      "side": 1,
+      "message": "s/separate subnetworks/separate subnetwork/",
       "revId": "0eb30b6230dd4557a4a44582b7490a0e17b76d43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
