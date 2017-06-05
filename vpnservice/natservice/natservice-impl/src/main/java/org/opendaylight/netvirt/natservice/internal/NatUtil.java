@@ -1559,10 +1559,14 @@ public class NatUtil {
     }
 
     static FlowEntity buildDefaultNATFlowEntityForExternalSubnet(BigInteger dpId, long vpnId, String subnetId,
-            IdManagerService idManager) {
+								 IdManagerService idManager, type ipv4oripv6) {
         InetAddress defaultIP = null;
         try {
-            defaultIP = InetAddress.getByName("0.0.0.0");
+            if (ipv4oripv6 == IPv4) {
+              defaultIP = InetAddress.getByName("0.0.0.0");
+            } else {
+              defaultIP = InetAddress.getByName("0::0");
+            }
         } catch (UnknownHostException e) {
             LOG.error("NAT Service : UnknowHostException in buildDefNATFlowEntityForExternalSubnet. "
                 + "Failed to build FIB Table Flow for Default Route to NAT.");
@@ -1570,8 +1574,12 @@ public class NatUtil {
         }
 
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(MatchEthernetType.IPV4);
-        //add match for vrfid
+        if (ipv4oripv6 == IPv4) {
+           matches.add(MatchEthernetType.IPV4);
+        } else {
+           matches.add(MatchEthernetType.IPV6);
+        }
+	//add match for vrfid
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
 
         List<InstructionInfo> instructions = new ArrayList<>();

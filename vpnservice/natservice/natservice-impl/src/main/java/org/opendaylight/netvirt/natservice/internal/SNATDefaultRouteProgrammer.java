@@ -169,7 +169,7 @@ public class SNATDefaultRouteProgrammer {
         mdsalManager.removeFlow(flowEntity);
     }
 
-    void addOrDelDefaultFibRouteToSNATForSubnet(Subnets subnet, String networkId, int flowAction, long vpnId) {
+    void addOrDelDefaultFibRouteToSNATForSubnet(Subnets subnet, String networkId, int flowAction, long vpnId, type ipv4oripv6) {
         String subnetId = subnet.getId().getValue();
         InstanceIdentifier<VpnInstanceOpDataEntry> networkVpnInstanceIdentifier =
             NatUtil.getVpnInstanceOpDataIdentifier(networkId);
@@ -180,7 +180,7 @@ public class SNATDefaultRouteProgrammer {
             if (dpnListInVpn != null) {
                 for (VpnToDpnList dpn : dpnListInVpn) {
                     FlowEntity flowEntity = NatUtil.buildDefaultNATFlowEntityForExternalSubnet(dpn.getDpnId(),
-                            vpnId, subnetId, idManager);
+                                                      vpnId, subnetId, idManager, ipv4oripv6);
                     if (flowAction == NwConstants.ADD_FLOW || flowAction == NwConstants.MOD_FLOW) {
                         LOG.info("NAT Service : Installing flow {} for subnetId {}, vpnId {} on dpn {}",
                                 flowEntity, subnetId, vpnId, dpn.getDpnId());

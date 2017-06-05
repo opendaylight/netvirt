@@ -33,7 +33,7 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
     ExternalSubnetVpnInstanceListener> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ExternalSubnetVpnInstanceListener.class);
     private final DataBroker dataBroker;
-    private final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer;
+    private final SNATDefaultRouteProgrammer snatDefaultxRouteProgrammer;
     private final IElanService elanService;
     private final IVpnManager vpnManager;
 
@@ -67,7 +67,8 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
         Optional<Subnets> optionalSubnets = NatUtil.getOptionalExternalSubnets(dataBroker,
                 new Uuid(possibleExtSubnetUuid));
         if (optionalSubnets.isPresent()) {
-            addOrDelDefaultFibRouteToSNATFlow(vpnInstance, optionalSubnets.get(), NwConstants.DEL_FLOW);
+            addOrDelDefaultFibRouteToSNATFlow(vpnInstance, optionalSubnets.get(), NwConstants.DEL_FLOW, IPv4);
+            addOrDelDefaultFibRouteToSNATFlow(vpnInstance, optionalSubnets.get(), NwConstants.DEL_FLOW, IPv6);
             invokeSubnetDeletedFromVpn(possibleExtSubnetUuid);
         }
     }
@@ -89,7 +90,8 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
         if (optionalSubnets.isPresent()) {
             LOG.debug("NAT Service : VpnInstance {} for external subnet {}.", possibleExtSubnetUuid,
                     optionalSubnets.get());
-            addOrDelDefaultFibRouteToSNATFlow(vpnInstance, optionalSubnets.get(), NwConstants.ADD_FLOW);
+            addOrDelDefaultFibRouteToSNATFlow(vpnInstance, optionalSubnets.get(), NwConstants.ADD_FLOW, IPv4);
+            addOrDelDefaultFibRouteToSNATFlow(vpnInstance, optionalSubnets.get(), NwConstants.ADD_FLOW, IPv6);
             invokeSubnetAddedToVpn(possibleExtSubnetUuid);
         }
     }
