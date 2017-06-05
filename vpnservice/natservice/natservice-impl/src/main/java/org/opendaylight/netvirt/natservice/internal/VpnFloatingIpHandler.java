@@ -192,7 +192,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     customInstructions.add(new InstructionApplyActions(actionInfoFib).buildInstruction(0));
                     customInstructions.add(new InstructionGotoTable(NwConstants.PDNAT_TABLE).buildInstruction(1));
 
-                    makeLFibTableEntry(dpnId, label, NwConstants.PDNAT_TABLE);
+                    makeLFibTableEntry(dpnId, label, floatingIpPortMacAddress, NwConstants.PDNAT_TABLE);
                     CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
                         .setSourceDpid(dpnId).setInstruction(customInstructions)
                         .setIpAddress(externalIp + "/32").setServiceId(label)
@@ -388,7 +388,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         mdsalManager.installFlow(dpnId, terminatingServiceTableFlowEntity);
     }
 
-    private void makeLFibTableEntry(BigInteger dpId, long serviceId, short tableId) {
+    private void makeLFibTableEntry(BigInteger dpId, long serviceId, String floatingIpPortMacAddress, short tableId) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.MPLS_UNICAST);
         matches.add(new MatchMplsLabel(serviceId));
@@ -396,6 +396,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         List<Instruction> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionPopMpls());
+        actionsInfos.add(new ActionSetFieldEthernetDestination(new MacAddress(floatingIpPortMacAddress)));
         Instruction writeInstruction = new InstructionApplyActions(actionsInfos).buildInstruction(0);
         instructions.add(writeInstruction);
         instructions.add(new InstructionGotoTable(tableId).buildInstruction(1));
