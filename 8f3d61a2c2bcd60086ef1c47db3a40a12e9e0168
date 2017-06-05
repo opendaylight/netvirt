@@ -343,6 +343,312 @@
       "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_7bee1624",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T16:17:07Z",
+      "side": 1,
+      "message": "Dualstack router is attached to VPN. It has at least 2 ports, one port for IPv4 subnetwork and the another one for IPv4 subnetwork",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_1b4b922c",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T16:17:07Z",
+      "side": 1,
+      "message": "Lines 77-79:\n\nIn each described setup, the following should also be possible:\n\nWould you clarify this sentence, please:\n\n\"In addition to VM VPN allocation schem, Extra-routes and Subnet configuration would benefit from it.\"",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_db0c6a97",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T16:17:07Z",
+      "side": 1,
+      "message": "s/would/will",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_3b748efc",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T16:17:07Z",
+      "side": 1,
+      "message": "We\u0027ve identified 2 subnetworks at the drawing above.",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_7b657644",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T16:17:07Z",
+      "side": 1,
+      "message": "s/networks/subnetworks",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_db5aaa82",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T16:17:07Z",
+      "side": 1,
+      "message": "s/networks/subnetworks",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_1b543253",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T16:17:07Z",
+      "side": 1,
+      "message": "s/network/network configs/\ns/to be used/to be supported",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_fb504660",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T16:17:07Z",
+      "side": 1,
+      "message": "\"We illustrated it by using two openstack routers, one for IPv4, and one for IPv6.\" This phrase is redundant",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_7b361605",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T16:17:07Z",
+      "side": 1,
+      "message": "I think other subnets, connected to Router1 and Router2 should be presented in this picture\n\nPlease, have a look at modified scheme\nhttp://paste.dev.6wind.com/apatudopiw.lua",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_5e6228d9",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T16:17:07Z",
+      "side": 1,
+      "message": "http://paste.dev.6wind.com/itawotuqez.lua",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_3e5f5c10",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T16:17:07Z",
+      "side": 1,
+      "message": "network N",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_be2b4c2f",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T16:17:07Z",
+      "side": 1,
+      "message": "Lines 167-168:\nIn dependency of chosen ODL configuration, either ODL, or neutron dhcp-agent will provide the DHCP addresses allocation for launched in subnets  VMs.",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_fe1cb415",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T16:17:07Z",
+      "side": 1,
+      "message": "s/\u0027neutron-dhcp config. neutron dhcp services will be used\u0027/neutron-dhcp agent/",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_3e175cef",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T16:17:07Z",
+      "side": 1,
+      "message": "177-178:\n\nCurrently, from the BGPVPN point of view, the BGPVPN code has been locked to prevent to associate more than one router to a single VPN. This is a limitation was made to obtain a compatibility with ODL.",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_deb458f4",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T16:17:07Z",
+      "side": 1,
+      "message": "s/there are some limitations on ODL/there are some limitations as well",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_9ea130ac",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T16:17:07Z",
+      "side": 1,
+      "message": "Lines 182-183:\n\nWe can not associate VPN port with both IPv4 and IPv6 neutron port addresses at the same time. Currently, any first neutron port IP address is using to create a VPN port instance",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_7ea604c3",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T16:17:07Z",
+      "side": 1,
+      "message": "s/associateRouter or associateNetwork/associateRouter or associateNetwork commands",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_5ef2289b",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T16:17:07Z",
+      "side": 1,
+      "message": "instance will serve for both IPv4 and IPv6 subnets.",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
