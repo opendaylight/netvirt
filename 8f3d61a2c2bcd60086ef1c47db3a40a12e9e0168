@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_08934aa4",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T08:05:42Z",
+      "side": 1,
+      "message": "\"This specification proposes to bring in a feature into NetVirt enabling OpenDaylight controller to provide L3-forwarding support for DualStack VMs.\"\n\nI would say:\n\nThis specification proposes to implement L3-forwarding support for DualStack VMs in NetVirt.  (we all know here that it is OpenDaylight component)",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_88ee1a21",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T08:05:42Z",
+      "side": 1,
+      "message": "s/a single network interface in them/ a single network interface/\n\n\"in them\" is redundant here, in my opinion",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_c8f822e8",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T08:05:42Z",
+      "side": 1,
+      "message": "s/address/addresses",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_c814a2f7",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-05T08:05:42Z",
+      "side": 1,
+      "message": "lines from 22 till 29 I would consolidate like this:\n\nOpenStack VM can get both, IPv4 and IPv6 addresses. This could be achieved by two ways:\n\n1. VM was initially created with 1 VNIC, i.e. one neutron port from network with IPv4 subnet . The second VNIC, corresponded to neutron port from another network with IPv6 subnet, was added to this machine after its creation. \n\n2. VM  has one neutron port from a network, which contains at least 2 subnets: IPv4 subnet and IPv6 subnet.\n\nThe first way is not in the scope of this spec.\n\nFor the second way, we don\u0027t want to discuss the specific use-case of having more than one IPv4 and more than one IPv6 subnets in one neutron network. See chapter Limitations for more details.",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
