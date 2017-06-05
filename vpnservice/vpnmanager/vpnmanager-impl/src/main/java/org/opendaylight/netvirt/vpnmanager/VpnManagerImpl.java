@@ -240,6 +240,7 @@ public class VpnManagerImpl implements IVpnManager {
             LOG.debug("No external IPs defined for {}", id);
             return;
         }
+        LOG.debug("2. VpnManagerImpl: setupArpResponderFLowsTOExternalNetwrokIps: macaddress is {}", macAddress);
 
         LOG.info("{} ARP responder flows for {} fixed-ips {} on switch {}",
                 addOrRemove == NwConstants.ADD_FLOW ? "Installing" : "Removing", id, fixedIps, dpnId);
@@ -284,6 +285,7 @@ public class VpnManagerImpl implements IVpnManager {
     private void installArpResponderFlowsToExternalNetworkIp(String macAddress, BigInteger dpnId,
             String extInterfaceName, Integer lportTag, long vpnId, String fixedIp, WriteTransaction writeTx) {
         String flowId = ArpResponderUtil.getFlowID(lportTag, fixedIp);
+        LOG.debug("1 VpnManagerImpl: installArpResponderFLowsTOExternalNetwrokIps: macaddress is {}", macAddress);
         List<Instruction> instructions = ArpResponderUtil.getExtInterfaceInstructions(ifaceMgrRpcService,
                 extInterfaceName, fixedIp, macAddress);
         ArpResponderUtil.installFlow(mdsalManager, writeTx, dpnId, flowId, flowId,
