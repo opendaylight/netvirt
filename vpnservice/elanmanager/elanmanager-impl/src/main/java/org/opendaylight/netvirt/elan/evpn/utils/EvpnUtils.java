@@ -205,6 +205,11 @@ public class EvpnUtils {
     }
 
     public void withdrawEvpnRT2Routes(EvpnAugmentation evpnAugmentation, String elanName) {
+        LOG.debug("Evpnaugmentation and elanname are {} {}", evpnAugmentation, elanName);
+        if (elanName == null || elanName.isEmpty()) {
+            LOG.error("EvpnUtils: in withdrawEvpnRT2Routes, elanName is {}", elanName);
+            return;
+        }
         List<MacEntry> macEntries = elanUtils.getElanMacEntries(elanName);
         if (macEntries == null || macEntries.isEmpty()) {
             LOG.trace("withdrawEvpnRT2Routes : macEntries  is empty for elan {} ", elanName);
