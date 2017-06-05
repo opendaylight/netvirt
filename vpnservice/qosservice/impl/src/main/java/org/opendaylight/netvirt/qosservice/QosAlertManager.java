@@ -197,20 +197,17 @@ public final class QosAlertManager implements Runnable {
 
     public void setThreshold(short threshold) {
         LOG.info("setting threshold {} in config data store", threshold);
-        this.threshold = threshold;
-        writeConfigDataStore();
+        writeConfigDataStore(alertEnabled, threshold, pollInterval);
     }
 
     public void setPollInterval(int pollInterval) {
         LOG.info("setting interval {} in config data store", pollInterval);
-        this.pollInterval = pollInterval;
-        writeConfigDataStore();
+        writeConfigDataStore(alertEnabled, threshold, pollInterval);
     }
 
     public void setEnable(boolean alertEnabled) {
         LOG.info("setting QoS poll to {} in config data store", alertEnabled);
-        this.alertEnabled = alertEnabled;
-        writeConfigDataStore();
+        writeConfigDataStore(alertEnabled, threshold, pollInterval);
     }
 
     public static void addToQosAlertCache(Port port) {
@@ -344,7 +341,7 @@ public final class QosAlertManager implements Runnable {
         Futures.addCallback(tx.submit(), callback);
     }
 
-    private void writeConfigDataStore() {
+    private void writeConfigDataStore(boolean alertEnabled, short threshold, int pollInterval) {
 
         InstanceIdentifier<QosalertConfig> path = InstanceIdentifier.builder(QosalertConfig.class).build();
 
