@@ -737,6 +737,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         String localNextHopIP = vrfEntry.getDestPrefix();
         String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnId);
         if (localNextHopInfo == null) {
+            LOG.debug("vrfentrylistener:createLOcalFIbEntry, vpnId and vrfentry.getdestprefix are {} {}",
+                    vpnId, vrfEntry.getDestPrefix());
             List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
             List<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getAllVpnExtraRoutes(dataBroker,
                     vpnName, usedRds, localNextHopIP);
