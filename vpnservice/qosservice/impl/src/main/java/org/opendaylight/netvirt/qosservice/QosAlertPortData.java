@@ -39,6 +39,11 @@ public class QosAlertPortData {
         LOG.info("setAlertThreshold:{}", alertThreshold);
     }
 
+    public void initPortData() {
+        LOG.trace("Port {} data initialized", port.getUuid().getValue());
+        statsDataInit = false;
+    }
+
     public void updatePortStatistics(NodeConnectorStatisticsAndPortNumberMap statsData) {
         if (statsDataInit) {
             calculateAlertCondition(statsData);
