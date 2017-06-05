@@ -201,6 +201,7 @@ public class ArpResponderUtil {
 
         final List<Action> actions = new ArrayList<>();
         int actionCounter = 0;
+        LOG.debug("4. ArpResponderUtil:getActions, macAddress is {} {}", macAddress, macAddress.getClass().getName());
         actions.add(new ActionMoveSourceDestinationEth().buildAction(actionCounter++));
         actions.add(new ActionSetFieldEthernetSource(new MacAddress(macAddress)).buildAction(actionCounter++));
         actions.add(new ActionSetArpOp(NwConstants.ARP_REPLY).buildAction(actionCounter++));
@@ -231,6 +232,8 @@ public class ArpResponderUtil {
             final String extInterfaceName, final String ipAddress, final String macAddress) {
         Short tableId = null;
         List<Instruction> instructions = new ArrayList<>();
+        LOG.debug("3. ArpResponderUtil:getExtInterfaceInstructions, macAddress is {} {}",
+                macAddress, macAddress.getClass().getName());
         List<Action> actions = getActions(ifaceMgrRpcService, extInterfaceName, ipAddress, macAddress);
         for (Iterator<Action> iterator = actions.iterator(); iterator.hasNext();) {
             org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action actionClass = iterator
