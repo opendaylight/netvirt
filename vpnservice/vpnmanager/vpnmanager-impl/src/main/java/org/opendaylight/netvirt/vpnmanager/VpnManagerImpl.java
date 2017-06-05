@@ -225,6 +225,13 @@ public class VpnManagerImpl implements IVpnManager {
             return;
         }
 
+        if (macAddress == null) {
+
+            LOG.debug("Failed to install arp responder flows for router-gateway-ip {} for router {}."
+                    + "External Gw MacAddress is missing.", fixedIps,  id);
+            return;
+        }
+
         long vpnId = (addOrRemove == NwConstants.ADD_FLOW) ? getVpnIdFromExtNetworkId(extNetworkId)
                 : VpnConstants.INVALID_ID;
         setupArpResponderFlowsToExternalNetworkIps(id, fixedIps, macAddress, dpnId, vpnId, extInterfaceName, lportTag,
