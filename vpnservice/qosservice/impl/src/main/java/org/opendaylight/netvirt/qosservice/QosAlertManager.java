@@ -134,7 +134,6 @@ public final class QosAlertManager implements Runnable {
     @Override
     public void run() {
         LOG.info("Qos alert poll thread started");
-
         while (statsPollThreadStart && alertEnabled) {
             LOG.debug("Thread loop polling :{} threshold:{} pollInterval:{}", alertEnabled, threshold,
                     pollInterval);
@@ -152,6 +151,7 @@ public final class QosAlertManager implements Runnable {
 
     private void startStatsPollThread() {
         if (statsPollThreadStart && alertEnabled && (thread == null)) {
+            initPortStatsData();
             thread = new Thread(this);
             thread.setDaemon(true);
             thread.start();
@@ -395,5 +395,15 @@ public final class QosAlertManager implements Runnable {
 
         }
     }
+
+    private void initPortStatsData() {
+        for (BigInteger dpn : qosAlertDpnPortNumberMap.keySet()) {
+            ConcurrentHashMap<String, QosAlertPortData> portDataMap = qosAlertDpnPortNumberMap.get(dpn);
+            for (String portNumber : portDataMap.keySet()) {
+                portDataMap.get(portNumber).initPortData();
+            }
+        }
+    }
+
 
 }
