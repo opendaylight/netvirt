@@ -222,7 +222,7 @@ public class NaptSwitchHA {
             NatUtil.buildFlowEntity(naptSwitch, NwConstants.NAPT_PFIB_TABLE, naptPFibflowRef);
         LOG.info("Remove the flow in table {} for the old napt switch with the DPN ID {} and router ID {}",
             NwConstants.NAPT_PFIB_TABLE, naptSwitch, routerId);
-        mdsalManager.removeFlow(naptPFibFlowEntity);
+        NatUtil.djcFlow(naptPFibFlowEntity, NwConstants.DEL_FLOW, mdsalManager);
 
         // Remove the NAPT_PFIB_TABLE(47) flow entry forwards the packet to Fib Table for outbound traffic
         // matching on the vpn ID.
@@ -251,7 +251,7 @@ public class NaptSwitchHA {
                             NatUtil.buildFlowEntity(naptSwitch, NwConstants.NAPT_PFIB_TABLE, naptFibflowRef);
                         LOG.info("Remove the flow in table {} for the old napt switch with the DPN ID {} and vpnId {}",
                             NwConstants.NAPT_PFIB_TABLE, naptSwitch, vpnId);
-                        mdsalManager.removeFlow(naptFibFlowEntity);
+                        NatUtil.djcFlow(naptFibFlowEntity, NwConstants.DEL_FLOW, mdsalManager);
                     } else {
                         LOG.error("Invalid vpnId retrieved for routerId {}", routerId);
                         return;
