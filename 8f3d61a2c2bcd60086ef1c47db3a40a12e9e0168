@@ -176,6 +176,29 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_ef8520ae",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T08:12:44Z",
+      "side": 1,
+      "message": "should not it be part of an other spec ?\n\nI was thinking we would focus on interdc cases, for the two cases:\n- dual stack router\n- 2 router solution",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 47
+      },
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_8830da57",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 15
@@ -187,6 +210,24 @@
       "writtenOn": "2017-06-05T10:07:10Z",
       "side": 1,
       "message": "The problem with BGPVPN allocation scheme is described below.",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_afd678c3",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T08:12:44Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "3afa9182_8830da57",
       "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -210,6 +251,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_0fdb4cee",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T08:12:44Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "3afa9182_e8351e47",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_88173aa3",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 15
@@ -221,6 +280,24 @@
       "writtenOn": "2017-06-05T10:07:10Z",
       "side": 1,
       "message": "s/network/network config/",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_efd7e0bd",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T08:12:44Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "3afa9182_88173aa3",
       "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -244,6 +321,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_4fe554a7",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T08:12:44Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "3afa9182_481d52bd",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_a8c79611",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 15
@@ -255,6 +350,24 @@
       "writtenOn": "2017-06-05T10:07:10Z",
       "side": 1,
       "message": "Lines 61-63:\n\nAssuming that dualstack VM has a neutron port, that is belonging to two subnetworks: IPv4 and IPv6, we would propose to support in OpenDaylight two specific neutron configurations:",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_2fe2889f",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T08:12:44Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "3afa9182_a8c79611",
       "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -278,6 +391,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_8fee1c8a",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T08:12:44Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "3afa9182_88f3ba72",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_88cc5a37",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 15
@@ -289,6 +420,24 @@
       "writtenOn": "2017-06-05T10:07:10Z",
       "side": 1,
       "message": "s/One would be for IPv4, and one for IPV6./One router belongs to IPv4 subnetwork, another one belongs to IPv6 subnetwork/",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_4f9394fa",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T08:12:44Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "3afa9182_88cc5a37",
       "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -312,6 +461,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_8fbc5c6e",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T08:12:44Z",
+      "side": 1,
+      "message": "nack.\nI think both signifies 2 routers.",
+      "parentUuid": "3afa9182_2802863e",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_c8edc28d",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 15
@@ -329,6 +496,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_6fc130e4",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T08:12:44Z",
+      "side": 1,
+      "message": "yes",
+      "parentUuid": "3afa9182_c8edc28d",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_e8e87e7e",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 15
@@ -340,6 +525,24 @@
       "writtenOn": "2017-06-05T10:07:10Z",
       "side": 1,
       "message": "2. setup based on a dualstack router",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_cfb6648a",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T08:12:44Z",
+      "side": 1,
+      "message": "yes !",
+      "parentUuid": "3afa9182_e8e87e7e",
       "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -414,6 +617,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_0fb06c8a",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T08:12:44Z",
+      "side": 1,
+      "message": "yes",
+      "parentUuid": "3afa9182_3b748efc",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_7b657644",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 15
@@ -482,6 +703,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_af49588d",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T08:12:44Z",
+      "side": 1,
+      "message": "agree to simplify it, or remove it.",
+      "parentUuid": "3afa9182_fb504660",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_7b361605",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 15
@@ -493,6 +732,24 @@
       "writtenOn": "2017-06-05T16:17:07Z",
       "side": 1,
       "message": "I think other subnets, connected to Router1 and Router2 should be presented in this picture\n\nPlease, have a look at modified scheme\nhttp://paste.dev.6wind.com/apatudopiw.lua",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_efac0038",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T08:12:44Z",
+      "side": 1,
+      "message": "agree",
+      "parentUuid": "3afa9182_7b361605",
       "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -516,6 +773,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_8f4a9c81",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T08:12:44Z",
+      "side": 1,
+      "message": "dont worry for the change.\nnot necessary.",
+      "parentUuid": "3afa9182_5e6228d9",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_3e5f5c10",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 15
@@ -527,6 +802,24 @@
       "writtenOn": "2017-06-05T16:17:07Z",
       "side": 1,
       "message": "network N",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_4faa741a",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T08:12:44Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "3afa9182_3e5f5c10",
       "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -561,6 +854,24 @@
       "writtenOn": "2017-06-05T16:17:07Z",
       "side": 1,
       "message": "s/\u0027neutron-dhcp config. neutron dhcp services will be used\u0027/neutron-dhcp agent/",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_2fa72851",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T08:12:44Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "3afa9182_fe1cb415",
       "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -618,6 +929,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_2f7e08af",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T08:12:44Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "3afa9182_9ea130ac",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_7ea604c3",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 15
@@ -629,6 +958,24 @@
       "writtenOn": "2017-06-05T16:17:07Z",
       "side": 1,
       "message": "s/associateRouter or associateNetwork/associateRouter or associateNetwork commands",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_6f9ad015",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T08:12:44Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "3afa9182_7ea604c3",
       "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -663,6 +1010,24 @@
       "writtenOn": "2017-06-05T16:17:07Z",
       "side": 1,
       "message": "instance will serve for both IPv4 and IPv6 subnets.",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_8f957ce6",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T08:12:44Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "3afa9182_5ef2289b",
       "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
