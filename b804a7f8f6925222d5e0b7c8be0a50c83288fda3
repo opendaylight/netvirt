@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_96811092",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-06T17:27:54Z",
+      "side": 1,
+      "message": "can you put some explanation what this patch is doing?\n\nSince there is no ODL spec for this patch and only a spec on the Openstack side, better to put that opeenstakc speck reveiew link here: https://review.openstack.org/#/c/453160/\n\nAlso would be good to drop in a few lines on the pipeline alteration perfromed by the implementation here.",
+      "revId": "b804a7f8f6925222d5e0b7c8be0a50c83288fda3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
