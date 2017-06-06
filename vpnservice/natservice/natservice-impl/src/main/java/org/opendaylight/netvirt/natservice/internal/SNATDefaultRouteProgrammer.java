@@ -16,6 +16,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -125,7 +126,7 @@ public class SNATDefaultRouteProgrammer {
             return;
         }
         NatServiceCounters.install_default_nat_flow.inc();
-        mdsalManager.installFlow(flowEntity);
+        NatUtil.djcFlow(flowEntity, 0, mdsalManager);
     }
 
     void installDefNATRouteInDPN(BigInteger dpnId, long bgpVpnId, long routerId) {
@@ -135,7 +136,7 @@ public class SNATDefaultRouteProgrammer {
             return;
         }
         NatServiceCounters.install_default_nat_flow.inc();
-        mdsalManager.installFlow(flowEntity);
+        NatUtil.djcFlow(flowEntity, 0, mdsalManager);
     }
 
     void installDefNATRouteInDPN(BigInteger dpnId, long vpnId, String subnetId,
@@ -156,7 +157,7 @@ public class SNATDefaultRouteProgrammer {
             return;
         }
         NatServiceCounters.remove_default_nat_flow.inc();
-        mdsalManager.removeFlow(flowEntity);
+        NatUtil.djcFlow(flowEntity, 1, mdsalManager);
     }
 
     void removeDefNATRouteInDPN(BigInteger dpnId, long bgpVpnId, long routerId) {
@@ -166,7 +167,7 @@ public class SNATDefaultRouteProgrammer {
             return;
         }
         NatServiceCounters.remove_default_nat_flow.inc();
-        mdsalManager.removeFlow(flowEntity);
+        NatUtil.djcFlow(flowEntity, 1, mdsalManager);
     }
 
     void addOrDelDefaultFibRouteToSNATForSubnet(Subnets subnet, String networkId, int flowAction, long vpnId) {
