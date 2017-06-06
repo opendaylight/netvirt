@@ -52,10 +52,13 @@ public class SNATDefaultRouteProgrammer {
         this.idManager = idManager;
     }
 
-    private FlowEntity buildDefNATFlowEntity(BigInteger dpId, long vpnId) {
+    private FlowEntity buildDefNATFlowEntity(BigInteger dpId, long vpnId, ipv4oripv6) {
         InetAddress defaultIP = null;
         try {
-            defaultIP = InetAddress.getByName("0.0.0.0");
+	    if (ipv6)
+		defaultIP = InetAddress.getByName("0::0");
+            if (ipv4)
+		defaultIP = InetAddress.getByName("0.0.0.0");
         } catch (UnknownHostException e) {
             LOG.error("UnknowHostException in buildDefNATFlowEntity. Failed  to build FIB Table Flow for "
                 + "Default Route to NAT table ");
@@ -63,7 +66,10 @@ public class SNATDefaultRouteProgrammer {
         }
 
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(MatchEthernetType.IPV4);
+	if (ipv4)
+	    matches.add(MatchEthernetType.IPV4);
+	if (ipv6)
+	    matches.add(MatchEthernetType.IPV6);
 
         //add match for default route "0.0.0.0/0"
 //        matches.add(new MatchInfo(MatchFieldType.ipv4_dst, new long[] {
@@ -84,7 +90,7 @@ public class SNATDefaultRouteProgrammer {
         return flowEntity;
     }
 
-    private FlowEntity buildDefNATFlowEntity(BigInteger dpId, long bgpVpnId, long routerId) {
+    private FlowEntity buildDefNATFlowEntity(BigInteger dpId, long bgpVpnId, long routerId){
         InetAddress defaultIP = null;
         try {
             defaultIP = InetAddress.getByName("0.0.0.0");
@@ -96,7 +102,6 @@ public class SNATDefaultRouteProgrammer {
 
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
-
         //add match for default route "0.0.0.0/0"
 //        matches.add(new MatchInfo(MatchFieldType.ipv4_dst, new long[] {
 //                NatUtil.getIpAddress(defaultIP.getAddress()), 0 }));
@@ -118,8 +123,8 @@ public class SNATDefaultRouteProgrammer {
 
     }
 
-    void installDefNATRouteInDPN(BigInteger dpnId, long vpnId) {
-        FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, vpnId);
+    void installDefNATRouteInDPN(BigInteger dpnId, long vpnId, IPv4orIPv6) {
+        FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, vpnId, IPv4orIPv6);
         if (flowEntity == null) {
             LOG.error("Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
             return;
@@ -149,8 +154,8 @@ public class SNATDefaultRouteProgrammer {
         mdsalManager.installFlow(flowEntity);
     }
 
-    void removeDefNATRouteInDPN(BigInteger dpnId, long vpnId) {
-        FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, vpnId);
+    void removeDefNATRouteInDPN(BigInteger dpnId, long vpnId, IPv4orIPv6) {
+        FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, vpnId, IPv4orIPv6);
         if (flowEntity == null) {
             LOG.error("Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
             return;

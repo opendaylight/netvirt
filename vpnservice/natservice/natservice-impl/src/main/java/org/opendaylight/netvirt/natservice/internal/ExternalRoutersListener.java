@@ -359,8 +359,11 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 }
                 LOG.debug("installNaptPfibExternalOutputFlow - dpnId {} extVpnId {} subnetId {}",
                     dpnId, extVpnId, subnetId);
-                FlowEntity postNaptFlowEntity = buildNaptPfibFlowEntity(dpnId, extVpnId);
-                mdsalManager.installFlow(postNaptFlowEntity);
+                if (router is ipv4)
+		    FlowEntity postNaptFlowEntity = buildNaptPfibFlowEntity(dpnId, extVpnId, ipv4);
+                if (router is ipv6)
+		    FlowEntity postNaptFlowEntity = buildNaptPfibFlowEntity(dpnId, extVpnId, ipv6);
+                 mdsalManager.installFlow(postNaptFlowEntity);
             }
         }
     }
@@ -707,7 +710,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             routerName);
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(MatchEthernetType.IPV4);
+	if (routerName is IPv4)
+           matches.add(MatchEthernetType.IPV4);
+	if (routerName is IPv6)
+           matches.add(MatchEthernetType.IPV6);
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
 
         List<InstructionInfo> instructions = new ArrayList<>();
@@ -896,11 +902,14 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         mdsalManager.installFlow(naptPfibFlowEntity);
     }
 
-    public FlowEntity buildNaptPfibFlowEntity(BigInteger dpId, long segmentId) {
+    public FlowEntity buildNaptPfibFlowEntity(BigInteger dpId, long segmentId, ipv4oripv6) {
 
         LOG.debug("NAT Service : buildNaptPfibFlowEntity is called for dpId {}, segmentId {}", dpId, segmentId);
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(MatchEthernetType.IPV4);
+        if (ipv4)
+	    matches.add(MatchEthernetType.IPV4);
+        if (ipv6)
+	    matches.add(MatchEthernetType.IPV6);
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID));
 
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();

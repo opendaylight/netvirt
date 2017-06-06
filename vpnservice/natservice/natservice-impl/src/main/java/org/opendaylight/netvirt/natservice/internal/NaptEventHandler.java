@@ -135,7 +135,9 @@ public class NaptEventHandler {
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void handleEvent(NAPTEntryEvent naptEntryEvent) {
-    /*
+	// XXX to be checked: naptEntryEvent is some incoming or outgoing flow
+	// check that this flow is IPv4 or IPv6
+	/*
             Flow programming logic of the OUTBOUND NAPT TABLE :
             1) Get the internal IP address, port number, router ID from the event.
             2) Use the NAPT service getExternalAddressMapping() to get the External IP and the port.
@@ -186,6 +188,9 @@ public class NaptEventHandler {
             if (naptEntryEvent.getOperation() == NAPTEntryEvent.Operation.ADD) {
                 LOG.debug("NAT Service : Inside Add operation of NaptEventHandler");
 
+                // added by Philippe. code changed. That was removed. why
+		// Get the VPN ID from the ExternalNetworks model
+                // Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
                 // Build and install the NAPT translation flows in the Outbound and Inbound NAPT tables
                 if (!naptEntryEvent.isPktProcessed()) {
 
@@ -487,18 +492,29 @@ public class NaptEventHandler {
 
         MatchInfo metaDataMatchInfo = null;
         if (tableId == NwConstants.OUTBOUND_NAPT_TABLE) {
-            ipMatchInfo = new MatchIpv4Source(ipAddressAsString, "32");
-            if (protocol == NAPTEntryEvent.Protocol.TCP) {
-                protocolMatchInfo = MatchIpProtocol.TCP;
-                portMatchInfo = new MatchTcpSourcePort(port);
-            } else if (protocol == NAPTEntryEvent.Protocol.UDP) {
-                protocolMatchInfo = MatchIpProtocol.UDP;
-                portMatchInfo = new MatchUdpSourcePort(port);
-            }
+	    if (ipAddress is IPv6)
+		{
+            ipMatchInfo = new MatchIpv6Source(ipAddressAsString, "128");
+		}
+	    else {
+               ipMatchInfo = new MatchIpv4Source(ipAddressAsString, "32");
+               if (protocol == NAPTEntryEvent.Protocol.TCP) {
+                  protocolMatchInfo = MatchIpProtocol.TCP;
+                  portMatchInfo = new MatchTcpSourcePort(port);
+               } else if (protocol == NAPTEntryEvent.Protocol.UDP) {
+                  protocolMatchInfo = MatchIpProtocol.UDP;
+                  portMatchInfo = new MatchUdpSourcePort(port);
+              }
             metaDataMatchInfo =
                     new MatchMetadata(MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID);
         } else {
+	    if (ipAddress is IPv6)
+		{
+            ipMatchInfo = new MatchIpv6Destination(ipAddressAsString, "128");
+              }
+	    else {
             ipMatchInfo = new MatchIpv4Destination(ipAddressAsString, "32");
+	    }
             if (protocol == NAPTEntryEvent.Protocol.TCP) {
                 protocolMatchInfo = MatchIpProtocol.TCP;
                 portMatchInfo = new MatchTcpDestinationPort(port);
@@ -509,10 +525,15 @@ public class NaptEventHandler {
             //metaDataMatchInfo = new MatchMetadata(BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID);
         }
         ArrayList<MatchInfo> matchInfo = new ArrayList<>();
-        matchInfo.add(MatchEthernetType.IPV4);
-        matchInfo.add(ipMatchInfo);
-        matchInfo.add(protocolMatchInfo);
-        matchInfo.add(portMatchInfo);
+        if (ipv4)
+	    matchInfo.add(MatchEthernetType.IPV4);
+        else if (ipv6)
+	    matchInfo.add(MatchEthernetType.IPV4);
+	matchInfo.add(ipMatchInfo);
+        if (ipv4) {
+	    matchInfo.add(protocolMatchInfo);
+           matchInfo.add(portMatchInfo);
+	}
         if (tableId == NwConstants.OUTBOUND_NAPT_TABLE) {
             matchInfo.add(metaDataMatchInfo);
         }
@@ -531,7 +552,13 @@ public class NaptEventHandler {
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
         switch (tableId) {
             case NwConstants.OUTBOUND_NAPT_TABLE:
-                ipActionInfo = new ActionSetSourceIp(ipAddress);
+                if (ipAddress == NULL){ /* because IPv6 does not do translation */
+                // reset the split-horizon bit to allow traffic from tunnel to be sent back to the provider port
+                    instructionInfo.add(new InstructionWriteMetadata(MetaDataUtil.getVpnIdMetadata(vpnId),
+                        MetaDataUtil.METADATA_MASK_VRFID.or(MetaDataUtil.METADATA_MASK_SH_FLAG)));
+		    break;
+		} else
+		 ipActionInfo = new ActionSetSourceIp(ipAddress);
                 // Added External Gateway MAC Address
                 macActionInfo = new ActionSetFieldEthernetSource(new MacAddress(extGwMacAddress));
                 if (protocol == NAPTEntryEvent.Protocol.TCP) {
@@ -545,7 +572,12 @@ public class NaptEventHandler {
                 break;
 
             case NwConstants.INBOUND_NAPT_TABLE:
-                ipActionInfo = new ActionSetDestinationIp(ipAddress);
+                if (ipAddress == NULL) { /* because IPv6 does not do translation */
+                   instructionInfo.add(new InstructionWriteMetadata(
+                        MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID));
+		   break;
+	         }  else
+		    ipActionInfo = new ActionSetDestinationIp(ipAddress);
                 if (protocol == NAPTEntryEvent.Protocol.TCP) {
                     portActionInfo = new ActionSetTcpDestinationPort(port);
                 } else if (protocol == NAPTEntryEvent.Protocol.UDP) {
@@ -561,8 +593,10 @@ public class NaptEventHandler {
                 return null;
         }
 
-        listActionInfo.add(ipActionInfo);
-        listActionInfo.add(portActionInfo);
+        if (ipActionInfo)
+	    listActionInfo.add(ipActionInfo);
+        if (portActionInfo)
+	    listActionInfo.add(portActionInfo);
         if (macActionInfo != null) {
             listActionInfo.add(macActionInfo);
             LOG.debug("NAT Service : External GW MAC Address {} is found  ", macActionInfo);

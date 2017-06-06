@@ -166,9 +166,15 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
                     BigInteger dpnId = dpn.getDpnId();
                     long vpnId = NatUtil.readVpnId(dataBroker, vpnInstOp.get().getVrfId());
                     if (create) {
-                        installDefNATRouteInDPN(dpnId, vpnId);
+                        if (routerIDisIPv4)
+			    installDefNATRouteInDPN(dpnId, vpnId, IPv4);
+			if (routetIDisIPV6)
+			    installDefNATRouteInDPN(dpnId, vpnId, IPv6);
                     } else {
-                        removeDefNATRouteInDPN(dpnId, vpnId);
+                        if (routerIDisIPv4)
+			    removeDefNATRouteInDPN(dpnId, vpnId, IPv4);
+			if (routetIDisIPV6)
+			    removeDefNATRouteInDPN(dpnId, vpnId, IPv6);
                     }
                 }
             }
