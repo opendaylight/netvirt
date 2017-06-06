@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_9603d0b7",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/listeners/VrfListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-06-06T15:38:43Z",
+      "side": 1,
+      "message": "lables? tables? labels?",
+      "revId": "4640ef169e0bd026f964593f9c6b4e360125d07e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
