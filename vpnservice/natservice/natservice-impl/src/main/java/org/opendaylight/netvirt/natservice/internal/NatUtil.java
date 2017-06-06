@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.natservice.internal;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -30,6 +31,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -1978,5 +1980,18 @@ public class NatUtil {
         }
 
         return NatConstants.INVALID_ID;
+    }
+
+    public static void djcFlow(FlowEntity flowEntity, int addOrRemove, IMdsalApiManager mdsalManager) {
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(flowEntity.getFlowName(), () -> {
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            if (addOrRemove == NwConstants.ADD_FLOW) {
+                futures.add(mdsalManager.installFlow(flowEntity));
+            } else {
+                futures.add(mdsalManager.removeFlow(flowEntity));
+            }
+            return futures;
+        });
     }
 }

@@ -16,6 +16,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -219,7 +220,7 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
             return;
         }
         LOG.debug("NAT Service : Installing flow {}", flowEntity);
-        mdsalManager.installFlow(flowEntity);
+        NatUtil.djcFlow(flowEntity, NwConstants.ADD_FLOW, mdsalManager);
     }
 
     private void removeDefNATRouteInDPN(BigInteger dpnId, long vpnId) {
@@ -230,6 +231,6 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
             return;
         }
         LOG.debug("NAT Service : Removing flow {}", flowEntity);
-        mdsalManager.removeFlow(flowEntity);
+        NatUtil.djcFlow(flowEntity, NwConstants.DEL_FLOW, mdsalManager);
     }
 }
