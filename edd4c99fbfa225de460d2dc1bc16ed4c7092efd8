@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_2f2c48ab",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-06-06T08:13:01Z",
+      "side": 1,
+      "message": "Those marker lines signal work that needs to be done sooner or later. I’d rather we didn’t suppress them.",
+      "parentUuid": "3afa9182_256d8f33",
+      "revId": "edd4c99fbfa225de460d2dc1bc16ed4c7092efd8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_6d5e63eb",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 3
@@ -72,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_0f0cec41",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2251,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-06-06T08:13:01Z",
+      "side": 1,
+      "message": "@Nonnull is useful for static null analysis even on non-API methods.",
+      "parentUuid": "3afa9182_056a131a",
+      "revId": "edd4c99fbfa225de460d2dc1bc16ed4c7092efd8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_8d462f22",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 3
@@ -101,6 +137,24 @@
       "side": 1,
       "message": "I fear we might loose declarative style of coding if we avoid using Optional\u0027s methods. Can you send me the link which talks about JIT compiler and GC optimization issues because of this usage ? I couldn\u0027t find such one.",
       "parentUuid": "3afa9182_8d462f22",
+      "revId": "edd4c99fbfa225de460d2dc1bc16ed4c7092efd8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_6a2bde82",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2252,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-06-06T08:13:01Z",
+      "side": 1,
+      "message": "I don’t have one that’s exactly on point to hand, but https://www.jfokus.se/jfokus17/preso/Java-SE-8-best-practices.pdf is always useful. We’re not losing anything by avoiding Optional methods here, we’re not writing declarative code either (this isn’t Prolog). The fact that Optional exists now isn’t a reason to start using it everywhere! I realise you and I will probably stay at loggerheads over this, I’m not sure it’s worth spending all that much time arguing over. Perhaps the fact that you’re the only person writing this kind of code should give you pause... But I will continue filing patches to remove such uses if necessary.",
+      "parentUuid": "3afa9182_65779703",
       "revId": "edd4c99fbfa225de460d2dc1bc16ed4c7092efd8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
