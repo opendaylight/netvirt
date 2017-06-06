@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -16,8 +17,10 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -125,7 +128,12 @@ public class SNATDefaultRouteProgrammer {
             return;
         }
         NatServiceCounters.install_default_nat_flow.inc();
-        mdsalManager.installFlow(flowEntity);
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(flowEntity.getFlowName(), () -> {
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            futures.add(mdsalManager.installFlow(flowEntity));
+            return futures;
+        });
     }
 
     void installDefNATRouteInDPN(BigInteger dpnId, long bgpVpnId, long routerId) {
@@ -135,7 +143,12 @@ public class SNATDefaultRouteProgrammer {
             return;
         }
         NatServiceCounters.install_default_nat_flow.inc();
-        mdsalManager.installFlow(flowEntity);
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(flowEntity.getFlowName(), () -> {
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            futures.add(mdsalManager.installFlow(flowEntity));
+            return futures;
+        });
     }
 
     void installDefNATRouteInDPN(BigInteger dpnId, long vpnId, String subnetId,
@@ -156,7 +169,12 @@ public class SNATDefaultRouteProgrammer {
             return;
         }
         NatServiceCounters.remove_default_nat_flow.inc();
-        mdsalManager.removeFlow(flowEntity);
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(flowEntity.getFlowName(), () -> {
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            futures.add(mdsalManager.removeFlow(flowEntity));
+            return futures;
+        });
     }
 
     void removeDefNATRouteInDPN(BigInteger dpnId, long bgpVpnId, long routerId) {
@@ -166,7 +184,12 @@ public class SNATDefaultRouteProgrammer {
             return;
         }
         NatServiceCounters.remove_default_nat_flow.inc();
-        mdsalManager.removeFlow(flowEntity);
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(flowEntity.getFlowName(), () -> {
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            futures.add(mdsalManager.removeFlow(flowEntity));
+            return futures;
+        });
     }
 
     void addOrDelDefaultFibRouteToSNATForSubnet(Subnets subnet, String networkId, int flowAction, long vpnId) {
