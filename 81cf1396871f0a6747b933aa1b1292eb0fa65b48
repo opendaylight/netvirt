@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_afb5d8ce",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-06-06T07:02:14Z",
+      "side": 1,
+      "message": "Is there a reason for registering all the Handlers and iterating over the Handlers to process VrfEntry?\nWould it be better to design this in terms of linked handlers?? We just need to call process() of the first handler. The handler will then have a reference to the second handler. And it will call thep process() of the second handler. Then this link continues",
+      "range": {
+        "startLine": 143,
+        "startChar": 17,
+        "endLine": 143,
+        "endChar": 78
+      },
+      "revId": "81cf1396871f0a6747b933aa1b1292eb0fa65b48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
