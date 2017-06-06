@@ -16,9 +16,12 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -219,7 +222,12 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
             return;
         }
         LOG.debug("NAT Service : Installing flow {}", flowEntity);
-        mdsalManager.installFlow(flowEntity);
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(flowEntity.getFlowName(), () -> {
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            futures.add(mdsalManager.installFlow(flowEntity));
+            return futures;
+        });
     }
 
     private void removeDefNATRouteInDPN(BigInteger dpnId, long vpnId) {
@@ -230,6 +238,11 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
             return;
         }
         LOG.debug("NAT Service : Removing flow {}", flowEntity);
-        mdsalManager.removeFlow(flowEntity);
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(flowEntity.getFlowName(), () -> {
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            futures.add(mdsalManager.removeFlow(flowEntity));
+            return futures;
+        });
     }
 }
