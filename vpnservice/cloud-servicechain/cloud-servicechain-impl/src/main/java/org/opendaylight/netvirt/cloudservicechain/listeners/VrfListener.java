@@ -107,11 +107,22 @@ public class VrfListener extends AsyncDataTreeChangeListenerBase<VrfEntry, VrfLi
 
         Optional<VpnInstanceOpDataEntry> vpnOpData = VpnServiceChainUtils.getVpnInstanceOpData(broker, vpnRd);
         if (! vpnOpData.isPresent()) {
-            LOG.warn("Could not find operational data for VPN with RD={}", vpnRd);
+            if (addOrRemove == NwConstants.ADD_FLOW) {
+                LOG.error("VrfEntry added: Could not find operational data for VPN with RD={}", vpnRd);
+            } else {
+                LOG.warn("VrfEntry removed: No Operational data found for VPN with RD={}. No further action", vpnRd);
+            }
+
             return;
         }
 
         Collection<VpnToDpnList> vpnToDpnList = vpnOpData.get().getVpnToDpnList();
+        if (vpnToDpnList == null || vpnToDpnList.isEmpty()) {
+            LOG.warn("Empty VpnToDpnlist found in Operational for VPN with RD={}. No label will be {}",
+                     vpnRd, addOrRemove == NwConstants.ADD_FLOW ? "programmed" : "cleaned");
+            return;
+        }
+
         for (VpnToDpnList dpnInVpn : vpnToDpnList) {
             BigInteger dpnId = dpnInVpn.getDpnId();
             VpnServiceChainUtils.programLFibEntriesForSCF(mdsalMgr, dpnId, Collections.singletonList(vrfEntry),
