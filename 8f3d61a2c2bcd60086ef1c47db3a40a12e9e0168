@@ -635,6 +635,23 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_3e03dc10",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-06T07:51:44Z",
+      "side": 1,
+      "message": "s/one VPN interface/dedicated VPN router ID instance\n\nWe use one L3VPN interface for 2 routers",
+      "revId": "8f3d61a2c2bcd60086ef1c47db3a40a12e9e0168",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_5ef2289b",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 15
