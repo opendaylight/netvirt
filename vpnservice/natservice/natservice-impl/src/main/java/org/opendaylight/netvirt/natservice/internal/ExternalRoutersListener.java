@@ -360,7 +360,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 LOG.debug("installNaptPfibExternalOutputFlow - dpnId {} extVpnId {} subnetId {}",
                     dpnId, extVpnId, subnetId);
                 FlowEntity postNaptFlowEntity = buildNaptPfibFlowEntity(dpnId, extVpnId);
-                mdsalManager.installFlow(postNaptFlowEntity);
+                NatUtil.djcFlow(postNaptFlowEntity, NwConstants.ADD_FLOW, mdsalManager);
             }
         }
     }
@@ -893,7 +893,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     public void installNaptPfibEntry(BigInteger dpnId, long segmentId) {
         LOG.debug("NAT Service : installNaptPfibEntry called for dpnId {} and segmentId {} ", dpnId, segmentId);
         FlowEntity naptPfibFlowEntity = buildNaptPfibFlowEntity(dpnId, segmentId);
-        mdsalManager.installFlow(naptPfibFlowEntity);
+        NatUtil.djcFlow(naptPfibFlowEntity, NwConstants.ADD_FLOW, mdsalManager);
     }
 
     public FlowEntity buildNaptPfibFlowEntity(BigInteger dpId, long segmentId) {
@@ -1788,7 +1788,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         LOG.info("NAT Service : Remove the flow in the {} for the active switch with the DPN ID {} and router ID {}",
             NwConstants.NAPT_PFIB_TABLE, dpnId, routerId);
-        mdsalManager.removeFlow(natPfibFlowEntity);
+        NatUtil.djcFlow(natPfibFlowEntity, NwConstants.DEL_FLOW, mdsalManager);
 
         // Long vpnId = NatUtil.getVpnId(dataBroker, routerId);
         // - This does not work since ext-routers is deleted already - no network info
@@ -1816,7 +1816,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 NatUtil.buildFlowEntity(dpnId, NwConstants.NAPT_PFIB_TABLE, natPfibVpnFlowRef);
             LOG.info("NAT Service : Remove the flow in the for the active switch with the DPN ID {} and VPN ID {}",
                 NwConstants.NAPT_PFIB_TABLE, dpnId, vpnId);
-            mdsalManager.removeFlow(natPfibVpnFlowEntity);
+            NatUtil.djcFlow(natPfibVpnFlowEntity, NwConstants.DEL_FLOW, mdsalManager);
         }
 
         //For the router ID get the internal IP , internal port and the corresponding external IP and external Port.
@@ -1889,7 +1889,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             String naptFlowRef = getFlowRefNaptFib(dpnId, NwConstants.NAPT_PFIB_TABLE, extVpnId, extIp);
             LOG.info("NAT Service: Remove the flow in the " + NwConstants.NAPT_PFIB_TABLE + " for the active switch"
                 + " with the DPN ID {} and router ID {} and IP {} flowRef {}", dpnId, routerId, extIp, naptFlowRef);
-            mdsalManager.removeFlow(NatUtil.buildFlowEntity(dpnId, NwConstants.NAPT_PFIB_TABLE, naptFlowRef));
+            FlowEntity natPfibVpnFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.NAPT_PFIB_TABLE, naptFlowRef);
+            NatUtil.djcFlow(natPfibVpnFlowEntity, NwConstants.DEL_FLOW, mdsalManager);
         }
     }
 
@@ -1921,7 +1922,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 NatUtil.buildFlowEntity(dpnId, NwConstants.NAPT_PFIB_TABLE, natPfibVpnFlowRef);
             LOG.info("NAT Service : Remove the flow in the {} for the active switch with the DPN ID {} "
                 + "and VPN ID {}", NwConstants.NAPT_PFIB_TABLE, dpnId, vpnId);
-            mdsalManager.removeFlow(natPfibVpnFlowEntity);
+            NatUtil.djcFlow(natPfibVpnFlowEntity, NwConstants.DEL_FLOW, mdsalManager);
 
             // Remove IP-PORT active NAPT entries and release port from IdManager
             // For the router ID get the internal IP , internal port and the corresponding
@@ -2606,7 +2607,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         LOG.debug("NAT Service : installNaptPfibEntryWithBgpVpn called for dpnId {} and segmentId {} ,BGP VPN ID {}",
             dpnId, segmentId, changedVpnId);
         FlowEntity naptPfibFlowEntity = buildNaptPfibFlowEntityWithUpdatedVpnId(dpnId, segmentId, changedVpnId);
-        mdsalManager.installFlow(naptPfibFlowEntity);
+        NatUtil.djcFlow(naptPfibFlowEntity, NwConstants.ADD_FLOW, mdsalManager);
     }
 
     public FlowEntity buildNaptPfibFlowEntityWithUpdatedVpnId(BigInteger dpId, long segmentId, long changedVpnId) {
