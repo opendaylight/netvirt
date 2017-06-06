@@ -450,6 +450,30 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_28544653",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T10:50:45Z",
+      "side": 1,
+      "message": "update from last fridays discussion.\n- there is no relationship with vpn-instance-name.\n- the neutronvpn.yang change should be better explained.\n\nabout neutronvpn.yang change, we think it is needed so as to send IPv6 private subnetworks to BGP.\nCan you clarify your doubts, please ?",
+      "parentUuid": "7af0899e_97cdae60",
+      "range": {
+        "startLine": 387,
+        "startChar": 0,
+        "endLine": 387,
+        "endChar": 106
+      },
+      "revId": "e1f6ed0187a7650931207acaa5d8c8ff5ef04a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_11526e13",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 21
@@ -485,6 +509,30 @@
       "side": 1,
       "message": "I mean, in addition to import IPv6 information from LAN side, the IPv4 public information will be imported too, but thanks to NAT mechanism already put in place.\n\nAs far as I know ( I did not test it), the public IPv4 address of the router ( on the gateway side) will be populated in the FIB. No ?",
       "parentUuid": "7af0899e_11526e13",
+      "range": {
+        "startLine": 389,
+        "startChar": 92,
+        "endLine": 390,
+        "endChar": 47
+      },
+      "revId": "e1f6ed0187a7650931207acaa5d8c8ff5ef04a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_08518a62",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T10:50:45Z",
+      "side": 1,
+      "message": "clarification, with neutronvpn.yang change, only IPv6 will be imported into BGP.",
+      "parentUuid": "7af0899e_37b67add",
       "range": {
         "startLine": 389,
         "startChar": 92,
@@ -544,6 +592,30 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_d8247ac8",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T10:50:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_d7a9f67c",
+      "range": {
+        "startLine": 398,
+        "startChar": 35,
+        "endLine": 398,
+        "endChar": 64
+      },
+      "revId": "e1f6ed0187a7650931207acaa5d8c8ff5ef04a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7af0899e_3174ca9b",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 21
@@ -579,6 +651,30 @@
       "side": 1,
       "message": "question 1:\n private VPN is the one used for inter DC.\nIt is illustrated in config 2 illustrated above of this document, \"VPN private 2\" is the private VPN, while \"VPN internet 2\" is the external VPN.\n\nquestion 2:\nwe do not yet have some code to share.\nThe idea is to replace router-id with vpn-id.",
       "parentUuid": "7af0899e_3174ca9b",
+      "range": {
+        "startLine": 400,
+        "startChar": 0,
+        "endLine": 404,
+        "endChar": 48
+      },
+      "revId": "e1f6ed0187a7650931207acaa5d8c8ff5ef04a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_7840e656",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-06T10:50:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7af0899e_d7d736ec",
       "range": {
         "startLine": 400,
         "startChar": 0,
