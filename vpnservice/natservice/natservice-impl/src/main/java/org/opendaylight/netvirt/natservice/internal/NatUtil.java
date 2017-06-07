@@ -1846,12 +1846,11 @@ public class NatUtil {
     }
 
     public static void createOrUpdateVpnToDpnList(DataBroker dataBroker, long vpnId, BigInteger dpnId, String intfName,
-            String vpnName) {
+            String vpnName, WriteTransaction writeTxn) {
         String primaryRd = getPrimaryRd(dataBroker, vpnName);
         Boolean newDpnOnVpn = Boolean.FALSE;
 
         synchronized (vpnName.intern()) {
-            WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
             InstanceIdentifier<VpnToDpnList> id = getVpnToDpnListIdentifier(primaryRd, dpnId);
             Optional<VpnToDpnList> dpnInVpn = read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
             org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance
@@ -1892,7 +1891,7 @@ public class NatUtil {
     }
 
     public static void removeOrUpdateVpnToDpnList(DataBroker dataBroker, long vpnId, BigInteger dpnId, String intfName,
-            String vpnName) {
+            String vpnName, WriteTransaction writeTxn) {
         Boolean lastDpnOnVpn = Boolean.FALSE;
         String rd = getVpnRd(dataBroker, vpnName);
         synchronized (vpnName.intern()) {
@@ -1915,7 +1914,6 @@ public class NatUtil {
                 .instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces currVpnInterface = new VpnInterfacesBuilder()
                 .setInterfaceName(intfName).build();
             if (vpnInterfaces.remove(currVpnInterface)) {
-                WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
                 if (vpnInterfaces.isEmpty()) {
                     List<IpAddresses> ipAddresses = dpnInVpn.getIpAddresses();
                     VpnToDpnListBuilder dpnInVpnBuilder = new VpnToDpnListBuilder(dpnInVpn).setVpnInterfaces(null);
