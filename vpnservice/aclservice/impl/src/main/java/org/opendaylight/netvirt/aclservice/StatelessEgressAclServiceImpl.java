@@ -22,6 +22,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchTcpFlags;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpDestinationPort;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpSourcePort;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
+import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
@@ -67,8 +68,8 @@ public class StatelessEgressAclServiceImpl extends AbstractEgressAclServiceImpl 
     }
 
     @Override
-    protected void programAceRule(BigInteger dpId, int lportTag, int addOrRemove, String aclName, Ace ace,
-            String portId, List<AllowedAddressPairs> syncAllowedAddresses) {
+    protected void programAceRule(AclInterface port, int addOrRemove, String aclName, Ace ace,
+            List<AllowedAddressPairs> syncAllowedAddresses) {
         SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
         if (!aceAttr.getDirection().equals(DirectionEgress.class)) {
             return;
@@ -93,9 +94,10 @@ public class StatelessEgressAclServiceImpl extends AbstractEgressAclServiceImpl 
                     NxMatchTcpDestinationPort.class) || AclServiceUtils.containsMatchFieldType(flowMatches,
                     NxMatchTcpSourcePort.class);
             if (hasTcpMatch || protocol == null) {
+                int lportTag = port.getLPortTag();
                 flowName += "Egress" + lportTag + ace.getKey().getRuleName();
                 flowMatches.add(buildLPortTagMatch(lportTag));
-                programSynRules(dpId, flowName, flowMatches, addOrRemove, protocol, ace.getActions());
+                programSynRules(port.getDpId(), flowName, flowMatches, addOrRemove, protocol, ace.getActions());
             }
         }
     }

@@ -15,6 +15,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
+import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
@@ -39,12 +40,12 @@ public class TransparentIngressAclServiceImpl extends AbstractIngressAclServiceI
     }
 
     @Override
-    public void bindService(String interfaceName, Long vpnId) {
+    public void bindService(AclInterface aclInterface) {
         LOG.debug("transparent ingress acl service - do nothing");
     }
 
     @Override
-    protected void unbindService(String interfaceName) {
+    protected void unbindService(AclInterface aclInterface) {
         LOG.debug("transparent ingress acl service - do nothing");
     }
 
@@ -68,8 +69,8 @@ public class TransparentIngressAclServiceImpl extends AbstractIngressAclServiceI
     }
 
     @Override
-    protected void programAceRule(BigInteger dpId, int lportTag, int addOrRemove, String aclName, Ace ace,
-            String portId, List<AllowedAddressPairs> syncAllowedAddresses) {
+    protected void programAceRule(AclInterface port, int addOrRemove, String aclName, Ace ace,
+            List<AllowedAddressPairs> syncAllowedAddresses) {
         LOG.debug("Transparent ingress acl service - do nothing");
     }
 }
