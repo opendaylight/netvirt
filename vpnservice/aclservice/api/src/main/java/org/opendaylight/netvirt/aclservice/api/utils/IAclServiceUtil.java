@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.aclservice.api.utils;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -18,9 +17,5 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 public interface IAclServiceUtil {
 
     Map<String, List<MatchInfoBase>> programIpFlow(Matches matches);
-
-    void updateBoundServicesFlow(String interfaceName, Long vpnId);
-
-    void updateRemoteAclFilterTable(String interfaceName, Long vpnId, BigInteger dpnId, int addOrDelete);
 
 }
