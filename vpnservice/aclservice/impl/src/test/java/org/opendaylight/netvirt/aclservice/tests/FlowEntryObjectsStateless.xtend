@@ -154,24 +154,6 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 ]
                 priority = 61005
                 tableId = 241 as short
-            ],
-            new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
-                flowId = "SYN_ETHERnullIngress98785cc3048-abc3-43cc-89b3-377341426ac7"
-                flowName = "ACL_SYN_"
-                instructionInfoList = #[
-                    new InstructionApplyActions(#[
-                        new ActionNxResubmit(220 as short)
-                    ])
-                ]
-                matchInfoList = #[
-                    new MatchEthernetType(2048L),
-                    new MatchEthernetType(2048L),
-                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
-                ]
-                priority = 61005
-                tableId = 241 as short
             ]
         ]
     }
@@ -302,27 +284,6 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
 
     protected def tcpEgressFlowPort2() {
         #[
-            new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
-                flowId = "SYN_TCP_DESTINATION_80_65535Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
-                flowName = "ACL_SYN_"
-                instructionInfoList = #[
-                    new InstructionApplyActions(#[
-                        new ActionNxResubmit(17 as short)
-                    ])
-                ]
-                matchInfoList = #[
-                    new MatchEthernetType(2048L),
-                    new MatchEthernetType(2048L),
-                    new NxMatchTcpDestinationPort(80, 65535),
-                    new MatchIpProtocol(6 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new MatchTcpFlags(2)
-                ]
-                priority = 61005
-                tableId = 211 as short
-            ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
