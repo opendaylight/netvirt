@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_37e77314",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-07T14:16:01Z",
+      "side": 1,
+      "message": "yes, missed.",
+      "parentUuid": "3afa9182_2adeef3f",
+      "revId": "b804a7f8f6925222d5e0b7c8be0a50c83288fda3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_a52050f8",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpResponderHandler.java",
         "patchSetId": 11
@@ -47,6 +65,24 @@
       "writtenOn": "2017-06-07T12:48:30Z",
       "side": 1,
       "message": "can you please elaborate this logic to me?",
+      "revId": "b804a7f8f6925222d5e0b7c8be0a50c83288fda3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_b7d36337",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpResponderHandler.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-07T14:16:01Z",
+      "side": 1,
+      "message": "Sorry, will add detailed javadoc description for this method. will add in next commit. Here, incase of router mac type we are adding one arp responder entry per subnet in a dpn instead of per vpninterface(we will still continue to add arp responder flow per vpn interface for connected mac).\n\nIn anyOtherVpnIfaceOnDpnOfSubnet method we check if there are any vpn interfaces on the particular DPN belonging to the passed subnet other than current vpn interface in Prefixes. In short test if its the first VPN interface on the DPN belonging to the subnet.",
+      "parentUuid": "3afa9182_a52050f8",
       "revId": "b804a7f8f6925222d5e0b7c8be0a50c83288fda3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
