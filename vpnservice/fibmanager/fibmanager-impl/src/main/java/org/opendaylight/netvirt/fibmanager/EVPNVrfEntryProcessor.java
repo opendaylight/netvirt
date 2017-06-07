@@ -225,6 +225,9 @@ public class EVPNVrfEntryProcessor {
             String interfaceName = prefixInfo.getVpnInterfaceName();
             if (vrfEntry.getOrigin().equals(RouteOrigin.BGP) || isNatPrefix) {
                 tunnelId = BigInteger.valueOf(vrfEntry.getL3vni());
+            } else if (vrfEntryListener.isOpenStackVniSemanticsEnforced) {
+                tunnelId = BigInteger.valueOf(FibUtil.getVniForVxlanNetwork(dataBroker,
+                        prefixInfo.getSubnetId()).get());
             } else {
                 Interface interfaceState = FibUtil.getInterfaceStateFromOperDS(dataBroker, interfaceName);
                 tunnelId = BigInteger.valueOf(interfaceState.getIfIndex());
