@@ -16,6 +16,24 @@
       "revId": "fb3e130dd8bff83e8d4149e8c30b803aec9474fa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_ea26a7b9",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/listeners/VrfListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-06-07T08:13:42Z",
+      "side": 1,
+      "message": "The line between warn and error is blurred most of the times for me. I did set it to error because at this point (VrfEntry being added) the L3VPN should have its Op data in place.\nHowever, as I\u0027m writing this, I\u0027m thinking that when the VrfEntry is being removed the lack of L3VPN\u0027s Op data could just be a \"debug\".",
+      "parentUuid": "3afa9182_3622dcb9",
+      "revId": "fb3e130dd8bff83e8d4149e8c30b803aec9474fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
