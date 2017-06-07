@@ -51,6 +51,24 @@
       "revId": "c279d65f9f4704a8432466a6d563e01a9a208649",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_cae2cbd4",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworkListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-06-07T09:40:54Z",
+      "side": 1,
+      "message": "In enqueueJob() method the second argument implements Callable interface. It\u0027s required to return list object. please refer the below method definition for the reference.\n\nImplementation: (DataStoreJobCoordinator)\n------------------\nenqueueJob(String key, Callable\u003cList\u003cListenableFuture\u003cVoid\u003e\u003e\u003e mainWorker)",
+      "parentUuid": "3afa9182_53c4da91",
+      "revId": "c279d65f9f4704a8432466a6d563e01a9a208649",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
