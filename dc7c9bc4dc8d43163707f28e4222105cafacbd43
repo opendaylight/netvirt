@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_051204b1",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1985,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-06-07T12:38:12Z",
+      "side": 1,
+      "message": "boolean would be better. or what about just using the NwConstants.ADD_FLOW? That would make the method call readable",
+      "range": {
+        "startLine": 1985,
+        "startChar": 54,
+        "endLine": 1985,
+        "endChar": 69
+      },
+      "revId": "dc7c9bc4dc8d43163707f28e4222105cafacbd43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
