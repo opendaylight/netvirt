@@ -22,6 +22,30 @@
       "revId": "dc7c9bc4dc8d43163707f28e4222105cafacbd43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_45224cba",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1985,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-06-07T13:16:35Z",
+      "side": 1,
+      "message": "This common method is used for both install and remove the flow. We have to pass the value from the caller to specify whether install/remove. There are so many places we used this same logic for install/remove. \n\nPlease let me know your concern.\n\nAlso have done the changes in the caller to pass \"NwConstants.ADD_FLOW/NwConstants.DEL_FLOW\" instead of hard codded the value as 0/1.",
+      "parentUuid": "3afa9182_051204b1",
+      "range": {
+        "startLine": 1985,
+        "startChar": 54,
+        "endLine": 1985,
+        "endChar": 69
+      },
+      "revId": "dc7c9bc4dc8d43163707f28e4222105cafacbd43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
