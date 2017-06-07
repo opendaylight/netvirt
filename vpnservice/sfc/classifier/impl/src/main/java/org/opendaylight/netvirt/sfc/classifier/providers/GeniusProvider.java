@@ -25,7 +25,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.sfc.classifier.utils.OpenFlow13Utils;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.sfc.sff.logical.rev160620.DpnIdType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.InstructionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
@@ -373,12 +373,9 @@ public class GeniusProvider {
     }
 
     public String getRemoteIpAddress(String interfaceName) {
-        return Optional.ofNullable(interfaceMgr.getInterfaceInfoFromConfigDataStore(interfaceName))
-                .map(iface -> iface.getAugmentation(IfTunnel.class))
-                .map(IfTunnel::getTunnelDestination)
-                .map(IpAddress::getIpv4Address)
-                .map(Ipv4Address::getValue)
-                .orElse(null);
+        Interface interfaceInfo = interfaceMgr.getInterfaceInfoFromConfigDataStore(interfaceName);
+        return interfaceInfo != null ? interfaceInfo.getAugmentation(
+                IfTunnel.class).getTunnelDestination().getIpv4Address().getValue() : null;
     }
 
     public static Action createServiceBindingActionNxLoadReg0(long value, int order) {
