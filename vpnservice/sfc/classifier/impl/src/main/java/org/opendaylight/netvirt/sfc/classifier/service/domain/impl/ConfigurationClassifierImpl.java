@@ -8,13 +8,13 @@
 
 package org.opendaylight.netvirt.sfc.classifier.service.domain.impl;
 
-import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -124,18 +124,15 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             return Collections.emptySet();
         }
 
-        Map<NodeId, List<InterfaceKey>> nodeToInterfaces = Optional.ofNullable(matches.getAugmentation(NeutronNetwork
-                .class))
-                .map(netvirtProvider::getLogicalInterfacesFromNeutronNetwork)
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(iface -> new AbstractMap.SimpleEntry<>(
-                        new InterfaceKey(iface),
-                        geniusProvider.getNodeIdFromLogicalInterface(iface).orElse(null)))
-                .filter(entry -> Objects.nonNull(entry.getValue()))
-                .collect(Collectors.groupingBy(
-                        AbstractMap.Entry::getValue,
-                        Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
+        Map<NodeId, List<InterfaceKey>> nodeToInterfaces = new HashMap<>();
+        NeutronNetwork neutronNetwork = matches.getAugmentation(NeutronNetwork.class);
+        if (neutronNetwork != null) {
+            for (String iface : netvirtProvider.getLogicalInterfacesFromNeutronNetwork(neutronNetwork)) {
+                geniusProvider.getNodeIdFromLogicalInterface(iface).ifPresent(
+                        nodeId -> nodeToInterfaces.computeIfAbsent(nodeId, key -> new ArrayList<>()).add(
+                                new InterfaceKey(iface)));
+            }
+        }
 
         LOG.trace("Got classifier nodes and interfaces: {}", nodeToInterfaces);
 
