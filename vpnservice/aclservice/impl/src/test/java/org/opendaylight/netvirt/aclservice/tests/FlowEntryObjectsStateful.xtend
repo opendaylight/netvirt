@@ -156,13 +156,14 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedConntrackIngressFlowsPort2
         + etherIngressFlowsPort2
         + etherIngressFlowsPort2
-        + etherIngressFlowsPort2
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + etheregressFlowPort2
         + remoteFlows
-        + remoteIngressFlowsPort2
-        + remoteEgressFlowsPort2
+        + remoteIngressFlowsPort1
+        + remoteIngressFlowsPort1
+        + remoteEgressFlowsPort1
+        + remoteEgressFlowsPort1
         + fixedEgressArpFlowsPort1()
         + fixedEgressArpFlowsPort2()
         + tcpEgressFlowPort2WithRemoteIpSg
