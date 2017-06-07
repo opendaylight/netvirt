@@ -21,14 +21,9 @@ public interface AclServiceListener {
 
     boolean bindAcl(AclInterface port);
 
-    void bindService(String interfaceName, Long vpnId);
-
     boolean unbindAcl(AclInterface port);
 
     boolean applyAce(AclInterface port, String aclName, Ace ace);
 
     boolean removeAce(AclInterface port, String aclName, Ace ace);
-
-    void updateRemoteAclFilterTable(AclInterface port, int addOrRemove, Long vpnId);
-
 }

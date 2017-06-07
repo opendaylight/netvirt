@@ -33,8 +33,6 @@ import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterfaceCacheUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
-import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
@@ -94,9 +92,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             LOG.error("Unable to find DP Id from ACL interface with id {}", port.getInterfaceId());
             return false;
         }
-        programAclWithAllowedAddress(dpId, port.getAllowedAddressPairs(), port.getLPortTag(), port.getSecurityGroups(),
-                Action.ADD, NwConstants.ADD_FLOW, port.getInterfaceId());
-        updateRemoteAclFilterTable(port, NwConstants.ADD_FLOW, null /*vpnId*/);
+        programAclWithAllowedAddress(port, port.getAllowedAddressPairs(), Action.ADD, NwConstants.ADD_FLOW);
+        updateRemoteAclFilterTable(port, NwConstants.ADD_FLOW, port.getVpnId());
         return true;
     }
 
@@ -106,8 +103,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             LOG.error("port and port security groups cannot be null");
             return false;
         }
-        bindService(port.getInterfaceId(), null/*vpnName*/);
-        updateRemoteAclFilterTable(port, NwConstants.ADD_FLOW, null /*vpnId*/);
+        bindService(port);
+        updateRemoteAclFilterTable(port, NwConstants.ADD_FLOW, port.getVpnId());
         return true;
     }
 
@@ -118,8 +115,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             LOG.error("Unable to find DP Id from ACL interface with id {}", port.getInterfaceId());
             return false;
         }
-        unbindService(port.getInterfaceId());
-        updateRemoteAclFilterTable(port, NwConstants.DEL_FLOW, null /*vpnId*/);
+        unbindService(port);
+        updateRemoteAclFilterTable(port, NwConstants.DEL_FLOW, port.getVpnId());
         return true;
     }
 
@@ -133,7 +130,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             if (isPortSecurityEnable) {
                 result = applyAcl(portAfter) && bindAcl(portAfter);
             } else {
-                result = removeAcl(portAfter) && unbindAcl(portAfter);
+                result = removeAcl(portBefore) && unbindAcl(portBefore);
             }
         } else if (isPortSecurityEnable) {
             // Acls has been updated, find added/removed Acls and act accordingly.
@@ -152,12 +149,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                 AclServiceUtils.getUpdatedAllowedAddressPairs(portBefore.getAllowedAddressPairs(),
                         portAfter.getAllowedAddressPairs());
         if (deletedAllowedAddressPairs != null && !deletedAllowedAddressPairs.isEmpty()) {
-            programAclWithAllowedAddress(dpId, deletedAllowedAddressPairs, portAfter.getLPortTag(),
-                    portAfter.getSecurityGroups(), Action.UPDATE, NwConstants.DEL_FLOW, portAfter.getInterfaceId());
+            programAclWithAllowedAddress(portAfter, deletedAllowedAddressPairs, Action.UPDATE, NwConstants.DEL_FLOW);
         }
         if (addedAllowedAddressPairs != null && !addedAllowedAddressPairs.isEmpty()) {
-            programAclWithAllowedAddress(dpId, addedAllowedAddressPairs, portAfter.getLPortTag(),
-                    portAfter.getSecurityGroups(), Action.UPDATE, NwConstants.ADD_FLOW, portAfter.getInterfaceId());
+            programAclWithAllowedAddress(portAfter, addedAllowedAddressPairs, Action.UPDATE, NwConstants.ADD_FLOW);
         }
         updateArpForAllowedAddressPairs(dpId, portAfter.getLPortTag(), deletedAllowedAddressPairs,
                 portAfter.getAllowedAddressPairs());
@@ -167,15 +162,15 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         // with SG2 (which has ACE with remote SG1). Now When we add SG3 to Interface1, the rule for Interface2 which
         // match the IP of Interface1 will not be installed (but it have to be because Interface1 has more than one SG).
         // So we need to remove all rules and install them from 0, and we cannot handle only the delta.
-        updateCustomRules(dpId, portAfter.getLPortTag(), portBefore.getSecurityGroups(), NwConstants.DEL_FLOW,
-                portAfter.getInterfaceId(), portAfter.getAllowedAddressPairs());
-        updateRemoteAclFilterTable(portBefore, NwConstants.DEL_FLOW, null /*vpnId*/);
+        updateCustomRules(portBefore, portBefore.getSecurityGroups(), NwConstants.DEL_FLOW,
+                portAfter.getAllowedAddressPairs());
+        updateRemoteAclFilterTable(portBefore, NwConstants.DEL_FLOW, portBefore.getVpnId());
 
         updateAclInterfaceInCache(portAfter);
 
-        updateCustomRules(dpId, portAfter.getLPortTag(), portAfter.getSecurityGroups(), NwConstants.ADD_FLOW,
-                portAfter.getInterfaceId(), portAfter.getAllowedAddressPairs());
-        updateRemoteAclFilterTable(portAfter, NwConstants.ADD_FLOW, null /*vpnId*/);
+        updateCustomRules(portAfter, portAfter.getSecurityGroups(), NwConstants.ADD_FLOW,
+                portAfter.getAllowedAddressPairs());
+        updateRemoteAclFilterTable(portAfter, NwConstants.ADD_FLOW, portAfter.getVpnId());
     }
 
     private void updateAclInterfaceInCache(AclInterface aclInterfaceNew) {
@@ -183,16 +178,19 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         aclDataUtil.addOrUpdateAclInterfaceMap(aclInterfaceNew.getSecurityGroups(), aclInterfaceNew);
     }
 
-    private void updateCustomRules(BigInteger dpId, int lportTag, List<Uuid> aclUuidList, int action, String portId,
+    private void updateCustomRules(AclInterface port, List<Uuid> aclUuidList, int action,
             List<AllowedAddressPairs> syncAllowedAddresses) {
-        programAclRules(aclUuidList, dpId, lportTag, action, portId);
-        syncRemoteAclRules(aclUuidList, action, portId, syncAllowedAddresses);
+        programAclRules(port, aclUuidList, action);
+        syncRemoteAclRules(aclUuidList, action, port.getInterfaceId(), syncAllowedAddresses);
     }
 
     private void syncRemoteAclRules(List<Uuid> aclUuidList, int action, String currentPortId,
                                     List<AllowedAddressPairs> syncAllowedAddresses) {
         if (aclUuidList == null) {
             LOG.warn("security groups are null");
+            return;
+        } else if (aclUuidList.size() == 1) {
+            LOG.debug("Sync remote ACL not required");
             return;
         }
         for (Uuid remoteAclId : aclUuidList) {
@@ -208,21 +206,23 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                     }
                     List<Ace> remoteAceList = AclServiceUtils.getAceWithRemoteAclId(dataBroker, port, remoteAclId);
                     for (Ace ace : remoteAceList) {
-                        programAceRule(port.getDpId(), port.getLPortTag(), action, aclName, ace, port.getInterfaceId(),
-                                syncAllowedAddresses);
+                        programAceRule(port, action, aclName, ace, syncAllowedAddresses);
                     }
                 }
             }
         }
     }
 
-    private void programAclWithAllowedAddress(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
-            int lportTag, List<Uuid> aclUuidList, Action action, int addOrRemove,
-            String portId) {
+    private void programAclWithAllowedAddress(AclInterface port, List<AllowedAddressPairs> allowedAddresses,
+            Action action, int addOrRemove) {
+        BigInteger dpId = port.getDpId();
+        int lportTag = port.getLPortTag();
+        List<Uuid> aclUuidList = port.getSecurityGroups();
+        String portId = port.getInterfaceId();
         programGeneralFixedRules(dpId, "", allowedAddresses, lportTag, action, addOrRemove);
         programSpecificFixedRules(dpId, "", allowedAddresses, lportTag, portId, action, addOrRemove);
         if (action == Action.ADD || action == Action.REMOVE) {
-            programAclRules(aclUuidList, dpId, lportTag, addOrRemove, portId);
+            programAclRules(port, aclUuidList, addOrRemove);
         }
         syncRemoteAclRules(aclUuidList, addOrRemove, portId, allowedAddresses);
     }
@@ -235,9 +235,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             LOG.error("Unable to find DP Id from ACL interface with id {}", port.getInterfaceId());
             return false;
         }
-        programAclWithAllowedAddress(dpId, port.getAllowedAddressPairs(), port.getLPortTag(), port.getSecurityGroups(),
-                Action.REMOVE, NwConstants.DEL_FLOW, port.getInterfaceId());
-        updateRemoteAclFilterTable(port, NwConstants.DEL_FLOW, null /*vpnId*/);
+        programAclWithAllowedAddress(port, port.getAllowedAddressPairs(), Action.REMOVE, NwConstants.DEL_FLOW);
+        updateRemoteAclFilterTable(port, NwConstants.DEL_FLOW, port.getVpnId());
         return true;
     }
 
@@ -246,19 +245,9 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         if (!port.isPortSecurityEnabled()) {
             return false;
         }
-        programAceRule(port.getDpId(), port.getLPortTag(), NwConstants.ADD_FLOW, aclName, ace, port.getInterfaceId(),
-                null);
-        updateRemoteAclFilterTable(port, NwConstants.ADD_FLOW, null /*vpnId*/);
-        updateRemoteAclFilterTableForVpn(port, NwConstants.ADD_FLOW);
+        programAceRule(port, NwConstants.ADD_FLOW, aclName, ace, null);
+        updateRemoteAclFilterTable(port, NwConstants.ADD_FLOW, port.getVpnId());
         return true;
-    }
-
-    private void updateRemoteAclFilterTableForVpn(AclInterface port, int addOrRemove) {
-        VpnInterface vpnInterface = VpnHelper.getVpnInterface(dataBroker, port.getInterfaceId());
-        if (vpnInterface != null) {
-            Long vpnId = VpnHelper.getVpnId(dataBroker, vpnInterface.getVpnInstanceName());
-            updateRemoteAclFilterTable(port, addOrRemove, vpnId);
-        }
     }
 
     @Override
@@ -266,28 +255,24 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         if (!port.isPortSecurityEnabled()) {
             return false;
         }
-        programAceRule(port.getDpId(), port.getLPortTag(), NwConstants.DEL_FLOW, aclName, ace, port.getInterfaceId(),
-                null);
-        updateRemoteAclFilterTable(port, NwConstants.DEL_FLOW, null /*vpnId*/);
-        updateRemoteAclFilterTableForVpn(port, NwConstants.DEL_FLOW);
+        programAceRule(port, NwConstants.DEL_FLOW, aclName, ace, null);
+        updateRemoteAclFilterTable(port, NwConstants.DEL_FLOW, port.getVpnId());
         return true;
     }
 
     /**
      * Bind service.
      *
-     * @param interfaceName
-     *            the interface name
+     * @param aclInterface the acl interface
      */
-    public abstract void bindService(String interfaceName, Long vpnId);
+    public abstract void bindService(AclInterface aclInterface);
 
     /**
      * Unbind service.
      *
-     * @param interfaceName
-     *            the interface name
+     * @param aclInterface the acl interface
      */
-    protected abstract void unbindService(String interfaceName);
+    protected abstract void unbindService(AclInterface aclInterface);
 
     /**
      * Program the default anti-spoofing rules.
@@ -330,29 +315,24 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     /**
      * Programs the acl custom rules.
      *
+     * @param port acl interface
      * @param aclUuidList the list of acl uuid to be applied
-     * @param dpId the dpId
-     * @param lportTag the lport tag
      * @param addOrRemove whether to delete or add flow
-     * @param portId the port id
      * @return program succeeded
      */
-    protected abstract boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove,
-                                            String portId);
+    protected abstract boolean programAclRules(AclInterface port, List<Uuid> aclUuidList, int addOrRemove);
 
     /**
      * Programs the ace custom rule.
      *
-     * @param dpId the dpId
-     * @param lportTag the lport tag
+     * @param port acl interface
      * @param addOrRemove whether to delete or add flow
      * @param aclName the acl name
      * @param ace rule to be program
-     * @param portId the port id
      * @param syncAllowedAddresses the allowed addresses
      */
-    protected abstract void programAceRule(BigInteger dpId, int lportTag, int addOrRemove, String aclName, Ace ace,
-            String portId, List<AllowedAddressPairs> syncAllowedAddresses);
+    protected abstract void programAceRule(AclInterface port, int addOrRemove, String aclName, Ace ace,
+            List<AllowedAddressPairs> syncAllowedAddresses);
 
     /**
      * Writes/remove the flow to/from the datastore.
@@ -422,7 +402,6 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         return instructions;
     }
 
-    @Override
     public void updateRemoteAclFilterTable(AclInterface port, int addOrRemove, Long vpnId) {
         if (port.getSecurityGroups() == null) {
             LOG.debug("Port {} without SGs", port.getInterfaceId());
@@ -443,18 +422,19 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             return;
         }
 
-        if (AclServiceUtils.exactlyOneAcl(port)) {
+        if (AclServiceUtils.exactlyOneAcl(port) && aclDataUtil.getRemoteAcl(acl) != null) {
             for (AllowedAddressPairs ip : port.getAllowedAddressPairs()) {
                 if (!AclServiceUtils.isNotIpv4AllNetwork(ip)) {
                     continue;
                 }
-                writeCurrentAclForRemoteAcls(acl, addOrRemove, elanTag, ip, aclId, vpnId);
+                //writeCurrentAclForRemoteAcls(acl, addOrRemove, elanTag, ip, aclId, vpnId);
+                updateRemoteAclFilterTableForPort(port, acl, addOrRemove, elanTag, ip, aclId, vpnId);
             }
         } else {
             LOG.debug("Port {} with more than one SG ({}). Don't change ACL filter table", port.getInterfaceId(),
                     port.getSecurityGroups().size());
         }
-        writeRemoteAclsForCurrentAcl(acl, port.getDpId(), addOrRemove, port.getInterfaceId(), vpnId);
+        //writeRemoteAclsForCurrentAcl(acl, port.getDpId(), addOrRemove, port.getInterfaceId(), vpnId);
     }
 
     private void writeRemoteAclsForCurrentAcl(Uuid sgUuid, BigInteger dpId, int addOrRemove, String ignorePort,
@@ -502,6 +482,9 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
     }
 
+    protected abstract void updateRemoteAclFilterTableForPort(AclInterface port, Uuid acl, int addOrRemove,
+            Long elanTag, AllowedAddressPairs ip, BigInteger aclId, Long vpnId);
+
     protected abstract void writeCurrentAclForRemoteAcls(Uuid acl, int addOrRemove, Long elanTag,
             AllowedAddressPairs ip, BigInteger aclId, Long vpnId);
 
@@ -540,6 +523,22 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             }
         }
         return dpns;
+    }
+
+    protected Set<AclInterface> collectAclInterfaces(Map<String, Set<AclInterface>> mapAclWithPortSet) {
+        Set<AclInterface> aclInterfaces = new HashSet<>();
+        if (mapAclWithPortSet == null) {
+            return aclInterfaces;
+        }
+        for (Set<AclInterface> innerSet : mapAclWithPortSet.values()) {
+            if (innerSet == null) {
+                continue;
+            }
+            for (AclInterface inter : innerSet) {
+                aclInterfaces.add(inter);
+            }
+        }
+        return aclInterfaces;
     }
 
     protected char[] getIpPrefixOrAddress(AllowedAddressPairs ip) {
