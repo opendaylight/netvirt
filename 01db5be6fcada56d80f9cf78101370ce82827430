@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_5abb460e",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-07T16:19:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_c54f5c91",
+      "range": {
+        "startLine": 158,
+        "startChar": 46,
+        "endLine": 158,
+        "endChar": 68
+      },
+      "revId": "01db5be6fcada56d80f9cf78101370ce82827430",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_e54a5882",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 16
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_77773b03",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-07T16:19:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_e54a5882",
+      "range": {
+        "startLine": 236,
+        "startChar": 0,
+        "endLine": 238,
+        "endChar": 65
+      },
+      "revId": "01db5be6fcada56d80f9cf78101370ce82827430",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_a5585057",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 16
@@ -59,6 +107,30 @@
       "writtenOn": "2017-06-07T13:08:29Z",
       "side": 1,
       "message": "leaf vpn-instance-name in vpn-interface container should be added.",
+      "range": {
+        "startLine": 458,
+        "startChar": 0,
+        "endLine": 458,
+        "endChar": 0
+      },
+      "revId": "01db5be6fcada56d80f9cf78101370ce82827430",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_da1456f7",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-07T16:19:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_a5585057",
       "range": {
         "startLine": 458,
         "startChar": 0,
