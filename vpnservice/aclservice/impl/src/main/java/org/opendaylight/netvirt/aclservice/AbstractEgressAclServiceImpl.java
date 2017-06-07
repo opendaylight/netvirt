@@ -87,32 +87,37 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     /**
      * Bind service.
      *
-     * @param interfaceName the interface name
+     * @param aclInterface the acl interface
      */
     @Override
-    public void bindService(String interfaceName, Long vpnId) {
-        int instructionKey = 0;
-        List<Instruction> instructions = new ArrayList<>();
-        if (vpnId != null) {
-            instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
-                    MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
-        } else {
-            Long elanTag = AclServiceUtils.getElanIdFromInterface(interfaceName, dataBroker);
-            instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getElanTagMetadata(elanTag),
-                    MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
-        }
-        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.INGRESS_ACL_TABLE, ++instructionKey));
-        short serviceIndex = ServiceIndex.getIndex(NwConstants.ACL_SERVICE_NAME, NwConstants.ACL_SERVICE_INDEX);
-        int flowPriority = AclConstants.EGRESS_ACL_DEFAULT_FLOW_PRIORITY;
-        BoundServices serviceInfo =
-                AclServiceUtils.getBoundServices(String.format("%s.%s.%s", "acl", "egressacl", interfaceName),
-                serviceIndex, flowPriority, AclConstants.COOKIE_ACL_BASE, instructions);
-        InstanceIdentifier<BoundServices> path =
-                AclServiceUtils.buildServiceId(interfaceName, serviceIndex, ServiceModeIngress.class);
-
+    public void bindService(AclInterface aclInterface) {
+        String interfaceName = aclInterface.getInterfaceId();
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         dataStoreCoordinator.enqueueJob(interfaceName,
             () -> {
+                int instructionKey = 0;
+                List<Instruction> instructions = new ArrayList<>();
+                Long vpnId = aclInterface.getVpnId();
+                if (vpnId != null) {
+                    instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
+                        MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
+                } else {
+                    Long elanTag = aclInterface.getElanId();
+                    instructions.add(
+                        MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getElanTagMetadata(elanTag),
+                        MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
+                }
+                instructions.add(
+                        MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.INGRESS_ACL_TABLE, ++instructionKey));
+                short serviceIndex = ServiceIndex.getIndex(NwConstants.ACL_SERVICE_NAME,
+                        NwConstants.ACL_SERVICE_INDEX);
+                int flowPriority = AclConstants.EGRESS_ACL_DEFAULT_FLOW_PRIORITY;
+                BoundServices serviceInfo = AclServiceUtils.getBoundServices(
+                        String.format("%s.%s.%s", "acl", "egressacl", interfaceName), serviceIndex, flowPriority,
+                        AclConstants.COOKIE_ACL_BASE, instructions);
+                InstanceIdentifier<BoundServices> path =
+                    AclServiceUtils.buildServiceId(interfaceName, serviceIndex, ServiceModeIngress.class);
+
                 WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
                 writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, serviceInfo, true);
 
@@ -125,10 +130,11 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     /**
      * Unbind service.
      *
-     * @param interfaceName the interface name
+     * @param aclInterface the acl interface
      */
     @Override
-    protected void unbindService(String interfaceName) {
+    protected void unbindService(AclInterface aclInterface) {
+        String interfaceName = aclInterface.getInterfaceId();
         InstanceIdentifier<BoundServices> path =
                 AclServiceUtils.buildServiceId(interfaceName,
                         ServiceIndex.getIndex(NwConstants.ACL_SERVICE_NAME, NwConstants.ACL_SERVICE_INDEX),
@@ -178,9 +184,9 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     }
 
     @Override
-    protected boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove, String
-            portId) {
-        LOG.trace("Applying custom rules DpId {}, lportTag {}", dpId, lportTag);
+    protected boolean programAclRules(AclInterface port, List<Uuid> aclUuidList, int addOrRemove) {
+        BigInteger dpId = port.getDpId();
+        LOG.trace("Applying custom rules DpId {}, lportTag {}", dpId, port.getLPortTag());
         if (aclUuidList == null || dpId == null) {
             LOG.warn("one of the egress acl parameters can not be null. sg {}, dpId {}",
                     aclUuidList, dpId);
@@ -195,15 +201,15 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
             AccessListEntries accessListEntries = acl.getAccessListEntries();
             List<Ace> aceList = accessListEntries.getAce();
             for (Ace ace: aceList) {
-                programAceRule(dpId, lportTag, addOrRemove, acl.getAclName(), ace, portId, null);
+                programAceRule(port, addOrRemove, acl.getAclName(), ace, null);
             }
         }
         return true;
     }
 
     @Override
-    protected void programAceRule(BigInteger dpId, int lportTag, int addOrRemove, String aclName, Ace ace,
-            String portId, List<AllowedAddressPairs> syncAllowedAddresses) {
+    protected void programAceRule(AclInterface port, int addOrRemove, String aclName, Ace ace,
+            List<AllowedAddressPairs> syncAllowedAddresses) {
         SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
         if (!aceAttr.getDirection().equals(DirectionEgress.class)) {
             return;
@@ -214,23 +220,27 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
         if (aceType instanceof AceIp) {
             flowMap = AclServiceOFFlowBuilder.programIpFlow(matches);
             if (aceAttr.getRemoteGroupId() != null) {
-                flowMap = aclServiceUtils.getFlowForRemoteAcl(aceAttr.getRemoteGroupId(), portId, flowMap, false);
+                flowMap = aclServiceUtils.getFlowForRemoteAcl(port, aceAttr.getRemoteGroupId(), port.getInterfaceId(),
+                        flowMap, false);
             } else if (syncAllowedAddresses != null) {
                 flowMap = AclServiceUtils.getFlowForAllowedAddresses(syncAllowedAddresses, flowMap, false);
             }
         }
+        int lportTag = port.getLPortTag();
         if (null == flowMap) {
             LOG.error("Failed to apply ACL {} lportTag {}", ace.getKey(), lportTag);
             return;
         }
         for (String flowName : flowMap.keySet()) {
-            syncSpecificAclFlow(dpId, lportTag, addOrRemove, ace, portId, flowMap, flowName);
+            syncSpecificAclFlow(port.getDpId(), lportTag, addOrRemove, ace, port.getInterfaceId(), flowMap, flowName);
         }
     }
 
     @Override
-    protected void writeCurrentAclForRemoteAcls(Uuid acl, int addOrRemove, Long elanTag, AllowedAddressPairs ip,
-            BigInteger aclId, Long vpnId) {
+    protected void updateRemoteAclTableForPort(AclInterface port, Uuid acl, int addOrRemove,
+            AllowedAddressPairs ip, BigInteger aclId) {
+        Long elanTag = port.getElanId();
+        Long vpnId = port.getVpnId();
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         flowMatches.addAll(AclServiceUtils.buildIpAndDstServiceMatch(elanTag, ip, dataBroker, vpnId));
 
@@ -245,14 +255,8 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
         Long serviceTag = vpnId != null ? vpnId : elanTag;
         String flowNameAdded = "Acl_Filter_Egress_" + new String(ip.getIpAddress().getValue()) + "_" + serviceTag;
 
-        Map<String, Set<AclInterface>> mapAclWithPortSet = aclDataUtil.getAllRemoteAclInterfaces();
-        Set<BigInteger> dpns = collectDpns(mapAclWithPortSet);
-        for (BigInteger dpId : dpns) {
-            LOG.debug("writing rule for ip {} and rlanId {} in egress acl remote table {}", getIpPrefixOrAddress(ip),
-                    elanTag, getEgressAclRemoteAclTable());
-            syncFlow(dpId, getEgressAclRemoteAclTable(), flowNameAdded, AclConstants.NO_PRIORITY, "ACL", 0, 0,
-                    AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
-        }
+        syncFlow(port.getDpId(), getEgressAclRemoteAclTable(), flowNameAdded, AclConstants.NO_PRIORITY, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
     }
 
     protected short getEgressAclFilterTable() {
@@ -261,35 +265,6 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
 
     protected short getEgressAclRemoteAclTable() {
         return NwConstants.INGRESS_ACL_REMOTE_ACL_TABLE;
-    }
-
-    @Override
-    protected void writeRemoteAclForCurrentAclForInterface(BigInteger dpId, int addOrRemove, AclInterface inter,
-            BigInteger aclId, Long elanTag, Long vpnId) {
-        for (AllowedAddressPairs ip : inter.getAllowedAddressPairs()) {
-            if (!AclServiceUtils.isNotIpv4AllNetwork(ip)) {
-                continue;
-            }
-            List<MatchInfoBase> flowMatches = new ArrayList<>();
-            flowMatches.addAll(AclServiceUtils.buildIpAndDstServiceMatch(elanTag, ip, dataBroker, vpnId));
-
-            List<InstructionInfo> instructions = new ArrayList<>();
-
-            InstructionWriteMetadata writeMetatdata =
-                    new InstructionWriteMetadata(AclServiceUtils.getAclIdMetadata(aclId),
-                            MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID);
-            instructions.add(writeMetatdata);
-            instructions.add(new InstructionGotoTable(getEgressAclFilterTable()));
-
-            Long serviceTag = vpnId != null ? vpnId : elanTag;
-            String flowNameAdded =
-                    "Acl_Filter_Egress_" + new String(ip.getIpAddress().getValue()) + "_" + serviceTag;
-
-            LOG.debug("writing rule for ip {} and elanId {} in egress acl remote table {}",
-                    getIpPrefixOrAddress(ip), elanTag, getEgressAclRemoteAclTable());
-            syncFlow(dpId, getEgressAclRemoteAclTable(), flowNameAdded, AclConstants.NO_PRIORITY, "ACL", 0,
-                    0, AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
-        }
     }
 
     protected abstract String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace,

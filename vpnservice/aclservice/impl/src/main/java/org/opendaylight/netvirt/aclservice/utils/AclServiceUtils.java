@@ -42,6 +42,8 @@ import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
@@ -547,23 +549,38 @@ public final class AclServiceUtils {
         return remoteAclRuleList;
     }
 
-    public Map<String, List<MatchInfoBase>> getFlowForRemoteAcl(Uuid remoteAclId, String ignoreInterfaceId,
-            Map<String, List<MatchInfoBase>> flowMatchesMap, boolean isSourceIpMacMatch) {
-        List<AclInterface> interfaceList = aclDataUtil.getInterfaceList(remoteAclId);
-        if (flowMatchesMap == null || interfaceList == null || interfaceList.isEmpty()) {
-            return null;
+    public Map<String, List<MatchInfoBase>> getFlowForRemoteAcl(AclInterface aclInterface, Uuid remoteAclId,
+            String ignoreInterfaceId, Map<String, List<MatchInfoBase>> flowMatchesMap, boolean isSourceIpMacMatch) {
+        boolean singleAcl = false;
+        List<AclInterface> interfaceList = null;
+        if (aclInterface.getSecurityGroups() != null && aclInterface.getSecurityGroups().size() == 1) {
+            singleAcl = true;
+        } else {
+            interfaceList = aclDataUtil.getInterfaceList(remoteAclId);
+            if (flowMatchesMap == null || interfaceList == null || interfaceList.isEmpty()) {
+                return null;
+            }
         }
         Map<String, List<MatchInfoBase>> updatedFlowMatchesMap = new HashMap<>();
         MatchInfoBase ipv4Match = MatchEthernetType.IPV4;
         MatchInfoBase ipv6Match = MatchEthernetType.IPV6;
         for (String flowName : flowMatchesMap.keySet()) {
             List<MatchInfoBase> flows = flowMatchesMap.get(flowName);
+            if (singleAcl) {
+                LOG.debug("port {} is in only one SG. "
+                        + "Doesn't adding it's IPs {} to matches (handled in acl id match)",
+                        aclInterface.getLPortTag(), aclInterface.getAllowedAddressPairs());
+                List<MatchInfoBase> matchInfoBaseList = addFlowMatchForAclId(remoteAclId, flows);
+                String flowId = flowName + "_remoteACL_id_" + remoteAclId.getValue();
+                updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
+                continue;
+            }
             for (AclInterface port : interfaceList) {
                 if (port.getInterfaceId().equals(ignoreInterfaceId)) {
                     continue;
                 }
 
-                if (port.getSecurityGroups() != null && port.getSecurityGroups().size() == 1) {
+                /*if (port.getSecurityGroups() != null && port.getSecurityGroups().size() == 1) {
                     LOG.debug(
                             "port {} is in only one SG. "
                                     + "Doesn't adding it's IPs {} to matches (handled in acl id match)",
@@ -572,7 +589,7 @@ public final class AclServiceUtils {
                     String flowId = flowName + "_remoteACL_id_" + remoteAclId.getValue();
                     updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
                     continue;
-                }
+                }*/
                 // get allow address pair
                 List<AllowedAddressPairs> allowedAddressPair = port.getAllowedAddressPairs();
                 // iterate over allow address pair and update match type
@@ -693,6 +710,14 @@ public final class AclServiceUtils {
     public static InstanceIdentifier<ElanInstance> getElanInstanceConfigurationDataPath(String elanInstanceName) {
         return InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
+    }
+
+    public static Long getVpnIdFromInterface(DataBroker broker, String vpnInterfaceName) {
+        VpnInterface vpnInterface = VpnHelper.getVpnInterface(broker, vpnInterfaceName);
+        if (vpnInterface != null) {
+            return VpnHelper.getVpnId(broker, vpnInterface.getVpnInstanceName());
+        }
+        return null;
     }
 
     private static List<MatchInfoBase> updateAAPMatches(boolean isSourceIpMacMatch, List<MatchInfoBase> flows,
