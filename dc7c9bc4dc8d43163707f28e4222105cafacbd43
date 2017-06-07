@@ -46,6 +46,30 @@
       "revId": "dc7c9bc4dc8d43163707f28e4222105cafacbd43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_baba2adf",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1985,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-06-07T16:28:26Z",
+      "side": 1,
+      "message": "The latest patch is what I was thinking of. Thanks for making that change. Now the calling code is easy to tell whether the flow is added or removed.",
+      "parentUuid": "3afa9182_45224cba",
+      "range": {
+        "startLine": 1985,
+        "startChar": 54,
+        "endLine": 1985,
+        "endChar": 69
+      },
+      "revId": "dc7c9bc4dc8d43163707f28e4222105cafacbd43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
