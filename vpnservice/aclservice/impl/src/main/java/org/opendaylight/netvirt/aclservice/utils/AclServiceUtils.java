@@ -42,6 +42,8 @@ import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
@@ -693,6 +695,14 @@ public final class AclServiceUtils {
     public static InstanceIdentifier<ElanInstance> getElanInstanceConfigurationDataPath(String elanInstanceName) {
         return InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
+    }
+
+    public static Long getVpnIdFromInterface(DataBroker broker, String vpnInterfaceName) {
+        VpnInterface vpnInterface = VpnHelper.getVpnInterface(broker, vpnInterfaceName);
+        if (vpnInterface != null) {
+            return VpnHelper.getVpnId(broker, vpnInterface.getVpnInstanceName());
+        }
+        return null;
     }
 
     private static List<MatchInfoBase> updateAAPMatches(boolean isSourceIpMacMatch, List<MatchInfoBase> flows,

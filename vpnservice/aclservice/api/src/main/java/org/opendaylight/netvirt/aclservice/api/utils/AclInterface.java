@@ -30,6 +30,12 @@ public class AclInterface {
     /** The dp id. */
     BigInteger dpId;
 
+    /** Elan tag of the interface. */
+    Long elanId;
+
+    /** VPN Id of the interface. */
+    Long vpnId;
+
     /** The security groups. */
     List<Uuid> securityGroups;
 
@@ -121,6 +127,36 @@ public class AclInterface {
     }
 
     /**
+     * @return elan id of the interface
+     */
+    public Long getElanId() {
+		return elanId;
+	}
+
+    /**
+     * Sets elan id of the interface 
+     * @param elanId elan id of the interface
+     */
+	public void setElanId(Long elanId) {
+		this.elanId = elanId;
+	}
+
+	/**
+	 * @return VPN Id of the interface
+	 */
+	public Long getVpnId() {
+		return vpnId;
+	}
+
+	/**
+	 * Sets VPN Id of the interface
+	 * @param vpnId VPN Id of the interface
+	 */
+	public void setVpnId(Long vpnId) {
+		this.vpnId = vpnId;
+	}
+
+	/**
      * Gets the security groups.
      *
      * @return the security groups

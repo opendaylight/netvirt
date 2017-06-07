@@ -147,6 +147,8 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         aclInterface.setPortSecurityEnabled(aclInPort.isPortSecurityEnabled());
         aclInterface.setSecurityGroups(aclInPort.getSecurityGroups());
         aclInterface.setAllowedAddressPairs(aclInPort.getAllowedAddressPairs());
+        aclInterface.setElanId(AclServiceUtils.getElanIdFromInterface(interfaceId, dataBroker));
+        aclInterface.setVpnId(AclServiceUtils.getVpnIdFromInterface(dataBroker, interfaceId));
         return aclInterface;
     }
 
