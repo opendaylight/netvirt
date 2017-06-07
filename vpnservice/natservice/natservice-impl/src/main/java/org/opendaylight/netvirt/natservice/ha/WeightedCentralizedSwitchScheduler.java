@@ -68,7 +68,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                 if (subnetMapEntry.isPresent()) {
                     Uuid routerPortUuid = subnetMapEntry.get().getRouterInterfacePortId();
                     NatUtil.createOrUpdateVpnToDpnList(dataBroker, vpnId, nextSwitchId, routerPortUuid.getValue(),
-                            vpnName);
+                            vpnName, writeOperTxn);
                     NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerName, routerPortUuid.getValue(),
                             nextSwitchId, writeOperTxn);
                     NatUtil.addToDpnRoutersMap(dataBroker, routerName, routerPortUuid.getValue(),
@@ -103,7 +103,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                 if (subnetMapEntry.isPresent()) {
                     Uuid routerPortUuid = subnetMapEntry.get().getRouterInterfacePortId();
                     NatUtil.removeOrUpdateVpnToDpnList(dataBroker, vpnId, primarySwitchId, routerPortUuid.getValue(),
-                            vpnName);
+                            vpnName, writeOperTxn);
                     NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerName, primarySwitchId, writeOperTxn);
                     NatUtil.removeFromDpnRoutersMap(dataBroker, routerName, routerName, interfaceManager,
                             writeOperTxn);
@@ -132,13 +132,16 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         if (switchWeightsMap.get(dpnId) != initialSwitchWeight) {
             NaptSwitches naptSwitches = getNaptSwitches(dataBroker);
             for (RouterToNaptSwitch routerToNaptSwitch : naptSwitches.getRouterToNaptSwitch()) {
-                if (dpnId == routerToNaptSwitch.getPrimarySwitchId()) {
+                if (dpnId.equals(routerToNaptSwitch.getPrimarySwitchId())) {
                     releaseCentralizedSwitch(routerToNaptSwitch.getRouterName());
+                    switchWeightsMap.remove(dpnId);
                     scheduleCentralizedSwitch(routerToNaptSwitch.getRouterName());
+                    break;
                 }
             }
+        } else {
+            switchWeightsMap.remove(dpnId);
         }
-        switchWeightsMap.remove(dpnId);
         return true;
     }
 

@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
+
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
@@ -111,50 +112,60 @@ public class RouterDpnChangeListener
             Routers router = routerData.get();
             Uuid networkId = router.getNetworkId();
             if (networkId != null) {
-                LOG.debug("Router {} is associated with ext nw {}", routerId, networkId);
-                Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerId);
-                Long vpnId;
-                if (vpnName == null) {
-                    LOG.debug("Internal vpn associated to router {}", routerId);
-                    vpnId = NatUtil.getVpnId(dataBroker, routerId);
-                    if (vpnId == NatConstants.INVALID_ID) {
-                        LOG.error("Invalid vpnId returned for routerName {}", routerId);
+                if (natMode == NatMode.Conntrack) {
+                    BigInteger naptSwitch = NatUtil.getPrimaryNaptfromRouterName(dataBroker, router.getRouterName());
+                    if (naptSwitch == null || naptSwitch.equals(BigInteger.ZERO)) {
+                        LOG.debug("NAPT switch is not selected.");
                         return;
                     }
-                    LOG.debug("Retrieved vpnId {} for router {}", vpnId, routerId);
-                    //Install default entry in FIB to SNAT table
-                    LOG.info("Installing default route in FIB on dpn {} for router {} with vpn {}",
-                        dpnId, routerId, vpnId);
-                    installDefaultNatRouteForRouterExternalSubnets(dpnId,
-                            NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
-                    snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId);
+                    natServiceManager.notify(router, naptSwitch, dpnId,
+                            SnatServiceManager.Action.SNAT_ROUTER_ENBL);
                 } else {
-                    LOG.debug("External BGP vpn associated to router {}", routerId);
-                    vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
-                    if (vpnId == NatConstants.INVALID_ID) {
-                        LOG.error("Invalid vpnId returned for routerName {}", routerId);
-                        return;
+                    LOG.debug("Router {} is associated with ext nw {}", routerId, networkId);
+                    Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerId);
+                    Long vpnId;
+                    if (vpnName == null) {
+                        LOG.debug("Internal vpn associated to router {}", routerId);
+                        vpnId = NatUtil.getVpnId(dataBroker, routerId);
+                        if (vpnId == NatConstants.INVALID_ID) {
+                            LOG.error("Invalid vpnId returned for routerName {}", routerId);
+                            return;
+                        }
+                        LOG.debug("Retrieved vpnId {} for router {}", vpnId, routerId);
+                        //Install default entry in FIB to SNAT table
+                        LOG.info("Installing default route in FIB on dpn {} for router {} with vpn {}",
+                                dpnId, routerId, vpnId);
+                        installDefaultNatRouteForRouterExternalSubnets(dpnId,
+                                NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
+                        snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId);
+                    } else {
+                        LOG.debug("External BGP vpn associated to router {}", routerId);
+                        vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
+                        if (vpnId == NatConstants.INVALID_ID) {
+                            LOG.error("Invalid vpnId returned for routerName {}", routerId);
+                            return;
+                        }
+                        Long routId = NatUtil.getVpnId(dataBroker, routerId);
+                        if (routId == NatConstants.INVALID_ID) {
+                            LOG.error("Invalid routId returned for routerName {}", routerId);
+                            return;
+                        }
+                        LOG.debug("Retrieved vpnId {} for router {}", vpnId, routerId);
+                        //Install default entry in FIB to SNAT table
+                        LOG.debug("Installing default route in FIB on dpn {} for routerId {} with vpnId {}...",
+                                dpnId, routerId, vpnId);
+                        installDefaultNatRouteForRouterExternalSubnets(dpnId,
+                                NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
+                        snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routId);
                     }
-                    Long routId = NatUtil.getVpnId(dataBroker, routerId);
-                    if (routId == NatConstants.INVALID_ID) {
-                        LOG.error("Invalid routId returned for routerName {}", routerId);
-                        return;
-                    }
-                    LOG.debug("Retrieved vpnId {} for router {}", vpnId, routerId);
-                    //Install default entry in FIB to SNAT table
-                    LOG.debug("Installing default route in FIB on dpn {} for routerId {} with vpnId {}...",
-                        dpnId, routerId, vpnId);
-                    installDefaultNatRouteForRouterExternalSubnets(dpnId,
-                            NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
-                    snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routId);
-                }
-                extNetGroupInstaller.installExtNetGroupEntries(networkId, dpnId);
+                    extNetGroupInstaller.installExtNetGroupEntries(networkId, dpnId);
 
-                if (router.isEnableSnat()) {
-                    LOG.info("On add - SNAT enabled for router {}", routerId);
-                    handleSNATForDPN(dpnId, routerId, vpnId);
-                } else {
-                    LOG.info("SNAT is not enabled for router {} to handle addDPN event {}", routerId, dpnId);
+                    if (router.isEnableSnat()) {
+                        LOG.info("On add - SNAT enabled for router {}", routerId);
+                        handleSNATForDPN(dpnId, routerId, vpnId);
+                    } else {
+                        LOG.info("SNAT is not enabled for router {} to handle addDPN event {}", routerId, dpnId);
+                    }
                 }
             }
         } else {
@@ -174,43 +185,53 @@ public class RouterDpnChangeListener
             Routers router = routerData.get();
             Uuid networkId = router.getNetworkId();
             if (networkId != null) {
-                LOG.debug("Router {} is associated with ext nw {}", routerId, networkId);
-                Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerId);
-                Long vpnId;
-                if (vpnName == null) {
-                    LOG.debug("Internal vpn associated to router {}", routerId);
-                    vpnId = NatUtil.getVpnId(dataBroker, routerId);
-                    if (vpnId == NatConstants.INVALID_ID) {
-                        LOG.error("Invalid vpnId returned for routerName {}", routerId);
+                if (natMode == NatMode.Conntrack) {
+                    BigInteger naptSwitch = NatUtil.getPrimaryNaptfromRouterName(dataBroker, router.getRouterName());
+                    if (naptSwitch == null || naptSwitch.equals(BigInteger.ZERO)) {
+                        LOG.debug("NAPT switch is not selected.");
                         return;
                     }
-                    LOG.debug("Retrieved vpnId {} for router {}", vpnId, routerId);
-                    //Remove default entry in FIB
-                    LOG.debug("Removing default route in FIB on dpn {} for vpn {} ...", dpnId, vpnName);
-                    snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId);
+                    natServiceManager.notify(router, naptSwitch, dpnId,
+                            SnatServiceManager.Action.SNAT_ROUTER_DISBL);
                 } else {
-                    LOG.debug("External vpn associated to router {}", routerId);
-                    vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
-                    if (vpnId == NatConstants.INVALID_ID) {
-                        LOG.error("Invalid vpnId returned for routerName {}", routerId);
-                        return;
+                    LOG.debug("Router {} is associated with ext nw {}", routerId, networkId);
+                    Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerId);
+                    Long vpnId;
+                    if (vpnName == null) {
+                        LOG.debug("Internal vpn associated to router {}", routerId);
+                        vpnId = NatUtil.getVpnId(dataBroker, routerId);
+                        if (vpnId == NatConstants.INVALID_ID) {
+                            LOG.error("Invalid vpnId returned for routerName {}", routerId);
+                            return;
+                        }
+                        LOG.debug("Retrieved vpnId {} for router {}", vpnId, routerId);
+                        //Remove default entry in FIB
+                        LOG.debug("Removing default route in FIB on dpn {} for vpn {} ...", dpnId, vpnName);
+                        snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId);
+                    } else {
+                        LOG.debug("External vpn associated to router {}", routerId);
+                        vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
+                        if (vpnId == NatConstants.INVALID_ID) {
+                            LOG.error("Invalid vpnId returned for routerName {}", routerId);
+                            return;
+                        }
+                        Long routId = NatUtil.getVpnId(dataBroker, routerId);
+                        if (routId == NatConstants.INVALID_ID) {
+                            LOG.error("Invalid routId returned for routerName {}", routerId);
+                            return;
+                        }
+                        LOG.debug("Retrieved vpnId {} for router {}", vpnId, routerId);
+                        //Remove default entry in FIB
+                        LOG.debug("Removing default route in FIB on dpn {} for vpn {} ...", dpnId, vpnName);
+                        snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId, routId);
                     }
-                    Long routId = NatUtil.getVpnId(dataBroker, routerId);
-                    if (routId == NatConstants.INVALID_ID) {
-                        LOG.error("Invalid routId returned for routerName {}", routerId);
-                        return;
-                    }
-                    LOG.debug("Retrieved vpnId {} for router {}", vpnId, routerId);
-                    //Remove default entry in FIB
-                    LOG.debug("Removing default route in FIB on dpn {} for vpn {} ...", dpnId, vpnName);
-                    snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId, routId);
-                }
 
-                if (router.isEnableSnat()) {
-                    LOG.info("On remove - SNAT enabled for router {}", routerId);
-                    removeSNATFromDPN(dpnId, routerId, vpnId);
-                } else {
-                    LOG.info("SNAT is not enabled for router {} to handle removeDPN event {}", routerId, dpnId);
+                    if (router.isEnableSnat()) {
+                        LOG.info("On remove - SNAT enabled for router {}", routerId);
+                        removeSNATFromDPN(dpnId, routerId, vpnId);
+                    } else {
+                        LOG.info("SNAT is not enabled for router {} to handle removeDPN event {}", routerId, dpnId);
+                    }
                 }
             }
         }
@@ -238,80 +259,72 @@ public class RouterDpnChangeListener
             BigInteger naptId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
             if (naptId == null || naptId.equals(BigInteger.ZERO) || !naptSwitchHA.getSwitchStatus(naptId)) {
                 LOG.debug("No NaptSwitch is selected for router {}", routerName);
-                if (natMode == NatMode.Controller) {
-                    naptSwitch = dpnId;
-                    boolean naptstatus = naptSwitchHA.updateNaptSwitch(routerName, naptSwitch);
-                    if (!naptstatus) {
-                        LOG.error("Failed to update newNaptSwitch {} for routername {}", naptSwitch, routerName);
-                        return;
-                    }
-                    LOG.debug("Switch {} is elected as NaptSwitch for router {}", dpnId, routerName);
+                naptSwitch = dpnId;
+                boolean naptstatus = naptSwitchHA.updateNaptSwitch(routerName, naptSwitch);
+                if (!naptstatus) {
+                    LOG.error("Failed to update newNaptSwitch {} for routername {}", naptSwitch, routerName);
+                    return;
+                }
+                LOG.debug("Switch {} is elected as NaptSwitch for router {}", dpnId, routerName);
 
-                    // When NAPT switch is elected during first VM comes up for the given Router
-                    if (elanManager.isOpenStackVniSemanticsEnforced()) {
-                        NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager,
-                                idManager, NatConstants.ODL_VNI_POOL_NAME);
-                    }
+                // When NAPT switch is elected during first VM comes up for the given Router
+                if (elanManager.isOpenStackVniSemanticsEnforced()) {
+                    NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager,
+                            idManager, NatConstants.ODL_VNI_POOL_NAME);
+                }
 
-                    Routers extRouters = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
-                    if (extRouters != null) {
-                        NatUtil.createRouterIdsConfigDS(dataBroker, routerName);
-                        naptSwitchHA.subnetRegisterMapping(extRouters, routerId);
-                    }
+                Routers extRouters = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
+                if (extRouters != null) {
+                    NatUtil.createRouterIdsConfigDS(dataBroker, routerName);
+                    naptSwitchHA.subnetRegisterMapping(extRouters, routerId);
+                }
 
-                    naptSwitchHA.installSnatFlows(routerName, routerId, naptSwitch, routerVpnId);
+                naptSwitchHA.installSnatFlows(routerName, routerId, naptSwitch, routerVpnId);
 
-                    // Install miss entry (table 26) pointing to table 46
-                    FlowEntity flowEntity = naptSwitchHA.buildSnatFlowEntityForNaptSwitch(dpnId, routerName,
-                            routerVpnId, NatConstants.ADD_FLOW);
-                    if (flowEntity == null) {
-                        LOG.debug("Failed to populate flowentity for router {} with dpnId {}", routerName, dpnId);
-                        return;
-                    }
-                    LOG.debug("Successfully installed flow for dpnId {} router {}", dpnId, routerName);
-                    mdsalManager.installFlow(flowEntity);
-                    //Removing primary flows from old napt switch
-                    if (naptId != null && !naptId.equals(BigInteger.ZERO)) {
-                        LOG.debug("Removing primary flows from old napt switch {} for router {}", naptId, routerName);
-                        naptSwitchHA.removeSnatFlowsInOldNaptSwitch(routerName, naptId, null);
-                    }
+                // Install miss entry (table 26) pointing to table 46
+                FlowEntity flowEntity = naptSwitchHA.buildSnatFlowEntityForNaptSwitch(dpnId, routerName,
+                        routerVpnId, NatConstants.ADD_FLOW);
+                if (flowEntity == null) {
+                    LOG.debug("Failed to populate flowentity for router {} with dpnId {}", routerName, dpnId);
+                    return;
+                }
+                LOG.debug("Successfully installed flow for dpnId {} router {}", dpnId, routerName);
+                mdsalManager.installFlow(flowEntity);
+                //Removing primary flows from old napt switch
+                if (naptId != null && !naptId.equals(BigInteger.ZERO)) {
+                    LOG.debug("Removing primary flows from old napt switch {} for router {}", naptId, routerName);
+                    naptSwitchHA.removeSnatFlowsInOldNaptSwitch(routerName, naptId, null);
                 }
             } else if (naptId.equals(dpnId)) {
                 LOG.debug("NaptSwitch {} gone down during cluster reboot came alive", naptId);
             } else {
                 naptSwitch = naptId;
-                if (natMode == NatMode.Conntrack) {
-                    Routers extRouters = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
-                    natServiceManager.notify(extRouters, naptSwitch, naptSwitch,
-                            SnatServiceManager.Action.SNAT_ROUTER_ENBL);
-                } else {
-                    LOG.debug("Napt switch with Id {} is already elected for router {}", naptId, routerName);
+                LOG.debug("Napt switch with Id {} is already elected for router {}", naptId, routerName);
 
 
-                    //installing group
-                    List<BucketInfo> bucketInfo = naptSwitchHA.handleGroupInNeighborSwitches(dpnId,
-                            routerName, naptSwitch);
-                    if (bucketInfo == null) {
-                        LOG.debug("Failed to populate bucketInfo for dpnId {} routername {} naptSwitch {}",
-                                dpnId, routerName, naptSwitch);
-                        return;
-                    }
-                    naptSwitchHA.installSnatGroupEntry(dpnId, bucketInfo, routerName);
-
-                    // Install miss entry (table 26) pointing to group
-                    long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(routerName), idManager);
-                    FlowEntity flowEntity =
-                            naptSwitchHA.buildSnatFlowEntity(dpnId, routerName, groupId,
-                                    routerVpnId, NatConstants.ADD_FLOW);
-                    if (flowEntity == null) {
-                        LOG.debug("Failed to populate flowentity for router {} with dpnId {} groupId {}",
-                                routerName, dpnId, groupId);
-                        return;
-                    }
-                    LOG.debug("Successfully installed flow for dpnId {} router {} group {}",
-                            dpnId, routerName, groupId);
-                    mdsalManager.installFlow(flowEntity);
+                //installing group
+                List<BucketInfo> bucketInfo = naptSwitchHA.handleGroupInNeighborSwitches(dpnId,
+                        routerName, naptSwitch);
+                if (bucketInfo == null) {
+                    LOG.debug("Failed to populate bucketInfo for dpnId {} routername {} naptSwitch {}",
+                            dpnId, routerName, naptSwitch);
+                    return;
                 }
+                naptSwitchHA.installSnatGroupEntry(dpnId, bucketInfo, routerName);
+
+                // Install miss entry (table 26) pointing to group
+                long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(routerName), idManager);
+                FlowEntity flowEntity =
+                        naptSwitchHA.buildSnatFlowEntity(dpnId, routerName, groupId,
+                                routerVpnId, NatConstants.ADD_FLOW);
+                if (flowEntity == null) {
+                    LOG.debug("Failed to populate flowentity for router {} with dpnId {} groupId {}",
+                            routerName, dpnId, groupId);
+                    return;
+                }
+                LOG.debug("Successfully installed flow for dpnId {} router {} group {}",
+                        dpnId, routerName, groupId);
+                mdsalManager.installFlow(flowEntity);
             }
 
         } catch (Exception ex) {
