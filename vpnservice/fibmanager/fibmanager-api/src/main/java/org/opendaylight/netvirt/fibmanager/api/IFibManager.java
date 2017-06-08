@@ -37,8 +37,6 @@ public interface IFibManager {
     void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd,
                           FutureCallback<List<Void>> callback);
 
-    List<String> printFibEntries();
-
     // TODO Feels like this method is not used anywhere
     void addStaticRoute(String vpnName, String prefix, String nextHop, String rd, int label);
 
