@@ -10,8 +10,8 @@ package org.opendaylight.netvirt.fibmanager.shell;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.opendaylight.netvirt.fibmanager.L3VPNTransportTypes;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.fibmanager.api.L3VPNTransportTypes;
 
 @Command(scope = "vpnservice", name = "configureTransportType",
     description = "Configure Preferred Transport Type for L3VPN service")
