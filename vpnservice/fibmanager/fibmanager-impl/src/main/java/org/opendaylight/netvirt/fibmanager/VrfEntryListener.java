@@ -307,8 +307,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 return;
             }
 
-            // If original VRF Entry had valid nexthop , but update VRF Entry
-            // has nexthop empty'ed out, route needs to be removed from remote Dpns
+            //  If original VRF Entry had valid nexthop , but update VRF Entry
+            //  has nexthop empty'ed out, route needs to be removed from remote Dpns
             if (((updateRoutePath == null) || (updateRoutePath.isEmpty())
                 && (originalRoutePath != null) && (!originalRoutePath.isEmpty()))) {
                 LOG.trace("Original VRF entry had valid NH for destprefix {}. This event is IGNORED here.",
@@ -1022,7 +1022,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             vpnId, rd, vrfEntry, isExtraroute);
                     if (!dpnId.equals(BigInteger.ZERO)) {
                         nextHopManager.setupLoadBalancingNextHop(vpnId, dpnId,
-                                vrfEntry.getDestPrefix(), /*listBucketInfo*/ null, /*remove*/ false);
+                                vrfEntry.getDestPrefix(), Collections.emptyList(), /*remove*/ false);
                         returnLocalDpnId.add(dpnId);
                     }
                 } else {
@@ -1686,11 +1686,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         LOG.debug("deleting remote route: prefix={}, vpnId={} localDpnId {} remoteDpnId {}",
                 vrfEntry.getDestPrefix(), vpnId, localDpnId, remoteDpnId);
         String rd = vrfTableKey.getRouteDistinguisher();
-
         if (localDpnId != null && localDpnId != BigInteger.ZERO) {
             // localDpnId is not known when clean up happens for last vm for a vpn on a dpn
             if (extraRouteOptional.isPresent()) {
-                nextHopManager.setupLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix(), null , false);
+                nextHopManager.setupLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix(),
+                        Collections.emptyList(), false);
             }
             deleteFibEntry(remoteDpnId, vpnId, vrfEntry, rd, tx);
             return;
@@ -1699,7 +1699,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         // below two reads are kept as is, until best way is found to identify dpnID
         VpnNexthop localNextHopInfo = nextHopManager.getVpnNexthop(vpnId, vrfEntry.getDestPrefix());
         if (extraRouteOptional.isPresent()) {
-            nextHopManager.setupLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix(), null , false);
+            nextHopManager.setupLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix(),
+                    Collections.emptyList(), false);
         } else {
             checkDpnDeleteFibEntry(localNextHopInfo, remoteDpnId, vpnId, vrfEntry, rd, tx);
         }
@@ -2244,6 +2245,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 List<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getAllVpnExtraRoutes(dataBroker,
                         FibUtil.getVpnNameFromId(dataBroker, vpnId), usedRds, vrfEntry.getDestPrefix());
                 if (vpnExtraRoutes.isEmpty()) {
+                    Prefixes prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
+                    if (prefixInfo == null) {
+                        LOG.info("The extra route {} has been removed from all the next hops",
+                                vrfEntry.getDestPrefix());
+                        return adjacencyList;
+                    }
                     prefixIpList = Collections.singletonList(vrfEntry.getDestPrefix());
                 } else {
                     List<String> prefixIpListLocal = new ArrayList<>();
