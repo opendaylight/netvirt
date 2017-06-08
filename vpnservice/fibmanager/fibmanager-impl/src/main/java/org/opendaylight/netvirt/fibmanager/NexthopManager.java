@@ -197,6 +197,10 @@ public class NexthopManager implements AutoCloseable {
         return "nexthop." + ifName + ipAddress;
     }
 
+    public OdlInterfaceRpcService getInterfaceManager() {
+        return interfaceManager;
+    }
+
     protected long createNextHopPointer(String nexthopKey) {
         AllocateIdInput getIdInput = new AllocateIdInputBuilder()
             .setPoolName(NEXTHOP_ID_POOL_NAME).setIdKey(nexthopKey)
