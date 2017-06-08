@@ -104,11 +104,6 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public List<String> printFibEntries() {
-        return vrfEntryListener.printFibEntries();
-    }
-
-    @Override
     public void addStaticRoute(String vpnName, String prefix, String nextHop, String rd, int label) {
         vpnmanager.addExtraRoute(vpnName, prefix, nextHop, rd, null, label, RouteOrigin.STATIC);
     }
@@ -181,6 +176,7 @@ public class FibManagerImpl implements IFibManager {
         FibUtil.removeFibEntry(broker, rd, prefix, writeConfigTxn);
     }
 
+    @Override
     public void updateRoutePathForFibEntry(DataBroker broker, String rd, String prefix, String nextHop,
                                long label, boolean nextHopAdd, WriteTransaction writeConfigTxn) {
         FibUtil.updateRoutePathForFibEntry(broker, rd, prefix, nextHop, label, nextHopAdd, writeConfigTxn);
