@@ -305,6 +305,14 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 if (vpnId == null) {
                     vpnId = routerId;
                 }
+                /* Remove ping responder for router interfaces
+                *  A router interface reference in a VPN will have to be removed before the host interface references
+                 * for that subnet in the VPN are removed. This is to ensure that the FIB Entry of the router interface
+                *  is not the last entry to be removed for that subnet in the VPN.
+                *  If router interface FIB entry is the last to be removed for a subnet in a VPN , then all the host
+                *  interface references in the vpn will already have been cleared, which will cause failures in
+                *  cleanup of router interface flows*/
+                nvpnManager.deleteVpnInterface(vpnId, routerId, routerPort, null);
                 // NOTE:  Please donot change the order of calls to removeSubnetFromVpn and
                 // and updateSubnetNodeWithFixedIP
                 nvpnManager.removeSubnetFromVpn(vpnId, portIP.getSubnetId());
@@ -318,8 +326,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 String ipValue = String.valueOf(portIP.getIpAddress().getValue());
                 NeutronvpnUtils.removeVpnPortFixedIpToPort(dataBroker, vpnId.getValue(),
                         ipValue, null /*writeTransaction*/);
-                // ping responder for router interfaces
-                nvpnManager.deleteVpnInterface(vpnId, routerId, routerPort, null);
             }
         }
     }
