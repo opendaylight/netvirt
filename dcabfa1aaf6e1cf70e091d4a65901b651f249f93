@@ -22,6 +22,30 @@
       "revId": "dcabfa1aaf6e1cf70e091d4a65901b651f249f93",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_45ab62d8",
+        "filename": "vpnservice/fibmanager/fibmanager-shell/src/main/java/org/opendaylight/netvirt/fibmanager/shell/ShowFibCommand.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-08T16:11:43Z",
+      "side": 1,
+      "message": "Hi.\ndo you have a fib-show example to share us, so that we can compare before and after, what it changes ?",
+      "parentUuid": "3afa9182_e2fc0441",
+      "range": {
+        "startLine": 86,
+        "startChar": 89,
+        "endLine": 86,
+        "endChar": 99
+      },
+      "revId": "dcabfa1aaf6e1cf70e091d4a65901b651f249f93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
