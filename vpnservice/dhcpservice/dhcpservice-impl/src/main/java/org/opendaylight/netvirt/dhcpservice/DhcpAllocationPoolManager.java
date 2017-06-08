@@ -85,14 +85,16 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
     @PreDestroy
     public void close() throws Exception {
         LOG.info("{} close", getClass().getSimpleName());
-        dhcpAllocationPoolListener.close();
+        if (dhcpAllocationPoolListener != null) {
+            dhcpAllocationPoolListener.close();
+        }
     }
 
     public IpAddress getIpAllocation(String networkId, AllocationPool pool, String macAddress) {
         String poolIdKey = getPoolKeyIdByAllocationPool(networkId, pool);
         long allocatedIpLong = createIdAllocation(poolIdKey, macAddress);
         LOG.debug("allocated id {} for mac {}, from pool {}", allocatedIpLong, macAddress, poolIdKey);
-        IpAddress allocatedIpAddress = (allocatedIpLong != 0) ? DhcpServiceUtils.convertLongToIp(allocatedIpLong)
+        IpAddress allocatedIpAddress = allocatedIpLong != 0 ? DhcpServiceUtils.convertLongToIp(allocatedIpLong)
                 : null;
         return allocatedIpAddress;
     }
@@ -140,7 +142,7 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
 
     public AllocationPool getAllocationPoolByPort(String portUuid) {
         String elanInstanceName = getNetworkByPort(portUuid);
-        AllocationPool allocPool = (elanInstanceName != null) ? getAllocationPoolByNetwork(elanInstanceName) : null;
+        AllocationPool allocPool = elanInstanceName != null ? getAllocationPoolByNetwork(elanInstanceName) : null;
         return allocPool;
     }
 
@@ -186,7 +188,7 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
                 .build();
         try {
             Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
-            if ((result != null) && (result.get().isSuccessful())) {
+            if (result != null && result.get().isSuccessful()) {
                 LOG.info("DHCP Allocation Pool Service : Created IdPool name {}", poolName);
             } else {
                 LOG.error("DHCP Allocation Pool Service : Unable to create IdPool name {}", poolName);
@@ -201,7 +203,7 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
         DeleteIdPoolInput deletePool = new DeleteIdPoolInputBuilder().setPoolName(poolName).build();
         try {
             Future<RpcResult<Void>> result = idManager.deleteIdPool(deletePool);
-            if ((result != null) && (result.get().isSuccessful())) {
+            if (result != null && result.get().isSuccessful()) {
                 LOG.info("DHCP Allocation Pool Service : Deleted IdPool name {}", poolName);
             } else {
                 LOG.error("DHCP Allocation Pool Service : Unable to delete IdPool name {}", poolName);
