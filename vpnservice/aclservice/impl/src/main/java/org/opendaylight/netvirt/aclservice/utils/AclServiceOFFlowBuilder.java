@@ -60,7 +60,7 @@ public class AclServiceOFFlowBuilder {
         if (matches != null) {
             AceIp acl = (AceIp) matches.getAceType();
             Short protocol = acl.getProtocol();
-            if (protocol == null) {
+            if (protocol == null || protocol == NwConstants.IP_PROT_ANY) {
                 return programEtherFlow(acl);
             } else if (acl.getProtocol() == NwConstants.IP_PROT_TCP) {
                 return programTcpFlow(acl);
