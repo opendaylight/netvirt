@@ -853,7 +853,15 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                     nextHopAddressList);
                             makeLFibTableEntry(dpnId, label, lfibinstructions, DEFAULT_FIB_FLOW_PRIORITY,
                                     NwConstants.ADD_FLOW, tx);
-                            makeTunnelTableEntry(dpnId, label, localGroupId, tx);
+                            // If the extra-route is reachable from VMs attached to the same switch,
+                            // then the tunnel table can point to the load balancing group.
+                            // If it is reachable from VMs attached to different switches,
+                            // then it should be pointing to one of the local group in order to avoid looping.
+                            if (vrfEntry.getRoutePaths().size() == 1) {
+                                makeTunnelTableEntry(dpnId, label, groupId, tx);
+                            } else {
+                                makeTunnelTableEntry(dpnId, label, localGroupId, tx);
+                            }
                         } else {
                             LOG.debug("Route with rd {} prefix {} label {} nexthop {} for vpn {} is an imported "
                                             + "route. LFib and Terminating table entries will not be created.",
