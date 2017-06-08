@@ -143,8 +143,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             return;
         }
         String externalIp = externalIps.get(0).getIpAddress();
-        Long extSubnetId = NatUtil.getVpnIdFromExternalSubnet(dataBroker, routerName, externalIp);
-        installInboundFibEntry(dpnId, extSubnetId,  externalIp, addOrRemove);
+        installInboundFibEntry(dpnId, externalIp, routerName, routerId, addOrRemove);
     }
 
     protected void installSnatCommonEntriesForNonNaptSwitch(Routers routers, BigInteger primarySwitchId,
@@ -161,11 +160,19 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected abstract void installSnatSpecificEntriesForNonNaptSwitch(Routers routers, BigInteger dpnId,
             int addOrRemove);
 
-    protected void installInboundFibEntry(BigInteger dpnId, Long extSubnetId, String externalIp,
+    protected void installInboundFibEntry(BigInteger dpnId, String externalIp, String routerName, Long routerId,
             int addOrRemove) {
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
         matches.add(MatchEthernetType.IPV4);
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(extSubnetId), MetaDataUtil.METADATA_MASK_VRFID));
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            Long extSubnetId = NatUtil.getVpnIdFromExternalSubnet(dataBroker, routerName, externalIp);
+            if (extSubnetId == NatConstants.INVALID_ID) {
+                LOG.error("ConntrackBasedSnatService : installInboundFibEntry : external subnet id is invalid.");
+                return;
+            }
+            matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(extSubnetId),
+                    MetaDataUtil.METADATA_MASK_VRFID));
+        }
         matches.add(new MatchIpv4Destination(externalIp, "32"));
 
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
@@ -173,7 +180,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         listActionInfo.add(new ActionNxResubmit(NwConstants.INBOUND_NAPT_TABLE));
         instructionInfo.add(new InstructionApplyActions(listActionInfo));
 
-        String flowRef = getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, extSubnetId);
+        String flowRef = getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, routerId);
         flowRef = flowRef + "inbound" + externalIp;
         syncFlow(dpnId, NwConstants.L3_FIB_TABLE, flowRef, NatConstants.SNAT_FIB_FLOW_PRIORITY, flowRef,
                 NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo, addOrRemove);
