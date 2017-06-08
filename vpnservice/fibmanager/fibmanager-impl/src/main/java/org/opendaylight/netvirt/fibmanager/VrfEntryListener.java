@@ -2244,6 +2244,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 List<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getAllVpnExtraRoutes(dataBroker,
                         FibUtil.getVpnNameFromId(dataBroker, vpnId), usedRds, vrfEntry.getDestPrefix());
                 if (vpnExtraRoutes.isEmpty()) {
+                	 Prefixes prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
+                 	if(prefixInfo == null) {
+                         LOG.info("The extra route {} has been removed from all the next hops", vrfEntry.getDestPrefix());
+                         return adjacencyList;
+                 	}
                     prefixIpList = Collections.singletonList(vrfEntry.getDestPrefix());
                 } else {
                     List<String> prefixIpListLocal = new ArrayList<>();
