@@ -31,7 +31,6 @@ import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
@@ -75,7 +74,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
         List<ExternalIps> externalIps = routers.getExternalIps();
         createOutboundTblTrackEntry(dpnId, routerId, externalIps, addOrRemove);
         createOutboundTblEntry(dpnId, routerId, externalIps, elanId, addOrRemove);
-        installNaptPfibFlow(routers, dpnId, externalIps, addOrRemove);
+        installNaptPfibFlow(routers, dpnId, externalIps, routerName, addOrRemove);
 
         //Install Inbound NAT entries
         Long extNetId = NatUtil.getVpnId(dataBroker, routers.getNetworkId().getValue());
@@ -155,14 +154,16 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
         String externalIp = externalIps.get(0).getIpAddress();
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         String routerName = NatUtil.getRouterName(dataBroker, routerId);
-        long extSubnetId = NatUtil.getVpnIdFromExternalSubnet(dataBroker, routerName, externalIp);
-        if (extSubnetId == NatConstants.INVALID_ID) {
-            LOG.error("ConntrackBasedSnatService : createOutboundTblTrackEntry : external subnet id is invalid.");
-            return;
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            long extSubnetId = NatUtil.getVpnIdFromExternalSubnet(dataBroker, routerName, externalIp);
+            if (extSubnetId == NatConstants.INVALID_ID) {
+                LOG.error("ConntrackBasedSnatService : createOutboundTblTrackEntry : external subnet id is invalid.");
+                return;
+            }
+            ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil
+                    .getVpnIdMetadata(extSubnetId));
+            listActionInfo.add(actionSetFieldMeta);
         }
-        ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil
-                .getVpnIdMetadata(extSubnetId));
-        listActionInfo.add(actionSetFieldMeta);
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
         listActionInfo.add(new ActionNxResubmit(NwConstants.NAPT_PFIB_TABLE));
         instructionInfo.add(new InstructionApplyActions(listActionInfo));
@@ -191,14 +192,16 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
         String externalIp = externalIps.get(0).getIpAddress();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         String routerName = NatUtil.getRouterName(dataBroker, routerId);
-        long extSubnetId = NatUtil.getVpnIdFromExternalSubnet(dataBroker, routerName, externalIp);
-        if (extSubnetId == NatConstants.INVALID_ID) {
-            LOG.error("ConntrackBasedSnatService : createOutboundTblEntry : external subnet id is invalid.");
-            return;
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            long extSubnetId = NatUtil.getVpnIdFromExternalSubnet(dataBroker, routerName, externalIp);
+            if (extSubnetId == NatConstants.INVALID_ID) {
+                LOG.error("ConntrackBasedSnatService : createOutboundTblEntry : external subnet id is invalid.");
+                return;
+            }
+            ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil
+                    .getVpnIdMetadata(extSubnetId));
+            actionsInfos.add(actionSetFieldMeta);
         }
-        ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil
-                .getVpnIdMetadata(extSubnetId));
-        actionsInfos.add(actionSetFieldMeta);
         List<NxCtAction> ctActionsListCommit = new ArrayList<>();
         int rangePresent = NxActionNatRangePresent.NXNATRANGEIPV4MIN.getIntValue();
         int flags = NxActionNatFlags.NXNATFSRC.getIntValue();
@@ -218,39 +221,40 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
     }
 
     protected void installNaptPfibFlow(Routers routers, BigInteger dpnId, List<ExternalIps> externalIps,
-                                                     int addOrRemove) {
+            String routerName, int addOrRemove) {
         Long extNetId = NatUtil.getVpnId(dataBroker, routers.getNetworkId().getValue());
         LOG.info("ConntrackBasedSnatService : buildPostSnatFlowEntity  dpId {}, extNetId {}, srcIp {}",
-            dpnId, extNetId, externalIps);
-        List<Uuid> externalSubnetIdsForRouter = NatUtil.getExternalSubnetIdsForRouter(dataBroker,
-            routers.getRouterName());
-        for (Uuid externalSubnetId : externalSubnetIdsForRouter) {
-            long subnetVpnId = NatUtil.getVpnId(dataBroker, externalSubnetId.getValue());
-            if (subnetVpnId != -1) {
-                LOG.debug("NAT Service : Calling externalRouterListener installNaptPfibEntry for dpnId {} "
-                        + "and vpnId {}", dpnId, subnetVpnId);
-                List<MatchInfoBase> matches = new ArrayList<>();
-                matches.add(MatchEthernetType.IPV4);
-                BigInteger subnetMetadata = MetaDataUtil.getVpnIdMetadata(subnetVpnId);
-                matches.add(new MatchMetadata(subnetMetadata, MetaDataUtil.METADATA_MASK_VRFID));
-                if (externalIps.isEmpty()) {
-                    LOG.error("ConntrackBasedSnatService : installNaptPfibExternalOutputFlow no externalIP present for "
-                            + "routerId {}", routers.getRouterName());
-                    return;
-                }
-                //The logic now handle only one external IP per router, others if present will be ignored.
-                ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
-                ArrayList<InstructionInfo> instructions = new ArrayList<>();
-                listActionInfo.add(new ActionNxLoadInPort(BigInteger.ZERO));
-                listActionInfo.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
-                instructions.add(new InstructionApplyActions(listActionInfo));
-                String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, extNetId);
-                flowRef += subnetMetadata;
-                syncFlow(dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef, NatConstants.SNAT_TRK_FLOW_PRIORITY,
-                    flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
+                dpnId, extNetId, externalIps);
+        List<MatchInfoBase> matches = new ArrayList<>();
+        matches.add(MatchEthernetType.IPV4);
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            //The logic now handle only one external IP per router, others if present will be ignored.
+            String externalIp = externalIps.get(0).getIpAddress();
+            long extSubnetId = NatUtil.getVpnIdFromExternalSubnet(dataBroker, routerName, externalIp);
+            if (extSubnetId == NatConstants.INVALID_ID) {
+                LOG.error("ConntrackBasedSnatService : installNaptPfibFlow : external subnet id is invalid.");
+                return;
             }
-        }
+            LOG.debug("NAT Service : Calling externalRouterListener installNaptPfibEntry for dpnId {} "
+                    + "and vpnId {}", dpnId, extSubnetId);
 
+            BigInteger subnetMetadata = MetaDataUtil.getVpnIdMetadata(extSubnetId);
+            matches.add(new MatchMetadata(subnetMetadata, MetaDataUtil.METADATA_MASK_VRFID));
+        }
+        if (externalIps.isEmpty()) {
+            LOG.error("ConntrackBasedSnatService : installNaptPfibExternalOutputFlow no externalIP present for "
+                    + "routerId {}", routers.getRouterName());
+            return;
+        }
+        //The logic now handle only one external IP per router, others if present will be ignored.
+        ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
+        ArrayList<InstructionInfo> instructions = new ArrayList<>();
+        listActionInfo.add(new ActionNxLoadInPort(BigInteger.ZERO));
+        listActionInfo.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
+        instructions.add(new InstructionApplyActions(listActionInfo));
+        String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, extNetId);
+        syncFlow(dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef, NatConstants.SNAT_TRK_FLOW_PRIORITY,
+                flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
     }
 
     protected void installInboundEntry(BigInteger dpnId, long routerId, Long extNetId, List<ExternalIps> externalIps,
@@ -267,13 +271,15 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
         String externalIp = externalIps.get(0).getIpAddress();
         matches.add(new MatchIpv4Destination(externalIp,"32"));
         String routerName = NatUtil.getRouterName(dataBroker, routerId);
-        long extSubnetId = NatUtil.getVpnIdFromExternalSubnet(dataBroker, routerName, externalIp);
-        if (extSubnetId == NatConstants.INVALID_ID) {
-            LOG.error("ConntrackBasedSnatService : installInboundEntry : external subnet id is invalid.");
-            return;
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            long extSubnetId = NatUtil.getVpnIdFromExternalSubnet(dataBroker, routerName, externalIp);
+            if (extSubnetId == NatConstants.INVALID_ID) {
+                LOG.error("ConntrackBasedSnatService : installInboundEntry : external subnet id is invalid.");
+                return;
+            }
+            matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(extSubnetId),
+                    MetaDataUtil.METADATA_MASK_VRFID));
         }
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(extSubnetId),
-                MetaDataUtil.METADATA_MASK_VRFID));
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<NxCtAction> ctActionsList = new ArrayList<>();
         NxCtAction nxCtAction = new ActionNxConntrack.NxNat(0, 0, 0,null, null,0, 0);
