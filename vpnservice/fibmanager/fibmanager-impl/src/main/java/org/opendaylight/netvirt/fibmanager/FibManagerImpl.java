@@ -74,26 +74,10 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void populateInternalRoutesOnDpn(BigInteger localDpnId, long vpnId,
-                                            String rd, String localNextHopIp,
-                                            String remoteNextHopIp) {
-        vrfEntryListener.populateInternalRoutesOnDpn(localDpnId, vpnId, rd,
-            localNextHopIp, remoteNextHopIp);
-    }
-
-    @Override
     public void cleanUpExternalRoutesOnDpn(BigInteger dpnId, long vpnId,
                                            String rd, String localNextHopIp,
                                            String remoteNextHopIp) {
         vrfEntryListener.cleanUpExternalRoutesOnDpn(dpnId, vpnId, rd,
-            localNextHopIp, remoteNextHopIp);
-    }
-
-    @Override
-    public void cleanUpInternalRoutesOnDpn(BigInteger dpnId, long vpnId,
-                                           String rd, String localNextHopIp,
-                                           String remoteNextHopIp) {
-        vrfEntryListener.cleanUpInternalRoutesOnDpn(dpnId, vpnId, rd,
             localNextHopIp, remoteNextHopIp);
     }
 
