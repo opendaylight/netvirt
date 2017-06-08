@@ -32,9 +32,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>fibmanager-impl</artifactId>
-      <version>${project.version}</version>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>mdsalutil-api</artifactId>
+      <version>${genius.version}</version>
     </dependency>
   </dependencies>
 
