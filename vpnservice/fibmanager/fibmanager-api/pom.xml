@@ -55,6 +55,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>model-flow-base</artifactId>
       <version>${openflowplugin.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>itm-api</artifactId>
+      <version>${genius.version}</version>
+    </dependency>
   </dependencies>
 
   <!--

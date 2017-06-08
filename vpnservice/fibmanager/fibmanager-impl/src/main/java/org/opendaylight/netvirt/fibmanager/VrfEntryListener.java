@@ -2342,42 +2342,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
     }
 
-    public List<String> printFibEntries() {
-        List<String> result = new ArrayList<>();
-        result.add(String.format("   %-7s  %-20s  %-20s  %-7s  %-7s", "RD", "Prefix", "NextHop", "Label", "Origin"));
-        result.add("-------------------------------------------------------------------");
-        InstanceIdentifier<FibEntries> id = InstanceIdentifier.create(FibEntries.class);
-        Optional<FibEntries> fibEntries = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
-        if (fibEntries.isPresent()) {
-            List<VrfTables> vrfTables = fibEntries.get().getVrfTables();
-            for (VrfTables vrfTable : vrfTables) {
-                for (VrfEntry vrfEntry : vrfTable.getVrfEntry()) {
-                    List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
-                    if (routePaths == null) {
-                        result.add(String.format("   %-7s  %-20s  %-20s  %-7s  %-7s",
-                            vrfTable.getRouteDistinguisher(),
-                            vrfEntry.getDestPrefix(), "local",
-                            "<not set>", vrfEntry.getOrigin()));
-                        continue;
-                    }
-                    for (RoutePaths routePath : routePaths) {
-                        result.add(String.format("   %-7s  %-20s  %-20s  %-7s  %-7s",
-                            vrfTable.getRouteDistinguisher(),
-                            vrfEntry.getDestPrefix(), routePath.getNexthopAddress(),
-                            routePath.getLabel(), vrfEntry.getOrigin()));
-                    }
-                    if (routePaths.isEmpty()) {
-                        result.add(String.format("   %-7s  %-20s  %-20s  %-7s",
-                            vrfTable.getRouteDistinguisher(),
-                            vrfEntry.getDestPrefix(), "local", vrfEntry.getOrigin()));
-                    }
-                }
-            }
-        }
-        return result;
-    }
-
-
     private VrfEntry getVrfEntry(DataBroker broker, String rd, String ipPrefix) {
         InstanceIdentifier<VrfEntry> vrfEntryId = InstanceIdentifier.builder(FibEntries.class)
             .child(VrfTables.class, new VrfTablesKey(rd))
