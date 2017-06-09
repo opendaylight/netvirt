@@ -1357,15 +1357,18 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             WriteTransaction writeFlowGroupTx) {
         List<? extends MatchInfoBase> listMatchInfoBase;
         List<InstructionInfo> instructionInfos;
+        long serviceId;
         if (!elanUtils.isOpenStackVniSemanticsEnforced()) {
+            serviceId = elanTag;
             listMatchInfoBase = ElanUtils.getTunnelMatchesForServiceId((int) elanTag);
             instructionInfos = getInstructionsForOutGroup(ElanUtils.getElanLocalBCGId(elanTag));
         } else {
-            listMatchInfoBase = buildMatchesForVni(elanInfo.getSegmentationId());
+            serviceId = elanInfo.getSegmentationId();
+            listMatchInfoBase = buildMatchesForVni(serviceId);
             instructionInfos = getInstructionsIntOrExtTunnelTable(elanTag);
         }
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INTERNAL_TUNNEL_TABLE,
-                getFlowRef(NwConstants.INTERNAL_TUNNEL_TABLE, elanTag), 5, String.format("%s:%d", "ITM Flow Entry ",
+                getFlowRef(NwConstants.INTERNAL_TUNNEL_TABLE, serviceId), 5, String.format("%s:%d", "ITM Flow Entry ",
                 elanTag), 0, 0, ITMConstants.COOKIE_ITM.add(BigInteger.valueOf(elanTag)), listMatchInfoBase,
                 instructionInfos);
         mdsalManager.addFlowToTx(flowEntity, writeFlowGroupTx);
