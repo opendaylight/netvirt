@@ -46,6 +46,30 @@
       "revId": "ac5934b1bd27697072755d3103cea400304611cc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_5cde9740",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 742,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-06-09T10:37:43Z",
+      "side": 1,
+      "message": "I just think that we need a null check only if there is even a remote possibility that the value might be null.. Thats not the case here. \nvrfEntry.getDestPrefix() and vpnId can never be null :)\n\nI agree that using localNextHopIp everywhere is a good fix",
+      "parentUuid": "3afa9182_bc521bdb",
+      "range": {
+        "startLine": 740,
+        "startChar": 12,
+        "endLine": 742,
+        "endChar": 13
+      },
+      "revId": "ac5934b1bd27697072755d3103cea400304611cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
