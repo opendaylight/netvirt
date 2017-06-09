@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_b1bb640d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronExternalSubnetHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-09T07:42:58Z",
+      "side": 1,
+      "message": "this is strange that it was not yet present.\nmaybe this should be a separate commit.",
+      "range": {
+        "startLine": 46,
+        "startChar": 18,
+        "endLine": 46,
+        "endChar": 81
+      },
+      "revId": "e334df6de62b144ca0b0b769b2162915e5db56c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_51420011",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronExternalSubnetHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-09T07:42:58Z",
+      "side": 1,
+      "message": "can we avoid overwriting subnets that have the externamvpnuuid already set to the same value ?",
+      "range": {
+        "startLine": 62,
+        "startChar": 23,
+        "endLine": 62,
+        "endChar": 62
+      },
+      "revId": "e334df6de62b144ca0b0b769b2162915e5db56c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_51104001",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1290,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-09T07:42:58Z",
+      "side": 1,
+      "message": "can we check that subnetUuid does not belong to the externalNetworkUuid ?",
+      "range": {
+        "startLine": 1290,
+        "startChar": 8,
+        "endLine": 1290,
+        "endChar": 42
+      },
+      "revId": "e334df6de62b144ca0b0b769b2162915e5db56c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
