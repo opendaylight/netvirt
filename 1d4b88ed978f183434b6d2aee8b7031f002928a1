@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_fcbb03c2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1092,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-09T10:53:07Z",
+      "side": 1,
+      "message": "this also may not apply, since lporttag will be included in the next set of reviews.",
+      "revId": "1d4b88ed978f183434b6d2aee8b7031f002928a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
