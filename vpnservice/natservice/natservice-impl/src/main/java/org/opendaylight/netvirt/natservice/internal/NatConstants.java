@@ -28,8 +28,8 @@ public class NatConstants {
     public static final String SNAT_FLOW_NAME = "SNAT";
     public static final String SNAT_FLOWID_PREFIX = "SNAT.";
     public static final String SNAT_IDPOOL_NAME = "snatGroupIdPool";
-    public static final long SNAT_ID_LOW_VALUE = 200000L;
-    public static final long SNAT_ID_HIGH_VALUE = 225000L;
+    public static final long SNAT_ID_LOW_VALUE = 225000L;
+    public static final long SNAT_ID_HIGH_VALUE = 250000L;
     public static final int DEFAULT_TS_FLOW_PRIORITY = 10;
     public static final short DEFAULT_PREFIX = 32;
 
