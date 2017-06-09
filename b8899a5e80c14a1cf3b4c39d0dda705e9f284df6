@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_493c18e3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnManagerImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-09T17:43:24Z",
+      "side": 1,
+      "message": "we need to find out underwhich condition ExternalRouter.getExtGwMacAddress() would return null value.",
+      "revId": "b8899a5e80c14a1cf3b4c39d0dda705e9f284df6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
