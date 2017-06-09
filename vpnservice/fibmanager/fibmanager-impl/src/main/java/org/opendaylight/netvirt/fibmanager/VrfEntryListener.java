@@ -14,7 +14,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.math.BigInteger;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -28,7 +27,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -47,6 +45,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionMoveSourceDestinationEth;
 import org.opendaylight.genius.mdsalutil.actions.ActionMoveSourceDestinationIp;
+import org.opendaylight.genius.mdsalutil.actions.ActionMoveSourceDestinationIpv6;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadInPort;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionPopMpls;
@@ -57,7 +56,9 @@ import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetSource;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldMplsLabel;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetIcmpType;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetIcmpv6Type;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetSourceIp;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetSourceIpv6;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
@@ -65,6 +66,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv4;
+import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Destination;
@@ -86,6 +88,7 @@ import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
@@ -2431,39 +2434,54 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         return true;
     }
 
-    public void installRouterFibEntry(final VrfEntry vrfEntry, BigInteger dpnId, long vpnId, String routerUuid,
-                                      String routerInternalIp, MacAddress routerMac, int addOrRemove) {
-
-        // First install L3_GW_MAC_TABLE flows as it's common for both IPv4 and IPv6 address families
-        FlowEntity l3GwMacFlowEntity = buildL3vpnGatewayFlow(dpnId, routerMac.getValue(), vpnId);
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            mdsalManager.installFlow(l3GwMacFlowEntity);
-        } else {
-            mdsalManager.removeFlow(l3GwMacFlowEntity);
-
-        }
-        String[] subSplit = routerInternalIp.split("/");
-        if (!isIpv4Address(subSplit[0])) {
-            // Ping responder using OpenFlow rules is only supported for IPv4, hence skipping.
-            return;
-        }
-
-        java.util.Optional<Long> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
-        if (!optionalLabel.isPresent()) {
-            LOG.warn("Routes paths not present. Exiting installRouterFibEntry");
-            return;
-        }
-        String addRemoveStr = (addOrRemove == NwConstants.ADD_FLOW) ? "ADD_FLOW" : "DELETE_FLOW";
-        LOG.trace("{}: bulding Echo Flow entity for dpid:{}, router_ip:{}, vpnId:{}, subSplit:{} ", addRemoveStr,
-            dpnId, routerInternalIp, vpnId, subSplit[0]);
+    public void installPing6ResponderFlowEntry(BigInteger dpnId, long vpnId, String routerInternalIp,
+                                               MacAddress routerMac, long label, int addOrRemove) {
 
         List<MatchInfo> matches = new ArrayList<>();
+        matches.add(MatchIpProtocol.ICMPV6);
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        matches.add(new MatchIcmpv6((short) 128, (short) 0));
+        matches.add(MatchEthernetType.IPV6);
+        matches.add(new MatchIpv6Destination(routerInternalIp));
 
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        // Set Eth Src and Eth Dst
+        actionsInfos.add(new ActionMoveSourceDestinationEth());
+        actionsInfos.add(new ActionSetFieldEthernetSource(routerMac));
+
+        // Move Ipv6 Src to Ipv6 Dst
+        actionsInfos.add(new ActionMoveSourceDestinationIpv6());
+        actionsInfos.add(new ActionSetSourceIpv6(new Ipv6Prefix(routerInternalIp)));
+
+        // Set the ICMPv6 type to 129 (echo reply)
+        actionsInfos.add(new ActionSetIcmpv6Type((short) 129));
+        actionsInfos.add(new ActionNxLoadInPort(BigInteger.ZERO));
+        actionsInfos.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
+        List<InstructionInfo> instructions = new ArrayList<>();
+        instructions.add(new InstructionApplyActions(actionsInfos));
+
+        int priority = FibConstants.DEFAULT_FIB_FLOW_PRIORITY + FibConstants.DEFAULT_IPV6_PREFIX_LENGTH;
+        String flowRef = getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, label, priority);
+
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_FIB_TABLE, flowRef, priority, flowRef,
+                0, 0, NwConstants.COOKIE_VM_FIB_TABLE, matches, instructions);
+
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            mdsalManager.installFlow(flowEntity);
+        } else {
+            mdsalManager.removeFlow(flowEntity);
+        }
+    }
+
+    public void installPingResponderFlowEntry(BigInteger dpnId, long vpnId, String routerInternalIp,
+                                              MacAddress routerMac, long label, int addOrRemove) {
+
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchIpProtocol.ICMP);
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
         matches.add(new MatchIcmpv4((short) 8, (short) 0));
         matches.add(MatchEthernetType.IPV4);
-        matches.add(new MatchIpv4Destination(subSplit[0], "32"));
+        matches.add(new MatchIpv4Destination(routerInternalIp, "32"));
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
 
@@ -2473,7 +2491,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         // Move Ip Src to Ip Dst
         actionsInfos.add(new ActionMoveSourceDestinationIp());
-        actionsInfos.add(new ActionSetSourceIp(subSplit[0], "32"));
+        actionsInfos.add(new ActionSetSourceIp(routerInternalIp, "32"));
 
         // Set the ICMP type to 0 (echo reply)
         actionsInfos.add(new ActionSetIcmpType((short) 0));
@@ -2487,17 +2505,47 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         instructions.add(new InstructionApplyActions(actionsInfos));
 
         int priority = FibConstants.DEFAULT_FIB_FLOW_PRIORITY + FibConstants.DEFAULT_PREFIX_LENGTH;
-        String flowRef = getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, optionalLabel.get(),
+        String flowRef = getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, label,
                 priority);
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_FIB_TABLE, flowRef, priority, flowRef,
-            0, 0, NwConstants.COOKIE_VM_FIB_TABLE, matches, instructions);
+                0, 0, NwConstants.COOKIE_VM_FIB_TABLE, matches, instructions);
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
             mdsalManager.installFlow(flowEntity);
         } else {
             mdsalManager.removeFlow(flowEntity);
         }
+    }
+
+    public void installRouterFibEntry(final VrfEntry vrfEntry, BigInteger dpnId, long vpnId, String routerUuid,
+                                      String routerInternalIp, MacAddress routerMac, int addOrRemove) {
+
+        // First install L3_GW_MAC_TABLE flows as it's common for both IPv4 and IPv6 address families
+        FlowEntity l3GwMacFlowEntity = buildL3vpnGatewayFlow(dpnId, routerMac.getValue(), vpnId);
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            mdsalManager.installFlow(l3GwMacFlowEntity);
+        } else {
+            mdsalManager.removeFlow(l3GwMacFlowEntity);
+        }
+
+        java.util.Optional<Long> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
+        if (!optionalLabel.isPresent()) {
+            LOG.warn("Routes paths not present. Exiting installRouterFibEntry");
+            return;
+        }
+
+        String[] subSplit = routerInternalIp.split("/");
+        String addRemoveStr = (addOrRemove == NwConstants.ADD_FLOW) ? "ADD_FLOW" : "DELETE_FLOW";
+        LOG.trace("{}: Building Echo Flow entity for dpid:{}, router_ip:{}, vpnId:{}, subSplit:{} ", addRemoveStr,
+                dpnId, routerInternalIp, vpnId, subSplit[0]);
+
+        if (isIpv4Address(subSplit[0])) {
+            installPingResponderFlowEntry(dpnId, vpnId, subSplit[0], routerMac, optionalLabel.get(), addOrRemove);
+        } else {
+            installPing6ResponderFlowEntry(dpnId, vpnId, routerInternalIp, routerMac, optionalLabel.get(), addOrRemove);
+        }
+        return;
     }
 
     public static FlowEntity buildL3vpnGatewayFlow(BigInteger dpId, String gwMacAddress, long vpnId) {
