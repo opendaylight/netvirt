@@ -17,6 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev14
 public class FibConstants {
     static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
     static final int DEFAULT_PREFIX_LENGTH = 32;
+    static final int DEFAULT_IPV6_PREFIX_LENGTH = 128;
     static final String PREFIX_SEPARATOR = "/";
     static final String FLOWID_PREFIX = "L3.";
     static final String VPN_IDPOOL_NAME = "vpnservices";
