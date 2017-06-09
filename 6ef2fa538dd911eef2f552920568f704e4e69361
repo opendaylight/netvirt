@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_71ad7c31",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 831,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-09T09:18:42Z",
+      "side": 1,
+      "message": "having comments here explaining the use-case will help a lot in reviewers understanding the difference between groupId and localGroupId.",
+      "revId": "6ef2fa538dd911eef2f552920568f704e4e69361",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_d1aa7018",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 835,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-09T09:18:42Z",
+      "side": 1,
+      "message": "ditto here.",
+      "revId": "6ef2fa538dd911eef2f552920568f704e4e69361",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_1164f820",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 839,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-09T09:18:42Z",
+      "side": 1,
+      "message": "here too..",
+      "revId": "6ef2fa538dd911eef2f552920568f704e4e69361",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_f1684cf7",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 843,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-09T09:18:42Z",
+      "side": 1,
+      "message": "this is for the direct VM..",
+      "revId": "6ef2fa538dd911eef2f552920568f704e4e69361",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
