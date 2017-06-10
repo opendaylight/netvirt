@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_e23cf995",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 13
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-10T07:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_c9c48842",
+      "revId": "4b2129adb249e8a145404fa4416c778c69975e0f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_49e9b87f",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
         "patchSetId": 13
@@ -30,6 +48,24 @@
       "writtenOn": "2017-06-09T17:16:38Z",
       "side": 1,
       "message": "comment given here earlier not addressed.",
+      "revId": "4b2129adb249e8a145404fa4416c778c69975e0f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_0238259f",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-10T07:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_49e9b87f",
       "revId": "4b2129adb249e8a145404fa4416c778c69975e0f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_025f85e6",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-10T07:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_a9a77c4e",
+      "revId": "4b2129adb249e8a145404fa4416c778c69975e0f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_0964d020",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
         "patchSetId": 13
@@ -64,6 +118,24 @@
       "writtenOn": "2017-06-09T17:16:38Z",
       "side": 1,
       "message": "please add summary comments here to provide significance of legacy.",
+      "revId": "4b2129adb249e8a145404fa4416c778c69975e0f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_e26359af",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-10T07:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_0964d020",
       "revId": "4b2129adb249e8a145404fa4416c778c69975e0f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "3afa9182_42422d11",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-10T07:16:04Z",
+      "side": 1,
+      "message": "Changed methods to default access as applicable",
+      "parentUuid": "3afa9182_8989e0cc",
+      "revId": "4b2129adb249e8a145404fa4416c778c69975e0f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3afa9182_e99a2413",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceAddJob.java",
         "patchSetId": 13
@@ -98,6 +188,24 @@
       "writtenOn": "2017-06-09T17:16:38Z",
       "side": 1,
       "message": "store intf.getName() into interfaceName and use interfaceName everywhere.",
+      "revId": "4b2129adb249e8a145404fa4416c778c69975e0f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_22472121",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceAddJob.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-10T07:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_e99a2413",
       "revId": "4b2129adb249e8a145404fa4416c778c69975e0f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -132,6 +240,24 @@
       "writtenOn": "2017-06-09T17:16:38Z",
       "side": 1,
       "message": "remove the line as it does not apply for flows now with lport tags.",
+      "revId": "4b2129adb249e8a145404fa4416c778c69975e0f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_6248092e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 1092,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-10T07:16:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_69c75446",
       "revId": "4b2129adb249e8a145404fa4416c778c69975e0f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
