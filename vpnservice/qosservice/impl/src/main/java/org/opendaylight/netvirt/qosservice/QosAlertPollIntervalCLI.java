@@ -27,12 +27,12 @@ public class QosAlertPollIntervalCLI extends OsgiCommandSupport {
 
     public void setQosAlertManager(QosAlertManager qosAlertManager) {
         this.qosAlertManager = qosAlertManager;
-        LOG.info("Qos manager:{} set", qosAlertManager);
+        LOG.debug("Qos manager:{} set", qosAlertManager);
     }
 
     @Override
     protected Object doExecute() throws Exception {
-        LOG.info("setting threshold in qos alert manager:{}", interval);
+        LOG.debug("setting threshold in qos alert manager:{}", interval);
         qosAlertManager.setPollInterval(Integer.parseInt(interval));
         return null;
     }

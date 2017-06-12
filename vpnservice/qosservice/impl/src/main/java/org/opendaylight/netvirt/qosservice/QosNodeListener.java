@@ -46,14 +46,14 @@ public class QosNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         super(FlowCapableNode.class, QosNodeListener.class);
         this.dataBroker = dataBroker;
         this.mdsalUtils = mdsalUtils;
-        LOG.info("{} created",  getClass().getSimpleName());
+        LOG.debug("{} created",  getClass().getSimpleName());
     }
 
     @Override
     @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-        LOG.info("{} init and registerListener done", getClass().getSimpleName());
+        LOG.debug("{} init and registerListener done", getClass().getSimpleName());
     }
 
     @Override

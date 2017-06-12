@@ -72,7 +72,7 @@ public final class QosAlertManager implements Runnable {
 
             @Override
             public void onSuccess(Void result) {
-                LOG.info("Datastore operation completed successfully");
+                LOG.debug("Datastore operation completed successfully");
             }
 
             @Override
@@ -90,14 +90,14 @@ public final class QosAlertManager implements Runnable {
                            final OdlInterfaceRpcService odlInterfaceRpcService,
                            final INeutronVpnManager neutronVpnManager) {
 
-        LOG.info("{} created",  getClass().getSimpleName());
+        LOG.debug("{} created",  getClass().getSimpleName());
         this.dataBroker = dataBroker;
         this.odlDirectStatisticsService = odlDirectStatisticsService;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
         this.neutronVpnManager =  neutronVpnManager;
         this.defaultConfig = defaultConfig;
         thread = null;
-        LOG.info("QosAlert default config poll alertEnabled:{} threshold:{} pollInterval:{}",
+        LOG.debug("QosAlert default config poll alertEnabled:{} threshold:{} pollInterval:{}",
                 defaultConfig.isQosAlertEnabled(), defaultConfig.getQosDropPacketThreshold(),
                 defaultConfig.getQosAlertPollInterval());
         getDefaultConfig();
@@ -109,7 +109,7 @@ public final class QosAlertManager implements Runnable {
         QosAlertPortData.setAlertThreshold(threshold);
         statsPollThreadStart = true;
         startStatsPollThread();
-        LOG.info("{} init done", getClass().getSimpleName());
+        LOG.debug("{} init done", getClass().getSimpleName());
     }
 
     @PreDestroy
@@ -118,7 +118,7 @@ public final class QosAlertManager implements Runnable {
         if (thread != null) {
             thread.interrupt();
         }
-        LOG.info("{} close done", getClass().getSimpleName());
+        LOG.debug("{} close done", getClass().getSimpleName());
     }
 
     public void setQosAlertOwner(boolean isOwner) {
@@ -133,7 +133,7 @@ public final class QosAlertManager implements Runnable {
 
     @Override
     public void run() {
-        LOG.info("Qos alert poll thread started");
+        LOG.debug("Qos alert poll thread started");
         while (statsPollThreadStart && alertEnabled) {
             LOG.debug("Thread loop polling :{} threshold:{} pollInterval:{}", alertEnabled, threshold,
                     pollInterval);
@@ -146,7 +146,7 @@ public final class QosAlertManager implements Runnable {
             }
         }
         thread = null;
-        LOG.info("Qos alert poll thread stopped");
+        LOG.debug("Qos alert poll thread stopped");
     }
 
     private void startStatsPollThread() {
@@ -166,7 +166,7 @@ public final class QosAlertManager implements Runnable {
 
     public void setQosalertConfig(QosalertConfig config) {
 
-        LOG.info("New QoS alert config threshold:{} polling alertEnabled:{} interval:{}",
+        LOG.debug("New QoS alert config threshold:{} polling alertEnabled:{} interval:{}",
                 config.getQosDropPacketThreshold(), config.isQosAlertEnabled(),
                 config.getQosAlertPollInterval());
 
@@ -185,7 +185,7 @@ public final class QosAlertManager implements Runnable {
     }
 
     public void restoreDefaultConfig() {
-        LOG.info("Restoring default configuration");
+        LOG.debug("Restoring default configuration");
         getDefaultConfig();
         QosAlertPortData.setAlertThreshold(threshold);
         if (thread != null) {
@@ -196,17 +196,17 @@ public final class QosAlertManager implements Runnable {
     }
 
     public void setThreshold(short threshold) {
-        LOG.info("setting threshold {} in config data store", threshold);
+        LOG.debug("setting threshold {} in config data store", threshold);
         writeConfigDataStore(alertEnabled, threshold, pollInterval);
     }
 
     public void setPollInterval(int pollInterval) {
-        LOG.info("setting interval {} in config data store", pollInterval);
+        LOG.debug("setting interval {} in config data store", pollInterval);
         writeConfigDataStore(alertEnabled, threshold, pollInterval);
     }
 
     public void setEnable(boolean alertEnabled) {
-        LOG.info("setting QoS poll to {} in config data store", alertEnabled);
+        LOG.debug("setting QoS poll to {} in config data store", alertEnabled);
         writeConfigDataStore(alertEnabled, threshold, pollInterval);
     }
 
