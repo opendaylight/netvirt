@@ -169,6 +169,177 @@
       "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_baaecde5",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T16:17:27Z",
+      "side": 1,
+      "message": "I take back this word as I see the above requirement coming in Line 83 below as point 2 ..",
+      "parentUuid": "1af78d9a_94476a1d",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_fa8fb573",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T16:17:27Z",
+      "side": 1,
+      "message": "Can you please explain why we need to have both the routers in the same L3VPN?\n\nDid you want to mean by point 1 above ONLY for just enabling external-netwrok-access\u0027 use-case , where both the routers will have the gateway-set to a single external network that is already put Internet VPN  ?",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_7acaa5a2",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T16:17:27Z",
+      "side": 1,
+      "message": "this is incorrect.. where is the same VPN instance?\n\nRouter 1 and Router 2 are their own unique INTERNAL VPN INSTANCES..\n\nIf Router 1 and Router 2 have to come under same VPN Instance, you have to explicitly associate both the routers into the same BGPVPN INSTANCE?  But why would you want to do that way if you ONLY want to solve the external access problem?",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_9a47911d",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T16:17:27Z",
+      "side": 1,
+      "message": "Subnet E reference is confusing.. \n\nI think you just wanted to mention that Router1 can have more than one IPv4 subnet attached to it, either before the first VM was fired,  or it can have Subnet E attached after Subnet A is attached.   Is that understanding correct?",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_7a58e5fa",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T16:17:27Z",
+      "side": 1,
+      "message": "we should allow addition of more subnets to the router, but such subnets may not be part of the same Dual-Stack port.\n\nAm not sure what we are trying to prevent here?  Can you plesae explain?",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_ba71ad79",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T16:17:27Z",
+      "side": 1,
+      "message": "SLAAC for IPv6 must continue to work when the router gets into a BGPVPN too..  But I believe my point is moot and must have been covered in our earlier merged patches for IPV6 L3 BGPVPN feature.",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_9a6e7195",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T16:17:27Z",
+      "side": 1,
+      "message": "this is correct!\n\nIn fact in general if a port is having multiple IP Address (regardless of ethertype), that port might not work properly with ODL.",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_5a2b6930",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T16:17:27Z",
+      "side": 1,
+      "message": "Is this two router solution required for Inter DC access at all?\n\nThis use-case was primarily driven only for external network access, I beleive.  Plesae let me know if its not so!",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_ba1fed08",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T16:17:27Z",
+      "side": 1,
+      "message": "this agree totaly as it enables us to provide flexibility to disable internet access over IPv6 (or) over IPv4 as and when required.",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_fa197523",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T16:17:27Z",
+      "side": 1,
+      "message": "Agree here too, but this one does not provide the flexibility with the \u0027two-router\u0027 solution where you can explicitly disable external access for specific ether-types of traffic.",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
