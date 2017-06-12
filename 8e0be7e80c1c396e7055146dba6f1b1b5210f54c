@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1af78d9a_cb68358a",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T13:13:53Z",
+      "side": 1,
+      "message": "\"Dual Stack VM support in OpenDaylight\" would be more appropriate title here.",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_8b1c6d15",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T13:13:53Z",
+      "side": 1,
+      "message": "You should say that through this Spec we will support L3 forwarding for DualStack VM connectivity over L3 in NetVirt.\n\nThen you have to quote that in addition to supporting basic L3 forwarding for DualStack VMs, we will also support their presence inside and L3 BGPVPN.  Dualstack VMs will be enabled for all these 3 variations of L3 BGPVPN:\nA. L3BGPVPN constructed purely using networks, \nB. L3BGPVPN constructed purely using a router, \nC. L3BGPVPN constructed using multiple networks + a router.",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_eb19b123",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T13:13:53Z",
+      "side": 1,
+      "message": "place this line first in the section above.",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_abcde988",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T13:13:53Z",
+      "side": 1,
+      "message": "Think this may not be the right terming \u0027We don\u0027t want to discuss .. etc..\n\nThis document will go as a reference to other developers, and also users of ODL.\n\nPoint 1 is already implemented in ODL and so not sure why we want to say it is not supported.  We can remove that line.\n\nFor the second point, we can put that we donot intend to cover in our implementation Neutron Ports that contain more than one IPv4 and IPv6 addresses within them.   \n\nMore specifically we will cover Neutron Port that will have only one IPv4 and one IPv6 address.   \n\nWe will create two networks and one each of that network will either have a single IPv4 (or) a single IPv6 subnet.  We will use that network to spin off the single Neutron Port that will be part of two subnets where each subnet holds a different ether type.",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_2ba1f9a9",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T13:13:53Z",
+      "side": 1,
+      "message": "has increased during the last couple years.",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_6bab018a",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T13:13:53Z",
+      "side": 1,
+      "message": "to other VMs, be they are of IPv4 (or) IPv6 ether types.",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_d4e3b231",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T13:13:53Z",
+      "side": 1,
+      "message": "(1) Intra DC , Inter-Subnet L3 Forwarding support for DualStack VM\n\n(2) Intra DC, Inter-Subnet  L3 Forwarding support for DualStack VM that is in an L3 BGPVPN\n\nThe below point (2) you should remove because that is done in the Internet L3VPN spec.",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_74cabea2",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T13:13:53Z",
+      "side": 1,
+      "message": "this is open-ended statemet... Can you elucidate what are the issues?  I could see that IPv6 extra-route is not working, but other than that, anything more ?",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_b44a6625",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T13:13:53Z",
+      "side": 1,
+      "message": "The first statement in this para is superfluous :).  This Spec is supposed to address that one :) !",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_94476a1d",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T13:13:53Z",
+      "side": 1,
+      "message": "can you please clarify this better... \n\nAre we intending to say that both the subnets in a DualStack VM Port will be made to belong to the same VPN?\n\nI think that is not a requirement at all...",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
