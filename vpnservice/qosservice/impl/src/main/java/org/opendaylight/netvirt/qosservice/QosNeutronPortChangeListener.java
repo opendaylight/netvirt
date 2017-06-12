@@ -43,14 +43,14 @@ public class QosNeutronPortChangeListener extends AsyncDataTreeChangeListenerBas
         this.neutronVpnManager = neutronVpnManager;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
         this.mdsalUtils = mdsalUtils;
-        LOG.info("{} created",  getClass().getSimpleName());
+        LOG.debug("{} created",  getClass().getSimpleName());
     }
 
     @Override
     @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-        LOG.info("{} init and registerListener done", getClass().getSimpleName());
+        LOG.debug("{} init and registerListener done", getClass().getSimpleName());
     }
 
     @Override
