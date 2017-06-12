@@ -58,7 +58,7 @@ public class QosAlertEosHandler implements EntityOwnershipListener, AutoCloseabl
         try {
             candidateRegistration = entityOwnershipService.registerCandidate(instanceEntity);
         } catch (CandidateAlreadyRegisteredException e) {
-            LOG.warn("qosalet instance entity {} was already "
+            LOG.warn("qosalert instance entity {} was already "
                     + "registered for ownership", instanceEntity, e);
         }
         LOG.trace("entity ownership registeration successful");

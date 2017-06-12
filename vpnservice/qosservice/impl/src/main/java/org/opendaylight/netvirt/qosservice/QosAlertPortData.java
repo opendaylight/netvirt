@@ -36,7 +36,7 @@ public class QosAlertPortData {
 
     public static void setAlertThreshold(int threshold) {
         alertThreshold = BigInteger.valueOf(threshold);
-        LOG.info("setAlertThreshold:{}", alertThreshold);
+        LOG.debug("setAlertThreshold:{}", alertThreshold);
     }
 
     public void initPortData() {

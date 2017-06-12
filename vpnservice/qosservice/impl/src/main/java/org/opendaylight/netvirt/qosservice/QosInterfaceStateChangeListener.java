@@ -55,14 +55,14 @@ public class QosInterfaceStateChangeListener extends AsyncDataTreeChangeListener
         this.neutronVpnManager = neutronVpnManager;
         this.mdsalUtils = mdsalUtils;
         this.uuidUtil = new UuidUtil();
-        LOG.info("{} created",  getClass().getSimpleName());
+        LOG.debug("{} created",  getClass().getSimpleName());
     }
 
     @Override
     @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
-        LOG.info("{} init and registerListener done", getClass().getSimpleName());
+        LOG.debug("{} init and registerListener done", getClass().getSimpleName());
     }
 
     @Override
