@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3afa9182_3c262bb8",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T13:13:53Z",
+      "side": 1,
+      "message": "L3 Forwarding for Dual Stack VMs",
+      "revId": "a4abf46a70c2ce642ee09cf503313aaa50ce55c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_9c3abfcb",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T13:13:53Z",
+      "side": 1,
+      "message": "high level design of providing L3 forwarding for dualstack VMs.",
+      "revId": "a4abf46a70c2ce642ee09cf503313aaa50ce55c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afa9182_9c411f3c",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-12T13:13:53Z",
+      "side": 1,
+      "message": "update this line as:\n\nthis specification also proposes to support L3 Forwarding for DualStack within L3 BGPVPNs.  The L3 BGPVPN we support  here covers those BGPVPNs that contain purely networks , can contain purely a router and can contain a mix of networks and  a router.",
+      "revId": "a4abf46a70c2ce642ee09cf503313aaa50ce55c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
