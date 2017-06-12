@@ -344,6 +344,7 @@
       <artifactId>vpnmanager-shell</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!--
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>federation-plugin-api</artifactId>
@@ -354,6 +355,7 @@
       <artifactId>federation-plugin-impl</artifactId>
       <version>${project.version}</version>
     </dependency>
+    -->
     <dependency>
       <groupId>org.apache.thrift</groupId>
       <artifactId>libthrift</artifactId>
@@ -400,6 +402,7 @@
       <classifier>features</classifier>
       <type>xml</type>
     </dependency>
+    <!--
     <dependency>
       <groupId>org.opendaylight.federation</groupId>
       <artifactId>federation-features</artifactId>
@@ -407,6 +410,7 @@
       <classifier>features</classifier>
       <type>xml</type>
     </dependency>
+    -->
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>ovsdb-ui-bundle</artifactId>
