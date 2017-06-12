@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "1af78d9a_5ae24904",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-06-12T16:35:48Z",
+      "side": 1,
+      "message": "FYI suggested new best practice now is to just collapse this into the constructor, see https://wiki.opendaylight.org/view/BestPractices/DI_Guidelines#Guidelines",
+      "revId": "81cf1396871f0a6747b933aa1b1292eb0fa65b48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_3abadde1",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-06-12T16:35:48Z",
+      "side": 1,
+      "message": "its perhaps clearer when analysing problems in logs in the future if this is done after subscribe and says \"started\" instead of \"start\" ?",
+      "revId": "81cf1396871f0a6747b933aa1b1292eb0fa65b48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_b41f0609",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
         "patchSetId": 7
@@ -30,6 +64,108 @@
       "writtenOn": "2017-06-12T12:20:55Z",
       "side": 1,
       "message": "Nit: Looks like you changed the name of the function but did not update in this log stmt",
+      "revId": "81cf1396871f0a6747b933aa1b1292eb0fa65b48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_7ab465f2",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-06-12T16:35:48Z",
+      "side": 1,
+      "message": "perhaps clearer to simply name this subTransactions than *Objects?",
+      "revId": "81cf1396871f0a6747b933aa1b1292eb0fa65b48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_5ab9a9e8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-06-12T16:35:48Z",
+      "side": 1,
+      "message": "perhaps clearer to simply name this subTransactions than *Objects here as well?",
+      "revId": "81cf1396871f0a6747b933aa1b1292eb0fa65b48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_9acaf16c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-06-12T16:35:48Z",
+      "side": 1,
+      "message": "don\u0027t use the @Deprecated MDSALUtil.read() anymore but directly one of the SingleTransactionDataBroker methods",
+      "revId": "81cf1396871f0a6747b933aa1b1292eb0fa65b48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_fac7b562",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 869,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-06-12T16:35:48Z",
+      "side": 1,
+      "message": "name this parameter subTransactions?",
+      "revId": "81cf1396871f0a6747b933aa1b1292eb0fa65b48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_9a78312d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 887,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-06-12T16:35:48Z",
+      "side": 1,
+      "message": "I thought there was some serious performance issue with InetAddress.getByName() [it does, maybe only sometimes, quite unexpectedly, a reverse DNS?!] .. isn\u0027t there a better way to create the matches from the vrfEntry without converting through an intermediate java.net.InetAddress?",
+      "revId": "81cf1396871f0a6747b933aa1b1292eb0fa65b48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_1a944136",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-06-12T16:35:48Z",
+      "side": 1,
+      "message": "what\u0027s the intended use for this method? I\u0027m just wondering if this just return String or rather an... enum, perhaps?",
       "revId": "81cf1396871f0a6747b933aa1b1292eb0fa65b48",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -77,6 +213,40 @@
         "endLine": 143,
         "endChar": 78
       },
+      "revId": "81cf1396871f0a6747b933aa1b1292eb0fa65b48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_3ab65ddd",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-06-12T16:35:48Z",
+      "side": 1,
+      "message": "where is this called from?  Have you thought about possible concurrency issues?  I\u0027m wondering if a simpler design where you pass a fixed list of handlers during construction may not be best as simplest..",
+      "revId": "81cf1396871f0a6747b933aa1b1292eb0fa65b48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_faacd58e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-06-12T16:35:48Z",
+      "side": 1,
+      "message": "are you sure this is needed? Have you thought about possible concurrency issues? I\u0027m not fully understanding the design proposed here, yet (although we briefly spoke about it at the DDF together), but my guess is that you do not actually need to unRegisterVrfEntryHandler.. the registerVrfEntryHandler happens during start, from a fixed list, and it\u0027s not like you can really dynamically install additional such handler, or during runtime remove some (but not others), so.. I would probably keep this simpler - and just remove this remove method. Unless you have a real need for it which I\u0027m missing.",
       "revId": "81cf1396871f0a6747b933aa1b1292eb0fa65b48",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
