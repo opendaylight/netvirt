@@ -412,6 +412,7 @@
       <artifactId>ovsdb-ui-bundle</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!--
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>sfc.classifier-api</artifactId>
@@ -439,6 +440,7 @@
       <artifactId>sfc-provider</artifactId>
       <version>${sfc.version}</version>
     </dependency>
+    -->
     <dependency>
       <!-- TODO Remove when https://git.opendaylight.org/gerrit/#/c/44502/
         is merged -->
