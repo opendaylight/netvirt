@@ -33,13 +33,13 @@ public class QosAlertConfigListener  extends
         super(QosalertConfig.class, QosAlertConfigListener.class);
         this.dataBroker = dataBroker;
         this.qosAlertManager = qosAlertManager;
-        LOG.info("{} created",  getClass().getSimpleName());
+        LOG.debug("{} created",  getClass().getSimpleName());
     }
 
     @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-        LOG.info("{} init and registerListener done", getClass().getSimpleName());
+        LOG.debug("{} init and registerListener done", getClass().getSimpleName());
     }
 
     @Override
@@ -49,20 +49,20 @@ public class QosAlertConfigListener  extends
 
     @Override
     protected void remove(InstanceIdentifier<QosalertConfig> identifier, QosalertConfig del) {
-        LOG.info("QosalertConfig removed: {}", del);
+        LOG.debug("QosalertConfig removed: {}", del);
         qosAlertManager.restoreDefaultConfig();
     }
 
     @Override
     protected void update(InstanceIdentifier<QosalertConfig> identifier, QosalertConfig original,
                                                                                 QosalertConfig update) {
-        LOG.info("QosalertConfig changed to {}", update);
+        LOG.debug("QosalertConfig changed to {}", update);
         qosAlertManager.setQosalertConfig(update);
     }
 
     @Override
     protected void add(InstanceIdentifier<QosalertConfig> identifier, QosalertConfig add) {
-        LOG.info("QosalertConfig added {}", add);
+        LOG.debug("QosalertConfig added {}", add);
         qosAlertManager.setQosalertConfig(add);
     }
 
