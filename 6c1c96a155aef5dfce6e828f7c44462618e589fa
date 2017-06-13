@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1af78d9a_2d2bc483",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 23
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-13T10:26:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_d701ef3a",
+      "revId": "6c1c96a155aef5dfce6e828f7c44462618e589fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_f7f86b4b",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 23
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "1af78d9a_ed47fc49",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 23
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-13T10:26:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_f7f86b4b",
+      "revId": "6c1c96a155aef5dfce6e828f7c44462618e589fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_57bcdf6c",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 23
@@ -47,6 +83,24 @@
       "writtenOn": "2017-06-13T07:57:45Z",
       "side": 1,
       "message": "subnetmaps (lower case )",
+      "revId": "6c1c96a155aef5dfce6e828f7c44462618e589fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_cd67a0e9",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 23
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-13T10:26:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_57bcdf6c",
       "revId": "6c1c96a155aef5dfce6e828f7c44462618e589fa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
