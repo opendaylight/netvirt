@@ -1076,7 +1076,6 @@ public class BgpConfigurationManager {
                 String macaddress = val.getMacaddress();
                 EncapType encapType = val.getEncapType();
                 String routerMac = val.getRoutermac();
-                int afiInt = testValueAFI(pfxlen);
 
                 try {
                     br.addPrefix(rd, pfxlen, nh, lbl, l3vni, l2vni, BgpUtil.convertToThriftProtocolType(protocolType),
@@ -1109,7 +1108,6 @@ public class BgpConfigurationManager {
                 }
                 Long label = val.getLabel();
                 int lbl = label == null ? 0 : label.intValue();
-                int  afiInt = testValueAFI(pfxlen);
                 if (rd == null && lbl > 0) {
                     //LU prefix is being deleted.
                     rd = Integer.toString(lbl);
@@ -1634,7 +1632,6 @@ public class BgpConfigurationManager {
                 Iterator<Update> updates = routes.getUpdatesIterator();
                 while (updates.hasNext()) {
                     Update update = updates.next();
-                    Map<String, Map<String, Long>> staleFibRdMap = BgpConfigurationManager.getStaledFibEntriesMap();
                     String rd = update.getRd();
                     String nexthop = update.getNexthop();
 
