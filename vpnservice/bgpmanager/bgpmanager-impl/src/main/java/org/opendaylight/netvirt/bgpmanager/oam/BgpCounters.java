@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.bgpmanager.oam;
 
+import static org.opendaylight.netvirt.bgpmanager.BgpUtil.getAFItranslatedfromPrefix;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -181,16 +183,9 @@ public class BgpCounters extends TimerTask {
         if (ip == null || ip.equals("")) {
             return false;
         }
-        String reg = "";
 
-        if (afi == af_afi.AFI_IP) {
-            reg = "^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
-        } else {
-            reg = "\\A(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\\z";
-        }
-        Pattern pattern = Pattern.compile(reg);
-        Matcher matcher = pattern.matcher(ip);
-        return matcher.matches();
+        int afi_identified = getAFItranslatedfromPrefix(ip);
+        return (afi_identified == afi.getValue()? true: false);
     }
 
     /*
