@@ -10,6 +10,9 @@ package org.opendaylight.netvirt.bgpmanager;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,6 +31,7 @@ import org.opendaylight.genius.utils.batching.ActionableResource;
 import org.opendaylight.genius.utils.batching.ActionableResourceImpl;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.batching.ResourceHandler;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.encap_type;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.BgpControlPlaneType;
@@ -66,22 +70,21 @@ public class BgpUtil {
     /** get a translation from prefix ipv6 to afi<br>.
     * "ffff::1/128" sets afi as 2 because is an IPv6 value
     * @param argPrefix ip address as ipv4 or ipv6
-    * @return afi 1 for ipv4 2 for ipv2
+    * @return afi 1 for AFI_IP 2 for AFI_IPV6
     */
     public static int getAFItranslatedfromPrefix(String argPrefix) {
-        int retValue = 1;//default afiValue is 1 (= ipv4)
+        int retValue = af_afi.AFI_IP.getValue();//default afiValue is 1 (= ipv4)
         try {
-            if (argPrefix == null) {
-                return retValue;
+            InetAddress address = InetAddress.getByName(argPrefix);
+            if (address instanceof Inet6Address) {
+                retValue = af_afi.AFI_IPV6.getValue();
+            } else if (address instanceof Inet4Address) {
+                retValue = af_afi.AFI_IP.getValue();
             }
-            String ipValue =  argPrefix;
-            if (argPrefix.lastIndexOf("/") > 0) { /*then the prefix includes mask definition*/
-                ipValue =  argPrefix.substring(0, argPrefix.lastIndexOf("/"));
-            }
-            java.net.Inet6Address.getByName(ipValue);
         } catch (java.net.UnknownHostException e) {
-            /*if exception is catched then the prefix is not an IPv6*/
-            retValue = 1;//default afiValue is 1 (= ipv4)
+            /*if exception is catched then the prefix is not an IPv6 and IPv4*/
+            LOG.error("Unrecognized ip address ipAddress: {}", argPrefix);
+            retValue = af_afi.AFI_IP.getValue();//default afiValue is 1 (= ipv4)
         }
         return retValue;
     }

@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -26,8 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.TimerTask;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import javax.annotation.Nonnull;
 import javax.management.JMException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -177,20 +180,23 @@ public class BgpCounters extends TimerTask {
         }
     }
 
-    private static boolean validate(final String ip, af_afi afi) {
-        if (ip == null || ip.equals("")) {
+    private static boolean validate(@Nonnull final String ip, af_afi afi) {
+        if (ip.equals("")) {
             return false;
         }
-        String reg = "";
-
-        if (afi == af_afi.AFI_IP) {
-            reg = "^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
-        } else {
-            reg = "\\A(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\\z";
+        int identifiedAFI = 0;
+        try {
+            InetAddress address = InetAddress.getByName(ip);
+            if (address instanceof Inet6Address) {
+                identifiedAFI = af_afi.AFI_IPV6.getValue();
+            } else if (address instanceof Inet4Address) {
+                identifiedAFI = af_afi.AFI_IP.getValue();
+            }
+        } catch (java.net.UnknownHostException e) {
+            /*if exception is catched then the prefix is not an IPv6 and IPv4*/
+            LOG.error("Unrecognized ip address ipAddress: {}", ip);
         }
-        Pattern pattern = Pattern.compile(reg);
-        Matcher matcher = pattern.matcher(ip);
-        return matcher.matches();
+        return (identifiedAFI == afi.getValue() ? true : false);
     }
 
     /*
