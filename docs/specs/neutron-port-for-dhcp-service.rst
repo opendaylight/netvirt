@@ -53,7 +53,7 @@ The following components of the Openstack - ODL solution need to be enhanced to 
 port allocation for DHCP service.
 
 * Openstack ODL Mechanism Driver
-* OpenDaylight Controller (NetVirt VpnService)
+* OpenDaylight Controller (NetVirt VpnService/DHCP Service/Elan Service)
 We will review enhancements that will be made to each of the above components in following
 sections.
 
@@ -65,7 +65,7 @@ The following components within OpenDaylight Controller needs to be enhanced:
 * DHCP module
 * ELAN and L3VPN modules
 
-Opendaylight controller needs to preserve a Neutron port for every subnet so that DHCP proxy
+OpenDaylight controller needs to preserve a Neutron port for every subnet so that DHCP proxy
 service can be enabled in Openstack deployment. The Neutron port's device owner property is
 set to ``network:dhcp`` and uses this port for all outgoing DHCP messages. Since this port gets
 a distinct IP address and MAC address from the subnet, both problem-1 and problem-2 will be
@@ -95,15 +95,15 @@ Interface IP/MAC address and its subnet DHCP neutron port is created with IP/MAC
 
 .. code-block:: bash
 
-   LPort Dispatcher Table (17)=>ELAN ARP Check Table(47) => ARP Responder Group (5000) => ARP Responder Table (81)
+   LPort Dispatcher Table (17)=>ELAN ARP Check Table(43) => ARP Responder Group (5000) => ARP Responder Table (81) => Egress dispatcher Table(220)
 
-   cookie=0x8040000, duration=627.038s, table=17, n_packets=0, n_bytes=0, priority=6, metadata=0xc019a00000000000/0xffffff0000000000 actions=write_metadata:0xe019a01771000000/0xfffffffffffffffe,goto_table:47
-   cookie=0x1080000, duration=979.713s, table=47, n_packets=0, n_bytes=0, priority=100,arp,arp_tpa=30.0.0.1,arp_op=2 actions=CONTROLLER:65535,resubmit(,48)
-   cookie=0x1080000, duration=979.712s, table=47, n_packets=0, n_bytes=0, priority=100,arp,arp_op=1,,arp_tpa=30.0.0.1 actions=group:5000
-   cookie=0x1080000, duration=979.712s, table=47, n_packets=0, n_bytes=0, priority=100,arp,arp_op=1,,arp_tpa=30.0.0.4 actions=group:5000
-   cookie=0x8030000, duration=979.717s, table=47, n_packets=0, n_bytes=0, priority=0 actions=goto_table:48
-   cookie=0x262219a4, duration=312.151s, table=81, n_packets=0, n_bytes=0, priority=100,arp,metadata=0xe019a01771000000/0xffffff00fffffffe,arp_tpa=30.0.0.1,arp_op=1 actions=move:NXM_OF_ETH_SRC[]->NXM_OF_ETH_DST[],set_field:de:ad:be:ef:00:05->eth_src,load:0x2->NXM_OF_ARP_OP[], move:NXM_NX_ARP_SHA[]->NXM_NX_ARP_THA[],move:NXM_OF_ARP_SPA[]->NXM_OF_ARP_TPA[],load:0xdeadbeef0005->NXM_NX_ARP_SHA[],load:0x1e000001->NXM_OF_ARP_SPA[],load:0->NXM_OF_IN_PORT[],load:0x19a000->NXM_NX_REG6[],resubmit(,220)
-   cookie=0x262219a4, duration=312.151s, table=81, n_packets=0, n_bytes=0, priority=100,arp,metadata=0xe019a01771000000/0xffffff00fffffffe,arp_tpa=30.0.0.4,arp_op=1 actions=move:NXM_OF_ETH_SRC[]->NXM_OF_ETH_DST[],set_field:de:ad:be:ef:00:04->eth_src,load:0x2->NXM_OF_ARP_OP[], move:NXM_NX_ARP_SHA[]->NXM_NX_ARP_THA[],move:NXM_OF_ARP_SPA[]->NXM_OF_ARP_TPA[],load:0xdeadbeef0004->NXM_NX_ARP_SHA[],load:0x1e000001->NXM_OF_ARP_SPA[],load:0->NXM_OF_IN_PORT[],load:0x19a000->NXM_NX_REG6[],resubmit(,220)   
+   cookie=0x8040000, duration=627.038s, table=17, n_packets=0, n_bytes=0, priority=6, metadata=0xc019a00000000000/0xffffff0000000000 actions=write_metadata:0xc019a01771000000/0xfffffffffffffffe,goto_table:43
+   cookie=0x1080000, duration=979.713s, table=43, n_packets=0, n_bytes=0, priority=100,arp,arp_tpa=30.0.0.1,arp_op=2 actions=CONTROLLER:65535,resubmit(,48)
+   cookie=0x1080000, duration=979.712s, table=43, n_packets=0, n_bytes=0, priority=100,arp,arp_op=1,,arp_tpa=30.0.0.1 actions=group:5000
+   cookie=0x1080000, duration=979.712s, table=43, n_packets=0, n_bytes=0, priority=100,arp,arp_op=1,,arp_tpa=30.0.0.4 actions=group:5000
+   cookie=0x8030000, duration=979.717s, table=43, n_packets=0, n_bytes=0, priority=0 actions=goto_table:48
+   cookie=0x262219a4, duration=312.151s, table=81, n_packets=0, n_bytes=0, priority=100,arp,metadata=0xc019a000000/0xfffffffff000000,arp_tpa=30.0.0.1,arp_op=1 actions=move:NXM_OF_ETH_SRC[]->NXM_OF_ETH_DST[],set_field:de:ad:be:ef:00:05->eth_src,load:0x2->NXM_OF_ARP_OP[], move:NXM_NX_ARP_SHA[]->NXM_NX_ARP_THA[],move:NXM_OF_ARP_SPA[]->NXM_OF_ARP_TPA[],load:0xdeadbeef0005->NXM_NX_ARP_SHA[],load:0x1e000001->NXM_OF_ARP_SPA[],load:0->NXM_OF_IN_PORT[],load:0x19a000->NXM_NX_REG6[],resubmit(,220)
+   cookie=0x262219a4, duration=312.151s, table=81, n_packets=0, n_bytes=0, priority=100,arp,metadata=0xc019a000000/0xfffffffff000000,arp_tpa=30.0.0.4,arp_op=1 actions=move:NXM_OF_ETH_SRC[]->NXM_OF_ETH_DST[],set_field:de:ad:be:ef:00:04->eth_src,load:0x2->NXM_OF_ARP_OP[], move:NXM_NX_ARP_SHA[]->NXM_NX_ARP_THA[],move:NXM_OF_ARP_SPA[]->NXM_OF_ARP_TPA[],load:0xdeadbeef0004->NXM_NX_ARP_SHA[],load:0x1e000001->NXM_OF_ARP_SPA[],load:0->NXM_OF_IN_PORT[],load:0x19a000->NXM_NX_REG6[],resubmit(,220)   
 
    group_id=5000,type=all,bucket=actions=CONTROLLER:65535,bucket=actions=resubmit(,48),bucket=actions=resubmit(,81)
 
@@ -158,7 +158,7 @@ Not covered by this Design Document.
 
 Targeted Release
 ----------------
-Carbon.
+Nitrogen, Carbon
 
 Alternatives
 ------------
@@ -176,110 +176,91 @@ REST API
 
 Implementation
 ==============
-The programming of flow rules in Table 47 and 81 is handled in ELAN module and
+The programming of flow rules in Table 43 and Table 81 is handled in ELAN module and
 following APIs are exposed from ``IElanService`` so that L3VPN and DHCP modules can
-use it to program ARP responder table flow entries Gateway/Router Interface and
-DHCP port.
+use it to program ARP responder table flow entries Gateway/Router Interface, floating
+IPs and DHCP port.
 
 .. code-block:: bash
 
    void addArpResponderEntry(BigIneger dpId, String ingressInterfaceName,
-       String ipAddress, String macAddress);
+       String ipAddress, String macAddress, Optional<Integer> lportTag);
    void removeArpResponderEntry(BigIneger dpId, String ingressInterfaceName,
-       String ipAddress, String macAddress);
+       String ipAddress, String macAddress, Optional<Integer> lportTag);
 
-ELAN module updates existing ``forwarding-entries`` model to hold mac entries of differenty types.
-
-.. code-block:: none
-   :caption: elan.yang
-
-       grouping forwarding-entries {
-            description "Details of the MAC entries";
-
-            list mac-entry {
-              key "mac-address";
-              description "Details of a MAC address";
-              max-elements "unbounded";
-              min-elements "0";
-
-              leaf mac-address {
-                  type yang:phys-address;
-              }
-
-              leaf interface {
-                 type leafref {
-                     path "/if:interfaces/if:interface/if:name";
-                 }
-              }
-
-              leaf learned-timestamp {
-                type uint64;
-              }
-
-              leaf is-static-address {
-                type boolean;
-              }
-
-              leaf mac-owner {
-                  description "MAC owner type whether neutron-l2, neutron-l3, neutron-dhcp";
-                  type enumeration {
-                      enum "neutron-l2" {
-                          value 1;
-                      }
-                      enum "neutron-l3" {
-                          value 2;
-                      }
-                      enum "neutron-dhcp" {
-                          value 3;
-                      }
-                  }
-                  default "neutron-l2";
-              }
-            }
-          }
-
-``elan-state`` container is changed to have these special (gateway, router-interface, dhcp)
-forwarding-entries so that when ELAN footprint is added/removed on a particular compute
-node, the flow rules in ELAN ARP Check Table (47) and ARP Responder Table (81) can be
-updated accordingly.
+A new container is introduced to hold the network DHCP port information.
 
 .. code-block:: none
-   :caption: elan.yang
-
-      /* operational data stores */
-      container elan-state {
-        config false;
-        description
-          "operational state of elans.";
-
-        list elan {
-            key "name";
-            description "The list of interfaces on the device.";
-            max-elements "unbounded";
-            min-elements "0";
-            leaf name {
-                type string;
-                description
-                  "The name of the elan-instance.";
-            }
-            leaf-list elan-interfaces{
-                type leafref {
-                    path "/if:interfaces/if:interface/if:name";
+   :caption: dhcpservice-api.yang
+   
+        container network-dhcpport-data {
+            config true;
+            list network-to-dhcpport {
+                key "port-networkid";
+                leaf port-networkid {
+                    type string;
                 }
-                description "Interfaces connected to this elan instance.";
+                leaf port-name {
+                    type string;
+                }
+                leaf port-fixedip {
+                    type string;
+                }
+                leaf mac-address {
+                    type string;
+                }
             }
-            uses forwarding-entries;
         }
-      }
+		
+Add a new leaf node controller-dhcp-mode to dhcpservice-config.yang
+		
+.. code-block:: none
+   :caption: dhcpservice-api.yang
+ 
+        container dhcpservice-config {
+            leaf controller-dhcp-enabled {
+                description "Enable the dhcpservice on the controller";
+                type boolean;
+                default false;
+            }
+            leaf dhcp-dynamic-allocation-pool-enabled {
+                description "Enable dynamic allocation pool on controller dhcpservice";
+                type boolean;
+                default false;
+            }
+		    leaf controller-dhcp-mode {
+                description "Specify the controller DHCP mode to use Neutron port or Subnet gateway as DHCP server IP";
+                type enumeration {
+                    enum "neutronport";
+                    enum "subnetgw";
+                }
+                default "neutronport";
+            }
+        }
+
+Introduce a new parameter in dhcpservice-config.xml to identify if DHCP Neutron port or
+Subnet gateway will act as DHCP server IP for responding to discover/renew requests. The
+default value for this parameter will be neutronport.
+
+* controller-dhcp-mode
+		
+When the above parameter is set to neutronport and the ODL dhcp port is available its fixed IP
+will be used as the server IP to serve DHCP offer/renew requests for the virtual endpoints.
+If no DHCP port is available to controller we will flag an error to indicate DHCP service 
+failure for these VMs. The subnet gateway IP address will continue to be used as the server
+IP when the parameter parameter is set to subnetgw.
 
 Assignee(s)
 -----------
 
 Primary assignee:
-  TBD
+  Karthik Prasad <karthik.p@altencalsoftlabs.com>
+  Achuth Maniyedath <achuth.m@altencalsoftlabs.com>
+  Vijayalakshmi CN <vijayalakshmi.c@altencalsoftlabs.com>
 
 Other contributors:
    Dayavanti Gopal Kamath <dayavanti.gopal.kamath@ericsson.com>
+   Vivekanandan Narasimhan <n.vivekanandan@ericsson.com>
    Periyasamy Palanisamy <periyasamy.palanisamy@ericsson.com>
 
 Work Items
@@ -290,15 +271,6 @@ Dependencies
 
 Testing
 =======
-Capture details of testing that will need to be added.
-
-Unit Tests
-----------
-Appropriate UTs will be added for the new code coming in once framework is in place.
-
-Integration Tests
------------------
-There won't be any Integration tests provided for this feature.
 
 CSIT
 ----
@@ -310,3 +282,5 @@ This will require changes to User Guide and Developer Guide.
 
 References
 ==========
+
+* OpenStack Spec  - https://review.openstack.org/#/c/453160
