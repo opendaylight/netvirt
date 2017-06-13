@@ -46,9 +46,7 @@ public class BgpAlarms extends TimerTask {
 
                 bgpMgr.getBgpCounters().fetchCmdOutputs(BgpCounters.BGP_VPNV6_SUMMARY_FILE,
                         "show ip bgp vpnv6 all summary");
-                if (bgpMgr.getConfig() != null) {
-                    nbrList = bgpMgr.getConfig().getNeighbors();
-                }
+
                 BgpCounters.parseIpBgpVpnv6AllSummary(neighborStatusMap);
                 processNeighborStatusMap(neighborStatusMap, nbrList, neighborsRaisedAlarmStatusMap);
             }
