@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1af78d9a_37aae619",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-14T16:22:35Z",
+      "side": 0,
+      "message": "why was this removed?  \n\nThis is used by VPNEngine to remove a fibEntry via batched config transactions.",
+      "revId": "6a01861e40e080a5f1a5668bafec129fdb6dfb44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
