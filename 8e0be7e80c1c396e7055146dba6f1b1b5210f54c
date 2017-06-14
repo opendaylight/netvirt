@@ -264,6 +264,24 @@
     },
     {
       "key": {
+        "uuid": "1af78d9a_062502c2",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-14T10:29:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_74cabea2",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_b44a6625",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 21
@@ -387,6 +405,24 @@
     },
     {
       "key": {
+        "uuid": "1af78d9a_4606ea21",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-14T10:29:13Z",
+      "side": 1,
+      "message": "Yes, \"two-router\" solution is needed:\n\n1. we think, that there are existing configurations that use \"two-router\" solution\n\n2. we\u0027ve started to design dualstack support with exactly this solution, because it was initially brought to requirements. Is it still required ?\n\nAbout external connectivity: \n\nwhatever the solution: \"two-router\" or \"dualstack-router\", IPv6 North-South communication (using BGPVPN) will need enhancements,  that will be provisioned in spec \"Internet L3VPN connectivity using BGPVPN\".",
+      "parentUuid": "1af78d9a_fa8fb573",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_7acaa5a2",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 21
@@ -398,6 +434,24 @@
       "writtenOn": "2017-06-12T16:17:27Z",
       "side": 1,
       "message": "this is incorrect.. where is the same VPN instance?\n\nRouter 1 and Router 2 are their own unique INTERNAL VPN INSTANCES..\n\nIf Router 1 and Router 2 have to come under same VPN Instance, you have to explicitly associate both the routers into the same BGPVPN INSTANCE?  But why would you want to do that way if you ONLY want to solve the external access problem?",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_b120a69c",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-14T10:29:13Z",
+      "side": 1,
+      "message": "- If Router 1 and Router 2 have to come under same VPN Instance, you have to explicitly associate both the routers into the same BGPVPN INSTANCE?  - Yes, that is\n\n- But why would you want to do that way if you ONLY want to solve the external access problem?\n\nNo, here we don\u0027t want only to solve the external access problem, we also want to provide a support to a \"two-router\" solution, which was initially brought in requirements.",
+      "parentUuid": "1af78d9a_7acaa5a2",
       "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -555,6 +609,24 @@
       "writtenOn": "2017-06-12T16:17:27Z",
       "side": 1,
       "message": "Is this two router solution required for Inter DC access at all?\n\nThis use-case was primarily driven only for external network access, I beleive.  Plesae let me know if its not so!",
+      "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_f1aeaee6",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-06-14T10:29:13Z",
+      "side": 1,
+      "message": "we think, that there are existing configurations that use \"two-router\" solution.",
+      "parentUuid": "1af78d9a_5a2b6930",
       "revId": "8e0be7e80c1c396e7055146dba6f1b1b5210f54c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
