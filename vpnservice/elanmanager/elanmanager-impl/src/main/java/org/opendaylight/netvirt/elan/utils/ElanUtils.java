@@ -8,8 +8,6 @@
 package org.opendaylight.netvirt.elan.utils;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -17,9 +15,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,8 +24,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.commons.lang3.StringUtils;
-import org.opendaylight.controller.liblldp.NetUtils;
-import org.opendaylight.controller.liblldp.PacketException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -51,12 +45,8 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil.MdsalOp;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
-import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.genius.mdsalutil.packet.ARP;
-import org.opendaylight.genius.mdsalutil.packet.Ethernet;
-import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
@@ -64,8 +54,6 @@ import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.AdminStatus;
@@ -175,7 +163,6 @@ public class ElanUtils {
 
     private static Map<String, ElanInstance> elanInstanceLocalCache = new ConcurrentHashMap<>();
     private static Map<String, ElanInterface> elanInterfaceLocalCache = new ConcurrentHashMap<>();
-    private static Map<String, Set<DpnInterfaces>> elanInstancToDpnsCache = new ConcurrentHashMap<>();
 
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
@@ -2254,83 +2241,5 @@ public class ElanUtils {
         if (cause != null && cause instanceof TransactionCommitFailedException) {
             futures.add(Futures.immediateFailedCheckedFuture((TransactionCommitFailedException) cause));
         }
-    }
-
-    public static List<PhysAddress> getPhysAddress(List<String> macAddress) {
-        Preconditions.checkNotNull(macAddress, "macAddress cannot be null");
-        List<PhysAddress> physAddresses = new ArrayList<>();
-        for (String mac : macAddress) {
-            physAddresses.add(new PhysAddress(mac));
-        }
-        return physAddresses;
-    }
-
-    public Optional<IpAddress> getSourceIpV4Address(byte[] data) {
-        IPv4 ip = new IPv4();
-        try {
-            ip.deserialize(data, 0, data.length * NetUtils.NumBitsInAByte);
-        } catch (PacketException e) {
-            LOG.error("ip.deserialize throws exception  {}", e);
-            return Optional.absent();
-        }
-        return Optional.of(IpAddressBuilder.getDefaultInstance(Integer.toString(ip.getSourceAddress())));
-    }
-
-    public Optional<IpAddress> getSrcIpAddrFromArp(byte[] data) {
-        ARP arp = new ARP();
-        try {
-            arp.deserialize(data, 0, data.length * NetUtils.NumBitsInAByte);
-        } catch (PacketException e) {
-            LOG.error("ip.deserialize throws exception  {}", e);
-            return Optional.absent();
-        }
-        return Optional.of(IpAddressBuilder.getDefaultInstance(
-                NWUtil.toStringIpAddress(arp.getSenderProtocolAddress())));
-    }
-
-    public Optional<IpAddress> getSourceIpAddress(Ethernet ethernet, byte[] data) {
-        /*IPV6 is not yet present in genius, hence V6 case ignored*/
-        Optional<IpAddress> srcIpAddress = Optional.absent();
-        if (NwConstants.ETHTYPE_IPV4 == ethernet.getEtherType()) {
-            srcIpAddress = getSourceIpV4Address(data);
-        } else if (NwConstants.ETHTYPE_ARP == ethernet.getEtherType()) {
-            srcIpAddress = getSrcIpAddrFromArp(data);
-        }
-        return srcIpAddress;
-    }
-
-    public static <T> List<T> diffOf(List<T> orig, List<T> updated) {
-        if (isEmpty(orig)) {
-            return Collections.EMPTY_LIST;
-        }
-        List<T> diff = Lists.newArrayList(orig);
-        if (isNotEmpty(updated)) {
-            diff.removeAll(updated);
-        }
-        return diff;
-    }
-
-    public static boolean isEmpty(Collection collection) {
-        return collection == null || collection.isEmpty();
-    }
-
-    public static boolean isNotEmpty(Collection collection) {
-        return (!isEmpty(collection));
-    }
-
-    public static void setElanInstancToDpnsCache(Map<String, Set<DpnInterfaces>> elanInstancToDpnsCache) {
-        ElanUtils.elanInstancToDpnsCache = elanInstancToDpnsCache;
-    }
-
-    public static Set<DpnInterfaces> getElanInvolvedDPNsFromCache(String elanName) {
-        return elanInstancToDpnsCache.get(elanName);
-    }
-
-    public static void addDPNInterfaceToElanInCache(String elanName, DpnInterfaces dpnInterfaces) {
-        elanInstancToDpnsCache.computeIfAbsent(elanName, key -> new HashSet<>()).add(dpnInterfaces);
-    }
-
-    public static void removeDPNInterfaceFromElanInCache(String elanName, DpnInterfaces dpnInterfaces) {
-        elanInstancToDpnsCache.computeIfAbsent(elanName, key -> new HashSet<DpnInterfaces>()).remove(dpnInterfaces);
     }
 }

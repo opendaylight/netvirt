@@ -25,7 +25,6 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.clustering.ClusteringUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
-import org.opendaylight.netvirt.elanmanager.api.IL2gwService;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -46,16 +45,14 @@ public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2ga
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayListener.class);
     private final DataBroker dataBroker;
     private final ItmRpcService itmRpcService;
-    private final IL2gwService l2gwService;
     private final EntityOwnershipService entityOwnershipService;
 
     public L2GatewayListener(final DataBroker dataBroker, final EntityOwnershipService entityOwnershipService,
-                             ItmRpcService itmRpcService, IL2gwService l2gwService) {
+                             ItmRpcService itmRpcService) {
         super(L2gateway.class, L2GatewayListener.class);
         this.dataBroker = dataBroker;
         this.entityOwnershipService = entityOwnershipService;
         this.itmRpcService = itmRpcService;
-        this.l2gwService = l2gwService;
     }
 
     public void start() {
@@ -96,16 +93,50 @@ public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2ga
         LOG.trace("Updating L2gateway : key: {}, original value={}, update value={}", identifier, original, update);
     }
 
-    private synchronized void addL2Device(Devices l2Device, L2gateway input) {
-        String l2DeviceName = l2Device.getDeviceName();
-        L2GatewayDevice l2GwDevice = L2GatewayCacheUtils.updateCacheUponL2GatewayAdd(l2DeviceName, input.getUuid());
-        if (l2GwDevice.getHwvtepNodeId() == null) {
-            LOG.info("L2GW provisioning skipped for device {}",l2DeviceName);
+    private void addL2Device(Devices l2Device, L2gateway input) {
+        final String l2DeviceName = l2Device.getDeviceName();
+        L2GatewayDevice l2GwDevice = L2GatewayCacheUtils.getL2DeviceFromCache(l2DeviceName);
+        if (l2GwDevice != null) {
+            if (!L2GatewayUtils.isGatewayAssociatedToL2Device(l2GwDevice)
+                    && l2GwDevice.isConnected()) {
+                // VTEP already discovered; create ITM tunnels
+                final String hwvtepId = l2GwDevice.getHwvtepNodeId();
+                InstanceIdentifier<Node> iid = HwvtepSouthboundUtils.createInstanceIdentifier(new NodeId(hwvtepId));
+                ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
+                        entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                        HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
+                final Set<IpAddress> tunnelIps = l2GwDevice.getTunnelIps();
+                Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
+                    @Override
+                    public void onSuccess(Boolean isOwner) {
+                        if (isOwner) {
+                            LOG.info("Creating ITM Tunnels for {} connected to cluster node owner", l2DeviceName);
+                            for (IpAddress tunnelIp : tunnelIps) {
+                                L2GatewayUtils.createItmTunnels(itmRpcService, hwvtepId, l2DeviceName, tunnelIp);
+                            }
+                        } else {
+                            LOG.info("ITM Tunnels are not created on the cluster node as this is not owner for {}",
+                                    l2DeviceName);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Throwable error) {
+                        LOG.error("Failed to create ITM tunnels", error);
+                    }
+                });
+            } else {
+                LOG.trace("ITM tunnels are already created for device {}", l2DeviceName);
+            }
         } else {
-            LOG.info("Provisioning l2gw for device {}",l2DeviceName);
-            l2gwService.provisionItmAndL2gwConnection(l2GwDevice, l2DeviceName, l2GwDevice.getHwvtepNodeId(),
-                    l2GwDevice.getTunnelIp());
+            LOG.trace("{} is not connected; ITM tunnels will be created when device comes up", l2DeviceName);
+            // Pre-provision scenario. Create L2GatewayDevice without VTEP
+            // details for pushing configurations as soon as device discovered
+            l2GwDevice = new L2GatewayDevice();
+            l2GwDevice.setDeviceName(l2DeviceName);
+            L2GatewayCacheUtils.addL2DeviceToCache(l2DeviceName, l2GwDevice);
         }
+        l2GwDevice.addL2GatewayId(input.getUuid());
     }
 
     private void removeL2Device(Devices l2Device, L2gateway input) {
