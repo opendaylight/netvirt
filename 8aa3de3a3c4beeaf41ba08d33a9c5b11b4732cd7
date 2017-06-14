@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1af78d9a_0c9c0169",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-14T13:46:11Z",
+      "side": 1,
+      "message": "what purpose does this flow above serve for arp-responses?",
+      "revId": "8aa3de3a3c4beeaf41ba08d33a9c5b11b4732cd7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_4c8d6931",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-14T13:46:11Z",
+      "side": 1,
+      "message": "when did the lportag become 0xe0 from 0xc0 in L100 of table 17?",
+      "revId": "8aa3de3a3c4beeaf41ba08d33a9c5b11b4732cd7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_ac820dfe",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-14T13:46:11Z",
+      "side": 1,
+      "message": "Carbon.",
+      "revId": "8aa3de3a3c4beeaf41ba08d33a9c5b11b4732cd7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_2c20ddf6",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-14T13:46:11Z",
+      "side": 1,
+      "message": "fix pep8 issues.",
+      "revId": "8aa3de3a3c4beeaf41ba08d33a9c5b11b4732cd7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_6c7945fc",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-14T13:46:11Z",
+      "side": 1,
+      "message": "let us not have another boolean please :)\n\ncontroller-dhcp-mode would be a better attribute.",
+      "revId": "8aa3de3a3c4beeaf41ba08d33a9c5b11b4732cd7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_8c87510f",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-14T13:46:11Z",
+      "side": 1,
+      "message": "so i am not even an \u0027Other Contributor\u0027 :)",
+      "revId": "8aa3de3a3c4beeaf41ba08d33a9c5b11b4732cd7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
