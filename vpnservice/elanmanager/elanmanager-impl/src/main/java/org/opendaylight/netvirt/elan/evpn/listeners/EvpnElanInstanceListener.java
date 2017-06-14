@@ -69,9 +69,13 @@ public class EvpnElanInstanceListener extends AsyncDataTreeChangeListenerBase<El
         if (evpnUtils.isWithdrawEvpnRT2Routes(original, update)) {
             evpnUtils.withdrawEvpnRT2Routes(original.getAugmentation(EvpnAugmentation.class), elanName);
             evpnMacVrfUtils.updateEvpnDmacFlows(original, false);
+            LOG.info("Removing L2vni demux table flow");
+            evpnUtils.programEvpnL2vniDemuxTable(elanName, false);
         } else if (evpnUtils.isAdvertiseEvpnRT2Routes(original, update)) {
             evpnUtils.advertiseEvpnRT2Routes(update.getAugmentation(EvpnAugmentation.class), elanName);
             evpnMacVrfUtils.updateEvpnDmacFlows(update, true);
+            LOG.info("Adding L2vni demux flow");
+            evpnUtils.programEvpnL2vniDemuxTable(elanName, true);
         }
     }
 
