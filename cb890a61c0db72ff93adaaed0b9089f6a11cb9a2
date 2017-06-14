@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1af78d9a_11e41a3a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-14T10:38:04Z",
+      "side": 1,
+      "message": "you could remove if-else",
+      "revId": "cb890a61c0db72ff93adaaed0b9089f6a11cb9a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_51d50242",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1027,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-14T10:38:04Z",
+      "side": 1,
+      "message": "use Collections.emptyList()",
+      "revId": "cb890a61c0db72ff93adaaed0b9089f6a11cb9a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_b1ca669f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1695,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-14T10:38:04Z",
+      "side": 1,
+      "message": "same here and line no.1705",
+      "revId": "cb890a61c0db72ff93adaaed0b9089f6a11cb9a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
