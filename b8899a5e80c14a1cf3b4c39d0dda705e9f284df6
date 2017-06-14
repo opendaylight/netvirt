@@ -16,6 +16,23 @@
       "revId": "b8899a5e80c14a1cf3b4c39d0dda705e9f284df6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_e0509e60",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnManagerImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-14T05:59:47Z",
+      "side": 1,
+      "message": "arp responder flows for router-gateway-ip {} for router {}",
+      "revId": "b8899a5e80c14a1cf3b4c39d0dda705e9f284df6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
