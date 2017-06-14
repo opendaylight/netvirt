@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.elan.evpn.utils;
 import com.google.common.base.Optional;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -17,13 +18,35 @@ import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.itm.globals.ITMConstants;
+import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
+import org.opendaylight.genius.mdsalutil.InstructionInfo;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.NWUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
+import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.ExternalTunnelList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.external.tunnel.list.ExternalTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.DcGatewayIpList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.dc.gateway.ip.list.DcGatewayIp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetDpnEndpointIpsInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetDpnEndpointIpsOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
@@ -32,6 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.VrfEntryBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,16 +72,20 @@ public class EvpnUtils {
     private final IInterfaceManager interfaceManager;
     private final ElanUtils elanUtils;
     private final ItmRpcService itmRpcService;
+    private final IMdsalApiManager mdsalManager;
+
 
     private volatile IBgpManager bgpManager;
     private volatile IVpnManager vpnManager;
 
     public EvpnUtils(DataBroker broker, IInterfaceManager interfaceManager,
-                     ElanUtils elanUtils, ItmRpcService itmRpcService) {
+                     ElanUtils elanUtils, final IMdsalApiManager mdsalApiManager,
+                     ItmRpcService itmRpcService) {
         this.broker = broker;
         this.interfaceManager = interfaceManager;
         this.elanUtils = elanUtils;
         this.itmRpcService = itmRpcService;
+        this.mdsalManager = mdsalApiManager;
     }
 
     public void init() {
@@ -269,4 +297,156 @@ public class EvpnUtils {
         withdrawPrefix(elanInfo, macEntry.getIpPrefix().getIpv4Address().getValue());
     }
 
+    public static InstanceIdentifier<ExternalTunnelList> getExternaTunnelListIdentifier() {
+        return InstanceIdentifier
+                .builder(ExternalTunnelList.class).build();
+    }
+
+    public ExternalTunnelList getExternalTunnelList() {
+        InstanceIdentifier<ExternalTunnelList> externalTunnelListId = getExternaTunnelListIdentifier();
+        ExternalTunnelList externalTunnelList = null;
+        try {
+            externalTunnelList = elanUtils.read2(LogicalDatastoreType.CONFIGURATION,
+                    externalTunnelListId).orNull();
+        } catch (ReadFailedException e) {
+            LOG.error("getExternalTunnelList: unable to read ExternalTunnelList, exception ", e);
+        }
+        return externalTunnelList;
+    }
+
+    public static InstanceIdentifier<DcGatewayIpList> getDcGatewayIpListIdentifier() {
+        return InstanceIdentifier
+                .builder(DcGatewayIpList.class).build();
+    }
+
+    public DcGatewayIpList getDcGatewayIpList() {
+        InstanceIdentifier<DcGatewayIpList> dcGatewayIpListInstanceIdentifier = getDcGatewayIpListIdentifier();
+        DcGatewayIpList dcGatewayIpListConfig = null;
+        try {
+            dcGatewayIpListConfig = elanUtils.read2(LogicalDatastoreType.CONFIGURATION,
+                    dcGatewayIpListInstanceIdentifier).orNull();
+        } catch (ReadFailedException e) {
+            LOG.error("getDcGatewayTunnelInterfaceNameList: unable to read DcGatewayTunnelList, exception ", e);
+        }
+        return dcGatewayIpListConfig;
+    }
+
+    public List<String> getDcGatewayTunnelInterfaceNameList() {
+        final List<String> tunnelInterfaceNameList = new ArrayList<>();
+        DcGatewayIpList dcGatewayIpListConfig = getDcGatewayIpList();
+        if (dcGatewayIpListConfig == null) {
+            LOG.info("No DC gateways configured.");
+            return tunnelInterfaceNameList;
+        }
+        List<DcGatewayIp> dcGatewayIps = dcGatewayIpListConfig.getDcGatewayIp();
+
+        ExternalTunnelList externalTunnelList = getExternalTunnelList();
+        if (externalTunnelList == null) {
+            LOG.info("No External Tunnel Configured.");
+            return tunnelInterfaceNameList;
+        }
+        List<ExternalTunnel> externalTunnels = externalTunnelList.getExternalTunnel();
+
+        dcGatewayIps.stream()
+                .forEach(dcIp -> externalTunnels.stream()
+                .filter(externalTunnel -> externalTunnel.getDestinationDevice()
+                        .contains(dcIp.getIpAddress().getIpv4Address().toString()))
+                .forEach(externalTunnel -> tunnelInterfaceNameList.add(externalTunnel.getTunnelInterfaceName())));
+
+        return tunnelInterfaceNameList;
+    }
+
+    public void bindElanServiceToExternalTunnel(String elanName, String interfaceName) {
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        int instructionKey = 0;
+        LOG.trace("Binding external interface {} elan {}", interfaceName, elanName);
+        List<Instruction> instructions = new ArrayList<>();
+        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(
+                NwConstants.L2VNI_EXTERNAL_TUNNEL_DEMUX_TABLE, ++instructionKey));
+        short elanServiceIndex = ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX);
+        BoundServices serviceInfo = ElanUtils.getBoundServices(String.format("%s.%s.%s", "elan",
+                elanName, interfaceName), elanServiceIndex,
+                NwConstants.ELAN_SERVICE_INDEX, NwConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
+        InstanceIdentifier<BoundServices> bindServiceId = ElanUtils.buildServiceId(interfaceName, elanServiceIndex);
+        Optional<BoundServices> existingElanService = elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
+                bindServiceId);
+        if (!existingElanService.isPresent()) {
+            tx.put(LogicalDatastoreType.CONFIGURATION, bindServiceId, serviceInfo, true);
+            tx.submit();
+        }
+    }
+
+    public void unbindElanServiceFromExternalTunnel(String elanName, String interfaceName) {
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        LOG.trace("UnBinding external interface {} elan {}", interfaceManager, elanName);
+        short elanServiceIndex = ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX);
+        InstanceIdentifier<BoundServices> bindServiceId = ElanUtils.buildServiceId(interfaceName, elanServiceIndex);
+        Optional<BoundServices> existingElanService = elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
+                bindServiceId);
+        if (!existingElanService.isPresent()) {
+            tx.delete(LogicalDatastoreType.CONFIGURATION, bindServiceId);
+            tx.submit();
+        }
+    }
+
+    private List<InstructionInfo> getInstructionsForExtTunnelTable(Long elanTag) {
+        List<InstructionInfo> mkInstructions = new ArrayList<>();
+        mkInstructions.add(new InstructionWriteMetadata(ElanUtils.getElanMetadataLabel(elanTag), ElanUtils
+                .getElanMetadataMask()));
+        mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_DMAC_TABLE));
+        return mkInstructions;
+    }
+
+    private String getFlowRef(long tableId, long elanTag) {
+        return new StringBuffer().append(tableId).append(elanTag).toString();
+    }
+
+    private void programEvpnL2vniFlow(ElanInstance elanInfo, boolean isAdd) {
+        long elanTag = elanInfo.getElanTag();
+        String flowRef = getFlowRef(NwConstants.L2VNI_EXTERNAL_TUNNEL_DEMUX_TABLE, elanTag);
+        for (BigInteger dpnId: NWUtil.getOperativeDPNs(broker)) {
+            if (isAdd) {
+                LOG.debug("Adding tunnel flow to dpnid {}", dpnId);
+                List<MatchInfo> mkMatches = new ArrayList<>();
+                mkMatches.add(new MatchTunnelId(BigInteger.valueOf(elanInfo.getSegmentationId())));
+                List<InstructionInfo> instructions = getInstructionsForExtTunnelTable(elanTag);
+                FlowEntity flowEntity = MDSALUtil.buildFlowEntity(
+                        dpnId,
+                        NwConstants.L2VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,
+                        flowRef,
+                        5, // prio
+                        elanInfo.getElanInstanceName(), // flowName
+                        0, // idleTimeout
+                        0, // hardTimeout
+                        ITMConstants.COOKIE_ITM_EXTERNAL.add(BigInteger.valueOf(elanTag)),
+                        mkMatches,
+                        instructions);
+                mdsalManager.installFlow(dpnId, flowEntity);
+            } else {
+                LOG.debug("Removing tunnel flow from dpnid {}", dpnId);
+                FlowEntity flowEntity = new FlowEntityBuilder()
+                        .setDpnId(dpnId)
+                        .setTableId(NwConstants.L2VNI_EXTERNAL_TUNNEL_DEMUX_TABLE)
+                        .setFlowId(flowRef).build();
+                mdsalManager.removeFlow(flowEntity);
+            }
+        }
+    }
+
+    public void programEvpnL2vniDemuxTable(String elanName, boolean isAdd) {
+        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
+        List<String> tunnelInterfaceNameList = getDcGatewayTunnelInterfaceNameList();
+        if (tunnelInterfaceNameList.isEmpty()) {
+            LOG.info("No DC gateways tunnels.");
+            return;
+        }
+        for (String tunnelInterfaceName: tunnelInterfaceNameList) {
+            if (isAdd) {
+                bindElanServiceToExternalTunnel(elanName, tunnelInterfaceName);
+            } else {
+                unbindElanServiceFromExternalTunnel(elanName, tunnelInterfaceName);
+            }
+        }
+        programEvpnL2vniFlow(elanInfo, isAdd);
+    }
 }
