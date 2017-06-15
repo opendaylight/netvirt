@@ -186,7 +186,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             return;
         }
 
-        if (vmVpnInterface.getVpnInstanceName().get(0).equals(vpnIdVpnInstanceName)) {
+        if (vmVpnInterface.getVpnRouterIds().get(0).equals(vpnIdVpnInstanceName)) {
             LOG.trace("Unknown IP is in internal network");
             handlePacketToInternalNetwork(dstIp, dstIpStr, destinationAddress, elanTag);
         } else {
@@ -244,7 +244,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
 
     private void handlePacketToExternalNetwork(Uuid vpnInstanceNameUuid, VpnInterface vmVpnInterface, byte[] dstIp,
             long elanTag) throws UnknownHostException {
-        String routerId = vmVpnInterface.getVpnInstanceName().get(0);
+        String routerId = vmVpnInterface.getVpnRouterIds().get(0);
         Routers externalRouter = VpnUtil.getExternalRouter(dataBroker, routerId);
         if (externalRouter == null) {
             VpnManagerCounters.subnet_route_packet_failed.inc();
