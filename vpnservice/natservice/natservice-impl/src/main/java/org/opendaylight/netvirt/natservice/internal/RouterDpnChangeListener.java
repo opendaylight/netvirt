@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.natservice.internal;
 import com.google.common.base.Optional;
 
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -395,7 +396,7 @@ public class RouterDpnChangeListener
                 GroupEntity groupEntity = null;
                 try {
                     groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName,
-                        GroupTypes.GroupAll, null);
+                        GroupTypes.GroupAll, Collections.emptyList() /*listBucketInfo*/);
                     LOG.info("NAT Service : Removing NAPT GroupEntity:{}", groupEntity);
                     mdsalManager.removeGroup(groupEntity);
                 } catch (Exception ex) {
