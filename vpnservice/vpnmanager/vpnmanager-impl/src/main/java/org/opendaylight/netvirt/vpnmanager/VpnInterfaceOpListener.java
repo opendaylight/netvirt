@@ -71,7 +71,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
     protected void remove(final InstanceIdentifier<VpnInterface> identifier, final VpnInterface del) {
         final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
         final String interfaceName = key.getName();
-        final String vpnName = del.getVpnInstanceName().get(0);
+        final String vpnName = del.getVpnRouterIds().get(0);
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
             () -> {
@@ -87,7 +87,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
         WriteTransaction writeOperTxn) {
         final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
         String interfaceName = key.getName();
-        String vpnName = del.getVpnInstanceName().get(0);
+        String vpnName = del.getVpnRouterIds().get(0);
 
         LOG.info("VpnInterfaceOpListener removed: interface name {} vpnName {}", interfaceName, vpnName);
         //decrement the vpn interface count in Vpn Instance Op Data
@@ -136,7 +136,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                             VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(), pref.getIpAddress()),
                             VpnUtil.DEFAULT_CALLBACK);
                     }
-                    vpnFootprintService.updateVpnToDpnMapping(pref.getDpnId(), del.getVpnInstanceName().get(0),
+                    vpnFootprintService.updateVpnToDpnMapping(pref.getDpnId(), del.getVpnRouterIds().get(0),
                         interfaceName, null /*ipAddressSourceValuePair*/, false /* delete */);
                 }
             }
@@ -162,11 +162,11 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
         final String interfaceName = key.getName();
 
         LOG.info("VpnInterfaceOpListener updated: original {} updated {}", original, update);
-        if (original.getVpnInstanceName().get(0).equals(update.getVpnInstanceName().get(0))) {
+        if (original.getVpnRouterIds().get(0).equals(update.getVpnRouterIds().get(0))) {
             return;
         }
 
-        final String vpnName = update.getVpnInstanceName().get(0);
+        final String vpnName = update.getVpnRouterIds().get(0);
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
             () -> {
@@ -185,14 +185,14 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
                 .VpnInstance> origVpnInstance =
             VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                         VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(original.getVpnInstanceName().get(0)));
+                         VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(original.getVpnRouterIds().get(0)));
 
         if (origVpnInstance.isPresent()) {
             String rd = origVpnInstance.get().getVrfId();
 
             vpnInstOp = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
             LOG.trace("VpnInterfaceOpListener updated: interface name {} original rd {} original vpnName {}",
-                   interfaceName, rd, original.getVpnInstanceName().get(0));
+                   interfaceName, rd, original.getVpnRouterIds().get(0));
 
             Adjacencies adjs = original.getAugmentation(Adjacencies.class);
             List<Adjacency> adjList = (adjs != null) ? adjs.getAdjacency() : null;
@@ -216,7 +216,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                     }
                 }
                 for (Prefixes prefix : prefixToInterfaceList) {
-                    vpnFootprintService.updateVpnToDpnMapping(prefix.getDpnId(), original.getVpnInstanceName().get(0),
+                    vpnFootprintService.updateVpnToDpnMapping(prefix.getDpnId(), original.getVpnRouterIds().get(0),
                         interfaceName, null /*ipAddressSourceValuePair*/, false /* delete */);
                 }
             }
