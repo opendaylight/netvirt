@@ -528,7 +528,7 @@ public class NexthopManager implements AutoCloseable {
                 int newFlowrefCnt = nh.getFlowrefCount() - 1;
                 if (newFlowrefCnt == 0) { //remove the group only if there are no more flows using this group
                     GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
-                        dpnId, nh.getEgressPointer(), ipAddress, GroupTypes.GroupAll, null);
+                        dpnId, nh.getEgressPointer(), ipAddress, GroupTypes.GroupAll, Collections.EMPTY_LIST);
                     // remove Group ...
                     mdsalApiManager.removeGroup(groupEntity);
                     //update MD-SAL DS
