@@ -130,7 +130,7 @@ public class PolicyServiceFlowUtil {
         }
 
         GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpId, groupId, groupName, groupType,
-                Collections.emptyList());
+                Collections.emptyList() /*listBucketInfo*/);
         if (addOrRemove == NwConstants.ADD_FLOW) {
             LOG.debug("Add group {} to DPN {}", groupId, dpId);
             mdsalManager.addGroupToTx(groupEntity, tx);

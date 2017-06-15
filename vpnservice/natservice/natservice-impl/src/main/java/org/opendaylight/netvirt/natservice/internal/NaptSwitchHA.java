@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.natservice.internal;
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -473,7 +474,7 @@ public class NaptSwitchHA {
             GroupEntity groupEntity = null;
             try {
                 groupEntity = MDSALUtil.buildGroupEntity(naptSwitch, groupId, routerName,
-                        GroupTypes.GroupAll, null);
+                        GroupTypes.GroupAll, Collections.emptyList() /*listBucketInfo*/);
                 LOG.info("NAT Service : Removing NAPT Group in new naptSwitch {}", naptSwitch);
                 mdsalManager.removeGroup(groupEntity);
             } catch (Exception ex) {
