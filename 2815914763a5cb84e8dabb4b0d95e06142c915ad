@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1af78d9a_491d56bd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-06-15T05:29:36Z",
+      "side": 1,
+      "message": "I think this is *substantially* less readable than the old way of writing this. It is incredibly hard to visually parse the nesting because there is no indentation to help with that. Even in LISP, where these paradigms come from, it is customary to use indentation to show the levels of nesting.",
+      "revId": "2815914763a5cb84e8dabb4b0d95e06142c915ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_e98362ca",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-06-15T05:29:36Z",
+      "side": 1,
+      "message": "Nit and question: wouldn\u0027t it be good to have a util function for this?",
+      "range": {
+        "startLine": 367,
+        "startChar": 63,
+        "endLine": 368,
+        "endChar": 39
+      },
+      "revId": "2815914763a5cb84e8dabb4b0d95e06142c915ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
