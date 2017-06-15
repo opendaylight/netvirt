@@ -802,7 +802,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     .CONFIGURATION, vpnIfIdentifier);
             if (optionalVpnInterface.isPresent()) {
                 VpnInterfaceBuilder vpnIfBuilder = new VpnInterfaceBuilder(optionalVpnInterface.get())
-                                      .setVpnInstanceName(Arrays.asList(vpnId.getValue()));
+                                      .setVpnRouterIds(Arrays.asList(vpnId.getValue()));
                 LOG.debug("Updating vpn interface {}", infName);
                 if (!isBeingAssociated) {
                     Adjacencies adjs = vpnIfBuilder.getAugmentation(Adjacencies.class);
@@ -2328,7 +2328,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
         VpnInterfaceBuilder vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName))
                 .setName(infName)
-                .setVpnInstanceName(Arrays.asList(vpnId.getValue()))
+                .setVpnRouterIds(Arrays.asList(vpnId.getValue()))
                 .setRouterInterface(isRouterInterface);
         if (adjacencies != null) {
             vpnb.addAugmentation(Adjacencies.class, adjacencies);

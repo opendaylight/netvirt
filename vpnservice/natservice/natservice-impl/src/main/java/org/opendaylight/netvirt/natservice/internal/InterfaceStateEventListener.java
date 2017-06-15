@@ -236,7 +236,7 @@ public class InterfaceStateEventListener
             if (vpnInterface != null) {
                 //getVpnName
                 try {
-                    vpnName = vpnInterface.getVpnInstanceName().get(0);
+                    vpnName = vpnInterface.getVpnRouterIds().get(0);
                     LOG.debug("NAT Service : Retrieved VpnName {}", vpnName);
                 } catch (Exception e) {
                     LOG.error("NAT Service : Unable to get vpnname for vpninterface {} - {}", vpnInterface, e);
