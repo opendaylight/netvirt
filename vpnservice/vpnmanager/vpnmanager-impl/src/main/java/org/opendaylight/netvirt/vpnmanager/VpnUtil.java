@@ -204,7 +204,7 @@ public class VpnUtil {
 
     static VpnInterface getVpnInterface(String intfName, String vpnName, Adjacencies aug, BigInteger dpnId,
         Boolean isSheduledForRemove) {
-        return new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(intfName)).setVpnInstanceName(Arrays.asList(vpnName)).setDpnId(
+        return new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(intfName)).setVpnRouterIds(Arrays.asList(vpnName)).setDpnId(
             dpnId)
             .setScheduledForRemove(isSheduledForRemove).addAugmentation(Adjacencies.class, aug)
             .build();
@@ -724,7 +724,7 @@ public class VpnUtil {
             read(broker, LogicalDatastoreType.CONFIGURATION, interfaceId);
 
         if (optConfiguredVpnInterface.isPresent()) {
-            String configuredVpnName = optConfiguredVpnInterface.get().getVpnInstanceName().get(0);
+            String configuredVpnName = optConfiguredVpnInterface.get().getVpnRouterIds().get(0);
             if (configuredVpnName != null && configuredVpnName.equalsIgnoreCase(vpnName)) {
                 return true;
             }
@@ -1030,7 +1030,7 @@ public class VpnUtil {
         InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
         VpnInterface interfaceToUpdate =
             new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(interfaceName)).setName(interfaceName)
-                .setDpnId(dpnId).setVpnInstanceName(Arrays.asList(vpnInstanceName)).setScheduledForRemove(isScheduledToRemove).build();
+                .setDpnId(dpnId).setVpnRouterIds(Arrays.asList(vpnInstanceName)).setScheduledForRemove(isScheduledToRemove).build();
         if (writeOperTxn != null) {
             writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, interfaceId, interfaceToUpdate, true);
         } else {
@@ -1357,9 +1357,9 @@ public class VpnUtil {
 
     public static boolean isVpnIntfPresentInVpnToDpnList(DataBroker broker, VpnInterface vpnInterface) {
         BigInteger dpnId = vpnInterface.getDpnId();
-        String rd = VpnUtil.getVpnRd(broker, vpnInterface.getVpnInstanceName().get(0));
+        String rd = VpnUtil.getVpnRd(broker, vpnInterface.getVpnRouterIds().get(0));
         LOG.trace("GOT rd {} for VpnInterface {}  VpnInstance {} ", rd ,
-                   vpnInterface.getName(), vpnInterface.getVpnInstanceName().get(0));
+                   vpnInterface.getName(), vpnInterface.getVpnRouterIds().get(0));
         VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpDataFromCache(broker, rd);
         if (vpnInstanceOpData != null) {
             LOG.trace("GOT VpnInstanceOp {} for rd {} ", vpnInstanceOpData, rd);

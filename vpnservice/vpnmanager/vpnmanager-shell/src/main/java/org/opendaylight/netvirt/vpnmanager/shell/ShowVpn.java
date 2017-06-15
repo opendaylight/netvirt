@@ -59,21 +59,21 @@ public class ShowVpn extends OsgiCommandSupport {
         if (detail == null) {
             showVpn();
             for (VpnInterface vpnInterface : vpnInterfaceConfigList) {
-                ifPresent = instanceNameToConfigInterfaceMap.get(vpnInterface.getVpnInstanceName());
+                ifPresent = instanceNameToConfigInterfaceMap.get(vpnInterface.getVpnRouterIds().get(0));
                 if (ifPresent == null) {
-                    instanceNameToConfigInterfaceMap.put(vpnInterface.getVpnInstanceName().get(0), 1);
+                    instanceNameToConfigInterfaceMap.put(vpnInterface.getVpnRouterIds().get(0), 1);
                 } else {
-                    instanceNameToConfigInterfaceMap.put(vpnInterface.getVpnInstanceName().get(0),
-                            instanceNameToConfigInterfaceMap.get(vpnInterface.getVpnInstanceName()) + 1);
+                    instanceNameToConfigInterfaceMap.put(vpnInterface.getVpnRouterIds().get(0),
+                    instanceNameToConfigInterfaceMap.get(vpnInterface.getVpnRouterIds().get(0)) + 1);
                 }
             }
             for (VpnInterface vpnInterface : vpnInterfaceOperList) {
-                ifPresent = instanceNameToOperInterfaceMap.get(vpnInterface.getVpnInstanceName().get(0));
+                ifPresent = instanceNameToOperInterfaceMap.get(vpnInterface.getVpnRouterIds().get(0));
                 if (ifPresent == null) {
-                    instanceNameToOperInterfaceMap.put(vpnInterface.getVpnInstanceName().get(0), 1);
+                    instanceNameToOperInterfaceMap.put(vpnInterface.getVpnRouterIds().get(0), 1);
                 } else {
-                    instanceNameToOperInterfaceMap.put(vpnInterface.getVpnInstanceName().get(0),
-                    instanceNameToOperInterfaceMap.get(vpnInterface.getVpnInstanceName().get(0)) + 1);
+                    instanceNameToOperInterfaceMap.put(vpnInterface.getVpnRouterIds().get(0),
+                    instanceNameToOperInterfaceMap.get(vpnInterface.getVpnRouterIds().get(0)) + 1);
                 }
             }
             session.getConsole().println("-----------------------------------------------------------------------");
@@ -107,13 +107,13 @@ public class ShowVpn extends OsgiCommandSupport {
             showVpn();
             session.getConsole().println("Present Config VpnInterfaces are:");
             for (VpnInterface vpnInterface : vpnInterfaceConfigList) {
-                if (vpnInterface.getVpnInstanceName().equals(detail)) {
+                if (vpnInterface.getVpnRouterIds().get(0).equals(detail)) {
                     session.getConsole().println(vpnInterface.getName());
                 }
             }
             session.getConsole().println("Present Oper VpnInterfaces are:");
             for (VpnInterface vpnInterface : vpnInterfaceOperList) {
-                if (vpnInterface.getVpnInstanceName().equals(detail)) {
+                if (vpnInterface.getVpnRouterIds().get(0).equals(detail)) {
                     session.getConsole().println(vpnInterface.getName());
                 }
             }
