@@ -75,6 +75,7 @@
     init-method="init" destroy-method="close">
     <argument ref="dhcpExternalTunnelManager" />
     <argument ref="dataBroker" />
+    <argument ref="dhcpServiceConfig" />
   </bean>
 
   <bean id="dhcpUCastMacListener" class="org.opendaylight.netvirt.dhcpservice.DhcpUCastMacListener"
@@ -82,18 +83,21 @@
     <argument ref="dhcpManager" />
     <argument ref="dhcpExternalTunnelManager" />
     <argument ref="dataBroker" />
+    <argument ref="dhcpServiceConfig" />
   </bean>
 
   <bean id="dhcpNeutronPortListener" class="org.opendaylight.netvirt.dhcpservice.DhcpNeutronPortListener"
     init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="dhcpExternalTunnelManager" />
+    <argument ref="dhcpServiceConfig" />
   </bean>
 
   <bean id="dhcpDesignatedDpnListener" class="org.opendaylight.netvirt.dhcpservice.DhcpDesignatedDpnListener"
     init-method="init" destroy-method="close">
     <argument ref="dhcpExternalTunnelManager" />
     <argument ref="dataBroker" />
+    <argument ref="dhcpServiceConfig" />
   </bean>
 
   <bean id="dhcpSubnetListener" class="org.opendaylight.netvirt.dhcpservice.DhcpSubnetListener"
@@ -101,12 +105,14 @@
     <argument ref="dhcpManager" />
     <argument ref="dhcpExternalTunnelManager" />
     <argument ref="dataBroker" />
+    <argument ref="dhcpServiceConfig" />
   </bean>
 
   <bean id="dhcpHwvtepListener" class="org.opendaylight.netvirt.dhcpservice.DhcpHwvtepListener"
     init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="dhcpExternalTunnelManager" />
+    <argument ref="dhcpServiceConfig" />
   </bean>
 
 </blueprint>
