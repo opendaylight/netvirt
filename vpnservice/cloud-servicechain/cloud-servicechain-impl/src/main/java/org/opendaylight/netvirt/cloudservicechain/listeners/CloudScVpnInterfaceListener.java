@@ -58,7 +58,7 @@ public class CloudScVpnInterfaceListener
 
     @Override
     protected void remove(InstanceIdentifier<VpnInterface> key, VpnInterface vpnIfaceRemoved) {
-        String vpnName = vpnIfaceRemoved.getVpnInstanceName().get(0);
+        String vpnName = vpnIfaceRemoved.getVpnRouterIds().get(0);
         Optional<VpnToPseudoPortData> optScfInfoForVpn = vpnScHandler.getScfInfoForVpn(vpnName);
         if (!optScfInfoForVpn.isPresent()) {
             LOG.trace("Vpn {} is not related to ServiceChaining. No further action", vpnName);
@@ -75,7 +75,7 @@ public class CloudScVpnInterfaceListener
 
     @Override
     protected void add(InstanceIdentifier<VpnInterface> key, VpnInterface vpnIfaceAdded) {
-        String vpnName = vpnIfaceAdded.getVpnInstanceName().get(0);
+        String vpnName = vpnIfaceAdded.getVpnRouterIds().get(0);
         Optional<VpnToPseudoPortData> optScfInfoForVpn = vpnScHandler.getScfInfoForVpn(vpnName);
         if (!optScfInfoForVpn.isPresent()) {
             LOG.trace("Vpn {} is not related to ServiceChaining. No further action", vpnName);
