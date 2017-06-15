@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -270,7 +271,7 @@ public class NatTunnelInterfaceStateListener
                 GroupEntity groupEntity = null;
                 try {
                     groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName,
-                        GroupTypes.GroupAll, null);
+                        GroupTypes.GroupAll, Collections.emptyList() /*listBucketInfo*/);
                     LOG.info("NAT Service : SNAT -> Removing NAPT GroupEntity:{} on Dpn {}", groupEntity, dpnId);
                     mdsalManager.removeGroup(groupEntity);
                 } catch (Exception ex) {
