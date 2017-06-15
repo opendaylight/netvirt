@@ -34,6 +34,24 @@
       "revId": "6a01861e40e080a5f1a5668bafec129fdb6dfb44",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_1f137c5d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-15T10:53:14Z",
+      "side": 0,
+      "message": "This looks like you want to address race condition across multiple VPNInterfaces which are potentially nexthops to the same extra-route.\nWant to let you know we want the state of the VPN Engine adjacencies for an extra-route need to be maintained consistent alongside the equivalent FIBEntry representing the extra-route prefix.\n\nCan you please see if you can synchronize with the extra-route prefix from the caller of the removeOrUpdateFibEntry() from within the VPNEngin instead of removing the wrtConfigTxn altogether?",
+      "parentUuid": "1af78d9a_69065222",
+      "revId": "6a01861e40e080a5f1a5668bafec129fdb6dfb44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
