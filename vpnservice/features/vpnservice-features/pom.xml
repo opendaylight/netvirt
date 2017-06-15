@@ -20,7 +20,6 @@
   <properties>
     <configfile.directory>etc/opendaylight/karaf</configfile.directory>
     <dlux.version>0.6.0-SNAPSHOT</dlux.version>
-    <federation.version>0.3.0-SNAPSHOT</federation.version>
     <genius.version>0.3.0-SNAPSHOT</genius.version>
     <infrautils.version>1.2.0-SNAPSHOT</infrautils.version>
     <liblldp.version>0.13.0-SNAPSHOT</liblldp.version>
@@ -345,16 +344,6 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>federation-plugin-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>federation-plugin-impl</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.thrift</groupId>
       <artifactId>libthrift</artifactId>
       <version>0.9.1</version>
@@ -397,13 +386,6 @@
       <groupId>org.opendaylight.dlux</groupId>
       <artifactId>features-dlux</artifactId>
       <version>${dlux.version}</version>
-      <classifier>features</classifier>
-      <type>xml</type>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.federation</groupId>
-      <artifactId>federation-features</artifactId>
-      <version>${federation.version}</version>
       <classifier>features</classifier>
       <type>xml</type>
     </dependency>

@@ -25,7 +25,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
   <properties>
     <controller.mdsal.version>1.6.0-SNAPSHOT</controller.mdsal.version>
-    <federation.version>0.3.0-SNAPSHOT</federation.version>
     <genius.version>0.3.0-SNAPSHOT</genius.version>
     <infrautils.version>1.2.0-SNAPSHOT</infrautils.version>
     <model.bgp.version>2013.07.15.11-SNAPSHOT</model.bgp.version>
