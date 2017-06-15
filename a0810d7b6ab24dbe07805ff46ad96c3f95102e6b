@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1af78d9a_35e4993a",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-15T17:44:04Z",
+      "side": 1,
+      "message": "Yes right , table 43 to match only on arp request/reply",
+      "parentUuid": "1af78d9a_fae31e03",
+      "revId": "a0810d7b6ab24dbe07805ff46ad96c3f95102e6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_5af192cc",
         "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
         "patchSetId": 4
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "1af78d9a_d541d50c",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-15T17:44:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_5af192cc",
+      "revId": "a0810d7b6ab24dbe07805ff46ad96c3f95102e6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_fa1cbe15",
         "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
         "patchSetId": 4
@@ -47,6 +83,24 @@
       "writtenOn": "2017-06-15T14:35:28Z",
       "side": 1,
       "message": "I am not sure yet what this field is used for .. can you please clarify?",
+      "revId": "a0810d7b6ab24dbe07805ff46ad96c3f95102e6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_f5f5f1cb",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-15T17:44:04Z",
+      "side": 1,
+      "message": "From ODL doc,\na DHCP packet that is received by the odl, from a port that is managed by Netvirt and was configured using the netvirt API, rather then the neutron API, in a way that there is no pre-allocated IP for network interfaces behind that port - will be handled by the DHCP dynamic allocation pool",
+      "parentUuid": "1af78d9a_fa1cbe15",
       "revId": "a0810d7b6ab24dbe07805ff46ad96c3f95102e6b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -81,6 +135,24 @@
       "writtenOn": "2017-06-15T14:35:28Z",
       "side": 1,
       "message": "for the virtual endpoints on such subnets which are dhcp-enabled in openstack neutron.",
+      "revId": "a0810d7b6ab24dbe07805ff46ad96c3f95102e6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_753c6194",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-15T17:44:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_9ad3fa37",
       "revId": "a0810d7b6ab24dbe07805ff46ad96c3f95102e6b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
