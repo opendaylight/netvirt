@@ -11,14 +11,13 @@
 
   <reference id="fibManagerRef" interface="org.opendaylight.netvirt.fibmanager.api.IFibManager"
              availability="optional"/>
-  <reference id="dataBroker"
-             interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
-             odl:type="default"/>
+  <reference id="dataBrokerRef" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+             availability="optional"/>
   <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
 
     <command>
       <action class="org.opendaylight.netvirt.fibmanager.shell.ShowFibCommand">
-        <property name="dataBroker" ref="dataBroker"/>
+        <property name="dataBroker" ref="dataBrokerRef"/>
       </action>
     </command>
     <command>
