@@ -1033,7 +1033,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             vpnId, rd, vrfEntry, isExtraroute);
                     if (!dpnId.equals(BigInteger.ZERO)) {
                         nextHopManager.setupLoadBalancingNextHop(vpnId, dpnId,
-                                vrfEntry.getDestPrefix(), /*listBucketInfo*/ null, /*remove*/ false);
+                                vrfEntry.getDestPrefix(), /*listBucketInfo*/ Collections.emptyList(),
+                                /*remove*/ false);
                         returnLocalDpnId.add(dpnId);
                     }
                 } else {
@@ -1701,7 +1702,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (localDpnId != null && localDpnId != BigInteger.ZERO) {
             // localDpnId is not known when clean up happens for last vm for a vpn on a dpn
             if (extraRouteOptional.isPresent()) {
-                nextHopManager.setupLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix(), null , false);
+                nextHopManager.setupLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix(),
+                        null /*listBucketInfo*/, false);
             }
             deleteFibEntry(remoteDpnId, vpnId, vrfEntry, rd, tx);
             return;
