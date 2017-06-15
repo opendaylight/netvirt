@@ -16,6 +16,24 @@
       "revId": "6a01861e40e080a5f1a5668bafec129fdb6dfb44",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_69065222",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-06-15T06:52:01Z",
+      "side": 0,
+      "message": "This check has been removed only for the case where route paths \u003e 1, ie, the extaroutes. In case of completely removing the extra routes(with no-routes cmd) there are multiple calls to this method with each call updating the fibentry of the extraroute(its routepath). But we have to remove the fib entry for the extra route completely when the remove is called for the last routepath which didnt happen sometimes because of the routepaths not getting updated after delete(). So to ensure that they are getting removed before the next call to the removeorUpdateFibEntry(), syncDelete() is being used now.",
+      "parentUuid": "1af78d9a_37aae619",
+      "revId": "6a01861e40e080a5f1a5668bafec129fdb6dfb44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
