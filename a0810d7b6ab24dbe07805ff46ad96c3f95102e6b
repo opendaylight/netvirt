@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1af78d9a_fae31e03",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-15T14:35:28Z",
+      "side": 1,
+      "message": "arp replies are to be always punted.. why you should have a match on arp_tpa for them, it seems incorrect?",
+      "revId": "a0810d7b6ab24dbe07805ff46ad96c3f95102e6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_5af192cc",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-15T14:35:28Z",
+      "side": 1,
+      "message": "fix these excess whitespaces.",
+      "revId": "a0810d7b6ab24dbe07805ff46ad96c3f95102e6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_fa1cbe15",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-15T14:35:28Z",
+      "side": 1,
+      "message": "I am not sure yet what this field is used for .. can you please clarify?",
+      "revId": "a0810d7b6ab24dbe07805ff46ad96c3f95102e6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_3a1766ef",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-15T14:35:28Z",
+      "side": 1,
+      "message": "use-neutron-odl-dhcp-port\nuse-subnet-gateway-ip",
+      "revId": "a0810d7b6ab24dbe07805ff46ad96c3f95102e6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_9ad3fa37",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-15T14:35:28Z",
+      "side": 1,
+      "message": "for the virtual endpoints on such subnets which are dhcp-enabled in openstack neutron.",
+      "revId": "a0810d7b6ab24dbe07805ff46ad96c3f95102e6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
