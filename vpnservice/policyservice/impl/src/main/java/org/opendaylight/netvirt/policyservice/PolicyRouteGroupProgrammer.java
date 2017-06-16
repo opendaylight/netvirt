@@ -65,9 +65,9 @@ public class PolicyRouteGroupProgrammer {
 
         coordinator.enqueueJob(policyClassifier, () -> {
             WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-            remoteDpIds.forEach(remoteDpId -> {
-                programPolicyClassifierGroups(policyClassifier, localDpIds, remoteDpId, tx, addOrRemove);
-            });
+            remoteDpIds.forEach(
+                remoteDpId -> programPolicyClassifierGroups(policyClassifier, localDpIds, remoteDpId, tx,
+                            addOrRemove));
             return Collections.singletonList(tx.submit());
         });
     }

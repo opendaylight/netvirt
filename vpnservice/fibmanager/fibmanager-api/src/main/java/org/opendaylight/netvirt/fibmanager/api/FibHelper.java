@@ -123,7 +123,7 @@ public class FibHelper {
             return Collections.EMPTY_LIST;
         }
         return routePaths.stream()
-                .map(routePath -> routePath.getNexthopAddress())
+                .map(RoutePaths::getNexthopAddress)
                 .collect(Collectors.toList());
     }
 

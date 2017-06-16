@@ -134,30 +134,24 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                             operation, protocol, packetReceived, false);
                         LOG.trace("NAT Service : First Packet IN Queue Size : {}",
                                 ((ThreadPoolExecutor)firstPacketExecutorService).getQueue().size());
-                        firstPacketExecutorService.execute(new Runnable() {
-                            public void run() {
-                                naptEventHandler.handleEvent(naptEntryEvent);
-                            }
-                        });
+                        firstPacketExecutorService.execute(() -> naptEventHandler.handleEvent(naptEntryEvent));
                     } else {
                         LOG.trace("NAT Service : Packet already processed");
                         NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress, portNumber, routerId,
                             operation, protocol, packetReceived, true);
                         LOG.trace("NAT Service : Retry Packet IN Queue Size : {}",
                                 ((ThreadPoolExecutor)retryPacketExecutorService).getQueue().size());
-                        retryPacketExecutorService.execute(new Runnable() {
-                            public void run() {
-                                NatPacketProcessingState state = INCOMING_PACKET_MAP.get(sourceIPPortKey);
-                                long firstPacketInTime = state.getFirstPacketInTime();
-                                long flowInstalledTime = state.getFlowInstalledTime();
-                                if (flowInstalledTime == -1
-                                        && (System.currentTimeMillis() - firstPacketInTime) > 10000) {
-                                    LOG.trace("NAT Service : Flow not installed even after 10sec.Drop Packet");
-                                    removeIncomingPacketMap(sourceIPPortKey);
-                                    return;
-                                }
-                                naptEventHandler.handleEvent(naptEntryEvent);
+                        retryPacketExecutorService.execute(() -> {
+                            NatPacketProcessingState state = INCOMING_PACKET_MAP.get(sourceIPPortKey);
+                            long firstPacketInTime = state.getFirstPacketInTime();
+                            long flowInstalledTime = state.getFlowInstalledTime();
+                            if (flowInstalledTime == -1
+                                    && (System.currentTimeMillis() - firstPacketInTime) > 10000) {
+                                LOG.trace("NAT Service : Flow not installed even after 10sec.Drop Packet");
+                                removeIncomingPacketMap(sourceIPPortKey);
+                                return;
                             }
+                            naptEventHandler.handleEvent(naptEntryEvent);
                         });
                     }
                 } else {

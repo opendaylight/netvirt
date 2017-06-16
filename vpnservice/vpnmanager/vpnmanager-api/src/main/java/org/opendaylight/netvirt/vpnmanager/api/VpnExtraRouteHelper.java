@@ -94,7 +94,7 @@ public class VpnExtraRouteHelper {
         InstanceIdentifier<DestPrefixes> usedRdsId = getUsedRdsIdentifier(vpnId, destPrefix);
         Optional<DestPrefixes> usedRds = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, usedRdsId);
         return usedRds.isPresent() ? usedRds.get().getAllocatedRds().stream()
-                .map(rd -> rd.getRd()).distinct().collect(toList()) : new ArrayList<String>();
+                .map(AllocatedRds::getRd).distinct().collect(toList()) : new ArrayList<>();
     }
 
     public static  InstanceIdentifier<DestPrefixes> getUsedRdsIdentifier(long vpnId, String destPrefix) {

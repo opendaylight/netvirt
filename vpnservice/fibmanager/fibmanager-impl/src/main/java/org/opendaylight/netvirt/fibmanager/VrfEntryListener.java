@@ -1546,10 +1546,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             makeConnectedRoute(curDpn.getDpnId(), vpnInstance.getVpnId(), vrfEntry,
                                 vrfTableKey.getRouteDistinguisher(), null, NwConstants.DEL_FLOW, tx);
                             if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
-                                optionalLabel.ifPresent(label -> {
-                                    makeLFibTableEntry(curDpn.getDpnId(), label, null,
-                                            DEFAULT_FIB_FLOW_PRIORITY, NwConstants.DEL_FLOW, tx);
-                                });
+                                optionalLabel.ifPresent(label -> makeLFibTableEntry(curDpn.getDpnId(), label, null,
+                                        DEFAULT_FIB_FLOW_PRIORITY, NwConstants.DEL_FLOW, tx));
                             }
                         }
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
@@ -2280,7 +2278,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
         FibHelper.sortIpAddress(routePaths);
         List<AdjacencyResult> adjacencyList = new ArrayList<>();
-        List<String> prefixIpList = new ArrayList<>();
+        List<String> prefixIpList;
         LOG.trace("resolveAdjacency called with remotedDpnId {}, vpnId{}, VrfEntry {}",
             remoteDpnId, vpnId, vrfEntry);
         try {
@@ -2292,17 +2290,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     prefixIpList = Collections.singletonList(vrfEntry.getDestPrefix());
                 } else {
                     List<String> prefixIpListLocal = new ArrayList<>();
-                    vpnExtraRoutes.stream().forEach(route -> {
-                        route.getNexthopIpList().stream().forEach(extraRouteIp -> {
-                            String ipPrefix;
-                            if (isIpv4Address(extraRouteIp)) {
-                                ipPrefix = extraRouteIp + NwConstants.IPV4PREFIX;
-                            } else {
-                                ipPrefix = extraRouteIp + NwConstants.IPV6PREFIX;
-                            }
-                            prefixIpListLocal.add(ipPrefix);
-                        });
-                    });
+                    vpnExtraRoutes.forEach(route -> route.getNexthopIpList().forEach(extraRouteIp -> {
+                        prefixIpListLocal.add(extraRouteIp + (isIpv4Address(extraRouteIp) ? NwConstants.IPV4PREFIX
+                                : NwConstants.IPV6PREFIX));
+                    }));
                     prefixIpList = prefixIpListLocal;
                 }
             } else {
@@ -2667,7 +2658,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         // ECMP Use case, point to LB group. Move the mpls label accordingly.
         List<String> tunnelList =
                 adjacencyResults.stream()
-                .map(adjacencyResult -> adjacencyResult.getNextHopIp())
+                .map(AdjacencyResult::getNextHopIp)
                 .sorted().collect(toList());
         String lbGroupKey = FibUtil.getGreLbGroupKey(tunnelList);
         long groupId = nextHopManager.createNextHopPointer(lbGroupKey);

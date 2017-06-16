@@ -59,6 +59,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg2;
@@ -348,7 +349,6 @@ public class VpnServiceChainUtils {
         LOG.trace("programLFibEntriesForSCF:  dpId={}  lportTag={}  addOrRemove={}", dpId, lportTag, addOrRemove);
         if (vrfEntries != null) {
             vrfEntries.forEach(vrfEntry -> vrfEntry.getRoutePaths()
-                    .stream()
                     .forEach(routePath -> {
                         Long label = routePath.getLabel();
                         String nextHop = routePath.getNexthopAddress();
@@ -512,7 +512,7 @@ public class VpnServiceChainUtils {
             return dpnToVpns.stream()
                             .filter(dpn -> dpn.getVpnInterfaces() != null)
                             .flatMap(dpn -> dpn.getVpnInterfaces().stream())
-                            .map(vpnIf -> vpnIf.getInterfaceName())
+                            .map(VpnInterfaces::getInterfaceName)
                             .collect(Collectors.toList());
         } catch (ReadFailedException e) {
             LOG.warn("getAllVpnInterfaces for vpn {}: Failure on read operation", vpnName, e);

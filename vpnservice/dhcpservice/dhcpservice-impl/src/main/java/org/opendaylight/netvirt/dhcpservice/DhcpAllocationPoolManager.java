@@ -45,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
@@ -137,7 +138,7 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
         }
 
         return elanDpnIfacesOpc.get().getDpnInterfaces().stream()
-                .collect(Collectors.toMap(x -> x.getDpId(), x -> x.getInterfaces()));
+                .collect(Collectors.toMap(DpnInterfaces::getDpId, DpnInterfaces::getInterfaces));
     }
 
     public AllocationPool getAllocationPoolByPort(String portUuid) {

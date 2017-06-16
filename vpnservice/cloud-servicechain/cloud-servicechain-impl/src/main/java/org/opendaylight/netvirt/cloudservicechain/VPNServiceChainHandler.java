@@ -160,7 +160,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
                     } else {
                         mdsalManager.removeFlow(dpnId, flow);
                     }
-                    dpnInVpn.getVpnInterfaces().stream().forEach(vpnIf -> {
+                    dpnInVpn.getVpnInterfaces().forEach(vpnIf -> {
                         if (addOrRemove == NwConstants.ADD_FLOW) {
                             bindScfOnVpnInterface(vpnIf.getInterfaceName(), (int) scfTag);
                         } else {

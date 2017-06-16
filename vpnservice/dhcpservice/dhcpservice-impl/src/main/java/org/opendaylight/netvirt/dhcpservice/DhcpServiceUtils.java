@@ -292,16 +292,16 @@ public class DhcpServiceUtils {
     static IpAddress convertIntToIp(int ipn) {
         String[] array = IntStream.of(24, 16, 8, 0) //
                 .map(x -> (ipn >> x) & 0xFF).boxed() //
-                .map(x -> String.valueOf(x)) //
-                .toArray(x -> new String[x]);
+                .map(String::valueOf) //
+                .toArray(String[]::new);
         return new IpAddress(String.join(".", array).toCharArray());
     }
 
     static IpAddress convertLongToIp(long ip) {
         String[] array = LongStream.of(24, 16, 8, 0) //
                 .map(x -> (ip >> x) & 0xFF).boxed() //
-                .map(x -> String.valueOf(x)) //
-                .toArray(x -> new String[x]);
+                .map(String::valueOf) //
+                .toArray(String[]::new);
         return new IpAddress(String.join(".", array).toCharArray());
     }
 

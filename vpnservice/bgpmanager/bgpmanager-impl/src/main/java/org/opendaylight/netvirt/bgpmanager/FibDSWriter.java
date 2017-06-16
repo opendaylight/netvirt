@@ -112,10 +112,8 @@ public class FibDSWriter {
         builder.setGatewayMacAddress(gatewayMac);
         Long lbl = encapType.equals(VrfEntry.EncapType.Mplsgre) ? label : null;
         List<RoutePaths> routePaths = nextHopList.stream()
-                        .filter(nextHop -> nextHop != null && !nextHop.isEmpty())
-                        .map(nextHop -> {
-                            return FibHelper.buildRoutePath(nextHop, lbl);
-                        }).collect(Collectors.toList());
+                        .filter(StringUtils::isNotEmpty)
+                        .map(nextHop -> FibHelper.buildRoutePath(nextHop, lbl)).collect(Collectors.toList());
         builder.setRoutePaths(routePaths);
     }
 
@@ -127,9 +125,7 @@ public class FibDSWriter {
         builder.setL2vni(l2vni);
         List<RoutePaths> routePaths = nextHopList.stream()
                 .filter(StringUtils::isNotEmpty)
-                .map(nextHop -> {
-                    return FibHelper.buildRoutePath(nextHop, null);
-                }).collect(Collectors.toList());
+                .map(nextHop -> FibHelper.buildRoutePath(nextHop, null)).collect(Collectors.toList());
         builder.setRoutePaths(routePaths);
     }
 
@@ -188,7 +184,7 @@ public class FibDSWriter {
                 }
             } else {
                 routePaths.stream()
-                    .map(routePath -> routePath.getNexthopAddress())
+                    .map(RoutePaths::getNexthopAddress)
                     .filter(nextHopAddress -> nextHopAddress.equals(nextHop))
                     .findFirst()
                     .ifPresent(nh -> {

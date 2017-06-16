@@ -223,7 +223,7 @@ public class TransportZoneNotificationUtil {
 
         Set<String> zonePrefixes = new HashSet<>();
         Map<String, List<String>> tepTzMap = tunnelEndPoints.stream().collect(Collectors
-                .toMap(tep -> String.valueOf(tep.getIpAddress().getValue()), tep -> getTepTransportZoneNames(tep)));
+                .toMap(tep -> String.valueOf(tep.getIpAddress().getValue()), this::getTepTransportZoneNames));
         LOG.trace("Transport zone prefixes {}", tepTzMap);
 
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
@@ -241,12 +241,10 @@ public class TransportZoneNotificationUtil {
         }
 
         LOG.debug("Added local_ips {} on DPN {}", addedEntries.keySet(), dpId);
-        addedEntries.forEach((ipAddress, underlayNetworkName) -> {
-            zonePrefixes.forEach(zonePrefix -> {
-                String zoneName = getTzNameForUnderlayNetwork(zonePrefix, underlayNetworkName);
-                updateTransportZone(zoneName, dpId, ipAddress, tx);
-            });
-        });
+        addedEntries.forEach((ipAddress, underlayNetworkName) -> zonePrefixes.forEach(zonePrefix -> {
+            String zoneName = getTzNameForUnderlayNetwork(zonePrefix, underlayNetworkName);
+            updateTransportZone(zoneName, dpId, ipAddress, tx);
+        }));
     }
 
     private void handleChangedLocalIps(Map<String, ValueDifference<String>> changedEntries, BigInteger dpId,
@@ -305,7 +303,7 @@ public class TransportZoneNotificationUtil {
             return Collections.emptyList();
         }
 
-        return tzMembershipList.stream().map(tzMembership -> tzMembership.getZoneName()).distinct()
+        return tzMembershipList.stream().map(TzMembership::getZoneName).distinct()
                 .collect(Collectors.toList());
     }
 

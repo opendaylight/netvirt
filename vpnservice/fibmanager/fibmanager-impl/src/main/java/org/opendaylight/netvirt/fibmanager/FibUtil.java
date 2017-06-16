@@ -365,9 +365,7 @@ public class FibUtil {
         Long lbl = encapType.equals(VrfEntry.EncapType.Mplsgre) ? label : null;
         List<RoutePaths> routePaths = nextHopList.stream()
                         .filter(nextHop -> nextHop != null && !nextHop.isEmpty())
-                        .map(nextHop -> {
-                            return FibHelper.buildRoutePath(nextHop, lbl);
-                        }).collect(toList());
+                        .map(nextHop -> FibHelper.buildRoutePath(nextHop, lbl)).collect(toList());
         builder.setRoutePaths(routePaths);
     }
 
@@ -533,9 +531,7 @@ public class FibUtil {
         }
         return routePaths.stream()
                 .filter(routePath -> routePath.getNexthopAddress().equals(nextHopIp))
-                .findFirst()
-                .map(routePath -> java.util.Optional.of(routePath.getLabel()))
-                .orElse(java.util.Optional.empty());
+                .findFirst().map(RoutePaths::getLabel);
     }
 
     public static InstanceIdentifier<Interface> buildStateInterfaceId(String interfaceName) {
