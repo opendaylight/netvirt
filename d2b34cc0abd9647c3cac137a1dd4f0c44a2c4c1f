@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1af78d9a_4b6c269d",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-16T09:31:51Z",
+      "side": 1,
+      "message": "do you need this variable?",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_0b721e7c",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-16T09:31:51Z",
+      "side": 1,
+      "message": "available for subnet {} for port {}",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_8b056ec4",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-16T09:31:51Z",
+      "side": 1,
+      "message": "continue running DHCP Server by hijacking the subnet-gateway-ip",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_ab14aaf5",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/resources/initial/netvirt-dhcpservice-config.xml",
+        "patchSetId": 19
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-16T09:31:51Z",
+      "side": 1,
+      "message": "see two \u0027t\u0027 in the end.",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_0bf97ec8",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/java/org/opendaylight/netvirt/elanmanager/api/IElanService.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-16T09:31:51Z",
+      "side": 1,
+      "message": "is there a reason why you removed \u0027final\u0027 ?",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
