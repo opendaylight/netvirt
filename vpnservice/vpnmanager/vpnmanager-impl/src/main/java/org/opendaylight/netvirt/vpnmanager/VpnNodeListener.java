@@ -13,7 +13,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -111,22 +110,19 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     private void processNodeAdd(BigInteger dpId) {
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         dataStoreCoordinator.enqueueJob("VPNNODE-" + dpId.toString(),
-            new Callable<List<ListenableFuture<Void>>>() {
-                @Override
-                public List<ListenableFuture<Void>> call() throws Exception {
-                    WriteTransaction writeFlowTx = broker.newWriteOnlyTransaction();
-                    LOG.debug("Received notification to install TableMiss entries for dpn {} ", dpId);
-                    makeTableMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
-                    makeL3IntfTblMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
-                    makeSubnetRouteTableMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
-                    createTableMissForVpnGwFlow(writeFlowTx, dpId);
-                    createArpRequestMatchFlowForGwMacTable(writeFlowTx, dpId);
-                    createArpResponseMatchFlowForGwMacTable(writeFlowTx, dpId);
-                    programTableMissForVpnVniDemuxTable(writeFlowTx, dpId, NwConstants.ADD_FLOW);
-                    List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
-                    futures.add(writeFlowTx.submit());
-                    return futures;
-                }
+            () -> {
+                WriteTransaction writeFlowTx = broker.newWriteOnlyTransaction();
+                LOG.debug("Received notification to install TableMiss entries for dpn {} ", dpId);
+                makeTableMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
+                makeL3IntfTblMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
+                makeSubnetRouteTableMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
+                createTableMissForVpnGwFlow(writeFlowTx, dpId);
+                createArpRequestMatchFlowForGwMacTable(writeFlowTx, dpId);
+                createArpResponseMatchFlowForGwMacTable(writeFlowTx, dpId);
+                programTableMissForVpnVniDemuxTable(writeFlowTx, dpId, NwConstants.ADD_FLOW);
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                futures.add(writeFlowTx.submit());
+                return futures;
             });
     }
 

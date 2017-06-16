@@ -113,7 +113,7 @@ public class SubnetVpnAssociationManager
     private void updateSubnetVpnAssociation(String subnetName, String vpnName) {
         LOG.debug("Updating {} ingress plugins on subnet vpn association for subnet {} and vpn {}",
                 pluginMgr.getIngressPlugins().size(), subnetName, vpnName);
-        pluginMgr.getIngressPlugins().values().stream()
+        pluginMgr.getIngressPlugins().values()
                 .forEach((plugin) -> plugin.subnetVpnAssociationUpdated(subnetName, vpnName));
     }
 

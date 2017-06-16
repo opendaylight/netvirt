@@ -177,8 +177,9 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     protected void updateArpForAllowedAddressPairs(BigInteger dpId, int lportTag, List<AllowedAddressPairs> deletedAAP,
             List<AllowedAddressPairs> addedAAP) {
         Set<MacAddress> deletedAAPmacs =
-                deletedAAP.stream().map(aap -> aap.getMacAddress()).collect(Collectors.toSet());
-        Set<MacAddress> addedAAPmacs = addedAAP.stream().map(aap -> aap.getMacAddress()).collect(Collectors.toSet());
+                deletedAAP.stream().map(AllowedAddressPairs::getMacAddress).collect(Collectors.toSet());
+        Set<MacAddress> addedAAPmacs =
+                addedAAP.stream().map(AllowedAddressPairs::getMacAddress).collect(Collectors.toSet());
 
         // Remove common macs to avoid delete and add of ARP flows having same MAC.
         deletedAAPmacs.removeAll(addedAAPmacs);
@@ -403,7 +404,8 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     protected void programArpRule(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses, int lportTag,
             int addOrRemove) {
         // Collecting macs as a set to avoid duplicate
-        Set<MacAddress> macs = allowedAddresses.stream().map(aap -> aap.getMacAddress()).collect(Collectors.toSet());
+        Set<MacAddress> macs =
+                allowedAddresses.stream().map(AllowedAddressPairs::getMacAddress).collect(Collectors.toSet());
         programArpRule(dpId, macs, lportTag, addOrRemove);
     }
 
