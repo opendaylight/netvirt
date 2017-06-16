@@ -747,9 +747,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             vpnExtraRoutes.stream().forEach(extraRoute -> {
                 Prefixes localNextHopInfoLocal = FibUtil.getPrefixToInterface(dataBroker,
                         vpnId, extraRoute.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX);
-                BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfoLocal, localNextHopInfoLocal.getIpAddress(),
-                        vpnId, rd, vrfEntry, vpnId, extraRoute, vpnExtraRoutes);
-                returnLocalDpnId.add(dpnId);
+                if (localNextHopInfoLocal != null) {
+                    BigInteger dpnId =
+                            checkCreateLocalFibEntry(localNextHopInfoLocal, localNextHopInfoLocal.getIpAddress(),
+                                    vpnId, rd, vrfEntry, vpnId, extraRoute, vpnExtraRoutes);
+                    returnLocalDpnId.add(dpnId);
+                }
             });
             if (localNextHopInfo == null) {
             /* imported routes case */
