@@ -9,6 +9,8 @@ package org.opendaylight.netvirt.fibmanager;
 
 import static java.util.stream.Collectors.toList;
 
+import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
@@ -719,8 +721,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 for (String nextHopIp : extraRoute.getNexthopIpList()) {
                     LOG.debug("NextHop IP for destination {} is {}", vrfEntry.getDestPrefix(), nextHopIp);
                     if (nextHopIp != null) {
-                        localNextHopInfo = FibUtil.getPrefixToInterface(broker, vpnId, nextHopIp
-                                + NwConstants.IPV4PREFIX);
+                        String ipPrefix;
+                        if (isIpv4Address(nextHopIp)) {
+                            ipPrefix = nextHopIp + NwConstants.IPV4PREFIX;
+                        } else {
+                            ipPrefix = nextHopIp + NwConstants.IPV6PREFIX;
+                        }
+                        localNextHopInfo = FibUtil.getPrefixToInterface(broker, vpnId, ipPrefix);
                         if (localNextHopInfo != null) {
                             returnLocalDpnId.add(localNextHopInfo.getDpnId());
                         }
@@ -745,8 +752,14 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     vpnName, usedRds, localNextHopIP);
             //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
             vpnExtraRoutes.stream().forEach(extraRoute -> {
+                String ipPrefix;
+                if (isIpv4Address(extraRoute.getNexthopIpList().get(0))) {
+                    ipPrefix = extraRoute.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX;
+                } else {
+                    ipPrefix = extraRoute.getNexthopIpList().get(0) + NwConstants.IPV6PREFIX;
+                }
                 Prefixes localNextHopInfoLocal = FibUtil.getPrefixToInterface(dataBroker,
-                        vpnId, extraRoute.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX);
+                        vpnId, ipPrefix);
                 BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfoLocal, localNextHopInfoLocal.getIpAddress(),
                         vpnId, rd, vrfEntry, vpnId, extraRoute, vpnExtraRoutes);
                 returnLocalDpnId.add(dpnId);
@@ -827,7 +840,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             //The loadbalancing group is created only if the extra route has multiple nexthops
             //to avoid loadbalancing the discovered routes
             if (vpnExtraRoutes != null) {
-                localNextHopIP = routes.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX;
+                if (isIpv4Address(routes.getNexthopIpList().get(0))) {
+                    localNextHopIP = routes.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX;
+                } else {
+                    localNextHopIP = routes.getNexthopIpList().get(0) + NwConstants.IPV6PREFIX;
+                }
                 if (vpnExtraRoutes.size() > 1) {
                     groupId = nextHopManager.createNextHopGroups(parentVpnId, rd, dpnId, vrfEntry, routes,
                             vpnExtraRoutes);
@@ -1025,8 +1042,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             if (extraRouteOptional.isPresent()) {
                 isExtraroute = true;
                 Routes extraRoute = extraRouteOptional.get();
-                localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId,
-                        extraRoute.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX);
+                String ipPrefix;
+                if (isIpv4Address(extraRoute.getNexthopIpList().get(0))) {
+                    ipPrefix = extraRoute.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX;
+                } else {
+                    ipPrefix = extraRoute.getNexthopIpList().get(0) + NwConstants.IPV6PREFIX;
+                }
+                localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, ipPrefix);
                 if (localNextHopInfo != null) {
                     String localNextHopIP = localNextHopInfo.getIpAddress();
                     BigInteger dpnId = checkDeleteLocalFibEntry(localNextHopInfo, localNextHopIP,
@@ -1334,8 +1356,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 for (String nextHopIp : extraRoute.getNexthopIpList()) {
                     LOG.debug("NextHop IP for destination {} is {}", vrfEntry.getDestPrefix(), nextHopIp);
                     if (nextHopIp != null) {
-                        prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, nextHopIp
-                                + NwConstants.IPV4PREFIX);
+                        String ipPrefix;
+                        if (isIpv4Address(nextHopIp)) {
+                            ipPrefix = nextHopIp + NwConstants.IPV4PREFIX;
+                        } else {
+                            ipPrefix = nextHopIp + NwConstants.IPV6PREFIX;
+                        }
+                        prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, ipPrefix);
                         checkCleanUpOpDataForFib(prefixInfo, vpnId, primaryRd, vrfEntry, extraRoute);
                     }
                 }
@@ -2260,7 +2287,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     List<String> prefixIpListLocal = new ArrayList<>();
                     vpnExtraRoutes.stream().forEach(route -> {
                         route.getNexthopIpList().stream().forEach(extraRouteIp -> {
-                            prefixIpListLocal.add(extraRouteIp + NwConstants.IPV4PREFIX);
+                            String ipPrefix;
+                            if (isIpv4Address(extraRouteIp)) {
+                                ipPrefix = extraRouteIp + NwConstants.IPV4PREFIX;
+                            } else {
+                                ipPrefix = extraRouteIp + NwConstants.IPV6PREFIX;
+                            }
+                            prefixIpListLocal.add(ipPrefix);
                         });
                     });
                     prefixIpList = prefixIpListLocal;
@@ -2394,19 +2427,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             .child(VrfTables.class, new VrfTablesKey(rd))
             .child(VrfEntry.class, new VrfEntryKey(ipPrefix)).build();
         return vrfEntryId;
-    }
-
-    protected Boolean isIpv4Address(String ipAddress) {
-        try {
-            InetAddress address = InetAddress.getByName(ipAddress);
-            if (address instanceof Inet4Address) {
-                return true;
-            }
-        } catch (UnknownHostException e) {
-            LOG.warn("Invalid ip address {}", ipAddress, e);
-            return false;
-        }
-        return false;
     }
 
     protected Boolean installRouterFibEntries(final VrfEntry vrfEntry, final Collection<VpnToDpnList> vpnToDpnList,

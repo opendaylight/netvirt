@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.fibmanager;
 
+import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
@@ -798,9 +800,13 @@ public class NexthopManager implements AutoCloseable {
             VrfEntry vrfEntry, Routes routes) {
         List<BucketInfo> listBucketInfo = new CopyOnWriteArrayList<>();
         routes.getNexthopIpList().parallelStream().forEach(nextHopIp -> {
-            String localNextHopIP = nextHopIp + NwConstants.IPV4PREFIX;
-            Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, nextHopIp
-                    + NwConstants.IPV4PREFIX);
+            String localNextHopIP;
+            if (isIpv4Address(nextHopIp)) {
+                localNextHopIP = nextHopIp + NwConstants.IPV4PREFIX;
+            } else {
+                localNextHopIP = nextHopIp + NwConstants.IPV6PREFIX;
+            }
+            Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, localNextHopIP);
             if (localNextHopInfo != null) {
                 long groupId = getLocalNextHopGroup(vpnId, localNextHopIP);
                 if (groupId == FibConstants.INVALID_GROUP_ID) {
@@ -824,7 +830,12 @@ public class NexthopManager implements AutoCloseable {
         Map<String, List<ActionInfo>> egressActionMap = new HashMap<>();
         vpnExtraRoutes.stream().forEach(vpnExtraRoute -> vpnExtraRoute.getNexthopIpList()
                 .stream().forEach(nextHopIp -> {
-                    String nextHopPrefixIp = nextHopIp + NwConstants.IPV4PREFIX;
+                    String nextHopPrefixIp;
+                    if (isIpv4Address(nextHopIp)) {
+                        nextHopPrefixIp = nextHopIp + NwConstants.IPV4PREFIX;
+                    } else {
+                        nextHopPrefixIp = nextHopIp + NwConstants.IPV6PREFIX;
+                    }
                     List<String> tepIpAddresses = FibUtil.getNextHopAddresses(dataBroker, rd, nextHopPrefixIp);
                     if (tepIpAddresses.isEmpty()) {
                         return;
