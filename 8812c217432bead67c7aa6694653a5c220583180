@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1af78d9a_d09f2302",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-16T08:03:40Z",
+      "side": 1,
+      "message": "since there is no vpnmetadata carried now in OF-Metadata as per this flow, how will you be able to discover IP Addresses.  You should explain that here.",
+      "revId": "8812c217432bead67c7aa6694653a5c220583180",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_30f9474e",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-16T08:03:40Z",
+      "side": 1,
+      "message": "fix trailing whitespace here.",
+      "revId": "8812c217432bead67c7aa6694653a5c220583180",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_f0505f60",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-16T08:03:40Z",
+      "side": 1,
+      "message": "flow entries for Router Interface , Router Gateway, FloatingIP , and DHCP ports.",
+      "revId": "8812c217432bead67c7aa6694653a5c220583180",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_10024b3e",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-16T08:03:40Z",
+      "side": 1,
+      "message": "fix unnecessary tabs here.",
+      "revId": "8812c217432bead67c7aa6694653a5c220583180",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_304b07b2",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-16T08:03:40Z",
+      "side": 1,
+      "message": "wukk be \u0027use-odl-dhcp-neutron-port\u0027",
+      "revId": "8812c217432bead67c7aa6694653a5c220583180",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_10db6bee",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-16T08:03:40Z",
+      "side": 1,
+      "message": "when this parameter is set to \u0027use-subnet-gateway-ip\u0027",
+      "revId": "8812c217432bead67c7aa6694653a5c220583180",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
