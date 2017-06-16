@@ -287,7 +287,7 @@ public class ElanBridgeManager implements IElanBridgeManager {
                     otherConfigs = Lists.newArrayList();
                 }
 
-                if (!otherConfigs.stream().anyMatch(otherConfig ->
+                if (otherConfigs.stream().noneMatch(otherConfig ->
                             otherConfig.getBridgeOtherConfigKey().equals(OTHER_CONFIG_DATAPATH_ID))) {
                     String dpIdVal = dpId.getValue().replace(":", "");
                     otherConfigs.add(new BridgeOtherConfigsBuilder()
@@ -304,7 +304,7 @@ public class ElanBridgeManager implements IElanBridgeManager {
             }
         }
 
-        if (!otherConfigs.stream().anyMatch(otherConfig ->
+        if (otherConfigs.stream().noneMatch(otherConfig ->
                 otherConfig.getBridgeOtherConfigKey().equals(OTHER_CONFIG_DISABLE_IN_BAND))) {
             otherConfigs.add(new BridgeOtherConfigsBuilder()
                             .setBridgeOtherConfigKey(OTHER_CONFIG_DISABLE_IN_BAND)

@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.policyservice.util;
 import com.google.common.base.Optional;
 
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -236,25 +237,23 @@ public class PolicyServiceUtil {
             LOG.debug("No underlay networks found for policy classifier {}", policyClassifier);
         }
 
-        underlayNetworks.forEach(underlayNetwork -> {
-            coordinator.enqueueJob(underlayNetwork, () -> {
-                WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-                InstanceIdentifier<
-                        org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks
-                        .underlay.network.PolicyProfile> identifier = getUnderlayNetworkPolicyClassifierIdentifier(
-                                policyClassifier, underlayNetwork);
+        underlayNetworks.forEach(underlayNetwork -> coordinator.enqueueJob(underlayNetwork, () -> {
+            WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+            InstanceIdentifier<
+                    org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.policy.rev170207.underlay.networks
+                    .underlay.network.PolicyProfile> identifier = getUnderlayNetworkPolicyClassifierIdentifier(
+                            policyClassifier, underlayNetwork);
 
-                if (isAdded) {
-                    tx.merge(LogicalDatastoreType.OPERATIONAL, identifier,
-                            new PolicyProfileBuilder().setPolicyClassifier(policyClassifier).build(), true);
-                    LOG.info("Add policy classifier {} to underlay network {}", policyClassifier, underlayNetwork);
-                } else {
-                    tx.delete(LogicalDatastoreType.OPERATIONAL, identifier);
-                    LOG.info("Remove policy classifier {} from underlay network {}", policyClassifier, underlayNetwork);
-                }
-                return Collections.singletonList(tx.submit());
-            });
-        });
+            if (isAdded) {
+                tx.merge(LogicalDatastoreType.OPERATIONAL, identifier,
+                        new PolicyProfileBuilder().setPolicyClassifier(policyClassifier).build(), true);
+                LOG.info("Add policy classifier {} to underlay network {}", policyClassifier, underlayNetwork);
+            } else {
+                tx.delete(LogicalDatastoreType.OPERATIONAL, identifier);
+                LOG.info("Remove policy classifier {} from underlay network {}", policyClassifier, underlayNetwork);
+            }
+            return Collections.singletonList(tx.submit());
+        }));
     }
 
     public void updateAclRuleForPolicyClassifier(String policyClassifier, String aclName, String ruleName,
@@ -289,7 +288,7 @@ public class PolicyServiceUtil {
             return Collections.emptyList();
         }
 
-        return underlayNetworks.stream().map(t -> getUnderlayNetworkRemoteDpns(t)).flatMap(t -> t.stream()).distinct()
+        return underlayNetworks.stream().map(this::getUnderlayNetworkRemoteDpns).flatMap(Collection::stream).distinct()
                 .collect(Collectors.toList());
     }
 
@@ -302,31 +301,19 @@ public class PolicyServiceUtil {
     }
 
     public static boolean dpnToInterfacesContainsDpn(List<DpnToInterface> dpnToInterfaces, BigInteger dpId) {
-        if (dpnToInterfaces == null) {
-            return false;
-        }
-
-        return dpnToInterfaces.stream().filter(dpnToInterface -> dpnToInterface.getDpId().equals(dpId)).findFirst()
-                .isPresent();
+        return dpnToInterfaces != null && dpnToInterfaces.stream().anyMatch(
+            dpnToInterface -> dpnToInterface.getDpId().equals(dpId));
     }
 
     public static boolean dpnToInterfacesContainsRemoteDpn(List<DpnToInterface> dpnToInterfaces, BigInteger dpId) {
-        if (dpnToInterfaces == null) {
-            return false;
-        }
-
-        return dpnToInterfaces.stream().filter(dpnToInterface -> dpnToInterfaceContainsRemoteDpn(dpnToInterface, dpId))
-                .findFirst().isPresent();
+        return dpnToInterfaces != null && dpnToInterfaces.stream().anyMatch(
+            dpnToInterface -> dpnToInterfaceContainsRemoteDpn(dpnToInterface, dpId));
     }
 
     public static boolean dpnToInterfaceContainsRemoteDpn(DpnToInterface dpnToInterface, BigInteger dpId) {
         List<TunnelInterface> tunnelInterfaces = dpnToInterface.getTunnelInterface();
-        if (tunnelInterfaces == null) {
-            return false;
-        }
-
-        return tunnelInterfaces.stream().filter(tunnelInterface -> tunnelInterface.getRemoteDpId().equals(dpId))
-                .findFirst().isPresent();
+        return tunnelInterfaces != null && tunnelInterfaces.stream().anyMatch(
+            tunnelInterface -> tunnelInterface.getRemoteDpId().equals(dpId));
     }
 
     public String getTunnelUnderlayNetwork(BigInteger dpId, IpAddress tunnelIp) {
@@ -345,7 +332,7 @@ public class PolicyServiceUtil {
             return Collections.emptyList();
         }
 
-        return dpnToInterfaces.stream().map(t -> t.getDpId()).collect(Collectors.toList());
+        return dpnToInterfaces.stream().map(DpnToInterface::getDpId).collect(Collectors.toList());
     }
 
     public static List<BigInteger> getRemoteDpnsFromDpnToInterfaces(List<DpnToInterface> dpnToInterfaces) {
@@ -353,8 +340,8 @@ public class PolicyServiceUtil {
             return Collections.emptyList();
         }
 
-        return dpnToInterfaces.stream().map(dpnToInterface -> getRemoteDpnsFromDpnToInterface(dpnToInterface))
-                .flatMap(t -> t.stream()).distinct().collect(Collectors.toList());
+        return dpnToInterfaces.stream().map(PolicyServiceUtil::getRemoteDpnsFromDpnToInterface)
+                .flatMap(Collection::stream).distinct().collect(Collectors.toList());
     }
 
     public static List<BigInteger> getRemoteDpnsFromDpnToInterface(DpnToInterface dpnToInterface) {
@@ -363,7 +350,7 @@ public class PolicyServiceUtil {
             return Collections.emptyList();
         }
 
-        return tunnelInterfaces.stream().map(tunnelInterface -> tunnelInterface.getRemoteDpId())
+        return tunnelInterfaces.stream().map(TunnelInterface::getRemoteDpId)
                 .collect(Collectors.toList());
     }
 
@@ -372,7 +359,7 @@ public class PolicyServiceUtil {
             return Collections.emptyList();
         }
 
-        return policyRoutes.stream().map(policyRoute -> policyRoute.getRoute())
+        return policyRoutes.stream().map(PolicyRoute::getRoute)
                 .filter(route -> route instanceof BasicRoute).map(route -> ((BasicRoute) route).getNetworkName())
                 .collect(Collectors.toList());
     }

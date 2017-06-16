@@ -1572,7 +1572,7 @@ public class VpnUtil {
             return Collections.emptyList();
         }
 
-        return externalIps.stream().map(externalIp -> externalIp.getIpAddress()).collect(Collectors.toList());
+        return externalIps.stream().map(ExternalIps::getIpAddress).collect(Collectors.toList());
     }
 
     static void bindService(final String vpnInstanceName, final String interfaceName, DataBroker dataBroker,

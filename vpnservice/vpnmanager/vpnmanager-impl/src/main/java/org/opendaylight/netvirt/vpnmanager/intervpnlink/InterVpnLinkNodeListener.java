@@ -100,7 +100,7 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
         List<InterVpnLinkDataComposite> allInterVpnLinks = InterVpnLinkCache.getAllInterVpnLinks();
         allInterVpnLinks.stream()
                         .filter(ivl -> ivl.stepsOnDpn(dpId))           // Only those affected by DPN going down
-                        .forEach(ivl -> reinstallInterVpnLink(ivl));   // Move them somewhere else
+                        .forEach(this::reinstallInterVpnLink);         // Move them somewhere else
     }
 
     private void reinstallInterVpnLink(InterVpnLinkDataComposite ivl) {

@@ -137,7 +137,7 @@ public class VrfListener extends AsyncDataTreeChangeListenerBase<VrfEntry, VrfLi
         }
 
         return vrfRoutePaths.stream()
-                            .filter(rPath -> rPath.getLabel() != null).map(rPath -> rPath.getLabel())
+                            .filter(rPath -> rPath.getLabel() != null).map(RoutePaths::getLabel)
                             .distinct().sorted().collect(Collectors.toList());
     }
 
