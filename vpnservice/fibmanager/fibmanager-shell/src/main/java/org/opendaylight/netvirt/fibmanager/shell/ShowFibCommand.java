@@ -25,6 +25,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.crypto.Data;
+
 @Command(scope = "vpnservice", name = "fib-show", description = "Displays fib entries")
 public class ShowFibCommand extends OsgiCommandSupport {
 
@@ -35,6 +37,7 @@ public class ShowFibCommand extends OsgiCommandSupport {
                                            + "\n   -------------------------------------------------------------------";
 
     private SingleTransactionDataBroker singleTxDb;
+    private DataBroker dataBroker;
 
     public void setDataBroker(DataBroker dataBroker) {
         this.singleTxDb = new SingleTransactionDataBroker(dataBroker);
