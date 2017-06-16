@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1af78d9a_72c5925a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 805,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-16T16:52:57Z",
+      "side": 1,
+      "message": "can be:\n\nleaf-list vpn-instance-name",
+      "revId": "076496d773a4614dadbca098c29f2cd788c75d10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_12836e05",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-16T16:52:57Z",
+      "side": 1,
+      "message": "vpn-interface-op-data",
+      "revId": "076496d773a4614dadbca098c29f2cd788c75d10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_b2bffacf",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-16T16:52:57Z",
+      "side": 1,
+      "message": "just say name,vpn-name",
+      "revId": "076496d773a4614dadbca098c29f2cd788c75d10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_12b52eee",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-16T16:52:57Z",
+      "side": 1,
+      "message": "change this appropriately.",
+      "revId": "076496d773a4614dadbca098c29f2cd788c75d10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_f2b982ea",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-16T16:52:57Z",
+      "side": 1,
+      "message": "this should be vpn-interface-state",
+      "revId": "076496d773a4614dadbca098c29f2cd788c75d10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_32cb0a74",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-16T16:52:57Z",
+      "side": 1,
+      "message": "This flag indicates the state of this interface in the vpn identified by vpn-name.",
+      "revId": "076496d773a4614dadbca098c29f2cd788c75d10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_92c8fe75",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-16T16:52:57Z",
+      "side": 1,
+      "message": "ACTIVE indicates that this vpn-interface is currently associated to vpn-name available as one of the keys.\n\nINACTIVE indicates that this vpn-interface has already been dis-associated from vpn-name available as one of the keys.",
+      "revId": "076496d773a4614dadbca098c29f2cd788c75d10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
