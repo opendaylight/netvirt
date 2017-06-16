@@ -133,7 +133,7 @@ public class HwvtepPhysicalSwitchListener
                         HwvtepSouthboundUtils.createInstanceIdentifier(new NodeId(l2GwDevice.getHwvtepNodeId()));
                 boolean deleteNode = true;
                 if (hwvtepHACache.isHAParentNode(iid)) {
-                    Optional<Node> nodeOptional = null;
+                    Optional<Node> nodeOptional;
                     try {
                         nodeOptional = dataBroker.newReadWriteTransaction().read(
                                 LogicalDatastoreType.CONFIGURATION, iid).checkedGet();

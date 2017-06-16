@@ -12,6 +12,7 @@ import com.google.common.base.Optional;
 import java.io.PrintStream;
 import java.math.BigInteger;
 
+import javax.annotation.Nonnull;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -111,15 +112,15 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
         return null;
     }
 
+    @Nonnull
     private Optional<Node> readOvsdbNode(Node bridgeNode) {
-        Optional<Node>  node =  null;
         OvsdbBridgeAugmentation bridgeAugmentation = extractBridgeAugmentation(bridgeNode);
         if (bridgeAugmentation != null) {
             InstanceIdentifier<Node> ovsdbNodeIid =
                     (InstanceIdentifier<Node>) bridgeAugmentation.getManagedBy().getValue();
-            node = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, ovsdbNodeIid);
+            return NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, ovsdbNodeIid);
         }
-        return node;
+        return Optional.absent();
 
     }
 

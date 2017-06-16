@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -149,17 +150,10 @@ public class FederationPluginMgr
         CheckedFuture<Optional<FederatedAcl>, ReadFailedException> future =
             readTx.read(LogicalDatastoreType.CONFIGURATION, groupPath);
 
-        Optional<FederatedAcl> optionalSecGroupInConfig = null;
-
         try {
-            optionalSecGroupInConfig = future.get();
+            return future.get().orNull();
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Read security group failed", e);
-            return null;
-        }
-        if (optionalSecGroupInConfig != null && optionalSecGroupInConfig.isPresent()) {
-            return optionalSecGroupInConfig.get();
-        } else {
             return null;
         }
     }
@@ -171,17 +165,10 @@ public class FederationPluginMgr
         CheckedFuture<Optional<FederatedNetwork>, ReadFailedException> future =
             readTx.read(LogicalDatastoreType.CONFIGURATION, netPath);
 
-        Optional<FederatedNetwork> optionalNetInConfig = null;
-
         try {
-            optionalNetInConfig = future.get();
+            return future.get().orNull();
         } catch (InterruptedException | ExecutionException e) {
             LOG.info("new network was found");
-            return null;
-        }
-        if (optionalNetInConfig != null && optionalNetInConfig.isPresent()) {
-            return optionalNetInConfig.get();
-        } else {
             return null;
         }
     }
@@ -261,7 +248,7 @@ public class FederationPluginMgr
         CheckedFuture<Optional<FederatedNetworks>, ReadFailedException> existingNetworksFuture =
             readTx.read(LogicalDatastoreType.CONFIGURATION, existingNetworksPath);
         readTx.close();
-        Optional<FederatedNetworks> existingNetsOptional = null;
+        Optional<FederatedNetworks> existingNetsOptional;
         try {
             existingNetsOptional = existingNetworksFuture.checkedGet();
         } catch (ReadFailedException e) {
@@ -298,7 +285,7 @@ public class FederationPluginMgr
         Optional<FederatedNetworks> nets = readFederatedNetworks();
         Optional<FederatedAcls> secGroups = readFederatedAcls();
 
-        if (nets != null && nets.isPresent()) {
+        if (nets.isPresent()) {
             RemoteSite site = new RemoteSite(remoteIp);
             for (FederatedNetwork net : nets.get().getFederatedNetwork()) {
                 for (SiteNetwork siteNet : net.getSiteNetwork()) {
@@ -324,7 +311,7 @@ public class FederationPluginMgr
         LOG.debug("subscribeIngressPlugins ");
         Optional<FederatedNetworks> nets = readFederatedNetworks();
         Optional<FederatedAcls> secGroups = readFederatedAcls();
-        if (nets != null && nets.isPresent()) {
+        if (nets.isPresent()) {
             HashMap<String, RemoteSite> sites = new HashMap<>();
             for (FederatedNetwork net : nets.get().getFederatedNetwork()) {
                 for (SiteNetwork siteNet : net.getSiteNetwork()) {
@@ -358,6 +345,7 @@ public class FederationPluginMgr
         }
     }
 
+    @Nonnull
     private Optional<FederatedAcls> readFederatedAcls() {
         ReadOnlyTransaction tx2 = db.newReadOnlyTransaction();
         InstanceIdentifier<FederatedAcls> secGroupsPath =
@@ -369,10 +357,11 @@ public class FederationPluginMgr
             return secGroupsFuture.get();
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Exception while reading SecurityGroups from MD-SAL", e);
+            return Optional.absent();
         }
-        return null;
     }
 
+    @Nonnull
     private Optional<FederatedNetworks> readFederatedNetworks() {
         ReadOnlyTransaction tx = db.newReadOnlyTransaction();
         InstanceIdentifier<FederatedNetworks> networksPath = InstanceIdentifier.create(FederatedNetworks.class);
@@ -382,8 +371,8 @@ public class FederationPluginMgr
             return networksFuture.get();
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Exception while reading FederatedNetworks from MD-SAL", e);
+            return Optional.absent();
         }
-        return null;
     }
 
     private void addFederatedAclsToRemoteSite(RemoteSite site, Optional<FederatedAcls> acls,
