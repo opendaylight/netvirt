@@ -391,6 +391,24 @@
       "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_ebcd125f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 2263,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-16T10:26:24Z",
+      "side": 1,
+      "message": "+1, let us not introduce L3Semantics into L2 Utils.",
+      "parentUuid": "1af78d9a_2beefaec",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
