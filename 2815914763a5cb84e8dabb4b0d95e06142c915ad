@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1af78d9a_30ef87b2",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-06-16T08:03:09Z",
+      "side": 1,
+      "message": "Agreed, so even if we keep the streaming style, the first .filter() shouldn’t be on the same level as the first .forEach(), and the indentation should make clear what the second .forEach() loops over.\n\nIt’s probably worth hoisting constant expressions, at least with a transform on dcIp so we don’t repeat dcIp.getIpAddress().getIpv4Address().toString() all the time.",
+      "parentUuid": "1af78d9a_491d56bd",
+      "revId": "2815914763a5cb84e8dabb4b0d95e06142c915ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_e98362ca",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
         "patchSetId": 2
@@ -30,6 +48,30 @@
       "writtenOn": "2017-06-15T05:29:36Z",
       "side": 1,
       "message": "Nit and question: wouldn\u0027t it be good to have a util function for this?",
+      "range": {
+        "startLine": 367,
+        "startChar": 63,
+        "endLine": 368,
+        "endChar": 39
+      },
+      "revId": "2815914763a5cb84e8dabb4b0d95e06142c915ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_d0e8c37e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-06-16T08:03:09Z",
+      "side": 1,
+      "message": "Also note that String.format is very expensive, so for a case like this a simple \"elan.\" + elanName + \".\" + interfaceName would be better. (I\u0027m measuring a 60× performance difference.)",
+      "parentUuid": "1af78d9a_e98362ca",
       "range": {
         "startLine": 367,
         "startChar": 63,
