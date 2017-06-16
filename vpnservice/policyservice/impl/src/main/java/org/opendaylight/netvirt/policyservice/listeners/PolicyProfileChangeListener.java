@@ -181,8 +181,6 @@ public class PolicyProfileChangeListener
     }
 
     private void releasePolicyClassifierGroupIds(String policyClassifier, List<BigInteger> dpnIds) {
-        dpnIds.forEach(dpnId -> {
-            policyIdManager.releasePolicyClassifierGroupId(policyClassifier, dpnId);
-        });
+        dpnIds.forEach(dpnId -> policyIdManager.releasePolicyClassifierGroupId(policyClassifier, dpnId));
     }
 }

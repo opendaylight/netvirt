@@ -305,11 +305,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             if (parentChildComparison) {
                 data2 = cmd.transform(nodeIid1, data2);
             }
-            Function<DataObject, DataObject> withoutUuidTransformer = new Function<DataObject, DataObject>() {
-                public DataObject apply(DataObject dataObject) {
-                    return cmd.withoutUuid(dataObject);
-                }
-            };
+            Function<DataObject, DataObject> withoutUuidTransformer = cmd::withoutUuid;
             data1 = Lists.transform(data1, withoutUuidTransformer);
             data2 = Lists.transform(data2, withoutUuidTransformer);
 

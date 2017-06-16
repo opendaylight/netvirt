@@ -1658,7 +1658,7 @@ public class NatUtil {
             return Collections.emptyList();
         }
 
-        Set<Uuid> subnetsSet = externalIps.stream().map(externalIp -> externalIp.getSubnetId())
+        Set<Uuid> subnetsSet = externalIps.stream().map(ExternalIps::getSubnetId)
                 .collect(Collectors.toSet());
         return new ArrayList<>(subnetsSet);
     }
@@ -1746,7 +1746,7 @@ public class NatUtil {
             return Collections.emptyList();
         }
 
-        return externalIps.stream().map(externalIp -> externalIp.getIpAddress()).collect(Collectors.toList());
+        return externalIps.stream().map(ExternalIps::getIpAddress).collect(Collectors.toList());
     }
 
     // elan-instances config container
