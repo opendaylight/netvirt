@@ -760,9 +760,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 }
                 Prefixes localNextHopInfoLocal = FibUtil.getPrefixToInterface(dataBroker,
                         vpnId, ipPrefix);
-                BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfoLocal, localNextHopInfoLocal.getIpAddress(),
-                        vpnId, rd, vrfEntry, vpnId, extraRoute, vpnExtraRoutes);
-                returnLocalDpnId.add(dpnId);
+                if (localNextHopInfoLocal != null) {
+                    BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfoLocal,
+                                                                localNextHopInfoLocal.getIpAddress(),
+                                                                vpnId, rd, vrfEntry, vpnId, extraRoute,
+                                                                vpnExtraRoutes);
+                    returnLocalDpnId.add(dpnId);
+                }
             });
             if (localNextHopInfo == null) {
             /* imported routes case */
