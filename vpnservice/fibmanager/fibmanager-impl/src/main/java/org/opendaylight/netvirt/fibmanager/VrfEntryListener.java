@@ -751,23 +751,26 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             List<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getAllVpnExtraRoutes(dataBroker,
                     vpnName, usedRds, localNextHopIP);
             //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
-            vpnExtraRoutes.stream().forEach(extraRoute -> {
+            boolean localNextHopSeen = false;
+            for (Routes vpnExtraRoute : vpnExtraRoutes) {
                 String ipPrefix;
-                if (isIpv4Address(extraRoute.getNexthopIpList().get(0))) {
-                    ipPrefix = extraRoute.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX;
+                if (isIpv4Address(vpnExtraRoute.getNexthopIpList().get(0))) {
+                    ipPrefix = vpnExtraRoute.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX;
                 } else {
-                    ipPrefix = extraRoute.getNexthopIpList().get(0) + NwConstants.IPV6PREFIX;
+                    ipPrefix = vpnExtraRoute.getNexthopIpList().get(0) + NwConstants.IPV6PREFIX;
                 }
                 Prefixes localNextHopInfoLocal = FibUtil.getPrefixToInterface(dataBroker,
-                        vpnId, ipPrefix);
+                    vpnId, ipPrefix);
                 if (localNextHopInfoLocal != null) {
-                    BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfoLocal, localNextHopInfoLocal.getIpAddress(),
-                        vpnId, rd, vrfEntry, vpnId, extraRoute, vpnExtraRoutes);
+                    localNextHopSeen = true;
+                    BigInteger dpnId =
+                            checkCreateLocalFibEntry(localNextHopInfoLocal, localNextHopInfoLocal.getIpAddress(),
+                                    vpnId, rd, vrfEntry, vpnId, vpnExtraRoute, vpnExtraRoutes);
                     returnLocalDpnId.add(dpnId);
                 }
-            });
-            if (localNextHopInfo == null) {
-            /* imported routes case */
+            }
+            if (localNextHopSeen) {
+                /* imported routes case */
                 if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.SELF_IMPORTED) {
                     java.util.Optional<Long> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
                     if (optionalLabel.isPresent()) {
@@ -791,7 +794,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                 if (localNextHopInfo != null) {
                                     LOG.debug("Fetched labelRouteInfo for label {} interface {} and got dpn {}",
                                             label, localNextHopInfo.getVpnInterfaceName(), lri.getDpnId());
-                                    if (vpnExtraRoutes == null || vpnExtraRoutes.isEmpty()) {
+                                    if (vpnExtraRoutes.isEmpty()) {
                                         BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP,
                                                 vpnId, rd, vrfEntry, lri.getParentVpnid(), null, vpnExtraRoutes);
                                         returnLocalDpnId.add(dpnId);
