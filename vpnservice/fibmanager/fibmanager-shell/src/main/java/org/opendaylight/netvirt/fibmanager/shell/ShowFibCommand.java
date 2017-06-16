@@ -35,6 +35,7 @@ public class ShowFibCommand extends OsgiCommandSupport {
                                            + "\n   -------------------------------------------------------------------";
 
     private SingleTransactionDataBroker singleTxDb;
+    private DataBroker dataBroker;
 
     public void setDataBroker(DataBroker dataBroker) {
         this.singleTxDb = new SingleTransactionDataBroker(dataBroker);
