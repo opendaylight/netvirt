@@ -1,0 +1,225 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1af78d9a_d0dd6344",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/EvpnElanInstanceListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T07:19:12Z",
+      "side": 1,
+      "message": "do you really need info logs here ? pls remove it.",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_b0e25701",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/EvpnElanInstanceListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T07:19:12Z",
+      "side": 1,
+      "message": "here too.",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_50db331b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T07:19:12Z",
+      "side": 1,
+      "message": "final is not required here. its already effectively final",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_9088fb23",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T07:19:12Z",
+      "side": 1,
+      "message": "change it to return Optional.fromNullable(externalTunnelList); since it is a public method",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_708d8f31",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T07:19:12Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_10d1abfb",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T07:19:12Z",
+      "side": 1,
+      "message": "stream is not required here",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_d0e723e3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T07:19:12Z",
+      "side": 1,
+      "message": "shouldn\u0027t it be equals ?\nand toString() conversion is not required",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_f0e33f03",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T07:19:12Z",
+      "side": 1,
+      "message": "Instead of having boolean to decide whether to add or remove, i suggest to have Consumer\u003cFlowEntity\u003e as an argument and pass flowEntity -\u003e mdsalManager.installFlow(flowEntity) or flowEntity -\u003e mdsalManager.removeFlow(flowEntity) based on the need and replace if-else with consumer.accept(flowEntity). it makes this method to be more generic and extensible.",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_f0ca1f6d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T07:19:12Z",
+      "side": 1,
+      "message": "use dpIds.forEach",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_30ee67ed",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T07:19:12Z",
+      "side": 1,
+      "message": "building mkMatches and instrctions can be outside of for loop.",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_50f173cc",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T07:19:12Z",
+      "side": 1,
+      "message": "same here. replace boolean with BiConsumer\u003cString, String\u003e",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_90babbdf",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T07:19:12Z",
+      "side": 1,
+      "message": "use tunnelInterfaceNameList.forEach",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_30c5c75b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T07:19:12Z",
+      "side": 1,
+      "message": "don\u0027t you need to program this flow even tunnelInterfaceNameList is empty ?",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
