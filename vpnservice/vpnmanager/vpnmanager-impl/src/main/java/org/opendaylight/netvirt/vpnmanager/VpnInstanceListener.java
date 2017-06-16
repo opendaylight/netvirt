@@ -113,8 +113,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         Long currentIntfCount = 0L;
         Integer retryCount = 3;
         long timeout = VpnConstants.MIN_WAIT_TIME_IN_MILLISECONDS;
-        Optional<VpnInstanceOpDataEntry> vpnOpValue = null;
-        vpnOpValue = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+        Optional<VpnInstanceOpDataEntry> vpnOpValue = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
             VpnUtil.getVpnInstanceOpDataIdentifier(rd));
 
         if ((vpnOpValue != null) && (vpnOpValue.isPresent())) {
@@ -216,7 +215,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     protected void remove(InstanceIdentifier<VpnInstance> identifier, VpnInstance del) {
         LOG.trace("Remove VPN event key: {}, value: {}", identifier, del);
         final String vpnName = del.getVpnInstanceName();
-        Optional<VpnInstanceOpDataEntry> vpnOpValue = null;
+        Optional<VpnInstanceOpDataEntry> vpnOpValue;
         String primaryRd = VpnUtil.getPrimaryRd(del);
 
         //TODO(vpnteam): Entire code would need refactoring to listen only on the parent object - VPNInstance
@@ -228,7 +227,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             return;
         }
 
-        if (vpnOpValue == null || !vpnOpValue.isPresent()) {
+        if (!vpnOpValue.isPresent()) {
             LOG.error("Unable to retrieve VpnInstanceOpDataEntry for VPN {}. ", vpnName);
             return;
         }

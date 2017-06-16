@@ -191,7 +191,7 @@ public class FederationPluginCleaner {
         InstanceIdentifier<VpnInterfaces> path = InstanceIdentifier.create(VpnInterfaces.class);
         ReadTransaction readTx = db.newReadOnlyTransaction();
         CheckedFuture<Optional<VpnInterfaces>, ReadFailedException> future = readTx.read(type, path);
-        Optional<VpnInterfaces> optional = null;
+        Optional<VpnInterfaces> optional;
 
         try {
             optional = future.get();
@@ -233,7 +233,7 @@ public class FederationPluginCleaner {
         InstanceIdentifier<Interfaces> path = InstanceIdentifier.create(Interfaces.class);
         ReadTransaction readTx = db.newReadOnlyTransaction();
         CheckedFuture<Optional<Interfaces>, ReadFailedException> future = readTx.read(type, path);
-        Optional<Interfaces> optional = null;
+        Optional<Interfaces> optional;
 
         try {
             optional = future.get();
@@ -279,7 +279,7 @@ public class FederationPluginCleaner {
         ReadTransaction readTx = db.newReadOnlyTransaction();
         CheckedFuture<Optional<L2gateways>, ReadFailedException> future = readTx.read(type, path);
 
-        Optional<L2gateways> optional = null;
+        Optional<L2gateways> optional;
 
         try {
             optional = future.get();
@@ -324,7 +324,7 @@ public class FederationPluginCleaner {
         ReadTransaction readTx = db.newReadOnlyTransaction();
         CheckedFuture<Optional<L2gatewayConnections>, ReadFailedException> future = readTx.read(type, path);
 
-        Optional<L2gatewayConnections> optional = null;
+        Optional<L2gatewayConnections> optional;
 
         try {
             optional = future.get();
@@ -370,7 +370,7 @@ public class FederationPluginCleaner {
         ReadTransaction readTx = db.newReadOnlyTransaction();
         CheckedFuture<Optional<ElanInterfaces>, ReadFailedException> future = readTx.read(type, path);
 
-        Optional<ElanInterfaces> optional = null;
+        Optional<ElanInterfaces> optional;
 
         try {
             optional = future.get();
@@ -417,7 +417,7 @@ public class FederationPluginCleaner {
         ReadTransaction readTx = db.newReadOnlyTransaction();
         CheckedFuture<Optional<Topology>, ReadFailedException> future = readTx.read(type, path);
 
-        Optional<Topology> optional = null;
+        Optional<Topology> optional;
 
         try {
             optional = future.get();
@@ -470,14 +470,14 @@ public class FederationPluginCleaner {
         CheckedFuture<Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes>,
             ReadFailedException> future = readTx.read(type, path);
 
-        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes> optional = null;
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes> optional = Optional.absent();
 
         try {
             optional = future.get();
         } catch (InterruptedException | ExecutionException e) {
             LOG.info("deleteInventoryNodes failed to get data");
         }
-        if (optional != null && optional.isPresent()) {
+        if (optional.isPresent()) {
             WriteTransaction deleteTx = db.newWriteOnlyTransaction();
             org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes nodes = optional.get();
             for (org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node node : nodes.getNode()) {

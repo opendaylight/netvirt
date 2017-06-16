@@ -79,7 +79,7 @@ public class NeutronEvpnUtils {
         String vpnName = vpnInstance.getVpnInstanceName();
         InstanceIdentifier<ElanInstance> elanIid = ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName);
         ReadWriteTransaction transaction = dataBroker.newReadWriteTransaction();
-        Optional<ElanInstance> elanInstanceOptional = null;
+        Optional<ElanInstance> elanInstanceOptional = Optional.absent();
         try {
             elanInstanceOptional = transaction.read(LogicalDatastoreType.CONFIGURATION, elanIid).checkedGet();
         } catch (ReadFailedException e) {
