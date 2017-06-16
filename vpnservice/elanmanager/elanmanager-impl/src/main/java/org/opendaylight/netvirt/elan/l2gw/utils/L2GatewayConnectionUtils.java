@@ -159,9 +159,8 @@ public class L2GatewayConnectionUtils {
         //When elanInstance add comes , it look in to the map and run the associated runnable associated with it.
         if (elanInstance == null) {
             LOG.info("Waiting for elan {}", networkUuid.getValue());
-            ElanInstanceListener.runJobAfterElanIsAvailable(networkUuid.getValue(), () -> {
-                addL2GatewayConnection(input, l2GwDeviceName);
-            });
+            ElanInstanceListener.runJobAfterElanIsAvailable(networkUuid.getValue(),
+                () -> addL2GatewayConnection(input, l2GwDeviceName));
             return;
         }
         if (!isVxlanNetworkOrVxlanSegment(elanInstance)) {
@@ -347,7 +346,7 @@ public class L2GatewayConnectionUtils {
                                     List<LocalUcastMacs> localUcastMacs =
                                             node.getAugmentation(HwvtepGlobalAugmentation.class).getLocalUcastMacs();
                                     if (localUcastMacs != null) {
-                                        localUcastMacs.forEach((mac) -> l2GatewayDevice.addUcastLocalMac(mac));
+                                        localUcastMacs.forEach(l2GatewayDevice::addUcastLocalMac);
                                     }
                                 }
                             }
