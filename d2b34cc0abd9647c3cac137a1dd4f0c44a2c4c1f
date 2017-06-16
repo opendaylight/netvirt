@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "1af78d9a_0b4b3e2c",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T10:14:48Z",
+      "side": 1,
+      "message": "the code from 81-85 is same as 138-145 except calling add/ remove arp responder. This can be moved out to a common method which can consume BiConsumer\u003cPort, String\u003e.",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_4b6c269d",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
         "patchSetId": 19
@@ -53,6 +70,193 @@
     },
     {
       "key": {
+        "uuid": "1af78d9a_0bca1e4f",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T10:14:48Z",
+      "side": 1,
+      "message": "isn\u0027t it defined in any other common constant ?",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_4bc42640",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T10:14:48Z",
+      "side": 1,
+      "message": "method typo",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_ebc6b248",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T10:14:48Z",
+      "side": 1,
+      "message": "isn\u0027t it v.equals(interfaceName) ?",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_2baa7a70",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T10:14:48Z",
+      "side": 1,
+      "message": "what is the use of returning only first interface ? It doesn\u0027t make sense to me. or do want to check any interface present for an ELAN on particular DPN ?",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_4bad4688",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T10:14:48Z",
+      "side": 1,
+      "message": "return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, ifStateId).orNull();",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_4b6266d9",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T10:14:48Z",
+      "side": 1,
+      "message": "change it to IS_DHCP_PORT",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_cba5b605",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T10:14:48Z",
+      "side": 1,
+      "message": "you don\u0027t need (), {} and return since predicate is consuming one argument and expression is with single line",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_0bafbee4",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T10:14:48Z",
+      "side": 1,
+      "message": "same comment here",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_2b69da8b",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceAddJob.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T10:14:48Z",
+      "side": 1,
+      "message": "change it to private final",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_cb0f76e0",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceRemoveJob.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T10:14:48Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_eb78722d",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceRemoveJob.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T10:14:48Z",
+      "side": 1,
+      "message": "i see lot of commented code across files. Remove those if it is not required",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_ab14aaf5",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/resources/initial/netvirt-dhcpservice-config.xml",
         "patchSetId": 19
@@ -81,6 +285,109 @@
       "writtenOn": "2017-06-16T09:31:51Z",
       "side": 1,
       "message": "is there a reason why you removed \u0027final\u0027 ?",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_ebca326d",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/java/org/opendaylight/netvirt/elanmanager/api/IElanService.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T10:14:48Z",
+      "side": 1,
+      "message": "In Java, its all call by value. so having final for arguments doesn\u0027t make any sense. If it\u0027s getting used by some anonymous class inside a method, then we might need to make this as final. but that is also not needed in java8 due to its \"effectively final\" behavior.",
+      "parentUuid": "1af78d9a_0bf97ec8",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_4b0386b8",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/java/org/opendaylight/netvirt/elanmanager/api/IElanService.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T10:14:48Z",
+      "side": 1,
+      "message": "Let us not use Optional for argument types. we decided not to overuse Optional due its additional overhead in control flow. The recommendation is to use Optional is only public return types.\nFor more details: https://git.opendaylight.org/gerrit/#/c/58167/\n\nMay be annotating lportTag with @Nonnull Integer lportTag will impose callers not to pass null for it.",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_8b2c4e4c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/arp/responder/ArpResponderUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T10:14:48Z",
+      "side": 1,
+      "message": "remove unnecessary final keywords from this class.",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_cb265668",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T10:14:48Z",
+      "side": 1,
+      "message": "remove final here. pls scan over other files too and remove it. Atleast for the changes that you have done :)",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_ab2b0a2f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 820,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T10:14:48Z",
+      "side": 1,
+      "message": "Nit: space after ,",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_2beefaec",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 2263,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-16T10:14:48Z",
+      "side": 1,
+      "message": "instead of having isFloatingIp, can you change it to List\u003cInstruction\u003e ? This would make this method to be more generic.",
       "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
