@@ -108,6 +108,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthopsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RouterInterfaces;
@@ -115,6 +117,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInterfaceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
@@ -132,6 +135,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.rou
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntryBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
@@ -193,6 +199,13 @@ public final class VpnUtil {
             .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName)).build();
     }
 
+    static InstanceIdentifier<VpnInterfaceOpDataEntry> getVpnInterfaceOpDataEntryIdentifier(
+                                                             String vpnInterfaceName, String vpnName) {
+        return InstanceIdentifier.builder(VpnInterfaceOpData.class)
+            .child(VpnInterfaceOpDataEntry.class,
+            new VpnInterfaceOpDataEntryKey(vpnInterfaceName, vpnName)).build();
+    }
+
     static InstanceIdentifier<VpnInstance> getVpnInstanceIdentifier(String vpnName) {
         return InstanceIdentifier.builder(VpnInstances.class)
             .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
@@ -214,6 +227,24 @@ public final class VpnUtil {
             .setScheduledForRemove(isSheduledForRemove).addAugmentation(Adjacencies.class, aug)
             .build();
         return newVpnInterface;
+    }
+
+    static VpnInterfaceOpDataEntry getVpnInterfaceOpDataEntry(String intfName, String vpnName,
+                                        AdjacenciesOp aug, BigInteger dpnId,
+                                        Boolean isSheduledForRemove) {
+        return new VpnInterfaceOpDataEntryBuilder().setKey(new VpnInterfaceOpDataEntryKey(intfName, vpnName))
+            .setDpnId(dpnId)
+            .setScheduledForRemove(isSheduledForRemove).addAugmentation(AdjacenciesOp.class, aug)
+            .build();
+    }
+
+    static Optional<VpnInterfaceOpDataEntry> getVpnInterfaceOpDataEntry(DataBroker broker,
+                                                    String vpnInterfaceName, String vpnName) {
+        InstanceIdentifier<VpnInterfaceOpDataEntry> id = getVpnInterfaceOpDataEntryIdentifier(vpnInterfaceName,
+                                                                                              vpnName);
+        Optional<VpnInterfaceOpDataEntry> vpnInterfaceOpDataEntry = read(broker,
+                                                      LogicalDatastoreType.OPERATIONAL, id);
+        return vpnInterfaceOpDataEntry;
     }
 
     static InstanceIdentifier<Prefixes> getPrefixToInterfaceIdentifier(long vpnId, String ipPrefix) {
@@ -388,6 +419,10 @@ public final class VpnUtil {
 
     static Adjacencies getVpnInterfaceAugmentation(List<Adjacency> nextHopList) {
         return new AdjacenciesBuilder().setAdjacency(nextHopList).build();
+    }
+
+    static AdjacenciesOp getVpnInterfaceOpDataEntryAugmentation(List<Adjacency> nextHopList) {
+        return new AdjacenciesOpBuilder().setAdjacency(nextHopList).build();
     }
 
     public static InstanceIdentifier<IdPool> getPoolId(String poolName) {
@@ -1048,36 +1083,16 @@ public final class VpnUtil {
     public static void scheduleVpnInterfaceForRemoval(DataBroker broker,String interfaceName, BigInteger dpnId,
                                                       String vpnInstanceName, Boolean isScheduledToRemove,
                                                       WriteTransaction writeOperTxn) {
-        InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
-        Optional<VpnInterface> optionalVpnInterface = read(broker, LogicalDatastoreType
-                .OPERATIONAL, interfaceId);
-        VpnInterface interfaceToUpdate;
-        if (optionalVpnInterface.isPresent()) {
-            List<String> listVpn = optionalVpnInterface.get().getVpnInstanceNames();
-            listVpn.clear();
-            listVpn.add(vpnInstanceName);
-            interfaceToUpdate =
-                new VpnInterfaceBuilder(optionalVpnInterface.get())
-                .setKey(new VpnInterfaceKey(interfaceName)).setName(interfaceName)
-                .setDpnId(dpnId).setVpnInstanceNames(listVpn)
-                .setScheduledForRemove(isScheduledToRemove).build();
-            if (writeOperTxn != null) {
-                writeOperTxn.put(LogicalDatastoreType.OPERATIONAL, interfaceId, interfaceToUpdate, true);
-            } else {
-                VpnUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, interfaceId, interfaceToUpdate);
-            }
+        InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId =
+            VpnUtil.getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnInstanceName);
+        VpnInterfaceOpDataEntry interfaceToUpdate =
+            new VpnInterfaceOpDataEntryBuilder().setKey(new VpnInterfaceOpDataEntryKey(interfaceName,
+            vpnInstanceName)).setName(interfaceName).setDpnId(dpnId).setVpnInstanceName(vpnInstanceName)
+            .setScheduledForRemove(isScheduledToRemove).build();
+        if (writeOperTxn != null) {
+            writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, interfaceId, interfaceToUpdate, true);
         } else {
-            List<String> listVpn = new ArrayList<>();
-            listVpn.add(vpnInstanceName);
-            interfaceToUpdate =
-            new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(interfaceName)).setName(interfaceName)
-                .setDpnId(dpnId).setVpnInstanceNames(listVpn)
-                .setScheduledForRemove(isScheduledToRemove).build();
-            if (writeOperTxn != null) {
-                writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, interfaceId, interfaceToUpdate, true);
-            } else {
-                VpnUtil.syncUpdate(broker, LogicalDatastoreType.OPERATIONAL, interfaceId, interfaceToUpdate);
-            }
+            VpnUtil.syncUpdate(broker, LogicalDatastoreType.OPERATIONAL, interfaceId, interfaceToUpdate);
         }
     }
 
