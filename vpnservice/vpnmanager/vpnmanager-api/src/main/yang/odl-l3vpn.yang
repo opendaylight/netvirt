@@ -179,6 +179,55 @@ module odl-l3vpn {
         }
     }
 
+    /* Binding Interfaces to a VPN Instance. */
+    container vpn-interface-op-data {
+        config false;
+        list vpn-interface-op-data-entry {
+            key "name vpn-instance-name";
+            leaf name {
+              type string;
+            }
+            leaf vpn-instance-name {
+              type string {
+                length "1..40";
+              }
+            }
+            max-elements "unbounded";
+            min-elements "0";
+            leaf dpn-id {
+              type uint64;
+            }
+            leaf scheduled-for-remove {
+              type boolean;
+            }
+            leaf router-interface {
+                type boolean;
+            }
+            leaf vpn-interface-state {
+              description
+               "This flag indicates the state of this interface in the VPN identified by vpn-name.
+                ACTIVE state indicates that this vpn-interface is currently associated to vpn-name
+                available as one of the keys.
+                INACTIVE state indicates that this vpn-interface has already been dis-associated
+                from vpn-name available as one of the keys.";
+
+                type enumeration {
+                 enum active {
+                    value "0";
+                    description
+                    "Active state";
+                 }
+                 enum inactive {
+                    value "1";
+                    description
+                    "Inactive state";
+                 }
+                }
+                default "active";
+           }
+        }
+    }
+
     container vpn-instance-op-data {
         config false;
         list vpn-instance-op-data-entry {
