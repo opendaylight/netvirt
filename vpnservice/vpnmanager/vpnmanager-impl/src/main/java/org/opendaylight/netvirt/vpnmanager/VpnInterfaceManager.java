@@ -970,7 +970,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         }
                         String prefix = vrfEntry.getDestPrefix();
                         String gwMac = vrfEntry.getGatewayMacAddress();
-                        vrfEntry.getRoutePaths().stream().forEach(routePath -> {
+                        vrfEntry.getRoutePaths().forEach(routePath -> {
                             String nh = routePath.getNexthopAddress();
                             int label = routePath.getLabel().intValue();
                             if (FibHelper.isControllerManagedVpnInterfaceRoute(RouteOrigin.value(
@@ -2104,54 +2104,52 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             return;
         }
         LOG.debug("Update the VpnInterfaces for Unprocessed Adjancencies for vpnName:{}", vpnName);
-        vpnToDpnLists.forEach(vpnToDpnList -> {
-            vpnToDpnList.getVpnInterfaces().forEach(vpnInterface -> {
-                InstanceIdentifier<VpnInterface> existingVpnInterfaceId =
-                        VpnUtil.getVpnInterfaceIdentifier(vpnInterface.getInterfaceName());
-                Optional<VpnInterface> vpnInterfaceOptional = VpnUtil.read(dataBroker,
-                        LogicalDatastoreType.OPERATIONAL, existingVpnInterfaceId);
-                if (!vpnInterfaceOptional.isPresent()) {
-                    return;
-                }
-                List<Adjacency> configVpnAdjacencies = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker,
-                        vpnInterface.getInterfaceName());
-                if (configVpnAdjacencies == null) {
-                    LOG.debug("There is no adjacency available for vpnInterface:{}", vpnInterface);
-                    return;
-                }
-                List<Adjacency> operationVpnAdjacencies = vpnInterfaceOptional.get()
-                        .getAugmentation(Adjacencies.class).getAdjacency();
-                // Due to insufficient rds,  some of the extra route wont get processed when it is added.
-                // The unprocessed adjacencies will be present in config vpn interface DS but will be missing
-                // in operational DS. These unprocessed adjacencies will be handled below.
-                // To obtain unprocessed adjacencies, filtering is done by which the missing adjacencies in operational
-                // DS are retrieved which is used to call addNewAdjToVpnInterface method.
-                configVpnAdjacencies.stream()
-                        .filter(adjacency -> operationVpnAdjacencies.stream()
-                                .noneMatch(operationalAdjacency ->
-                                        operationalAdjacency.getIpAddress().equals(adjacency.getIpAddress())))
-                        .forEach(adjacency -> {
-                            LOG.debug("Processing the vpnInterface{} for the Ajacency:{}", vpnInterface, adjacency);
-                            DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
-                            dataStoreJobCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterface.getInterfaceName(),
-                                () -> {
-                                    WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-                                    WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-                                    addNewAdjToVpnInterface(existingVpnInterfaceId, adjacency,
-                                                vpnInterfaceOptional.get().getDpnId(), writeConfigTxn, writeOperTxn);
-                                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                                    ListenableFuture<Void> operFuture = writeOperTxn.submit();
-                                    try {
-                                        operFuture.get();
-                                    } catch (ExecutionException | InterruptedException e) {
-                                        LOG.error("Exception encountered while submitting operational"
-                                                + " future for vpnInterface {}: " + "{}", vpnInterface, e);
-                                    }
-                                    futures.add(writeConfigTxn.submit());
-                                    return futures;
-                                });
-                        });
-            });
-        });
+        vpnToDpnLists.forEach(vpnToDpnList -> vpnToDpnList.getVpnInterfaces().forEach(vpnInterface -> {
+            InstanceIdentifier<VpnInterface> existingVpnInterfaceId =
+                    VpnUtil.getVpnInterfaceIdentifier(vpnInterface.getInterfaceName());
+            Optional<VpnInterface> vpnInterfaceOptional = VpnUtil.read(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, existingVpnInterfaceId);
+            if (!vpnInterfaceOptional.isPresent()) {
+                return;
+            }
+            List<Adjacency> configVpnAdjacencies = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker,
+                    vpnInterface.getInterfaceName());
+            if (configVpnAdjacencies == null) {
+                LOG.debug("There is no adjacency available for vpnInterface:{}", vpnInterface);
+                return;
+            }
+            List<Adjacency> operationVpnAdjacencies = vpnInterfaceOptional.get()
+                    .getAugmentation(Adjacencies.class).getAdjacency();
+            // Due to insufficient rds,  some of the extra route wont get processed when it is added.
+            // The unprocessed adjacencies will be present in config vpn interface DS but will be missing
+            // in operational DS. These unprocessed adjacencies will be handled below.
+            // To obtain unprocessed adjacencies, filtering is done by which the missing adjacencies in operational
+            // DS are retrieved which is used to call addNewAdjToVpnInterface method.
+            configVpnAdjacencies.stream()
+                    .filter(adjacency -> operationVpnAdjacencies.stream()
+                            .noneMatch(operationalAdjacency ->
+                                    operationalAdjacency.getIpAddress().equals(adjacency.getIpAddress())))
+                    .forEach(adjacency -> {
+                        LOG.debug("Processing the vpnInterface{} for the Ajacency:{}", vpnInterface, adjacency);
+                        DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
+                        dataStoreJobCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterface.getInterfaceName(),
+                            () -> {
+                                WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+                                WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+                                addNewAdjToVpnInterface(existingVpnInterfaceId, adjacency,
+                                            vpnInterfaceOptional.get().getDpnId(), writeConfigTxn, writeOperTxn);
+                                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                                ListenableFuture<Void> operFuture = writeOperTxn.submit();
+                                try {
+                                    operFuture.get();
+                                } catch (ExecutionException | InterruptedException e) {
+                                    LOG.error("Exception encountered while submitting operational"
+                                            + " future for vpnInterface {}: " + "{}", vpnInterface, e);
+                                }
+                                futures.add(writeConfigTxn.submit());
+                                return futures;
+                            });
+                    });
+        }));
     }
 }

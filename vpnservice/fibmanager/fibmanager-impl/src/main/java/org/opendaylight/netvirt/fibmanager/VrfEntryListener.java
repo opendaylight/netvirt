@@ -1241,10 +1241,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             baseVrfEntryHandler.makeConnectedRoute(curDpn.getDpnId(), vpnInstance.getVpnId(), vrfEntry,
                                 vrfTableKey.getRouteDistinguisher(), null, NwConstants.DEL_FLOW, tx, null);
                             if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
-                                optionalLabel.ifPresent(label -> {
-                                    makeLFibTableEntry(curDpn.getDpnId(), label, null,
-                                            DEFAULT_FIB_FLOW_PRIORITY, NwConstants.DEL_FLOW, tx);
-                                });
+                                optionalLabel.ifPresent(label -> makeLFibTableEntry(curDpn.getDpnId(), label, null,
+                                        DEFAULT_FIB_FLOW_PRIORITY, NwConstants.DEL_FLOW, tx));
                             }
                         }
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
