@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1af78d9a_0f6ea901",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRoutePacketInHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-16T15:55:24Z",
+      "side": 1,
+      "message": "it seems a blank line has been added ?\nmaybe it is possible to remove it by redoing the commit\nand doing git add -p ?",
+      "range": {
+        "startLine": 323,
+        "startChar": 0,
+        "endLine": 323,
+        "endChar": 1
+      },
+      "revId": "9340de4d9e5437bea13fb6d6ce77b320613c9968",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_cf630119",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-16T15:55:24Z",
+      "side": 1,
+      "message": "comment can be removed",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 6
+      },
+      "revId": "9340de4d9e5437bea13fb6d6ce77b320613c9968",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_af6835f6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-16T15:55:24Z",
+      "side": 1,
+      "message": "should not happen. but ok to keep it",
+      "range": {
+        "startLine": 90,
+        "startChar": 12,
+        "endLine": 90,
+        "endChar": 31
+      },
+      "revId": "9340de4d9e5437bea13fb6d6ce77b320613c9968",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_d2ff2600",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-16T15:55:24Z",
+      "side": 1,
+      "message": "I am not sure about the pro for adding a new param which vpname\n- intfName is a temp variable that is parsing the list of all the interfaces\n- each  subnetmap may belong to two vpns\n- on the vpn interface point of view, I have a doubt on the possiblity to introduce a second vpn-instance-name. This is something not done right now, that should be done.",
+      "range": {
+        "startLine": 347,
+        "startChar": 93,
+        "endLine": 347,
+        "endChar": 103
+      },
+      "revId": "9340de4d9e5437bea13fb6d6ce77b320613c9968",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_120a4e21",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-16T15:55:24Z",
+      "side": 1,
+      "message": "same doubt as for TunnelInterfaceStateListener.java",
+      "range": {
+        "startLine": 599,
+        "startChar": 96,
+        "endLine": 600,
+        "endChar": 42
+      },
+      "revId": "9340de4d9e5437bea13fb6d6ce77b320613c9968",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
