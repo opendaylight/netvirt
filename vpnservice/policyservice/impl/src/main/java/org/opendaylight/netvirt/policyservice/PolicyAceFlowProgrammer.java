@@ -87,9 +87,7 @@ public class PolicyAceFlowProgrammer {
     public void programAceFlows(Ace ace, String policyClassifierName, List<BigInteger> dpIds, int addOrRemove) {
         List<InstructionInfo> instructions = addOrRemove == NwConstants.ADD_FLOW
                 ? getPolicyClassifierInstructions(policyClassifierName) : null;
-        dpIds.forEach(dpId -> {
-            programAceFlows(ace, instructions, dpId, addOrRemove);
-        });
+        dpIds.forEach(dpId -> programAceFlows(ace, instructions, dpId, addOrRemove));
     }
 
     public void programAceFlows(Ace ace, List<InstructionInfo> instructions, BigInteger dpId, int addOrRemove) {
