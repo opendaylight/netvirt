@@ -206,6 +206,24 @@
     },
     {
       "key": {
+        "uuid": "1af78d9a_1089abca",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-06-16T08:05:15Z",
+      "side": 1,
+      "message": "Yes, this makes sense with a BiConsumer.",
+      "parentUuid": "1af78d9a_90babbdf",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_30c5c75b",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
         "patchSetId": 3
