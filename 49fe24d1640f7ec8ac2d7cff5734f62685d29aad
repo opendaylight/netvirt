@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1af78d9a_58207549",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronExternalSubnetHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-06-18T07:01:56Z",
+      "side": 1,
+      "message": "This code is hard to read due to the numerous levels of indentation. See here, http://wiki.c2.com/?ArrowAntiPattern\n\nThis code could easily be refactored to this (just two levels of indentation:\n\n        if (!NeutronvpnUtils.getIsExternal(network) || !(NeutronvpnUtils.isFlatOrVlanNetwork(network)\n                || NeutronvpnUtils.isNetworkOfType(network, NetworkTypeGre.class))) {\n            return;\n        }\n\n        LOG.info(\"Added external subnet {} part of external network {} will create NAT external subnet\",\n                subnetId.getValue(), networkId.getValue());\n        nvpnManager.updateSubnetNode(subnetId, null/* routerId */, subnetId, null);\n        if (vers !\u003d 6) {\n            nvpnNatManager.updateOrAddExternalSubnet(networkId, subnetId, routerIds);\n        }\n        nvpnManager.createVpnInstanceForSubnet(subnetId);\n\n        if (NeutronvpnUtils.isNetworkOfType(network, NetworkTypeGre.class)) {\n            return; /*if not IPv6 mplsOverGre so the below treatment is not needed */\n        }\n        /*add to all local subnets the (internet)vpnUuid of the external network belonging to the same router*/\n        Uuid vpnUuid \u003d NeutronvpnUtils.getVpnForNetwork(broker, networkId);\n        if (vpnUuid \u003d\u003d null) {\n            return;\n        }\n\n        Subnetmap subnetmap \u003d NeutronvpnUtils.getSubnetmap(broker, subnetId);\n        Uuid routerUuid \u003d subnetmap.getRouterId();\n        List\u003cUuid\u003e subnetUuids \u003d NeutronvpnUtils.getNeutronRouterSubnetIds(broker, routerUuid);\n        if (subnetUuids \u003d\u003d null \u0026\u0026 subnetUuids.size() \u003c\u003d 1) {\n            return;\n        }\n\n        /*then there are a few other subnet attached to its router*/\n        for (Uuid uuid : subnetUuids) {\n            if (uuid.equals(subnetmap.getId())) {\n                continue;\n            }\n\n            Subnetmap subRattached \u003d NeutronvpnUtils.getSubnetmap(broker, uuid);\n            if (NeutronvpnUtils.getIpVersionForNeutronSubnet(broker, uuid) !\u003d 6\n                    \u0026\u0026 subRattached.getVpnId().equals(vpnUuid)) {\n                nvpnManager.updateSubnetNode(subRattached.getId(),\n                    subRattached.getRouterId(), subRattached.getVpnId(), vpnUuid);\n            }\n        }",
+      "revId": "49fe24d1640f7ec8ac2d7cff5734f62685d29aad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_381da910",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronExternalSubnetHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-06-18T07:01:56Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "49fe24d1640f7ec8ac2d7cff5734f62685d29aad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_98765d3d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1282,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-06-18T07:01:56Z",
+      "side": 1,
+      "message": "Super nit: Indentation here is wrong. Start the text of the comment on the next line. There are some more of these below as well.",
+      "revId": "49fe24d1640f7ec8ac2d7cff5734f62685d29aad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_7873b14d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1290,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-06-18T07:01:56Z",
+      "side": 1,
+      "message": "check for null?",
+      "revId": "49fe24d1640f7ec8ac2d7cff5734f62685d29aad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_d88f4522",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1305,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-06-18T07:01:56Z",
+      "side": 1,
+      "message": "Naming: The word \"around\" here is not clear. How about, getSubnetMapsforNetworkRouter?",
+      "revId": "49fe24d1640f7ec8ac2d7cff5734f62685d29aad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_b894f937",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1306,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-06-18T07:01:56Z",
+      "side": 1,
+      "message": "check for null?",
+      "revId": "49fe24d1640f7ec8ac2d7cff5734f62685d29aad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_38a00990",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1360,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-06-18T07:01:56Z",
+      "side": 1,
+      "message": "Not sure about this but if you are already pulling the subnetMap, why not stick it into the cache? There are already methods for putting and removing things from that cache, why not add a method that checks for an item in the cache and if absent pulls it from the mdsal and then adds it to the cache?",
+      "revId": "49fe24d1640f7ec8ac2d7cff5734f62685d29aad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
