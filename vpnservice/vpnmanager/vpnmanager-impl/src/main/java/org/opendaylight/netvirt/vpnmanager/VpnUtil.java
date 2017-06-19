@@ -133,6 +133,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.rou
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
@@ -191,6 +193,12 @@ public class VpnUtil {
             .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName)).build();
     }
 
+    static InstanceIdentifier<VpnInterfaceOpDataEntry> getVpnInterfaceOpDataEntryIdentifier(String vpnInterfaceName, String vpnName) {
+        return InstanceIdentifier.builder(VpnInterfaceOpData.class)
+            .child(VpnInterfaceOpDataEntry.class,
+            new VpnInterfaceOpDataEntryKey(vpnInterfaceName, vpnName)).build();
+    }
+
     static InstanceIdentifier<VpnInstance> getVpnInstanceIdentifier(String vpnName) {
         return InstanceIdentifier.builder(VpnInstances.class)
             .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
@@ -202,11 +210,27 @@ public class VpnUtil {
         return vpnInterface.isPresent() ? vpnInterface.get() : null;
     }
 
+    static VpnInterface getVpnInterfaceOpDataEntry(DataBroker broker, String vpnInterfaceName, String vpnName) {
+        InstanceIdentifier<VpnInterfaceOpDataEntry> id = getVpnInterfaceOpDataEntryIdentifier(vpnInterfaceName,
+                                                                                              vpnName);
+        // look for previous VpnInterfaceOpDataEntry XXX
+        Optional<VpnInterfaceOpDataEntry> vpnInterfaceOpDataEntry = read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        return vpnInterfaceOpDataEntry.isPresent() ? vpnInterfaceOpDataEntry.get() : null;
+    }
+
     static VpnInterface getVpnInterface(String intfName, String vpnName, Adjacencies aug, BigInteger dpnId,
         Boolean isSheduledForRemove) {
         return new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(intfName))
             .setVpnRouterIds(Arrays.asList(vpnName)).setDpnId(
             dpnId)
+            .setScheduledForRemove(isSheduledForRemove).addAugmentation(Adjacencies.class, aug)
+            .build();
+    }
+
+    static VpnInterfaceOpDataEntry getVpnInterfaceOpDataEntry(String intfName, String vpnName, Adjacencies aug, BigInteger dpnId,
+        Boolean isSheduledForRemove) {
+        return new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(intfName))
+            .setVpnName(vpnName).setDpnId(dpnId)
             .setScheduledForRemove(isSheduledForRemove).addAugmentation(Adjacencies.class, aug)
             .build();
     }
@@ -704,9 +728,9 @@ public class VpnUtil {
         return null;
     }
 
-    static VpnInterface getOperationalVpnInterface(DataBroker broker, String interfaceName) {
-        InstanceIdentifier<VpnInterface> interfaceId = getVpnInterfaceIdentifier(interfaceName);
-        Optional<VpnInterface> operationalVpnInterface = read(broker, LogicalDatastoreType.OPERATIONAL, interfaceId);
+    static VpnInterface getOperationalVpnInterface(DataBroker broker, String interfaceName, String vpnName) {
+        InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId = getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
+        Optional<VpnInterfaceOpDataEntry> operationalVpnInterface = read(broker, LogicalDatastoreType.OPERATIONAL, interfaceId);
 
         if (operationalVpnInterface.isPresent()) {
             return operationalVpnInterface.get();
