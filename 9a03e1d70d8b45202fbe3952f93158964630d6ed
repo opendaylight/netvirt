@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1af78d9a_8473984c",
+        "filename": "docs/specs/neutron-port-for-dhcp-service.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-19T16:44:20Z",
+      "side": 1,
+      "message": "please use networkid here and not port-networkid.",
+      "revId": "9a03e1d70d8b45202fbe3952f93158964630d6ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
