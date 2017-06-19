@@ -191,6 +191,11 @@ public class VpnUtil {
             .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName)).build();
     }
 
+    static InstanceIdentifier<VpnInterfaceOpDataEntry> getVpnInterfaceOpDataEntryIdentifier(String vpnInterfaceName, String vpnName) {
+        return InstanceIdentifier.builder(VpnInterfaceOpData.class)
+            .child(VpnInterfaceOpDataEntry.class, new VpnInterfaceOpDataEntryKey(vpnInterfaceName, vpnName)).build();
+    }
+
     static InstanceIdentifier<VpnInstance> getVpnInstanceIdentifier(String vpnName) {
         return InstanceIdentifier.builder(VpnInstances.class)
             .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
@@ -202,11 +207,26 @@ public class VpnUtil {
         return vpnInterface.isPresent() ? vpnInterface.get() : null;
     }
 
+    static VpnInterface getVpnInterfaceOpDataEntry(DataBroker broker, String vpnInterfaceName, String vpnName) {
+        InstanceIdentifier<VpnInterfaceOpDataEntry> id = getVpnInterfaceOpDataEntryIdentifier(vpnInterfaceName, vpnName);
+        // look for previous VpnInterfaceOpDataEntry XXX
+        Optional<VpnInterfaceOpDataEntry> vpnInterfaceOpDataEntry = read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        return vpnInterfaceOpDataEntry.isPresent() ? vpnInterfaceOpDataEntry.get() : null;
+    }
+
     static VpnInterface getVpnInterface(String intfName, String vpnName, Adjacencies aug, BigInteger dpnId,
         Boolean isSheduledForRemove) {
         return new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(intfName))
             .setVpnRouterIds(Arrays.asList(vpnName)).setDpnId(
             dpnId)
+            .setScheduledForRemove(isSheduledForRemove).addAugmentation(Adjacencies.class, aug)
+            .build();
+    }
+
+    static VpnInterfaceOpDataEntry getVpnInterfaceOpDataEntry(String intfName, String vpnName, Adjacencies aug, BigInteger dpnId,
+        Boolean isSheduledForRemove) {
+        return new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(intfName))
+            .setVpnName(vpnName).setDpnId(dpnId)
             .setScheduledForRemove(isSheduledForRemove).addAugmentation(Adjacencies.class, aug)
             .build();
     }
