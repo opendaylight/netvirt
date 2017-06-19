@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1af78d9a_c3363a03",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronExternalSubnetHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-06-19T08:29:59Z",
+      "side": 1,
+      "message": "Hello Joshua\n thank you very much for your help.\nit is a better light way.\nI do it.\nthk\nNoel",
+      "parentUuid": "1af78d9a_58207549",
+      "revId": "49fe24d1640f7ec8ac2d7cff5734f62685d29aad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_381da910",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronExternalSubnetHandler.java",
         "patchSetId": 7
