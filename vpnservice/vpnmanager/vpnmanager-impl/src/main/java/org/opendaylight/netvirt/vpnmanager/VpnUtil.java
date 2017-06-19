@@ -723,10 +723,11 @@ public class VpnUtil {
         return null;
     }
 
-    static VpnInterface getOperationalVpnInterface(DataBroker broker, String interfaceName) {
-        InstanceIdentifier<VpnInterface> interfaceId = getVpnInterfaceIdentifier(interfaceName);
-        Optional<VpnInterface> operationalVpnInterface = read(broker, LogicalDatastoreType.OPERATIONAL, interfaceId);
-
+    static VpnInterfaceOpDataEntry getOperationalVpnInterface(DataBroker broker, String interfaceName, String vpnName) {
+        InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId =
+            getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
+        Optional<VpnInterfaceOpDataEntry> operationalVpnInterface = read(broker,
+            LogicalDatastoreType.OPERATIONAL, interfaceId);
         if (operationalVpnInterface.isPresent()) {
             return operationalVpnInterface.get();
         }
