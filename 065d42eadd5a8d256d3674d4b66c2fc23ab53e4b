@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "1af78d9a_3ee4710c",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-19T14:14:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_f8d681c4",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_f8a4c158",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
         "patchSetId": 25
@@ -64,6 +82,24 @@
       "writtenOn": "2017-06-19T05:21:01Z",
       "side": 1,
       "message": "Can you remove the commented code ? It\u0027s bit ugly to see it. If you want use this code later on, anyway we have history of code changes.",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_4351aa61",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-19T14:14:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_f8ede18c",
       "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -104,6 +140,24 @@
     },
     {
       "key": {
+        "uuid": "1af78d9a_5eafbde3",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-19T14:14:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_78f9f14c",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_b89a3912",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
         "patchSetId": 25
@@ -115,6 +169,24 @@
       "writtenOn": "2017-06-19T05:21:01Z",
       "side": 1,
       "message": "same comment as above.",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_feaae9d2",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-19T14:14:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_b89a3912",
       "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -138,6 +210,24 @@
     },
     {
       "key": {
+        "uuid": "1af78d9a_83d8b21e",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-19T14:14:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_98e5bdaa",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_78e291a0",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
         "patchSetId": 25
@@ -149,6 +239,24 @@
       "writtenOn": "2017-06-19T05:21:01Z",
       "side": 1,
       "message": "I don\u0027t like the idea of reading interface state ds from dhcp module. why can\u0027t you make use of interfaceManager.getInterfaceInfo(interfaceName)",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_a3584e57",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-19T14:14:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_78e291a0",
       "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -172,6 +280,24 @@
     },
     {
       "key": {
+        "uuid": "1af78d9a_43d88aef",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-19T14:14:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_9893fdf9",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_588995c9",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
         "patchSetId": 25
@@ -183,6 +309,24 @@
       "writtenOn": "2017-06-19T05:21:01Z",
       "side": 1,
       "message": "can you move this to DHCP Constant class file ?",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_e3b6d6db",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-19T14:14:07Z",
+      "side": 1,
+      "message": "When I tried to move to DHCPConstants.java, I also needed to added model and neutron-api dependency to dhcpservice-api module, hence moved to NeutronConstants.java as it already has DEVICE_OWNER_DHCP constant.",
+      "parentUuid": "1af78d9a_588995c9",
       "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -206,6 +350,24 @@
     },
     {
       "key": {
+        "uuid": "1af78d9a_e38ff621",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-19T14:14:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_388649ba",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_b8f35972",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceRemoveJob.java",
         "patchSetId": 25
@@ -223,6 +385,24 @@
     },
     {
       "key": {
+        "uuid": "1af78d9a_83bb920d",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceRemoveJob.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-19T14:14:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_b8f35972",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_18e9cd80",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 25
@@ -234,6 +414,24 @@
       "writtenOn": "2017-06-19T05:21:01Z",
       "side": 1,
       "message": "I don\u0027t think you need to make decisions based on empty vs non-empty instrction. it should be just opaque list and should be directly used in installFlow. Let callers fill instructions properly before calling this method.",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_63c4a692",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 2269,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-19T14:14:07Z",
+      "side": 1,
+      "message": "Then I need to have Duplicate ArpResponderUtil.java class both in ELAN and VPNManager or else need to move ARPResponderUtil to ELAN-API as instruction generation logic is in ArpResponderUtil.java",
+      "parentUuid": "1af78d9a_18e9cd80",
       "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
