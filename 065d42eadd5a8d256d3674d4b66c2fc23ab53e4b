@@ -1,0 +1,242 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1af78d9a_58db55ed",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-19T05:21:01Z",
+      "side": 1,
+      "message": "can move job key to a private method ?",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_f8d681c4",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-19T05:21:01Z",
+      "side": 1,
+      "message": "not sure why you still use int constant here. As I mentioned earlier, this can be replaced with BiConsumer\u003cPort, String\u003e. It will make this method to be used for different behaviors.\n\nAnd change the method name to processFixedIpsInPort",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_f8a4c158",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-19T05:21:01Z",
+      "side": 1,
+      "message": "you could apply map followed by filter. it avoids calling v.getIpAddress().getIpv4Address() two times. Also you can move this to a util method like getFixedIpAddress(Port port)",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_f8ede18c",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-19T05:21:01Z",
+      "side": 1,
+      "message": "Can you remove the commented code ? It\u0027s bit ugly to see it. If you want use this code later on, anyway we have history of code changes.",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_d8ee258b",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-19T05:21:01Z",
+      "side": 1,
+      "message": "I don\u0027t like the idea of having elan specific ds reads and build instance identifier logic inside dhcp module. \nCan you have a helper class in elanamager-api so that it can be reused (like FibHelper) ? Also you may have to move some methods from ElanUtils.",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_78f9f14c",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-19T05:21:01Z",
+      "side": 1,
+      "message": "change this method to take BiConsumer\u003cInstanceIdentifier\u003cNetworkToDhcpport\u003e, NetworkToDhcpport\u003e as argument instead of tx. And let callers pass (identifier, networkToDhcpport) -\u003e tx.put(LogicalDatastoreType.CONFIGURATION, identifier, networkToDhcpport) or (identifier, networkToDhcpport) -\u003e MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, identifier,\n                                    networkToDhcpport) accordingly.",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_b89a3912",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-19T05:21:01Z",
+      "side": 1,
+      "message": "same comment as above.",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_98e5bdaa",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-19T05:21:01Z",
+      "side": 1,
+      "message": "too much of Optional coversion here. can\u0027t you just use return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_78e291a0",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-19T05:21:01Z",
+      "side": 1,
+      "message": "I don\u0027t like the idea of reading interface state ds from dhcp module. why can\u0027t you make use of interfaceManager.getInterfaceInfo(interfaceName)",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_9893fdf9",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-19T05:21:01Z",
+      "side": 1,
+      "message": "use MDSALUtils#getDpnIdFromPortName",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_588995c9",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-19T05:21:01Z",
+      "side": 1,
+      "message": "can you move this to DHCP Constant class file ?",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_388649ba",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-19T05:21:01Z",
+      "side": 1,
+      "message": "public static",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_b8f35972",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceRemoveJob.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-19T05:21:01Z",
+      "side": 1,
+      "message": "still final is used in some places",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_18e9cd80",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 2269,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-19T05:21:01Z",
+      "side": 1,
+      "message": "I don\u0027t think you need to make decisions based on empty vs non-empty instrction. it should be just opaque list and should be directly used in installFlow. Let callers fill instructions properly before calling this method.",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
