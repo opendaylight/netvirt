@@ -752,10 +752,11 @@ public class VpnUtil {
         return null;
     }
 
-    static VpnInterface getOperationalVpnInterface(DataBroker broker, String interfaceName) {
-        InstanceIdentifier<VpnInterface> interfaceId = getVpnInterfaceIdentifier(interfaceName);
-        Optional<VpnInterface> operationalVpnInterface = read(broker, LogicalDatastoreType.OPERATIONAL, interfaceId);
-
+    static VpnInterfaceOpDataEntry getOperationalVpnInterface(DataBroker broker, String interfaceName, String vpnName) {
+        InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId =
+            getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
+        Optional<VpnInterfaceOpDataEntry> operationalVpnInterface = read(broker,
+            LogicalDatastoreType.OPERATIONAL, interfaceId);
         if (operationalVpnInterface.isPresent()) {
             return operationalVpnInterface.get();
         }
@@ -1403,11 +1404,18 @@ public class VpnUtil {
         });
     }
 
-    public static boolean isVpnIntfPresentInVpnToDpnList(DataBroker broker, VpnInterface vpnInterface) {
+    public static boolean isVpnIntfPresentInVpnToDpnList(DataBroker broker,
+                                                      VpnInterface vpnInterface, String vpnName) {
         BigInteger dpnId = vpnInterface.getDpnId();
+<<<<<<< HEAD
         String rd = VpnUtil.getVpnRd(broker, vpnInterface.getVpnInstanceName().get(0));
         LOG.trace("GOT rd {} for VpnInterface {}  VpnInstance {} ", rd ,
                    vpnInterface.getName(), vpnInterface.getVpnInstanceName().get(0));
+=======
+        String rd = VpnUtil.getVpnRd(broker, vpnName);
+        LOG.trace("GOT rd {} for VpnInterface {}  VpnInstance {} ", rd ,
+                   vpnInterface.getName(), vpnName);
+>>>>>>> 3c2f17262e94... vpninterface-manager: support for update operation
         VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpDataFromCache(broker, rd);
         if (vpnInstanceOpData != null) {
             LOG.trace("GOT VpnInstanceOp {} for rd {} ", vpnInstanceOpData, rd);
