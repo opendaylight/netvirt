@@ -35,7 +35,6 @@ public class ShowFibCommand extends OsgiCommandSupport {
                                            + "\n   -------------------------------------------------------------------";
 
     private SingleTransactionDataBroker singleTxDb;
-    private DataBroker dataBroker;
 
     public void setDataBroker(DataBroker dataBroker) {
         this.singleTxDb = new SingleTransactionDataBroker(dataBroker);
@@ -43,7 +42,6 @@ public class ShowFibCommand extends OsgiCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-
         PrintStream console = session.getConsole();
         console.println(HEADER);
 
