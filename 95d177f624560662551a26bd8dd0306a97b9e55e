@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1af78d9a_7803b10f",
+        "filename": "vpnservice/dhcpservice/dhcpservice-api/src/main/yang/dhcpservice-api.yang",
+        "patchSetId": 26
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-19T06:36:08Z",
+      "side": 1,
+      "message": "if this is just networkid, plese use networkid as the key.. port-networkid confuses if its a combined key.",
+      "revId": "95d177f624560662551a26bd8dd0306a97b9e55e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
