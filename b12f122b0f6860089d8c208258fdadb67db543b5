@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1af78d9a_a9582d57",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-06-19T14:53:02Z",
+      "side": 1,
+      "message": "this assignment is not necessary",
+      "revId": "b12f122b0f6860089d8c208258fdadb67db543b5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_e4fffcff",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-06-19T14:53:02Z",
+      "side": 1,
+      "message": "Why not put this in BgpUtil? It could even share implementation with the function you worked on in there.",
+      "revId": "b12f122b0f6860089d8c208258fdadb67db543b5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

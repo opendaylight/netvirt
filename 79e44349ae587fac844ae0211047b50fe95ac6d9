@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "1af78d9a_040fa831",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-06-19T14:53:02Z",
+      "side": 0,
+      "message": "Is it correct that validating the IP is parseable and assignable to an AFI is not necessary in this function?\n\nAlso, since there is another function to validate and parse an address into an AFI, shouldn\u0027t testValueAFI be removed??",
+      "revId": "79e44349ae587fac844ae0211047b50fe95ac6d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_23f45ef1",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
         "patchSetId": 4
@@ -13,6 +30,30 @@
       "writtenOn": "2017-06-19T06:58:29Z",
       "side": 0,
       "message": "I don\u0027t get relationship with the above changes.\nCould you explain, please ?",
+      "range": {
+        "startLine": 1637,
+        "startChar": 66,
+        "endLine": 1637,
+        "endChar": 115
+      },
+      "revId": "79e44349ae587fac844ae0211047b50fe95ac6d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_64130c5d",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1637,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-06-19T14:53:02Z",
+      "side": 0,
+      "message": "I\u0027m just a reviewer but I assume this line is deleted because staleFibRdMap is not used?",
+      "parentUuid": "1af78d9a_23f45ef1",
       "range": {
         "startLine": 1637,
         "startChar": 66,
