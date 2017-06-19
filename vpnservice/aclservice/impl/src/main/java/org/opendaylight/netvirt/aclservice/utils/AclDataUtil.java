@@ -61,9 +61,13 @@ public class AclDataUtil {
 
     public synchronized void removeAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
         for (Uuid acl : aclList) {
+
             List<AclInterface> interfaceList = aclInterfaceMap.get(acl);
-            if (interfaceList != null) {
-                interfaceList.remove(port);
+            for (Iterator<AclInterface> iterator = interfaceList.iterator();iterator.hasNext();) {
+                AclInterface aclInterface = iterator.next();
+                if (aclInterface.getInterfaceId().equals(port.getInterfaceId())) {
+                    iterator.remove();
+                }
             }
         }
     }
