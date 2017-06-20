@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1af78d9a_9b365202",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-06-20T11:00:39Z",
+      "side": 0,
+      "message": "I removed it, the code you are referring is old code. New code is on right side",
+      "parentUuid": "1af78d9a_040fa831",
+      "revId": "79e44349ae587fac844ae0211047b50fe95ac6d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_23f45ef1",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
         "patchSetId": 4
@@ -54,6 +72,54 @@
       "side": 0,
       "message": "I\u0027m just a reviewer but I assume this line is deleted because staleFibRdMap is not used?",
       "parentUuid": "1af78d9a_23f45ef1",
+      "range": {
+        "startLine": 1637,
+        "startChar": 66,
+        "endLine": 1637,
+        "endChar": 115
+      },
+      "revId": "79e44349ae587fac844ae0211047b50fe95ac6d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_9b4f7292",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1637,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-06-20T11:00:39Z",
+      "side": 0,
+      "message": "this has no relation to the current topic, as this line is not used I removed it.",
+      "parentUuid": "1af78d9a_23f45ef1",
+      "range": {
+        "startLine": 1637,
+        "startChar": 66,
+        "endLine": 1637,
+        "endChar": 115
+      },
+      "revId": "79e44349ae587fac844ae0211047b50fe95ac6d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_1b5b8255",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1637,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-06-20T11:00:39Z",
+      "side": 0,
+      "message": "Yes, I removed it as its not used",
+      "parentUuid": "1af78d9a_64130c5d",
       "range": {
         "startLine": 1637,
         "startChar": 66,

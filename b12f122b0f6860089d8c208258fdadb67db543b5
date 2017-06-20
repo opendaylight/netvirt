@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1af78d9a_7b2f26a2",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-06-20T11:00:39Z",
+      "side": 1,
+      "message": "Yes, its required, if none of the if\u0027s match and no excepiton. Assume IPV4 as default",
+      "parentUuid": "1af78d9a_a9582d57",
+      "revId": "b12f122b0f6860089d8c208258fdadb67db543b5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_e4fffcff",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-06-19T14:53:02Z",
       "side": 1,
       "message": "Why not put this in BgpUtil? It could even share implementation with the function you worked on in there.",
+      "revId": "b12f122b0f6860089d8c208258fdadb67db543b5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_ce465a23",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-06-20T11:00:39Z",
+      "side": 1,
+      "message": "I should have done that, but because BgpUtil and BgpCounters are sitting in differnt packages (org.opendaylight.netvirt.bgpmanager.oam --\u003e BgpCounters; org.opendaylight.netvirt.bgpmanager--\u003eBgpUtil) I haven\u0027t done that..",
+      "parentUuid": "1af78d9a_e4fffcff",
       "revId": "b12f122b0f6860089d8c208258fdadb67db543b5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
