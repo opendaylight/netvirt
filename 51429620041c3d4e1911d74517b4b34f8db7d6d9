@@ -16,6 +16,24 @@
       "revId": "51429620041c3d4e1911d74517b4b34f8db7d6d9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_cef81ae8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-06-20T10:48:25Z",
+      "side": 1,
+      "message": "Hello Vyshakh,\nTo get the RouteDistinguishers we have to find them in the config of ipv4 or ipv6. Because the both RDs for ipv4 or v6 are the same if existing, so only one config is used.\nThk",
+      "parentUuid": "1af78d9a_7bc8c674",
+      "revId": "51429620041c3d4e1911d74517b4b34f8db7d6d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
