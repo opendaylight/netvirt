@@ -1700,4 +1700,20 @@ public class VpnUtil {
         }
         return network;
     }
+
+    public static boolean isEligibleForBgp(String rd, String vpnName, BigInteger dpnId, String networkName) {
+        if (rd != null) {
+            if ((vpnName != null) && (rd.equals(vpnName))) {
+                return false;
+            }
+            if ((dpnId != null) && (rd.equals(dpnId.toString()))) {
+                return false;
+            }
+            if ((networkName != null) && (rd.equals(networkName))) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
 }
