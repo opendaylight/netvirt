@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1af78d9a_58f9904c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-06-20T06:45:27Z",
+      "side": 1,
+      "message": "better to have an enum with address family values in it rather than checking multiple bools",
+      "revId": "a30afc30b533fad536a8b4683dd905c65cdad82b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_78fc4c3f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 909,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-06-20T06:45:27Z",
+      "side": 1,
+      "message": "what if we have ipv4 and ipv6 subnet under same vpn. we end up creating only for the last address family",
+      "revId": "a30afc30b533fad536a8b4683dd905c65cdad82b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
