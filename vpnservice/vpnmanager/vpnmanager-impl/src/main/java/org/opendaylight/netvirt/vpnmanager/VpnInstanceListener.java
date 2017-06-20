@@ -107,108 +107,25 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     private void waitForOpRemoval(String rd, String vpnName) {
         //wait till DCN for update on VPN Instance Op Data signals that vpn interfaces linked to this vpn instance is
         // zero
-        //TODO(vpnteam): Entire code would need refactoring to listen only on the parent object - VPNInstance
         VpnInstanceOpDataEntry vpnOpEntry = null;
-        Long intfCount = 0L;
-        Long currentIntfCount = 0L;
-        Integer retryCount = 3;
-        long timeout = VpnConstants.MIN_WAIT_TIME_IN_MILLISECONDS;
         Optional<VpnInstanceOpDataEntry> vpnOpValue = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
             VpnUtil.getVpnInstanceOpDataIdentifier(rd));
-
-        if ((vpnOpValue != null) && (vpnOpValue.isPresent())) {
+        if (vpnOpValue.isPresent()) {
             vpnOpEntry = vpnOpValue.get();
-            List<VpnToDpnList> dpnToVpns = vpnOpEntry.getVpnToDpnList();
-            if (dpnToVpns != null) {
-                for (VpnToDpnList dpn : dpnToVpns) {
-                    if (dpn.getVpnInterfaces() != null) {
-                        intfCount = intfCount + dpn.getVpnInterfaces().size();
-                    }
-                }
-            }
-            //intfCount = vpnOpEntry.getVpnInterfaceCount();
-            while (true) {
-                if (intfCount > 0) {
-                    // Minimum wait time of 5 seconds for one VPN Interface clearance (inclusive of full trace on)
-                    timeout = intfCount * VpnConstants.MIN_WAIT_TIME_IN_MILLISECONDS;
-                    // Maximum wait time of 90 seconds for all VPN Interfaces clearance (inclusive of full trace on)
-                    if (timeout > VpnConstants.MAX_WAIT_TIME_IN_MILLISECONDS) {
-                        timeout = VpnConstants.MAX_WAIT_TIME_IN_MILLISECONDS;
-                    }
-                    LOG.info("VPNInstance removal count of interface at {} for for rd {}, vpnname {}",
-                        intfCount, rd, vpnName);
-                }
-                LOG.info("VPNInstance removal thread waiting for {} seconds for rd {}, vpnname {}",
-                    (timeout / 1000), rd, vpnName);
-
-                try {
-                    Thread.sleep(timeout);
-                } catch (InterruptedException e) {
-                    // Ignored
-                }
-
-                // Check current interface count
-                vpnOpValue = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                    VpnUtil.getVpnInstanceOpDataIdentifier(rd));
-                if ((vpnOpValue != null) && (vpnOpValue.isPresent())) {
-                    vpnOpEntry = vpnOpValue.get();
-                    dpnToVpns = vpnOpEntry.getVpnToDpnList();
-                    currentIntfCount = 0L;
-                    if (dpnToVpns != null) {
-                        for (VpnToDpnList dpn : dpnToVpns) {
-                            if (dpn.getVpnInterfaces() != null) {
-                                currentIntfCount = currentIntfCount + dpn.getVpnInterfaces().size();
-                            }
-                        }
-                    }
-                    if ((currentIntfCount == 0) || (currentIntfCount >= intfCount)) {
-                        // Either the FibManager completed its job to cleanup all vpnInterfaces in VPN
-                        // OR
-                        // There is no progress by FibManager in removing all the interfaces even after good time!
-                        // In either case, let us quit and take our chances.
-                        //TODO(vpnteam): L3VPN refactoring to take care of this case.
-                        if ((dpnToVpns == null) || dpnToVpns.size() <= 0) {
-                            LOG.info("VPN Instance vpn {} rd {} ready for removal, exiting wait loop", vpnName, rd);
-                            break;
-                        } else {
-                            if (retryCount > 0) {
-                                retryCount--;
-                                LOG.info(
-                                    "Retrying clearing vpn with vpnname {} rd {} since current interface count {} ",
-                                    vpnName, rd, currentIntfCount);
-                                if (currentIntfCount > 0) {
-                                    intfCount = currentIntfCount;
-                                } else {
-                                    LOG.info(
-                                        "Current interface count is zero, but instance Op for vpn {} and rd {} not "
-                                            + "cleared yet. Waiting for 5 more seconds.",
-                                        vpnName, rd);
-                                    intfCount = 1L;
-                                }
-                            } else {
-                                LOG.info(
-                                    "VPNInstance bailing out of wait loop as current interface count is {} and max "
-                                        + "retries exceeded for for vpnName {}, rd {}",
-                                    currentIntfCount, vpnName, rd);
-                                break;
-                            }
-                        }
-                    } else {
-                        LOG.info("Retrying clearing because not all vpnInterfaces removed : current interface count {},"
-                                + " initial count {} for rd {}, vpnname {}", currentIntfCount, intfCount, rd, vpnName);
-                        intfCount = currentIntfCount;
-                    }
-                } else {
-                    // There is no VPNOPEntry.  Something else happened on the system !
-                    // So let us quit and take our chances.
-                    //TODO(vpnteam): L3VPN refactoring to take care of this case.
-                    LOG.error("VpnInstanceOpData is not present in the operational DS for rd {}, vpnname {}", rd,
-                            vpnName);
-                    break;
-                }
-            }
+        } else {
+            LOG.error("VpnOpData not present for vpn {}. Proceeding to cleanup...", vpnName);
+            return;
         }
-        LOG.info("Returned out of waiting for  Op Data removal for rd {}, vpnname {}", rd, vpnName);
+        List<VpnToDpnList> dpnToVpns = vpnOpEntry.getVpnToDpnList();
+        if (dpnToVpns == null || dpnToVpns.isEmpty()) {
+            LOG.info("Op Data has been cleaned up already for rd {}, vpnname {}."
+                    + " Proceeding with cleanup..", rd, vpnName);
+            return;
+        } else {
+            LOG.info("Waiting for  Op Data removal for rd {}, vpnname {}", rd, vpnName);
+            vpnOpDataNotifier.waitForVpnDataReady(VpnOpDataSyncer.VpnOpDataType.vpnToDpnList, vpnName,
+                    VpnConstants.MAX_WAIT_TIME_IN_MILLISECONDS);
+        }
     }
 
     @Override

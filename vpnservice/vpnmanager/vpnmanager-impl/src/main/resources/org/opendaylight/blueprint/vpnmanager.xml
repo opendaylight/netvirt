@@ -46,6 +46,7 @@
         class="org.opendaylight.netvirt.vpnmanager.DpnInVpnChangeListener">
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />
+    <argument ref="vpnOpDataSyncer" />
   </bean>
   <service ref="dpnInVpnChangeListener" odl:type="default"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OdlL3vpnListener" />

@@ -33,10 +33,13 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
     private static final Logger LOG = LoggerFactory.getLogger(DpnInVpnChangeListener.class);
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
+    private final VpnOpDataSyncer vpnOpDataNotifier;
 
-    public DpnInVpnChangeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager) {
+    public DpnInVpnChangeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager,
+                                  VpnOpDataSyncer vpnOpDataNotifier) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
+        this.vpnOpDataNotifier = vpnOpDataNotifier;
     }
 
     public void onAddDpnEvent(AddDpnEvent notification) {
@@ -80,6 +83,8 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
                         throw new RuntimeException(e.getMessage());
                     }
                 }
+                //Notify vpnInstanceListener to proceed with cleanup once the footprint for the vpn has been erased.
+                vpnOpDataNotifier.notifyVpnOpDataReady(VpnOpDataSyncer.VpnOpDataType.vpnToDpnList, vpnName);
             }
         }
     }
