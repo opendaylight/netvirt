@@ -22,6 +22,30 @@
       "revId": "1ac4b3059dd8649d36e883045c537c0c9681e7fc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_f86ddc05",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-20T06:56:39Z",
+      "side": 1,
+      "message": "ok. good idea. this will be done.",
+      "parentUuid": "1af78d9a_d81100ae",
+      "range": {
+        "startLine": 185,
+        "startChar": 26,
+        "endLine": 185,
+        "endChar": 35
+      },
+      "revId": "1ac4b3059dd8649d36e883045c537c0c9681e7fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
