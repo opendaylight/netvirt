@@ -750,8 +750,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, localNextHopIP);
             List<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getAllVpnExtraRoutes(dataBroker,
                     vpnName, usedRds, localNextHopIP);
-            //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
             boolean localNextHopSeen = false;
+            //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
             for (Routes vpnExtraRoute : vpnExtraRoutes) {
                 String ipPrefix;
                 if (isIpv4Address(vpnExtraRoute.getNexthopIpList().get(0))) {
@@ -769,7 +769,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     returnLocalDpnId.add(dpnId);
                 }
             }
-            if (localNextHopSeen) {
+            if (!localNextHopSeen) {
                 /* imported routes case */
                 if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.SELF_IMPORTED) {
                     java.util.Optional<Long> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
@@ -1744,7 +1744,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         // below two reads are kept as is, until best way is found to identify dpnID
         VpnNexthop localNextHopInfo = nextHopManager.getVpnNexthop(vpnId, vrfEntry.getDestPrefix());
         if (extraRouteOptional.isPresent()) {
-            nextHopManager.setupLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix(), null , false);
+            nextHopManager.setupLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix(),
+                    Collections.emptyList()  /*listBucketInfo*/, false);
         } else {
             checkDpnDeleteFibEntry(localNextHopInfo, remoteDpnId, vpnId, vrfEntry, rd, tx);
         }
@@ -2289,6 +2290,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 List<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getAllVpnExtraRoutes(dataBroker,
                         FibUtil.getVpnNameFromId(dataBroker, vpnId), usedRds, vrfEntry.getDestPrefix());
                 if (vpnExtraRoutes.isEmpty()) {
+                    Prefixes prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
+                    // We donot want to provide an adjacencyList for an extra-route-prefix.
+                    if (prefixInfo == null) {
+                        LOG.debug("The extra route {} in rd {} for vpn {} has been removed from all the next hops",
+                                vrfEntry.getDestPrefix(), rd, vpnId);
+                        return adjacencyList;
+                    }
                     prefixIpList = Collections.singletonList(vrfEntry.getDestPrefix());
                 } else {
                     List<String> prefixIpListLocal = new ArrayList<>();

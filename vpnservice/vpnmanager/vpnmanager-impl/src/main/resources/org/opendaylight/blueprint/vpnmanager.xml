@@ -19,11 +19,9 @@
   <reference id="fibManager"
              interface="org.opendaylight.netvirt.fibmanager.api.IFibManager" />
   <reference id="neutronVpnService"
-             interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager"
-             availability="optional" />
+             interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager"/>
   <reference id="vpnManager"
-             interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager"
-             availability="optional" />
+             interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager"/>
   <reference id="entityOwnershipService"
              interface="org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService" />
 

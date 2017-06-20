@@ -17,7 +17,7 @@
   <reference id="vpnManager"
              interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" availability="optional"/>
   <reference id="bgpManager"
-             interface="org.opendaylight.netvirt.bgpmanager.api.IBgpManager" availability="optional"/>
+             interface="org.opendaylight.netvirt.bgpmanager.api.IBgpManager"/>
   <reference id="neutronvpnManagerImpl"
              interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" availability="optional"/>
 
