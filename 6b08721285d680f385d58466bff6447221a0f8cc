@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1af78d9a_07104500",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/LearnIngressAclServiceImplTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-06-20T21:28:33Z",
+      "side": 1,
+      "message": "Please change to 2017 NEC copyright",
+      "revId": "6b08721285d680f385d58466bff6447221a0f8cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
