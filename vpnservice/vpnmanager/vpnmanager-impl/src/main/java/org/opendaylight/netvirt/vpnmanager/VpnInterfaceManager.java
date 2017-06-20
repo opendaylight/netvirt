@@ -391,7 +391,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             // Interface is retained in the DPN, but its Link Up.
             // Advertise prefixes again for this interface to BGP
             advertiseAdjacenciesForVpnToBgp(dpId, VpnUtil.getVpnInterfaceIdentifier(vpnInterface.getName()),
-                    vpnInterface);
+                                vpnInterface, vpnName);
         }
     }
 
@@ -433,25 +433,25 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void advertiseAdjacenciesForVpnToBgp(BigInteger dpnId, final InstanceIdentifier<VpnInterface> identifier,
-            VpnInterface intf) {
+                       VpnInterface intf, String vpnName) {
 
-        String rd = VpnUtil.getVpnRd(dataBroker, intf.getVpnRouterIds().get(0));
+        String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
         if (rd == null) {
             LOG.error("advertiseAdjacenciesForVpnFromBgp: Unable to recover rd for interface {} in vpn {}",
-                intf.getName(), intf.getVpnRouterIds().get(0));
+                            intf.getName(), vpnName);
             return;
         } else {
-            if (rd.equals(intf.getVpnRouterIds().get(0))) {
+            if (rd.equals(vpnName)) {
                 LOG.info(
                         "advertiseAdjacenciesForVpnFromBgp: Ignoring BGP advertisement for interface {} as it is in "
                                 + "internal vpn{} with rd {}",
-                        intf.getName(), intf.getVpnRouterIds().get(0), rd);
+                        intf.getName(), vpnName, rd);
 
                 return;
             }
         }
         LOG.info("advertiseAdjacenciesForVpnToBgp: Advertising interface {} in vpn {} with rd {} ", intf.getName(),
-            intf.getVpnRouterIds().get(0), rd);
+            vpnName, rd);
 
         String nextHopIp = InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId);
         if (nextHopIp == null) {
@@ -490,7 +490,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 nextHop.getIpAddress(), nextHopIp, label);
                     } catch (Exception e) {
                         LOG.error("Failed to advertise prefix {} in vpn {} with rd {} for interface {} ",
-                                  nextHop.getIpAddress(), intf.getVpnRouterIds().get(0),
+                                  nextHop.getIpAddress(), vpnName,
                                   rd, intf.getName(), e);
                     }
                 }
