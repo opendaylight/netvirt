@@ -33,6 +33,24 @@
       "revId": "a30afc30b533fad536a8b4683dd905c65cdad82b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_38b0048b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 909,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-20T06:56:05Z",
+      "side": 1,
+      "message": "Hi Vyshakh, \nThe algorithm is detecting whether there is IPv4 and/or IPv6.\nwhen you say \"end up creating only for the last addres family\", we create both families.no ?",
+      "parentUuid": "1af78d9a_78fc4c3f",
+      "revId": "a30afc30b533fad536a8b4683dd905c65cdad82b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
