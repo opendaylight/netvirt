@@ -128,6 +128,10 @@ public class ElanPacketInHandler implements PacketProcessingListener {
 
                 ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
                 InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
+                if (interfaceInfo == null) {
+                    LOG.trace("Interface:{} is not present under Config DS", interfaceName);
+                    return;
+                }
                 enqueueJobForDPNSpecificTasks(macAddress, elanTag, interfaceName, physAddress, elanInstance,
                         interfaceInfo, oldMacEntry, newMacEntry, isVlanOrFlatProviderIface, portDataStoreCoordinator);
 
