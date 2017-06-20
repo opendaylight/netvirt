@@ -81,8 +81,8 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
     @Override
     protected void update(InstanceIdentifier<Acl> key, Acl aclBefore, Acl aclAfter) {
-        if (!AclServiceUtils.isOfAclInterest(aclAfter) || !AclServiceUtils.isOfAclInterest(aclBefore)) {
-            LOG.trace("before {} and/or after {} does not have SecurityRuleAttr augmentation",
+        if (!AclServiceUtils.isOfAclInterest(aclAfter) && !AclServiceUtils.isOfAclInterest(aclBefore)) {
+            LOG.trace("before {} and after {} does not have SecurityRuleAttr augmentation",
                     aclBefore.getAclName(), aclAfter.getAclName());
             return;
         }
