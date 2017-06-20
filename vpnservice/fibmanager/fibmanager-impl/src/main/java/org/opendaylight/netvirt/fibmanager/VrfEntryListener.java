@@ -302,7 +302,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     rd, vrfEntry.getDestPrefix(), elanTag);
             if (vpnToDpnList != null) {
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                dataStoreCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(), () -> {
+                dataStoreCoordinator.enqueueJob(FibUtil.getJobKeyForRdPrefix(rd, vrfEntry.getDestPrefix()), () -> {
                     WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                     for (final VpnToDpnList curDpn : vpnToDpnList) {
                         if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
@@ -325,7 +325,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (!localDpnIdList.isEmpty()) {
             if (vpnToDpnList != null) {
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                dataStoreCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(), () -> {
+                dataStoreCoordinator.enqueueJob(FibUtil.getJobKeyForRdPrefix(rd, vrfEntry.getDestPrefix()), () -> {
                     WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                     for (VpnToDpnList vpnDpn : vpnToDpnList) {
                         if (!localDpnIdList.contains(vpnDpn.getDpnId())) {
@@ -946,17 +946,17 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (localNextHopInfo != null) {
             final BigInteger dpnId = localNextHopInfo.getDpnId();
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            dataStoreCoordinator.enqueueJob("FIB-" + vpnId.toString() + "-" + dpnId.toString() + "-" + vrfEntry
-                .getDestPrefix(), () -> {
+            dataStoreCoordinator.enqueueJob(FibUtil.getCreateLocalNextHopJobKey(vpnId, dpnId,
+                    vrfEntry.getDestPrefix()), () -> {
                     WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                     baseVrfEntryHandler.makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null,
                             NwConstants.DEL_FLOW, tx, null);
                     if (!FibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(dataBroker,
-                        localNextHopInfo.getSubnetId(), vpnId, rd)) {
+                            localNextHopInfo.getSubnetId(), vpnId, rd)) {
                         if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
                             FibUtil.getLabelFromRoutePaths(vrfEntry).ifPresent(label -> {
                                 makeLFibTableEntry(dpnId, label, null /* instructions */, DEFAULT_FIB_FLOW_PRIORITY,
-                                    NwConstants.DEL_FLOW, tx);
+                                        NwConstants.DEL_FLOW, tx);
                                 removeTunnelTableEntry(dpnId, label, tx);
                             });
                         }
@@ -1220,7 +1220,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 rd, vrfEntry.getDestPrefix(), elanTag);
             if (vpnToDpnList != null) {
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                dataStoreCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(),
+                dataStoreCoordinator.enqueueJob(FibUtil.getJobKeyForRdPrefix(rd, vrfEntry.getDestPrefix()),
                     () -> {
                         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
 
@@ -1278,10 +1278,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (vpnToDpnList != null) {
             List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker,
                     vpnInstance.getVpnId(), vrfEntry.getDestPrefix());
-            String usedRd = null;
+            String jobKey;
             Optional<Routes> extraRouteOptional;
             //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
             if (usedRds != null && !usedRds.isEmpty()) {
+                jobKey = FibUtil.getJobKeyForRdPrefix(usedRds.get(0), vrfEntry.getDestPrefix());
                 if (usedRds.size() > 1) {
                     LOG.error("The extra route prefix is still present in some DPNs");
                     return ;
@@ -1292,10 +1293,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             .getVpnExtraroutes(dataBroker, vpnName, usedRds.get(0), vrfEntry.getDestPrefix());
                 }
             } else {
+                jobKey = FibUtil.getJobKeyForRdPrefix(rd, vrfEntry.getDestPrefix());
                 extraRouteOptional = Optional.absent();
             }
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            dataStoreCoordinator.enqueueJob("FIB-" + usedRd + "-" + vrfEntry.getDestPrefix(),
+            dataStoreCoordinator.enqueueJob(jobKey,
                 () -> {
                     WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
 
@@ -1401,7 +1403,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             return;
         }
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob("FIB-" + vpnId + "-" + dpnId.toString(),
+        dataStoreCoordinator.enqueueJob(FibUtil.getJobKeyForVpnIdDpnId(vpnId, dpnId),
             () -> {
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 synchronized (vpnInstance.getVpnInstanceName().intern()) {
@@ -1472,7 +1474,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         final Optional<VrfTables> vrfTable = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         if (vrfTable.isPresent()) {
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            dataStoreCoordinator.enqueueJob("FIB-" + vpnId + "-" + dpnId.toString(),
+            dataStoreCoordinator.enqueueJob(FibUtil.getJobKeyForVpnIdDpnId(vpnId, dpnId),
                 () -> {
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
                     synchronized (vpnInstance.getVpnInstanceName().intern()) {
@@ -1502,7 +1504,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             return;
         }
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob("FIB-" + vpnId + "-" + localDpnId.toString(),
+        dataStoreCoordinator.enqueueJob(FibUtil.getJobKeyForVpnIdDpnId(vpnId, localDpnId),
             () -> {
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 synchronized (vpnInstance.getVpnInstanceName().intern()) {
@@ -1562,7 +1564,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         final Optional<VrfTables> vrfTable = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         if (vrfTable.isPresent()) {
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            dataStoreCoordinator.enqueueJob("FIB-" + vpnId + "-" + dpnId.toString(),
+            dataStoreCoordinator.enqueueJob(FibUtil.getJobKeyForVpnIdDpnId(vpnId, dpnId),
                 () -> {
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
                     synchronized (vpnInstance.getVpnInstanceName().intern()) {
@@ -1650,7 +1652,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         final Optional<VrfTables> vrfTable = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         if (vrfTable.isPresent()) {
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            dataStoreCoordinator.enqueueJob("FIB-" + vpnId + "-" + dpnId.toString(),
+            dataStoreCoordinator.enqueueJob(FibUtil.getJobKeyForVpnIdDpnId(vpnId, dpnId),
                 () -> {
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
                     synchronized (vpnInstance.getVpnInstanceName().intern()) {
