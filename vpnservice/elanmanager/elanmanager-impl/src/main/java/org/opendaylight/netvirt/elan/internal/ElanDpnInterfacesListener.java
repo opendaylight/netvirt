@@ -87,7 +87,7 @@ public class ElanDpnInterfacesListener
 
         // trigger creation of vlan provider intf for the vlan provider network
         // on br-int patch port for this DPN
-        if (!elanInstance.isExternal() && ElanUtils.isVlan(elanInstance)) {
+        if (elanInstance != null && !elanInstance.isExternal() && ElanUtils.isVlan(elanInstance)) {
             DataStoreJobCoordinator.getInstance().enqueueJob(dpnId.toString(), () -> {
                 LOG.debug("creating vlan member intf for elan {}, dpn {}",
                         elanInstance.getPhysicalNetworkName(), dpnId);
