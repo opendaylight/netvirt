@@ -87,6 +87,24 @@
       "revId": "a30afc30b533fad536a8b4683dd905c65cdad82b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_8e873261",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 909,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-20T10:41:03Z",
+      "side": 1,
+      "message": "yes, we need to set ipv6 as well.\ngood catch.\n\nnote that right now, we dont plan to have values for RD that are different between IPv4 and IPv6.",
+      "parentUuid": "1af78d9a_1b6f0294",
+      "revId": "a30afc30b533fad536a8b4683dd905c65cdad82b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
