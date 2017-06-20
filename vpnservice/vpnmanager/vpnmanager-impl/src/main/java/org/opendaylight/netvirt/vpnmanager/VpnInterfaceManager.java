@@ -1193,7 +1193,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             for (String nh : nhList) {
                                 //IRT: remove routes from other vpns importing it
                                 removePrefixFromBGP(primaryRd, rd, vpnName, nextHop.getIpAddress(),
-                                        nextHop.getNextHopIpList().get(0), nh, writeConfigTxn);
+                                        nextHop.getNextHopIpList().get(0), nh, dpnId, writeConfigTxn);
                                 for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                                     String vpnRd = vpn.getVrfId();
                                     if (vpnRd != null) {
@@ -1266,7 +1266,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void removePrefixFromBGP(String primaryRd, String rd, String vpnName, String prefix, String nextHop,
-                                     String tunnelIp, WriteTransaction writeConfigTxn) {
+                                     String tunnelIp, BigInteger dpnId, WriteTransaction writeConfigTxn) {
         try {
             LOG.info("VPN WITHDRAW: Removing Fib Entry rd {} prefix {} nexthop {}", rd, prefix, tunnelIp);
             String vpnNamePrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
@@ -1299,7 +1299,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     }
                 }
                 fibManager.removeOrUpdateFibEntry(dataBroker, primaryRd, prefix, tunnelIp, writeConfigTxn);
-                if (rd != null && !rd.equalsIgnoreCase(vpnName)) {
+                if (VpnUtil.isEligibleForBgp(rd, vpnName, dpnId, null /*networkName*/)) {
                     // TODO: Might be needed to include nextHop here
                     bgpManager.withdrawPrefix(rd, prefix);
                 }
@@ -1781,13 +1781,14 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     protected void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
         String intfName, WriteTransaction writeConfigTxn) {
         Boolean writeConfigTxnPresent = true;
+        BigInteger dpnId = null;
         if (writeConfigTxn == null) {
             writeConfigTxnPresent = false;
             writeConfigTxn = dataBroker.newWriteOnlyTransaction();
         }
         String tunnelIp = nextHop;
         if (intfName != null && !intfName.isEmpty()) {
-            BigInteger dpnId = InterfaceUtils.getDpnForInterface(ifaceMgrRpcService, intfName);
+            dpnId = InterfaceUtils.getDpnForInterface(ifaceMgrRpcService, intfName);
             String nextHopIp = InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId);
             if (nextHopIp == null || nextHopIp.isEmpty()) {
                 LOG.warn("NextHop for interface {} is null / empty. Failed advertising extra route for prefix {}",
@@ -1797,7 +1798,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
         if (rd != null) {
             String primaryRd = VpnUtil.getVpnRd(dataBroker, vpnName);
-            removePrefixFromBGP(primaryRd, rd, vpnName, destination, nextHop, tunnelIp, writeConfigTxn);
+            removePrefixFromBGP(primaryRd, rd, vpnName, destination, nextHop, tunnelIp, dpnId, writeConfigTxn);
         } else {
             // add FIB route directly
             fibManager.removeOrUpdateFibEntry(dataBroker, routerID, destination, tunnelIp, writeConfigTxn);

@@ -578,6 +578,14 @@ public class FibUtil {
         return "FIB-" + vpnId.toString() + "-" + dpnId.toString() + "-" + prefix;
     }
 
+    public static String getJobKeyForRdPrefix(String rd, String prefix) {
+        return "FIB-" + rd + "-" + prefix;
+    }
+
+    public static String getJobKeyForVpnIdDpnId(Long vpnId, BigInteger dpnId) {
+        return "FIB-" + vpnId.toString() + "-" + dpnId.toString() ;
+    }
+
     public static void updateUsedRdAndVpnToExtraRoute(WriteTransaction writeOperTxn, DataBroker broker,
                                                       String tunnelIpRemoved, String primaryRd, String prefix) {
         Optional<VpnInstanceOpDataEntry> optVpnInstance = getVpnInstanceOpData(broker, primaryRd);
@@ -766,7 +774,7 @@ public class FibUtil {
 
     protected static boolean isVxlanNetworkAndInternalRouterVpn(DataBroker dataBroker, Uuid subnetId, String
             vpnInstanceName, String rd) {
-        if (vpnInstanceName.equals(rd)) {
+        if (rd.equals(vpnInstanceName)) {
             Subnetmap subnetmap = getSubnetMap(dataBroker, subnetId);
             if (subnetmap != null) {
                 return subnetmap.getNetworkType() == NetworkAttributes.NetworkType.VXLAN;
