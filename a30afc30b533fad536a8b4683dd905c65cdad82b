@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1af78d9a_db5f3a71",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-06-20T09:31:35Z",
+      "side": 1,
+      "message": "Hi Vyshakh,\nI have done a change in version 7 draft mode.\nIs it fine for you please?\nThk",
+      "parentUuid": "1af78d9a_58f9904c",
+      "revId": "a30afc30b533fad536a8b4683dd905c65cdad82b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_78fc4c3f",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 6
