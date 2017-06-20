@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1af78d9a_71f2a79b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-20T14:30:47Z",
+      "side": 1,
+      "message": "how would this wait work if we fired this wait from Config Shard Leader PL, but the notification was initiated from DpnInVpnChangeListener which is running in Oper Shard Leader PL?",
+      "revId": "fd1c493653ac0cfc9255fad18b52f90632721fcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
