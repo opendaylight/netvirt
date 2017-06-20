@@ -1,10 +1,8 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
-    <reference id="elanProviderRef" interface="org.opendaylight.netvirt.elanmanager.api.IElanService"
-               availability="optional"/>
+    <reference id="elanProviderRef" interface="org.opendaylight.netvirt.elanmanager.api.IElanService"/>
     <reference id="interfaceManagerRef"
-               interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager"
-               availability="optional"/>
+               interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager"/>
     <reference id="dataBrokerRef"
                interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
                odl:type="pingpong"/>
