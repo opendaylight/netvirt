@@ -1378,11 +1378,12 @@ public class VpnUtil {
         });
     }
 
-    public static boolean isVpnIntfPresentInVpnToDpnList(DataBroker broker, VpnInterface vpnInterface) {
+    public static boolean isVpnIntfPresentInVpnToDpnList(DataBroker broker,
+                                                      VpnInterface vpnInterface, String vpnName) {
         BigInteger dpnId = vpnInterface.getDpnId();
-        String rd = VpnUtil.getVpnRd(broker, vpnInterface.getVpnRouterIds().get(0));
+        String rd = VpnUtil.getVpnRd(broker, vpnName);
         LOG.trace("GOT rd {} for VpnInterface {}  VpnInstance {} ", rd ,
-                   vpnInterface.getName(), vpnInterface.getVpnRouterIds().get(0));
+                   vpnInterface.getName(), vpnName);
         VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpDataFromCache(broker, rd);
         if (vpnInstanceOpData != null) {
             LOG.trace("GOT VpnInstanceOp {} for rd {} ", vpnInstanceOpData, rd);
