@@ -51,6 +51,24 @@
       "revId": "a30afc30b533fad536a8b4683dd905c65cdad82b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af78d9a_1b6f0294",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 909,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-06-20T08:37:51Z",
+      "side": 1,
+      "message": "okay fine. we are setting the ipv4 address family in updateVpnInstanceWithRDs() function as well. do we need to set ipv6 there as well?",
+      "parentUuid": "1af78d9a_38b0048b",
+      "revId": "a30afc30b533fad536a8b4683dd905c65cdad82b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
