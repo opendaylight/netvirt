@@ -1700,4 +1700,8 @@ public class VpnUtil {
         }
         return network;
     }
+
+    public static boolean advertiseToBgp(String rd, String vpnName, BigInteger dpnId) {
+        return rd != null && !rd.equalsIgnoreCase(vpnName) && !rd.equals(dpnId.toString());
+    }
 }
