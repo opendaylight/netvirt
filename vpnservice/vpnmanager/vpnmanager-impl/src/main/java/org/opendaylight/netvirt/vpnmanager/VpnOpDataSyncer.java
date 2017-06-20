@@ -32,17 +32,20 @@ public class VpnOpDataSyncer {
     public enum VpnOpDataType {
         vpnInstanceToId,
         vpnOpData,
+        vpnToDpnList
     }
 
     // Maps a VpnName with a list of Task to be executed once the the Vpn is fully ready.
     private final ConcurrentHashMap<String, List<Runnable>> vpnInst2IdSynchronizerMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, List<Runnable>> vpnInst2OpDataSynchronizerMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, List<Runnable>> vpnToDpnListSynchronizerMap = new ConcurrentHashMap<>();
 
     // The only purpose of this map is being able to reuse code
     private final Map<VpnOpDataType, ConcurrentHashMap<String, List<Runnable>>> mapOfMaps =
         ImmutableMap.<VpnOpDataType, ConcurrentHashMap<String, List<Runnable>>>builder()
             .put(VpnOpDataType.vpnInstanceToId, vpnInst2IdSynchronizerMap)
-            .put(VpnOpDataType.vpnOpData,       vpnInst2OpDataSynchronizerMap)
+            .put(VpnOpDataType.vpnOpData, vpnInst2OpDataSynchronizerMap)
+            .put(VpnOpDataType.vpnToDpnList, vpnToDpnListSynchronizerMap)
             .build();
 
 
