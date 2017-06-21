@@ -453,6 +453,24 @@
       "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_0d31b5a2",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 2269,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-21T07:58:22Z",
+      "side": 1,
+      "message": "In case of floating ip we need to write metadata and replace resubmit with goto in addition to ARP Actions instruction. In Gateway IP and DHCP actions we need to add only ARP actions. The ARP Actions instruction generation logic is in ARPResponderUtils which has visibility only in elanmanager-impl, May be use Functions?",
+      "parentUuid": "fa2559ec_0a4fdb93",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
