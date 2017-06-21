@@ -23,6 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.PortOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,6 +122,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                     () -> {
                         String interfaceName = intrf.getName();
                         BigInteger dpnId = BigInteger.ZERO;
+                        List<ListenableFuture<Void>> futures = new ArrayList<>();
                         LOG.info("SubnetRouteInterfaceListener remove: Received port DOWN event for"
                                 + "interface {}", interfaceName);
                         try {
@@ -131,16 +133,26 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                     intrf.getName(), e);
                             InstanceIdentifier<VpnInterface> id = VpnUtil
                                     .getVpnInterfaceIdentifier(interfaceName);
-                            Optional<VpnInterface> optVpnInterface = VpnUtil.read(dataBroker,
-                                    LogicalDatastoreType.OPERATIONAL, id);
-                            if (optVpnInterface.isPresent()) {
-                                dpnId = optVpnInterface.get().getDpnId();
+                            Optional<VpnInterface> cfgVpnInterface = VpnUtil.read(dataBroker,
+                                 LogicalDatastoreType.CONFIGURATION, id);
+                            boolean found = false;
+                            if (!cfgVpnInterface.isPresent()) {
+                                return futures;
+                            }
+                            for (String vpnName : cfgVpnInterface.get().getVpnInstanceName()) {
+                                InstanceIdentifier<VpnInterfaceOpDataEntry> idOper = VpnUtil
+                                       .getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
+                                Optional<VpnInterfaceOpDataEntry> optVpnInterface = VpnUtil.read(dataBroker,
+                                       LogicalDatastoreType.OPERATIONAL, idOper);
+                                if (optVpnInterface.isPresent()) {
+                                    dpnId = optVpnInterface.get().getDpnId();
+                                    break;
+                                }
                             }
                         }
                         if (!dpnId.equals(BigInteger.ZERO)) {
                             vpnSubnetRouteHandler.onInterfaceDown(dpnId, intrf.getName(), subnetId);
                         }
-                        List<ListenableFuture<Void>> futures = new ArrayList<>();
                         return futures;
                     });
             }
