@@ -435,6 +435,24 @@
       "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_0a4fdb93",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 2269,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-21T06:41:44Z",
+      "side": 1,
+      "message": "I don\u0027t quite understand this. since callers itself having enough info to build instructions, not sure why this would lead to duplication.",
+      "parentUuid": "1af78d9a_63c4a692",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
