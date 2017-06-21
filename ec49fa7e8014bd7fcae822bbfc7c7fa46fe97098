@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_d3c45e61",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-21T14:06:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_cd683d8a",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_ca730314",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
         "patchSetId": 28
@@ -65,6 +83,24 @@
       "writtenOn": "2017-06-21T07:58:22Z",
       "side": 1,
       "message": "K will change.",
+      "parentUuid": "fa2559ec_ca730314",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_b3cd6a89",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-21T14:06:58Z",
+      "side": 1,
+      "message": "Done",
       "parentUuid": "fa2559ec_ca730314",
       "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
@@ -125,6 +161,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_93cae66c",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-21T14:06:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_ed4d41c6",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_2a957fe4",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
         "patchSetId": 28
@@ -160,6 +214,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_f3c7e262",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-21T14:06:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_0d0a55d2",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_0a9a3b14",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
         "patchSetId": 28
@@ -189,6 +261,24 @@
       "side": 1,
       "message": "Primarily created addOrRemove flag because add required BiConsumer and delete required Consumer, will change as suggesterd",
       "parentUuid": "fa2559ec_0a9a3b14",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_33a17aaa",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-21T14:06:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_4d144df5",
       "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
