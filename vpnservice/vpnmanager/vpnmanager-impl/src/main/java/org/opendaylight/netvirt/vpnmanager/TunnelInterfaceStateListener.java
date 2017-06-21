@@ -342,8 +342,8 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                                     tunnelAction,
                                     vpnInterface,
                                     stateTunnelList,
-                                    isTepDeletedOnDpn,
-                                    cfgVpnInterface));
+                                    isTepDeletedOnDpn));
+
 
                     // Populate the List of subnets
                     InstanceIdentifier<PortOpDataEntry> portOpIdentifier =
@@ -408,15 +408,13 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             TunnelAction tunnelAction,
             VpnInterfaceOpDataEntry vpnInterface,
             StateTunnelList stateTunnelList,
-            boolean isTepDeletedOnDpn,
-            VpnInterface cfgVpnInterface) {
+            boolean isTepDeletedOnDpn) {
             this.broker = broker;
             this.vpnInterfaceManager = vpnInterfaceManager;
             this.stateTunnelList = stateTunnelList;
             this.vpnInterface = vpnInterface;
             this.tunnelAction = tunnelAction;
             this.isTepDeletedOnDpn = isTepDeletedOnDpn;
-            this.cfgVpnInterface = cfgVpnInterface;
         }
 
         @Override
@@ -429,16 +427,14 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                 vpnInterfaceManager.updateVpnInterfaceOnTepAdd(vpnInterface,
                                                             stateTunnelList,
                                                             writeConfigTxn,
-                                                            writeOperTxn,
-                                                            cfgVpnInterface);
+                                                            writeOperTxn);
             }
 
             if ((tunnelAction == TunnelAction.TUNNEL_EP_DELETE) && isTepDeletedOnDpn) {
                 vpnInterfaceManager.updateVpnInterfaceOnTepDelete(vpnInterface,
                                                                 stateTunnelList,
                                                                 writeConfigTxn,
-                                                                writeOperTxn,
-                                                                cfgVpnInterface);
+                                                                writeOperTxn);
             }
 
             futures.add(writeOperTxn.submit());
