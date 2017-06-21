@@ -116,6 +116,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthopsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RouterInterfaces;
@@ -227,6 +229,15 @@ public class VpnUtil {
             .setVpnInstanceNames(Collections.singletonList(vpnName)).setDpnId(
             dpnId)
             .setScheduledForRemove(isSheduledForRemove).addAugmentation(Adjacencies.class, aug)
+            .build();
+    }
+
+    static VpnInterfaceOpDataEntry getVpnInterfaceOpDataEntry(String intfName, String vpnName,
+                                        AdjacenciesOp aug, BigInteger dpnId,
+                                        Boolean isSheduledForRemove) {
+        return new VpnInterfaceOpDataEntryBuilder().setKey(new VpnInterfaceOpDataEntryKey(intfName, vpnName))
+            .setDpnId(dpnId)
+            .setScheduledForRemove(isSheduledForRemove).addAugmentation(AdjacenciesOp.class, aug)
             .build();
     }
 
@@ -413,6 +424,10 @@ public class VpnUtil {
 
     static Adjacencies getVpnInterfaceAugmentation(List<Adjacency> nextHopList) {
         return new AdjacenciesBuilder().setAdjacency(nextHopList).build();
+    }
+
+    static AdjacenciesOp getVpnInterfaceOpDataEntryAugmentation(List<Adjacency> nextHopList) {
+        return new AdjacenciesOpBuilder().setAdjacency(nextHopList).build();
     }
 
     public static InstanceIdentifier<IdPool> getPoolId(String poolName) {
