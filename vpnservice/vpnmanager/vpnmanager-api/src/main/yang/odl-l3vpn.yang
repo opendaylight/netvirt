@@ -228,6 +228,11 @@ module odl-l3vpn {
         }
     }
 
+    augment "/odl-l3vpn:vpn-interface-op-data/odl-l3vpn:vpn-interface-op-data-entry" {
+        ext:augment-identifier "adjacencies-op";
+        uses adjacency-list;
+    }
+
     container vpn-instance-op-data {
         config false;
         list vpn-instance-op-data-entry {
