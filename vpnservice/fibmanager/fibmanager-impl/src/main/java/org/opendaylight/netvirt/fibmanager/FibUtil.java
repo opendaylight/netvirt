@@ -39,9 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
@@ -66,7 +63,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
@@ -90,7 +86,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes;
@@ -150,19 +145,6 @@ public class FibUtil {
                 .VpnInterface.class,
                 new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces
                     .VpnInterfaceKey(vpnInterfaceName)).build();
-    }
-
-    public static InstanceIdentifier<VpnToDpnList> getVpnToDpnListIdentifier(String rd, BigInteger dpnId) {
-        return InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn
-            .rev130911.VpnInstanceOpData.class)
-            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
-                .VpnInstanceOpDataEntry.class,
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
-                    .VpnInstanceOpDataEntryKey(rd))
-            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
-                .vpn.instance.op.data.entry.VpnToDpnList.class,
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
-                    .vpn.instance.op.data.entry.VpnToDpnListKey(dpnId)).build();
     }
 
     static InstanceIdentifier<VpnInstanceOpDataEntry> getVpnInstanceOpDataIdentifier(String rd) {
@@ -238,35 +220,6 @@ public class FibUtil {
      */
     public static Optional<String> getVpnNameFromRd(DataBroker broker, String rd) {
         return getVpnInstanceOpData(broker, rd).transform(VpnInstanceOpDataEntry::getVpnInstanceName);
-    }
-
-    /**
-     * Obtains the route-distinguisher for a given vpn-name.
-     *
-     * @param broker The DataBroker
-     * @param vpnName vpn name
-     * @return route-distinguisher
-     */
-    public static String getVpnRd(DataBroker broker, String vpnName) {
-        InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVrfId).orNull();
-    }
-
-    public static int getUniqueId(IdManagerService idManager, String poolName, String idKey) {
-        AllocateIdInput getIdInput = new AllocateIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
-
-        try {
-            Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
-            RpcResult<AllocateIdOutput> rpcResult = result.get();
-            if (rpcResult.isSuccessful()) {
-                return rpcResult.getResult().getIdValue().intValue();
-            } else {
-                LOG.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when getting Unique Id", e);
-        }
-        return 0;
     }
 
     public static String getVpnNameFromId(DataBroker broker, long vpnId) {
@@ -494,21 +447,6 @@ public class FibUtil {
         }
     }
 
-    public static void addVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn) {
-        LOG.debug("Adding vrf table for rd {}", rd);
-        InstanceIdentifier.InstanceIdentifierBuilder<VrfTables> idBuilder =
-            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
-        InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
-        VrfTablesBuilder vrfTablesBuilder = new VrfTablesBuilder().setKey(new VrfTablesKey(rd))
-            .setRouteDistinguisher(rd).setVrfEntry(new ArrayList<>());
-        if (writeConfigTxn != null) {
-            writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTablesBuilder.build());
-        } else {
-            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTablesBuilder.build());
-        }
-
-    }
-
     public static void removeVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn) {
         LOG.debug("Removing vrf table for rd {}", rd);
         InstanceIdentifier.InstanceIdentifierBuilder<VrfTables> idBuilder =
@@ -647,24 +585,6 @@ public class FibUtil {
         return Tunnel.class.equals(adjacencyResult.getInterfaceType());
     }
 
-    public static Optional<Routes> getLastRoutePathExtraRouteIfPresent(DataBroker dataBroker, Long vpnId,
-            String rd, String prefix) {
-        List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, prefix);
-        String vpnName = getVpnNameFromId(dataBroker, vpnId);
-        if (usedRds == null || usedRds.isEmpty()) {
-            LOG.debug("No used rd found for prefix {} on vpn {}", prefix, vpnName);
-            return Optional.absent();
-        } else if (usedRds.size() > 1) {
-            LOG.debug("The extra route prefix is still present in some DPNs");
-            return Optional.absent();
-        } else {
-            rd = usedRds.get(0);
-        }
-        //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
-        return VpnExtraRouteHelper.getVpnExtraroutes(dataBroker,
-                getVpnNameFromId(dataBroker, vpnId), rd, prefix);
-    }
-
     public static InstanceIdentifier<VrfEntry> getNextHopIdentifier(String rd, String prefix) {
         return InstanceIdentifier.builder(FibEntries.class)
                 .child(VrfTables.class,new VrfTablesKey(rd)).child(VrfEntry.class,new VrfEntryKey(prefix)).build();
@@ -677,16 +597,6 @@ public class FibUtil {
             return FibHelper.getNextHopListFromRoutePaths(vrfEntry.get());
         } else {
             return Collections.emptyList();
-        }
-    }
-
-    public static Optional<String> getGatewayMac(DataBroker dataBroker, String rd, String localNextHopIP) {
-        InstanceIdentifier<VrfEntry> vrfEntryId = getNextHopIdentifier(rd, localNextHopIP);
-        Optional<VrfEntry> vrfEntry = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
-        if (vrfEntry.isPresent()) {
-            return Optional.fromNullable(vrfEntry.get().getGatewayMacAddress());
-        } else {
-            return Optional.absent();
         }
     }
 
@@ -844,6 +754,11 @@ public class FibUtil {
     static String getFlowRef(BigInteger dpnId, short tableId, String rd, int priority, InetAddress destPrefix) {
         return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR + rd
                 + NwConstants.FLOWID_SEPARATOR + priority + NwConstants.FLOWID_SEPARATOR + destPrefix.getHostAddress();
+    }
+
+    static String getL3VpnGatewayFlowRef(short l3GwMacTable, BigInteger dpId, long vpnId, String gwMacAddress) {
+        return gwMacAddress + NwConstants.FLOWID_SEPARATOR + vpnId + NwConstants.FLOWID_SEPARATOR + dpId
+                + NwConstants.FLOWID_SEPARATOR + l3GwMacTable;
     }
 
     static Node buildDpnNode(BigInteger dpnId) {

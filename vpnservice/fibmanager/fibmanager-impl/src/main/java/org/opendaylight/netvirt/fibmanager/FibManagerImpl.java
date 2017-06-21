@@ -88,16 +88,6 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void addStaticRoute(String vpnName, String prefix, String nextHop, String rd, int label) {
-        vpnmanager.addExtraRoute(vpnName, prefix, nextHop, rd, null, label, RouteOrigin.STATIC);
-    }
-
-    @Override
-    public void deleteStaticRoute(String vpnName, String prefix, String nextHop, String rd) {
-        vpnmanager.delExtraRoute(vpnName, prefix, nextHop, rd, null);
-    }
-
-    @Override
     public void setConfTransType(String service, String transportType) {
         nexthopManager.setConfTransType(service, transportType);
     }
@@ -164,12 +154,6 @@ public class FibManagerImpl implements IFibManager {
     public void updateRoutePathForFibEntry(DataBroker broker, String rd, String prefix, String nextHop,
                                long label, boolean nextHopAdd, WriteTransaction writeConfigTxn) {
         FibUtil.updateRoutePathForFibEntry(broker, rd, prefix, nextHop, label, nextHopAdd, writeConfigTxn);
-    }
-
-    @Override
-    public void addVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn) {
-        FibUtil.addVrfTable(broker, rd, writeConfigTxn);
-
     }
 
     @Override
