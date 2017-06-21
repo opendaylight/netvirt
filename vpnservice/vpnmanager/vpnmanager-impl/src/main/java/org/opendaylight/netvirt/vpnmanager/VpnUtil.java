@@ -116,6 +116,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Rou
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.SubnetOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInterfaceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
@@ -133,6 +134,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.rou
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntryBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
@@ -191,6 +195,13 @@ public class VpnUtil {
             .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName)).build();
     }
 
+    static InstanceIdentifier<VpnInterfaceOpDataEntry> getVpnInterfaceOpDataEntryIdentifier(
+                                                             String vpnInterfaceName, String vpnName) {
+        return InstanceIdentifier.builder(VpnInterfaceOpData.class)
+            .child(VpnInterfaceOpDataEntry.class,
+            new VpnInterfaceOpDataEntryKey(vpnInterfaceName, vpnName)).build();
+    }
+
     static InstanceIdentifier<VpnInstance> getVpnInstanceIdentifier(String vpnName) {
         return InstanceIdentifier.builder(VpnInstances.class)
             .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
@@ -202,13 +213,22 @@ public class VpnUtil {
         return vpnInterface.isPresent() ? vpnInterface.get() : null;
     }
 
-    static VpnInterface getVpnInterface(String intfName, String vpnName, Adjacencies aug, BigInteger dpnId,
-        Boolean isSheduledForRemove) {
+    static VpnInterface getVpnInterface(String intfName, String vpnName, Adjacencies aug,
+                                        BigInteger dpnId, Boolean isSheduledForRemove) {
         return new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(intfName))
             .setVpnInstanceName(Collections.singletonList(vpnName)).setDpnId(
             dpnId)
             .setScheduledForRemove(isSheduledForRemove).addAugmentation(Adjacencies.class, aug)
             .build();
+    }
+
+    static VpnInterfaceOpDataEntry getVpnInterfaceOpDataEntry(DataBroker broker,
+                                                 String vpnInterfaceName, String vpnName) {
+        InstanceIdentifier<VpnInterfaceOpDataEntry> id = getVpnInterfaceOpDataEntryIdentifier(vpnInterfaceName,
+                                                                                              vpnName);
+        Optional<VpnInterfaceOpDataEntry> vpnInterfaceOpDataEntry = read(broker,
+                                                      LogicalDatastoreType.OPERATIONAL, id);
+        return vpnInterfaceOpDataEntry.isPresent() ? vpnInterfaceOpDataEntry.get() : null;
     }
 
     static InstanceIdentifier<Prefixes> getPrefixToInterfaceIdentifier(long vpnId, String ipPrefix) {
@@ -1029,10 +1049,11 @@ public class VpnUtil {
     public static void scheduleVpnInterfaceForRemoval(DataBroker broker,String interfaceName, BigInteger dpnId,
                                                       String vpnInstanceName, Boolean isScheduledToRemove,
                                                       WriteTransaction writeOperTxn) {
-        InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
-        VpnInterface interfaceToUpdate =
-            new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(interfaceName)).setName(interfaceName)
-                .setDpnId(dpnId).setVpnInstanceName(Collections.singletonList(vpnInstanceName))
+        InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId =
+              VpnUtil.getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnInstanceName);
+        VpnInterfaceOpDataEntry interfaceToUpdate =
+            new VpnInterfaceOpDataEntryBuilder().setKey(new VpnInterfaceOpDataEntryKey(interfaceName,
+                vpnInstanceName)).setName(interfaceName).setDpnId(dpnId).setVpnInstanceName(vpnInstanceName)
                 .setScheduledForRemove(isScheduledToRemove).build();
         if (writeOperTxn != null) {
             writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, interfaceId, interfaceToUpdate, true);
