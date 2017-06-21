@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_cd683d8a",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-21T07:58:22Z",
+      "side": 1,
+      "message": "OK will change accordingly as other comment below",
+      "parentUuid": "fa2559ec_eac36736",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_ca730314",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
         "patchSetId": 28
@@ -30,6 +48,24 @@
       "writtenOn": "2017-06-21T06:41:44Z",
       "side": 1,
       "message": "Now this method is bit confusing. Let this method handle only setting up arp responder flows.\nAnd create/remove NetworkDHCPPortData can go into different method and invoked from corressponding add/remove methods like before.",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_adf869c5",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-21T07:58:22Z",
+      "side": 1,
+      "message": "K will change.",
+      "parentUuid": "fa2559ec_ca730314",
       "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_0d6375b2",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-21T07:58:22Z",
+      "side": 1,
+      "message": "Thought broker.newWriteOnlyTransaction(); would return null if its unable to get transaction. Will change this and remove MDSALUtil.syncwrite",
+      "parentUuid": "fa2559ec_caf8234c",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_2a957fe4",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
         "patchSetId": 28
@@ -64,6 +118,24 @@
       "writtenOn": "2017-06-21T06:41:44Z",
       "side": 1,
       "message": "avoid using Optional methods in control flow",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_0d0a55d2",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-21T07:58:22Z",
+      "side": 1,
+      "message": "OK, will change if(ip.ispresent())",
+      "parentUuid": "fa2559ec_2a957fe4",
       "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_4d144df5",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-21T07:58:22Z",
+      "side": 1,
+      "message": "Primarily created addOrRemove flag because add required BiConsumer and delete required Consumer, will change as suggesterd",
+      "parentUuid": "fa2559ec_0a9a3b14",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_4aa43357",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
         "patchSetId": 28
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_8df5a5cd",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-21T07:58:22Z",
+      "side": 1,
+      "message": "OK",
+      "parentUuid": "fa2559ec_4aa43357",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_caa66353",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
         "patchSetId": 28
@@ -115,6 +223,24 @@
       "writtenOn": "2017-06-21T06:41:44Z",
       "side": 1,
       "message": "Not sure what is the cost of creating stream object. We might need some micro benchmarking to prove this is optimal.\n\nCan\u0027t we simply try it like below ?\n\nport.getFixedIps().stream().map(fixedIp -\u003e fixedIp .getIpAddress().getIpv4Address()).filter(ip -\u003e ip !\u003d null).findFirst();",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_cdbafd09",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-21T07:58:22Z",
+      "side": 1,
+      "message": "Here in fixedIp.getIpAddress().getIpv4Address(), fixedIp.getIpAddress() can be null which might throw null pointer when we try getIpv4Address(). Hence initially we used \n\nport.getFixedIps().stream().filter(fixedIp -\u003e .getIpAddress() !\u003d null \u0026\u0026 fixedIp.getIpAddress(). .getIpv4Address() !\u003dnull ).map(fixedIp -\u003e fixedIp.getIpAddress(). .getIpv4Address()).findFirst();\n\nHere only need of creating Stream is to return empty stream to flatmap in case of fixedIp.getIpAddress(). Can we fallback to earlier approach.",
+      "parentUuid": "fa2559ec_caa66353",
       "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
