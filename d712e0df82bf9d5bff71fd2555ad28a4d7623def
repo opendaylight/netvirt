@@ -1,0 +1,225 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa2559ec_a43d1ebe",
+        "filename": "vpnservice/dhcpservice/dhcpservice-api/src/main/yang/dhcpservice-api.yang",
+        "patchSetId": 29
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-21T23:58:29Z",
+      "side": 1,
+      "message": "how do we handle a network having more than one sebunet.. Won\u0027t this overwrite the previous dhcp-port value for that netwrok?\n\nLet us not have the dhcp yang restricted to one subnet per network.",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_e447164a",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpInterfaceEventListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-21T23:58:29Z",
+      "side": 1,
+      "message": "ditto comment here",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_044b4a5a",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpInterfaceEventListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-21T23:58:29Z",
+      "side": 1,
+      "message": "what if there is no port with the interfaceName?",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_647326b2",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-21T23:58:29Z",
+      "side": 1,
+      "message": "Here we are only processing control plane removal of a dhcp port.\n\nIf we have removed all the VMs, but the subnet is intact, are we removing the dhcp-arp-responder flows on all the dpns in that case?",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_a464fee5",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-21T23:58:29Z",
+      "side": 1,
+      "message": "Removing DHCP ARPRESPONDER for dhcp port ipaddress {} with mac {} on dpn {}\n\nditto comment applies to addcase above.",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_449b82c9",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-21T23:58:29Z",
+      "side": 1,
+      "message": "as I said we should not restrict to single subnet..",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_c4ae52e7",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-21T23:58:29Z",
+      "side": 1,
+      "message": "use SingleTransactionDataBroker.syncRead() here.",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_a4ab5ed5",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-21T23:58:29Z",
+      "side": 1,
+      "message": "getIpv4Address() !\u003d null",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_6481664a",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceAddJob.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-21T23:58:29Z",
+      "side": 1,
+      "message": "will interfaceaddjob get fired for a dhcp-port (ie., not just VM port)?  If so won\u0027t we wnat to check \"if (!Nuetronconstant.IS_DHCP_PORT()) here similar to DHCPInterfaceRemovejob?",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_04906a94",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/resources/initial/netvirt-dhcpservice-config.xml",
+        "patchSetId": 29
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-21T23:58:29Z",
+      "side": 1,
+      "message": "i somehow think we can retain this mode itself as default, instead of defaulting to use-subnet-gateway-ip since I don\u0027t see this to be root-cause of CSIT failures !",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_24d5ae43",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-21T23:58:29Z",
+      "side": 1,
+      "message": "this is not necessary..",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_64cfa6b1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnManagerImpl.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-21T23:58:29Z",
+      "side": 1,
+      "message": "ok, i see its added here..  Drop the comment in the other file!",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_a4c07e7d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpResponderHandler.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-21T23:58:29Z",
+      "side": 1,
+      "message": "please check once whether for pure-networks-only (i.e., no router) based bgpvpns, we are still continuing to put arp-responder flows correctly..",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
