@@ -298,6 +298,24 @@
       "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_307970fd",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-21T11:38:29Z",
+      "side": 1,
+      "message": "+1 to Karthik, we have to return the first available IPv4 adddress only for now.  This is because we are landing a feature that can have two addresses in it - one IPv4 and one IPv6",
+      "parentUuid": "fa2559ec_7026486a",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
