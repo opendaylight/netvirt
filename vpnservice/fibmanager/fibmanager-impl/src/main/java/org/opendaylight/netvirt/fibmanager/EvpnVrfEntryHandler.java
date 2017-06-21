@@ -52,7 +52,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
     EvpnVrfEntryHandler(DataBroker broker, VrfEntryListener vrfEntryListener,
                           BgpRouteVrfEntryHandler bgpRouteVrfEntryHandler,
                           NexthopManager nexthopManager) {
-        super(null, null);
+        super(broker, nexthopManager, null);
         this.dataBroker = broker;
         this.vrfEntryListener = vrfEntryListener;
         this.bgpRouteVrfEntryHandler = bgpRouteVrfEntryHandler;
