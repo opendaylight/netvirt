@@ -471,6 +471,24 @@
       "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_edfb8145",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 2269,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-21T09:50:05Z",
+      "side": 1,
+      "message": "yes, you could use Function. but what are the arguments Function would take ?\n\nCan\u0027t we keep ARPResponderUtil in elanmanager-api so that it can be used by others ?",
+      "parentUuid": "fa2559ec_0d31b5a2",
+      "revId": "065d42eadd5a8d256d3674d4b66c2fc23ab53e4b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
