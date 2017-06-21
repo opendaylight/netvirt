@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa2559ec_eac36736",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-21T06:41:44Z",
+      "side": 1,
+      "message": "not sure why you still use addOrRemove.",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_ca730314",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-21T06:41:44Z",
+      "side": 1,
+      "message": "Now this method is bit confusing. Let this method handle only setting up arp responder flows.\nAnd create/remove NetworkDHCPPortData can go into different method and invoked from corressponding add/remove methods like before.",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_caf8234c",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-21T06:41:44Z",
+      "side": 1,
+      "message": "why do you need null check here ? wrtConfigTxn never be null here.",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_2a957fe4",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-21T06:41:44Z",
+      "side": 1,
+      "message": "avoid using Optional methods in control flow",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_0a9a3b14",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-21T06:41:44Z",
+      "side": 1,
+      "message": "can you change add(remove)ArpResponderForElanDpns to take Port as argument and get other required attributes from it ? Now this would lead to no use of processFixedIpsInPort method and allow to parameterize add(remove)ArpResponderForElanDpns in single method by passing addArpResponderFlow/removeArpResponderFlow using Consumer",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_4aa43357",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-21T06:41:44Z",
+      "side": 1,
+      "message": "use if (ip.isPresent())",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_caa66353",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-21T06:41:44Z",
+      "side": 1,
+      "message": "Not sure what is the cost of creating stream object. We might need some micro benchmarking to prove this is optimal.\n\nCan\u0027t we simply try it like below ?\n\nport.getFixedIps().stream().map(fixedIp -\u003e fixedIp .getIpAddress().getIpv4Address()).filter(ip -\u003e ip !\u003d null).findFirst();",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
