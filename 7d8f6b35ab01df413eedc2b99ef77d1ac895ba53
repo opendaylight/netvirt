@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa2559ec_10638cb2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-06-21T10:44:25Z",
+      "side": 1,
+      "message": "Comment correctness? What about the VpnInterfaceOpDataEntry is \"previous\"? And what is XXX?",
+      "revId": "7d8f6b35ab01df413eedc2b99ef77d1ac895ba53",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
