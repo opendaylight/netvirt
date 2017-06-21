@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa2559ec_caa9437d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 569,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-21T04:03:20Z",
+      "side": 1,
+      "message": "please rename method as getJobKeyForRdPrefix",
+      "revId": "fe4386fba374d41190266ff165c8ec32295450d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_2ab61fdd",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-21T04:03:20Z",
+      "side": 1,
+      "message": "getJobKeyForVpnIdDpnId",
+      "revId": "fe4386fba374d41190266ff165c8ec32295450d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_6ab017de",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1705,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-21T04:03:20Z",
+      "side": 1,
+      "message": "please change this method implemenation like what I said for another new method below.",
+      "revId": "fe4386fba374d41190266ff165c8ec32295450d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_0abb5bc5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1706,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-21T04:03:20Z",
+      "side": 1,
+      "message": "introduce another method here again\nisEligibleForBgp(String rd, String vpnName, BigInteger dpnId, String networkName)  and code it like this:\n\nif (rd !\u003d null) {\n    if (vpnName !\u003d null) \u0026\u0026 (rd \u003d\u003d vpnName) return false;\n    if (dpnId !\u003d null) \u0026\u0026 (rd \u003d\u003d dpnId.toString()) return false;\n    if (networkName !\u003d null) \u0026\u0026 (rd \u003d\u003d networkName) return false;\n    return true;\n}\nreturn false;\n\nUse this new method isEligibleForBgp() within the creation path like L3mplsovergrepopulator.java etc.",
+      "revId": "fe4386fba374d41190266ff165c8ec32295450d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
