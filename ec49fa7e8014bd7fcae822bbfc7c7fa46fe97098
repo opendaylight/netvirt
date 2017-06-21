@@ -107,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_ed4d41c6",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-21T09:50:05Z",
+      "side": 1,
+      "message": "have you seen it anytime returning null ? :) IMO, it never returns null.",
+      "parentUuid": "fa2559ec_0d6375b2",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_2a957fe4",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
         "patchSetId": 28
@@ -241,6 +259,24 @@
       "side": 1,
       "message": "Here in fixedIp.getIpAddress().getIpv4Address(), fixedIp.getIpAddress() can be null which might throw null pointer when we try getIpv4Address(). Hence initially we used \n\nport.getFixedIps().stream().filter(fixedIp -\u003e .getIpAddress() !\u003d null \u0026\u0026 fixedIp.getIpAddress(). .getIpv4Address() !\u003dnull ).map(fixedIp -\u003e fixedIp.getIpAddress(). .getIpv4Address()).findFirst();\n\nHere only need of creating Stream is to return empty stream to flatmap in case of fixedIp.getIpAddress(). Can we fallback to earlier approach.",
       "parentUuid": "fa2559ec_caa66353",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_ed76e105",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-21T09:50:05Z",
+      "side": 1,
+      "message": "This anyway going to return first ip address from the List. why can\u0027t simply do it list.get(0) and return it ?\nThis would avoid overhead in stream creation and processing it over.",
+      "parentUuid": "fa2559ec_cdbafd09",
       "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
