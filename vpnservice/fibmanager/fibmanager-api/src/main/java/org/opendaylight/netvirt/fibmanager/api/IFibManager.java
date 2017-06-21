@@ -31,11 +31,6 @@ public interface IFibManager {
     void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd,
                           FutureCallback<List<Void>> callback);
 
-    // TODO Feels like this method is not used anywhere
-    void addStaticRoute(String vpnName, String prefix, String nextHop, String rd, int label);
-
-    void deleteStaticRoute(String vpnName, String prefix, String nextHop, String rd);
-
     void setConfTransType(String service, String transportType);
 
     String getConfTransType();
@@ -70,8 +65,6 @@ public interface IFibManager {
 
     void updateRoutePathForFibEntry(DataBroker broker, String rd, String prefix, String nextHop,
                         long label, boolean nextHopAdd, WriteTransaction writeConfigTxn);
-
-    void addVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn);
 
     void removeVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn);
 
