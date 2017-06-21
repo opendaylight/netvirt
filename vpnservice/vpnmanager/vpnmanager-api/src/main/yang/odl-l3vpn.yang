@@ -171,7 +171,7 @@ module odl-l3vpn {
     container vpn-interface-op-data {
         config false;
         list vpn-interface-op-data-entry {
-           key "name vpn-name";
+           key "name vpn-instance-name";
            leaf name {
               type leafref {
                 path "/if:interfaces/if:interface/if:name";
@@ -216,6 +216,11 @@ module odl-l3vpn {
                 default "active";
            }
         }
+    }
+
+    augment "/odl-l3vpn:vpn-interface-op-data/odl-l3vpn:vpn-interface-op-data-entry" {
+        ext:augment-identifier "adjacencies-op";
+        uses adjacency-list;
     }
 
     container vpn-instance-op-data {
