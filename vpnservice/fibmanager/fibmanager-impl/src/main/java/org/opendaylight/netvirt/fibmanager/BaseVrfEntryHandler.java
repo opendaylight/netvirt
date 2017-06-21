@@ -32,13 +32,24 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionMoveSourceDestinationEth;
+import org.opendaylight.genius.mdsalutil.actions.ActionMoveSourceDestinationIp;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadInPort;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionPushMpls;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetDestination;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetSource;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldMplsLabel;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetIcmpType;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetSourceIp;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv4;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
@@ -86,11 +97,15 @@ public class BaseVrfEntryHandler implements AutoCloseable {
 
     private final DataBroker dataBroker;
     private final NexthopManager nextHopManager;
+    private final IMdsalApiManager mdsalManager;
 
     @Inject
-    public BaseVrfEntryHandler(final DataBroker dataBroker, final NexthopManager nexthopManager) {
+    public BaseVrfEntryHandler(final DataBroker dataBroker,
+                               final NexthopManager nexthopManager,
+                               final IMdsalApiManager mdsalManager) {
         this.dataBroker = dataBroker;
         this.nextHopManager = nexthopManager;
+        this.mdsalManager = mdsalManager;
     }
 
 //    @PostConstruct
@@ -460,5 +475,60 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         return null;
     }
 
+    public FlowEntity buildL3vpnGatewayFlow(BigInteger dpId, String gwMacAddress, long vpnId) {
+        List<MatchInfo> mkMatches = new ArrayList<>();
+        mkMatches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        mkMatches.add(new MatchEthernetDestination(new MacAddress(gwMacAddress)));
+        List<InstructionInfo> mkInstructions = new ArrayList<>();
+        mkInstructions.add(new InstructionGotoTable(NwConstants.L3_FIB_TABLE));
+        String flowId = FibUtil.getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, gwMacAddress);
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
+                flowId, 20, flowId, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, mkMatches, mkInstructions);
+        return flowEntity;
+    }
+
+    public void installPingResponderFlowEntry(BigInteger dpnId, long vpnId, String routerInternalIp,
+                                              MacAddress routerMac, long label, int addOrRemove) {
+
+        List<MatchInfo> matches = new ArrayList<>();
+        matches.add(MatchIpProtocol.ICMP);
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        matches.add(new MatchIcmpv4((short) 8, (short) 0));
+        matches.add(MatchEthernetType.IPV4);
+        matches.add(new MatchIpv4Destination(routerInternalIp, "32"));
+
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+
+        // Set Eth Src and Eth Dst
+        actionsInfos.add(new ActionMoveSourceDestinationEth());
+        actionsInfos.add(new ActionSetFieldEthernetSource(routerMac));
+
+        // Move Ip Src to Ip Dst
+        actionsInfos.add(new ActionMoveSourceDestinationIp());
+        actionsInfos.add(new ActionSetSourceIp(routerInternalIp, "32"));
+
+        // Set the ICMP type to 0 (echo reply)
+        actionsInfos.add(new ActionSetIcmpType((short) 0));
+
+        actionsInfos.add(new ActionNxLoadInPort(BigInteger.ZERO));
+
+        actionsInfos.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
+
+        List<InstructionInfo> instructions = new ArrayList<>();
+
+        instructions.add(new InstructionApplyActions(actionsInfos));
+
+        int priority = FibConstants.DEFAULT_FIB_FLOW_PRIORITY + FibConstants.DEFAULT_PREFIX_LENGTH;
+        String flowRef = FibUtil.getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, label, priority);
+
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_FIB_TABLE, flowRef, priority, flowRef,
+                0, 0, NwConstants.COOKIE_VM_FIB_TABLE, matches, instructions);
+
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            mdsalManager.installFlow(flowEntity);
+        } else {
+            mdsalManager.removeFlow(flowEntity);
+        }
+    }
 
 }

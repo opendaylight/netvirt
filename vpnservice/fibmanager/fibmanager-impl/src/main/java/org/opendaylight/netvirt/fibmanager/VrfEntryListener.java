@@ -38,28 +38,13 @@ import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
-import org.opendaylight.genius.mdsalutil.actions.ActionMoveSourceDestinationEth;
-import org.opendaylight.genius.mdsalutil.actions.ActionMoveSourceDestinationIp;
-import org.opendaylight.genius.mdsalutil.actions.ActionMoveSourceDestinationIpv6;
-import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadInPort;
-import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionPopMpls;
-import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetSource;
-import org.opendaylight.genius.mdsalutil.actions.ActionSetIcmpType;
-import org.opendaylight.genius.mdsalutil.actions.ActionSetIcmpv6Type;
-import org.opendaylight.genius.mdsalutil.actions.ActionSetSourceIp;
-import org.opendaylight.genius.mdsalutil.actions.ActionSetSourceIpv6;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
-import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv4;
-import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6;
-import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
-import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchMplsLabel;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
@@ -73,7 +58,6 @@ import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
@@ -99,11 +83,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.PrefixesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState.State;
@@ -130,6 +112,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private final IdManagerService idManager;
     private final BgpRouteVrfEntryHandler bgpRouteVrfEntryHandler;
     private final BaseVrfEntryHandler baseVrfEntryHandler;
+    private final RouterInterfaceVrfEntryHandler routerInterfaceVrfEntryHandler;
 
     protected static boolean isOpenStackVniSemanticsEnforced;
 
@@ -138,7 +121,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             final NexthopManager nexthopManager, final IdManagerService idManager,
                             final IElanService elanManager,
                             final BaseVrfEntryHandler vrfEntryHandler,
-                            final BgpRouteVrfEntryHandler bgpRouteVrfEntryHandler) {
+                            final BgpRouteVrfEntryHandler bgpRouteVrfEntryHandler,
+                            final RouterInterfaceVrfEntryHandler routerInterfaceVrfEntryHandler) {
         super(VrfEntry.class, VrfEntryListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalApiManager;
@@ -146,6 +130,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         this.idManager = idManager;
         this.baseVrfEntryHandler = vrfEntryHandler;
         this.bgpRouteVrfEntryHandler = bgpRouteVrfEntryHandler;
+        this.routerInterfaceVrfEntryHandler = routerInterfaceVrfEntryHandler;
 
         isOpenStackVniSemanticsEnforced = elanManager.isOpenStackVniSemanticsEnforced();
     }
@@ -173,20 +158,35 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         String rd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
         LOG.debug("ADD: Adding Fib Entry rd {} prefix {} route-paths {}",
                 rd, vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths());
+        addFibEntries(identifier, vrfEntry, rd);
+        LOG.info("ADD: Added Fib Entry rd {} prefix {} route-paths {}",
+                 rd, vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths());
+    }
+
+    //This method is temporary. Eventually Factory design pattern will be used to get
+    // right VrfEntryhandle and invoke its methods.
+    private void addFibEntries(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
         if (VrfEntry.EncapType.Vxlan.equals(vrfEntry.getEncapType())) {
             LOG.info("EVPN flows need to be programmed.");
             EvpnVrfEntryHandler evpnVrfEntryHandler =
                     new EvpnVrfEntryHandler(dataBroker, this, bgpRouteVrfEntryHandler, nextHopManager);
             evpnVrfEntryHandler.createFlows(identifier, vrfEntry, rd);
-        } else {
-            if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
-                createFibEntries(identifier, vrfEntry);
-            } else {
-                bgpRouteVrfEntryHandler.createFlows(identifier, vrfEntry, rd);
-            }
+            return;
         }
-        LOG.info("ADD: Added Fib Entry rd {} prefix {} route-paths {}",
-                 rd, vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths());
+        RouterInterface routerInt = vrfEntry.getAugmentation(RouterInterface.class);
+        if (routerInt != null) {
+            // ping responder for router interfaces
+            routerInterfaceVrfEntryHandler.createFlows(identifier, vrfEntry, rd);
+            return;
+        }
+        if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
+            createFibEntries(identifier, vrfEntry);
+            return;
+        }
+        if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
+            bgpRouteVrfEntryHandler.createFlows(identifier, vrfEntry, rd);
+            return;
+        }
     }
 
     @Override
@@ -195,20 +195,35 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         String rd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
         LOG.debug("REMOVE: Removing Fib Entry rd {} prefix {} route-paths {}",
                 rd, vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths());
+        removeFibEntries(identifier, vrfEntry, rd);
+        LOG.info("REMOVE: Removed Fib Entry rd {} prefix {} route-paths {}",
+            rd, vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths());
+    }
+
+    //This method is temporary. Eventually Factory design pattern will be used to get
+    // right VrfEntryhandle and invoke its methods.
+    private void removeFibEntries(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
         if (vrfEntry.getEncapType().equals(VrfEntry.EncapType.Vxlan)) {
             LOG.info("EVPN flows to be deleted");
             EvpnVrfEntryHandler evpnVrfEntryHandler =
                     new EvpnVrfEntryHandler(dataBroker, this, bgpRouteVrfEntryHandler, nextHopManager);
             evpnVrfEntryHandler.removeFlows(identifier, vrfEntry, rd);
-        } else {
-            if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
-                deleteFibEntries(identifier, vrfEntry);
-            } else {
-                bgpRouteVrfEntryHandler.removeFlows(identifier, vrfEntry, rd);
-            }
+            return;
         }
-        LOG.info("REMOVE: Removed Fib Entry rd {} prefix {} route-paths {}",
-            rd, vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths());
+        RouterInterface routerInt = vrfEntry.getAugmentation(RouterInterface.class);
+        if (routerInt != null) {
+            // ping responder for router interfaces
+            routerInterfaceVrfEntryHandler.removeFlows(identifier, vrfEntry, rd);
+            return;
+        }
+        if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
+            deleteFibEntries(identifier, vrfEntry);
+            return;
+        }
+        if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
+            bgpRouteVrfEntryHandler.removeFlows(identifier, vrfEntry, rd);
+            return;
+        }
     }
 
     @Override
@@ -278,14 +293,15 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private void createFibEntries(final InstanceIdentifier<VrfEntry> vrfEntryIid, final VrfEntry vrfEntry) {
         final VrfTablesKey vrfTableKey = vrfEntryIid.firstKeyOf(VrfTables.class);
         List<SubTransaction> txnObjects =  new ArrayList<>();
-        final VpnInstanceOpDataEntry vpnInstance = getVpnInstance(vrfTableKey.getRouteDistinguisher());
+        final VpnInstanceOpDataEntry vpnInstance =
+                FibUtil.getVpnInstance(dataBroker, vrfTableKey.getRouteDistinguisher());
         Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available " + vrfTableKey.getRouteDistinguisher());
         Preconditions.checkNotNull(vpnInstance.getVpnId(), "Vpn Instance with rd " + vpnInstance.getVrfId()
                 + " has null vpnId!");
         final Collection<VpnToDpnList> vpnToDpnList;
         if (vrfEntry.getParentVpnRd() != null
                 && FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
-            VpnInstanceOpDataEntry parentVpnInstance = getVpnInstance(vrfEntry.getParentVpnRd());
+            VpnInstanceOpDataEntry parentVpnInstance = FibUtil.getVpnInstance(dataBroker, vrfEntry.getParentVpnRd());
             vpnToDpnList = parentVpnInstance != null ? parentVpnInstance.getVpnToDpnList() :
                 vpnInstance.getVpnToDpnList();
         } else {
@@ -312,10 +328,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     return futures;
                 });
             }
-            return;
-        }
-        // ping responder for router interfaces
-        if (installRouterFibEntries(vrfEntry, vpnToDpnList, vpnId, NwConstants.ADD_FLOW)) {
             return;
         }
 
@@ -1201,7 +1213,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private void deleteFibEntries(final InstanceIdentifier<VrfEntry> identifier, final VrfEntry vrfEntry) {
         final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class);
         final String rd = vrfTableKey.getRouteDistinguisher();
-        final VpnInstanceOpDataEntry vpnInstance = getVpnInstance(vrfTableKey.getRouteDistinguisher());
+        final VpnInstanceOpDataEntry vpnInstance =
+                FibUtil.getVpnInstance(dataBroker, vrfTableKey.getRouteDistinguisher());
         if (vpnInstance == null) {
             LOG.error("VPN Instance for rd {} is not available from VPN Op Instance Datastore", rd);
             return;
@@ -1265,9 +1278,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     }
                 }
             });
-            return;
-        }
-        if (installRouterFibEntries(vrfEntry, vpnToDpnList, vpnInstance.getVpnId(), NwConstants.DEL_FLOW)) {
             return;
         }
 
@@ -1386,7 +1396,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                     final FutureCallback<List<Void>> callback) {
         LOG.trace("New dpn {} for vpn {} : populateFibOnNewDpn", dpnId, rd);
         InstanceIdentifier<VrfTables> id = buildVrfId(rd);
-        final VpnInstanceOpDataEntry vpnInstance = getVpnInstance(rd);
+        final VpnInstanceOpDataEntry vpnInstance = FibUtil.getVpnInstance(dataBroker, rd);
         final Optional<VrfTables> vrfTable = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         List<SubTransaction> txnObjects =  new ArrayList<>();
         if (!vrfTable.isPresent()) {
@@ -1415,9 +1425,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         if (routerInt != null) {
                             LOG.trace("Router augmented vrfentry found rd:{}, uuid:{}, ip:{}, mac:{}",
                                 rd, routerInt.getUuid(), routerInt.getIpAddress(), routerInt.getMacAddress());
-                            installRouterFibEntry(vrfEntry, dpnId, vpnId, routerInt.getUuid(),
-                                routerInt.getIpAddress(),
-                                new MacAddress(routerInt.getMacAddress()), NwConstants.ADD_FLOW);
+                            routerInterfaceVrfEntryHandler.installRouterFibEntry(vrfEntry, dpnId, vpnId,
+                                    routerInt.getIpAddress(), new MacAddress(routerInt.getMacAddress()),
+                                    NwConstants.ADD_FLOW);
                             continue;
                         }
                         //Handle local flow creation for imports
@@ -1465,7 +1475,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         LOG.trace("populateExternalRoutesOnDpn : dpn {}, vpn {}, rd {}, localNexthopIp {} , remoteNextHopIp {} ",
             dpnId, vpnId, rd, localNextHopIp, remoteNextHopIp);
         InstanceIdentifier<VrfTables> id = buildVrfId(rd);
-        final VpnInstanceOpDataEntry vpnInstance = getVpnInstance(rd);
+        final VpnInstanceOpDataEntry vpnInstance = FibUtil.getVpnInstance(dataBroker, rd);
         List<SubTransaction> txnObjects =  new ArrayList<>();
         final Optional<VrfTables> vrfTable = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         if (vrfTable.isPresent()) {
@@ -1493,7 +1503,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                        final String destPrefix,
                                        final String destTepIp,
                                        final long label) {
-        final VpnInstanceOpDataEntry vpnInstance = getVpnInstance(rd);
+        final VpnInstanceOpDataEntry vpnInstance = FibUtil.getVpnInstance(dataBroker, rd);
 
         if (vpnInstance == null) {
             LOG.error("VpnInstance for rd {} not present for prefix {}", rd, destPrefix);
@@ -1555,7 +1565,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                  final FutureCallback<List<Void>> callback) {
         LOG.trace("cleanUpDpnForVpn: Remove dpn {} for vpn {} : cleanUpDpnForVpn", dpnId, rd);
         InstanceIdentifier<VrfTables> id = buildVrfId(rd);
-        final VpnInstanceOpDataEntry vpnInstance = getVpnInstance(rd);
+        final VpnInstanceOpDataEntry vpnInstance = FibUtil.getVpnInstance(dataBroker, rd);
         List<SubTransaction> txnObjects =  new ArrayList<>();
         final Optional<VrfTables> vrfTable = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         if (vrfTable.isPresent()) {
@@ -1593,9 +1603,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             if (routerInt != null) {
                                 LOG.trace("Router augmented vrfentry found for rd:{}, uuid:{}, ip:{}, mac:{}",
                                     rd, routerInt.getUuid(), routerInt.getIpAddress(), routerInt.getMacAddress());
-                                installRouterFibEntry(vrfEntry, dpnId, vpnId, routerInt.getUuid(),
-                                    routerInt.getIpAddress(),
-                                    new MacAddress(routerInt.getMacAddress()), NwConstants.DEL_FLOW);
+                                routerInterfaceVrfEntryHandler.installRouterFibEntry(vrfEntry, dpnId, vpnId,
+                                        routerInt.getIpAddress(), new MacAddress(routerInt.getMacAddress()),
+                                        NwConstants.DEL_FLOW);
                                 continue;
                             }
                             // Passing null as we don't know the dpn
@@ -1643,7 +1653,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 + " localNexthopIp {} , remoteNexhtHopIp {}",
             dpnId, vpnId, rd, localNextHopIp, remoteNextHopIp);
         InstanceIdentifier<VrfTables> id = buildVrfId(rd);
-        final VpnInstanceOpDataEntry vpnInstance = getVpnInstance(rd);
+        final VpnInstanceOpDataEntry vpnInstance = FibUtil.getVpnInstance(dataBroker, rd);
         List<SubTransaction> txnObjects =  new ArrayList<>();
         final Optional<VrfTables> vrfTable = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         if (vrfTable.isPresent()) {
@@ -1676,15 +1686,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 .FLOWID_SEPARATOR + nextHop;
     }
 
-    protected VpnInstanceOpDataEntry getVpnInstance(String rd) {
-        InstanceIdentifier<VpnInstanceOpDataEntry> id =
-            InstanceIdentifier.create(VpnInstanceOpData.class)
-                .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd));
-        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData =
-            MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-        return vpnInstanceOpData.isPresent() ? vpnInstanceOpData.get() : null;
-    }
-
     private String getTableMissFlowRef(BigInteger dpnId, short tableId, int tableMiss) {
         return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR
                 + tableMiss + FLOWID_PREFIX;
@@ -1699,158 +1700,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             return vrfEntry.get();
         }
         return null;
-    }
-
-    protected Boolean installRouterFibEntries(final VrfEntry vrfEntry, final Collection<VpnToDpnList> vpnToDpnList,
-                                              long vpnId, int addOrRemove) {
-        RouterInterface routerInt = vrfEntry.getAugmentation(RouterInterface.class);
-        if (routerInt == null) {
-            return false;
-        }
-        if (vpnToDpnList != null) {
-            String routerId = routerInt.getUuid();
-            String macAddress = routerInt.getMacAddress();
-            String ipValue = routerInt.getIpAddress();
-            LOG.trace("createFibEntries - Router augmented vrfentry found for for router uuid:{}, ip:{}, mac:{}",
-                    routerId, ipValue, macAddress);
-            for (VpnToDpnList vpnDpn : vpnToDpnList) {
-                if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
-                    installRouterFibEntry(vrfEntry, vpnDpn.getDpnId(), vpnId, routerId, ipValue,
-                            new MacAddress(macAddress), addOrRemove);
-                }
-            }
-        }
-        return true;
-    }
-
-    public void installPing6ResponderFlowEntry(BigInteger dpnId, long vpnId, String routerInternalIp,
-                                               MacAddress routerMac, long label, int addOrRemove) {
-
-        List<MatchInfo> matches = new ArrayList<>();
-        matches.add(MatchIpProtocol.ICMPV6);
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
-        matches.add(new MatchIcmpv6((short) 128, (short) 0));
-        matches.add(MatchEthernetType.IPV6);
-        matches.add(new MatchIpv6Destination(routerInternalIp));
-
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        // Set Eth Src and Eth Dst
-        actionsInfos.add(new ActionMoveSourceDestinationEth());
-        actionsInfos.add(new ActionSetFieldEthernetSource(routerMac));
-
-        // Move Ipv6 Src to Ipv6 Dst
-        actionsInfos.add(new ActionMoveSourceDestinationIpv6());
-        actionsInfos.add(new ActionSetSourceIpv6(new Ipv6Prefix(routerInternalIp)));
-
-        // Set the ICMPv6 type to 129 (echo reply)
-        actionsInfos.add(new ActionSetIcmpv6Type((short) 129));
-        actionsInfos.add(new ActionNxLoadInPort(BigInteger.ZERO));
-        actionsInfos.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
-        List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionApplyActions(actionsInfos));
-
-        int priority = FibConstants.DEFAULT_FIB_FLOW_PRIORITY + FibConstants.DEFAULT_IPV6_PREFIX_LENGTH;
-        String flowRef = FibUtil.getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, label, priority);
-
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_FIB_TABLE, flowRef, priority, flowRef,
-                0, 0, NwConstants.COOKIE_VM_FIB_TABLE, matches, instructions);
-
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            mdsalManager.installFlow(flowEntity);
-        } else {
-            mdsalManager.removeFlow(flowEntity);
-        }
-    }
-
-    public void installPingResponderFlowEntry(BigInteger dpnId, long vpnId, String routerInternalIp,
-                                              MacAddress routerMac, long label, int addOrRemove) {
-
-        List<MatchInfo> matches = new ArrayList<>();
-        matches.add(MatchIpProtocol.ICMP);
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
-        matches.add(new MatchIcmpv4((short) 8, (short) 0));
-        matches.add(MatchEthernetType.IPV4);
-        matches.add(new MatchIpv4Destination(routerInternalIp, "32"));
-
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-
-        // Set Eth Src and Eth Dst
-        actionsInfos.add(new ActionMoveSourceDestinationEth());
-        actionsInfos.add(new ActionSetFieldEthernetSource(routerMac));
-
-        // Move Ip Src to Ip Dst
-        actionsInfos.add(new ActionMoveSourceDestinationIp());
-        actionsInfos.add(new ActionSetSourceIp(routerInternalIp, "32"));
-
-        // Set the ICMP type to 0 (echo reply)
-        actionsInfos.add(new ActionSetIcmpType((short) 0));
-
-        actionsInfos.add(new ActionNxLoadInPort(BigInteger.ZERO));
-
-        actionsInfos.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
-
-        List<InstructionInfo> instructions = new ArrayList<>();
-
-        instructions.add(new InstructionApplyActions(actionsInfos));
-
-        int priority = FibConstants.DEFAULT_FIB_FLOW_PRIORITY + FibConstants.DEFAULT_PREFIX_LENGTH;
-        String flowRef = FibUtil.getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, label, priority);
-
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_FIB_TABLE, flowRef, priority, flowRef,
-                0, 0, NwConstants.COOKIE_VM_FIB_TABLE, matches, instructions);
-
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            mdsalManager.installFlow(flowEntity);
-        } else {
-            mdsalManager.removeFlow(flowEntity);
-        }
-    }
-
-    public void installRouterFibEntry(final VrfEntry vrfEntry, BigInteger dpnId, long vpnId, String routerUuid,
-                                      String routerInternalIp, MacAddress routerMac, int addOrRemove) {
-
-        // First install L3_GW_MAC_TABLE flows as it's common for both IPv4 and IPv6 address families
-        FlowEntity l3GwMacFlowEntity = buildL3vpnGatewayFlow(dpnId, routerMac.getValue(), vpnId);
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            mdsalManager.installFlow(l3GwMacFlowEntity);
-        } else {
-            mdsalManager.removeFlow(l3GwMacFlowEntity);
-        }
-
-        java.util.Optional<Long> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
-        if (!optionalLabel.isPresent()) {
-            LOG.warn("Routes paths not present. Exiting installRouterFibEntry");
-            return;
-        }
-
-        String[] subSplit = routerInternalIp.split("/");
-        String addRemoveStr = (addOrRemove == NwConstants.ADD_FLOW) ? "ADD_FLOW" : "DELETE_FLOW";
-        LOG.trace("{}: Building Echo Flow entity for dpid:{}, router_ip:{}, vpnId:{}, subSplit:{} ", addRemoveStr,
-                dpnId, routerInternalIp, vpnId, subSplit[0]);
-
-        if (isIpv4Address(subSplit[0])) {
-            installPingResponderFlowEntry(dpnId, vpnId, subSplit[0], routerMac, optionalLabel.get(), addOrRemove);
-        } else {
-            installPing6ResponderFlowEntry(dpnId, vpnId, routerInternalIp, routerMac, optionalLabel.get(), addOrRemove);
-        }
-        return;
-    }
-
-    public static FlowEntity buildL3vpnGatewayFlow(BigInteger dpId, String gwMacAddress, long vpnId) {
-        List<MatchInfo> mkMatches = new ArrayList<>();
-        mkMatches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
-        mkMatches.add(new MatchEthernetDestination(new MacAddress(gwMacAddress)));
-        List<InstructionInfo> mkInstructions = new ArrayList<>();
-        mkInstructions.add(new InstructionGotoTable(NwConstants.L3_FIB_TABLE));
-        String flowId = getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, gwMacAddress);
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
-                flowId, 20, flowId, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, mkMatches, mkInstructions);
-        return flowEntity;
-    }
-
-    private static String getL3VpnGatewayFlowRef(short l3GwMacTable, BigInteger dpId, long vpnId, String gwMacAddress) {
-        return gwMacAddress + NwConstants.FLOWID_SEPARATOR + vpnId + NwConstants.FLOWID_SEPARATOR + dpId
-                + NwConstants.FLOWID_SEPARATOR + l3GwMacTable;
     }
 
     public void removeInterVPNLinkRouteFlows(final InterVpnLinkDataComposite interVpnLink,
