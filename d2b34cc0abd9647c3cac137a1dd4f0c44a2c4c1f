@@ -667,6 +667,23 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_84f3ba09",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/arp/responder/ArpResponderUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-21T23:58:29Z",
+      "side": 1,
+      "message": "why was this removed?",
+      "revId": "d2b34cc0abd9647c3cac137a1dd4f0c44a2c4c1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_cb265668",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
         "patchSetId": 19
