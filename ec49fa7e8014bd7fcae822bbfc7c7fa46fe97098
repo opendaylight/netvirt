@@ -280,6 +280,24 @@
       "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_7026486a",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-21T10:55:01Z",
+      "side": 1,
+      "message": "What will be the behavior in IPv6?",
+      "parentUuid": "fa2559ec_ed76e105",
+      "revId": "ec49fa7e8014bd7fcae822bbfc7c7fa46fe97098",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
