@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa2559ec_849f3a03",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IFibManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-22T05:39:56Z",
+      "side": 0,
+      "message": "this method is used in cloud-servicechain, please check?",
+      "revId": "fa2c12a8c1f1f6041fd3c350ca422e2d980d3dc1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
