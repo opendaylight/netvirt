@@ -761,11 +761,13 @@ public class VpnUtil {
         Optional<VpnInterface> optConfiguredVpnInterface =
             read(broker, LogicalDatastoreType.CONFIGURATION, interfaceId);
 
-        if (optConfiguredVpnInterface.isPresent()) {
-            String configuredVpnName = optConfiguredVpnInterface.get().getVpnRouterIds().get(0);
-            if (configuredVpnName != null && configuredVpnName.equalsIgnoreCase(vpnName)) {
-                return true;
-            }
+        if (!optConfiguredVpnInterface.isPresent()) {
+            return false;
+        }
+        VpnInterface configuredVpnInterface = optConfiguredVpnInterface.get();
+        if (configuredVpnInterface.getVpnRouterIds() != null
+              && configuredVpnInterface.getVpnRouterIds().contains(vpnName)) {
+            return true;
         }
         return false;
     }
