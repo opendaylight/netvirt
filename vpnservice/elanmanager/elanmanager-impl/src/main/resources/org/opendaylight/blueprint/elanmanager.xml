@@ -322,6 +322,7 @@
     <argument ref="interfaceManager" />
     <argument ref="elanUtils" />
     <argument ref="itmRpcService" />
+    <argument ref="mdsalUtils" />
     <property name="vpnManager" ref="vpnManager"/>
     <property name="bgpManager" ref="bgpManager"/>
   </bean>
