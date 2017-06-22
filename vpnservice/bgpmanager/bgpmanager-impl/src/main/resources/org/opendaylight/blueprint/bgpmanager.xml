@@ -9,8 +9,7 @@
   <reference id="entityOwnershipService"
              interface="org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService" />
   <reference id="interVpnLinkService"
-             interface="org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService"
-             availability="optional" />
+             interface="org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService" />
 
   <bean id="bgpAlarmBroadcaster"
         class="org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmBroadcaster"
