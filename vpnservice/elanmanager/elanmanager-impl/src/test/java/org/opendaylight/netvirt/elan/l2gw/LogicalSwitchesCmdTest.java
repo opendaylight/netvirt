@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
@@ -103,7 +104,8 @@ public class LogicalSwitchesCmdTest extends AbstractConcurrentDataBrokerTest {
         originalData = getData(new LogicalSwitches[]{logicalSwitches[0], logicalSwitches[1]});
         updatedData = getData(new LogicalSwitches[]{logicalSwitches[0], logicalSwitches[1], logicalSwitches[2]});
         cmd.mergeOpUpdate(existingData, updatedData, originalData, haNodePath, tx);
-        Mockito.verify(tx).put(LogicalDatastoreType.OPERATIONAL, ids[2], logicalSwitches[2], true);
+        Mockito.verify(tx).put(LogicalDatastoreType.OPERATIONAL, ids[2], logicalSwitches[2],
+                WriteTransaction.CREATE_MISSING_PARENTS);
     }
 
     @Test
@@ -113,8 +115,10 @@ public class LogicalSwitchesCmdTest extends AbstractConcurrentDataBrokerTest {
         updatedData = getData(new LogicalSwitches[]{logicalSwitches[0],
                 logicalSwitches[1], logicalSwitches[2], logicalSwitches[3]});
         cmd.mergeOpUpdate(existingData, updatedData, originalData, haNodePath, tx);
-        Mockito.verify(tx).put(LogicalDatastoreType.OPERATIONAL, ids[2], logicalSwitches[2], true);
-        Mockito.verify(tx).put(LogicalDatastoreType.OPERATIONAL, ids[3], logicalSwitches[3], true);
+        Mockito.verify(tx).put(LogicalDatastoreType.OPERATIONAL, ids[2], logicalSwitches[2],
+                WriteTransaction.CREATE_MISSING_PARENTS);
+        Mockito.verify(tx).put(LogicalDatastoreType.OPERATIONAL, ids[3], logicalSwitches[3],
+                WriteTransaction.CREATE_MISSING_PARENTS);
     }
 
     @Test
@@ -145,8 +149,10 @@ public class LogicalSwitchesCmdTest extends AbstractConcurrentDataBrokerTest {
         originalData = getData(new LogicalSwitches[]{logicalSwitches[0], logicalSwitches[1]});
         updatedData = getData(new LogicalSwitches[]{logicalSwitches[2], logicalSwitches[3]});
         cmd.mergeOpUpdate(existingData, updatedData, originalData, haNodePath, tx);
-        Mockito.verify(tx).put(LogicalDatastoreType.OPERATIONAL, ids[2], logicalSwitches[2], true);
-        Mockito.verify(tx).put(LogicalDatastoreType.OPERATIONAL, ids[3], logicalSwitches[3], true);
+        Mockito.verify(tx).put(LogicalDatastoreType.OPERATIONAL, ids[2], logicalSwitches[2],
+                WriteTransaction.CREATE_MISSING_PARENTS);
+        Mockito.verify(tx).put(LogicalDatastoreType.OPERATIONAL, ids[3], logicalSwitches[3],
+                WriteTransaction.CREATE_MISSING_PARENTS);
         Mockito.verify(tx).delete(LogicalDatastoreType.OPERATIONAL, ids[0]);
         Mockito.verify(tx).delete(LogicalDatastoreType.OPERATIONAL, ids[1]);
     }

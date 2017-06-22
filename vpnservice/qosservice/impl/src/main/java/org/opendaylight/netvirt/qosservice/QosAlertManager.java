@@ -337,7 +337,7 @@ public final class QosAlertManager implements Runnable {
                                                           InstanceIdentifier<T> path, T data, DataBroker broker,
                                                           FutureCallback<Void> callback) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.put(datastoreType, path, data, true);
+        tx.put(datastoreType, path, data, WriteTransaction.CREATE_MISSING_PARENTS);
         Futures.addCallback(tx.submit(), callback);
     }
 
