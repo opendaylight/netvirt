@@ -679,7 +679,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         WriteTransaction writeOperTxn) {
         VpnInterface opInterface = VpnUtil.getVpnInterface(interfaceName, vpnName, aug, dpnId, Boolean.FALSE);
         InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
-        writeOperTxn.put(LogicalDatastoreType.OPERATIONAL, interfaceId, opInterface, true);
+        writeOperTxn.put(LogicalDatastoreType.OPERATIONAL, interfaceId, opInterface,
+                WriteTransaction.CREATE_MISSING_PARENTS);
     }
 
     // TODO Clean up the exception handling

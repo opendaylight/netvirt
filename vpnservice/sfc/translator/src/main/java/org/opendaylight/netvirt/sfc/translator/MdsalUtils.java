@@ -91,7 +91,7 @@ public class MdsalUtils {
             final LogicalDatastoreType logicalDatastoreType, final InstanceIdentifier<D> path, D data)  {
         boolean result = false;
         final WriteTransaction transaction = databroker.newWriteOnlyTransaction();
-        transaction.put(logicalDatastoreType, path, data, true);
+        transaction.put(logicalDatastoreType, path, data, WriteTransaction.CREATE_MISSING_PARENTS);
         CheckedFuture<Void, TransactionCommitFailedException> future = transaction.submit();
         try {
             future.checkedGet();

@@ -106,7 +106,8 @@ public class VpnFootprintService implements IVpnFootprintService {
                 VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder(vpnToDpnList);
                 vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setVpnInterfaces(vpnInterfaces);
 
-                writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, vpnToDpnListBuilder.build(), true);
+                writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, vpnToDpnListBuilder.build(),
+                        WriteTransaction.CREATE_MISSING_PARENTS);
                 /* If earlier state was inactive, it is considered new DPN coming back to the
                  * same VPN
                  */
@@ -119,7 +120,8 @@ public class VpnFootprintService implements IVpnFootprintService {
                 VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder().setDpnId(dpnId);
                 vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setVpnInterfaces(vpnInterfaces);
 
-                writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, vpnToDpnListBuilder.build(), true);
+                writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, vpnToDpnListBuilder.build(),
+                        WriteTransaction.CREATE_MISSING_PARENTS);
                 newDpnOnVpn = Boolean.TRUE;
             }
             CheckedFuture<Void, TransactionCommitFailedException> futures = writeTxn.submit();
@@ -171,7 +173,8 @@ public class VpnFootprintService implements IVpnFootprintService {
                         LOG.warn("vpn interfaces are empty but ip addresses are present for the vpn {} in dpn {}",
                                  vpnName, dpnId);
                     }
-                    writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, dpnInVpnBuilder.build(), true);
+                    writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, dpnInVpnBuilder.build(),
+                            WriteTransaction.CREATE_MISSING_PARENTS);
 
                 } else {
                     writeTxn.delete(LogicalDatastoreType.OPERATIONAL, id.child(VpnInterfaces.class,

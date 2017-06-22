@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.aclservice;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -108,11 +109,10 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
         dataStoreCoordinator.enqueueJob(interfaceName,
             () -> {
                 WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-                writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, serviceInfo, true);
+                writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, serviceInfo,
+                        WriteTransaction.CREATE_MISSING_PARENTS);
 
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                futures.add(writeTxn.submit());
-                return futures;
+                return Collections.singletonList(writeTxn.submit());
             });
     }
 

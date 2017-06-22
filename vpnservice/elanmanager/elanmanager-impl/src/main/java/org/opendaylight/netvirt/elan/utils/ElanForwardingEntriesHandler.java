@@ -94,7 +94,8 @@ public class ElanForwardingEntriesHandler {
             MacEntry macEntry = new MacEntryBuilder().setMacAddress(mac.getMacAddress()).setIpPrefix(mac.getIpPrefix())
                     .setInterface(interfaceName)
                     .setIsStaticAddress(true).setKey(new MacEntryKey(mac.getMacAddress())).build();
-            tx.put(LogicalDatastoreType.OPERATIONAL, existingMacEntryId, macEntry, true);
+            tx.put(LogicalDatastoreType.OPERATIONAL, existingMacEntryId, macEntry,
+                    WriteTransaction.CREATE_MISSING_PARENTS);
         }
     }
 
@@ -116,7 +117,7 @@ public class ElanForwardingEntriesHandler {
                 macEntry.getMacAddress());
         Optional<MacEntry> existingMacEntry = elanUtils.read(broker, LogicalDatastoreType.OPERATIONAL, macEntryId);
         if (!existingMacEntry.isPresent() && elanUtils.getElanMacTable(elanName) != null) {
-            tx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, macEntry, true);
+            tx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, macEntry, WriteTransaction.CREATE_MISSING_PARENTS);
         }
     }
 

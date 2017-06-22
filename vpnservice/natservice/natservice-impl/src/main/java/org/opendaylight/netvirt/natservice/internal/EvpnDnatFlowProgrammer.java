@@ -205,10 +205,9 @@ public class EvpnDnatFlowProgrammer {
 
             WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
             LOG.debug("NAT Service : Add vpnInterface {} to Operational l3vpn:vpn-interfaces ", floatingIpInterface);
-            writeOperTxn.put(LogicalDatastoreType.OPERATIONAL, vpnIfIdentifier, vpnIfBuilder.build(), true);
-            if (writeOperTxn != null) {
-                writeOperTxn.submit();
-            }
+            writeOperTxn.put(LogicalDatastoreType.OPERATIONAL, vpnIfIdentifier, vpnIfBuilder.build(),
+                    WriteTransaction.CREATE_MISSING_PARENTS);
+            writeOperTxn.submit();
         } else {
             LOG.debug("NAT Service : No vpnInterface {} found in Configuration l3vpn:vpn-interfaces ",
                     floatingIpInterface);
