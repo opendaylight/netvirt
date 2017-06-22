@@ -253,7 +253,7 @@ public class BgpConfigurationManager {
             throws InterruptedException, ExecutionException, TimeoutException {
         BgpConfigurationManager.dataBroker = dataBroker;
         BgpConfigurationManager.fibDSWriter = fibDSWriter;
-        BgpConfigurationManager.vpnLinkService = vpnLinkService;
+        BgpConfigurationManager.vpnLinkService = vpnLinkSrvce;
         this.bundleContext = bundleContext;
         String updatePort = getProperty(UPDATE_PORT, DEF_UPORT);
         cHostStartup = getProperty(CONFIG_HOST, DEF_CHOST);
