@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical.locator.set.attributes.LocatorSet;
@@ -101,7 +102,7 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
                 T transformedItem = transform(nodePath, addedItem);
                 String nodeId = transformedId.firstKeyOf(Node.class).getNodeId().getValue();
                 LOG.trace("adding {} {} {}", getDescription(), nodeId, getKey(transformedItem));
-                tx.put(datastoreType, transformedId, transformedItem, true);
+                tx.put(datastoreType, transformedId, transformedItem, WriteTransaction.CREATE_MISSING_PARENTS);
             }
         }
         List<T> removed = new ArrayList<>(orig);

@@ -381,7 +381,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         if (writeConfigTxn != null) {
             writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION,
                 VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnInstanceName),
-                vpnInstanceToVpnId, true);
+                vpnInstanceToVpnId, WriteTransaction.CREATE_MISSING_PARENTS);
         } else {
             TransactionUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnInstanceName),
@@ -394,7 +394,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         if (writeConfigTxn != null) {
             writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION,
                 VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId),
-                vpnIdToVpnInstance, true);
+                vpnIdToVpnInstance, WriteTransaction.CREATE_MISSING_PARENTS);
         } else {
             TransactionUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId),

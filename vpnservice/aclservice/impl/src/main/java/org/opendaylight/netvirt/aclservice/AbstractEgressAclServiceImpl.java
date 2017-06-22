@@ -110,11 +110,10 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
         dataStoreCoordinator.enqueueJob(interfaceName,
             () -> {
                 WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-                writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, serviceInfo, true);
+                writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, serviceInfo,
+                        WriteTransaction.CREATE_MISSING_PARENTS);
 
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                futures.add(writeTxn.submit());
-                return futures;
+                return Collections.singletonList(writeTxn.submit());
             });
     }
 

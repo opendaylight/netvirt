@@ -88,7 +88,7 @@ public class OpenFlow13Provider {
             .child(Flow.class, flow.getKey())
             .build();
 
-        tx.put(LogicalDatastoreType.CONFIGURATION, iidFlow, flow, true);
+        tx.put(LogicalDatastoreType.CONFIGURATION, iidFlow, flow, WriteTransaction.CREATE_MISSING_PARENTS);
     }
 
     public void appendFlowForDelete(NodeId node, Flow flow, WriteTransaction tx) {
