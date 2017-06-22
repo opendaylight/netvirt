@@ -768,13 +768,13 @@ public class VpnUtil {
         return read(broker, LogicalDatastoreType.CONFIGURATION, interfaceId).isPresent();
     }
 
-    static Optional<String> getVpnAssociatedWithInterface(DataBroker broker, String interfaceName) {
+    static Optional<List> getVpnAssociatedWithInterface(DataBroker broker, String interfaceName) {
         InstanceIdentifier<VpnInterface> interfaceId = getVpnInterfaceIdentifier(interfaceName);
-        Optional<String> vpnOptional = Optional.absent();
+        Optional<List> vpnOptional = Optional.absent();
         Optional<VpnInterface> optConfiguredVpnInterface = read(broker, LogicalDatastoreType.CONFIGURATION,
                 interfaceId);
         if (optConfiguredVpnInterface.isPresent()) {
-            vpnOptional = Optional.of(optConfiguredVpnInterface.get().getVpnInstanceName().get(0));
+            vpnOptional = Optional.of(optConfiguredVpnInterface.get().getVpnInstanceName());
         }
         return vpnOptional;
     }
@@ -1406,15 +1406,9 @@ public class VpnUtil {
     public static boolean isVpnIntfPresentInVpnToDpnList(DataBroker broker,
                                                       VpnInterface vpnInterface, String vpnName) {
         BigInteger dpnId = vpnInterface.getDpnId();
-<<<<<<< HEAD
-        String rd = VpnUtil.getVpnRd(broker, vpnInterface.getVpnInstanceName().get(0));
-        LOG.trace("GOT rd {} for VpnInterface {}  VpnInstance {} ", rd ,
-                   vpnInterface.getName(), vpnInterface.getVpnInstanceName().get(0));
-=======
         String rd = VpnUtil.getVpnRd(broker, vpnName);
         LOG.trace("GOT rd {} for VpnInterface {}  VpnInstance {} ", rd ,
                    vpnInterface.getName(), vpnName);
->>>>>>> 3c2f17262e94... vpninterface-manager: support for update operation
         VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpDataFromCache(broker, rd);
         if (vpnInstanceOpData != null) {
             LOG.trace("GOT VpnInstanceOp {} for rd {} ", vpnInstanceOpData, rd);
