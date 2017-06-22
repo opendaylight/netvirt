@@ -71,6 +71,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.DpidL3vpnLbNexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.L3vpnLbNexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
@@ -84,6 +85,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.l3v
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.l3vpn.lb.nexthops.NexthopsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.l3vpn.lb.nexthops.NexthopsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -119,6 +121,24 @@ public final class FibUtil {
                     .AdjacencyKey(ipAddress)).build();
     }
 
+    static InstanceIdentifier<Adjacency> getAdjacencyIdentifierOp(String vpnInterfaceName,
+                                      String vpnName, String ipAddress) {
+        LOG.debug("getAdjacencyIdentifierOp vpninterface {} vpn {} ip {}", vpnInterfaceName, vpnName, ipAddress);
+        return InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911
+                   .VpnInterfaceOpData.class)
+                   .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
+                   ._interface.op.data.VpnInterfaceOpDataEntry.class,
+                   new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
+                        ._interface.op.data
+                        .VpnInterfaceOpDataEntryKey(vpnInterfaceName, vpnName))
+                        .augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight
+                        .netvirt.l3vpn.rev130911.AdjacenciesOp.class)
+                        .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn
+                            .rev130911.adjacency.list.Adjacency.class,
+                            new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list
+                                .AdjacencyKey(ipAddress)).build();
+    }
+
     static InstanceIdentifier<Adjacencies> getAdjListPath(String vpnInterfaceName) {
         return InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn
             .rev140815.VpnInterfaces.class)
@@ -127,6 +147,17 @@ public final class FibUtil {
                 new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces
                     .VpnInterfaceKey(vpnInterfaceName))
             .augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies.class)
+            .build();
+    }
+
+    static InstanceIdentifier<AdjacenciesOp> getAdjListPathOp(String vpnInterfaceName, String vpnName) {
+        return InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911
+            .VpnInterfaceOpData.class)
+            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op
+            .data.VpnInterfaceOpDataEntry.class,
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911
+                        .vpn._interface.op.data.VpnInterfaceOpDataEntryKey(vpnInterfaceName, vpnName))
+            .augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp.class)
             .build();
     }
 
@@ -150,6 +181,16 @@ public final class FibUtil {
                 .VpnInterface.class,
                 new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces
                     .VpnInterfaceKey(vpnInterfaceName)).build();
+    }
+
+    static InstanceIdentifier<VpnInterfaceOpDataEntry> getVpnInterfaceOpDataEntryIdentifier(
+                       String vpnInterfaceName, String vpnName) {
+        return InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911
+            .VpnInterfaceOpData.class)
+            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op
+            .data.VpnInterfaceOpDataEntry.class,
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
+                       ._interface.op.data.VpnInterfaceOpDataEntryKey(vpnInterfaceName, vpnName)).build();
     }
 
     static InstanceIdentifier<VpnInstanceOpDataEntry> getVpnInstanceOpDataIdentifier(String rd) {
@@ -181,9 +222,9 @@ public final class FibUtil {
         return localNextHopInfoData.isPresent() ? localNextHopInfoData.get() : null;
     }
 
-    static String getMacAddressFromPrefix(DataBroker broker, String ifName, String ipPrefix) {
+    static String getMacAddressFromPrefix(DataBroker broker, String ifName, String vpnName, String ipPrefix) {
         Optional<Adjacency> adjacencyData = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
-            getAdjacencyIdentifier(ifName, ipPrefix));
+                       getAdjacencyIdentifierOp(ifName, vpnName, ipPrefix));
         return adjacencyData.isPresent() ? adjacencyData.get().getMacAddress() : null;
     }
 
