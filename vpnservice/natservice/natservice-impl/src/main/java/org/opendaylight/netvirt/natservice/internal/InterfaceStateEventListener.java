@@ -223,7 +223,6 @@ public class InterfaceStateEventListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private String getRouterIdForPort(DataBroker dataBroker, String interfaceName) {
-        String vpnName = null;
         String routerName = null;
         if (NatUtil.isVpnInterfaceConfigured(dataBroker, interfaceName)) {
             //getVpnInterface
@@ -234,14 +233,7 @@ public class InterfaceStateEventListener
                 LOG.error("NAT Service : Unable to process for interface {} as it is not configured", interfaceName);
             }
             if (vpnInterface != null) {
-                //getVpnName
-                try {
-                    vpnName = vpnInterface.getVpnRouterIds().get(0);
-                    LOG.debug("NAT Service : Retrieved VpnName {}", vpnName);
-                } catch (Exception e) {
-                    LOG.error("NAT Service : Unable to get vpnname for vpninterface {} - {}", vpnInterface, e);
-                }
-                if (vpnName != null) {
+                for (String vpnName: vpnInterface.getVpnRouterIds()) {
                     try {
                         routerName = NatUtil.getRouterIdfromVpnInstance(dataBroker, vpnName);
                     } catch (Exception e) {
@@ -261,13 +253,10 @@ public class InterfaceStateEventListener
                         LOG.debug("NAT Service : Router is not associated to vpnname {} for interface {}",
                             vpnName, interfaceName);
                     }
-                } else {
-                    LOG.debug("NAT Service : vpnName not found for vpnInterface {} of port {}",
-                        vpnInterface, interfaceName);
                 }
+            } else {
+                LOG.debug("NAT Service : Interface {} is not a vpninterface", interfaceName);
             }
-        } else {
-            LOG.debug("NAT Service : Interface {} is not a vpninterface", interfaceName);
         }
         return null;
     }
