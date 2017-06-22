@@ -52,7 +52,6 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
-import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -758,15 +757,15 @@ public class VpnUtil {
 
     static boolean isInterfaceAssociatedWithVpn(DataBroker broker, String vpnName, String interfaceName) {
         InstanceIdentifier<VpnInterface> interfaceId = getVpnInterfaceIdentifier(interfaceName);
-        Optional<VpnInterface> optConfiguredVpnInterface =
-            read(broker, LogicalDatastoreType.CONFIGURATION, interfaceId);
-
-        if (optConfiguredVpnInterface.isPresent()) {
-            String configuredVpnName = VpnHelper.getFirstVpnNameFromVpnInterface(
-                         optConfiguredVpnInterface.get());
-            if (configuredVpnName != null && configuredVpnName.equalsIgnoreCase(vpnName)) {
-                return true;
-            }
+        Optional<VpnInterface> optConfiguredVpnInterface = read(broker, LogicalDatastoreType.CONFIGURATION,
+                interfaceId);
+        if (!optConfiguredVpnInterface.isPresent()) {
+            return false;
+        }
+        VpnInterface configuredVpnInterface = optConfiguredVpnInterface.get();
+        if (configuredVpnInterface.getVpnInstanceName() != null
+            && configuredVpnInterface.getVpnInstanceName().contains(vpnName)) {
+            return true;
         }
         return false;
     }
