@@ -1329,6 +1329,10 @@ public class ElanUtils {
         }
     }
 
+    public static String getElanServiceName(String elanName, String interfaceName) {
+        return "elan." + elanName + interfaceName;
+    }
+
     public static BoundServices getBoundServices(String serviceName, short servicePriority, int flowPriority,
             BigInteger cookie, List<Instruction> instructions) {
         StypeOpenflowBuilder augBuilder = new StypeOpenflowBuilder().setFlowCookie(cookie).setFlowPriority(flowPriority)
