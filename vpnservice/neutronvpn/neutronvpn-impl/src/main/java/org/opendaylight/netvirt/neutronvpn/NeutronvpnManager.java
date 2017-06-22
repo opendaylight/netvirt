@@ -43,7 +43,6 @@ import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.netvirt.neutronvpn.evpn.manager.NeutronEvpnManager;
 import org.opendaylight.netvirt.neutronvpn.evpn.utils.NeutronEvpnUtils;
-import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -1292,48 +1291,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         removeVpn(subnetId);
     }
 
-    private void updateVpnInstanceWithIpFamily(String vpnName, IpVersionChoice ipVersion) {
-        LOG.info("updateVpnInstanceWithIpFamily: Update VpnInstance {} with ipFamily {}", vpnName,
-            ipVersion.toString());
-        InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class).child(VpnInstance.class,
-                new VpnInstanceKey(vpnName)).build();
-        Optional<VpnInstance> opVpnInstance = VpnHelper.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
-        if (!opVpnInstance.isPresent()) {
-            LOG.error("updateVpnInstanceWithIpFamily: Can not find VpnInstance for vpnName {} in Config DS", vpnName);
-            return;
-        }
-        VpnInstance vpnInstance = opVpnInstance.get();
-        VpnTargets vpnTargets = new VpnTargetsBuilder().setVpnTarget(new ArrayList<>()).build();
-        String rd = VpnUtil.getPrimaryRd(vpnInstance);
-        if (rd != null) {
-            vpnTargets = VpnUtil.getOpVpnTargets(dataBroker, rd);
-        }
-        VpnInstanceBuilder vpnInstanceBuilder = new VpnInstanceBuilder(vpnInstance);
-        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4) && (vpnInstance.getIpv4Family() == null)) {
-            Ipv4FamilyBuilder ipv4vpnBuilder = new Ipv4FamilyBuilder().setVpnTargets(vpnTargets);
-            vpnInstanceBuilder.setIpv4Family(ipv4vpnBuilder.build()).build();
-        }
-        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6) && (vpnInstance.getIpv6Family() == null)) {
-            Ipv6FamilyBuilder ipv6vpnBuilder = new Ipv6FamilyBuilder().setVpnTargets(vpnTargets);
-            vpnInstanceBuilder.setIpv6Family(ipv6vpnBuilder.build()).build();
-        }
-        boolean isLockAcquired = false;
-        isLockAcquired = NeutronUtils.lock(vpnName);
-        try {
-            InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
-                    .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
-            SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier,
-                    vpnInstanceBuilder.build());
-        } catch (TransactionCommitFailedException ex) {
-            LOG.warn("Error while configuring feature: {}", ex);
-        } finally {
-            if (isLockAcquired) {
-                NeutronUtils.unlock(vpnName);
-            }
-        }
-        LOG.debug("Successfully updated VpnInstance {} with subnet IpFamily {}", vpnName, ipVersion.toString());
-    }
-
     protected void addSubnetToVpn(final Uuid vpnId, Uuid subnet) {
         LOG.debug("addSubnetToVpn: Adding subnet {} to vpn {}", subnet.getValue(), vpnId.getValue());
         Subnetmap sn = updateSubnetNode(subnet, null, vpnId);
@@ -1386,41 +1343,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 });
             }
         }
-        IpVersionChoice ipVersion = NeutronUtils.getIpVersion(sn.getSubnetIp());
-        updateVpnInstanceWithIpFamily(vpnId.getValue(), ipVersion);
-    }
-
-    private void withdrawIpFamilyFromVpnInstance(String vpnName, IpVersionChoice ipVersion) {
-        LOG.info("Withdraw ipFamily {} from VpnInstance", ipVersion.toString(), vpnName);
-        InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
-                .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
-        Optional<VpnInstance> optionalVpn = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                vpnIdentifier);
-        if (!optionalVpn.isPresent()) {
-            LOG.error("Can't find VpnInstance in DS for vpnName {}", vpnName);
-            return;
-        }
-        VpnInstance vpnInstance = optionalVpn.get();
-        VpnInstanceBuilder vpnInstanceBuilder = new VpnInstanceBuilder(vpnInstance);
-        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
-            vpnInstanceBuilder.setIpv4Family(null).build();
-        }
-        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
-            vpnInstanceBuilder.setIpv6Family(null).build();
-        }
-        boolean isLockAcquired = false;
-        isLockAcquired = NeutronUtils.lock(vpnName);
-        try {
-            SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier,
-                    vpnInstanceBuilder.build());
-        } catch (TransactionCommitFailedException ex) {
-            LOG.warn("Error while configuring feature: {}", ex);
-        } finally {
-            if (isLockAcquired) {
-                NeutronUtils.unlock(vpnName);
-            }
-        }
-        LOG.debug("Successfully withdrawed VpnInstance IpFamily {} from VpnInstance {}", ipVersion.toString(), vpnName);
     }
 
     protected void removeSubnetFromVpn(final Uuid vpnId, Uuid subnet) {
@@ -1462,28 +1384,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     //update subnet-vpn association
                     removeFromSubnetNode(subnet, sn.getNetworkId(), sn.getRouterId(), vpnId, portId);
                 }
-            }
-            InstanceIdentifier<Subnetmaps> subnetMapsId = InstanceIdentifier.builder(Subnetmaps.class).build();
-            Optional<Subnetmaps> allSubnetMaps = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                subnetMapsId);
-            if (!allSubnetMaps.isPresent()) {
-                LOG.error("removeSubnetFromVpn: Subnetmap entries are not available in Config DS");
-                return;
-            }
-            // calculate and store in list IpVersion for each subnetMap, belonging to current VpnInstance
-            List<IpVersionChoice> snIpVersions = new ArrayList<>();
-            for (Subnetmap snMap: allSubnetMaps.get().getSubnetmap()) {
-                if (snMap.getId().equals(sn.getId())) {
-                    continue;
-                }
-                if (snMap.getVpnId().equals(vpnId)) {
-                    snIpVersions.add(NeutronUtils.getIpVersion(snMap.getSubnetIp()));
-                }
-            }
-            IpVersionChoice ipVersion = NeutronUtils.getIpVersion(sn.getSubnetIp());
-            if (!snIpVersions.contains(ipVersion)) {
-                // no more subnet with given IpVersion for current VpnInstance
-                withdrawIpFamilyFromVpnInstance(vpnMap.getName(), ipVersion);
             }
         } else {
             LOG.error("Subnetmap for subnet {} not found", subnet.getValue());
