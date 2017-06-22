@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_a4acfe36",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpInterfaceEventListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-22T15:43:37Z",
+      "side": 1,
+      "message": "Null check is handled here NeutronConstants.IS_DHCP_PORT.test(port)",
+      "parentUuid": "fa2559ec_044b4a5a",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_647326b2",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
         "patchSetId": 29
@@ -105,6 +123,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_9f92e79d",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-22T15:43:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_a464fee5",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_449b82c9",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
         "patchSetId": 29
@@ -139,6 +175,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_3f4dbb73",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-22T15:43:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_c4ae52e7",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_a4ab5ed5",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
         "patchSetId": 29
@@ -150,6 +204,24 @@
       "writtenOn": "2017-06-21T23:58:29Z",
       "side": 1,
       "message": "getIpv4Address() !\u003d null",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_bf408b36",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-22T15:43:37Z",
+      "side": 1,
+      "message": "Oops",
+      "parentUuid": "fa2559ec_a4ab5ed5",
       "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -173,6 +245,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_3f9bfbca",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceAddJob.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-22T15:43:37Z",
+      "side": 1,
+      "message": "Removing duplicate check in InterfaceRemoveJob, we are already validating in DhcpInterfaceEventListener",
+      "parentUuid": "fa2559ec_6481664a",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_04906a94",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/resources/initial/netvirt-dhcpservice-config.xml",
         "patchSetId": 29
@@ -190,6 +280,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_7f7c5373",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/resources/initial/netvirt-dhcpservice-config.xml",
+        "patchSetId": 29
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-22T15:43:37Z",
+      "side": 1,
+      "message": "Yeah",
+      "parentUuid": "fa2559ec_04906a94",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_24d5ae43",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
         "patchSetId": 29
@@ -201,6 +309,24 @@
       "writtenOn": "2017-06-21T23:58:29Z",
       "side": 1,
       "message": "this is not necessary..",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_c47652d8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-22T15:43:37Z",
+      "side": 1,
+      "message": "Should we change it to error, as we always expect it be triggered for VPN,",
+      "parentUuid": "fa2559ec_24d5ae43",
       "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -235,6 +361,24 @@
       "writtenOn": "2017-06-21T23:58:29Z",
       "side": 1,
       "message": "please check once whether for pure-networks-only (i.e., no router) based bgpvpns, we are still continuing to put arp-responder flows correctly..",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_74cf55b1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpResponderHandler.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-22T15:43:37Z",
+      "side": 1,
+      "message": "Validated with both network association and router association for bgpvpns",
+      "parentUuid": "fa2559ec_a4c07e7d",
       "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
