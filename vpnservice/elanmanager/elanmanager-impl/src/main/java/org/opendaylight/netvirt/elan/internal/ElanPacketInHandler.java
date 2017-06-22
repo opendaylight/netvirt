@@ -8,12 +8,9 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ListenableFuture;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.liblldp.PacketException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -175,11 +172,10 @@ public class ElanPacketInHandler implements PacketProcessingListener {
             if (!isVlanOrFlatProviderIface && oldMacEntry == null) {
                 InstanceIdentifier<MacEntry> elanMacEntryId =
                         ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress);
-                writeTx.put(LogicalDatastoreType.OPERATIONAL, elanMacEntryId, newMacEntry, true);
+                writeTx.put(LogicalDatastoreType.OPERATIONAL, elanMacEntryId, newMacEntry,
+                        WriteTransaction.CREATE_MISSING_PARENTS);
             }
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            futures.add(writeTx.submit());
-            return futures;
+            return Collections.singletonList(writeTx.submit());
         });
     }
 
@@ -200,10 +196,9 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                             macAddress, !isVlanOrFlatProviderIface, flowWritetx);
                     InstanceIdentifier<MacEntry> macEntryId =
                             ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
-                    flowWritetx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, newMacEntry, true);
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    futures.add(flowWritetx.submit());
-                    return futures;
+                    flowWritetx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, newMacEntry,
+                            WriteTransaction.CREATE_MISSING_PARENTS);
+                    return Collections.singletonList(flowWritetx.submit());
                 });
     }
 

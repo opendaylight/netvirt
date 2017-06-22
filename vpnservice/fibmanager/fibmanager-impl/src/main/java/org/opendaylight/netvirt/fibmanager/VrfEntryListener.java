@@ -855,7 +855,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
             .child(Table.class, new TableKey(terminatingServiceTableFlowEntity.getTableId()))
             .child(Flow.class, flowKey).build();
-        tx.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flowbld.build(), true);
+        tx.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flowbld.build(),
+                WriteTransaction.CREATE_MISSING_PARENTS);
     }
 
     private void removeTunnelTableEntry(BigInteger dpId, long label, WriteTransaction tx) {
@@ -1384,7 +1385,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             .child(Table.class, new TableKey(flow.getTableId())).child(Flow.class, flowKey).build();
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            tx.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flow, true);
+            tx.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flow, WriteTransaction.CREATE_MISSING_PARENTS);
         } else {
             tx.delete(LogicalDatastoreType.CONFIGURATION, flowInstanceId);
         }

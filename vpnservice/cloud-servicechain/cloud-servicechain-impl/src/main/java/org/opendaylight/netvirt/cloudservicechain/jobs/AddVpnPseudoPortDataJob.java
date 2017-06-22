@@ -53,7 +53,7 @@ public class AddVpnPseudoPortDataJob extends VpnPseudoPortDataBaseJob {
                                             .setVpnLportTag(vpnPseudoLportTag).build();
         LOG.trace("Adding lportTag={} to VpnToLportTag map for VPN with rd={}", vpnPseudoLportTag, vpnRd);
         InstanceIdentifier<VpnToPseudoPortData> path = VpnServiceChainUtils.getVpnToPseudoPortTagIid(vpnRd);
-        writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, newValue, true);
+        writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, newValue, WriteTransaction.CREATE_MISSING_PARENTS);
 
         return Collections.singletonList(writeTxn.submit());
     }

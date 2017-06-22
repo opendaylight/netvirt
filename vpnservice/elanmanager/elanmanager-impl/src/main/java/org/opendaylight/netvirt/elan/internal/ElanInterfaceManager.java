@@ -1480,7 +1480,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         Optional<BoundServices> existingElanService = elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
                 bindServiceId);
         if (!existingElanService.isPresent()) {
-            tx.put(LogicalDatastoreType.CONFIGURATION, bindServiceId, serviceInfo, true);
+            tx.put(LogicalDatastoreType.CONFIGURATION, bindServiceId, serviceInfo,
+                    WriteTransaction.CREATE_MISSING_PARENTS);
         }
     }
 
@@ -1542,7 +1543,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         DpnInterfaces dpnInterface = new DpnInterfacesBuilder().setDpId(dpId).setInterfaces(interfaceNames)
                 .setKey(new DpnInterfacesKey(dpId)).build();
         tx.put(LogicalDatastoreType.OPERATIONAL,
-                ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId), dpnInterface, true);
+                ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId), dpnInterface,
+                WriteTransaction.CREATE_MISSING_PARENTS);
         return dpnInterface;
     }
 
@@ -1571,7 +1573,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         DpnInterfaces dpnInterface = new DpnInterfacesBuilder().setDpId(dpId).setInterfaces(interfaceNames)
                 .setKey(new DpnInterfacesKey(dpId)).build();
         tx.put(LogicalDatastoreType.OPERATIONAL,
-                ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId), dpnInterface, true);
+                ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId), dpnInterface,
+                WriteTransaction.CREATE_MISSING_PARENTS);
         return dpnInterface;
     }
 
@@ -1587,7 +1590,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     .setKey(new ElanInterfaceMacKey(interfaceName)).build();
             tx.put(LogicalDatastoreType.OPERATIONAL,
                     ElanUtils.getElanInterfaceMacEntriesOperationalDataPath(interfaceName), elanInterfaceMacTable,
-                    true);
+                    WriteTransaction.CREATE_MISSING_PARENTS);
         }
     }
 
@@ -1606,7 +1609,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             Elan elanState = new ElanBuilder().setName(elanInstanceName).setElanInterfaces(interfaceLists)
                     .setKey(new ElanKey(elanInstanceName)).build();
             tx.put(LogicalDatastoreType.OPERATIONAL, ElanUtils.getElanInstanceOperationalDataPath(elanInstanceName),
-                    elanState, true);
+                    elanState, WriteTransaction.CREATE_MISSING_PARENTS);
         }
     }
 

@@ -41,12 +41,13 @@ public class DataBrokerPairsUtil {
 
     public <T extends DataObject> void put(LogicalDatastoreType type, Pair<InstanceIdentifier<T>, T> pair)
             throws TransactionCommitFailedException {
-        tx.put(type, pair.getKey(), pair.getValue(), true);
+        tx.put(type, pair.getKey(), pair.getValue(), WriteTransaction.CREATE_MISSING_PARENTS);
     }
 
     public <T extends DataObject> void put(Pair<DataTreeIdentifier<T>, T> pair)
             throws TransactionCommitFailedException {
-        tx.put(pair.getKey().getDatastoreType(), pair.getKey().getRootIdentifier(), pair.getValue(), true);
+        tx.put(pair.getKey().getDatastoreType(), pair.getKey().getRootIdentifier(), pair.getValue(),
+                WriteTransaction.CREATE_MISSING_PARENTS);
     }
 
     public <T extends DataObject> void put(DataTreeIdentifierDataObjectPairBuilder<T> builder)
