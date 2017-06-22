@@ -38,8 +38,10 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
@@ -53,6 +55,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.R
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -296,17 +301,21 @@ public class EvpnDnatFlowProgrammer {
         });
         //Read the FIP vpn-interface details from Operational l3vpn:vpn-interfaces model and delete from Operational DS
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NatUtil.getVpnInterfaceIdentifier(floatingIpInterface);
-        Optional<VpnInterface> optionalVpnInterface = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+        Optional<VpnInterface> optionalCfgVpnInterface = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 vpnIfIdentifier);
-        if (optionalVpnInterface.isPresent()) {
-            WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-            LOG.debug("NAT Service : Remove vpnInterface {} to Operational l3vpn:vpn-interfaces ", floatingIpInterface);
-            writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, vpnIfIdentifier);
-            if (writeOperTxn != null) {
-                writeOperTxn.submit();
+        if (optionalCfgVpnInterface.isPresent()) {
+            String vpnInterfaceName1 = optionalCfgVpnInterface.get().getName();
+            for (String vpnNameId : optionalCfgVpnInterface.get().getVpnRouterIds()) {
+                WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+                InstanceIdentifier<VpnInterfaceOpDataEntry> vpnOpIfIdentifier = NatUtil.getVpnInterfaceOpDataEntryIdentifier(vpnInterfaceName1, vpnNameId);
+                writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, vpnOpIfIdentifier);
+                if (writeOperTxn != null) {
+                    writeOperTxn.submit();
+                }
             }
+            LOG.debug("NAT Service : Remove vpnInterface {} to Operational l3vpn:vpn-interfaces-op-data ", floatingIpInterface);
         } else {
-            LOG.debug("NAT Service : No vpnInterface {} found in Operational l3vpn:vpn-interfaces ",
+            LOG.debug("NAT Service : No vpnInterface {} found in Operational l3vpn:vpn-interfaces-op-data ",
                     floatingIpInterface);
         }
     }
