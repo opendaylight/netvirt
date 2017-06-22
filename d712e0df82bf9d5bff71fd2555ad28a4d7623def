@@ -70,6 +70,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_f4e34531",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-22T10:14:11Z",
+      "side": 1,
+      "message": "This removal is for the case where VMs are intact but subnet dhcp state was disabled. For the VM delete case, DHCP flows get removed via DhcpInterfaceRemoveJob .",
+      "parentUuid": "fa2559ec_647326b2",
+      "revId": "d712e0df82bf9d5bff71fd2555ad28a4d7623def",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_a464fee5",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
         "patchSetId": 29
