@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_314faf94",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-06-22T10:00:00Z",
+      "side": 1,
+      "message": "i have indented it now. but since dcIp.getIpAddress().getIpv4Address().toString() is used only once here i didnt add a constant for it",
+      "parentUuid": "1af78d9a_30ef87b2",
+      "revId": "2815914763a5cb84e8dabb4b0d95e06142c915ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_e98362ca",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
         "patchSetId": 2
@@ -72,6 +90,30 @@
       "side": 1,
       "message": "Also note that String.format is very expensive, so for a case like this a simple \"elan.\" + elanName + \".\" + interfaceName would be better. (I\u0027m measuring a 60× performance difference.)",
       "parentUuid": "1af78d9a_e98362ca",
+      "range": {
+        "startLine": 367,
+        "startChar": 63,
+        "endLine": 368,
+        "endChar": 39
+      },
+      "revId": "2815914763a5cb84e8dabb4b0d95e06142c915ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_7149278b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-06-22T10:00:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_d0e8c37e",
       "range": {
         "startLine": 367,
         "startChar": 63,
