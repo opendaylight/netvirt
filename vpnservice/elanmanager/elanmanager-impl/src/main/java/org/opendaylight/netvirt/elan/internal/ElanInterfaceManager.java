@@ -624,6 +624,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
         Elan elanInfo = ElanUtils.getElanByName(broker, elanInstanceName);
         WriteTransaction tx = broker.newWriteOnlyTransaction();
+        WriteTransaction writeTx = broker.newWriteOnlyTransaction();
         if (elanInfo == null) {
             List<String> elanInterfaces = new ArrayList<>();
             elanInterfaces.add(interfaceName);
@@ -669,7 +670,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         // call bindservice of interfacemanager to create ingress table flow
         // enty.
         // Add interface to the ElanInterfaceForwardingEntires Container
-        createElanInterfaceTablesList(interfaceName, tx);
+        createElanInterfaceTablesList(interfaceName, writeTx);
         if (interfaceInfo != null) {
             installEntriesForFirstInterfaceonDpn(elanInstance, interfaceInfo, dpnInterfaces, isFirstInterfaceInDpn, tx);
 
@@ -1577,16 +1578,16 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private void createElanInterfaceTablesList(String interfaceName, WriteTransaction tx) {
         InstanceIdentifier<ElanInterfaceMac> elanInterfaceMacTables = ElanUtils
                 .getElanInterfaceMacEntriesOperationalDataPath(interfaceName);
-        Optional<ElanInterfaceMac> interfaceMacTables = elanUtils.read(broker,
-                LogicalDatastoreType.OPERATIONAL, elanInterfaceMacTables);
+        ElanInterfaceMac interfaceMacTables = elanUtils.read(broker,
+                LogicalDatastoreType.OPERATIONAL, elanInterfaceMacTables).orNull();
         // Adding new Elan Interface Port to the operational DataStore without
         // Static-Mac Entries..
-        if (!interfaceMacTables.isPresent()) {
+        if (interfaceMacTables == null) {
             ElanInterfaceMac elanInterfaceMacTable = new ElanInterfaceMacBuilder().setElanInterface(interfaceName)
                     .setKey(new ElanInterfaceMacKey(interfaceName)).build();
             tx.put(LogicalDatastoreType.OPERATIONAL,
-                    ElanUtils.getElanInterfaceMacEntriesOperationalDataPath(interfaceName), elanInterfaceMacTable,
-                    true);
+                    ElanUtils.getElanInterfaceMacEntriesOperationalDataPath(interfaceName), elanInterfaceMacTable);
+            tx.submit();
         }
     }
 
