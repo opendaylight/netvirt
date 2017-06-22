@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_d15d734a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/EvpnElanInstanceListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-06-22T10:00:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_d0dd6344",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_b0e25701",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/EvpnElanInstanceListener.java",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-06-16T07:19:12Z",
       "side": 1,
       "message": "here too.",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_b15a7f4e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/listeners/EvpnElanInstanceListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-06-22T10:00:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_b0e25701",
       "revId": "656a59ae165c21e61076441574df562963c0f1ec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_1158ab55",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-06-22T10:00:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_50db331b",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_9088fb23",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
         "patchSetId": 3
@@ -64,6 +118,24 @@
       "writtenOn": "2017-06-16T07:19:12Z",
       "side": 1,
       "message": "change it to return Optional.fromNullable(externalTunnelList); since it is a public method",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_5131830a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-06-22T10:00:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_9088fb23",
       "revId": "656a59ae165c21e61076441574df562963c0f1ec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_31368f04",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-06-22T10:00:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_708d8f31",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_10d1abfb",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
         "patchSetId": 3
@@ -98,6 +188,24 @@
       "writtenOn": "2017-06-16T07:19:12Z",
       "side": 1,
       "message": "stream is not required here",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_71400757",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-06-22T10:00:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_10d1abfb",
       "revId": "656a59ae165c21e61076441574df562963c0f1ec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_b121dfb6",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-06-22T10:00:00Z",
+      "side": 1,
+      "message": "dcIp and external tunnel is in different formats. So we need contains here",
+      "parentUuid": "1af78d9a_d0e723e3",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_f0e33f03",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
         "patchSetId": 3
@@ -132,6 +258,24 @@
       "writtenOn": "2017-06-16T07:19:12Z",
       "side": 1,
       "message": "Instead of having boolean to decide whether to add or remove, i suggest to have Consumer\u003cFlowEntity\u003e as an argument and pass flowEntity -\u003e mdsalManager.installFlow(flowEntity) or flowEntity -\u003e mdsalManager.removeFlow(flowEntity) based on the need and replace if-else with consumer.accept(flowEntity). it makes this method to be more generic and extensible.",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_112f0ba3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-06-22T10:00:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_f0e33f03",
       "revId": "656a59ae165c21e61076441574df562963c0f1ec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_f12b5792",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-06-22T10:00:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_f0ca1f6d",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_30ee67ed",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
         "patchSetId": 3
@@ -172,6 +334,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_51186384",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-06-22T10:00:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_30ee67ed",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_50f173cc",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
         "patchSetId": 3
@@ -183,6 +363,24 @@
       "writtenOn": "2017-06-16T07:19:12Z",
       "side": 1,
       "message": "same here. replace boolean with BiConsumer\u003cString, String\u003e",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_311def74",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-06-22T10:00:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_50f173cc",
       "revId": "656a59ae165c21e61076441574df562963c0f1ec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -224,6 +422,42 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_71176752",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-06-22T10:00:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_90babbdf",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_9112db60",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-06-22T10:00:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_1089abca",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_30c5c75b",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
         "patchSetId": 3
@@ -235,6 +469,24 @@
       "writtenOn": "2017-06-16T07:19:12Z",
       "side": 1,
       "message": "don\u0027t you need to program this flow even tunnelInterfaceNameList is empty ?",
+      "revId": "656a59ae165c21e61076441574df562963c0f1ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_d10bb329",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2017-06-22T10:00:00Z",
+      "side": 1,
+      "message": "yes we need to program this even without any external tunnel interface",
+      "parentUuid": "1af78d9a_30c5c75b",
       "revId": "656a59ae165c21e61076441574df562963c0f1ec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
