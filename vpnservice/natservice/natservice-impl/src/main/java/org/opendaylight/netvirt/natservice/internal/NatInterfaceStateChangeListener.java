@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -172,22 +173,31 @@ public class NatInterfaceStateChangeListener
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             try {
                 LOG.trace("NAT Service : Received interface {} PORT DOWN or REMOVE event", interfaceName);
-                BigInteger dpId;
+                BigInteger dpId = null;
                 try {
                     dpId = NatUtil.getDpIdFromInterface(iface);
                 } catch (Exception e) {
                     LOG.warn("NAT Service : Unable to retrieve DPNID from Interface operational data store for "
                             + "Interface {}. Exception {} ", interfaceName, e);
                     InstanceIdentifier<VpnInterface> id = NatUtil.getVpnInterfaceIdentifier(interfaceName);
-                    Optional<VpnInterface> optVpnInterface =
+                    Optional<VpnInterface> cfgVpnInterface =
                             SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
-                                    dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-                    if (!optVpnInterface.isPresent()) {
+                                    dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+                    if (!cfgVpnInterface.isPresent()) {
                         LOG.warn("NAT Service : Interface {} is not a VPN Interface, ignoring.", interfaceName);
                         return futures;
                     }
-                    final VpnInterface vpnInterface = optVpnInterface.get();
-                    dpId = vpnInterface.getDpnId();
+                    for (String vpnName : cfgVpnInterface.get().getVpnInstanceName()) {
+                        InstanceIdentifier<VpnInterfaceOpDataEntry> idOper = NatUtil
+                              .getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
+                        Optional<VpnInterfaceOpDataEntry> optVpnInterface =
+                              SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
+                                    dataBroker, LogicalDatastoreType.CONFIGURATION, idOper);
+                        if (optVpnInterface.isPresent()) {
+                            dpId = optVpnInterface.get().getDpnId();
+                            break;
+                        }
+                    }
                 }
                 if (dpId == null || dpId.equals(BigInteger.ZERO)) {
                     LOG.error("NAT Service : Unable to get DPN ID for the Interface {}", interfaceName);
@@ -223,7 +233,7 @@ public class NatInterfaceStateChangeListener
             try {
                 final String interfaceName = update.getName();
                 LOG.trace("NAT Service : UPDATE : Received interface {} state change event", interfaceName);
-                BigInteger dpId;
+                BigInteger dpId = null;
                 try {
                     dpId = NatUtil.getDpIdFromInterface(update);
                 } catch (Exception e) {
@@ -231,15 +241,24 @@ public class NatInterfaceStateChangeListener
                             "NAT Service : Unable to retrieve DPN ID from Interface operational data "
                                     + "store for Interface {}. Exception {} ",  update.getName(), e);
                     InstanceIdentifier<VpnInterface> id = NatUtil.getVpnInterfaceIdentifier(interfaceName);
-                    Optional<VpnInterface> optVpnInterface =
+                    Optional<VpnInterface> cfgVpnInterface =
                             SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
-                                    dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-                    if (!optVpnInterface.isPresent()) {
+                                    dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+                    if (!cfgVpnInterface.isPresent()) {
                         LOG.warn("NAT Service : Interface {} is not a VPN Interface, ignoring.", interfaceName);
                         return futures;
                     }
-                    final VpnInterface vpnInterface = optVpnInterface.get();
-                    dpId = vpnInterface.getDpnId();
+                    for (String vpnName : cfgVpnInterface.get().getVpnInstanceName()) {
+                        InstanceIdentifier<VpnInterfaceOpDataEntry> idOper = NatUtil
+                              .getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
+                        Optional<VpnInterfaceOpDataEntry> optVpnInterface =
+                            SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
+                                  dataBroker, LogicalDatastoreType.OPERATIONAL, idOper);
+                        if (optVpnInterface.isPresent()) {
+                            dpId = optVpnInterface.get().getDpnId();
+                            break;
+                        }
+                    }
                 }
                 if (dpId == null || dpId.equals(BigInteger.ZERO)) {
                     LOG.error("NAT Service : Unable to get DPN ID for the Interface {}", interfaceName);
