@@ -18,6 +18,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
@@ -206,7 +207,7 @@ public class NodeConnectedHandler {
         globalNodeMerger.mergeConfigData(nodeBuilder, srcNode, childPath);
         nodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, dstBuilder.build());
         Node dstNode = nodeBuilder.build();
-        tx.put(CONFIGURATION, childPath, dstNode, true);
+        tx.put(CONFIGURATION, childPath, dstNode, WriteTransaction.CREATE_MISSING_PARENTS);
     }
 
     /**
@@ -289,7 +290,7 @@ public class NodeConnectedHandler {
 
         childPsBuilder.addAugmentation(PhysicalSwitchAugmentation.class, dstBuilder.build());
         Node childPSNode = childPsBuilder.build();
-        tx.put(CONFIGURATION, childPsPath, childPSNode, true);
+        tx.put(CONFIGURATION, childPsPath, childPSNode, WriteTransaction.CREATE_MISSING_PARENTS);
     }
 
     /**
