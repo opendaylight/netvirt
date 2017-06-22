@@ -768,13 +768,13 @@ public class VpnUtil {
         return read(broker, LogicalDatastoreType.CONFIGURATION, interfaceId).isPresent();
     }
 
-    static Optional<String> getVpnAssociatedWithInterface(DataBroker broker, String interfaceName) {
+    static Optional<List> getVpnAssociatedWithInterface(DataBroker broker, String interfaceName) {
         InstanceIdentifier<VpnInterface> interfaceId = getVpnInterfaceIdentifier(interfaceName);
-        Optional<String> vpnOptional = Optional.absent();
+        Optional<List> vpnOptional = Optional.absent();
         Optional<VpnInterface> optConfiguredVpnInterface = read(broker, LogicalDatastoreType.CONFIGURATION,
                 interfaceId);
         if (optConfiguredVpnInterface.isPresent()) {
-            vpnOptional = Optional.of(optConfiguredVpnInterface.get().getVpnInstanceName().get(0));
+            vpnOptional = Optional.of(optConfiguredVpnInterface.get().getVpnInstanceName());
         }
         return vpnOptional;
     }
