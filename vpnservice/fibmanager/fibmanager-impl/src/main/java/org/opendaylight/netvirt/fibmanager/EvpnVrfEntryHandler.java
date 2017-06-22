@@ -245,7 +245,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
             LOG.debug("adding set tunnel id action for label {}", tunnelId);
             String macAddress = null;
             if (interfaceName != null) {
-                macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, interfaceName, prefix);
+                macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, interfaceName, Long.toString(vpnId), prefix);
                 actionInfos.add(new ActionSetFieldEthernetDestination(new MacAddress(macAddress)));
             }
             actionInfos.add(new ActionSetFieldTunnelId(tunnelId));
