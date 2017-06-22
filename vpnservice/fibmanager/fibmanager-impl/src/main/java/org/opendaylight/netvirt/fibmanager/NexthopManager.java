@@ -336,9 +336,9 @@ public class NexthopManager implements AutoCloseable {
 
     public long createLocalNextHop(long vpnId, BigInteger dpnId, String ifName,
             String ipNextHopAddress, String ipPrefixAddress, String gwMacAddress, String jobKey) {
-        String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, ipPrefixAddress);
+        String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnId);
+        String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, vpnName, ipPrefixAddress);
         String ipAddress = macAddress != null ? ipPrefixAddress : ipNextHopAddress;
-
         long groupId = createNextHopPointer(getNextHopKey(vpnId, ipAddress));
         if (groupId == 0) {
             LOG.error("Unable to allocate groupId for vpnId {} , prefix {}  IntfName {}, nextHopAddr {}",
@@ -355,7 +355,8 @@ public class NexthopManager implements AutoCloseable {
                         ipAddress, ifName, dpnId);
                 if (nexthop == null) {
                     String encMacAddress = macAddress == null
-                            ? FibUtil.getMacAddressFromPrefix(dataBroker, ifName, ipAddress) : macAddress;
+                        ? FibUtil.getMacAddressFromPrefix(dataBroker, ifName,
+                               vpnName, ipAddress) : macAddress;
                     List<BucketInfo> listBucketInfo = new ArrayList<>();
                     List<ActionInfo> listActionInfo = new ArrayList<>();
                     int actionKey = 0;
@@ -895,7 +896,9 @@ public class NexthopManager implements AutoCloseable {
             List<ActionInfo> actionInfos = new ArrayList<>();
             actionInfos.add(new ActionSetFieldTunnelId(tunnelId));
             String ifName = prefixInfo.getVpnInterfaceName();
-            String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, nextHopPrefixIp);
+            String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnId);
+            String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName,
+                                 vpnName, nextHopPrefixIp);
             actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(),
                     new MacAddress(macAddress)));
             List<ActionInfo> egressActions;
