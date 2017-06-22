@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa2559ec_64404657",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/RouterInterfaceVrfEntryHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-06-22T06:09:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_a4851eaf",
+      "revId": "4ca077e427f60710fc470ac729b5c2bb7518ec02",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_e4a6f652",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-06-22T05:39:56Z",
       "side": 1,
       "message": "please avoid a lot of else if like\n if (condition) {\ncall handler;\nreturn;\n}\n\nif (second-condition) {\ncall handler2;\nreturn;\n}\n\nSame applies for remove() also",
+      "revId": "4ca077e427f60710fc470ac729b5c2bb7518ec02",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_c42492c8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-06-22T06:09:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_e4a6f652",
       "revId": "4ca077e427f60710fc470ac729b5c2bb7518ec02",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false

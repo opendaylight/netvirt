@@ -16,6 +16,24 @@
       "revId": "fa2c12a8c1f1f6041fd3c350ca422e2d980d3dc1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_a4735ee6",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IFibManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-06-22T06:09:53Z",
+      "side": 0,
+      "message": "Yes checked , its not used any where in the netvirt repo",
+      "parentUuid": "fa2559ec_849f3a03",
+      "revId": "fa2c12a8c1f1f6041fd3c350ca422e2d980d3dc1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
