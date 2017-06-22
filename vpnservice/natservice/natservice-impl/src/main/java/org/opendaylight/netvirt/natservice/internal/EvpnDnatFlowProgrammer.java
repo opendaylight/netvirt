@@ -53,8 +53,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.F
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntryBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntryKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -200,19 +204,27 @@ public class EvpnDnatFlowProgrammer {
         Optional<VpnInterface> optionalVpnInterface =
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                         LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
+        InstanceIdentifier<VpnInterfaceOpDataEntry> vpnIfIdentifierOpDataEntry = null;
         if (optionalVpnInterface.isPresent()) {
-            VpnInterfaceBuilder vpnIfBuilder = new VpnInterfaceBuilder(optionalVpnInterface.get());
-            Adjacencies adjs = vpnIfBuilder.getAugmentation(Adjacencies.class);
-            List<Adjacency> adjacencyList = (adjs != null) ? adjs.getAdjacency() : new ArrayList<>();
-            Adjacencies adjacencies = new AdjacenciesBuilder().setAdjacency(adjacencyList).build();
-            vpnIfBuilder.addAugmentation(Adjacencies.class, adjacencies);
+            for (String vpnNameId : optionalVpnInterface.get().getVpnInstanceNames()) {
+                vpnIfIdentifierOpDataEntry = NatUtil.getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnNameId);
+                VpnInterfaceBuilder vpnIfBuilder = new VpnInterfaceBuilder(optionalVpnInterface.get());
+                Adjacencies adjs = vpnIfBuilder.getAugmentation(Adjacencies.class);
 
-            WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-            LOG.debug("onAddFloatingIp : Add vpnInterface {} to Operational l3vpn:vpn-interfaces ",
-                    floatingIpInterface);
-            writeOperTxn.put(LogicalDatastoreType.OPERATIONAL, vpnIfIdentifier, vpnIfBuilder.build(),
-                    WriteTransaction.CREATE_MISSING_PARENTS);
-            writeOperTxn.submit();
+                VpnInterfaceOpDataEntryBuilder vpnIfOpDataEntryBuilder = new VpnInterfaceOpDataEntryBuilder();
+                vpnIfOpDataEntryBuilder.setKey(new VpnInterfaceOpDataEntryKey(interfaceName, vpnNameId));
+
+                List<Adjacency> adjacencyList = (adjs != null) ? adjs.getAdjacency() : new ArrayList<>();
+                AdjacenciesOp adjacenciesOp = new AdjacenciesOpBuilder().setAdjacency(adjacencyList).build();
+                vpnIfOpDataEntryBuilder.addAugmentation(AdjacenciesOp.class, adjacenciesOp);
+
+                WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+                LOG.debug("onAddFloatingIp : Add vpnInterface {} to Operational l3vpn:vpn-interfaces-op-data ",
+                        floatingIpInterface);
+                writeOperTxn.put(LogicalDatastoreType.OPERATIONAL, vpnIfIdentifierOpDataEntry,
+                              vpnIfOpDataEntryBuilder.build(), WriteTransaction.CREATE_MISSING_PARENTS);
+                writeOperTxn.submit();
+            }
         } else {
             LOG.debug("onAddFloatingIp : No vpnInterface {} found in Configuration l3vpn:vpn-interfaces ",
                     floatingIpInterface);
@@ -301,13 +313,18 @@ public class EvpnDnatFlowProgrammer {
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NatUtil.getVpnInterfaceIdentifier(floatingIpInterface);
         Optional<VpnInterface> optionalVpnInterface =
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                        LogicalDatastoreType.OPERATIONAL, vpnIfIdentifier);
+                        LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
         if (optionalVpnInterface.isPresent()) {
-            WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+            String vpnInterfaceName1 = optionalVpnInterface.get().getName();
+            for (String vpnNameId : optionalVpnInterface.get().getVpnInstanceNames()) {
+                WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+                InstanceIdentifier<VpnInterfaceOpDataEntry> vpnOpIfIdentifier = NatUtil
+                           .getVpnInterfaceOpDataEntryIdentifier(vpnInterfaceName1, vpnNameId);
+                writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, vpnOpIfIdentifier);
+                writeOperTxn.submit();
+            }
             LOG.debug("onRemoveFloatingIp : Remove vpnInterface {} to Operational l3vpn:vpn-interfaces ",
                     floatingIpInterface);
-            writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, vpnIfIdentifier);
-            writeOperTxn.submit();
         } else {
             LOG.debug("onRemoveFloatingIp : No vpnInterface {} found in Operational l3vpn:vpn-interfaces ",
                     floatingIpInterface);
