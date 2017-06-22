@@ -282,7 +282,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterface.getName(),
                 () -> {
                     WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-                    createFibEntryForRouterInterface(vpnInterface, interfaceName, writeConfigTxn);
+                    createFibEntryForRouterInterface(vpnInterface, interfaceName, writeConfigTxn, vpnName);
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
                     futures.add(writeConfigTxn.submit());
                     return futures;
@@ -1055,7 +1055,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterface.getName(),
                 () -> {
                     WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-                    deleteFibEntryForRouterInterface(vpnInterface, writeConfigTxn);
+                    for (String vpnName : vpnInterface.getVpnRouterIds()) {
+                        deleteFibEntryForRouterInterface(vpnInterface, writeConfigTxn, vpnName);
+                    }
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
                     futures.add(writeConfigTxn.submit());
                     return futures;
@@ -1960,11 +1962,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     }
 
     protected void createFibEntryForRouterInterface(VpnInterface vpnInterface, String interfaceName,
-                                                    WriteTransaction writeConfigTxn) {
+                                                    WriteTransaction writeConfigTxn, String vpnName) {
         if (vpnInterface == null) {
             return;
         }
-        String vpnName = vpnInterface.getVpnRouterIds().get(0);
         String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
         List<Adjacency> adjs = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker, interfaceName);
         if (adjs == null) {
@@ -1992,7 +1993,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             + " this vpn interface could not be obtained", interfaceName);
     }
 
-    protected void deleteFibEntryForRouterInterface(VpnInterface vpnInterface, WriteTransaction writeConfigTxn) {
+    protected void deleteFibEntryForRouterInterface(VpnInterface vpnInterface,
+                                                    WriteTransaction writeConfigTxn, String vpnName) {
         List<Adjacency> adjsList = new ArrayList<>();
         Adjacencies adjs = vpnInterface.getAugmentation(Adjacencies.class);
         if (adjs != null) {
@@ -2001,7 +2003,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 if (adj.isPrimaryAdjacency()) {
                     String primaryInterfaceIp = adj.getIpAddress();
                     String prefix = VpnUtil.getIpPrefix(primaryInterfaceIp);
-                    String rd = VpnUtil.getVpnRd(dataBroker, vpnInterface.getVpnRouterIds().get(0));
+                    String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
                     fibManager.removeFibEntry(dataBroker, rd, prefix, writeConfigTxn);
                     return;
                 }
