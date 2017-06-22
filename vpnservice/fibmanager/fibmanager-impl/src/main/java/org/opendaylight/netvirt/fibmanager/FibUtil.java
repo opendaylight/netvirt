@@ -474,7 +474,8 @@ public class FibUtil {
         if (nextHopAdd) {
             RoutePaths routePaths = FibHelper.buildRoutePath(nextHop, label);
             if (writeConfigTxn != null) {
-                writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, routePathId, routePaths, true);
+                writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, routePathId, routePaths,
+                        WriteTransaction.CREATE_MISSING_PARENTS);
             } else {
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routePathId, routePaths);
             }
