@@ -27,7 +27,11 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNames;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNames.AssociatedSubnetType;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNamesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -132,6 +136,37 @@ public class VpnHelper {
             }
         }
         return false;
+    }
+
+    public static boolean isSubnetPartOfVpn(Subnetmap sn, String vpnName) {
+        if (vpnName == null || sn == null) {
+            return false;
+        }
+        if (sn.getVpnId() == null || !sn.getVpnId().getValue().equals(vpnName)) {
+            return false;
+        }
+        return true;
+    }
+
+    static InstanceIdentifier<Subnetmap> buildSubnetmapIdentifier(Uuid subnetId) {
+        return InstanceIdentifier.builder(Subnetmaps.class)
+        .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
+
+    }
+
+    /** Get Subnetmap from its Uuid.
+     * @param broker the data broker for look for data
+     * @param subnetUuid the subnet's Uuid
+     * @return the Subnetmap of Uuid or null if it is not found
+     */
+    public static Subnetmap getSubnetmapFromItsUuid(DataBroker broker, Uuid subnetUuid) {
+        Subnetmap sn = null;
+        InstanceIdentifier<Subnetmap> id = buildSubnetmapIdentifier(subnetUuid);
+        Optional<Subnetmap> optionalSn = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        if (optionalSn.isPresent()) {
+            sn = optionalSn.get();
+        }
+        return sn;
     }
 
 }
