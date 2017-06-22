@@ -1350,8 +1350,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         LOG.trace("Updating VPN Interface : key {},  original value={}, update value={}", identifier, original, update);
 
         final String vpnInterfaceName = update.getName();
-        final String oldVpnName = original.getVpnRouterIds().get(0);
-        final String newVpnName = update.getVpnRouterIds().get(0);
         final BigInteger dpnId = InterfaceUtils.getDpnForInterface(ifaceMgrRpcService, vpnInterfaceName);
         final UpdateData updateData = new UpdateData(identifier, original, update);
         final Adjacencies origAdjs = original.getAugmentation(Adjacencies.class);
@@ -1361,14 +1359,15 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         final List<Adjacency> newAdjs = (updateAdjs != null && updateAdjs.getAdjacency()
             != null) ? updateAdjs.getAdjacency() : new ArrayList<>();
 
-        LOG.info("VPN Interface update event - intfName {} onto vpnName {}",
-                vpnInterfaceName, newVpnName);
+        LOG.info("VPN Interface update event - intfName {}", vpnInterfaceName);
         //handles switching between <internal VPN - external VPN>
-        if (oldVpnName != null && !oldVpnName.equals(newVpnName)) {
-            vpnInterfacesUpdateQueue.add(updateData);
-            LOG.trace("UpdateData on VPNInterface {} update upon VPN swap added to update queue",
-                updateData.getOriginal().getName());
-            return;
+        for (String oldVpnName : original.getVpnRouterIds()) {
+            if (oldVpnName != null && !update.getVpnRouterIds().contains(oldVpnName)) {
+                vpnInterfacesUpdateQueue.add(updateData);
+                LOG.trace("UpdateData on VPNInterface {} update upon VPN swap added to update queue",
+                    updateData.getOriginal().getName());
+                return;
+            }
         }
         final DataStoreJobCoordinator vpnInfAdjUpdateDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         vpnInfAdjUpdateDataStoreCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterfaceName,
@@ -1423,11 +1422,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             vpnInterfacesUpdateQueue.drainTo(processQueue);
 
             for (UpdateData updData : processQueue) {
-                LOG.info("VPN Interface update event - intfName {} onto vpnName {} running config-driven swap removal",
-                    updData.getOriginal().getName(), updData.getOriginal().getVpnRouterIds().get(0));
+                LOG.info("VPN Interface update event - intfName {} running config-driven swap removal",
+                           updData.getOriginal().getName());
                 remove(updData.getIdentifier(), updData.getOriginal());
                 LOG.trace("Processed Remove for update on VPNInterface {} upon VPN swap",
-                    updData.getOriginal().getName());
+                         updData.getOriginal().getName());
                 vpnInterfaceList.add(updData.getOriginal());
             }
 
@@ -1451,8 +1450,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
                 while (vpnInterfaceIterator.hasNext()) {
                     vpnInterface = vpnInterfaceIterator.next();
-                    if (!VpnUtil.isVpnIntfPresentInVpnToDpnList(dataBroker, vpnInterface)) {
-                        vpnInterfaceIterator.remove();
+                    for (String vpnName : vpnInterface.getVpnRouterIds()) {
+                        if (!VpnUtil.isVpnIntfPresentInVpnToDpnList(dataBroker, vpnInterface, vpnName)) {
+                            vpnInterfaceIterator.remove();
+                        }
                     }
                 }
                 if (vpnInterfaceList.size() == 0) {
@@ -1469,12 +1470,16 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
             for (UpdateData updData : processQueue) {
                 if (vpnInterfaceList.contains(updData.getOriginal())) {
-                    LOG.warn("Failed to swap VpnInterfaces {} to target VPN {}", updData.getOriginal(),
-                           updData.getUpdate().getVpnRouterIds().get(0));
+                    for (String vpnName : updData.getUpdate().getVpnRouterIds()) {
+                        LOG.warn("Failed to swap VpnInterfaces {} to target VPN {}", updData.getOriginal(),
+                               vpnName);
+                    }
                     continue;
                 }
-                LOG.info("VPN Interface update event - intfName {} onto vpnName {} running config-driven swap addition",
-                     updData.getUpdate().getName(), updData.getUpdate().getVpnRouterIds().get(0));
+                for (String vpnName : updData.getUpdate().getVpnRouterIds()) {
+                    LOG.info("VPN Interface update event - intfName {} onto vpnName {} run cfg-driven swap addition",
+                          updData.getUpdate().getName(), vpnName);
+                }
                 final Adjacencies origAdjs = updData.getOriginal().getAugmentation(Adjacencies.class);
                 final List<Adjacency> oldAdjs = (origAdjs != null && origAdjs.getAdjacency() != null)
                     ? origAdjs.getAdjacency() : new ArrayList<>();
