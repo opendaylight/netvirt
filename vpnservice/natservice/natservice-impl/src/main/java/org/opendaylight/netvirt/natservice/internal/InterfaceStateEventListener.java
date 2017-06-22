@@ -28,12 +28,12 @@ import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProtocolTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
@@ -228,7 +228,6 @@ public class InterfaceStateEventListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private String getRouterIdForPort(DataBroker dataBroker, String interfaceName) {
-        String vpnName = null;
         String routerName = null;
         if (NatUtil.isVpnInterfaceConfigured(dataBroker, interfaceName)) {
             //getVpnInterface
@@ -240,14 +239,7 @@ public class InterfaceStateEventListener
                         interfaceName, ex);
             }
             if (vpnInterface != null) {
-                //getVpnName
-                try {
-                    vpnName = VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface);
-                    LOG.debug("getRouterIdForPort: Retrieved VpnName {}", vpnName);
-                } catch (Exception e) {
-                    LOG.error("getRouterIdForPort : Unable to get vpnname for vpninterface {}", vpnInterface, e);
-                }
-                if (vpnName != null) {
+                for (String vpnName: vpnInterface.getVpnInstanceNames()) {
                     try {
                         routerName = NatUtil.getRouterIdfromVpnInstance(dataBroker, vpnName);
                     } catch (Exception e) {
@@ -267,13 +259,10 @@ public class InterfaceStateEventListener
                         LOG.debug("getRouterIdForPort : Router is not associated to vpnname {} for interface {}",
                             vpnName, interfaceName);
                     }
-                } else {
-                    LOG.debug("getRouterIdForPort : vpnName not found for vpnInterface {} of port {}",
-                        vpnInterface, interfaceName);
                 }
+            } else {
+                LOG.debug("getRouterIdForPort : Interface {} is not a vpninterface", interfaceName);
             }
-        } else {
-            LOG.debug("getRouterIdForPort : Interface {} is not a vpninterface", interfaceName);
         }
         return null;
     }
@@ -414,7 +403,7 @@ public class InterfaceStateEventListener
                 if (routerName != null) {
                     LOG.trace("call : Port removed event received for interface {} ", interfaceName);
 
-                    BigInteger dpId;
+                    BigInteger dpId = null;
                     try {
                         dpId = NatUtil.getDpIdFromInterface(delintrf);
                     } catch (Exception e) {
@@ -423,15 +412,24 @@ public class InterfaceStateEventListener
                                         + " Interface {}. Fetching from VPN Interface op data store. ",
                                 interfaceName, e);
                         InstanceIdentifier<VpnInterface> id = NatUtil.getVpnInterfaceIdentifier(interfaceName);
-                        Optional<VpnInterface> optVpnInterface =
+                        Optional<VpnInterface> cfgVpnInterface =
                                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
-                                        dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-                        if (!optVpnInterface.isPresent()) {
+                                        dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+                        if (!cfgVpnInterface.isPresent()) {
                             LOG.debug("call : Interface {} is not a VPN Interface, ignoring.", interfaceName);
                             return futures;
                         }
-                        final VpnInterface vpnInterface = optVpnInterface.get();
-                        dpId = vpnInterface.getDpnId();
+                        for (String vpnName : cfgVpnInterface.get().getVpnInstanceNames()) {
+                            InstanceIdentifier<VpnInterfaceOpDataEntry> idOper = NatUtil
+                                  .getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
+                            Optional<VpnInterfaceOpDataEntry> optVpnInterface =
+                                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
+                                       dataBroker, LogicalDatastoreType.OPERATIONAL, idOper);
+                            if (optVpnInterface.isPresent()) {
+                                dpId = optVpnInterface.get().getDpnId();
+                                break;
+                            }
+                        }
                     }
                     if (dpId == null || dpId.equals(BigInteger.ZERO)) {
                         LOG.error("call : Unable to get DPN ID for the Interface {}", interfaceName);
