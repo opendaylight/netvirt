@@ -62,10 +62,8 @@ import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
-import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
@@ -90,9 +88,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.PrefixesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
@@ -1275,31 +1274,36 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 });
             }
             String ifName = prefixInfo.getVpnInterfaceName();
-            Optional<VpnInterface> optvpnInterface = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                FibUtil.getVpnInterfaceIdentifier(ifName));
+            Optional<String> optVpnName = FibUtil.getVpnNameFromRd(dataBroker, rd);
+            Optional<VpnInterfaceOpDataEntry> opVpnInterface = null;
+            String vpnName = null;
+
             if (Prefixes.PrefixCue.PhysNetFunc.equals(prefixInfo.getPrefixCue())) {
                 /*Get vpnId for rd = networkId since op vpnInterface will be pointing to rd = networkId
                 * */
-                Optional<String> vpnName = FibUtil.getVpnNameFromRd(dataBroker, vrfEntry.getParentVpnRd());
-                if (vpnName.isPresent()) {
-                    vpnId = FibUtil.getVpnId(dataBroker, vpnName.get());
+                Optional<String> vpnNameOpt = FibUtil.getVpnNameFromRd(dataBroker, vrfEntry.getParentVpnRd());
+                if (vpnNameOpt.isPresent()) {
+                    vpnId = FibUtil.getVpnId(dataBroker, vpnNameOpt.get());
                 }
             }
-            if (optvpnInterface.isPresent()) {
-                long associatedVpnId = FibUtil.getVpnId(dataBroker, VpnHelper
-                                      .getFirstVpnNameFromVpnInterface(optvpnInterface.get()));
-                if (vpnId != associatedVpnId) {
-                    LOG.warn("Prefixes {} are associated with different vpn instance with id : {} rather than {}",
-                        vrfEntry.getDestPrefix(), associatedVpnId, vpnId);
-                    LOG.warn("Not proceeding with Cleanup op data for prefix {}", vrfEntry.getDestPrefix());
-                    return null;
-                } else {
-                    LOG.debug("Processing cleanup of prefix {} associated with vpn {}",
-                        vrfEntry.getDestPrefix(), associatedVpnId);
+            if (optVpnName.isPresent()) {
+                vpnName = optVpnName.get();
+                opVpnInterface = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                           FibUtil.getVpnInterfaceOpDataEntryIdentifier(ifName, vpnName));
+                if (opVpnInterface.isPresent()) {
+                    long associatedVpnId = FibUtil.getVpnId(dataBroker, optVpnName.get());
+                    if (vpnId != associatedVpnId) {
+                        LOG.warn("Prefixes {} are associated with different vpn instance with id : {} rather than {}",
+                            vrfEntry.getDestPrefix(), associatedVpnId, vpnId);
+                        LOG.warn("Not proceeding with Cleanup op data for prefix {}", vrfEntry.getDestPrefix());
+                        return null;
+                    } else {
+                        LOG.debug("Processing cleanup of prefix {} associated with vpn {}",
+                            vrfEntry.getDestPrefix(), associatedVpnId);
+                    }
                 }
             }
             if (extraRoute != null) {
-                Optional<String> optVpnName = FibUtil.getVpnNameFromRd(dataBroker, rd);
                 List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
                 //Only one used Rd present in case of removal event
                 String usedRd = usedRds.get(0);
@@ -1311,23 +1315,24 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, vrfEntry.getDestPrefix()));
                 }
             }
-            Optional<Adjacencies> optAdjacencies = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                FibUtil.getAdjListPath(ifName));
+            Optional<AdjacenciesOp> optAdjacencies = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                          FibUtil.getAdjListPathOp(ifName, vpnName));
             int numAdj = 0;
             if (optAdjacencies.isPresent()) {
                 numAdj = optAdjacencies.get().getAdjacency().size();
             }
             //remove adjacency corr to prefix
             if (numAdj > 1) {
-                LOG.info("cleanUpOpDataForFib: remove adjacency for prefix: {} {}", vpnId,
-                        vrfEntry.getDestPrefix());
+                LOG.info("cleanUpOpDataForFib: remove adjacency for prefix: {} {} vpnName {}", vpnId,
+                        vrfEntry.getDestPrefix(), vpnName);
                 writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                        FibUtil.getAdjacencyIdentifier(ifName, vrfEntry.getDestPrefix()));
+                        FibUtil.getAdjacencyIdentifierOp(ifName, vpnName, vrfEntry.getDestPrefix()));
             } else {
                 //this is last adjacency (or) no more adjacency left for this vpn interface, so
                 //clean up the vpn interface from DpnToVpn list
                 LOG.info("Clean up vpn interface {} from dpn {} to vpn {} list.", ifName, prefixInfo.getDpnId(), rd);
-                writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, FibUtil.getVpnInterfaceIdentifier(ifName));
+                writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                           FibUtil.getVpnInterfaceOpDataEntryIdentifier(ifName, vpnName));
             }
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(writeOperTxn.submit());
