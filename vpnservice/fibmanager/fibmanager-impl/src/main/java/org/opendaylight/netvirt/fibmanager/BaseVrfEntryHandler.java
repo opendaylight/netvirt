@@ -294,7 +294,12 @@ public class BaseVrfEntryHandler implements AutoCloseable {
             LOG.debug("Failed to get VPN interface for prefix {}", ipPrefix);
             return;
         }
-        String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, ipPrefix);
+        String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnId);
+        if (vpnName == null) {
+            LOG.debug("Failed to get VPN name for vpnId {}", vpnId);
+            return;
+        }
+        String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, vpnName, ipPrefix);
         if (macAddress == null) {
             LOG.warn("No MAC address found for VPN interface {} prefix {}", ifName, ipPrefix);
             return;
