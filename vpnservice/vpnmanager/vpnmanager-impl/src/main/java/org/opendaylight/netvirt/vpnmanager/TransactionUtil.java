@@ -67,7 +67,7 @@ public class TransactionUtil {
         InstanceIdentifier<T> path,
         T data, FutureCallback<Void> callback) {
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-        tx.put(datastoreType, path, data, true);
+        tx.put(datastoreType, path, data, WriteTransaction.CREATE_MISSING_PARENTS);
         CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
         try {
             futures.get();

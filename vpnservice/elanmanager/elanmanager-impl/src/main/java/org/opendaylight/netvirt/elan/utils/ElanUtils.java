@@ -1239,12 +1239,12 @@ public class ElanUtils {
 
         // Add the ElanState in the elan-state operational data-store
         tx.put(LogicalDatastoreType.OPERATIONAL, getElanInstanceOperationalDataPath(elanInstanceName),
-                elanInfo, true);
+                elanInfo, WriteTransaction.CREATE_MISSING_PARENTS);
 
         // Add the ElanMacTable in the elan-mac-table operational data-store
         MacTable elanMacTable = new MacTableBuilder().setKey(new MacTableKey(elanInstanceName)).build();
         tx.put(LogicalDatastoreType.OPERATIONAL, getElanMacTableOperationalDataPath(elanInstanceName),
-                elanMacTable, true);
+                elanMacTable, WriteTransaction.CREATE_MISSING_PARENTS);
 
         ElanTagNameBuilder elanTagNameBuilder = new ElanTagNameBuilder().setElanTag(elanTag)
                 .setKey(new ElanTagNameKey(elanTag)).setName(elanInstanceName);
@@ -1314,19 +1314,6 @@ public class ElanUtils {
                 String.format("%s.%s", elanInstanceName, interfaceName), serviceIndex, priority,
                 NwConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
         return serviceInfo;
-    }
-
-    public static <T extends DataObject> void syncWrite(DataBroker broker, LogicalDatastoreType datastoreType,
-            InstanceIdentifier<T> path, T data) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.put(datastoreType, path, data, true);
-        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
-        try {
-            futures.get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error writing to datastore (path, data) : ({}, {})", path, data);
-            throw new RuntimeException(e.getMessage());
-        }
     }
 
     public static BoundServices getBoundServices(String serviceName, short servicePriority, int flowPriority,

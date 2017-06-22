@@ -263,7 +263,7 @@ public class DhcpServiceUtils {
                         serviceIndex, DhcpMConstants.DEFAULT_FLOW_PRIORITY,
                         DhcpMConstants.COOKIE_VM_INGRESS_TABLE, instructions);
         tx.put(LogicalDatastoreType.CONFIGURATION,
-                buildServiceId(interfaceName, serviceIndex), serviceInfo, true);
+                buildServiceId(interfaceName, serviceIndex), serviceInfo, WriteTransaction.CREATE_MISSING_PARENTS);
     }
 
     public static void unbindDhcpService(String interfaceName, WriteTransaction tx) {

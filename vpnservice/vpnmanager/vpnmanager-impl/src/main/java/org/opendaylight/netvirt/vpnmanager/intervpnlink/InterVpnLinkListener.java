@@ -441,7 +441,8 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                 .setErrorDescription(errorMsg)
                 .build();
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-        tx.put(LogicalDatastoreType.CONFIGURATION, vpnLinkStateIid, vpnLinkErrorState, true);
+        tx.put(LogicalDatastoreType.CONFIGURATION, vpnLinkStateIid, vpnLinkErrorState,
+                WriteTransaction.CREATE_MISSING_PARENTS);
         tx.submit();
 
         // Sending out an error Notification

@@ -782,7 +782,7 @@ public class VpnUtil {
     public static <T extends DataObject> void asyncWrite(DataBroker broker, LogicalDatastoreType datastoreType,
         InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.put(datastoreType, path, data, true);
+        tx.put(datastoreType, path, data, WriteTransaction.CREATE_MISSING_PARENTS);
         Futures.addCallback(tx.submit(), callback);
     }
 
@@ -815,7 +815,7 @@ public class VpnUtil {
     public static <T extends DataObject> void syncWrite(DataBroker broker, LogicalDatastoreType datastoreType,
         InstanceIdentifier<T> path, T data) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.put(datastoreType, path, data, true);
+        tx.put(datastoreType, path, data, WriteTransaction.CREATE_MISSING_PARENTS);
         CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
         try {
             futures.get();
@@ -1586,10 +1586,8 @@ public class VpnUtil {
                         : getBoundServicesForVpnInterface(dataBroker, vpnInstanceName, interfaceName);
                 writeTxn.put(LogicalDatastoreType.CONFIGURATION, InterfaceUtils.buildServiceId(interfaceName,
                         ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
-                        serviceInfo, true);
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                futures.add(writeTxn.submit());
-                return futures;
+                        serviceInfo, WriteTransaction.CREATE_MISSING_PARENTS);
+                return Collections.singletonList(writeTxn.submit());
             });
     }
 

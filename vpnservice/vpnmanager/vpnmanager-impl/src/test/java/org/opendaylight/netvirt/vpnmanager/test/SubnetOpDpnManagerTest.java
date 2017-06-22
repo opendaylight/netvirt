@@ -117,7 +117,8 @@ public class SubnetOpDpnManagerTest {
 
         subOpDpnManager.addInterfaceToDpn(subnetId, dpId, infName);
 
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn, true);
+        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn,
+                WriteTransaction.CREATE_MISSING_PARENTS);
 
     }
 
@@ -126,7 +127,8 @@ public class SubnetOpDpnManagerTest {
 
         subOpDpnManager.addPortOpDataEntry(infName, subnetId, dpId);
 
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, portOpIdentifier, portOp, true);
+        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, portOpIdentifier, portOp,
+                WriteTransaction.CREATE_MISSING_PARENTS);
     }
 
     @Test
@@ -137,7 +139,8 @@ public class SubnetOpDpnManagerTest {
 
         subOpDpnManager.addPortOpDataEntry(infName, subnetId, dpId);
 
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, portOpIdentifier, portOp, true);
+        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, portOpIdentifier, portOp,
+                WriteTransaction.CREATE_MISSING_PARENTS);
     }
 
     @Test
