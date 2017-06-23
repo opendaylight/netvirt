@@ -24,6 +24,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -283,7 +284,8 @@ public class InterfaceStateEventListener
         InstanceIdentifier<RouterToNaptSwitch> rtrNaptSw = InstanceIdentifier.builder(NaptSwitches.class)
             .child(RouterToNaptSwitch.class, new RouterToNaptSwitchKey(routerName)).build();
         Optional<RouterToNaptSwitch> routerToNaptSwitchData =
-            NatUtil.read(broker, LogicalDatastoreType.CONFIGURATION, rtrNaptSw);
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, rtrNaptSw);
         if (routerToNaptSwitchData.isPresent()) {
             RouterToNaptSwitch routerToNaptSwitchInstance = routerToNaptSwitchData.get();
             return routerToNaptSwitchInstance.getPrimarySwitchId();
@@ -330,14 +332,15 @@ public class InterfaceStateEventListener
 
     private List<InternalToExternalPortMap> getIntExtPortMapListForPortName(String portName, String routerId) {
         InstanceIdentifier<Ports> portToIpMapIdentifier = NatUtil.buildPortToIpMapIdentifier(routerId, portName);
-        Optional<Ports> port = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, portToIpMapIdentifier);
+        Optional<Ports> port =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, portToIpMapIdentifier);
         if (!port.isPresent()) {
             LOG.error("NAT Service : Unable to read router port entry for router ID {} and port name {}",
                 routerId, portName);
             return null;
         }
-        List<InternalToExternalPortMap> intExtPortMapList = port.get().getInternalToExternalPortMap();
-        return intExtPortMapList;
+        return port.get().getInternalToExternalPortMap();
     }
 
     private List<String> getFixedIpsForPort(String interfname) {
@@ -414,8 +417,9 @@ public class InterfaceStateEventListener
                                         + " Interface {}. Fetching from VPN Interface op data store. ",
                                 interfaceName, e);
                         InstanceIdentifier<VpnInterface> id = NatUtil.getVpnInterfaceIdentifier(interfaceName);
-                        Optional<VpnInterface> optVpnInterface = NatUtil.read(dataBroker,
-                                LogicalDatastoreType.OPERATIONAL, id);
+                        Optional<VpnInterface> optVpnInterface =
+                                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
+                                        dataBroker, LogicalDatastoreType.OPERATIONAL, id);
                         if (!optVpnInterface.isPresent()) {
                             LOG.debug("NAT Service : Interface {} is not a VPN Interface, ignoring.", interfaceName);
                             return futures;

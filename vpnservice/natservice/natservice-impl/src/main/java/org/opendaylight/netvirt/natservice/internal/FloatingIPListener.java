@@ -19,6 +19,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -309,7 +310,9 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
     private Uuid getExtNetworkId(final InstanceIdentifier<RouterPorts> portIid,
                                  LogicalDatastoreType dataStoreType) {
-        Optional<RouterPorts> rtrPort = NatUtil.read(dataBroker, dataStoreType, portIid);
+        Optional<RouterPorts> rtrPort =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        dataStoreType, portIid);
         if (!rtrPort.isPresent()) {
             LOG.error("NAT Service : Unable to read router port entry for {}", portIid);
             return null;
@@ -331,7 +334,9 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
         InstanceIdentifier<Networks> nwId = InstanceIdentifier.builder(ExternalNetworks.class).child(Networks.class,
                 new NetworksKey(extNwId)).build();
-        Optional<Networks> nw = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, nwId);
+        Optional<Networks> nw =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, nwId);
         if (!nw.isPresent()) {
             LOG.error("NAT Service : Unable to read external network for {}", extNwId);
             return NatConstants.INVALID_ID;
@@ -598,12 +603,9 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     protected long getOperationalIpMapping(String routerId, String interfaceName, String internalIp) {
         InstanceIdentifier<InternalToExternalPortMap> intExtPortMapIdentifier =
             NatUtil.getIntExtPortMapIdentifier(routerId, interfaceName, internalIp);
-        Optional<InternalToExternalPortMap> intExtPortMap = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                intExtPortMapIdentifier);
-        if (intExtPortMap.isPresent()) {
-            return intExtPortMap.get().getLabel();
-        }
-        return NatConstants.INVALID_ID;
+        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                LogicalDatastoreType.OPERATIONAL, intExtPortMapIdentifier).transform(
+                InternalToExternalPortMap::getLabel).or(NatConstants.INVALID_ID);
     }
 
     static void updateOperationalDS(DataBroker dataBroker, String routerId, String interfaceName, long label,
@@ -611,7 +613,9 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
         LOG.info("NAT Service : Updating operational DS for floating ip config : {} with label {}", internalIp, label);
         InstanceIdentifier<Ports> portsId = NatUtil.getPortsIdentifier(routerId, interfaceName);
-        Optional<Ports> optPorts = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, portsId);
+        Optional<Ports> optPorts =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, portsId);
         InternalToExternalPortMap intExtPortMap = new InternalToExternalPortMapBuilder().setKey(new
                 InternalToExternalPortMapKey(internalIp)).setInternalIp(internalIp).setExternalIp(externalIp)
                 .setLabel(label).build();
