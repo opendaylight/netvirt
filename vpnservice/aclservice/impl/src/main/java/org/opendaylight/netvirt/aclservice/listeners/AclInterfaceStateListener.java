@@ -72,6 +72,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
         if (AclServiceUtils.isOfInterest(aclInterface)) {
             AclInterfaceCacheUtil.removeAclInterfaceFromCache(interfaceId);
             if (aclClusterUtil.isEntityOwner()) {
+                LOG.debug("On remove event, notify ACL service manager to remove ACL from interface: {}", aclInterface);
                 aclServiceManger.notify(aclInterface, null, Action.REMOVE);
             }
             List<Uuid> aclList = aclInterface.getSecurityGroups();
@@ -88,6 +89,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
          * The update is not of interest as the attributes populated from this listener will not change.
          * The northbound updates are handled in AclInterfaceListener.
          */
+        LOG.trace("Update event for AclInterfaceStateListener is not of interest.");
     }
 
     @Override
@@ -99,6 +101,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
                 aclDataUtil.addAclInterfaceMap(aclList, aclInterface);
             }
             if (aclClusterUtil.isEntityOwner()) {
+                LOG.debug("On add event, notify ACL service manager to add ACL for interface: {}", aclInterface);
                 aclServiceManger.notify(aclInterface, null, Action.ADD);
             }
         }

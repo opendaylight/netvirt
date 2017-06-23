@@ -71,6 +71,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         if (AclServiceUtils.isOfInterest(aclInterface)) {
             AclInterfaceCacheUtil.removeAclInterfaceFromCache(interfaceId);
             if (aclClusterUtil.isEntityOwner()) {
+                LOG.debug("On remove event, notify ACL service manager to unbind ACL from interface: {}", port);
                 aclServiceManager.notify(aclInterface, null, Action.UNBIND);
             }
         }
@@ -99,6 +100,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
             if (aclClusterUtil.isEntityOwner() && interfaceState != null && interfaceState.getOperStatus().equals(
                     org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
                         .ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus.Up)) {
+                LOG.debug("On update event, notify ACL service manager to update ACL for interface: {}", portAfter);
                 aclServiceManager.notify(aclInterface, oldAclInterface, AclServiceManager.Action.UPDATE);
             }
             if (deletedAclList != null && !deletedAclList.isEmpty()) {
@@ -130,6 +132,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         if (aclInPort != null && aclInPort.isPortSecurityEnabled()) {
             AclInterface aclInterface = addAclInterfaceToCache(port.getName(), aclInPort);
             if (aclClusterUtil.isEntityOwner()) {
+                LOG.debug("On add event, notify ACL service manager to bind ACL for interface: {}", port);
                 aclServiceManager.notify(aclInterface, null, Action.BIND);
             }
         }

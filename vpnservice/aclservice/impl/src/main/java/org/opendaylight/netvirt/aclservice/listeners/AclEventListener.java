@@ -75,6 +75,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
             return;
         }
 
+        LOG.trace("On remove event, remove ACL: {}", acl);
         this.aclServiceUtils.releaseAclId(acl.getAclName());
         updateRemoteAclCache(acl.getAccessListEntries().getAce(), acl.getAclName(), AclServiceManager.Action.REMOVE);
     }
@@ -93,11 +94,13 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         List<Ace> addedAceRules = getChangedAceList(aclAfter, aclBefore);
         updateRemoteAclCache(addedAceRules, aclName, AclServiceManager.Action.ADD);
         if (interfaceList != null && aclClusterUtil.isEntityOwner()) {
+            LOG.debug("On update event, add Ace rules: {} for ACL: {}", addedAceRules, aclName);
             updateAceRules(interfaceList, aclName, addedAceRules, AclServiceManager.Action.ADD);
         }
         // find and update deleted ace rules in acl
         List<Ace> deletedAceRules = getChangedAceList(aclBefore, aclAfter);
         if (interfaceList != null && aclClusterUtil.isEntityOwner()) {
+            LOG.debug("On update event, remove Ace rules: {} for ACL: {}", deletedAceRules, aclName);
             updateAceRules(interfaceList, aclName, deletedAceRules, AclServiceManager.Action.REMOVE);
         }
         updateRemoteAclCache(deletedAceRules, aclName, AclServiceManager.Action.REMOVE);
@@ -123,6 +126,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
             return;
         }
 
+        LOG.trace("On add event, add ACL: {}", acl);
         updateRemoteAclCache(acl.getAccessListEntries().getAce(), acl.getAclName(), AclServiceManager.Action.ADD);
     }
 
