@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.sfc.translator;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
@@ -44,34 +45,29 @@ public class NeutronMdsalHelper {
             InstanceIdentifier.create(Neutron.class).child(PortPairGroups.class);
 
     private final DataBroker dataBroker;
-    private final MdsalUtils mdsalUtils;
 
     public NeutronMdsalHelper(DataBroker dataBroker) {
         this.dataBroker = dataBroker;
-        mdsalUtils = new MdsalUtils(this.dataBroker);
     }
 
     public Port getNeutronPort(Uuid portId) {
-        Port neutronPort = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION , getNeutronPortPath(portId));
-        return neutronPort;
+        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                LogicalDatastoreType.CONFIGURATION, getNeutronPortPath(portId)).orNull();
     }
 
     public PortPair getNeutronPortPair(Uuid portPairId) {
-        PortPair neutronPortPair
-                = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION , getNeutronPortPairPath(portPairId));
-        return neutronPortPair;
+        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                LogicalDatastoreType.CONFIGURATION, getNeutronPortPairPath(portPairId)).orNull();
     }
 
     public PortPairGroup getNeutronPortPairGroup(Uuid portPairGroupId) {
-        PortPairGroup neutronPortPairGroup
-                = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION , getNeutronPortPairGroupPath(portPairGroupId));
-        return neutronPortPairGroup;
+        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                LogicalDatastoreType.CONFIGURATION, getNeutronPortPairGroupPath(portPairGroupId)).orNull();
     }
 
     public SfcFlowClassifier getNeutronFlowClassifier(Uuid flowClassifierId) {
-        SfcFlowClassifier sfcFlowClassifier =
-            mdsalUtils.read(LogicalDatastoreType.CONFIGURATION , getNeutronSfcFlowClassifierPath(flowClassifierId));
-        return sfcFlowClassifier;
+        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                LogicalDatastoreType.CONFIGURATION, getNeutronSfcFlowClassifierPath(flowClassifierId)).orNull();
     }
 
     private InstanceIdentifier<Port> getNeutronPortPath(Uuid portId) {
