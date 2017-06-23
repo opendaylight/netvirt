@@ -29,7 +29,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,18 +48,21 @@ public class SfcMdsalHelper {
             = InstanceIdentifier.create(ServiceFunctionPaths.class);
 
     private final DataBroker dataBroker;
-    private final MdsalUtils mdsalUtils;
 
     public SfcMdsalHelper(DataBroker dataBroker) {
         this.dataBroker = dataBroker;
-        mdsalUtils = new MdsalUtils(this.dataBroker);
     }
 
     //ACL Flow Classifier data store utility methods
     public void addAclFlowClassifier(Acl aclFlowClassifier) {
         InstanceIdentifier<Acl> aclIid = getAclPath(aclFlowClassifier.getKey());
         LOG.info("Write ACL FlowClassifier {} to config data store at {}",aclFlowClassifier, aclIid);
-        mdsalPutWrapper(LogicalDatastoreType.CONFIGURATION, aclIid, aclFlowClassifier);
+        try {
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, aclIid,
+                    aclFlowClassifier);
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("Error writing {} to {}", aclFlowClassifier, aclIid, e);
+        }
     }
 
     public void updateAclFlowClassifier(Acl aclFlowClassifier) {
@@ -95,7 +97,11 @@ public class SfcMdsalHelper {
     public void addServiceFunction(ServiceFunction sf) {
         InstanceIdentifier<ServiceFunction> sfIid = getSFPath(sf.getKey());
         LOG.info("Write Service Function {} to config data store at {}",sf, sfIid);
-        mdsalPutWrapper(LogicalDatastoreType.CONFIGURATION, sfIid, sf);
+        try {
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, sfIid, sf);
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("Error writing {} to {}", sf, sfIid, e);
+        }
     }
 
     public void updateServiceFunction(ServiceFunction sf) {
@@ -129,7 +135,11 @@ public class SfcMdsalHelper {
     public void addServiceFunctionForwarder(ServiceFunctionForwarder sff) {
         InstanceIdentifier<ServiceFunctionForwarder> sffIid = getSFFPath(sff.getKey());
         LOG.info("Write Service Function Forwarder {} to config data store at {}",sff, sffIid);
-        mdsalPutWrapper(LogicalDatastoreType.CONFIGURATION, sffIid, sff);
+        try {
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, sffIid, sff);
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("Error writing {} to {}", sff, sffIid, e);
+        }
     }
 
     public void deleteServiceFunctionForwarder(ServiceFunctionForwarderKey sffKey) {
@@ -145,7 +155,11 @@ public class SfcMdsalHelper {
     public void addServiceFunctionChain(ServiceFunctionChain sfc) {
         InstanceIdentifier<ServiceFunctionChain> sfcIid = getSFCPath(sfc.getKey());
         LOG.info("Write Service Function Chain {} to config data store at {}",sfc, sfcIid);
-        mdsalPutWrapper(LogicalDatastoreType.CONFIGURATION, sfcIid, sfc);
+        try {
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, sfcIid, sfc);
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("Error writing {} to {}", sfc, sfcIid, e);
+        }
     }
 
     public void deleteServiceFunctionChain(ServiceFunctionChainKey sfcKey) {
@@ -161,7 +175,11 @@ public class SfcMdsalHelper {
     public void addServiceFunctionPath(ServiceFunctionPath sfp) {
         InstanceIdentifier<ServiceFunctionPath> sfpIid = getSFPPath(sfp.getKey());
         LOG.info("Write Service Function Path {} to config data store at {}",sfp, sfpIid);
-        mdsalPutWrapper(LogicalDatastoreType.CONFIGURATION, sfpIid, sfp);
+        try {
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, sfpIid, sfp);
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("Error writing {} to {}", sfp, sfpIid, e);
+        }
     }
 
     public void deleteServiceFunctionPath(ServiceFunctionPathKey sfpKey) {
@@ -210,16 +228,5 @@ public class SfcMdsalHelper {
             }
         }
         return null;
-    }
-
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    private <D extends DataObject> void mdsalPutWrapper(LogicalDatastoreType dataStore,
-                                                        InstanceIdentifier<D> iid, D data) {
-        try {
-            mdsalUtils.put(dataStore, iid, data);
-        } catch (Exception e) {
-            LOG.error("Exception while putting data in data store {} : {}",iid, data, e);
-        }
     }
 }
