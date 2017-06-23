@@ -1,0 +1,242 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa2559ec_568fb123",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-23T04:35:24Z",
+      "side": 1,
+      "message": "remove braces in lambda since it is just a single argument",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_1676d93e",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-23T04:35:24Z",
+      "side": 1,
+      "message": "As I mentioned earlier, addArpResponderForElanDpns/delArpResponderForElanDpns are same except calling different elanService API.\nI would be good to combine into one method like processArpResponderForElanDpns(Port port, Consumer\u003cArpResponderInput\u003e consumer).\n\nArpResponderInput wraps all the arguments (passed into elanService.addArpResponderFlow/elanService.removeArpResponderFlow) which can be constructed using builder pattern inside processArpResponderForElanDpns.\n\nWith the above changes, you don\u0027t need processFixedIpsInPort method and directly invoke this new method from add/remove method.",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_b69f0d50",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-23T04:35:24Z",
+      "side": 1,
+      "message": "it would be nice to do like below:\nif (!ip4Address.isPresent() || !subnetId.isPresent()) {\n    return;\n}\n...\n...",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_f6a9857c",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-23T04:35:24Z",
+      "side": 1,
+      "message": "same here.",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_36bb1dc6",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-23T04:35:24Z",
+      "side": 1,
+      "message": "just do return InstanceIdentifier.builder(SubnetDhcpPortData.class)\n                .child(SubnetToDhcpPort.class, new SubnetToDhcpPortKey(subnetId)).build();",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_56b691dd",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-23T04:35:24Z",
+      "side": 1,
+      "message": "should be ofNullable",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_96b009df",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-23T04:35:24Z",
+      "side": 1,
+      "message": "same here. don\u0027t need local variable.",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_76b595cc",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-23T04:35:24Z",
+      "side": 1,
+      "message": "this predicate is being used twice (here and 408). can you factor out to a method (isIPv4AddressAvailable(fixedIp) which can return boolean and then you could pass function reference like DhcpServiceUtils::isIPv4AddressAvailable to the filter.",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_f6c0652c",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceAddJob.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-23T04:35:24Z",
+      "side": 1,
+      "message": "remove final and use some other meaningful name for interface (may be interfaceObj)",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_76ec75c8",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceAddJob.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-23T04:35:24Z",
+      "side": 1,
+      "message": "just do:\nif (subnet \u003d\u003d null || ! subnet.isEnableDhcp()) {\n    return;\n}\n...\n...\n...",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_b6cd4d60",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceAddJob.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-23T04:35:24Z",
+      "side": 1,
+      "message": "same here.",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_f6d7c5eb",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceRemoveJob.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-23T04:35:24Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_96fe496a",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/java/org/opendaylight/netvirt/elanmanager/api/ElanHelper.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-23T04:35:24Z",
+      "side": 1,
+      "message": "add private default constructor which throws AssertionError(\"ElanHelper can not be initialized\");",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_7603d573",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-23T04:35:24Z",
+      "side": 1,
+      "message": "remove final",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
