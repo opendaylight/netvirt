@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.sfc.translator;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.ServiceFunctions;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunction;
@@ -71,7 +72,11 @@ public class SfcMdsalHelper {
     public void removeAclFlowClassifier(Acl aclFlowClassifier) {
         InstanceIdentifier<Acl> aclIid = getAclPath(aclFlowClassifier.getKey());
         LOG.info("Remove ACL FlowClassifier {} from config data store at {}",aclFlowClassifier, aclIid);
-        mdsalUtils.delete(LogicalDatastoreType.CONFIGURATION, aclIid);
+        try {
+            SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, aclIid);
+        } catch (TransactionCommitFailedException e) {
+            LOG.warn("Failed to delete {}", aclIid, e);
+        }
     }
 
     //Service Function
@@ -97,7 +102,11 @@ public class SfcMdsalHelper {
     public void removeServiceFunction(ServiceFunctionKey sfKey) {
         InstanceIdentifier<ServiceFunction> sfIid = getSFPath(sfKey);
         LOG.info("Remove Service Function {} from config data store at {}",sfKey, sfIid);
-        mdsalUtils.delete(LogicalDatastoreType.CONFIGURATION, sfIid);
+        try {
+            SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, sfIid);
+        } catch (TransactionCommitFailedException e) {
+            LOG.warn("Failed to delete {}", sfIid, e);
+        }
     }
 
     //Service Function Forwarder
@@ -117,7 +126,11 @@ public class SfcMdsalHelper {
     public void deleteServiceFunctionForwarder(ServiceFunctionForwarderKey sffKey) {
         InstanceIdentifier<ServiceFunctionForwarder> sffIid = getSFFPath(sffKey);
         LOG.info("Delete Service Function Forwarder from config data store at {}", sffIid);
-        mdsalUtils.delete(LogicalDatastoreType.CONFIGURATION, sffIid);
+        try {
+            SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, sffIid);
+        } catch (TransactionCommitFailedException e) {
+            LOG.warn("Failed to delete {}", sffIid, e);
+        }
     }
 
     public void addServiceFunctionChain(ServiceFunctionChain sfc) {
@@ -129,7 +142,11 @@ public class SfcMdsalHelper {
     public void deleteServiceFunctionChain(ServiceFunctionChainKey sfcKey) {
         InstanceIdentifier<ServiceFunctionChain> sfcIid = getSFCPath(sfcKey);
         LOG.info("Remove Service Function Chain {} from config data store at {}",sfcKey, sfcIid);
-        mdsalUtils.delete(LogicalDatastoreType.CONFIGURATION, sfcIid);
+        try {
+            SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, sfcIid);
+        } catch (TransactionCommitFailedException e) {
+            LOG.warn("Failed to delete {}", sfcIid, e);
+        }
     }
 
     public void addServiceFunctionPath(ServiceFunctionPath sfp) {
@@ -141,7 +158,11 @@ public class SfcMdsalHelper {
     public void deleteServiceFunctionPath(ServiceFunctionPathKey sfpKey) {
         InstanceIdentifier<ServiceFunctionPath> sfpIid = getSFPPath(sfpKey);
         LOG.info("Delete Service Function Path from config data store at {}", sfpIid);
-        mdsalUtils.delete(LogicalDatastoreType.CONFIGURATION, sfpIid);
+        try {
+            SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, sfpIid);
+        } catch (TransactionCommitFailedException e) {
+            LOG.warn("Failed to delete {}", sfpIid, e);
+        }
     }
 
     private InstanceIdentifier<Acl> getAclPath(AclKey aclKey) {
