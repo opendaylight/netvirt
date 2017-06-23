@@ -438,10 +438,15 @@ module odl-l3vpn {
                 leaf dpnId {
                     type uint64;
                 }
-                list vpn-interfaces {
-                    key interface-name;
+                list vpn-interface-op-data {
+                    key "interface-name vpn-name";
                     leaf interface-name {
                         type string;
+                    }
+                    leaf vpn-name {
+                        type string {
+                          length "1..40";
+                        }
                     }
                 }
             }
