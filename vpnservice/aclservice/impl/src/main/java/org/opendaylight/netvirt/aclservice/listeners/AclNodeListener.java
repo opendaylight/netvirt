@@ -153,6 +153,8 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         } else if (securityGroupMode == SecurityGroupMode.Learn) {
             addLearnIngressAclTableMissFlow(dpnId);
             addLearnEgressAclTableMissFlow(dpnId);
+        } else {
+            LOG.error("Invalid secuirty group mode (" + securityGroupMode + ") obtained from AclserviceConfig.");
         }
     }
 
@@ -193,6 +195,8 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
                 getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE), 0, "Egress ACL Table allow all Flow",
                 0, 0, AclConstants.COOKIE_ACL_BASE, mkMatches, allowAllInstructions);
         mdsalManager.installFlow(nextTblFlowEntity);
+
+        LOG.debug("Added Egress ACL Table Allow all Flows for dpn {}", dpId);
     }
 
     /**
@@ -210,7 +214,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
                 0, 0, AclConstants.COOKIE_ACL_BASE, mkMatches, mkInstructions);
         mdsalManager.installFlow(flowEntity);
 
-        LOG.debug("Added Egress ACL Table Miss Flows for dpn {}", dpId);
+        LOG.debug("Added Egress ACL Remote Table Miss Flows for dpn {}", dpId);
     }
 
     private void addEgressAclFilterTableAllowFlow(BigInteger dpId) {
@@ -226,6 +230,8 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
                 getTableMissFlowId(NwConstants.EGRESS_ACL_FILTER_TABLE), 0, "Egress ACL Filter Table allow all Flow",
                 0, 0, AclConstants.COOKIE_ACL_BASE, mkMatches, instructions);
         mdsalManager.installFlow(flowEntity);
+
+        LOG.debug("Added Egress ACL Filter Table allow all Flows for dpn {}", dpId);
     }
 
     private void addLearnEgressAclTableMissFlow(BigInteger dpId) {
@@ -267,7 +273,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
                 AclConstants.PROTO_MATCH_PRIORITY, "Egress Learn2 ACL Table match reg Flow", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, nxMkMatches, instructions);
         mdsalManager.installFlow(flowEntity);
-        LOG.debug("Added learn ACL Table Miss Flows for dpn {}", dpId);
+        LOG.debug("Added Learn Egress ACL Table Miss Flows for dpn {}", dpId);
     }
 
     /**
@@ -285,7 +291,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
                 mkInstructions);
         mdsalManager.installFlow(flowEntity);
 
-        LOG.debug("Added Egress ACL Table Miss Flows for dpn {}", dpId);
+        LOG.debug("Added Learn Egress ACL Remote Table Miss Flows for dpn {}", dpId);
     }
 
     private void addLearnIngressAclTableMissFlow(BigInteger dpId) {
@@ -326,8 +332,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
                 AclConstants.PROTO_MATCH_PRIORITY, "Egress Learn2 ACL Table match reg Flow", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, nxMkMatches, instructions);
         mdsalManager.installFlow(flowEntity);
-        LOG.debug("Added learn ACL Table Miss Flows for dpn {}", dpId);
-
+        LOG.debug("Added Learn ACL Table Miss Flows for dpn {}", dpId);
     }
 
     /**
@@ -345,7 +350,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
                 "Ingress ACL Remote Table Miss Flow", 0, 0, AclConstants.COOKIE_ACL_BASE, mkMatches, mkInstructions);
         mdsalManager.installFlow(flowEntity);
 
-        LOG.debug("Added Ingress ACL Table Miss Flows for dpn {}", dpId);
+        LOG.debug("Added Learn Ingress ACL Table Miss Flows for dpn {}", dpId);
     }
 
     /**
@@ -377,6 +382,8 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
                 getTableMissFlowId(NwConstants.INGRESS_ACL_FILTER_TABLE), 0, "Ingress ACL Filter Table allow all Flow",
                 0, 0, AclConstants.COOKIE_ACL_BASE, mkMatches, dispatcherInstructions);
         mdsalManager.installFlow(flowEntity);
+
+        LOG.debug("Added Ingress ACL Filter Table allow all Flows for dpn {}", dpId);
     }
 
     /**
@@ -394,7 +401,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
                 getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE), 0, "Ingress ACL Table Miss Flow", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, mkMatches, instructionsAcl);
         mdsalManager.installFlow(flowEntity);
-        LOG.debug("Added Transparent Engress ACL Table allow all Flows for dpn {}", dpId);
+        LOG.debug("Added Transparent Egress ACL Table allow all Flows for dpn {}", dpId);
     }
 
     /**
@@ -541,7 +548,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
             AclConstants.COOKIE_ACL_BASE, mkMatches, instructionsAclFilter);
         mdsalManager.installFlow(nextTblFlowEntity);
 
-        LOG.debug("Added Ingress ACL Table Miss Flows for dpn {}", dpId);
+        LOG.debug("Added Stateful Ingress ACL Table Miss Flows for dpn {}", dpId);
     }
 
     /**
@@ -559,7 +566,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
                 0, 0, AclConstants.COOKIE_ACL_BASE, mkMatches, mkInstructions);
         mdsalManager.installFlow(flowEntity);
 
-        LOG.debug("Added Ingress ACL Table Miss Flows for dpn {}", dpId);
+        LOG.debug("Added Ingress ACL Remote Table Miss Flows for dpn {}", dpId);
     }
 
     private void addConntrackRules(BigInteger dpnId, short dispatcherTableId,short tableId, int write) {
@@ -631,12 +638,14 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         if (addOrRemove == NwConstants.DEL_FLOW) {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,flowId,
                 priority, flowName , idleTimeOut, hardTimeOut, cookie, matches, null);
-            LOG.trace("Removing Acl Flow DpnId {}, flowId {}", dpId, flowId);
+            LOG.trace("Removing Acl Flow:: DpnId: {}, flowId: {}, flowName: {}, tableId: {}", dpId,
+                flowId, flowName, tableId);
             mdsalManager.removeFlow(flowEntity);
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId,
                 priority, flowName, idleTimeOut, hardTimeOut, cookie, matches, instructions);
-            LOG.trace("Installing DpnId {}, flowId {}", dpId, flowId);
+            LOG.trace("Installing Acl Flow:: DpnId: {}, flowId: {}, flowName: {}, tableId: {}", dpId,
+                flowId, flowName, tableId);
             mdsalManager.installFlow(flowEntity);
         }
     }
