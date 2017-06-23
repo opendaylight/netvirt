@@ -66,7 +66,12 @@ public class SfcMdsalHelper {
     public void updateAclFlowClassifier(Acl aclFlowClassifier) {
         InstanceIdentifier<Acl> aclIid = getAclPath(aclFlowClassifier.getKey());
         LOG.info("Update ACL FlowClassifier {} in config data store at {}",aclFlowClassifier, aclIid);
-        mdsalUtils.merge(LogicalDatastoreType.CONFIGURATION, aclIid, aclFlowClassifier);
+        try {
+            SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, aclIid,
+                    aclFlowClassifier);
+        } catch (TransactionCommitFailedException e) {
+            LOG.warn("Failed to merge {}", aclIid, e);
+        }
     }
 
     public void removeAclFlowClassifier(Acl aclFlowClassifier) {
@@ -96,7 +101,11 @@ public class SfcMdsalHelper {
     public void updateServiceFunction(ServiceFunction sf) {
         InstanceIdentifier<ServiceFunction> sfIid = getSFPath(sf.getKey());
         LOG.info("Update Service Function {} in config data store at {}",sf, sfIid);
-        mdsalUtils.merge(LogicalDatastoreType.CONFIGURATION, sfIid, sf);
+        try {
+            SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, sfIid, sf);
+        } catch (TransactionCommitFailedException e) {
+            LOG.warn("Failed to merge {}", sfIid, e);
+        }
     }
 
     public void removeServiceFunction(ServiceFunctionKey sfKey) {
