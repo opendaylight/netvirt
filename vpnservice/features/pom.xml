@@ -26,7 +26,9 @@
         <module>odl-netvirt-api</module>
         <module>odl-netvirt-impl</module>
         <module>odl-netvirt-openstack</module>
+        <!-- Federation isn’t part of Nitrogen
         <module>odl-netvirt-federation</module>
+        -->
         <module>odl-netvirt-ui</module>
         <module>odl-netvirt-sfc</module>
     </modules>
