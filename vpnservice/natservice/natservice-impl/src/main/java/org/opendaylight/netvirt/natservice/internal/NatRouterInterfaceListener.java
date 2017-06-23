@@ -96,10 +96,10 @@ public class NatRouterInterfaceListener
         final String interfaceName = interfaceInfo.getInterfaceId();
 
         //Delete the RouterInterfaces maintained in the ODL:L3VPN configuration model
-        NatUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, NatUtil.getRouterInterfaceId(interfaceName));
+        WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+        writeTxn.delete(LogicalDatastoreType.CONFIGURATION, NatUtil.getRouterInterfaceId(interfaceName));
 
         //Delete the NeutronRouterDpnMap from the ODL:L3VPN operational model
-        WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
         NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerId, interfaceName, interfaceManager, writeTxn);
 
         //Delete the DpnRouterMap from the ODL:L3VPN operational model

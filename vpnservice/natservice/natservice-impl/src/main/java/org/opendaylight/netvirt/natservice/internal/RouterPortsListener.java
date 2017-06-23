@@ -14,6 +14,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
@@ -61,7 +62,9 @@ public class RouterPortsListener
     @Override
     protected void add(final InstanceIdentifier<RouterPorts> identifier, final RouterPorts routerPorts) {
         LOG.trace("Add router ports method - key: " + identifier + ", value=" + routerPorts);
-        Optional<RouterPorts> optRouterPorts = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, identifier);
+        Optional<RouterPorts> optRouterPorts =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, identifier);
         if (optRouterPorts.isPresent()) {
             RouterPorts ports = optRouterPorts.get();
             String routerName = ports.getRouterId();
@@ -80,7 +83,8 @@ public class RouterPortsListener
         if (vpnName != null) {
             InstanceIdentifier<Routermapping> routerMappingId = NatUtil.getRouterVpnMappingId(routerName);
             Optional<Routermapping> optRouterMapping =
-                NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, routerMappingId);
+                    SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                            LogicalDatastoreType.OPERATIONAL, routerMappingId);
             if (!optRouterMapping.isPresent()) {
                 Long vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
                 LOG.debug("Updating router {} to VPN {} association with Id {}", routerName, vpnName, vpnId);
