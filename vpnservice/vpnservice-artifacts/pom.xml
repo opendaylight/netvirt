@@ -61,6 +61,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <classifier>features</classifier>
         <type>xml</type>
       </dependency>
+      <!-- Federation isn’t part of Nitrogen
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>odl-netvirt-federation</artifactId>
@@ -68,6 +69,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <classifier>features</classifier>
         <type>xml</type>
       </dependency>
+      -->
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>odl-netvirt-ui</artifactId>
