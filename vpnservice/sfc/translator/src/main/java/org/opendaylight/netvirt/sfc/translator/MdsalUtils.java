@@ -31,29 +31,6 @@ public class MdsalUtils {
     }
 
     /**
-     * Executes delete as a blocking transaction.
-     *
-     * @param store {@link LogicalDatastoreType} which should be modified
-     * @param path {@link InstanceIdentifier} to read from
-     * @param <D> the data object type
-     * @return the result of the request
-     */
-    public <D extends org.opendaylight.yangtools.yang.binding.DataObject> boolean delete(
-            final LogicalDatastoreType store, final InstanceIdentifier<D> path)  {
-        boolean result = false;
-        final WriteTransaction transaction = databroker.newWriteOnlyTransaction();
-        transaction.delete(store, path);
-        CheckedFuture<Void, TransactionCommitFailedException> future = transaction.submit();
-        try {
-            future.checkedGet();
-            result = true;
-        } catch (TransactionCommitFailedException e) {
-            LOG.warn("Failed to delete {} ", path, e);
-        }
-        return result;
-    }
-
-    /**
      * Executes merge as a blocking transaction.
      *
      * @param logicalDatastoreType {@link LogicalDatastoreType} which should be modified
