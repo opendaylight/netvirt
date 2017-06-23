@@ -25,6 +25,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -475,7 +476,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         InstanceIdentifier id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
         try {
             Optional<FloatingIpIdToPortMapping> optFloatingIpIdToPortMapping =
-                NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+                    SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                            LogicalDatastoreType.CONFIGURATION, id);
             if (optFloatingIpIdToPortMapping.isPresent() && optFloatingIpIdToPortMapping.get().isFloatingIpDeleted()) {
                 LOG.debug("Deleting floating IP UUID {} to Floating IP neutron port mapping from Floating "
                     + "IP Port Info Config DS", floatingIpId.getValue());

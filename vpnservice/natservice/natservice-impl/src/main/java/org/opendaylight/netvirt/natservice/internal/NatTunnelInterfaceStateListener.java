@@ -27,6 +27,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -363,8 +364,9 @@ public class NatTunnelInterfaceStateListener
             + " : {} and DEST IP: {}", fibManager.getTransportTypeStr(tunnelType), srcTepIp, destTepIp);
 
         InstanceIdentifier<DpnRoutersList> dpnRoutersListId = NatUtil.getDpnRoutersId(srcDpnId);
-        Optional<DpnRoutersList> optionalRouterDpnList = NatUtil.read(dataBroker, LogicalDatastoreType
-            .OPERATIONAL, dpnRoutersListId);
+        Optional<DpnRoutersList> optionalRouterDpnList =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, dpnRoutersListId);
         if (!optionalRouterDpnList.isPresent()) {
             LOG.warn("NAT Service : RouterDpnList model is empty for DPN {}. Hence ignoring TEP add event for the ITM "
                     + "TUNNEL TYPE {} b/w SRC IP {} and DST IP {} and TUNNEL NAME {} ",
@@ -422,8 +424,9 @@ public class NatTunnelInterfaceStateListener
 
         List<RoutersList> routersList = null;
         InstanceIdentifier<DpnRoutersList> dpnRoutersListId = NatUtil.getDpnRoutersId(srcDpnId);
-        Optional<DpnRoutersList> optionalRouterDpnList = NatUtil.read(dataBroker, LogicalDatastoreType
-            .OPERATIONAL, dpnRoutersListId);
+        Optional<DpnRoutersList> optionalRouterDpnList =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, dpnRoutersListId);
         if (optionalRouterDpnList.isPresent()) {
             routersList = optionalRouterDpnList.get().getRoutersList();
         } else {
@@ -459,8 +462,9 @@ public class NatTunnelInterfaceStateListener
 
         // Check if this is externalRouter else ignore
         InstanceIdentifier<Routers> extRoutersId = NatUtil.buildRouterIdentifier(routerName);
-        Optional<Routers> routerData = NatUtil.read(dataBroker, LogicalDatastoreType
-                .CONFIGURATION, extRoutersId);
+        Optional<Routers> routerData =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, extRoutersId);
         if (!routerData.isPresent()) {
             LOG.debug("NAT Service : SNAT -> Ignoring TEP add for router {} since its not External Router",
                     routerName);
@@ -884,8 +888,9 @@ public class NatTunnelInterfaceStateListener
 
         // Check if this is externalRouter else ignore
         InstanceIdentifier<Routers> extRoutersId = NatUtil.buildRouterIdentifier(routerName);
-        Optional<Routers> routerData = NatUtil.read(dataBroker, LogicalDatastoreType
-                .CONFIGURATION, extRoutersId);
+        Optional<Routers> routerData =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, extRoutersId);
         if (!routerData.isPresent()) {
             LOG.debug("NAT Service : SNAT -> Ignoring TEP del for router {} since its not External Router",
                     routerName);

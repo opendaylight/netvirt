@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -357,7 +358,9 @@ public class NaptSwitchHA {
         List<String> routerUuidsAsString = new ArrayList<>();
         InstanceIdentifier<Networks> extNetwork = InstanceIdentifier.builder(ExternalNetworks.class)
             .child(Networks.class, new NetworksKey(extNetworkId)).build();
-        Optional<Networks> extNetworkData = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, extNetwork);
+        Optional<Networks> extNetworkData =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, extNetwork);
         if (extNetworkData.isPresent()) {
             List<Uuid> routerUuids = extNetworkData.get().getRouterIds();
             if (routerUuids != null) {
@@ -663,7 +666,9 @@ public class NaptSwitchHA {
         LOG.debug("Querying switch with dpnId {} is up/down", nodeId);
         InstanceIdentifier<Node> nodeInstanceId = InstanceIdentifier.builder(Nodes.class)
             .child(Node.class, new NodeKey(nodeId)).build();
-        Optional<Node> nodeOptional = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, nodeInstanceId);
+        Optional<Node> nodeOptional =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, nodeInstanceId);
         if (nodeOptional.isPresent()) {
             LOG.debug("Switch {} is up", nodeId);
             return true;

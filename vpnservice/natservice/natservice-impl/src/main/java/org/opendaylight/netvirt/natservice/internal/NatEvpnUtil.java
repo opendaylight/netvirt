@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
-import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,6 +18,7 @@ import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -128,11 +128,8 @@ public class NatEvpnUtil {
 
     private static VpnInstanceOpDataEntry getVpnInstanceOpData(DataBroker broker, String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = NatUtil.getVpnInstanceOpDataIdentifier(rd);
-        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = NatUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
-        if (vpnInstanceOpData.isPresent()) {
-            return vpnInstanceOpData.get();
-        }
-        return null;
+        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                LogicalDatastoreType.OPERATIONAL, id).orNull();
     }
 
     private static boolean isL3VpnOverVxLan(Long l3Vni) {
@@ -231,12 +228,10 @@ public class NatEvpnUtil {
     }
 
     public static Uuid getFloatingIpInterfaceIdFromFloatingIpId(DataBroker broker, Uuid floatingIpId) {
-        InstanceIdentifier id = NatUtil.buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
-        Optional<FloatingIpIdToPortMapping> optFloatingIpIdToPortMapping = NatUtil.read(broker, LogicalDatastoreType
-                .CONFIGURATION, id);
-        if (optFloatingIpIdToPortMapping.isPresent()) {
-            return optFloatingIpIdToPortMapping.get().getFloatingIpPortId();
-        }
-        return null;
+        InstanceIdentifier<FloatingIpIdToPortMapping> id =
+                NatUtil.buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
+        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                LogicalDatastoreType.CONFIGURATION, id).transform(
+                FloatingIpIdToPortMapping::getFloatingIpPortId).orNull();
     }
 }
