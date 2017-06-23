@@ -32,6 +32,7 @@ import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan._interface.forwarding.entries.ElanInterfaceMac;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
@@ -95,6 +96,11 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                 ElanTagName elanTagName = elanUtils.getElanInfoByElanTag(elanTag);
                 if (elanTagName == null) {
                     LOG.warn("not able to find elanTagName in elan-tag-name-map for elan tag {}", elanTag);
+                    return;
+                }
+                ElanInterfaceMac elanInterfaceMac = elanUtils.getElanInterfaceMacByInterfaceName(interfaceName);
+                if(elanInterfaceMac == null) {
+                    LOG.info("There is no ElanInterfaceForwardingEntryDS created for interface :{}", interfaceName);
                     return;
                 }
                 String elanName = elanTagName.getName();
