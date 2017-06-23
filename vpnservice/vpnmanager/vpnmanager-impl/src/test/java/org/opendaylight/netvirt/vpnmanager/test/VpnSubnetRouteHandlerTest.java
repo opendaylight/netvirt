@@ -79,9 +79,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpnBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpnKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfaces;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfacesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfacesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstanceKey;
@@ -109,6 +109,7 @@ public class VpnSubnetRouteHandlerTest {
     String nexthopIp = null;
     String poolName = null;
     String interfaceName = "VPN";
+    String vpnName = "VPN";
     Uuid subnetId = Uuid.getDefaultInstance("067e6162-3b6f-4ae2-a171-2470b63dff00");
     Uuid portId = Uuid.getDefaultInstance("54947df8-0e9e-4471-a2f9-9af509fb5889");
     Uuid tenantId = Uuid.getDefaultInstance("54947df8-0e9e-4571-a2f9-9af509fb5889");
@@ -122,7 +123,7 @@ public class VpnSubnetRouteHandlerTest {
         stateInterface;
     List<String> lowerLayerIfList = new ArrayList<>();
     NodeConnectorId nodeConnectorId = null;
-    VpnInterfaces vpnIntfaces = null;
+    VpnInterface vpnIntfaces = null;
     VpnInstance vpnInstance = null;
     Subnetmap subnetmap = null;
     DPNTEPsInfo dpntePsInfo = null;
@@ -265,9 +266,9 @@ public class VpnSubnetRouteHandlerTest {
         longId = Long.valueOf("100");
         nodeConnectorId = buildNodeConnectorId(dpId, 2L);
         ipAddress = IpAddressBuilder.getDefaultInstance(nexthopIp);
-        vpnIntfaces = new VpnInterfacesBuilder().setInterfaceName(interfaceName).setKey(
-            new VpnInterfacesKey(interfaceName)).build();
-        List<VpnInterfaces> vpnInterfaces = new ArrayList<>();
+        vpnIntfaces = new VpnInterfaceBuilder().setInterfaceName(interfaceName)
+            .setKey(new VpnInterfaceKey(interfaceName)).build();
+        List<VpnInterface> vpnInterfaces = new ArrayList<>();
         final List<SubnetToDpn> subToDpn = new ArrayList<>();
         final List<Uuid> portList = new ArrayList<>();
         final List<PortOpDataEntry> listPortOpDataEntry = new ArrayList<>();
@@ -276,7 +277,7 @@ public class VpnSubnetRouteHandlerTest {
         lowerLayerIfList.add(nodeConnectorId.getValue());
         portOp = new PortOpDataEntryBuilder().setDpnId(dpId).setKey(new PortOpDataEntryKey(tenantId.getValue()))
             .setSubnetId(subnetId).setPortId(tenantId.getValue()).build();
-        subnetToDpn = new SubnetToDpnBuilder().setDpnId(dpId).setKey(new SubnetToDpnKey(dpId)).setVpnInterfaces(
+        subnetToDpn = new SubnetToDpnBuilder().setDpnId(dpId).setKey(new SubnetToDpnKey(dpId)).setVpnInterface(
             vpnInterfaces).build();
         allocateIdOutput = new AllocateIdOutputBuilder().setIdValue(longId).build();
         allocateIdInput = new AllocateIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();

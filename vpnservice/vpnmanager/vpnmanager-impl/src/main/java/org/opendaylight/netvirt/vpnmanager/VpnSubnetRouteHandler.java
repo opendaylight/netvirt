@@ -199,7 +199,7 @@ public class VpnSubnetRouteHandler {
                                 LOG.info("onSubnetAddedToVpn: Port " + port.getValue() + " is not UP yet, ignoring ");
                                 continue;
                             }
-                            subDpn = subOpDpnManager.addInterfaceToDpn(subnetId, dpnId, port.getValue());
+                            subDpn = subOpDpnManager.addInterfaceToDpn(subnetId, dpnId, port.getValue(), vpnName);
                             if (intfState.getOperStatus() == OperStatus.Up) {
                                 // port is UP
                                 subDpnMap.put(dpnId, subDpn);
@@ -365,11 +365,12 @@ public class VpnSubnetRouteHandler {
                 }
                 LOG.debug("onPortAddedToSubnet: Updating the SubnetOpDataEntry node for subnet {}",
                     subnetId.getValue());
-                SubnetToDpn subDpn = subOpDpnManager.addInterfaceToDpn(subnetId, dpnId, portId.getValue());
+                SubnetOpDataEntry subnetOpDataEntry = optionalSubs.get();
+                SubnetToDpn subDpn = subOpDpnManager.addInterfaceToDpn(subnetId, dpnId,
+                                             portId.getValue(), subnetOpDataEntry.getVpnName());
                 if (subDpn == null) {
                     return;
                 }
-                SubnetOpDataEntry subnetOpDataEntry = optionalSubs.get();
                 SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(subnetOpDataEntry);
                 List<SubnetToDpn> subDpnList = subOpBuilder.getSubnetToDpn();
                 subDpnList.add(subDpn);
@@ -422,7 +423,6 @@ public class VpnSubnetRouteHandler {
                 }
                 LOG.debug(
                     "onPortRemovedFromSubnet: Updating the SubnetOpDataEntry node for subnet: " + subnetId.getValue());
-                boolean last = subOpDpnManager.removeInterfaceFromDpn(subnetId, dpnId, portId.getValue());
                 InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
                     InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
                         new SubnetOpDataEntryKey(subnetId)).build();
@@ -434,6 +434,8 @@ public class VpnSubnetRouteHandler {
                     return;
                 }
                 SubnetOpDataEntry subnetOpDataEntry = optionalSubs.get();
+                boolean last = subOpDpnManager.removeInterfaceFromDpn(subnetId, dpnId,
+                                 portId.getValue(), subnetOpDataEntry.getVpnName());
                 SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(subnetOpDataEntry);
                 BigInteger nhDpnId = subOpBuilder.getNhDpnId();
                 if ((nhDpnId != null) && (nhDpnId.equals(dpnId))) {
@@ -486,11 +488,11 @@ public class VpnSubnetRouteHandler {
 
                 LOG.debug("onInterfaceUp: Updating the SubnetOpDataEntry node for subnet: " + subnetId.getValue());
                 subOpDpnManager.addPortOpDataEntry(intfName, subnetId, dpnId);
-                subDpn = subOpDpnManager.addInterfaceToDpn(subnetId, dpnId, intfName);
+                SubnetOpDataEntry subnetOpDataEntry = optionalSubs.get();
+                subDpn = subOpDpnManager.addInterfaceToDpn(subnetId, dpnId, intfName, subnetOpDataEntry.getVpnName());
                 if (subDpn == null) {
                     return;
                 }
-                SubnetOpDataEntry subnetOpDataEntry = optionalSubs.get();
                 SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(subnetOpDataEntry);
                 boolean isExternalSubnetVpn = VpnUtil.isExternalSubnetVpn(subnetOpDataEntry.getVpnName(),
                         subnetId.getValue());
@@ -533,7 +535,6 @@ public class VpnSubnetRouteHandler {
             VpnUtil.lockSubnet(lockManager, subnetId.getValue());
             try {
                 LOG.debug("onInterfaceDown: Updating the SubnetOpDataEntry node for subnet: " + subnetId.getValue());
-                boolean last = subOpDpnManager.removeInterfaceFromDpn(subnetId, dpnId, interfaceName);
                 InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
                     InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
                         new SubnetOpDataEntryKey(subnetId)).build();
@@ -545,6 +546,8 @@ public class VpnSubnetRouteHandler {
                     return;
                 }
                 SubnetOpDataEntry subnetOpDataEntry = optionalSubs.get();
+                boolean last = subOpDpnManager.removeInterfaceFromDpn(subnetId, dpnId,
+                                      interfaceName, subnetOpDataEntry.getVpnName());
                 SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(subnetOpDataEntry);
                 BigInteger nhDpnId = subOpBuilder.getNhDpnId();
                 if ((nhDpnId != null) && (nhDpnId.equals(dpnId))) {
