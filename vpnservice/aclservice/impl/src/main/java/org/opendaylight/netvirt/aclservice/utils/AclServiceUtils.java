@@ -161,7 +161,7 @@ public final class AclServiceUtils {
         try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
             return tx.read(datastoreType, path).checkedGet();
         } catch (ReadFailedException e) {
-            LOG.warn("Failed to read InstanceIdentifier {} from {}", path, datastoreType, e);
+            LOG.error("Failed to read InstanceIdentifier {} from {}", path, datastoreType, e);
             return Optional.absent();
         }
     }
@@ -500,7 +500,7 @@ public final class AclServiceUtils {
                     MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID);
             flowMatches.add(metadataMatch);
         } else {
-            LOG.warn("Failed building metadata match for Acl id match. Failed to allocate id");
+            LOG.error("Failed building metadata match for Acl id match. Failed to allocate id");
         }
         return flowMatches;
     }
@@ -741,7 +741,9 @@ public final class AclServiceUtils {
             Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
             RpcResult<AllocateIdOutput> rpcResult = result.get();
             if (rpcResult.isSuccessful()) {
-                return rpcResult.getResult().getIdValue().intValue();
+                Integer allocatedId = rpcResult.getResult().getIdValue().intValue();
+                LOG.debug("Allocated ACL ID: {} with key: {} into pool: {}", allocatedId, idKey, poolName);
+                return allocatedId;
             } else {
                 LOG.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
             }
@@ -758,6 +760,8 @@ public final class AclServiceUtils {
             RpcResult<Void> rpcResult = result.get();
             if (!rpcResult.isSuccessful()) {
                 LOG.warn("RPC Call to release Id {} with Key {} returned with Errors {}", idKey, rpcResult.getErrors());
+            } else {
+                LOG.debug("Released ACL ID with key: {} from pool: {}", idKey, poolName);
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when releasing Id for key {}", idKey, e);
