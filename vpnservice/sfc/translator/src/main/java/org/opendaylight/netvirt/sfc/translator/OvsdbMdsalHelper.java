@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.sfc.translator;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
@@ -39,21 +40,22 @@ public class OvsdbMdsalHelper {
             .child(Topology.class, new TopologyKey(new TopologyId(OVSDB_TOPOLOGY_ID)));
 
     private final DataBroker dataBroker;
-    private final MdsalUtils mdsalUtils;
 
     public OvsdbMdsalHelper(DataBroker dataBroker) {
         this.dataBroker = dataBroker;
-        mdsalUtils = new MdsalUtils(this.dataBroker);
     }
 
     public Topology getOvsdbTopologyTree() {
         LOG.info("Reading OVSDB Topolog Tree (ovsdb:1)");
-        return mdsalUtils.read(LogicalDatastoreType.OPERATIONAL, TOPOLOGY_PATH);
+        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                LogicalDatastoreType.OPERATIONAL, TOPOLOGY_PATH).orNull();
     }
 
     public OvsdbPortMetadata getOvsdbPortMetadata(Uuid ingressPort) {
         LOG.info("Extract ovsdb port details for neutron port {}", ingressPort.getValue());
-        Topology ovsdbTopology = mdsalUtils.read(LogicalDatastoreType.OPERATIONAL, TOPOLOGY_PATH);
+        Topology ovsdbTopology =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, TOPOLOGY_PATH).orNull();
         return getOvsdbPortMetadata(ingressPort, ovsdbTopology);
     }
 
