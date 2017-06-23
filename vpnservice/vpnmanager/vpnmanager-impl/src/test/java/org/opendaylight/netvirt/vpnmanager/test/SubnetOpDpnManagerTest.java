@@ -41,7 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpnBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpnKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterface;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -52,6 +52,7 @@ public class SubnetOpDpnManagerTest {
     BigInteger dpId = BigInteger.valueOf(1);
     Uuid subnetId = Uuid.getDefaultInstance("067e6162-3b6f-4ae2-a171-2470b63dff00");
     String infName = "VPN";
+    String vpnName = "VPN";
     SubnetToDpn subnetToDpn = null;
     PortOpDataEntry portOp = null;
     String portId = "abc";
@@ -102,8 +103,8 @@ public class SubnetOpDpnManagerTest {
 
     private void setupMocks() {
 
-        List<VpnInterfaces> vpnInterfaces = new ArrayList<>();
-        subnetToDpn = new SubnetToDpnBuilder().setDpnId(dpId).setKey(new SubnetToDpnKey(dpId)).setVpnInterfaces(
+        List<VpnInterface> vpnInterfaces = new ArrayList<>();
+        subnetToDpn = new SubnetToDpnBuilder().setDpnId(dpId).setKey(new SubnetToDpnKey(dpId)).setVpnInterface(
             vpnInterfaces).build();
         portOp = new PortOpDataEntryBuilder().setDpnId(dpId).setKey(new PortOpDataEntryKey(infName)).setSubnetId(
             subnetId).setPortId(portId).build();
@@ -115,7 +116,7 @@ public class SubnetOpDpnManagerTest {
     @Test
     public void testAddInterfaceToDpn() {
 
-        subOpDpnManager.addInterfaceToDpn(subnetId, dpId, infName);
+        subOpDpnManager.addInterfaceToDpn(subnetId, dpId, infName, vpnName);
 
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn, true);
 
@@ -143,7 +144,7 @@ public class SubnetOpDpnManagerTest {
     @Test
     public void testRemoveInterfaceFromDpn() {
 
-        subOpDpnManager.removeInterfaceFromDpn(subnetId, dpId, infName);
+        subOpDpnManager.removeInterfaceFromDpn(subnetId, dpId, infName, vpnName);
 
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, dpnOpId);
     }
