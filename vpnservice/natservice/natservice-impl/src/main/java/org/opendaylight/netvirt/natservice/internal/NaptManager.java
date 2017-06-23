@@ -24,6 +24,7 @@ import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
@@ -475,43 +476,35 @@ public class NaptManager {
     }
 
     protected InstanceIdentifier<IpMap> getIpMapIdentifier(long segid, String internal) {
-        InstanceIdentifier<IpMap> id = InstanceIdentifier.builder(IntextIpMap.class)
+        return InstanceIdentifier.builder(IntextIpMap.class)
             .child(IpMapping.class, new IpMappingKey(segid))
             .child(IpMap.class, new IpMapKey(internal)).build();
-        return id;
     }
 
     protected InstanceIdentifier<ExternalIpCounter> getExternalIpsIdentifier(long segmentId, String external) {
-        InstanceIdentifier<ExternalIpCounter> id = InstanceIdentifier.builder(ExternalIpsCounter.class)
+        return InstanceIdentifier.builder(ExternalIpsCounter.class)
             .child(ExternalCounters.class, new ExternalCountersKey(segmentId))
             .child(ExternalIpCounter.class, new ExternalIpCounterKey(external)).build();
-        return id;
     }
 
     public static List<IpMap> getIpMapList(DataBroker broker, Long routerId) {
         InstanceIdentifier<IpMapping> id = getIpMapList(routerId);
-        Optional<IpMapping> ipMappingListData = NatUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
-        if (ipMappingListData.isPresent()) {
-            IpMapping ipMapping = ipMappingListData.get();
-            return ipMapping.getIpMap();
-        }
-        return null;
+        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                LogicalDatastoreType.OPERATIONAL, id).transform(IpMapping::getIpMap).orNull();
     }
 
     protected static InstanceIdentifier<IpMapping> getIpMapList(long routerId) {
-        InstanceIdentifier<IpMapping> id = InstanceIdentifier.builder(
+        return InstanceIdentifier.builder(
             IntextIpMap.class).child(IpMapping.class, new IpMappingKey(routerId)).build();
-        return id;
     }
 
     protected InstanceIdentifier<IpPortMap> getIpPortMapIdentifier(long segid, String internal,
                                                                    NAPTEntryEvent.Protocol protocol) {
         ProtocolTypes protocolType = NatUtil.getProtocolType(protocol);
-        InstanceIdentifier<IpPortMap> id = InstanceIdentifier.builder(IntextIpPortMap.class)
+        return InstanceIdentifier.builder(IntextIpPortMap.class)
             .child(IpPortMapping.class, new IpPortMappingKey(segid))
             .child(IntextIpProtocolType.class, new IntextIpProtocolTypeKey(protocolType))
             .child(IpPortMap.class, new IpPortMapKey(internal)).build();
-        return id;
     }
 
     private SessionAddress checkIpPortMap(long segmentId, String internalIpPort,

@@ -18,7 +18,6 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.netvirt.natservice.internal.NatUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.BridgeRefInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntryKey;
@@ -65,31 +64,22 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
         InstanceIdentifier<BridgeRefEntry> bridgeRefInfoPath = InstanceIdentifier.create(BridgeRefInfo.class)
                 .child(BridgeRefEntry.class, new BridgeRefEntryKey(dpnId));
 
-        Optional<BridgeRefEntry> bridgeRefEntry = NatUtil.read(dataBroker,LogicalDatastoreType.OPERATIONAL,
-                bridgeRefInfoPath);
+        Optional<BridgeRefEntry> bridgeRefEntry =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, bridgeRefInfoPath);
         if (!bridgeRefEntry.isPresent()) {
             return Optional.absent();
         }
 
         InstanceIdentifier<Node> nodeId =
-                ((InstanceIdentifier<OvsdbBridgeAugmentation>) bridgeRefEntry.get().getBridgeReference().getValue())
-                        .firstIdentifierOf(Node.class);
+                bridgeRefEntry.get().getBridgeReference().getValue().firstIdentifierOf(Node.class);
 
-        Optional<Node> node = NatUtil.read(dataBroker,LogicalDatastoreType.OPERATIONAL, nodeId);
-        return node;
+        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                LogicalDatastoreType.OPERATIONAL, nodeId);
     }
 
     private String getDpnLocalIp(BigInteger dpId) {
-        Optional<Node> node = getPortsNode(dpId);
-
-        if (node.isPresent()) {
-            String localIp = getOpenvswitchOtherConfig(node.get(), LOCAL_IP);
-            if (localIp != null) {
-                return localIp;
-            }
-        }
-
-        return null;
+        return getPortsNode(dpId).transform(node -> getOpenvswitchOtherConfig(node, LOCAL_IP)).orNull();
     }
 
     private String getOpenvswitchOtherConfig(Node node, String key) {
@@ -118,7 +108,8 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
         if (bridgeAugmentation != null) {
             InstanceIdentifier<Node> ovsdbNodeIid =
                     (InstanceIdentifier<Node>) bridgeAugmentation.getManagedBy().getValue();
-            return NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, ovsdbNodeIid);
+            return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, ovsdbNodeIid);
         }
         return Optional.absent();
 

@@ -63,8 +63,9 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             String vpnName = router.getRouterName();
             long vpnId = NatUtil.getVpnId(dataBroker, routerName);
             for (Uuid subnetUuid :router.getSubnetIds()) {
-                Optional<Subnetmap> subnetMapEntry = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                        getSubnetMapIdentifier(subnetUuid));
+                Optional<Subnetmap> subnetMapEntry =
+                        SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
+                                dataBroker, LogicalDatastoreType.CONFIGURATION, getSubnetMapIdentifier(subnetUuid));
                 if (subnetMapEntry.isPresent()) {
                     Uuid routerPortUuid = subnetMapEntry.get().getRouterInterfacePortId();
                     NatUtil.createOrUpdateVpnToDpnList(dataBroker, vpnId, nextSwitchId, routerPortUuid.getValue(),
@@ -98,8 +99,9 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             String vpnName = router.getRouterName();
             long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
             for (Uuid subnetUuid :router.getSubnetIds()) {
-                Optional<Subnetmap> subnetMapEntry = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                        getSubnetMapIdentifier(subnetUuid));
+                Optional<Subnetmap> subnetMapEntry =
+                        SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
+                                dataBroker, LogicalDatastoreType.CONFIGURATION, getSubnetMapIdentifier(subnetUuid));
                 if (subnetMapEntry.isPresent()) {
                     Uuid routerPortUuid = subnetMapEntry.get().getRouterInterfacePortId();
                     NatUtil.removeOrUpdateVpnToDpnList(dataBroker, vpnId, primarySwitchId, routerPortUuid.getValue(),
@@ -147,8 +149,8 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
 
     public static NaptSwitches getNaptSwitches(DataBroker dataBroker) {
         InstanceIdentifier<NaptSwitches> id = InstanceIdentifier.builder(NaptSwitches.class).build();
-        Optional<NaptSwitches> naptSwitches = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
-        return naptSwitches.isPresent() ? naptSwitches.get() : null;
+        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                LogicalDatastoreType.CONFIGURATION, id).orNull();
     }
 
     private BigInteger getSwitchWithLowestWeight() {

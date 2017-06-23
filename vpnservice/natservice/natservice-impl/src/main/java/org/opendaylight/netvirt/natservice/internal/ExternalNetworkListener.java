@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -159,7 +160,9 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
     private void addOrDelDefFibRouteToSNAT(String routerId, boolean create) {
         //Router ID is used as the internal VPN's name, hence the vrf-id in VpnInstance Op DataStore
         InstanceIdentifier<VpnInstanceOpDataEntry> id = NatUtil.getVpnInstanceOpDataIdentifier(routerId);
-        Optional<VpnInstanceOpDataEntry> vpnInstOp = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        Optional<VpnInstanceOpDataEntry> vpnInstOp =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, id);
         if (vpnInstOp.isPresent()) {
             List<VpnToDpnList> dpnListInVpn = vpnInstOp.get().getVpnToDpnList();
             if (dpnListInVpn != null) {

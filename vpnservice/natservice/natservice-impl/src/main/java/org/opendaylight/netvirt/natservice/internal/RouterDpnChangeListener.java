@@ -19,6 +19,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
@@ -108,7 +109,9 @@ public class RouterDpnChangeListener
         BigInteger dpnId = dpnInfo.getDpnId();
         //check router is associated to external network
         InstanceIdentifier<Routers> id = NatUtil.buildRouterIdentifier(routerId);
-        Optional<Routers> routerData = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        Optional<Routers> routerData =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, id);
         if (routerData.isPresent()) {
             Routers router = routerData.get();
             Uuid networkId = router.getNetworkId();
@@ -181,7 +184,9 @@ public class RouterDpnChangeListener
         BigInteger dpnId = dpnInfo.getDpnId();
         //check router is associated to external network
         InstanceIdentifier<Routers> id = NatUtil.buildRouterIdentifier(routerId);
-        Optional<Routers> routerData = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        Optional<Routers> routerData =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, id);
         if (routerData.isPresent()) {
             Routers router = routerData.get();
             Uuid networkId = router.getNetworkId();
