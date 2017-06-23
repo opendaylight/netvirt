@@ -24,6 +24,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -194,8 +195,9 @@ public class EvpnDnatFlowProgrammer {
 
         //Read the FIP vpn-interface details from Configuration l3vpn:vpn-interfaces model and write into Operational DS
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NatUtil.getVpnInterfaceIdentifier(floatingIpInterface);
-        Optional<VpnInterface> optionalVpnInterface = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                vpnIfIdentifier);
+        Optional<VpnInterface> optionalVpnInterface =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
         if (optionalVpnInterface.isPresent()) {
             VpnInterfaceBuilder vpnIfBuilder = new VpnInterfaceBuilder(optionalVpnInterface.get());
             Adjacencies adjs = vpnIfBuilder.getAugmentation(Adjacencies.class);
@@ -291,15 +293,14 @@ public class EvpnDnatFlowProgrammer {
         });
         //Read the FIP vpn-interface details from Operational l3vpn:vpn-interfaces model and delete from Operational DS
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NatUtil.getVpnInterfaceIdentifier(floatingIpInterface);
-        Optional<VpnInterface> optionalVpnInterface = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                vpnIfIdentifier);
+        Optional<VpnInterface> optionalVpnInterface =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, vpnIfIdentifier);
         if (optionalVpnInterface.isPresent()) {
             WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
             LOG.debug("NAT Service : Remove vpnInterface {} to Operational l3vpn:vpn-interfaces ", floatingIpInterface);
             writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, vpnIfIdentifier);
-            if (writeOperTxn != null) {
-                writeOperTxn.submit();
-            }
+            writeOperTxn.submit();
         } else {
             LOG.debug("NAT Service : No vpnInterface {} found in Operational l3vpn:vpn-interfaces ",
                     floatingIpInterface);

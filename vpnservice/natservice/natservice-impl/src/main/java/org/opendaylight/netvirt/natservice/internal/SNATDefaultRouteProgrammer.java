@@ -19,6 +19,7 @@ import javax.inject.Singleton;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -174,8 +175,9 @@ public class SNATDefaultRouteProgrammer {
         String subnetId = subnet.getId().getValue();
         InstanceIdentifier<VpnInstanceOpDataEntry> networkVpnInstanceIdentifier =
             NatUtil.getVpnInstanceOpDataIdentifier(networkId);
-        Optional<VpnInstanceOpDataEntry> networkVpnInstanceOp = NatUtil.read(dataBroker,
-                LogicalDatastoreType.OPERATIONAL, networkVpnInstanceIdentifier);
+        Optional<VpnInstanceOpDataEntry> networkVpnInstanceOp =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, networkVpnInstanceIdentifier);
         if (networkVpnInstanceOp.isPresent()) {
             List<VpnToDpnList> dpnListInVpn = networkVpnInstanceOp.get().getVpnToDpnList();
             if (dpnListInVpn != null) {

@@ -15,6 +15,7 @@ import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
@@ -106,8 +107,9 @@ public class NatOverVxlanUtil {
             lowLimit = Long.parseLong(configureVniRangeSplit[0]);
             highLimit = Long.parseLong(configureVniRangeSplit[1]);
         }
-        Optional<IdPool> existingIdPool = NatUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
-                getIdPoolInstance(poolName));
+        Optional<IdPool> existingIdPool =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, getIdPoolInstance(poolName));
         if (existingIdPool.isPresent()) {
             IdPool odlVniIdPool = existingIdPool.get();
             long currentStartLimit = odlVniIdPool.getAvailableIdsHolder().getStart();
