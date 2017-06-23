@@ -438,7 +438,7 @@ module odl-l3vpn {
                 leaf dpnId {
                     type uint64;
                 }
-                list vpn-interfaces {
+                list vpn-interface-op-data {
                     key interface-name;
                     leaf interface-name {
                         type string;

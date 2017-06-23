@@ -27,9 +27,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpnBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpnKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfaces;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfacesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfacesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfaceOpData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfaceOpDataBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfaceOpDataKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,8 +58,8 @@ public class SubnetOpDpnManager {
                 return null;
             }
             SubnetToDpnBuilder subDpnBuilder = new SubnetToDpnBuilder().setKey(new SubnetToDpnKey(dpnId));
-            List<VpnInterfaces> vpnIntfList = new ArrayList<>();
-            subDpnBuilder.setVpnInterfaces(vpnIntfList);
+            List<VpnInterfaceOpData> vpnIntfList = new ArrayList<>();
+            subDpnBuilder.setVpnInterfaceOpData(vpnIntfList);
             SubnetToDpn subDpn = subDpnBuilder.build();
             LOG.trace("Creating SubnetToDpn entry for subnet  " + subnetId.getValue() + " with DPNId " + dpnId);
             SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId, subDpn);
@@ -108,11 +108,11 @@ public class SubnetOpDpnManager {
                 subDpn = optionalSubDpn.get();
             }
             SubnetToDpnBuilder subDpnBuilder = new SubnetToDpnBuilder(subDpn);
-            List<VpnInterfaces> vpnIntfList = subDpnBuilder.getVpnInterfaces();
-            VpnInterfaces vpnIntfs =
-                new VpnInterfacesBuilder().setKey(new VpnInterfacesKey(intfName)).setInterfaceName(intfName).build();
+            List<VpnInterfaceOpData> vpnIntfList = subDpnBuilder.getVpnInterfaceOpData();
+            VpnInterfaceOpData vpnIntfs =
+                new VpnInterfaceOpDataBuilder().setKey(new VpnInterfaceOpDataKey(intfName)).setInterfaceName(intfName).build();
             vpnIntfList.add(vpnIntfs);
-            subDpnBuilder.setVpnInterfaces(vpnIntfList);
+            subDpnBuilder.setVpnInterfaceOpData(vpnIntfList);
             subDpn = subDpnBuilder.build();
 
             LOG.trace("Creating SubnetToDpn entry for subnet  " + subnetId.getValue() + " with DPNId " + dpnId);
@@ -174,16 +174,16 @@ public class SubnetOpDpnManager {
             }
 
             SubnetToDpnBuilder subDpnBuilder = new SubnetToDpnBuilder(optionalSubDpn.get());
-            List<VpnInterfaces> vpnIntfList = subDpnBuilder.getVpnInterfaces();
-            VpnInterfaces vpnIntfs =
-                new VpnInterfacesBuilder().setKey(new VpnInterfacesKey(intfName)).setInterfaceName(intfName).build();
+            List<VpnInterfaceOpData> vpnIntfList = subDpnBuilder.getVpnInterfaceOpData();
+            VpnInterfaceOpData vpnIntfs =
+                new VpnInterfaceOpDataBuilder().setKey(new VpnInterfaceOpDataKey(intfName)).setInterfaceName(intfName).build();
             vpnIntfList.remove(vpnIntfs);
             if (vpnIntfList.isEmpty()) {
                 // Remove the DPN as well
                 removeDpnFromSubnet(subnetId, dpnId);
                 dpnRemoved = true;
             } else {
-                subDpnBuilder.setVpnInterfaces(vpnIntfList);
+                subDpnBuilder.setVpnInterfaceOpData(vpnIntfList);
                 SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId,
                     subDpnBuilder.build());
             }
