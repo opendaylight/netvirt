@@ -176,8 +176,9 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     if (elanService.isOpenStackVniSemanticsEnforced()) {
                         l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
                     }
+                    String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
                     NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, subnetId,
-                            externalIp + "/32", nextHopIp, networkId.getValue(), floatingIpPortMacAddress,
+                            fibExternalIp, nextHopIp, networkId.getValue(), floatingIpPortMacAddress,
                             label, l3vni, LOG, RouteOrigin.STATIC, dpnId);
 
                     List<Instruction> instructions = new ArrayList<>();
@@ -196,7 +197,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     makeLFibTableEntry(dpnId, label, floatingIpPortMacAddress, NwConstants.PDNAT_TABLE);
                     CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
                         .setSourceDpid(dpnId).setInstruction(customInstructions)
-                        .setIpAddress(externalIp + "/32").setServiceId(label)
+                        .setIpAddress(fibExternalIp).setServiceId(label)
                         .setIpAddressSource(CreateFibEntryInput.IpAddressSource.FloatingIP)
                         .setInstruction(customInstructions).build();
                     //Future<RpcResult<java.lang.Void>> createFibEntry(CreateFibEntryInput input);
@@ -290,13 +291,15 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                                   final long label) {
         //Remove Prefix from BGP
         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
-        NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32", vpnName, LOG);
+        String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
+        NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, fibExternalIp, vpnName, LOG);
 
         //Remove custom FIB routes
 
         //Future<RpcResult<java.lang.Void>> removeFibEntry(RemoveFibEntryInput input);
         RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName)
-            .setSourceDpid(dpnId).setIpAddress(externalIp + "/32").setServiceId(label).build();
+            .setSourceDpid(dpnId).setIpAddress(fibExternalIp).setServiceId(label)
+            .setIpAddressSource(RemoveFibEntryInput.IpAddressSource.FloatingIP).build();
         Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
 
         ListenableFuture<RpcResult<Void>> labelFuture = Futures.transformAsync(

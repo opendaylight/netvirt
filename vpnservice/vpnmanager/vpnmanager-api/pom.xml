@@ -73,6 +73,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>neutronvpn-api</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+    </dependency>
   </dependencies>
 
   <!--

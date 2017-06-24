@@ -10,6 +10,8 @@
              interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager"/>
   <reference id="iElanService"
              interface="org.opendaylight.netvirt.elanmanager.api.IElanService"/>
+  <reference id="IVpnFootprintService"
+           interface="org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService" />
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService"/>
