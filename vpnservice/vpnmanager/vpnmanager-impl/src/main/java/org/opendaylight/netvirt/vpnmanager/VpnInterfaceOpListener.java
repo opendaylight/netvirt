@@ -137,7 +137,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                             VpnUtil.DEFAULT_CALLBACK);
                     }
                     vpnFootprintService.updateVpnToDpnMapping(pref.getDpnId(), del.getVpnInstanceName(),
-                        interfaceName, false /* delete */);
+                        interfaceName, null /*ipAddressSourceValuePair*/, false /* delete */);
                 }
             }
         } else {
@@ -217,7 +217,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                 }
                 for (Prefixes prefix : prefixToInterfaceList) {
                     vpnFootprintService.updateVpnToDpnMapping(prefix.getDpnId(), original.getVpnInstanceName(),
-                        interfaceName, false /* delete */);
+                        interfaceName, null /*ipAddressSourceValuePair*/, false /* delete */);
                 }
             }
         }
