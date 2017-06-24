@@ -62,6 +62,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.C
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
@@ -296,7 +297,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
         //Future<RpcResult<java.lang.Void>> removeFibEntry(RemoveFibEntryInput input);
         RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName)
-            .setSourceDpid(dpnId).setIpAddress(externalIp + "/32").setServiceId(label).build();
+            .setSourceDpid(dpnId).setIpAddress(externalIp + "/32").setServiceId(label)
+            .setIpAddressSource(IpAddresses.IpAddressSource.FloatingIP).build();
         Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
 
         ListenableFuture<RpcResult<Void>> labelFuture = Futures.transformAsync(

@@ -53,6 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.R
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -256,7 +257,8 @@ public class EvpnDnatFlowProgrammer {
 
         //Remove custom FIB routes flow for L3_FIB_TABLE (table=21)-> PDNAT_TABLE (table=25)
         RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName)
-                .setSourceDpid(dpnId).setIpAddress(externalIp + "/32").setServiceId(l3Vni).build();
+                .setSourceDpid(dpnId).setIpAddress(externalIp + "/32").setServiceId(l3Vni)
+                .setIpAddressSource(IpAddresses.IpAddressSource.FloatingIP).build();
         Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
         ListenableFuture<RpcResult<Void>> futureVxlan = JdkFutureAdapters.listenInPoolThread(future);
         final long finalL3Vni = l3Vni;
