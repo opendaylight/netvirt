@@ -62,6 +62,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.C
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
@@ -176,8 +177,9 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     if (elanService.isOpenStackVniSemanticsEnforced()) {
                         l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
                     }
+                    String fibExternalIp = externalIp.contains("/32") ? externalIp : (externalIp + "/32");
                     NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, subnetId,
-                            externalIp + "/32", nextHopIp, networkId.getValue(), floatingIpPortMacAddress,
+                            fibExternalIp, nextHopIp, networkId.getValue(), floatingIpPortMacAddress,
                             label, l3vni, LOG, RouteOrigin.STATIC, dpnId);
 
                     List<Instruction> instructions = new ArrayList<>();
@@ -196,7 +198,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     makeLFibTableEntry(dpnId, label, floatingIpPortMacAddress, NwConstants.PDNAT_TABLE);
                     CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
                         .setSourceDpid(dpnId).setInstruction(customInstructions)
-                        .setIpAddress(externalIp + "/32").setServiceId(label)
+                        .setIpAddress(fibExternalIp).setServiceId(label)
                         .setIpAddressSource(CreateFibEntryInput.IpAddressSource.FloatingIP)
                         .setInstruction(customInstructions).build();
                     //Future<RpcResult<java.lang.Void>> createFibEntry(CreateFibEntryInput input);
@@ -290,13 +292,15 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                                   final long label) {
         //Remove Prefix from BGP
         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
-        NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32", vpnName, LOG);
+        String fibExternalIp = externalIp.contains("/32") ? externalIp : (externalIp + "/32");
+        NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, fibExternalIp, vpnName, LOG);
 
         //Remove custom FIB routes
 
         //Future<RpcResult<java.lang.Void>> removeFibEntry(RemoveFibEntryInput input);
         RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName)
-            .setSourceDpid(dpnId).setIpAddress(externalIp + "/32").setServiceId(label).build();
+            .setSourceDpid(dpnId).setIpAddress(fibExternalIp).setServiceId(label)
+            .setIpAddressSource(IpAddresses.IpAddressSource.FloatingIP).build();
         Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
 
         ListenableFuture<RpcResult<Void>> labelFuture = Futures.transformAsync(
