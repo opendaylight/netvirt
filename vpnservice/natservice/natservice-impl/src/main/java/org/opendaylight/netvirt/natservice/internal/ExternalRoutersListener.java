@@ -1034,7 +1034,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             NatUtil.makePreDnatToSnatTableEntry(mdsalManager, dpnId,
                                     NwConstants.INBOUND_NAPT_TABLE);
                         }
-                        String fibExternalIp = externalIp.contains("/32") ? externalIp : (externalIp + "/32");
+                        String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
                         Optional<Subnets> externalSubnet = NatUtil.getOptionalExternalSubnets(dataBroker,
                                 externalSubnetId);
                         String externalVpn = vpnName;
@@ -1651,11 +1651,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         String routerName = router.getRouterName();
         try {
             Long routerId = NatUtil.getVpnId(dataBroker, routerName);
-            // Use the NaptMananager removeMapping API to remove the entire list of IP addresses maintained
-            // for the router ID.
-            LOG.debug("NAT Service : Remove the Internal to external IP address maintained for the "
-                + "router ID {} in the DS", routerId);
-            naptManager.removeMapping(routerId);
 
             if (routerFlag) {
                 removeNaptSwitch(routerName);
@@ -1681,7 +1676,11 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 LOG.debug("Failed to remove fib entries for routerId {} in naptSwitchDpnId {} : {}",
                     routerId, naptSwitchDpnId, ex);
             }
-
+            // Use the NaptMananager removeMapping API to remove the entire list of IP addresses maintained
+            // for the router ID.
+            LOG.debug("NAT Service : Remove the Internal to external IP address maintained for the "
+                    + "router ID {} in the DS", routerId);
+            naptManager.removeMapping(routerId);
         } catch (Exception ex) {
             LOG.error("Exception while handling disableSNAT : {}", ex);
         }
@@ -2086,10 +2085,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
 
         final long label = tempLabel;
-        final String externalIp = extIp;
-
+        final String externalIp = NatUtil.validateAndAddNetworkMask(extIp);
         RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName)
-            .setSourceDpid(dpnId).setIpAddress(externalIp).setServiceId(label).build();
+                .setSourceDpid(dpnId).setIpAddress(externalIp).setServiceId(label)
+                .setIpAddressSource(RemoveFibEntryInput.IpAddressSource.ExternalFixedIP).build();
         Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
 
         ListenableFuture<RpcResult<Void>> labelFuture =
@@ -2179,10 +2178,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
 
         final long label = tempLabel;
-        final String externalIp = extIp;
-
+        final String externalIp = NatUtil.validateAndAddNetworkMask(extIp);
         RemoveFibEntryInput input = new RemoveFibEntryInputBuilder()
-            .setVpnName(vpnName).setSourceDpid(dpnId).setIpAddress(externalIp).setServiceId(label).build();
+                .setVpnName(vpnName).setSourceDpid(dpnId).setIpAddress(externalIp)
+                .setIpAddressSource(RemoveFibEntryInput.IpAddressSource.ExternalFixedIP).setServiceId(label).build();
         Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
 
         ListenableFuture<RpcResult<Void>> labelFuture =

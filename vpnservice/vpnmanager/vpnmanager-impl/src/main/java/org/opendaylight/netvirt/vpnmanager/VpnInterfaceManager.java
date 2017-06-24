@@ -339,7 +339,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             }
             if (!waitForVpnInterfaceOpRemoval) {
                 // Add the VPNInterface and quit
-                vpnFootprintService.updateVpnToDpnMapping(dpId, vpnName, interfaceName, true /* add */);
+                vpnFootprintService.updateVpnToDpnMapping(dpId, vpnName, interfaceName,
+                        null/*ipAddressSourceValuePair*/,
+                        true /* add */);
                 VpnUtil.bindService(vpnName, interfaceName, dataBroker, false /*isTunnelInterface*/);
                 processVpnInterfaceAdjacencies(dpId, lportTag, vpnName, interfaceName,
                         vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
@@ -373,7 +375,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 return;
             }
             // VPNInterface got removed, proceed with Add
-            vpnFootprintService.updateVpnToDpnMapping(dpId, vpnName, interfaceName, true /* add */);
+            vpnFootprintService.updateVpnToDpnMapping(dpId, vpnName, interfaceName,
+                    null/*ipAddressSourceValuePair*/,
+                    true /* add */);
             VpnUtil.bindService(vpnName, interfaceName, dataBroker, false/*isTunnelInterface*/);
             processVpnInterfaceAdjacencies(dpId, lportTag, vpnName, interfaceName,
                     vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
