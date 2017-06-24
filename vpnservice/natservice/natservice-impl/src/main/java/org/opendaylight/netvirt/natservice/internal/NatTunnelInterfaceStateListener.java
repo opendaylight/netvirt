@@ -663,6 +663,7 @@ public class NatTunnelInterfaceStateListener
         if (externalIps != null) {
             for (final String externalIp : externalIps) {
                 long serviceId = 0;
+                String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
                 if (extNwProvType == ProviderTypes.VXLAN) {
                     LOG.debug("NAT Service : SNAT -> Advertise the route to the externalIp {} having nextHopIp {}",
                             externalIp, nextHopIp);
@@ -687,7 +688,7 @@ public class NatTunnelInterfaceStateListener
                     Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(dataBroker, externalIp,
                             router);
                     NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, externalVpnName, rd, externalSubnetId,
-                            externalIp, nextHopIp, networkId.getValue(), null /* mac-address */, label, l3vni, LOG,
+                            fibExternalIp, nextHopIp, networkId.getValue(), null /* mac-address */, label, l3vni, LOG,
                             RouteOrigin.STATIC, srcDpnId);
                     serviceId = label;
                 }
@@ -710,7 +711,7 @@ public class NatTunnelInterfaceStateListener
                         .buildInstruction(customInstructionIndex));
                 CreateFibEntryInput input =
                     new CreateFibEntryInputBuilder().setVpnName(externalVpnName).setSourceDpid(srcDpnId)
-                        .setInstruction(customInstructions).setIpAddress(externalIp + "/32")
+                        .setInstruction(customInstructions).setIpAddress(fibExternalIp)
                         .setServiceId(serviceId).setInstruction(customInstructions).build();
                 Future<RpcResult<Void>> future = fibRpcService.createFibEntry(input);
                 ListenableFuture<RpcResult<Void>> listenableFuture = JdkFutureAdapters.listenInPoolThread(future);
@@ -810,6 +811,8 @@ public class NatTunnelInterfaceStateListener
                     + "for the port: {}",
                     externalIp, interfaceName);
                 long serviceId = 0;
+                String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
+
                 if (extNwProvType == ProviderTypes.VXLAN) {
                     LOG.debug("NAT Service : DNAT -> Advertise the route to the externalIp {} having nextHopIp {}",
                             externalIp, nextHopIp);
@@ -830,7 +833,7 @@ public class NatTunnelInterfaceStateListener
                         l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
                     }
                     NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, null,
-                            externalIp + "/32", nextHopIp, null, null, label, l3vni, LOG, RouteOrigin.STATIC,
+                            fibExternalIp, nextHopIp, null, null, label, l3vni, LOG, RouteOrigin.STATIC,
                             fipCfgdDpnId);
                     serviceId = label;
                 }
@@ -840,7 +843,7 @@ public class NatTunnelInterfaceStateListener
                 customInstructions.add(new InstructionGotoTable(NwConstants.PDNAT_TABLE).buildInstruction(0));
                 CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
                     .setSourceDpid(fipCfgdDpnId).setInstruction(customInstructions)
-                    .setIpAddress(externalIp + "/32").setServiceId(serviceId).setInstruction(customInstructions)
+                    .setIpAddress(fibExternalIp).setServiceId(serviceId).setInstruction(customInstructions)
                         .build();
                 Future<RpcResult<Void>> future = fibRpcService.createFibEntry(input);
                 ListenableFuture<RpcResult<Void>> listenableFuture = JdkFutureAdapters.listenInPoolThread(future);
@@ -1035,10 +1038,11 @@ public class NatTunnelInterfaceStateListener
             for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
                 String internalIp = intExtPortMap.getInternalIp();
                 String externalIp = intExtPortMap.getExternalIp();
+                externalIp = NatUtil.validateAndAddNetworkMask(externalIp);
                 LOG.debug("NAT Service : DNAT -> Withdrawing the FIB route to the floating IP {} "
                     + "configured for the port: {}",
                     externalIp, interfaceName);
-                NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32", vpnName, LOG);
+                NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp, vpnName, LOG);
                 long serviceId = 0;
                 if (extNwProvType == ProviderTypes.VXLAN) {
                     serviceId = l3Vni;
@@ -1051,8 +1055,10 @@ public class NatTunnelInterfaceStateListener
                     }
                     serviceId = label;
                 }
+
                 RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName)
-                    .setSourceDpid(fipCfgdDpnId).setIpAddress(externalIp + "/32").setServiceId(serviceId).build();
+                    .setSourceDpid(fipCfgdDpnId).setIpAddress(externalIp).setServiceId(serviceId)
+                    .setIpAddressSource(RemoveFibEntryInput.IpAddressSource.FloatingIP).build();
                 Future<RpcResult<Void>> future = fibRpcService.removeFibEntry(input);
                 ListenableFuture<RpcResult<Void>> listenableFuture = JdkFutureAdapters.listenInPoolThread(future);
 
