@@ -123,8 +123,9 @@ public class EvpnDnatFlowProgrammer {
         }
         FloatingIPListener.updateOperationalDS(dataBroker, routerName, interfaceName, NatConstants.DEFAULT_LABEL_VALUE,
                 internalIp, externalIp);
+        String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
         //Inform to FIB and BGP
-        NatEvpnUtil.addRoutesForVxLanProvType(dataBroker, bgpManager, fibManager, vpnName, rd, externalIp + "/32",
+        NatEvpnUtil.addRoutesForVxLanProvType(dataBroker, bgpManager, fibManager, vpnName, rd, fibExternalIp,
                 nextHopIp, l3Vni, floatingIpInterface, floatingIpPortMacAddress,
                 writeTx, RouteOrigin.STATIC, dpnId);
 
@@ -138,7 +139,7 @@ public class EvpnDnatFlowProgrammer {
         instructionsFib.add(new InstructionGotoTable(NwConstants.PDNAT_TABLE).buildInstruction(1));
 
         CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
-                .setSourceDpid(dpnId).setIpAddress(externalIp + "/32")
+                .setSourceDpid(dpnId).setIpAddress(fibExternalIp)
                 .setServiceId(l3Vni).setIpAddressSource(CreateFibEntryInput.IpAddressSource.FloatingIP)
                 .setInstruction(instructionsFib).build();
 
@@ -251,12 +252,15 @@ public class EvpnDnatFlowProgrammer {
                     + "DNAT flows for FloatingIp {}", vpnName, rd, externalIp);
             l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
         }
+        String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
+
         //Remove Prefix from BGP
-        NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32", vpnName, LOG);
+        NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, fibExternalIp, vpnName, LOG);
 
         //Remove custom FIB routes flow for L3_FIB_TABLE (table=21)-> PDNAT_TABLE (table=25)
         RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName)
-                .setSourceDpid(dpnId).setIpAddress(externalIp + "/32").setServiceId(l3Vni).build();
+                .setSourceDpid(dpnId).setIpAddress(fibExternalIp).setServiceId(l3Vni)
+                .setIpAddressSource(RemoveFibEntryInput.IpAddressSource.FloatingIP).build();
         Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
         ListenableFuture<RpcResult<Void>> futureVxlan = JdkFutureAdapters.listenInPoolThread(future);
         final long finalL3Vni = l3Vni;
