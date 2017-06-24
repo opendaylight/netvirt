@@ -115,7 +115,8 @@ public class InterVpnLinkUtil {
         // Vpn2 is not physically present there.
         for (BigInteger dpnId : dpnList) {
             String ifaceName = buildInterVpnLinkIfaceName(vpnName, dpnId);
-            vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, ifaceName, true /* addition */);
+            vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, ifaceName,
+                    null/*ipAddressSourceValuePair*/, true /* addition */);
         }
     }
 
@@ -131,7 +132,8 @@ public class InterVpnLinkUtil {
         String vpnName, BigInteger dpnId) {
         String ifaceName = buildInterVpnLinkIfaceName(vpnName, dpnId);
         LOG.debug("updateVpnFootprint (remove):  vpn={}  dpn={}  ifaceName={}", vpnName, dpnId, ifaceName);
-        vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, ifaceName, false /* removal */);
+        vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, ifaceName,
+                null/*ipAddressSourceValuePair*/, false /* removal */);
     }
 
 
