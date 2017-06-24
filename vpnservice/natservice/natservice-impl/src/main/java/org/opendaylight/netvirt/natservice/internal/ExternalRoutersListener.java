@@ -1034,7 +1034,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             NatUtil.makePreDnatToSnatTableEntry(mdsalManager, dpnId,
                                     NwConstants.INBOUND_NAPT_TABLE);
                         }
-                        String fibExternalIp = externalIp.contains("/32") ? externalIp : (externalIp + "/32");
+                        String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
                         Optional<Subnets> externalSubnet = NatUtil.getOptionalExternalSubnets(dataBroker,
                                 externalSubnetId);
                         String externalVpn = vpnName;
@@ -2086,10 +2086,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
 
         final long label = tempLabel;
-        final String externalIp = extIp;
-
+        final String externalIp = NatUtil.validateAndAddNetworkMask(extIp);
         RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName)
-            .setSourceDpid(dpnId).setIpAddress(externalIp).setServiceId(label).build();
+                .setSourceDpid(dpnId).setIpAddress(externalIp).setServiceId(label)
+                .setIpAddressSource(RemoveFibEntryInput.IpAddressSource.ExternalFixedIP).build();
         Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
 
         ListenableFuture<RpcResult<Void>> labelFuture =
@@ -2179,10 +2179,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
 
         final long label = tempLabel;
-        final String externalIp = extIp;
-
+        final String externalIp = NatUtil.validateAndAddNetworkMask(extIp);
         RemoveFibEntryInput input = new RemoveFibEntryInputBuilder()
-            .setVpnName(vpnName).setSourceDpid(dpnId).setIpAddress(externalIp).setServiceId(label).build();
+                .setVpnName(vpnName).setSourceDpid(dpnId).setIpAddress(externalIp)
+                .setIpAddressSource(RemoveFibEntryInput.IpAddressSource.ExternalFixedIP).setServiceId(label).build();
         Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
 
         ListenableFuture<RpcResult<Void>> labelFuture =

@@ -1719,12 +1719,10 @@ public class NatUtil {
 
     protected static Uuid getExternalSubnetForRouterExternalIp(DataBroker dataBroker, String externalIpAddress,
             Routers router) {
-        externalIpAddress = externalIpAddress.contains("/32") ? externalIpAddress :
-            externalIpAddress + "/32" ;
+        externalIpAddress = validateAndAddNetworkMask(externalIpAddress);
         List<ExternalIps> externalIps = router.getExternalIps();
         for (ExternalIps extIp : externalIps) {
-            String extIpString = extIp.getIpAddress().contains("/32") ? extIp.getIpAddress() :
-                extIp.getIpAddress() + "/32" ;
+            String extIpString = validateAndAddNetworkMask(extIp.getIpAddress());
             if (extIpString.equals(externalIpAddress)) {
                 return extIp.getSubnetId();
             }
@@ -1993,5 +1991,9 @@ public class NatUtil {
             }
             return futures;
         });
+    }
+
+    public static String validateAndAddNetworkMask(String ipAddress) {
+        return ipAddress.contains("/32") ? ipAddress : (ipAddress + "/32");
     }
 }
