@@ -324,7 +324,7 @@ public class VPNServiceChainHandlerTest {
         String vpnPseudoPortIfaceName =
             VpnServiceChainUtils.buildVpnPseudoPortIfName(DPN_ID.longValue(), SCF_TAG, SERV_CHAIN_TAG, LPORT_TAG);
         verify(vpnFootprintService).updateVpnToDpnMapping(eq(DPN_ID), eq(VPN_NAME), eq(vpnPseudoPortIfaceName),
-                                                          eq(Boolean.TRUE));
+                                                          eq(null), eq(Boolean.TRUE));
     }
 
 
