@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -33,6 +35,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CleanupDpnForVpnInput;
@@ -66,13 +69,15 @@ public class FibRpcServiceImpl implements FibRpcService {
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final IFibManager fibManager;
+    private final IVpnFootprintService vpnFootprintService;
 
     @Inject
     public FibRpcServiceImpl(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
-                             final IFibManager fibManager) {
+                             final IFibManager fibManager, final IVpnFootprintService vpnFootprintService) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.fibManager = fibManager;
+        this.vpnFootprintService = vpnFootprintService;
     }
 
     /**
@@ -90,8 +95,10 @@ public class FibRpcServiceImpl implements FibRpcService {
         List<Instruction> instructions = input.getInstruction();
         LOG.info("ADD: Adding Custom Fib Entry rd {} prefix {} label {}", vpnRd, ipAddress, input.getServiceId());
         makeLocalFibEntry(vpnId, dpnId, ipAddress, instructions);
-        CreateFibEntryInput.IpAddressSource ipAddressSource = input.getIpAddressSource();
-        updateVpnToDpnAssociation(vpnId, dpnId, ipAddress, ipAddressSource.getIntValue(), vpnName);
+        IpAddresses.IpAddressSource ipAddressSource = IpAddresses.IpAddressSource
+                .forValue(input.getIpAddressSource().getIntValue());
+        vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, null /* interfaceName*/,
+                new ImmutablePair<>(ipAddressSource, ipAddress), true /*add*/);
         LOG.info("ADD: Added Custom Fib Entry rd {} prefix {} label {}", vpnRd, ipAddress, input.getServiceId());
         return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
     }
@@ -111,9 +118,11 @@ public class FibRpcServiceImpl implements FibRpcService {
         LOG.info("Delete custom FIB entry - {} on dpn {} for VPN {} ", ipAddress, dpnId, vpnName);
         LOG.info("REMOVE: Removing Custom Fib Entry rd {} prefix {} label {}", vpnRd, ipAddress, input.getServiceId());
         removeLocalFibEntry(dpnId, vpnId, ipAddress);
-        removeFromVpnDpnAssociation(vpnId, dpnId, ipAddress, vpnName);
+        IpAddresses.IpAddressSource ipAddressSource = IpAddresses.IpAddressSource
+                .forValue(input.getIpAddressSource().getIntValue());
+        vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, null /* interfaceName*/,
+                new ImmutablePair<>(ipAddressSource, ipAddress), false /*remove*/);
         LOG.info("REMOVE: Removed Custom Fib Entry rd {} prefix {} label {}", vpnRd, ipAddress, input.getServiceId());
-
         return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
     }
 

@@ -95,7 +95,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>alivenessmonitor-api</artifactId>
             <version>${genius.version}</version>
         </dependency>
-
         <!-- Testing dependencies -->
         <dependency>
           <groupId>org.opendaylight.controller</groupId>
