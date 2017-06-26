@@ -324,7 +324,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         VpnInstance original, VpnInstance update) {
         LOG.trace("Update VPN event key: {}, value: {}", identifier, update);
         String vpnName = update.getVpnInstanceName();
-        vpnInterfaceManager.updateVpnInterfacesForUnProcessAdjancencies(dataBroker,vpnName);
+        vpnInterfaceManager.updateVpnInterfacesForUnProcessAdjancencies(dataBroker, vpnName);
     }
 
     @Override
