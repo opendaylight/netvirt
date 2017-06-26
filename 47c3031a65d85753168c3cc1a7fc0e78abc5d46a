@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_afc97d5c",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-26T18:24:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_b69f0d50",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_f6a9857c",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
         "patchSetId": 31
@@ -64,6 +82,24 @@
       "writtenOn": "2017-06-23T04:35:24Z",
       "side": 1,
       "message": "same here.",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_efc37536",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-26T18:24:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_f6a9857c",
       "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -104,6 +140,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_2fdd8d15",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-26T18:24:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_56b691dd",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_96b009df",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
         "patchSetId": 31
@@ -115,6 +169,24 @@
       "writtenOn": "2017-06-23T04:35:24Z",
       "side": 1,
       "message": "same here. don\u0027t need local variable.",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_0fe249d5",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-26T18:24:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_96b009df",
       "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -138,6 +210,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_6fe785e5",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-26T18:24:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_76b595cc",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_f6c0652c",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceAddJob.java",
         "patchSetId": 31
@@ -149,6 +239,24 @@
       "writtenOn": "2017-06-23T04:35:24Z",
       "side": 1,
       "message": "remove final and use some other meaningful name for interface (may be interfaceObj)",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_4fec41c8",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceAddJob.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-26T18:24:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_f6c0652c",
       "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -172,6 +280,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_afd05df8",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceAddJob.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-26T18:24:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_76ec75c8",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_b6cd4d60",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceAddJob.java",
         "patchSetId": 31
@@ -183,6 +309,24 @@
       "writtenOn": "2017-06-23T04:35:24Z",
       "side": 1,
       "message": "same here.",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_efda5516",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceAddJob.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-26T18:24:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_b6cd4d60",
       "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -223,6 +367,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_cfd791ec",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/java/org/opendaylight/netvirt/elanmanager/api/ElanHelper.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-26T18:24:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_96fe496a",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_7603d573",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
         "patchSetId": 31
@@ -234,6 +396,24 @@
       "writtenOn": "2017-06-23T04:35:24Z",
       "side": 1,
       "message": "remove final",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_cf1cb1c4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-06-26T18:24:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa2559ec_7603d573",
       "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
