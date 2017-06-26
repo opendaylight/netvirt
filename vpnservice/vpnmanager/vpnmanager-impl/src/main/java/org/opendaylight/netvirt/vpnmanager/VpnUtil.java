@@ -144,6 +144,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.rou
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry.VpnInterfaceState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -234,9 +235,9 @@ public class VpnUtil {
 
     static VpnInterfaceOpDataEntry getVpnInterfaceOpDataEntry(String intfName, String vpnName,
                                         AdjacenciesOp aug, BigInteger dpnId,
-                                        Boolean isSheduledForRemove) {
+                                        Boolean isSheduledForRemove, VpnInterfaceState ifaceState) {
         return new VpnInterfaceOpDataEntryBuilder().setKey(new VpnInterfaceOpDataEntryKey(intfName, vpnName))
-            .setDpnId(dpnId)
+            .setVpnInstanceName(vpnName).setDpnId(dpnId).setVpnInterfaceState(ifaceState)
             .setScheduledForRemove(isSheduledForRemove).addAugmentation(AdjacenciesOp.class, aug)
             .build();
     }
@@ -248,6 +249,28 @@ public class VpnUtil {
         Optional<VpnInterfaceOpDataEntry> vpnInterfaceOpDataEntry = read(broker,
                                                       LogicalDatastoreType.OPERATIONAL, id);
         return vpnInterfaceOpDataEntry;
+    }
+
+    /** Get list of VpnInterfaceOpDataEntries from operDS from the vpn name.
+     * @param broker dataBroker service reference
+     * @param vpnName the vpn name from which get all VpnInterfaceOpDataEntry associed
+     * @return a list of VpnInterfaceOpDataEntry associed with the vpn name or a empty list if any
+     */
+    static List<VpnInterfaceOpDataEntry> getVpnInterfaceOpDataEntriesFromVpnNameList(DataBroker broker,
+            String vpnName) {
+        List<VpnInterfaceOpDataEntry> listvpnIfOp = new ArrayList<VpnInterfaceOpDataEntry>();
+        InstanceIdentifier<VpnInterfaceOpData> id = InstanceIdentifier.builder(VpnInterfaceOpData.class).build();
+        Optional<VpnInterfaceOpData> optionalVIfOp = read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        if (!optionalVIfOp.isPresent() || optionalVIfOp.get().getVpnInterfaceOpDataEntry().isEmpty()) {
+            return listvpnIfOp;
+        }
+        List<VpnInterfaceOpDataEntry> vpnIfOpDataEntryList = optionalVIfOp.get().getVpnInterfaceOpDataEntry();
+        for (VpnInterfaceOpDataEntry vpnIfOp : vpnIfOpDataEntryList) {
+            if (vpnIfOp.getVpnInstanceName().compareTo(vpnName) == 0) {
+                listvpnIfOp.add(vpnIfOp);
+            }
+        }
+        return listvpnIfOp;
     }
 
     static InstanceIdentifier<Prefixes> getPrefixToInterfaceIdentifier(long vpnId, String ipPrefix) {
