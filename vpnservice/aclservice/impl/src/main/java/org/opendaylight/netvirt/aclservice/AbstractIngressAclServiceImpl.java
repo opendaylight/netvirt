@@ -98,11 +98,13 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
                 if (vpnId != null) {
                     instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
                         MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
+                    LOG.debug("Binding ACL service for interface {} with vpnId {}", interfaceName, vpnId);
                 } else {
                     Long elanTag = aclInterface.getElanId();
                     instructions.add(
                             MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getElanTagMetadata(elanTag),
                             MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
+                    LOG.debug("Binding ACL service for interface {} with ElanTag {}", interfaceName, elanTag);
                 }
                 instructions.add(
                         MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.EGRESS_ACL_TABLE, ++instructionKey));
@@ -137,6 +139,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
                 ServiceModeEgress.class);
 
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        LOG.debug("UnBinding ACL service for interface {}", interfaceName);
         dataStoreCoordinator.enqueueJob(interfaceName,
             () -> {
                 WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
@@ -187,6 +190,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
     @Override
     protected boolean programAclRules(AclInterface port, List<Uuid> aclUuidList,int addOrRemove) {
         BigInteger dpId = port.getDpId();
+        LOG.debug("Applying custom rules on DpId {}, lportTag {}", dpId, port.getLPortTag());
         if (aclUuidList == null || dpId == null) {
             LOG.warn("one of the ingress acl parameters can not be null. sg {}, dpId {}",
                     aclUuidList, dpId);
@@ -368,8 +372,9 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.ARP);
         matches.add(buildLPortTagMatch(lportTag));
-
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(new ArrayList<>());
+        LOG.debug(addOrRemove == NwConstants.DEL_FLOW ? "Deleting " : "Adding " + "ARP Rule on DPID {}, "
+                + "lportTag {}", dpId, lportTag);
         String flowName = "Ingress_ARP_" + dpId + "_" + lportTag;
         syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName,
                 AclConstants.PROTO_ARP_TRAFFIC_MATCH_PRIORITY, "ACL", 0, 0,
