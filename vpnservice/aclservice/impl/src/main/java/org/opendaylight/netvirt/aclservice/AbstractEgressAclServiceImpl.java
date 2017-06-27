@@ -107,6 +107,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
                 AclServiceUtils.buildServiceId(interfaceName, serviceIndex, ServiceModeIngress.class);
 
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        LOG.debug("Binding ACL service for interface {} with ElanTag {}", interfaceName, elanTag);
         dataStoreCoordinator.enqueueJob(interfaceName,
             () -> {
                 WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
@@ -131,6 +132,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
                         ServiceModeIngress.class);
 
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        LOG.debug("UnBinding ACL service for interface {}", interfaceName);
         dataStoreCoordinator.enqueueJob(interfaceName,
             () -> {
                 WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
@@ -145,9 +147,10 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     @Override
     protected void programGeneralFixedRules(BigInteger dpid, String dhcpMacAddress,
             List<AllowedAddressPairs> allowedAddresses, int lportTag, Action action, int addOrRemove) {
-        LOG.info("programFixedRules :  adding default rules.");
+        LOG.info("programFixedRules : {} default rules.", action == Action.ADD ? "adding" : "removing");
 
         if (action == Action.ADD || action == Action.REMOVE) {
+
             egressAclDhcpAllowClientTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
             egressAclDhcpv6AllowClientTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
             egressAclDhcpDropServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
@@ -168,7 +171,6 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
 
         // Remove common macs to avoid delete and add of ARP flows having same MAC.
         deletedAAPmacs.removeAll(addedAAPmacs);
-
         programArpRule(dpId, deletedAAPmacs, lportTag, NwConstants.DEL_FLOW);
         programArpRule(dpId, addedAAPmacs, lportTag, NwConstants.ADD_FLOW);
     }
@@ -176,7 +178,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     @Override
     protected boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove, String
             portId) {
-        LOG.trace("Applying custom rules DpId {}, lportTag {}", dpId, lportTag);
+        LOG.debug("Applying custom rules on DpId {}, LportTag {}", dpId, lportTag);
         if (aclUuidList == null || dpId == null) {
             LOG.warn("one of the egress acl parameters can not be null. sg {}, dpId {}",
                     aclUuidList, dpId);
@@ -202,6 +204,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
             String portId, List<AllowedAddressPairs> syncAllowedAddresses) {
         SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
         if (!aceAttr.getDirection().equals(DirectionEgress.class)) {
+            LOG.debug("Ignoring Ingress direction ACE Rule {}", ace.getRuleName());
             return;
         }
         Matches matches = ace.getMatches();
@@ -438,7 +441,8 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
             matches.add(buildLPortTagMatch(lportTag));
 
             List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(new ArrayList<>());
-
+            LOG.debug( addOrRemove == NwConstants.DEL_FLOW ? "Deleting " : "Adding " + "ARP Rule on DPID {}, " +
+                    "LportTag {}", dpId, lportTag);
             String flowName = "Egress_ARP_" + dpId + "_" + lportTag + "_" + mac.getValue();
             syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName,
                     AclConstants.PROTO_ARP_TRAFFIC_MATCH_PRIORITY, "ACL", 0, 0,

@@ -105,6 +105,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
                         NwConstants.EGRESS_ACL_SERVICE_INDEX), ServiceModeEgress.class);
 
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        LOG.debug("Binding ACL service for interface {} with ElanTag {}", interfaceName, elanTag);
         dataStoreCoordinator.enqueueJob(interfaceName,
             () -> {
                 WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
@@ -128,6 +129,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
                 ServiceModeEgress.class);
 
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        LOG.debug("UnBinding ACL service for interface {}", interfaceName);
         dataStoreCoordinator.enqueueJob(interfaceName,
             () -> {
                 WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
@@ -178,6 +180,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
     @Override
     protected boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove, String
             portId) {
+        LOG.debug("Applying custom rules on DpId {}, LportTag {}", dpId, lportTag);
         if (aclUuidList == null || dpId == null) {
             LOG.warn("one of the ingress acl parameters can not be null. sg {}, dpId {}",
                     aclUuidList, dpId);
@@ -389,8 +392,10 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.ARP);
         matches.add(buildLPortTagMatch(lportTag));
-
+        LOG.debug("Applying ARP Rule on DpId {}, LportTag {}", dpId, lportTag);
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(new ArrayList<>());
+        LOG.debug( addOrRemove == NwConstants.DEL_FLOW ? "Deleting " : "Adding " + "ARP Rule on DPID {}, " +
+                "LportTag {}", dpId, lportTag);
         String flowName = "Ingress_ARP_" + dpId + "_" + lportTag;
         syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName,
                 AclConstants.PROTO_ARP_TRAFFIC_MATCH_PRIORITY, "ACL", 0, 0,
