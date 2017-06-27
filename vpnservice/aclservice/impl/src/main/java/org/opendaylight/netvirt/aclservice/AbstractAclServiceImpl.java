@@ -89,9 +89,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
         BigInteger dpId = port.getDpId();
         if (dpId == null || port.getLPortTag() == null) {
-            LOG.error("Unable to find DP Id from ACL interface with id {}", port.getInterfaceId());
+            LOG.error("Unable to find DpId from ACL interface with id {}", port.getInterfaceId());
             return false;
         }
+        LOG.debug("Applying ACL on port {} with DpId {}", port, dpId);
         programAclWithAllowedAddress(port, port.getAllowedAddressPairs(), Action.ADD, NwConstants.ADD_FLOW);
         updateRemoteAclFilterTable(port, NwConstants.ADD_FLOW);
         return true;
@@ -114,7 +115,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     public boolean unbindAcl(AclInterface port) {
         BigInteger dpId = port.getDpId();
         if (dpId == null) {
-            LOG.error("Unable to find DP Id from ACL interface with id {}", port.getInterfaceId());
+            LOG.error("Unable to find DpId from ACL interface with id {}", port.getInterfaceId());
             return false;
         }
         unbindService(port);
@@ -129,6 +130,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         boolean isPortSecurityEnableBefore = portBefore.getPortSecurityEnabled();
         // if port security is changed, apply/remove Acls
         if (isPortSecurityEnableBefore != isPortSecurityEnable) {
+            LOG.debug("On ACL update, Port security is {} for {}", isPortSecurityEnable ? "Enabled" :
+                    "Disabled", portAfter.getInterfaceId());
             if (isPortSecurityEnable) {
                 result = applyAcl(portAfter) && bindAcl(portAfter);
             } else {
@@ -137,6 +140,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         } else if (isPortSecurityEnable) {
             // Acls has been updated, find added/removed Acls and act accordingly.
             processInterfaceUpdate(portBefore, portAfter);
+            LOG.debug("On ACL update, ACL has been updated for {}", portAfter.getInterfaceId());
         }
 
         return result;
@@ -218,6 +222,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             Action action, int addOrRemove) {
         BigInteger dpId = port.getDpId();
         int lportTag = port.getLPortTag();
+        LOG.debug("Applying ACL Allowed Address on DpId {}, lportTag {}, Action {}", dpId, lportTag, action);
         List<Uuid> aclUuidList = port.getSecurityGroups();
         String portId = port.getInterfaceId();
         programGeneralFixedRules(dpId, "", allowedAddresses, lportTag, action, addOrRemove);
