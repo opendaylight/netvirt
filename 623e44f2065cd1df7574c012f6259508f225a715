@@ -189,6 +189,40 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_83573202",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-27T17:51:11Z",
+      "side": 1,
+      "message": "will external connectivity will ever be supported by the dualstack-router solution in the implementation?\n\nIt looks like NOT, as per lines 108 - 112 earlier in this Spec!",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_43741a9c",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-27T17:51:11Z",
+      "side": 1,
+      "message": "not completely clear why this change above is required.. do you have a link to the implementation review that made this change?",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_3882f552",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 32
@@ -230,6 +264,142 @@
         "endLine": 540,
         "endChar": 52
       },
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_1e3c3993",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-27T17:51:11Z",
+      "side": 1,
+      "message": "Is this limitation for the simplicity of implementation?\n\nplease restate the lines as:\nMaximum number of singlestack routers that can be associated to a L3BGPVPN is limited to 2.\n\nMaximum number of dualstack routers that can be associated with a BGPVPN is limited to 1.",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_7e41f50a",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-27T17:51:11Z",
+      "side": 1,
+      "message": "ok",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_5e46b124",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-27T17:51:11Z",
+      "side": 1,
+      "message": "ok",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_fe54c5cb",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-27T17:51:11Z",
+      "side": 1,
+      "message": "this is incorrect.. and we must not introduce this limitation.",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_1e6399b2",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 614,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-27T17:51:11Z",
+      "side": 1,
+      "message": "ok",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_7e58d5fa",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-27T17:51:11Z",
+      "side": 1,
+      "message": "ok this is an existing limitation and we will carry that forward.",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_fe6b2583",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-27T17:51:11Z",
+      "side": 1,
+      "message": "ok, this is fine..",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_febde503",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 647,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-27T17:51:11Z",
+      "side": 1,
+      "message": "may want to rephrase as \n\u0027the dual stack VM connectivity should embrace ECMP\u0027",
       "revId": "623e44f2065cd1df7574c012f6259508f225a715",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
