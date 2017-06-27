@@ -92,6 +92,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             LOG.error("Unable to find DP Id from ACL interface with id {}", port.getInterfaceId());
             return false;
         }
+        LOG.debug("Adding ACL on port {} with DpId {}", port, dpId);
         programAclWithAllowedAddress(dpId, port.getAllowedAddressPairs(), port.getLPortTag(), port.getSecurityGroups(),
                 Action.ADD, NwConstants.ADD_FLOW, port.getInterfaceId());
         updateRemoteAclFilterTable(port, NwConstants.ADD_FLOW);
@@ -129,8 +130,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         // if port security is changed, apply/remove Acls
         if (isPortSecurityEnableBefore != isPortSecurityEnable) {
             if (isPortSecurityEnable) {
+                LOG.debug("On ACL update, Port security is enabled for {}", portAfter.getInterfaceId());
                 result = applyAcl(portAfter) && bindAcl(portAfter);
             } else {
+                LOG.debug("On ACL update, Port security is disabled for {}", portAfter.getInterfaceId());
                 result = removeAcl(portAfter) && unbindAcl(portAfter);
             }
         } else if (isPortSecurityEnable) {
@@ -217,6 +220,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     private void programAclWithAllowedAddress(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
             int lportTag, List<Uuid> aclUuidList, Action action, int addOrRemove,
             String portId) {
+        LOG.debug("Programming Allowed Address on DPID {}, LportTag {}, Action {}", dpId, lportTag, action);
         programGeneralFixedRules(dpId, "", allowedAddresses, lportTag, action, addOrRemove);
         programSpecificFixedRules(dpId, "", allowedAddresses, lportTag, portId, action, addOrRemove);
         if (action == Action.ADD || action == Action.REMOVE) {

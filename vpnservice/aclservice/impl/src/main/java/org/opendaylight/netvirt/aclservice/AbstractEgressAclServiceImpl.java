@@ -168,7 +168,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
 
         // Remove common macs to avoid delete and add of ARP flows having same MAC.
         deletedAAPmacs.removeAll(addedAAPmacs);
-
+        LOG.debug("Updating ARP Rule on DPID {}, LportTag {}", dpId, lportTag);
         programArpRule(dpId, deletedAAPmacs, lportTag, NwConstants.DEL_FLOW);
         programArpRule(dpId, addedAAPmacs, lportTag, NwConstants.ADD_FLOW);
     }
@@ -176,7 +176,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     @Override
     protected boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove, String
             portId) {
-        LOG.trace("Applying custom rules DpId {}, lportTag {}", dpId, lportTag);
+        LOG.debug("Applying custom rules DpId {}, LportTag {}", dpId, lportTag);
         if (aclUuidList == null || dpId == null) {
             LOG.warn("one of the egress acl parameters can not be null. sg {}, dpId {}",
                     aclUuidList, dpId);
@@ -202,6 +202,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
             String portId, List<AllowedAddressPairs> syncAllowedAddresses) {
         SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
         if (!aceAttr.getDirection().equals(DirectionEgress.class)) {
+            LOG.debug("Ignoring Egress direction ACE Rule {}", ace.getRuleName());
             return;
         }
         Matches matches = ace.getMatches();
@@ -439,6 +440,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
 
             List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(new ArrayList<>());
 
+
             String flowName = "Egress_ARP_" + dpId + "_" + lportTag + "_" + mac.getValue();
             syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName,
                     AclConstants.PROTO_ARP_TRAFFIC_MATCH_PRIORITY, "ACL", 0, 0,
@@ -453,6 +455,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     protected int getEgressSpecificAclFlowPriority(BigInteger dpId, int addOrRemove, String flowName,
                                                  PacketHandling packetHandling) {
         int priority;
+        LOG.debug("Allocate or Release flow Priority for flow {}", flowName);
         if (addOrRemove == NwConstants.DEL_FLOW) {
             priority = aclServiceUtils.releaseAndRemoveFlowPriorityFromCache(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
                     flowName, packetHandling);
