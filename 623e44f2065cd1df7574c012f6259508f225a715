@@ -2,6 +2,193 @@
   "comments": [
     {
       "key": {
+        "uuid": "fa2559ec_645cc626",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-27T12:49:54Z",
+      "side": 1,
+      "message": "this looks great initial overview.",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_444a6284",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-27T12:49:54Z",
+      "side": 1,
+      "message": "this is definitely a bigger limitation today in OpenDaylight Design where we are unable to handle neutron ports that hold more than one fixed-ip.  \n\nSo i agree that we need not solve that problem in this spec.",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_84445a75",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-27T12:49:54Z",
+      "side": 1,
+      "message": "i am not sure if we should have this paragraph at all.. \n\nsince PseudoVpn is complex I tend to see that we will remove this para from this spec.\n\nFurther we are not going to implement PseudoVpn at all.\n\nwhat you think?",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_04586a55",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-27T12:49:54Z",
+      "side": 1,
+      "message": "can you please provide one reason here for collating both the routers into a single L3BGPVPN?",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_e4543623",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-27T12:49:54Z",
+      "side": 1,
+      "message": "are we sure we donot want to support external access in this configuration?",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_84129a60",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-27T12:49:54Z",
+      "side": 1,
+      "message": "i would recommend that you draw up only valid configuration.\n\nwe support only a single \u0027dualstack network\u0027 N1 which is a network with 2 subnets in it - one subnet being ipv4 and other subnet being ipv6.\n\nAnd such a network to go into a bgpvpn will be supported.\n\nSimilarly you can have another dual-stack network\u0027 N2.\n\nCan you please tell us that if you dowant to support putting two \u0027dual stack networks\u0027 into a single L3 BGPVPN?",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_e402760a",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-27T12:49:54Z",
+      "side": 1,
+      "message": "is the above two lines is talking about IPv4 allocation..  if so can you mention that explicitly :)",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_3fff7b03",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-27T12:49:54Z",
+      "side": 1,
+      "message": "Currently from Openstack-based Opendaylight Bgpvpn driver point-of-view there is a check where it does not allow more than one router to be associated to a single L3 BGPVPN.\n\nThis was done in Openstack because entire ODL modeling and enforcement supported only one router per L3BGPVPN by design.",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_1f043714",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-27T12:49:54Z",
+      "side": 1,
+      "message": "please use keyworkd \u0027vpn interface\u0027  everywhere in this spec when you want to mention \u0027 vpn port instance\u0027..",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_7f09f32b",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-27T12:49:54Z",
+      "side": 1,
+      "message": "this is not stated correctly.",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2559ec_5f0eaf35",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-27T12:49:54Z",
+      "side": 1,
+      "message": "in general you should avoid referring a future spec.. For example i consider [6] to be a future spec :)",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_3882f552",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 32
