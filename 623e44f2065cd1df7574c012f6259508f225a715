@@ -22,6 +22,30 @@
       "revId": "623e44f2065cd1df7574c012f6259508f225a715",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_382cb54a",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-06-27T11:52:37Z",
+      "side": 1,
+      "message": "Please ignore my previous comment.",
+      "parentUuid": "da2a55be_3882f552",
+      "range": {
+        "startLine": 540,
+        "startChar": 38,
+        "endLine": 540,
+        "endChar": 52
+      },
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
