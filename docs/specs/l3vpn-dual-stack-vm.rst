@@ -937,6 +937,106 @@ network configurations for **two-router** and **dualstack-router** solutions.
 
 23. Delete multiple L3VPN.
 
+**Dualstack-router** solution test suite:
+
+1. Create 2 Neutron Networks NET_1_DUAL and NET_2_DUAL.
+
+   1.1 Query ODL restconf API to check that both Neutron Network objects were
+       successfully created in ODL.
+
+   1.2 Update NET_1_DUAL with a new description attribute.
+
+2. In each Neutron Network create one Subnet IPv4 and one Subnet IPv6:
+   SUBNET_V4_1_DUAL, SUBNET_V6_1_DUAL, SUBNET_V4_2_DUAL, SUBNET_V6_2_DUAL,
+   respectively.
+
+   2.1 Query ODL restconf API to check that all Subnetwork objects were
+       successfully created in ODL.
+
+   2.2 Update SUBNET_V4_1_DUAL, SUBNET_V6_1_DUAL with a new description
+       attribute.
+
+3. Create 1 Router: ROUTER_DUAL.
+
+   3.1 Query ODL restconf API to check that Router object were successfully
+       created in ODL.
+
+4. Add SUBNET_V4_1_DUAL, SUBNET_V4_2_DUAL, SUBNET_V6_1_DUAL, SUBNET_V6_2_DUAL to
+   ROUTER_DUAL.
+
+5. Create 2 security-groups: SG6_DUAL and SG4_DUAL. Add appropriate rules to
+   allow IPv6 and IPv4 traffic from/to created subnets, respectively.
+
+6. In network NET_1_DUAL create Neutron Ports: PORT_11_DUAL, PORT_12_DUAL,
+   attached with security groups SG6_DUAL and SG4_DUAL; in network NET_2_DUAL:
+   PORT_21_DUAL, PORT_22_DUAL, attached with security groups SG6_DUAL and SG4_DUAL.
+
+   6.1 Query ODL restconf API to check that all Neutron Port objects were
+       successfully created in ODL.
+
+   6.2 Update Name attribute of PORT_11_DUAL.
+
+7. Use each created Neutron Port to launch a VM with it, so we should have 4 VM
+   instances: VM_11_DUAL, VM_12_DUAL, VM_21_DUAL, VM_22_DUAL.
+
+   7.1 Connect to NET_1_DUAL and NET_2_DUAL dhcp-namespaces, check that subnet
+       routes were successfully propagated.
+
+   7.2 Check that all VMs have: one IPv4 address and one IPv6 addresses.
+
+8. Check IPv4 and IPv6 VMs connectivity within NET_1_DUAL and NET_2_DUAL.
+
+9. Check IPv4 and IPv6 VMs connectivity across NET_1_DUAL and NET_2_DUAL with
+   routers.
+
+    9.1 Check that FIB entries were created for spawned Neutron Ports.
+
+    9.2 Check that all needed tables (19, 17, 81, 21) are presented in OVS
+        pipelines and VMs IPs and gateways MAC and IP addresses are taken in
+        account.
+
+10. Connect to VM_11_DUAL and VM_21_DUAL and add extraroutes to other IPv4 and
+    IPv6 subnets.
+
+    10.1 Check other IPv4 and IPv6 subnets reachability from VM_11_DUAL and
+         VM_21_DUAL.
+
+11. Delete created extraroutes.
+
+12. Delete and recreate extraroutes and check its reachability again.
+
+13. Create L3VPN and check with ODL REST API, that it was successfully created.
+
+14. Associate ROUTER_DUAL with created L3VPN and check the presence of router ID
+    in VPN instance with ODL REST API.
+
+15. Check IPv4 and IPv6 connectivity accross NET_1_DUAL and NET_2_DUAL with
+    associated to L3VPN routers.
+
+    15.1 Check with ODL REST API, that VMs IP addresses are presented in VPN
+         interfaces entries.
+
+    15.2 Verify OVS pipelines at compute nodes.
+
+    15.3 Check the presence of VMs IP addresses in vrfTables objects with ODL
+         REST API query.
+
+16. Dissociate L3VPN from ROUTER_DUAL.
+
+17. Delete  ROUTER_DUAL and its interfaces from L3VPN.
+
+18. Try to delete router with NonExistentRouter name.
+
+19. Associate L3VPN to NET_1_DUAL.
+
+20. Dissociate L3VPN from NET_1_DUAL.
+
+21. Delete L3VPN.
+
+22. Create multiple L3VPN.
+
+23. Delete multiple L3VPN.
+
 Documentation Impact
 ====================
 
