@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_9d78332d",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-27T09:01:37Z",
+      "side": 1,
+      "message": "is someone addressing this comment and previous one ?",
+      "parentUuid": "fa2559ec_1676d93e",
+      "revId": "47c3031a65d85753168c3cc1a7fc0e78abc5d46a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_b69f0d50",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
         "patchSetId": 31
