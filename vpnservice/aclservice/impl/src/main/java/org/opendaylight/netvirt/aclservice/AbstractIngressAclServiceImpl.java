@@ -178,6 +178,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
     @Override
     protected boolean programAclRules(List<Uuid> aclUuidList, BigInteger dpId, int lportTag, int addOrRemove, String
             portId) {
+        LOG.debug("Applying custom rules DpId {}, lportTag {}", dpId, lportTag);
         if (aclUuidList == null || dpId == null) {
             LOG.warn("one of the ingress acl parameters can not be null. sg {}, dpId {}",
                     aclUuidList, dpId);
@@ -389,7 +390,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.ARP);
         matches.add(buildLPortTagMatch(lportTag));
-
+        LOG.debug("Programming ARP Rule on DPID {}, LportTag {}", dpId, lportTag);
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(new ArrayList<>());
         String flowName = "Ingress_ARP_" + dpId + "_" + lportTag;
         syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName,

@@ -37,7 +37,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 /**
  * Provides the stateful implementation for egress (w.r.t VM) ACL service.
  *
@@ -45,6 +44,7 @@ import org.slf4j.LoggerFactory;
  * Note: Table names used are w.r.t switch. Hence, switch ingress is VM egress
  * and vice versa.
  */
+
 public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
 
     private static final Logger LOG = LoggerFactory.getLogger(StatefulEgressAclServiceImpl.class);
@@ -91,7 +91,7 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
         // For flows related remote ACL, unique flow priority is used for
         // each flow to avoid overlapping flows
         int priority = getEgressSpecificAclFlowPriority(dpId, addOrRemove, flowName, packetHandling);
-
+        LOG.debug("Syncing ACL flow for FlowNamed {}, DPID {}, LPortTag {}", flowName, dpId,lportTag);
         syncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, flowName, priority, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
         return flowName;
@@ -113,6 +113,7 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
      */
     private void programConntrackRecircRules(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
             Integer priority, String flowId, String portId, int addOrRemove) {
+        LOG.debug("Programming ConnTrack rules on DPID {}", dpId);
         for (AllowedAddressPairs allowedAddress : allowedAddresses) {
             IpPrefixOrAddress attachIp = allowedAddress.getIpAddress();
             MacAddress attachMac = allowedAddress.getMacAddress();
@@ -185,6 +186,7 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
      * @param addOrRemove whether to add or remove the flow
      */
     private void programEgressConntrackDropRules(BigInteger dpId, int lportTag, int addOrRemove) {
+        LOG.debug("Programming Egress ConnTrack Drop Rules on DPID {}, LportTag {}", dpId, lportTag);
         programConntrackDropRule(dpId, lportTag, AclConstants.CT_STATE_TRACKED_NEW_DROP_PRIORITY, "Tracked_New",
                 AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK, addOrRemove);
         programConntrackDropRule(dpId, lportTag, AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY, "Tracked_Invalid",

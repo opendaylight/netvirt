@@ -124,6 +124,7 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
      */
     private void programConntrackRecircRules(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
             Integer priority, String flowId, String portId, int addOrRemove) {
+        LOG.debug("Programming ConnTrack rules on DPID {}", dpId);
         for (AllowedAddressPairs allowedAddress : allowedAddresses) {
             IpPrefixOrAddress attachIp = allowedAddress.getIpAddress();
             MacAddress attachMac = allowedAddress.getMacAddress();
@@ -196,6 +197,7 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
      * @param addOrRemove whether to add or remove the flow
      */
     private void programIngressConntrackDropRules(BigInteger dpId, int lportTag, int addOrRemove) {
+        LOG.debug("Programming Egress ConnTrack Drop Rules on DPID {}, LportTag {}", dpId, lportTag);
         programConntrackDropRule(dpId, lportTag, AclConstants.CT_STATE_TRACKED_NEW_DROP_PRIORITY, "Tracked_New",
                 AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK, addOrRemove);
         programConntrackDropRule(dpId, lportTag, AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY, "Tracked_Invalid",
