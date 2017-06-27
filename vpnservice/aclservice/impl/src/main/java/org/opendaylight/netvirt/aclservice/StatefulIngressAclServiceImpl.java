@@ -161,7 +161,8 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
         programConntrackRecircRules(dpid, allowedAddresses, AclConstants.CT_STATE_UNTRACKED_PRIORITY,
             "Recirc",portId, write);
         programIngressConntrackDropRules(dpid, lportTag, write);
-        LOG.info("programIngressAclFixedConntrackRule :  default connection tracking rule are added.");
+        LOG.info("programIngressAclFixedConntrackRule :  default connection tracking rule are added on DpId {}"
+                + "lportTag {}.", dpid, lportTag);
     }
 
     /**
@@ -196,6 +197,7 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
      * @param addOrRemove whether to add or remove the flow
      */
     private void programIngressConntrackDropRules(BigInteger dpId, int lportTag, int addOrRemove) {
+        LOG.debug("Applying Egress ConnTrack Drop Rules on DpId {}, lportTag {}", dpId, lportTag);
         programConntrackDropRule(dpId, lportTag, AclConstants.CT_STATE_TRACKED_NEW_DROP_PRIORITY, "Tracked_New",
                 AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK, addOrRemove);
         programConntrackDropRule(dpId, lportTag, AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY, "Tracked_Invalid",
