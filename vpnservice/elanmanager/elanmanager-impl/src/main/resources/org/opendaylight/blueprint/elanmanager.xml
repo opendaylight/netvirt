@@ -229,6 +229,7 @@
   <bean id="haEventHandler"
     class="org.opendaylight.netvirt.elan.l2gw.ha.handlers.HAEventHandler">
     <argument ref="dataBroker" />
+    <argument ref="elanConfig" />
   </bean>
 
   <bean id="hAListeners"

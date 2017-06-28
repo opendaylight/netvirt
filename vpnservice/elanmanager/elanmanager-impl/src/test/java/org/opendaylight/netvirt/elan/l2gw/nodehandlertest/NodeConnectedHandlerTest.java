@@ -21,6 +21,8 @@ import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.NodeConnectedHandler;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
@@ -46,8 +48,9 @@ public class NodeConnectedHandlerTest extends AbstractConcurrentDataBrokerTest {
 
     static Logger LOG = LoggerFactory.getLogger(NodeConnectedHandlerTest.class);
     DataBroker dataBroker;
+    ElanConfig elanConfig = new ElanConfigBuilder().build();
 
-    NodeConnectedHandler nodeConnectedHandler = new NodeConnectedHandler(this.dataBroker);
+    NodeConnectedHandler nodeConnectedHandler = new NodeConnectedHandler(this.dataBroker, this.elanConfig);
     NodeConnectedHandlerUtils handlerUtils = new NodeConnectedHandlerUtils();
 
     String d1UUID;

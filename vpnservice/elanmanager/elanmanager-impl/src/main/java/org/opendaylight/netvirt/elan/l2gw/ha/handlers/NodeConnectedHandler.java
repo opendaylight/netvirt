@@ -21,17 +21,21 @@ import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
+import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAJobScheduler;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalAugmentationMerger;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalNodeMerger;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.PSAugmentationMerger;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.PSNodeMerger;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Switches;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -49,10 +53,12 @@ public class NodeConnectedHandler {
     GlobalNodeMerger globalNodeMerger = GlobalNodeMerger.getInstance();
     PSNodeMerger psNodeMerger = PSNodeMerger.getInstance();
     DataBroker db;
+    ElanConfig elanConfig;
     HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
 
-    public NodeConnectedHandler(DataBroker db) {
+    public NodeConnectedHandler(DataBroker db, ElanConfig elanConfig) {
         this.db = db;
+        this.elanConfig = elanConfig;
     }
 
     /**
@@ -95,6 +101,7 @@ public class NodeConnectedHandler {
                  */
                 HAJobScheduler.getInstance().submitJob(() -> {
                     try {
+                        waitForLogicalSwitchesToBeCreated(haGlobalCfg.get(), childNodePath);
                         hwvtepHACache.updateConnectedNodeStatus(childNodePath);
                         LOG.info("HA child reconnected handleNodeReConnected {}",
                                 childNode.getNodeId().getValue());
@@ -111,6 +118,43 @@ public class NodeConnectedHandler {
             copyHANodeConfigToChild(haGlobalCfg.get(), childNodePath, tx);
         }
         deleteChildPSConfigIfHAPSConfigIsMissing(haGlobalCfg, childNode, tx);
+    }
+
+    private void waitForLogicalSwitchesToBeCreated(Node srcNode,
+                                                   InstanceIdentifier<Node> childPath)
+            throws InterruptedException, ExecutionException {
+
+        HwvtepGlobalAugmentation src = srcNode.getAugmentation(HwvtepGlobalAugmentation.class);
+        if (src == null) {
+            return;
+        }
+        List<LogicalSwitches> logicalSwitches = src.getLogicalSwitches();
+        if (logicalSwitches == null) {
+            return;
+        }
+        NodeId hwvtepNodeId = childPath.firstKeyOf(Node.class).getNodeId();
+        for (LogicalSwitches logicalSwitch : logicalSwitches) {
+            String logicalSwitchName = logicalSwitch.getHwvtepNodeName().getValue();
+            boolean isCreated = false;
+            int retryCount = 0;
+            for (int i = 0; i < elanConfig.getWaitCreateLsRetry(); i++, retryCount++) {
+                LogicalSwitches ls = HwvtepUtils.getLogicalSwitch(db, OPERATIONAL, hwvtepNodeId, logicalSwitchName);
+                if (ls != null) {
+                    Uuid uuid = ls.getLogicalSwitchUuid();
+                    if (uuid != null) {
+                        isCreated = true;
+                        break;
+                    }
+                }
+                Thread.sleep(elanConfig.getWaitCreateLsInterval());
+            }
+            if (!isCreated) {
+                LOG.warn("LogicalSwitch was not created after waiting time passed. logicalSwitchName:{} of nodeId:{}",
+                    logicalSwitchName, hwvtepNodeId.getValue());
+            }
+            LOG.debug("Retry count:{}, logicalSwitchName:{} of nodeId:{}",
+                retryCount, logicalSwitchName, hwvtepNodeId.getValue());
+        }
     }
 
     private void deleteChildConfigIfHAConfigIsMissing(Optional<Node> haGlobalCfg,
@@ -328,3 +372,4 @@ public class NodeConnectedHandler {
     }
 
 }
+

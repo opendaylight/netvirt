@@ -60,5 +60,15 @@ module elan-config {
             type boolean;
             default true;
         }
+        leaf wait-create-ls-interval {
+            description "Interval waiting for Logical Switch to be created in HWVTEP";
+            type uint32;
+            default 0;
+        }
+        leaf wait-create-ls-retry {
+            description "Retry waiting for Logical Switch to be created in HWVTEP";
+            type uint32;
+            default 0;
+        }
     }
 }
