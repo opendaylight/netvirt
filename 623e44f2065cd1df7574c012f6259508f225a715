@@ -106,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_b5ab8bd5",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-28T10:01:08Z",
+      "side": 1,
+      "message": "Ok, please put these words in the spec here..",
+      "parentUuid": "da2a55be_32d85153",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_e4543623",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 32
@@ -289,6 +307,24 @@
       "side": 1,
       "message": "https://git.opendaylight.org/gerrit/#/c/57977/15/vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java@451\n\n\nThis design enforces the nature of the VRFs, not only on VPN manager, but also in BGP Manager, and in QBGP too.\n\nhttps://git.opendaylight.org/gerrit/#/c/57980/12/vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/idl/qbgp.thrift\n\nFrom your observation, we have 2 questions:\n- do you think we should rephrase ?\n- if you still have a doubt on that requirement, we really feel this is necessary. So we should discuss about that.",
       "parentUuid": "da2a55be_43741a9c",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_f55183d9",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-06-28T10:01:08Z",
+      "side": 1,
+      "message": "Thanks for the review link of NeutronvpnManager.  \n\nIt looks like you wanted to maintain two different VRFTables inside QBGP for the same vpnInstance and same RD.  One VRFTable would hold only IPv6 entries and other VRFTable would hold only IPv4 entries.\n\nIt is not advisable to design for QBGP in ODL.. \nODL uses QBGP as an utility to make ODL perform as a BGP Neighbour.\n\nThis may not be the right approach and I would like to understand this better along with Ashvin.",
+      "parentUuid": "da2a55be_b2e3a104",
       "revId": "623e44f2065cd1df7574c012f6259508f225a715",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
