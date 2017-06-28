@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_48dd5214",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 37
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-06-28T14:33:03Z",
+      "side": 1,
+      "message": "Please retain this as vpn-instance-name. Even a router is internally represented as vpn instance itself.\nThis avoids confusion in cases involving network/router association to bgpvpn.",
+      "range": {
+        "startLine": 521,
+        "startChar": 38,
+        "endLine": 521,
+        "endChar": 52
+      },
+      "revId": "6c1698945897bf82d2c89c99afca6c4d78a59906",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
