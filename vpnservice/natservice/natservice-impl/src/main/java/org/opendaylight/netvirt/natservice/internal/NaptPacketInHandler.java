@@ -47,8 +47,8 @@ public class NaptPacketInHandler implements PacketProcessingListener {
 
     @PostConstruct
     public void init() {
-        firstPacketExecutorService = Executors.newFixedThreadPool(25);
-        retryPacketExecutorService = Executors.newFixedThreadPool(25);
+        firstPacketExecutorService = Executors.newFixedThreadPool(NatConstants.SNAT_PACKET_THEADPOOL_SIZE);
+        retryPacketExecutorService = Executors.newFixedThreadPool(NatConstants.SNAT_PACKET_RETRY_THEADPOOL_SIZE);
     }
 
     @PreDestroy
@@ -69,17 +69,17 @@ public class NaptPacketInHandler implements PacketProcessingListener {
 
         Short tableId = packetReceived.getTableId().getValue();
 
-        LOG.trace("packet: {}, tableId {}", packetReceived, tableId);
+        LOG.trace("onPacketReceived : packet: {}, tableId {}", packetReceived, tableId);
 
         if (tableId == NwConstants.OUTBOUND_NAPT_TABLE) {
-            LOG.debug("NAT Service : NAPTPacketInHandler Packet for Outbound NAPT Table");
+            LOG.debug("onPacketReceived : NAPTPacketInHandler Packet for Outbound NAPT Table");
             byte[] inPayload = packetReceived.getPayload();
             Ethernet ethPkt = new Ethernet();
             if (inPayload != null) {
                 try {
                     ethPkt.deserialize(inPayload, 0, inPayload.length * NetUtils.NumBitsInAByte);
                 } catch (Exception e) {
-                    LOG.warn("Failed to decode Packet", e);
+                    LOG.warn("onPacketReceived: Failed to decode Packet", e);
                     return;
                 }
                 if (ethPkt.getPayload() instanceof IPv4) {
@@ -87,31 +87,31 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                     byte[] ipSrc = Ints.toByteArray(ipPkt.getSourceAddress());
 
                     internalIPAddress = NWUtil.toStringIpAddress(ipSrc);
-                    LOG.trace("Retrieved internalIPAddress {}", internalIPAddress);
+                    LOG.trace("onPacketReceived : Retrieved internalIPAddress {}", internalIPAddress);
                     if (ipPkt.getPayload() instanceof TCP) {
                         TCP tcpPkt = (TCP) ipPkt.getPayload();
                         portNumber = tcpPkt.getSourcePort();
                         if (portNumber < 0) {
                             portNumber = 32767 + portNumber + 32767 + 2;
-                            LOG.trace("Retrieved and extracted TCP portNumber {}", portNumber);
+                            LOG.trace("onPacketReceived : Retrieved and extracted TCP portNumber {}", portNumber);
                         }
                         protocol = NAPTEntryEvent.Protocol.TCP;
-                        LOG.trace("Retrieved TCP portNumber {}", portNumber);
+                        LOG.trace("onPacketReceived : Retrieved TCP portNumber {}", portNumber);
                     } else if (ipPkt.getPayload() instanceof UDP) {
                         UDP udpPkt = (UDP) ipPkt.getPayload();
                         portNumber = udpPkt.getSourcePort();
                         if (portNumber < 0) {
                             portNumber = 32767 + portNumber + 32767 + 2;
-                            LOG.trace("Retrieved and extracted UDP portNumber {}", portNumber);
+                            LOG.trace("onPacketReceived : Retrieved and extracted UDP portNumber {}", portNumber);
                         }
                         protocol = NAPTEntryEvent.Protocol.UDP;
-                        LOG.trace("Retrieved UDP portNumber {}", portNumber);
+                        LOG.trace("onPacketReceived : Retrieved UDP portNumber {}", portNumber);
                     } else {
-                        LOG.error("Incoming Packet is neither TCP or UDP packet");
+                        LOG.error("onPacketReceived : Incoming Packet is neither TCP or UDP packet");
                         return;
                     }
                 } else {
-                    LOG.error("Incoming Packet is not IPv4 packet");
+                    LOG.error("onPacketReceived : Incoming Packet is not IPv4 packet");
                     return;
                 }
 
@@ -119,20 +119,19 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                     BigInteger metadata = packetReceived.getMatch().getMetadata().getMetadata();
                     routerId = MetaDataUtil.getNatRouterIdFromMetadata(metadata);
                     if (routerId <= 0) {
-                        LOG.error("NAT Service : Router ID is invalid");
+                        LOG.error("onPacketReceived : Router ID is invalid");
                         return;
                     }
                     String sourceIPPortKey = internalIPAddress + ":" + portNumber;
-                    LOG.debug("NAT Service : sourceIPPortKey {} mapping maintained in the map", sourceIPPortKey);
                     if (!INCOMING_PACKET_MAP.containsKey(sourceIPPortKey)) {
                         INCOMING_PACKET_MAP.put(sourceIPPortKey,
                                 new NatPacketProcessingState(System.currentTimeMillis(), -1));
-                        LOG.trace("NAT Service : Processing new Packet");
+                        LOG.trace("onPacketReceived : Processing new SNAT({}) Packet", sourceIPPortKey);
 
                         //send to Event Queue
                         NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress, portNumber, routerId,
                             operation, protocol, packetReceived, false);
-                        LOG.trace("NAT Service : First Packet IN Queue Size : {}",
+                        LOG.info("onPacketReceived : First Packet IN Queue Size : {}",
                                 ((ThreadPoolExecutor)firstPacketExecutorService).getQueue().size());
                         firstPacketExecutorService.execute(new Runnable() {
                             public void run() {
@@ -140,10 +139,10 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                             }
                         });
                     } else {
-                        LOG.trace("NAT Service : Packet already processed");
+                        LOG.trace("onPacketReceived : SNAT({}) Packet already processed.", sourceIPPortKey);
                         NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress, portNumber, routerId,
                             operation, protocol, packetReceived, true);
-                        LOG.trace("NAT Service : Retry Packet IN Queue Size : {}",
+                        LOG.info("onPacketReceived : Retry Packet IN Queue Size : {}",
                                 ((ThreadPoolExecutor)retryPacketExecutorService).getQueue().size());
                         retryPacketExecutorService.execute(new Runnable() {
                             public void run() {
@@ -151,8 +150,9 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                                 long firstPacketInTime = state.getFirstPacketInTime();
                                 long flowInstalledTime = state.getFlowInstalledTime();
                                 if (flowInstalledTime == -1
-                                        && (System.currentTimeMillis() - firstPacketInTime) > 10000) {
-                                    LOG.trace("NAT Service : Flow not installed even after 10sec.Drop Packet");
+                                        && (System.currentTimeMillis() - firstPacketInTime) > 4000) {
+                                    LOG.error("NAT Service : Flow not installed even after 4sec."
+                                            + "Dropping SNAT ({}) Packet", sourceIPPortKey);
                                     removeIncomingPacketMap(sourceIPPortKey);
                                     return;
                                 }
@@ -161,17 +161,17 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                         });
                     }
                 } else {
-                    LOG.error("Nullpointer exception in retrieving internalIPAddress");
+                    LOG.error("onPacketReceived : Retrived internalIPAddress is NULL");
                 }
             }
         } else {
-            LOG.trace("Packet is not from the Outbound NAPT table");
+            LOG.trace("onPacketReceived : Packet is not from the Outbound NAPT table");
         }
     }
 
     public void removeIncomingPacketMap(String sourceIPPortKey) {
         INCOMING_PACKET_MAP.remove(sourceIPPortKey);
-        LOG.debug("NAT Service : sourceIPPortKey {} mapping is removed from map", sourceIPPortKey);
+        LOG.debug("removeIncomingPacketMap : sourceIPPortKey {} mapping is removed from map", sourceIPPortKey);
     }
 
     protected class NatPacketProcessingState {
