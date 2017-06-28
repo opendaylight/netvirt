@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_f2ed19f1",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-06-28T06:55:26Z",
+      "side": 1,
+      "message": "Should we validate for Mandatory field in ELANService Provider.",
+      "parentUuid": "da2a55be_f2ba3909",
+      "revId": "4737b8d09b09d28c7bfd0ff6683735cf7ebf384c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_5237c5b0",
         "filename": "vpnservice/elanmanager/elanmanager-api/pom.xml",
         "patchSetId": 35
