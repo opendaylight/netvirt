@@ -1239,17 +1239,17 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             return;
         }
 
-        final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        if (sn.getRouterInterfacePortId() != null) {
-            portDataStoreCoordinator.enqueueJob("PORT-" + sn.getRouterInterfacePortId().getValue(), () -> {
-                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                updateVpnInterface(newVpnId, oldVpnId,
-                        NeutronvpnUtils.getNeutronPort(dataBroker, sn.getRouterInterfacePortId()),
-                        isBeingAssociated, true, wrtConfigTxn);
-                futures.add(wrtConfigTxn.submit());
-                return futures;
-            });
+        //Update Router Interface
+        try {
+            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+            updateVpnInterface(newVpnId, oldVpnId,
+                    NeutronvpnUtils.getNeutronPort(dataBroker, sn.getRouterInterfacePortId()),
+                    isBeingAssociated, true, wrtConfigTxn);
+            wrtConfigTxn.submit().checkedGet();
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("Failed to update router interface {} in subnet {} from oldVpnId {} to newVpnId {}, returning",
+                    sn.getRouterInterfacePortId().getValue(), subnet.getValue(), oldVpnId, newVpnId);
+            return;
         }
 
         // Check for ports on this subnet and update association of
@@ -1259,6 +1259,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             for (Uuid port : portList) {
                 LOG.debug("Updating vpn-interface for port {} isBeingAssociated {}",
                     port.getValue(), isBeingAssociated);
+                final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 portDataStoreCoordinator.enqueueJob("PORT-" + port.getValue(), () -> {
                     WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
