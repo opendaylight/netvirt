@@ -1,0 +1,244 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_55ba0fe2",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-06-28T11:05:52Z",
+      "side": 1,
+      "message": "Not my change, will do to maintain consistency",
+      "parentUuid": "da2a55be_d26c5539",
+      "range": {
+        "startLine": 92,
+        "startChar": 38,
+        "endLine": 92,
+        "endChar": 43
+      },
+      "revId": "bc766776831a3277083ecfc3a1ffd23d9d6543d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_35bf9bd2",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-06-28T11:05:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_f2735913",
+      "range": {
+        "startLine": 95,
+        "startChar": 19,
+        "endLine": 95,
+        "endChar": 25
+      },
+      "revId": "bc766776831a3277083ecfc3a1ffd23d9d6543d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_95b487f3",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-06-28T11:05:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_f2e1999b",
+      "range": {
+        "startLine": 139,
+        "startChar": 10,
+        "endLine": 139,
+        "endChar": 42
+      },
+      "revId": "bc766776831a3277083ecfc3a1ffd23d9d6543d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_d5e6ff15",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-06-28T11:05:52Z",
+      "side": 1,
+      "message": "Added log here instead of nested methods cos: \n1. Nested methods are abstract and has multiple implementations.\n2. Few of the implementations which we are interested in already has Log at Info level.\n\nif it doesn\u0027t make sense to add logs here, I can remove them. let me know.",
+      "parentUuid": "da2a55be_b2d721bf",
+      "range": {
+        "startLine": 223,
+        "startChar": 8,
+        "endLine": 223,
+        "endChar": 108
+      },
+      "revId": "bc766776831a3277083ecfc3a1ffd23d9d6543d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_9582c7fe",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-06-28T11:05:52Z",
+      "side": 1,
+      "message": "Added log statements here since:\n1. ProgramArpRule method accepts integer argument instead of constant(ADD/Remove).\n2. Do not find it useful to get the Constant back from integer only for Logging purpose inside the method.",
+      "parentUuid": "da2a55be_55820f53",
+      "range": {
+        "startLine": 171,
+        "startChar": 8,
+        "endLine": 171,
+        "endChar": 79
+      },
+      "revId": "bc766776831a3277083ecfc3a1ffd23d9d6543d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_f516a3f0",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-06-28T11:05:52Z",
+      "side": 1,
+      "message": "Nope, that is Egress.  condition is Not to do anything if direction is Egress.",
+      "parentUuid": "da2a55be_d5671fe9",
+      "range": {
+        "startLine": 205,
+        "startChar": 32,
+        "endLine": 205,
+        "endChar": 38
+      },
+      "revId": "bc766776831a3277083ecfc3a1ffd23d9d6543d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_75875310",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-06-28T11:05:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_35795b94",
+      "range": {
+        "startLine": 458,
+        "startChar": 8,
+        "endLine": 458,
+        "endChar": 77
+      },
+      "revId": "bc766776831a3277083ecfc3a1ffd23d9d6543d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_d57b9f27",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-06-28T11:05:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_55e96f19",
+      "range": {
+        "startLine": 93,
+        "startChar": 101,
+        "endLine": 94,
+        "endChar": 8
+      },
+      "revId": "bc766776831a3277083ecfc3a1ffd23d9d6543d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_b578ab2c",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-06-28T11:05:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_f5e34331",
+      "range": {
+        "startLine": 116,
+        "startChar": 8,
+        "endLine": 116,
+        "endChar": 66
+      },
+      "revId": "bc766776831a3277083ecfc3a1ffd23d9d6543d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_558faf23",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-06-28T11:05:52Z",
+      "side": 1,
+      "message": "Not my change, will do as recommended.",
+      "parentUuid": "da2a55be_55d04f53",
+      "range": {
+        "startLine": 154,
+        "startChar": 8,
+        "endLine": 154,
+        "endChar": 102
+      },
+      "revId": "bc766776831a3277083ecfc3a1ffd23d9d6543d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
