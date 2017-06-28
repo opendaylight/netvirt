@@ -56,6 +56,7 @@ import org.opendaylight.genius.utils.batching.DefaultBatchHandler;
 import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.commands.ClearBgpCli;
+import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmStatus;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarms;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpConstants;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpCounters;
@@ -792,6 +793,8 @@ public class BgpConfigurationManager {
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} Delete received exception; {}", YANG_OBJ, DEL_WARN, e);
                 }
+                getBgpAlarms().clearBgpNbrDownAlarm(peerIp);
+                BgpAlarms.neighborsRaisedAlarmStatusMap.put(peerIp, BgpAlarmStatus.CLEARED);
             }
         }
 
