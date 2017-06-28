@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_f2ba3909",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-28T04:52:56Z",
+      "side": 1,
+      "message": "Yes Karthik, Let us pass ArpResponderInput as argument to ELAN API which makes APIs to be simpler.",
+      "revId": "4737b8d09b09d28c7bfd0ff6683735cf7ebf384c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_5237c5b0",
+        "filename": "vpnservice/elanmanager/elanmanager-api/pom.xml",
+        "patchSetId": 35
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-28T04:52:56Z",
+      "side": 1,
+      "message": "Nit: remove tabs",
+      "revId": "4737b8d09b09d28c7bfd0ff6683735cf7ebf384c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_323cd193",
+        "filename": "vpnservice/elanmanager/elanmanager-api/src/main/java/org/opendaylight/netvirt/elan/arp/responder/ArpResponderInput.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-28T04:52:56Z",
+      "side": 1,
+      "message": "can you make this as a private default constructor so that others can use only builder to create object for  ArpResponderInput ?",
+      "revId": "4737b8d09b09d28c7bfd0ff6683735cf7ebf384c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_72464925",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 2251,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-06-28T04:52:56Z",
+      "side": 1,
+      "message": "This looks nice now :)",
+      "revId": "4737b8d09b09d28c7bfd0ff6683735cf7ebf384c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
