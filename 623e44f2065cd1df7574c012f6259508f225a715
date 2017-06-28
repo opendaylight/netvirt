@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_72e2c904",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-28T07:17:54Z",
+      "side": 1,
+      "message": "What we can do is to briefly that two methods could be enhanced to stretch vpninterface to belong to two different VPNs. But that is all. We will say that we will opt for a solution based on a single L3BGPVPN.",
+      "parentUuid": "fa2559ec_84445a75",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_04586a55",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 32
@@ -70,6 +88,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_32d85153",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-28T07:17:54Z",
+      "side": 1,
+      "message": "- because l3 bgpvpn concept is the easiest option we have to federate in a single l3bgpvpn entity two routers.\n \n- Because VMs are dual stack, from the orchestration point of view, and from the network point of view, there is no reason to give L3VPN access separately for IPv4 and for IPv6.\nIt makes sense to have the same L3BGPVPN entity that handles both networks.",
+      "parentUuid": "fa2559ec_04586a55",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa2559ec_e4543623",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 32
@@ -81,6 +117,24 @@
       "writtenOn": "2017-06-27T12:49:54Z",
       "side": 1,
       "message": "are we sure we donot want to support external access in this configuration?",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_d2e61516",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-28T07:17:54Z",
+      "side": 1,
+      "message": "Valentina will give more detailed information.\nexternal network change is part of [6].\nIt should be mentioned here.",
+      "parentUuid": "fa2559ec_e4543623",
       "revId": "623e44f2065cd1df7574c012f6259508f225a715",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -217,6 +271,24 @@
       "writtenOn": "2017-06-27T17:51:11Z",
       "side": 1,
       "message": "not completely clear why this change above is required.. do you have a link to the implementation review that made this change?",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_b2e3a104",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-28T07:17:54Z",
+      "side": 1,
+      "message": "https://git.opendaylight.org/gerrit/#/c/57977/15/vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java@451\n\n\nThis design enforces the nature of the VRFs, not only on VPN manager, but also in BGP Manager, and in QBGP too.\n\nhttps://git.opendaylight.org/gerrit/#/c/57980/12/vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/idl/qbgp.thrift\n\nFrom your observation, we have 2 questions:\n- do you think we should rephrase ?\n- if you still have a doubt on that requirement, we really feel this is necessary. So we should discuss about that.",
+      "parentUuid": "da2a55be_43741a9c",
       "revId": "623e44f2065cd1df7574c012f6259508f225a715",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -400,6 +472,24 @@
       "writtenOn": "2017-06-27T17:51:11Z",
       "side": 1,
       "message": "may want to rephrase as \n\u0027the dual stack VM connectivity should embrace ECMP\u0027",
+      "revId": "623e44f2065cd1df7574c012f6259508f225a715",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_12f1cdcd",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 32
+      },
+      "lineNbr": 647,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-06-28T07:17:54Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "da2a55be_febde503",
       "revId": "623e44f2065cd1df7574c012f6259508f225a715",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
