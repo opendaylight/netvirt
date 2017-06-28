@@ -43,7 +43,8 @@ public class NatConstants {
     public static final String DNAT_FLOW_NAME = "DNAT";
     public static final short DEFAULT_HARD_TIMEOUT = 0;
     public static final short DEFAULT_IDLE_TIMEOUT = 0;
-
+    public static final int SNAT_PACKET_THEADPOOL_SIZE = 25;
+    public static final int SNAT_PACKET_RETRY_THEADPOOL_SIZE = 15;
     // Flow Actions
     public static final int ADD_FLOW = 0;
     public static final int DEL_FLOW = 1;
