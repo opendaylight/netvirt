@@ -32,6 +32,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -52,11 +53,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.Tun
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.DcGatewayIpList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.extraroute.rds.DestPrefixes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PortOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.PortOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.PortOpDataEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -148,6 +153,45 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         if (isGreTunnel(update)) {
             programDcGwLoadBalancingGroup(update, NwConstants.MOD_FLOW);
         }
+
+        //Remove the corresponding nexthop from the routepath under extraroute in fibentries.
+        BigInteger srcDpnId = new BigInteger(update.getSrcInfo().getTepDeviceId());
+        String srcTepIp = String.valueOf(update.getSrcInfo().getTepIp().getValue());
+        List<VpnInstanceOpDataEntry> vpnInstanceOpData = VpnUtil.getAllVpnInstanceOpData(dataBroker);
+        if (vpnInstanceOpData == null) {
+            LOG.trace("No vpnInstanceOpdata present");
+            return;
+        }
+        WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+        if (tunOpStatus == TunnelOperStatus.Up) {
+            handleTunnelEventForDPN(update, UpdateRouteAction.ADVERTISE_ROUTE, TunnelAction.TUNNEL_EP_ADD);
+        } else {
+            vpnInstanceOpData.stream().filter(opData -> {
+                if (opData.getVpnToDpnList() == null) {
+                    return false;
+                }
+                return opData.getVpnToDpnList().stream().anyMatch(vpnToDpn -> vpnToDpn.getDpnId().equals(srcDpnId));
+            }).forEach(opData -> {
+                List<DestPrefixes> prefixes = VpnExtraRouteHelper.getExtraRouteDestPrefixes(dataBroker,
+                        opData.getVpnId());
+                prefixes.forEach(destPrefix -> {
+                    VrfEntry vrfEntry = VpnUtil.getVrfEntry(dataBroker, opData.getVrfId(),
+                            destPrefix.getDestPrefix());
+                    if (vrfEntry == null || vrfEntry.getRoutePaths() == null) {
+                        return;
+                    }
+                    List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
+                    routePaths.forEach(routePath -> {
+                        if (routePath.getNexthopAddress().equals(srcTepIp)) {
+                            fibManager.updateRoutePathForFibEntry(dataBroker, opData.getVrfId(),
+                                    destPrefix.getDestPrefix(), srcTepIp, routePath.getLabel(),
+                                    false, writeConfigTxn);
+                        }
+                    });
+                });
+            });
+        }
+        writeConfigTxn.submit();
     }
 
     @Override

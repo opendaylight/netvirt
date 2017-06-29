@@ -37,6 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -377,6 +378,13 @@ public class FibUtil {
             final List<RoutePaths> routePaths = entry.get().getRoutePaths();
             if (routePaths == null || routePaths.isEmpty()) {
                 LOG.warn("routePaths is null/empty for given rd {}, prefix {}", rd, prefix);
+                // Remove the whole entry. Routepath could get empty due to tunnel event for extraroutes.
+                if (writeConfigTxn != null) {
+                    writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+                } else {
+                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+                }
+                LOG.info("Removed Fib Entry rd {} prefix {}", rd, prefix);
                 return;
             }
             java.util.Optional<RoutePaths> optRoutePath =
@@ -417,32 +425,37 @@ public class FibUtil {
      * Adds or removes nextHop from routePath based on the flag nextHopAdd.
      */
     public static void updateRoutePathForFibEntry(DataBroker broker, String rd, String prefix, String nextHop,
-                                      long label, boolean nextHopAdd, WriteTransaction writeConfigTxn) {
+            long label, boolean nextHopAdd, WriteTransaction writeConfigTxn) {
 
         LOG.debug("Updating fib entry for prefix {} with nextHop {} for rd {}.", prefix, nextHop, rd);
 
         InstanceIdentifier<RoutePaths> routePathId = FibHelper.buildRoutePathId(rd, prefix, nextHop);
-        if (nextHopAdd) {
-            RoutePaths routePaths = FibHelper.buildRoutePath(nextHop, label);
-            if (writeConfigTxn != null) {
-                writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, routePathId, routePaths,
-                        WriteTransaction.CREATE_MISSING_PARENTS);
+        String routePathKey = rd + prefix + nextHop;
+        synchronized (routePathKey.intern()) {
+            if (nextHopAdd) {
+                RoutePaths routePaths = FibHelper.buildRoutePath(nextHop, label);
+                if (writeConfigTxn != null) {
+                    writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, routePathId, routePaths,
+                            WriteTransaction.CREATE_MISSING_PARENTS);
+                } else {
+                    MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routePathId, routePaths);
+                }
+                LOG.debug("Added routepath with nextHop {} for prefix {} and label {}.", nextHop, prefix, label);
             } else {
-                MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routePathId, routePaths);
+                Optional<RoutePaths> routePath = MDSALUtil.read(broker,
+                        LogicalDatastoreType.CONFIGURATION, routePathId);
+                if (!routePath.isPresent()) {
+                    LOG.warn("Couldn't find RoutePath with rd {}, prefix {} and nh {} for deleting",
+                            rd, prefix, nextHop);
+                    return;
+                }
+                if (writeConfigTxn != null) {
+                    writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, routePathId);
+                } else {
+                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routePathId);
+                }
+                LOG.info("Removed routepath with nextHop {} for prefix {} and rd {}.", nextHop, prefix, rd);
             }
-            LOG.debug("Added routepath with nextHop {} for prefix {} and label {}.", nextHop, prefix, label);
-        } else {
-            Optional<RoutePaths> routePath = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, routePathId);
-            if (!routePath.isPresent()) {
-                LOG.warn("Couldn't find RoutePath with rd {}, prefix {} and nh {} for deleting", rd, prefix, nextHop);
-                return;
-            }
-            if (writeConfigTxn != null) {
-                writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, routePathId);
-            } else {
-                MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routePathId);
-            }
-            LOG.info("Removed routepath with nextHop {} for prefix {} and rd {}.", nextHop, prefix, rd);
         }
     }
 
@@ -543,13 +556,21 @@ public class FibUtil {
                 Prefixes prefixToInterface = getPrefixToInterface(broker, vpnId, getIpPrefix(nextHopRemoved));
                 if (prefixToInterface != null && tunnelIpRemoved
                         .equals(getEndpointIpAddressForDPN(broker, prefixToInterface.getDpnId()))) {
-                    writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                            getAdjacencyIdentifier(prefixToInterface.getVpnInterfaceName(), prefix));
-                    writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                            VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, usedRd, prefix));
-                    writeOperTxn.delete(LogicalDatastoreType.CONFIGURATION,
-                            VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix, nextHopRemoved));
-                    break;
+                    InstanceIdentifier<Adjacency> adjId = getAdjacencyIdentifier(
+                            prefixToInterface.getVpnInterfaceName(), prefix);
+                    Interface ifState = FibUtil.getInterfaceStateFromOperDS(
+                            broker, prefixToInterface.getVpnInterfaceName());
+                    //Delete datastore only if extra route is deleted or VM interface is deleted/down
+                    if (!MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, adjId).isPresent()
+                            || ifState == null || ifState.getOperStatus() == OperStatus.Down) {
+                        writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                                getAdjacencyIdentifier(prefixToInterface.getVpnInterfaceName(), prefix));
+                        writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                                VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, usedRd, prefix));
+                        writeOperTxn.delete(LogicalDatastoreType.CONFIGURATION,
+                                VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix, nextHopRemoved));
+                        break;
+                    }
                 }
             }
         }

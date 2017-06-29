@@ -97,6 +97,11 @@ public class VpnExtraRouteHelper {
                 .map(AllocatedRds::getRd).distinct().collect(toList()) : new ArrayList<>();
     }
 
+    public static  InstanceIdentifier<ExtrarouteRds> getUsedRdsIdentifier(long vpnId) {
+        return InstanceIdentifier.builder(ExtrarouteRdsMap.class)
+                .child(ExtrarouteRds.class, new ExtrarouteRdsKey(vpnId)).build();
+    }
+
     public static  InstanceIdentifier<DestPrefixes> getUsedRdsIdentifier(long vpnId, String destPrefix) {
         return InstanceIdentifier.builder(ExtrarouteRdsMap.class)
                 .child(ExtrarouteRds.class, new ExtrarouteRdsKey(vpnId))
@@ -143,5 +148,11 @@ public class VpnExtraRouteHelper {
         return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, usedRdsId)
                 .transform(AllocatedRds::getRd).transform(java.util.Optional::ofNullable)
                 .or(java.util.Optional.empty());
+    }
+
+    public static List<DestPrefixes> getExtraRouteDestPrefixes(DataBroker broker, Long vpnId) {
+        Optional<ExtrarouteRds> extraRoutes = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
+                getUsedRdsIdentifier(vpnId));
+        return extraRoutes.isPresent() ? extraRoutes.get().getDestPrefixes() : new ArrayList<>();
     }
 }
