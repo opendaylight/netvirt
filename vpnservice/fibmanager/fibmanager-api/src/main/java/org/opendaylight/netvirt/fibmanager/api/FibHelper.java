@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.fibmanager.api;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -120,11 +121,11 @@ public class FibHelper {
     public static List<String> getNextHopListFromRoutePaths(final VrfEntry vrfEntry) {
         List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
         if (routePaths == null || routePaths.isEmpty()) {
-            return Collections.EMPTY_LIST;
+            return new ArrayList<String>();
         }
-        return routePaths.stream()
+        return new ArrayList<String>(routePaths.stream()
                 .map(routePath -> routePath.getNexthopAddress())
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
     public static com.google.common.base.Optional<VrfEntry> getVrfEntry(DataBroker broker, String rd, String ipPrefix) {
