@@ -98,6 +98,54 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_612671bc",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-06-29T08:12:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_06a7cb50",
+      "range": {
+        "startLine": 223,
+        "startChar": 8,
+        "endLine": 223,
+        "endChar": 108
+      },
+      "revId": "bc766776831a3277083ecfc3a1ffd23d9d6543d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_f54503b4",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-06-29T08:12:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_55ffaf01",
+      "range": {
+        "startLine": 148,
+        "startChar": 8,
+        "endLine": 148,
+        "endChar": 63
+      },
+      "revId": "bc766776831a3277083ecfc3a1ffd23d9d6543d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_9582c7fe",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
         "patchSetId": 2
@@ -122,6 +170,54 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_c1363de7",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-06-29T08:12:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_a66d1f07",
+      "range": {
+        "startLine": 171,
+        "startChar": 8,
+        "endLine": 171,
+        "endChar": 79
+      },
+      "revId": "bc766776831a3277083ecfc3a1ffd23d9d6543d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_1549b7d0",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-06-29T08:12:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_f55ea311",
+      "range": {
+        "startLine": 179,
+        "startChar": 19,
+        "endLine": 179,
+        "endChar": 40
+      },
+      "revId": "bc766776831a3277083ecfc3a1ffd23d9d6543d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_f516a3f0",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
         "patchSetId": 2
@@ -134,6 +230,30 @@
       "side": 1,
       "message": "Nope, that is Egress.  condition is Not to do anything if direction is Egress.",
       "parentUuid": "da2a55be_d5671fe9",
+      "range": {
+        "startLine": 205,
+        "startChar": 32,
+        "endLine": 205,
+        "endChar": 38
+      },
+      "revId": "bc766776831a3277083ecfc3a1ffd23d9d6543d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_26064f21",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-06-29T08:12:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_86729be3",
       "range": {
         "startLine": 205,
         "startChar": 32,
