@@ -81,8 +81,7 @@ public class QosInterfaceStateChangeListener extends AsyncDataTreeChangeListener
         try {
             if (!Tunnel.class.equals(intrf.getType())) {
                 final String interfaceName = intrf.getName();
-                // Guava Optional asSet().forEach() emulates Java 8 Optional ifPresent()
-                getNeutronPort(interfaceName).asSet().forEach(port -> {
+                getNeutronPort(interfaceName).ifPresent(port -> {
                     Network network = neutronVpnManager.getNeutronNetwork(port.getNetworkId());
                     LOG.trace("Qos Service : Received interface {} PORT UP event ", interfaceName);
                     if (port.getAugmentation(QosPortExtension.class) != null) {
@@ -112,9 +111,11 @@ public class QosInterfaceStateChangeListener extends AsyncDataTreeChangeListener
         }
     }
 
-    private Optional<Port> getNeutronPort(String portName) {
+    private java.util.Optional<Port> getNeutronPort(String portName) {
         return uuidUtil.newUuidIfValidPattern(portName)
-                .transform(uuid -> neutronVpnManager.getNeutronPort(uuid));
+                // .toJavaUtil()
+                .transform(java.util.Optional::of).or(java.util.Optional.empty())
+                .map(uuid -> neutronVpnManager.getNeutronPort(uuid));
     }
 
     private Optional<Port> getNeutronPortForRemove(Interface intrf) {
