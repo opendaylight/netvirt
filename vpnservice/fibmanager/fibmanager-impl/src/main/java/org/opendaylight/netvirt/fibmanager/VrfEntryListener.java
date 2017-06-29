@@ -249,23 +249,31 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             List<RoutePaths> updateRoutePath = update.getRoutePaths();
             LOG.info("UPDATE: Original route-path {} update route-path {} ", originalRoutePath, updateRoutePath);
 
+            //Updates need to be handled for extraroute even if original vrf entry route path is null or
+            //updated vrf entry route path is null. This can happen during tunnel events.
+            Optional<VpnInstanceOpDataEntry> optVpnInstance = FibUtil.getVpnInstanceOpData(dataBroker, rd);
+            List<String> usedRds = new ArrayList<>();
+            if (optVpnInstance.isPresent()) {
+                usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker,optVpnInstance.get().getVpnId(),
+                        update.getDestPrefix());
+            }
             // If original VRF Entry had nexthop null , but update VRF Entry
             // has nexthop , route needs to be created on remote Dpns
             if (((originalRoutePath == null) || (originalRoutePath.isEmpty())
-                && (updateRoutePath != null) && (!updateRoutePath.isEmpty()))) {
+                && (updateRoutePath != null) && (!updateRoutePath.isEmpty()) && usedRds.isEmpty())) {
                 // TODO(vivek): Though ugly, Not handling this code now, as each
                 // tep add event will invoke flow addition
-                LOG.trace("Original VRF entry NH is null for destprefix {}. This event is IGNORED here.",
-                    update.getDestPrefix());
+                LOG.trace("Original VRF entry NH is null for destprefix {}. And the prefix is not an extra route."
+                        + " This event is IGNORED here.", update.getDestPrefix());
                 return;
             }
 
             // If original VRF Entry had valid nexthop , but update VRF Entry
             // has nexthop empty'ed out, route needs to be removed from remote Dpns
             if (((updateRoutePath == null) || (updateRoutePath.isEmpty())
-                && (originalRoutePath != null) && (!originalRoutePath.isEmpty()))) {
-                LOG.trace("Original VRF entry had valid NH for destprefix {}. This event is IGNORED here.",
-                    update.getDestPrefix());
+                && (originalRoutePath != null) && (!originalRoutePath.isEmpty()) && usedRds.isEmpty())) {
+                LOG.trace("Original VRF entry had valid NH for destprefix {}. And the prefix is not an extra route."
+                        + "This event is IGNORED here.", update.getDestPrefix());
                 return;
             }
             //Update the used rds and vpntoextraroute containers only for the deleted nextHops.
@@ -1013,8 +1021,19 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (!vpnExtraRoutes.isEmpty() && (vpnExtraRoutes.size() > 1
                 || vpnExtraRoutes.get(0).getNexthopIpList().size() > 1)) {
             List<InstructionInfo> instructions = new ArrayList<>();
+            // Obtain the local routes for this particular dpn.
+            java.util.Optional<Routes> routes = vpnExtraRoutes
+                    .stream()
+                    .filter(route -> {
+                        Prefixes prefixToInterface = FibUtil.getPrefixToInterface(dataBroker,
+                                vpnId, FibUtil.getIpPrefix(route.getNexthopIpList().get(0)));
+                        if (prefixToInterface == null) {
+                            return false;
+                        }
+                        return remoteDpnId.equals(prefixToInterface.getDpnId());
+                    }).findFirst();
             long groupId = nextHopManager.createNextHopGroups(vpnId, rd, remoteDpnId, vrfEntry,
-                    null, vpnExtraRoutes);
+                    routes.isPresent() ? routes.get() : null, vpnExtraRoutes);
             if (groupId == FibConstants.INVALID_GROUP_ID) {
                 LOG.error("Unable to create Group for local prefix {} on rd {} on Node {}",
                         vrfEntry.getDestPrefix(), rd, remoteDpnId.toString());
