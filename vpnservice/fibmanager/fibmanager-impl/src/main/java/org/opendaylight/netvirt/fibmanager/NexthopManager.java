@@ -55,6 +55,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
@@ -136,6 +138,7 @@ public class NexthopManager implements AutoCloseable {
     private final SalGroupService salGroupService;
     private static final String NEXTHOP_ID_POOL_NAME = "nextHopPointerPool";
     private static final long FIXED_DELAY_IN_MILLISECONDS = 4000;
+    private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
     private L3VPNTransportTypes configuredTransportTypeL3VPN = L3VPNTransportTypes.Invalid;
 
     /**
@@ -779,11 +782,13 @@ public class NexthopManager implements AutoCloseable {
         GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
                 dpnId, groupId, destPrefix, GroupTypes.GroupSelect, listBucketInfo);
         if (addOrRemove == true) {
-            //Try to install group directly on the DPN bypassing the FRM, in order to avoid waiting for the group to
-            // get installed before programming the flows
-            installGroupOnDpn(groupId, dpnId, destPrefix, listBucketInfo, getNextHopKey(parentVpnId, destPrefix),
-                    GroupTypes.GroupSelect);
             mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
+            try {
+                Thread.sleep(WAIT_TIME_FOR_SYNC_INSTALL);
+            } catch (InterruptedException e1) {
+                LOG.warn("Thread got interrupted while programming LB group {}", groupEntity);
+                Thread.currentThread().interrupt();
+            }
         } else {
             mdsalApiManager.removeGroup(groupEntity);
         }
@@ -827,6 +832,7 @@ public class NexthopManager implements AutoCloseable {
                 listBucketInfo.add(bucket);
             }
         });
+        LOG.trace("LOCAL: listbucket {}, vpnId {}, dpnId {}, routes {}", listBucketInfo, vpnId, dpnId, routes);
         return listBucketInfo;
     }
 
@@ -859,6 +865,11 @@ public class NexthopManager implements AutoCloseable {
             Class<? extends TunnelTypeBase> tunnelType = VpnExtraRouteHelper
                     .getTunnelType(interfaceManager,
                             egressInterface);
+            Interface ifState = FibUtil.getInterfaceStateFromOperDS(dataBroker, egressInterface);
+            if (ifState == null || ifState.getOperStatus() != OperStatus.Up) {
+                LOG.trace("Tunnel not up {}", egressInterface);
+                return;
+            }
             if (!TunnelTypeVxlan.class.equals(tunnelType)) {
                 return;
             }
@@ -900,7 +911,8 @@ public class NexthopManager implements AutoCloseable {
             BucketInfo bucket = new BucketInfo(actionInfos);
             bucket.setWeight(1);
             listBucketInfo.add(bucket);
-        }));
+                }));
+        LOG.trace("LOCAL: listbucket {}, rd {}, dpnId {}, routes {}", listBucketInfo, rd, dpnId, vpnExtraRoutes);
         return listBucketInfo;
     }
 
