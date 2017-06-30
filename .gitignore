@@ -31,6 +31,3 @@ target-ide/
 yang-gen-config
 yang-gen-sal
 maven-metadata-local.xml
-.metadata
-.recommenders
-/.gitignore
