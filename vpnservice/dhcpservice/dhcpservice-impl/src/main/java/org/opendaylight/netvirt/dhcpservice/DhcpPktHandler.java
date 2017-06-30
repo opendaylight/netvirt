@@ -137,8 +137,29 @@ public class DhcpPktHandler implements PacketProcessingListener {
                     LOG.error("Failed to get interface info for interface name {}", interfaceName);
                     return;
                 }
-                DHCP replyPkt = handleDhcpPacket(pktIn, interfaceName, macAddress, tunnelId);
-                byte[] pktOut = getDhcpPacketOut(replyPkt, ethPkt, interfaceInfo.getMacAddress());
+                Port port = getNeutronPort(interfaceName);
+                Subnet subnet = getNeutronSubnet(port);
+                //When neutronport-dhcp flag is disabled continue running DHCP Server by hijacking the subnet-gateway-ip
+                String serverMacAddress = interfaceInfo.getMacAddress();
+                String serverIp = subnet.getGatewayIp().getIpv4Address().getValue();
+                if (subnet != null) {
+                    java.util.Optional<SubnetToDhcpPort> dhcpPortData = DhcpServiceUtils
+                            .getSubnetDhcpPortData(broker, subnet.getUuid().getValue());
+                    /* If neutronport-dhcp flag was enabled and an ODL network DHCP Port data was made available use the
+                     * ports Fixed IP as server IP for DHCP communication.
+                     */
+                    if (dhcpPortData.isPresent()) {
+                        serverIp  = dhcpPortData.get().getPortFixedip();
+                        serverMacAddress = dhcpPortData.get().getPortMacaddress();
+                    } else {
+                        // DHCP Neutron Port not found for this network
+                        LOG.error("Neutron DHCP port is not available for the Subnet {} and port {}.", subnet.getUuid(),
+                                port.getUuid());
+                        return;
+                    }
+                }
+                DHCP replyPkt = handleDhcpPacket(pktIn, interfaceName, macAddress, tunnelId, port, subnet, serverIp);
+                byte[] pktOut = getDhcpPacketOut(replyPkt, ethPkt, serverMacAddress);
                 sendPacketOut(pktOut, interfaceInfo.getDpId(), interfaceName, tunnelId);
             }
         }
@@ -151,18 +172,19 @@ public class DhcpPktHandler implements PacketProcessingListener {
         this.pktService.transmitPacket(output);
     }
 
-    private DHCP handleDhcpPacket(DHCP dhcpPkt, String interfaceName, String macAddress, BigInteger tunnelId) {
+    private DHCP handleDhcpPacket(DHCP dhcpPkt, String interfaceName, String macAddress, BigInteger tunnelId,
+                                  Port interfacePort, Subnet subnet, String serverIp) {
         LOG.trace("DHCP pkt rcvd {}", dhcpPkt);
         byte msgType = dhcpPkt.getMsgType();
         Port port;
         if (tunnelId != null) {
             port = dhcpExternalTunnelManager.readVniMacToPortCache(tunnelId, macAddress);
         } else {
-            port = getNeutronPort(interfaceName);
+            port = interfacePort;
         }
         DhcpInfo dhcpInfo = null;
         if (port != null) {
-            dhcpInfo = handleDhcpNeutronPacket(msgType, port);
+            dhcpInfo = handleDhcpNeutronPacket(msgType, port, subnet, serverIp);
         } else if (config.isDhcpDynamicAllocationPoolEnabled()) {
             dhcpInfo = handleDhcpAllocationPoolPacket(msgType, dhcpPkt, interfaceName, macAddress);
         }
@@ -178,7 +200,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
         return reply;
     }
 
-    private DhcpInfo handleDhcpNeutronPacket(byte msgType, Port port) {
+    private DhcpInfo handleDhcpNeutronPacket(byte msgType, Port port, Subnet subnet, String serverIp) {
         if (msgType == DHCPConstants.MSG_DECLINE) {
             LOG.trace("DHCPDECLINE received");
             return null;
@@ -186,7 +208,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
             LOG.trace("DHCPRELEASE received");
             return null;
         }
-        return getDhcpInfoFromNeutronPort(port);
+        return getDhcpInfoFromNeutronPort(port, subnet, serverIp);
     }
 
 
@@ -213,9 +235,8 @@ public class DhcpPktHandler implements PacketProcessingListener {
         return null;
     }
 
-    private DhcpInfo getDhcpInfoFromNeutronPort(Port port) {
-        Subnet subnet = getNeutronSubnet(port);
-        DhcpInfo dhcpInfo = getDhcpInfo(port, subnet);
+    private DhcpInfo getDhcpInfoFromNeutronPort(Port port, Subnet subnet, String serverIp) {
+        DhcpInfo dhcpInfo = getDhcpInfo(port, subnet, serverIp);
         LOG.trace("NeutronPort: {} \n NeutronSubnet: {}, dhcpInfo{}", port, subnet, dhcpInfo);
         return dhcpInfo;
     }
@@ -227,29 +248,19 @@ public class DhcpPktHandler implements PacketProcessingListener {
         return dhcpInfo;
     }
 
-    private DhcpInfo getDhcpInfo(Port port, Subnet subnet) {
+    private DhcpInfo getDhcpInfo(Port port, Subnet subnet, String serverIp) {
         DhcpInfo dhcpInfo = null;
         if (port != null && subnet != null) {
             String clientIp = getIpv4Address(port);
             List<IpAddress> dnsServers = subnet.getDnsNameservers();
-            /* If neutronport-dhcp flag was enabled and an ODL Subnet DHCP Port data was made available use the
-             * ports Fixed IP as server IP for DHCP communication.
-             */
-            java.util.Optional<SubnetToDhcpPort> dhcpPortData = DhcpServiceUtils.getSubnetDhcpPortData(broker,
-                    subnet.getUuid().getValue());
-            if (dhcpPortData.isPresent()) {
-                String serverIp = dhcpPortData.get().getPortFixedip();
-                dhcpInfo = new DhcpInfo();
-                if (isIpv4Address(subnet.getGatewayIp())) {
-                    dhcpInfo.setGatewayIp(subnet.getGatewayIp().getIpv4Address().getValue());
-                }
+            dhcpInfo = new DhcpInfo();
+            if (isIpv4Address(subnet.getGatewayIp())) {
+                dhcpInfo.setGatewayIp(subnet.getGatewayIp().getIpv4Address().getValue());
+            }
+            if (clientIp != null && serverIp != null) {
                 dhcpInfo.setClientIp(clientIp).setServerIp(serverIp)
                         .setCidr(String.valueOf(subnet.getCidr().getValue())).setHostRoutes(subnet.getHostRoutes())
                         .setDnsServersIpAddrs(dnsServers);
-            } else {
-                // DHCP Neutron Port not found for this network
-                LOG.error("DHCP response failed as Neutron DHCP Port is absent on subnet {} and so"
-                        + " cannot respond with offer for Port {}.", subnet.getUuid(),port.getUuid());
             }
         }
         return dhcpInfo;
