@@ -1737,7 +1737,7 @@ public class NatUtil {
             LOG.debug("vpn-to-dpn-list is not empty for vpnName {}, dpn id {}, rd {} and floatingIp {}",
                     vpnName, dpnId, rd, externalIp);
             List<IpAddresses> ipAddressList = dpnInVpn.get().getIpAddresses();
-            if (ipAddressList != null && !ipAddressList.isEmpty()) {
+            if (ipAddressList.size() > 0) {
                 int floatingIpPresentCount = 0;
                 for (IpAddresses ipAddress: ipAddressList) {
                     if (!ipAddress.getIpAddress().equals(externalIp)
