@@ -349,9 +349,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         final Uuid portId = port.getUuid();
         final Uuid subnetId = port.getFixedIps().get(0).getSubnetId();
         final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        if (NeutronConstants.IS_ODL_DHCP_PORT.test(port)) {
-            return;
-        }
         portDataStoreCoordinator.enqueueJob("PORT- " + portName, () -> {
             WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
             List<ListenableFuture<Void>> futures = new ArrayList<>();
@@ -386,9 +383,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         final String portName = port.getUuid().getValue();
         final Uuid portId = port.getUuid();
         final Uuid subnetId = port.getFixedIps().get(0).getSubnetId();
-        if (NeutronConstants.IS_ODL_DHCP_PORT.test(port)) {
-            return;
-        }
         final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         portDataStoreCoordinator.enqueueJob("PORT- " + portName, () -> {
             WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
