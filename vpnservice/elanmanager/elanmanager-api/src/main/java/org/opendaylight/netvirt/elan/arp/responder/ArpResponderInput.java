@@ -25,9 +25,7 @@ public class ArpResponderInput {
     private int lportTag;
     private List<Instruction> instructions;
 
-    private ArpResponderInput() {
-        throw new AssertionError("Use ArpResponderInput Builder to instantiate theo object");
-    }
+    private ArpResponderInput() {}
 
     public BigInteger getDpId() {
         return dpId;

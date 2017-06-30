@@ -101,7 +101,7 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
             Port port = dhcpManager.getNeutronPort(interfaceName);
             Subnet subnet = dhcpManager.getNeutronSubnet(port);
             if (null == subnet || !subnet.isEnableDhcp()) {
-                LOG.debug("DHCP is not enabled for port {}", port.getName());
+                LOG.debug("DHCP is not enabled for port {}", port == null ? null : port.getName());
                 return Collections.emptyList();
             }
             LOG.info("DhcpInterfaceEventListener add isEnableDhcp:{}", subnet.isEnableDhcp());
