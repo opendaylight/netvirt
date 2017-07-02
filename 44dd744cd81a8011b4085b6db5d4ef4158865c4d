@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_20dbc9ee",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-02T21:58:16Z",
+      "side": 1,
+      "message": "could these two be combined and the isPortSecurityEnabled added to the log?",
+      "revId": "44dd744cd81a8011b4085b6db5d4ef4158865c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_c0d62dc5",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-02T21:58:16Z",
+      "side": 1,
+      "message": "at this point has the acl been updated or does in happen next? If later then this log should be later or say acl will be updated",
+      "revId": "44dd744cd81a8011b4085b6db5d4ef4158865c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_00d845ee",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-02T21:58:16Z",
+      "side": 1,
+      "message": "why change case to uppercase?",
+      "revId": "44dd744cd81a8011b4085b6db5d4ef4158865c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_40e23da0",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-02T21:58:16Z",
+      "side": 1,
+      "message": "same comment",
+      "revId": "44dd744cd81a8011b4085b6db5d4ef4158865c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_a0ee9989",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractIngressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-02T21:58:16Z",
+      "side": 1,
+      "message": "remove previous log as this log here has the same dpid and lporttag info",
+      "revId": "44dd744cd81a8011b4085b6db5d4ef4158865c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
