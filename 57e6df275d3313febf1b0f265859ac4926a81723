@@ -33,6 +33,23 @@
       "revId": "57e6df275d3313febf1b0f265859ac4926a81723",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_2ce585a8",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/listeners/CloudScVpnInterfaceListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-07-02T03:34:51Z",
+      "side": 1,
+      "message": "move to a separate method inside vpnhelper.java placed in vpnmanager--api bundle..\n\nuse that method everywhere evenly.",
+      "revId": "57e6df275d3313febf1b0f265859ac4926a81723",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
