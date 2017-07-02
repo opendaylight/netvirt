@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Aswin Suryanarayanan <asuryana@redhat.com>
+Submitted-by: Aswin Suryanarayanan <asuryana@redhat.com>
+Submitted-at: Sun, 02 Jul 2017 08:05:15 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/57705
+Project: netvirt
+Branch: refs/heads/stable/carbon
