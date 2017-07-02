@@ -63,10 +63,12 @@ public class AclDataUtil {
         for (Uuid acl : aclList) {
 
             List<AclInterface> interfaceList = aclInterfaceMap.get(acl);
-            for (Iterator<AclInterface> iterator = interfaceList.iterator();iterator.hasNext();) {
-                AclInterface aclInterface = iterator.next();
-                if (aclInterface.getInterfaceId().equals(port.getInterfaceId())) {
-                    iterator.remove();
+            if (interfaceList != null) {
+                for (Iterator<AclInterface> iterator = interfaceList.iterator(); iterator.hasNext(); ) {
+                    AclInterface aclInterface = iterator.next();
+                    if (aclInterface.getInterfaceId().equals(port.getInterfaceId())) {
+                        iterator.remove();
+                    }
                 }
             }
         }
