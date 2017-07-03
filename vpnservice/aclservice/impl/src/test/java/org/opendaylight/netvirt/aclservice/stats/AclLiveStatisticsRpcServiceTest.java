@@ -32,7 +32,7 @@ import org.opendaylight.genius.datastoreutils.testutils.TestableDataTreeChangeLi
 import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
 import org.opendaylight.netvirt.aclservice.tests.AclServiceModule;
 import org.opendaylight.netvirt.aclservice.tests.AclServiceTestModule;
-import org.opendaylight.netvirt.aclservice.tests.ImmutableIdentifiedInterfaceWithAclBuilder;
+import org.opendaylight.netvirt.aclservice.tests.IdentifiedInterfaceWithAclBuilder;
 import org.opendaylight.netvirt.aclservice.tests.infra.DataBrokerPairsUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
@@ -93,8 +93,7 @@ public class AclLiveStatisticsRpcServiceTest {
         newElan(ELAN, ELAN_TAG);
         newElanInterface(ELAN, PORT_1, true);
 
-        dataBrokerUtil.put(
-                ImmutableIdentifiedInterfaceWithAclBuilder.builder().interfaceName(PORT_1).portSecurity(true).build());
+        dataBrokerUtil.put(new IdentifiedInterfaceWithAclBuilder().interfaceName(PORT_1).portSecurity(true).build());
         putNewStateInterface(dataBroker, "port1", PORT_MAC_1);
         AclServiceTestUtils.waitABit(asyncEventsWaiter);
     }

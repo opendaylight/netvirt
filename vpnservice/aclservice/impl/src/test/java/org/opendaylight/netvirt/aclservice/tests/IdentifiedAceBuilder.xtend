@@ -24,24 +24,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.AceBuilder
 
 import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
-import org.immutables.value.Value.Immutable
-import org.immutables.value.Value
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttrBuilder
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.ActionsBuilder
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.packet.handling.PermitBuilder
 import java.util.Optional
+import javax.annotation.concurrent.NotThreadSafe
 
-@Immutable
-@Value.Style(stagedBuilder=true)
-abstract class IdentifiedAceBuilder implements DataTreeIdentifierDataObjectPairBuilder<Ace> {
+@NotThreadSafe
+class IdentifiedAceBuilder implements DataTreeIdentifierDataObjectPairBuilder<Ace> {
 
-    def abstract String sgUuid()
-    def abstract String newRuleName()
-    def abstract Matches newMatches()
-    def abstract Class<? extends DirectionBase> newDirection()
-    def abstract Optional<Uuid> newRemoteGroupId()
+    var String sgUuid
+    var String newRuleName
+    var Matches newMatches
+    var Class<? extends DirectionBase> newDirection
+    var Optional<Uuid> newRemoteGroupId = Optional.empty
 
     override type() {
         CONFIGURATION
@@ -72,4 +70,34 @@ abstract class IdentifiedAceBuilder implements DataTreeIdentifierDataObjectPairB
             ])
         ]
     }
+
+    // TODO Write a new, or find an existing, Xtend active annotation @Builder, extending AccessorsProcessor, which creates setters that "return this" (and without the set* prefix)
+    //   NB it will have to deal with Optional just like Immutables.org does (it above will have to be changed)
+    //      as well as have addList(List<>) kind of methods
+
+    def sgUuid(String sgUuid) {
+        this.sgUuid = sgUuid
+        this
+    }
+
+    def newRuleName(String newRuleName) {
+        this.newRuleName = newRuleName
+        this
+    }
+
+    def newMatches(Matches newMatches) {
+        this.newMatches = newMatches
+        this
+    }
+
+    def newDirection(Class<? extends DirectionBase> newDirection) {
+        this.newDirection = newDirection
+        this
+    }
+
+    def newRemoteGroupId(Uuid newRemoteGroupId) {
+        this.newRemoteGroupId = Optional.of(newRemoteGroupId)
+        this
+    }
+
 }
