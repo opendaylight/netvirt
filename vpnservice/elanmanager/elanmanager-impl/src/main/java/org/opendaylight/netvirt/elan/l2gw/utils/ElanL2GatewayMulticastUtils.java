@@ -221,33 +221,15 @@ public class ElanL2GatewayMulticastUtils {
     private void preapareRemoteMcastMacEntry(WriteTransaction transaction, String elanName,
                                                     L2GatewayDevice device, List<IpAddress> dpnsTepIps,
                                                     List<IpAddress> l2GwDevicesTepIps) {
-        NodeId nodeId = new NodeId(device.getHwvtepNodeId());
-
         ArrayList<IpAddress> remoteTepIps = new ArrayList<>(l2GwDevicesTepIps);
         remoteTepIps.remove(device.getTunnelIp());
         remoteTepIps.addAll(dpnsTepIps);
-        if (dpnsTepIps.isEmpty()) {
-            // If no dpns in elan, configure dhcp designated switch Tep Ip as a
-            // physical locator in l2 gw device
-            IpAddress dhcpDesignatedSwitchTepIp = getTepIpOfDesignatedSwitchForExternalTunnel(device, elanName);
-            if (dhcpDesignatedSwitchTepIp != null) {
-                remoteTepIps.add(dhcpDesignatedSwitchTepIp);
-
-                HwvtepPhysicalLocatorAugmentation phyLocatorAug = HwvtepSouthboundUtils
-                        .createHwvtepPhysicalLocatorAugmentation(String.valueOf(dhcpDesignatedSwitchTepIp.getValue()));
-                HwvtepUtils.putPhysicalLocator(transaction, nodeId, phyLocatorAug);
-
-                LOG.info("Adding PhysicalLocator for node: {} with Dhcp designated switch Tep Ip {} "
-                        + "as physical locator, elan {}", device.getHwvtepNodeId(),
-                        String.valueOf(dhcpDesignatedSwitchTepIp.getValue()), elanName);
-            } else {
-                LOG.warn("Dhcp designated switch Tep Ip not found for l2 gw node {} and elan {}",
-                        device.getHwvtepNodeId(), elanName);
-            }
+        IpAddress dhcpDesignatedSwitchTepIp = getTepIpOfDesignatedSwitchForExternalTunnel(device, elanName);
+        if (dhcpDesignatedSwitchTepIp != null && !remoteTepIps.contains(dhcpDesignatedSwitchTepIp)) {
+            remoteTepIps.add(dhcpDesignatedSwitchTepIp);
         }
-
         String logicalSwitchName = elanL2GatewayUtils.getLogicalSwitchFromElan(elanName);
-        putRemoteMcastMac(transaction, nodeId, logicalSwitchName, remoteTepIps);
+        putRemoteMcastMac(transaction, new NodeId(device.getHwvtepNodeId()), logicalSwitchName, remoteTepIps);
         LOG.info("Adding RemoteMcastMac for node: {} with physical locators: {}", device.getHwvtepNodeId(),
                 remoteTepIps);
     }
