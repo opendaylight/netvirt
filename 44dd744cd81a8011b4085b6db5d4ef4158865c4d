@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_03920f57",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-07-03T06:41:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_20dbc9ee",
+      "revId": "44dd744cd81a8011b4085b6db5d4ef4158865c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_c0d62dc5",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2017-07-02T21:58:16Z",
       "side": 1,
       "message": "at this point has the acl been updated or does in happen next? If later then this log should be later or say acl will be updated",
+      "revId": "44dd744cd81a8011b4085b6db5d4ef4158865c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_8330bf57",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-07-03T06:41:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_c0d62dc5",
       "revId": "44dd744cd81a8011b4085b6db5d4ef4158865c4d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_03c7af46",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-07-03T06:41:00Z",
+      "side": 1,
+      "message": "I was not aware of convention. changing it back to lower case.",
+      "parentUuid": "da2a55be_00d845ee",
+      "revId": "44dd744cd81a8011b4085b6db5d4ef4158865c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_40e23da0",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
         "patchSetId": 5
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_e3fedb6a",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-07-03T06:41:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_40e23da0",
+      "revId": "44dd744cd81a8011b4085b6db5d4ef4158865c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_a0ee9989",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractIngressAclServiceImpl.java",
         "patchSetId": 5
@@ -81,6 +153,24 @@
       "writtenOn": "2017-07-02T21:58:16Z",
       "side": 1,
       "message": "remove previous log as this log here has the same dpid and lporttag info",
+      "revId": "44dd744cd81a8011b4085b6db5d4ef4158865c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_c3b597ce",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractIngressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-07-03T06:41:00Z",
+      "side": 1,
+      "message": "Done! my bad, missed to remove previous log statement after adding detailed log.",
+      "parentUuid": "da2a55be_a0ee9989",
       "revId": "44dd744cd81a8011b4085b6db5d4ef4158865c4d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
