@@ -163,6 +163,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         addFibEntries(identifier, vrfEntry, rd);
         LOG.info("ADD: Added Fib Entry rd {} prefix {} route-paths {}",
                  rd, vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths());
+
+        
     }
 
     //This method is temporary. Eventually Factory design pattern will be used to get
