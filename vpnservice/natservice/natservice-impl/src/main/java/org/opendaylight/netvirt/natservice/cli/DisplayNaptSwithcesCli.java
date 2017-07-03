@@ -79,7 +79,7 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
     }
 
     private String getDpnLocalIp(BigInteger dpId) {
-        return getPortsNode(dpId).transform(node -> getOpenvswitchOtherConfig(node, LOCAL_IP)).orNull();
+        return getPortsNode(dpId).toJavaUtil().map(node -> getOpenvswitchOtherConfig(node, LOCAL_IP)).orElse(null);
     }
 
     private String getOpenvswitchOtherConfig(Node node, String key) {

@@ -89,16 +89,16 @@ public class L2GatewayConnectionUtils {
     @Nonnull
     public static List<L2gateway> getL2gatewayList(DataBroker broker) {
         InstanceIdentifier<L2gateways> inst = InstanceIdentifier.create(Neutron.class).child(L2gateways.class);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst).transform(
-                L2gateways::getL2gateway).or(Collections.emptyList());
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst).toJavaUtil().map(
+                L2gateways::getL2gateway).orElse(Collections.emptyList());
     }
 
     @Nonnull
     public static List<L2gatewayConnection> getAllL2gatewayConnections(DataBroker broker) {
         InstanceIdentifier<L2gatewayConnections> inst = InstanceIdentifier.create(Neutron.class)
                 .child(L2gatewayConnections.class);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst).transform(
-                L2gatewayConnections::getL2gatewayConnection).or(Collections.emptyList());
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst).toJavaUtil().map(
+                L2gatewayConnections::getL2gatewayConnection).orElse(Collections.emptyList());
     }
 
     /**

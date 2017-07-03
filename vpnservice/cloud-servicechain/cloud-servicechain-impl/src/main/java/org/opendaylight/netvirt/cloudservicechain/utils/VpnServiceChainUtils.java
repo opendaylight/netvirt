@@ -184,9 +184,9 @@ public class VpnServiceChainUtils {
      * @return the RouteDistinguiser for the specified VPN
      */
     public static String getVpnRd(DataBroker broker, String vpnName) {
-
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVrfId).orNull();
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
+                VpnInstance::getVrfId).orElse(null);
     }
 
     /**
@@ -199,8 +199,8 @@ public class VpnServiceChainUtils {
     public static List<VrfEntry> getAllVrfEntries(DataBroker broker, String rd) {
         InstanceIdentifier<VrfTables> vpnVrfTables =
             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTables).transform(
-                VrfTables::getVrfEntry).or(new ArrayList<>());
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTables).toJavaUtil().map(
+                VrfTables::getVrfEntry).orElse(new ArrayList<>());
     }
 
     /**
@@ -413,8 +413,8 @@ public class VpnServiceChainUtils {
 
     public static Optional<Long> getVpnPseudoLportTag(DataBroker broker, String rd) {
         InstanceIdentifier<VpnToPseudoPortData> path = getVpnToPseudoPortTagIid(rd);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, path).transform(
-                VpnToPseudoPortData::getVpnLportTag);
+        return Optional.fromJavaUtil(MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, path).toJavaUtil().map(
+                VpnToPseudoPortData::getVpnLportTag));
     }
 
     /**

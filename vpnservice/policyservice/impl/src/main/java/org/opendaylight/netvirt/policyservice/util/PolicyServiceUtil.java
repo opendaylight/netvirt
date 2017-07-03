@@ -375,8 +375,8 @@ public class PolicyServiceUtil {
         try {
             return SingleTransactionDataBroker
                     .syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL, identifier)
-                    .transform(UnderlayNetwork::getDpnToInterface)
-                    .or(Collections.emptyList());
+                    .toJavaUtil().map(UnderlayNetwork::getDpnToInterface)
+                    .orElse(Collections.emptyList());
         } catch (ReadFailedException e) {
             LOG.warn("Failed to get DPNs for underlay network {}", underlayNetwork);
             return Collections.emptyList();

@@ -231,7 +231,7 @@ public class NatEvpnUtil {
         InstanceIdentifier<FloatingIpIdToPortMapping> id =
                 NatUtil.buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(
-                FloatingIpIdToPortMapping::getFloatingIpPortId).orNull();
+                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
+                FloatingIpIdToPortMapping::getFloatingIpPortId).orElse(null);
     }
 }

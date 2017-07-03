@@ -308,7 +308,8 @@ public class FibRpcServiceImpl implements FibRpcService {
     //TODO: Below Util methods to be removed once VpnUtil methods are exposed in api bundle
     public static String getVpnRd(DataBroker broker, String vpnName) {
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVrfId).orNull();
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
+                VpnInstance::getVrfId).orElse(null);
     }
 
     static InstanceIdentifier<VpnInstance> getVpnInstanceToVpnIdIdentifier(String vpnName) {
@@ -334,7 +335,8 @@ public class FibRpcServiceImpl implements FibRpcService {
 
     static long getVpnId(DataBroker broker, String vpnName) {
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVpnId).or(-1L);
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
+                VpnInstance::getVpnId).orElse(-1L);
     }
 
 

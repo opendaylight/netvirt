@@ -938,8 +938,8 @@ public class NexthopManager implements AutoCloseable {
                     InstanceIdentifier.builder(TunnelsState.class).child(
                             StateTunnelList.class, new StateTunnelListKey(tunnelName)).build();
             return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, tunnelStateId)
-                    .transform(StateTunnelList::getOperState)
-                    .or(TunnelOperStatus.Down) == TunnelOperStatus.Up;
+                    .toJavaUtil().map(StateTunnelList::getOperState)
+                    .orElse(TunnelOperStatus.Down) == TunnelOperStatus.Up;
         }
         return false;
     }

@@ -48,7 +48,7 @@ public class SfcProvider {
                 .child(RenderedServicePath.class, renderedServicePathKey).build();
 
 
-        return Optional.ofNullable(MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, rspIid).orNull());
+        return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, rspIid).toJavaUtil();
     }
 
     public Optional<RenderedServicePath> getRenderedServicePathFromSfc(String sfcName) {
@@ -105,7 +105,7 @@ public class SfcProvider {
         InstanceIdentifier<ServiceFunction> sfIid = InstanceIdentifier.builder(ServiceFunctions.class)
                 .child(ServiceFunction.class, serviceFunctionKey).build();
 
-        return Optional.ofNullable(MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, sfIid).orNull());
+        return MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, sfIid).toJavaUtil();
     }
 
     private Optional<RenderedServicePathHop> getRspFirstHop(RenderedServicePath rsp) {
