@@ -8,6 +8,8 @@
 package org.opendaylight.netvirt.aclservice.tests
 
 import java.util.List
+import javax.annotation.concurrent.NotThreadSafe
+import org.opendaylight.netvirt.aclservice.tests.infra.DataTreeIdentifierDataObjectPairBuilder
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder
@@ -21,18 +23,15 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION
 
 import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
-import org.immutables.value.Value.Immutable
-import org.immutables.value.Value
-import org.opendaylight.netvirt.aclservice.tests.infra.DataTreeIdentifierDataObjectPairBuilder
+import java.util.ArrayList
 
-@Immutable
-@Value.Style(stagedBuilder=true, depluralize = true)
-abstract class IdentifiedInterfaceWithAclBuilder implements DataTreeIdentifierDataObjectPairBuilder<Interface> {
+@NotThreadSafe
+class IdentifiedInterfaceWithAclBuilder implements DataTreeIdentifierDataObjectPairBuilder<Interface> {
 
-    def abstract String interfaceName()
-    def abstract Boolean portSecurity()
-    def abstract List<Uuid> newSecurityGroups()
-    def abstract List<AllowedAddressPairs> ifAllowedAddressPairs()
+    var String interfaceName
+    var Boolean portSecurity
+    var List<Uuid> newSecurityGroups = new ArrayList
+    var List<AllowedAddressPairs> ifAllowedAddressPairs = new ArrayList
 
     override type() {
         CONFIGURATION
@@ -52,6 +51,28 @@ abstract class IdentifiedInterfaceWithAclBuilder implements DataTreeIdentifierDa
             ])
             name = interfaceName
         ]
+    }
+
+    // see IdentifiedAceBuilder (@Builder)
+
+    def interfaceName(String interfaceName) {
+        this.interfaceName = interfaceName
+        this
+    }
+
+    def portSecurity(Boolean portSecurity) {
+        this.portSecurity = portSecurity
+        this
+    }
+
+    def addAllNewSecurityGroups(List<Uuid> newSecurityGroups) {
+        this.newSecurityGroups.addAll(newSecurityGroups)
+        this
+    }
+
+    def addAllIfAllowedAddressPairs(List<AllowedAddressPairs> ifAllowedAddressPairs) {
+        this.ifAllowedAddressPairs.addAll(ifAllowedAddressPairs)
+        this
     }
 
 }
