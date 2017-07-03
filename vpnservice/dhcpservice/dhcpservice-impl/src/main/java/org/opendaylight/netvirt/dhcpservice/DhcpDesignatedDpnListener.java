@@ -77,9 +77,7 @@ public class DhcpDesignatedDpnListener
                 original.getTunnelRemoteIpAddress(), original.getElanInstanceName());
         dhcpExternalTunnelManager.updateLocalCache(designatedDpnId, tunnelRemoteIpAddress, elanInstanceName);
         List<BigInteger> elanDpns = DhcpServiceUtils.getDpnsForElan(elanInstanceName, broker);
-        if (elanDpns == null || elanDpns.isEmpty()) {
-            dhcpExternalTunnelManager.installRemoteMcastMac(designatedDpnId, tunnelRemoteIpAddress, elanInstanceName);
-        }
+        dhcpExternalTunnelManager.installRemoteMcastMac(designatedDpnId, tunnelRemoteIpAddress, elanInstanceName);
     }
 
     @Override
@@ -89,9 +87,7 @@ public class DhcpDesignatedDpnListener
         String elanInstanceName = add.getElanInstanceName();
         dhcpExternalTunnelManager.updateLocalCache(designatedDpnId, tunnelRemoteIpAddress, elanInstanceName);
         List<BigInteger> elanDpns = DhcpServiceUtils.getDpnsForElan(elanInstanceName, broker);
-        if (elanDpns == null || elanDpns.isEmpty()) {
-            dhcpExternalTunnelManager.installRemoteMcastMac(designatedDpnId, tunnelRemoteIpAddress, elanInstanceName);
-        }
+        dhcpExternalTunnelManager.installRemoteMcastMac(designatedDpnId, tunnelRemoteIpAddress, elanInstanceName);
     }
 
     @Override
