@@ -209,7 +209,8 @@ public class FibUtil {
     public static long getVpnId(DataBroker broker, String vpnName) {
 
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVpnId).or(-1L);
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
+                VpnInstance::getVpnId).orElse(-1L);
     }
 
     /**
@@ -220,13 +221,14 @@ public class FibUtil {
      * @return The vpn instance
      */
     public static Optional<String> getVpnNameFromRd(DataBroker broker, String rd) {
-        return getVpnInstanceOpData(broker, rd).transform(VpnInstanceOpDataEntry::getVpnInstanceName);
+        return Optional.fromJavaUtil(
+                getVpnInstanceOpData(broker, rd).toJavaUtil().map(VpnInstanceOpDataEntry::getVpnInstanceName));
     }
 
     public static String getVpnNameFromId(DataBroker broker, long vpnId) {
         InstanceIdentifier<VpnIds> id = getVpnIdToVpnInstanceIdentifier(vpnId);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnIds::getVpnInstanceName)
-                .orNull();
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
+                VpnIds::getVpnInstanceName).orElse(null);
     }
 
     static InstanceIdentifier<VpnIds> getVpnIdToVpnInstanceIdentifier(long vpnId) {
@@ -485,7 +487,8 @@ public class FibUtil {
         }
         return routePaths.stream()
                 .filter(routePath -> routePath.getNexthopAddress().equals(nextHopIp))
-                .findFirst().map(RoutePaths::getLabel);
+                .findFirst()
+                .map(RoutePaths::getLabel);
     }
 
     public static InstanceIdentifier<Interface> buildStateInterfaceId(String interfaceName) {
