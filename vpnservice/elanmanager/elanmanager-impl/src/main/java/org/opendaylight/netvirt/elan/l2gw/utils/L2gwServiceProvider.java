@@ -18,6 +18,7 @@ import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.api.IL2gwService;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.l2gatewayconnections.L2gatewayConnection;
 import org.slf4j.Logger;
@@ -60,6 +61,12 @@ public class L2gwServiceProvider extends AbstractLifecycle implements IL2gwServi
                     l2GwConn.getL2gatewayId(), psName);
             elanUtils.getL2GatewayConnectionUtils().addL2GatewayConnection(l2GwConn, psName);
         }
+    }
+
+    @Override
+    public List<L2gatewayConnection> getL2GwConnectionsByL2GatewayId(Uuid l2GatewayId) {
+        return this.elanUtils.getL2GatewayConnectionUtils().getL2GwConnectionsByL2GatewayId(
+                this.dataBroker, l2GatewayId);
     }
 
     @Override
