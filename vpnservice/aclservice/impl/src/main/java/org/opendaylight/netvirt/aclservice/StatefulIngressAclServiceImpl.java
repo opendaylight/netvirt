@@ -88,7 +88,7 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
         matches.add(buildLPortTagMatch(lportTag));
         matches.add(new NxMatchCtState(AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK));
 
-        Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
+        Long elanTag = AclServiceUtils.getElanIdFromAclInterface(portId);
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions = null;
         PacketHandling packetHandling = ace.getActions() != null ? ace.getActions().getPacketHandling() : null;
@@ -136,7 +136,7 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
             List<InstructionInfo> instructions = new ArrayList<>();
             List<ActionInfo> actionsInfos = new ArrayList<>();
 
-            Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
+            Long elanTag = AclServiceUtils.getElanIdFromAclInterface(portId);
             actionsInfos.add(new ActionNxConntrack(2, 0, 0, elanTag.intValue(),
                     NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE));
             instructions.add(new InstructionApplyActions(actionsInfos));
