@@ -114,7 +114,7 @@ public abstract class AclServiceTestBase {
         // Given
         // putNewInterface(dataBroker, "port1", true, Collections.emptyList(), Collections.emptyList());
         dataBrokerUtil.put(
-                ImmutableIdentifiedInterfaceWithAclBuilder.builder().interfaceName("port1").portSecurity(true).build());
+                new IdentifiedInterfaceWithAclBuilder().interfaceName("port1").portSecurity(true).build());
 
         // When
         putNewStateInterface(dataBroker, "port1", PORT_MAC_1);
@@ -139,14 +139,14 @@ public abstract class AclServiceTestBase {
                 AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_UNSPECIFIED,
                 AclConstants.DEST_UPPER_PORT_UNSPECIFIED, AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED,
                 AclConstants.DEST_REMOTE_IP_PREFIX_SPECIFIED, (short) -1);
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_1)
+        dataBrokerUtil.put(new IdentifiedAceBuilder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_1)
                 .newMatches(matches).newDirection(DirectionEgress.class).build());
         matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED, AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED,
                 AclConstants.DEST_LOWER_PORT_UNSPECIFIED, AclConstants.DEST_UPPER_PORT_UNSPECIFIED,
                 AclConstants.SOURCE_REMOTE_IP_PREFIX_SPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_UNSPECIFIED,
                 (short) -1);
         dataBrokerUtil.put(
-                ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_2).newMatches(matches)
+                new IdentifiedAceBuilder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_2).newMatches(matches)
                         .newDirection(DirectionIngress.class).newRemoteGroupId(new Uuid(SG_UUID_1)).build());
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
@@ -172,14 +172,14 @@ public abstract class AclServiceTestBase {
                 AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_UNSPECIFIED,
                 AclConstants.DEST_UPPER_PORT_UNSPECIFIED, AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED,
                 AclConstants.DEST_REMOTE_IP_PREFIX_SPECIFIED, (short) -1);
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_1)
+        dataBrokerUtil.put(new IdentifiedAceBuilder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_1)
                 .newMatches(matches).newDirection(DirectionEgress.class).build());
         matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED, AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED,
                 AclConstants.DEST_LOWER_PORT_UNSPECIFIED, AclConstants.DEST_UPPER_PORT_UNSPECIFIED,
                 AclConstants.SOURCE_REMOTE_IP_PREFIX_SPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_UNSPECIFIED,
                 (short) -1);
         dataBrokerUtil.put(
-                ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_2).newMatches(matches)
+                new IdentifiedAceBuilder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_2).newMatches(matches)
                         .newDirection(DirectionIngress.class).newRemoteGroupId(new Uuid(SG_UUID_1)).build());
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
@@ -197,14 +197,14 @@ public abstract class AclServiceTestBase {
                 AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_HTTP,
                 AclConstants.DEST_UPPER_PORT_HTTP, AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED,
                 AclConstants.DEST_REMOTE_IP_PREFIX_SPECIFIED, (short) NwConstants.IP_PROT_TCP);
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_2).newRuleName(SR_UUID_2_1)
+        dataBrokerUtil.put(new IdentifiedAceBuilder().sgUuid(SG_UUID_2).newRuleName(SR_UUID_2_1)
                 .newMatches(matches).newDirection(DirectionEgress.class).newRemoteGroupId(new Uuid(SG_UUID_2)).build());
         matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED, AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED,
                 AclConstants.DEST_LOWER_PORT_HTTP, AclConstants.DEST_UPPER_PORT_HTTP,
                 AclConstants.SOURCE_REMOTE_IP_PREFIX_SPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_UNSPECIFIED,
                 (short) NwConstants.IP_PROT_TCP);
 
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_2).newRuleName(SR_UUID_2_2)
+        dataBrokerUtil.put(new IdentifiedAceBuilder().sgUuid(SG_UUID_2).newRuleName(SR_UUID_2_2)
                 .newMatches(matches).newDirection(DirectionIngress.class).build());
         List<String> sgList = new ArrayList<>();
         sgList.add(SG_UUID_1);
@@ -232,14 +232,14 @@ public abstract class AclServiceTestBase {
                 AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_HTTP,
                 AclConstants.DEST_UPPER_PORT_HTTP, AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED,
                 AclConstants.DEST_REMOTE_IP_PREFIX_SPECIFIED, (short) NwConstants.IP_PROT_TCP);
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_1)
+        dataBrokerUtil.put(new IdentifiedAceBuilder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_1)
                 .newMatches(matches).newDirection(DirectionEgress.class).newRemoteGroupId(new Uuid(SG_UUID_1)).build());
         matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED, AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED,
                 AclConstants.DEST_LOWER_PORT_HTTP, AclConstants.DEST_UPPER_PORT_HTTP,
                 AclConstants.SOURCE_REMOTE_IP_PREFIX_SPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_UNSPECIFIED,
                 (short) NwConstants.IP_PROT_TCP);
 
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_2)
+        dataBrokerUtil.put(new IdentifiedAceBuilder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_2)
                 .newMatches(matches).newDirection(DirectionIngress.class).build());
 
         // When
@@ -267,7 +267,7 @@ public abstract class AclServiceTestBase {
                 AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_HTTP,
                 AclConstants.DEST_UPPER_PORT_HTTP, AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED,
                 AclConstants.DEST_REMOTE_IP_PREFIX_SPECIFIED, (short) NwConstants.IP_PROT_UDP);
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_1)
+        dataBrokerUtil.put(new IdentifiedAceBuilder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_1)
                 .newMatches(matches).newDirection(DirectionEgress.class).build());
 
         matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED, AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED,
@@ -275,7 +275,7 @@ public abstract class AclServiceTestBase {
                 AclConstants.SOURCE_REMOTE_IP_PREFIX_SPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_UNSPECIFIED,
                 (short) NwConstants.IP_PROT_UDP);
         dataBrokerUtil.put(
-                ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_2).newMatches(matches)
+                new IdentifiedAceBuilder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_2).newMatches(matches)
                         .newDirection(DirectionIngress.class).newRemoteGroupId(new Uuid(SG_UUID_1)).build());
 
         // When
@@ -322,13 +322,13 @@ public abstract class AclServiceTestBase {
         Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
                 AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, 333, 777, AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED,
                 AclConstants.DEST_REMOTE_IP_PREFIX_SPECIFIED, (short) NwConstants.IP_PROT_TCP);
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_1)
+        dataBrokerUtil.put(new IdentifiedAceBuilder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_1)
                 .newMatches(matches).newDirection(DirectionEgress.class).build());
         matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED, AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, 2000,
                 2003, AclConstants.SOURCE_REMOTE_IP_PREFIX_SPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_UNSPECIFIED,
                 (short) NwConstants.IP_PROT_UDP);
 
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_2)
+        dataBrokerUtil.put(new IdentifiedAceBuilder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_2)
                 .newMatches(matches).newDirection(DirectionIngress.class).build());
 
         // When
@@ -352,13 +352,13 @@ public abstract class AclServiceTestBase {
         Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
                 AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, 1, 65535, AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED,
                 AclConstants.DEST_REMOTE_IP_PREFIX_SPECIFIED, (short) NwConstants.IP_PROT_TCP);
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_1)
+        dataBrokerUtil.put(new IdentifiedAceBuilder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_1)
                 .newMatches(matches).newDirection(DirectionEgress.class).build());
         matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED, AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, 1,
                 65535, AclConstants.SOURCE_REMOTE_IP_PREFIX_SPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_UNSPECIFIED,
                 (short) NwConstants.IP_PROT_UDP);
 
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_2)
+        dataBrokerUtil.put(new IdentifiedAceBuilder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_2)
                 .newMatches(matches).newDirection(DirectionIngress.class).build());
 
         // When
@@ -388,16 +388,16 @@ public abstract class AclServiceTestBase {
                 AclConstants.DEST_UPPER_PORT_3, AclConstants.SOURCE_REMOTE_IP_PREFIX_SPECIFIED,
                 AclConstants.DEST_REMOTE_IP_PREFIX_UNSPECIFIED, (short) NwConstants.IP_PROT_ICMP);
 
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_1)
+        dataBrokerUtil.put(new IdentifiedAceBuilder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_1)
                 .newMatches(icmpEgressMatches).newDirection(DirectionEgress.class).build());
 
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_2)
+        dataBrokerUtil.put(new IdentifiedAceBuilder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_2)
                 .newMatches(icmpIngressMatches).newDirection(DirectionIngress.class).build());
 
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_2).newRuleName(SR_UUID_2_1)
+        dataBrokerUtil.put(new IdentifiedAceBuilder().sgUuid(SG_UUID_2).newRuleName(SR_UUID_2_1)
                 .newMatches(icmpEgressMatches).newDirection(DirectionEgress.class).build());
 
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_2).newRuleName(SR_UUID_2_2)
+        dataBrokerUtil.put(new IdentifiedAceBuilder().sgUuid(SG_UUID_2).newRuleName(SR_UUID_2_2)
                 .newMatches(icmpIngressMatches).newDirection(DirectionIngress.class).build());
 
         // When
@@ -501,14 +501,14 @@ public abstract class AclServiceTestBase {
                 AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_2,
                 AclConstants.DEST_UPPER_PORT_3, AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED,
                 AclConstants.DEST_REMOTE_IP_PREFIX_SPECIFIED, (short) NwConstants.IP_PROT_ICMP);
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_1)
+        dataBrokerUtil.put(new IdentifiedAceBuilder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_1)
                 .newMatches(matches).newDirection(DirectionEgress.class).newRemoteGroupId(new Uuid(SG_UUID_1)).build());
 
         matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED, AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED,
                 AclConstants.DEST_LOWER_PORT_2, AclConstants.DEST_UPPER_PORT_3,
                 AclConstants.SOURCE_REMOTE_IP_PREFIX_SPECIFIED, AclConstants.DEST_REMOTE_IP_PREFIX_UNSPECIFIED,
                 (short) NwConstants.IP_PROT_ICMP);
-        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_2)
+        dataBrokerUtil.put(new IdentifiedAceBuilder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_2)
                 .newMatches(matches).newDirection(DirectionIngress.class).build());
     }
 
@@ -516,7 +516,7 @@ public abstract class AclServiceTestBase {
             throws TransactionCommitFailedException {
         List<Uuid> sgList = sgUuidList.stream().map(Uuid::new).collect(Collectors.toList());
 
-        dataBrokerUtil.put(ImmutableIdentifiedInterfaceWithAclBuilder.builder().interfaceName(portName)
+        dataBrokerUtil.put(new IdentifiedInterfaceWithAclBuilder().interfaceName(portName)
                 .portSecurity(true).addAllNewSecurityGroups(sgList).addAllIfAllowedAddressPairs(aapList).build());
     }
 
