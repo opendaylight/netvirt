@@ -441,22 +441,24 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         List<AclInterface> aclInterfaces = aclDataUtil.getInterfaceList(acl);
         BigInteger dpId = port.getDpId();
         boolean isFirstPortInDpn = true;
-        for (AclInterface aclInterface : aclInterfaces) {
-            if (port.getInterfaceId().equals(aclInterface.getInterfaceId())) {
-                continue;
-            }
-            if (dpId.equals(aclInterface.getDpId())) {
-                isFirstPortInDpn = false;
-                break;
-            }
-        }
-        if (isFirstPortInDpn) {
+        if (aclInterfaces != null) {
             for (AclInterface aclInterface : aclInterfaces) {
                 if (port.getInterfaceId().equals(aclInterface.getInterfaceId())) {
                     continue;
                 }
-                for (AllowedAddressPairs ip : aclInterface.getAllowedAddressPairs()) {
-                    updateRemoteAclTableForPort(aclInterface, acl, addOrRemove, ip, aclId, port.getDpId());
+                if (dpId.equals(aclInterface.getDpId())) {
+                    isFirstPortInDpn = false;
+                    break;
+                }
+            }
+            if (isFirstPortInDpn) {
+                for (AclInterface aclInterface : aclInterfaces) {
+                    if (port.getInterfaceId().equals(aclInterface.getInterfaceId())) {
+                        continue;
+                    }
+                    for (AllowedAddressPairs ip : aclInterface.getAllowedAddressPairs()) {
+                        updateRemoteAclTableForPort(aclInterface, acl, addOrRemove, ip, aclId, port.getDpId());
+                    }
                 }
             }
         }
@@ -468,38 +470,42 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                 continue;
             }
             List<AclInterface> aclInterfaces = aclDataUtil.getInterfaceList(aclUuid);
-            for (AclInterface aclInterface : aclInterfaces) {
-                if (aclInterface.getInterfaceId().equals(port.getInterfaceId())
-                        || AclServiceUtils.exactlyOneAcl(aclInterface)) {
-                    continue;
-                }
-                boolean allMultipleAcls = true;
-                List<Uuid> remoteInterfaceRemoteAcls = aclInterface.getSecurityGroups();
-                if (remoteInterfaceRemoteAcls != null) {
-                    for (Uuid remoteInterfaceRemoteAcl : remoteInterfaceRemoteAcls) {
-                        if (aclDataUtil.getRemoteAcl(remoteInterfaceRemoteAcl) == null) {
-                            continue;
-                        }
-                        List<AclInterface> aclInterfaces2 = aclDataUtil.getInterfaceList(remoteInterfaceRemoteAcl);
-                        for (AclInterface aclInterface2 : aclInterfaces2) {
-                            if (aclInterface2.getInterfaceId().equals(aclInterface.getInterfaceId())) {
-                                continue;
-                            }
-                            if (aclInterface2.getSecurityGroups().size() == 1) {
-                                allMultipleAcls = false;
-                                break;
-                            }
-                        }
-                    }
-                }
-                int addRremove = (allMultipleAcls) ? NwConstants.DEL_FLOW : NwConstants.ADD_FLOW;
-                addRremove = (isAclDeleted) ? NwConstants.DEL_FLOW : addRremove;
-                for (AllowedAddressPairs ip : aclInterface.getAllowedAddressPairs()) {
-                    if (!AclServiceUtils.isNotIpv4AllNetwork(ip)) {
+            if (aclInterfaces != null) {
+                for (AclInterface aclInterface : aclInterfaces) {
+                    if (aclInterface.getInterfaceId().equals(port.getInterfaceId())
+                            || AclServiceUtils.exactlyOneAcl(aclInterface)) {
                         continue;
                     }
-                    updateRemoteAclTableForPort(aclInterface, aclUuid, addRremove, ip,
-                            aclServiceUtils.buildAclId(aclUuid), aclInterface.getDpId());
+                    boolean allMultipleAcls = true;
+                    List<Uuid> remoteInterfaceRemoteAcls = aclInterface.getSecurityGroups();
+                    if (remoteInterfaceRemoteAcls != null) {
+                        for (Uuid remoteInterfaceRemoteAcl : remoteInterfaceRemoteAcls) {
+                            if (aclDataUtil.getRemoteAcl(remoteInterfaceRemoteAcl) == null) {
+                                continue;
+                            }
+                            List<AclInterface> aclInterfaces2 = aclDataUtil.getInterfaceList(remoteInterfaceRemoteAcl);
+                            if (aclInterfaces2 != null) {
+                                for (AclInterface aclInterface2 : aclInterfaces2) {
+                                    if (aclInterface2.getInterfaceId().equals(aclInterface.getInterfaceId())) {
+                                        continue;
+                                    }
+                                    if (aclInterface2.getSecurityGroups().size() == 1) {
+                                        allMultipleAcls = false;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    int addRremove = (allMultipleAcls) ? NwConstants.DEL_FLOW : NwConstants.ADD_FLOW;
+                    addRremove = (isAclDeleted) ? NwConstants.DEL_FLOW : addRremove;
+                    for (AllowedAddressPairs ip : aclInterface.getAllowedAddressPairs()) {
+                        if (!AclServiceUtils.isNotIpv4AllNetwork(ip)) {
+                            continue;
+                        }
+                        updateRemoteAclTableForPort(aclInterface, aclUuid, addRremove, ip,
+                                aclServiceUtils.buildAclId(aclUuid), aclInterface.getDpId());
+                    }
                 }
             }
         }
