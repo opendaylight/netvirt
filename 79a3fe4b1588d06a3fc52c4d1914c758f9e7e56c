@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_2ad8c01c",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclDataUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-03T23:29:26Z",
+      "side": 1,
+      "message": "this backs out the change I added to protect against the null in the UT\u0027s. Is that what we want to do?",
+      "revId": "79a3fe4b1588d06a3fc52c4d1914c758f9e7e56c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
