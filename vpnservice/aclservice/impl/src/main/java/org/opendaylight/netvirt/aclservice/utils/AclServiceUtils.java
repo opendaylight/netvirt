@@ -42,6 +42,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
+import org.opendaylight.netvirt.aclservice.api.utils.AclInterfaceCacheUtil;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
@@ -677,6 +678,14 @@ public final class AclServiceUtils {
         if (null != elanInterface) {
             ElanInstance elanInfo = getElanInstanceByName(elanInterface.getElanInstanceName(), broker);
             return elanInfo.getElanTag();
+        }
+        return null;
+    }
+
+    public static Long getElanIdFromAclInterface(String elanInterfaceName) {
+        AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(elanInterfaceName);
+        if (null != aclInterface) {
+            return aclInterface.getElanId();
         }
         return null;
     }
