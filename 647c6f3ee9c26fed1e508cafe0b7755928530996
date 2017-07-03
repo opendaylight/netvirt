@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_63fcab3f",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-07-03T08:12:40Z",
+      "side": 1,
+      "message": "Yes DHCPMgr is returning the IPv4 subnet already.",
+      "parentUuid": "da2a55be_0c7401fc",
+      "revId": "647c6f3ee9c26fed1e508cafe0b7755928530996",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_ec6c0d39",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-07-01T18:33:17Z",
       "side": 1,
       "message": "must not respond then, so just do a \"return;\" here..",
+      "revId": "647c6f3ee9c26fed1e508cafe0b7755928530996",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_839a7f12",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-07-03T08:12:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_ec6c0d39",
       "revId": "647c6f3ee9c26fed1e508cafe0b7755928530996",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_43f9a74c",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-07-03T08:12:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_2c774504",
+      "revId": "647c6f3ee9c26fed1e508cafe0b7755928530996",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_cc694927",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
         "patchSetId": 2
@@ -64,6 +118,24 @@
       "writtenOn": "2017-07-01T18:33:17Z",
       "side": 1,
       "message": "retain this name simply as \u0027port\u0027",
+      "revId": "647c6f3ee9c26fed1e508cafe0b7755928530996",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_a39503e6",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-07-03T08:12:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_cc694927",
       "revId": "647c6f3ee9c26fed1e508cafe0b7755928530996",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
