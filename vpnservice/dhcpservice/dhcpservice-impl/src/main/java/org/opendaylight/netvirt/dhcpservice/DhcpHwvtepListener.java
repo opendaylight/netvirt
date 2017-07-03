@@ -53,15 +53,16 @@ public class DhcpHwvtepListener
     @Override
     @PostConstruct
     public void init() {
-        if (config.isControllerDhcpEnabled()) {
+        //This listener is not needed as it is taken care by DhcpLogicalSwitchListener
+        /*if (config.isControllerDhcpEnabled()) {
             registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
-        }
+        }*/
     }
 
     @Override
     @PreDestroy
     public void close() {
-        super.close();
+        //super.close();
         LOG.info("DhcpHwvtepListener Closed");
     }
 
