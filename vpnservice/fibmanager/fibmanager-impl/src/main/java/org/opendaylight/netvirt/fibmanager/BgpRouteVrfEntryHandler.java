@@ -67,7 +67,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
     @Inject
     public BgpRouteVrfEntryHandler(final DataBroker dataBroker,
                                    final NexthopManager nexthopManager) {
-        super(dataBroker, nexthopManager, null);
+        super(dataBroker, nexthopManager);
         this.dataBroker = dataBroker;
         this.nexthopManager = nexthopManager;
 
