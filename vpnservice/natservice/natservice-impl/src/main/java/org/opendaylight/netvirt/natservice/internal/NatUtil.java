@@ -309,7 +309,7 @@ public class NatUtil {
         InstanceIdentifier<VpnIds> id = InstanceIdentifier.builder(VpnIdToVpnInstance.class)
             .child(VpnIds.class, new VpnIdsKey(vpnId)).build();
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(VpnIds::getVpnInstanceName).orNull();
+                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(VpnIds::getVpnInstanceName).orElse(null);
     }
 
     /*
@@ -343,7 +343,7 @@ public class NatUtil {
         }
         InstanceIdentifier<Routers> id = buildRouterIdentifier(routerName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(Routers::getNetworkId).orNull();
+                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(Routers::getNetworkId).orElse(null);
     }
 
     static InstanceIdentifier<Routers> buildRouterIdentifier(String routerId) {
@@ -368,25 +368,26 @@ public class NatUtil {
     static boolean isSnatEnabledForRouterId(DataBroker broker, String routerId) {
         InstanceIdentifier<Routers> id = buildRouterIdentifier(routerId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(Routers::isEnableSnat).or(false);
+                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(Routers::isEnableSnat).orElse(false);
     }
 
     public static Uuid getVpnIdfromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(Networks::getVpnid).orNull();
+                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(Networks::getVpnid).orElse(null);
     }
 
     public static ProviderTypes getProviderTypefromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(Networks::getProviderNetworkType).orNull();
+                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(Networks::getProviderNetworkType).orElse(null);
     }
 
     public static List<Uuid> getRouterIdsfromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(Networks::getRouterIds).or(Collections.emptyList());
+                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(Networks::getRouterIds).orElse(
+                Collections.emptyList());
     }
 
     static String getAssociatedExternalNetwork(DataBroker dataBroker, String routerId) {
@@ -421,7 +422,8 @@ public class NatUtil {
         }
         InstanceIdentifier<RouterToNaptSwitch> id = buildNaptSwitchIdentifier(routerName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(RouterToNaptSwitch::getPrimarySwitchId).orNull();
+                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(RouterToNaptSwitch::getPrimarySwitchId).orElse(
+                null);
     }
 
     private static InstanceIdentifier<RouterToNaptSwitch> buildNaptSwitchIdentifier(String routerId) {
@@ -433,7 +435,7 @@ public class NatUtil {
     public static String getRouterName(DataBroker broker, Long routerId) {
         InstanceIdentifier<RouterIds> id = buildRouterIdentifier(routerId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(RouterIds::getRouterName).orNull();
+                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(RouterIds::getRouterName).orElse(null);
     }
 
     static InstanceIdentifier<VpnInstanceOpDataEntry> getVpnInstanceOpDataIdentifier(String vrfId) {
@@ -445,9 +447,9 @@ public class NatUtil {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
             .instance.to.vpn.id.VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(
+                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
                 org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-                        .VpnInstance::getVpnId).or(
+                        .VpnInstance::getVpnId).orElse(
                 NatConstants.INVALID_ID);
     }
 
@@ -495,9 +497,9 @@ public class NatUtil {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
             .instance.to.vpn.id.VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(
+                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
                 org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-                        .VpnInstance::getVrfId).orNull();
+                        .VpnInstance::getVrfId).orElse(null);
     }
 
     public static IpPortExternal getExternalIpPortMap(DataBroker broker, Long routerId, String internalIpAddress,
@@ -506,7 +508,8 @@ public class NatUtil {
         InstanceIdentifier<IpPortMap> ipPortMapId =
             buildIpToPortMapIdentifier(routerId, internalIpAddress, internalPort, protocolType);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, ipPortMapId).transform(IpPortMap::getIpPortExternal).orNull();
+                LogicalDatastoreType.CONFIGURATION, ipPortMapId).toJavaUtil().map(IpPortMap::getIpPortExternal).orElse(
+                null);
     }
 
     private static InstanceIdentifier<IpPortMap> buildIpToPortMapIdentifier(Long routerId, String internalIpAddress,
@@ -592,7 +595,7 @@ public class NatUtil {
     static long getAssociatedVpn(DataBroker broker, String routerName) {
         InstanceIdentifier<Routermapping> routerMappingId = NatUtil.getRouterVpnMappingId(routerName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.OPERATIONAL, routerMappingId).transform(Routermapping::getVpnId).or(
+                LogicalDatastoreType.OPERATIONAL, routerMappingId).toJavaUtil().map(Routermapping::getVpnId).orElse(
                 NatConstants.INVALID_ID);
     }
 
@@ -680,8 +683,8 @@ public class NatUtil {
                                                           String internalIpAddress, ProtocolTypes protocolType) {
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                 LogicalDatastoreType.CONFIGURATION,
-                buildSnatIntIpPortIdentifier(routerId, internalIpAddress, protocolType)).transform(
-                IntIpProtoType::getPorts).orNull();
+                buildSnatIntIpPortIdentifier(routerId, internalIpAddress, protocolType)).toJavaUtil().map(
+                IntIpProtoType::getPorts).orElse(null);
     }
 
     public static InstanceIdentifier<IntIpProtoType> buildSnatIntIpPortIdentifier(Long routerId,
@@ -855,7 +858,7 @@ public class NatUtil {
             .child(Subnetmap.class, new SubnetmapKey(subnetId))
             .build();
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                LogicalDatastoreType.CONFIGURATION, subnetmapId).transform(Subnetmap::getSubnetIp).orNull();
+                LogicalDatastoreType.CONFIGURATION, subnetmapId).toJavaUtil().map(Subnetmap::getSubnetIp).orElse(null);
 
     }
 
@@ -1369,7 +1372,7 @@ public class NatUtil {
         InstanceIdentifier<NetworkMap> id = InstanceIdentifier.builder(NetworkMaps.class)
             .child(NetworkMap.class, new NetworkMapKey(networkId)).build();
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(NetworkMap::getSubnetIdList).orNull();
+                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(NetworkMap::getSubnetIdList).orElse(null);
     }
 
     public static String getSubnetGwMac(DataBroker broker, Uuid subnetId, String vpnName) {
@@ -1439,15 +1442,15 @@ public class NatUtil {
     protected static String getFloatingIpPortMacFromFloatingIpId(DataBroker broker, Uuid floatingIpId) {
         InstanceIdentifier<FloatingIpIdToPortMapping> id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(
-                FloatingIpIdToPortMapping::getFloatingIpPortMacAddress).orNull();
+                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
+                FloatingIpIdToPortMapping::getFloatingIpPortMacAddress).orElse(null);
     }
 
     protected static Uuid getFloatingIpPortSubnetIdFromFloatingIpId(DataBroker broker, Uuid floatingIpId) {
         InstanceIdentifier<FloatingIpIdToPortMapping> id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(
-                FloatingIpIdToPortMapping::getFloatingIpPortSubnetId).orNull();
+                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
+                FloatingIpIdToPortMapping::getFloatingIpPortSubnetId).orElse(null);
     }
 
     static InstanceIdentifier<FloatingIpIdToPortMapping> buildfloatingIpIdToPortMappingIdentifier(Uuid floatingIpId) {
@@ -1522,7 +1525,7 @@ public class NatUtil {
         String routerName = getRouterName(broker, routerId);
         InstanceIdentifier<Routers> id = buildRouterIdentifier(routerName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(Routers::getExtGwMacAddress).orNull();
+                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(Routers::getExtGwMacAddress).orElse(null);
     }
 
     static InstanceIdentifier<Router> buildNeutronRouterIdentifier(Uuid routerUuid) {
@@ -1535,7 +1538,8 @@ public class NatUtil {
     public static String getNeutronRouterNamebyUuid(DataBroker broker, Uuid routerUuid) {
         InstanceIdentifier<Router> neutronRouterIdentifier = NatUtil.buildNeutronRouterIdentifier(routerUuid);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, neutronRouterIdentifier).transform(Router::getName).orNull();
+                LogicalDatastoreType.CONFIGURATION, neutronRouterIdentifier).toJavaUtil().map(Router::getName).orElse(
+                null);
     }
 
     // TODO Rework to return non-null
@@ -1543,7 +1547,7 @@ public class NatUtil {
         InstanceIdentifier<RouterPorts> routerPortsIdentifier = getRouterPortsId(routerUuid.getValue());
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                 LogicalDatastoreType.CONFIGURATION,
-                routerPortsIdentifier).transform(RouterPorts::getPorts).orNull();
+                routerPortsIdentifier).toJavaUtil().map(RouterPorts::getPorts).orElse(null);
     }
 
     public static List<Uuid> getRouterUuIdsForVpn(DataBroker broker, Uuid vpnUuid) {
