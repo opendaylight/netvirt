@@ -310,6 +310,28 @@ module odl-l3vpn {
                  }
               }
            }
+           leaf vpn-state {
+              description
+                 "Represents a stage in the VPN's life.";
+              type enumeration {
+                 enum created {
+                    value "0";
+                    description
+                    "VPN is successfully created";
+                 }
+                 enum pending_delete {
+                    value "1";
+                    description
+                    "Cleanup of VPN data is pending. Waiting for VPN footprint to get cleared.";
+                 }
+                 enum footprint_cleared {
+                    value "2";
+                    description
+                    "VPN footprint cleared.";
+                 }
+              }
+              default "created";
+           }
         }
     }
 
