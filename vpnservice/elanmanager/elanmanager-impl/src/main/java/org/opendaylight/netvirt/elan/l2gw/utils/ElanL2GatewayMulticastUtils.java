@@ -49,6 +49,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical.locator.set.attributes.LocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical.locator.set.attributes.LocatorSetBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -226,17 +228,22 @@ public class ElanL2GatewayMulticastUtils {
         ArrayList<IpAddress> remoteTepIps = new ArrayList<>(l2GwDevicesTepIps);
         remoteTepIps.remove(device.getTunnelIp());
         remoteTepIps.addAll(dpnsTepIps);
+        IpAddress dhcpDesignatedSwitchTepIp = getTepIpOfDesignatedSwitchForExternalTunnel(device, elanName);
         if (dpnsTepIps.isEmpty()) {
             // If no dpns in elan, configure dhcp designated switch Tep Ip as a
             // physical locator in l2 gw device
-            IpAddress dhcpDesignatedSwitchTepIp = getTepIpOfDesignatedSwitchForExternalTunnel(device, elanName);
             if (dhcpDesignatedSwitchTepIp != null) {
                 remoteTepIps.add(dhcpDesignatedSwitchTepIp);
 
                 HwvtepPhysicalLocatorAugmentation phyLocatorAug = HwvtepSouthboundUtils
                         .createHwvtepPhysicalLocatorAugmentation(String.valueOf(dhcpDesignatedSwitchTepIp.getValue()));
-                HwvtepUtils.putPhysicalLocator(transaction, nodeId, phyLocatorAug);
-
+                InstanceIdentifier<TerminationPoint> iid =
+                        HwvtepSouthboundUtils.createPhysicalLocatorInstanceIdentifier(nodeId, phyLocatorAug);
+                TerminationPoint terminationPoint = (new TerminationPointBuilder())
+                                .setKey(HwvtepSouthboundUtils.getTerminationPointKey(phyLocatorAug))
+                                .addAugmentation(HwvtepPhysicalLocatorAugmentation.class, phyLocatorAug).build();
+                ResourceBatchingManager.getInstance().put(ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY,
+                        iid, terminationPoint);
                 LOG.info("Adding PhysicalLocator for node: {} with Dhcp designated switch Tep Ip {} "
                         + "as physical locator, elan {}", device.getHwvtepNodeId(),
                         String.valueOf(dhcpDesignatedSwitchTepIp.getValue()), elanName);
@@ -245,7 +252,9 @@ public class ElanL2GatewayMulticastUtils {
                         device.getHwvtepNodeId(), elanName);
             }
         }
-
+        if (dhcpDesignatedSwitchTepIp != null && !remoteTepIps.contains(dhcpDesignatedSwitchTepIp)) {
+            remoteTepIps.add(dhcpDesignatedSwitchTepIp);
+        }
         String logicalSwitchName = elanL2GatewayUtils.getLogicalSwitchFromElan(elanName);
         putRemoteMcastMac(transaction, nodeId, logicalSwitchName, remoteTepIps);
         LOG.info("Adding RemoteMcastMac for node: {} with physical locators: {}", device.getHwvtepNodeId(),
