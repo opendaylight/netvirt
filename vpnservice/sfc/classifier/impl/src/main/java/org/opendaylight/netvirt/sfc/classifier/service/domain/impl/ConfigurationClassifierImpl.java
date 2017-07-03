@@ -82,7 +82,7 @@ public class ConfigurationClassifierImpl implements ClassifierState {
         com.google.common.base.Optional<AccessLists> acls =
                 MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, aclsIID);
         LOG.trace("Acls read from datastore: {}", acls);
-        return acls.transform(AccessLists::getAcl).or(Collections.emptyList());
+        return acls.toJavaUtil().map(AccessLists::getAcl).orElse(Collections.emptyList());
     }
 
     public Set<ClassifierRenderableEntry> getEntries(Ace ace) {
