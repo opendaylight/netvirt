@@ -1,0 +1,52 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_d699d76f",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-07-03T10:31:12Z",
+      "side": 1,
+      "message": "Done! fixing old issues.",
+      "parentUuid": "da2a55be_43e247a0",
+      "range": {
+        "startLine": 152,
+        "startChar": 93,
+        "endLine": 152,
+        "endChar": 98
+      },
+      "revId": "6609fae0e3df8cc54417f8e8bc0b095d208639df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_b69ee354",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulIngressAclServiceImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2017-07-03T10:31:12Z",
+      "side": 1,
+      "message": "Done! fixing old issues.",
+      "parentUuid": "da2a55be_83f39f72",
+      "range": {
+        "startLine": 164,
+        "startChar": 94,
+        "endLine": 164,
+        "endChar": 99
+      },
+      "revId": "6609fae0e3df8cc54417f8e8bc0b095d208639df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
