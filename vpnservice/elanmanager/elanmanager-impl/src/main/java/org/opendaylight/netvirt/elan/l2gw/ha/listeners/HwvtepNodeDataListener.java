@@ -95,7 +95,10 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
                 boolean create = false;
                 ReadWriteTransaction tx = broker.newReadWriteTransaction();
                 if (LogicalDatastoreType.OPERATIONAL == datastoreType.getDatastoreType()) {
-                    copyToParent(identifier, dataRemoved, create, tx);
+                    if (isNodeConnected(identifier, tx)) {
+                        //Do not process the remove from disconnected child node
+                        copyToParent(identifier, dataRemoved, create, tx);
+                    }
                 } else {
                     copyToChild(identifier, dataRemoved, create, tx);
                 }
@@ -103,6 +106,12 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
                 LOG.error("Exception caught while writing ", e.getMessage());
             }
         });
+    }
+
+    protected boolean isNodeConnected(InstanceIdentifier<T> identifier, ReadWriteTransaction tx)
+            throws ReadFailedException {
+        return tx.read(LogicalDatastoreType.OPERATIONAL, identifier.firstIdentifierOf(Node.class))
+                .checkedGet().isPresent();
     }
 
     <T extends DataObject> boolean isDataUpdated(Optional<T> existingDataOptional, T newData) {
