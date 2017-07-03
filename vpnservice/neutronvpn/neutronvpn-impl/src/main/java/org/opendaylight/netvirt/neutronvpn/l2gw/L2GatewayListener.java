@@ -16,8 +16,10 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.clustering.ClusteringUtils;
@@ -29,6 +31,8 @@ import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.L2gatewayConnections;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.l2gatewayconnections.L2gatewayConnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateways.attributes.L2gateways;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateways.attributes.l2gateways.L2gateway;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
@@ -82,7 +86,21 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
     @Override
     protected void remove(final InstanceIdentifier<L2gateway> identifier, final L2gateway input) {
         LOG.info("Removing L2gateway with ID: {}", input.getUuid());
-
+        List<L2gatewayConnection> connections = l2gwService
+                .getL2GwConnectionsByL2GatewayId(input.getUuid());
+        try {
+            ReadWriteTransaction tx = this.dataBroker.newReadWriteTransaction();
+            for (L2gatewayConnection connection : connections) {
+                InstanceIdentifier<L2gatewayConnection> iid = InstanceIdentifier.create(Neutron.class)
+                        .child(L2gatewayConnections.class).child(L2gatewayConnection.class, connection.getKey());
+                tx.delete(LogicalDatastoreType.CONFIGURATION, iid);
+            }
+            tx.submit().checkedGet();
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("Failed to delete associated l2gwconnection while deleting l2gw {} with id beacause of {}",
+                    input.getUuid(), e.getLocalizedMessage());
+            //TODO :retry
+        }
         List<Devices> l2Devices = input.getDevices();
         for (Devices l2Device : l2Devices) {
             LOG.trace("Removing L2gateway device: {}", l2Device);
