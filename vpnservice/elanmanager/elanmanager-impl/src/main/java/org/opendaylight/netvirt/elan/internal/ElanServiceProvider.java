@@ -411,8 +411,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     public List<ElanInstance> getElanInstances() {
         InstanceIdentifier<ElanInstances> elanInstancesIdentifier = InstanceIdentifier.builder(ElanInstances.class)
                 .build();
-        return elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION, elanInstancesIdentifier).transform(
-                ElanInstances::getElanInstance).or(Collections.emptyList());
+        return elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION, elanInstancesIdentifier).toJavaUtil().map(
+                ElanInstances::getElanInstance).orElse(Collections.emptyList());
     }
 
     @Override
