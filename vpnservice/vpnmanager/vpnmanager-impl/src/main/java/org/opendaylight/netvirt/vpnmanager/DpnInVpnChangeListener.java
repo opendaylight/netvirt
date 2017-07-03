@@ -8,15 +8,12 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
 import java.math.BigInteger;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddInterfaceToDpnOnVpnEvent;
@@ -26,6 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Rem
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.add.dpn.event.AddEventData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove.dpn.event.RemoveEventData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -44,7 +42,15 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
     public void onAddDpnEvent(AddDpnEvent notification) {
         AddEventData addEventData = notification.getAddEventData();
         String vpnName = addEventData.getVpnName();
-        BigInteger dpId = addEventData.getDpnId();
+        String rd = addEventData.getRd();
+        //Vpn Has FootPrint. Set state to FOOTPRINT_CREATED
+        VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
+        VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder().setVrfId(rd)
+                .setVpnState(VpnInstanceOpDataEntry.VpnState.FootprintCreated);
+        WriteTransaction txn = dataBroker.newWriteOnlyTransaction();
+        txn.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build());
+        txn.submit();
     }
 
     public void onRemoveDpnEvent(RemoveDpnEvent notification) {
@@ -64,32 +70,21 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
             if (vpnOpValue.isPresent()) {
                 VpnInstanceOpDataEntry vpnInstOpData = vpnOpValue.get();
                 List<VpnToDpnList> vpnToDpnList = vpnInstOpData.getVpnToDpnList();
-                boolean flushDpnsOnVpn = true;
+                boolean vpnFootprintCleared = true;
                 for (VpnToDpnList dpn : vpnToDpnList) {
                     if (dpn.getDpnState() == VpnToDpnList.DpnState.Active) {
-                        flushDpnsOnVpn = false;
+                        vpnFootprintCleared = false;
                         break;
                     }
                 }
-                if (flushDpnsOnVpn) {
-                    WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-                    deleteDpn(vpnToDpnList, rd, writeTxn);
-                    CheckedFuture<Void, TransactionCommitFailedException> futures = writeTxn.submit();
-                    try {
-                        futures.get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        LOG.error("Error removing dpnToVpnList for vpn {} ", vpnName);
-                        throw new RuntimeException(e.getMessage());
-                    }
+                if (vpnFootprintCleared) {
+                    VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder().setVrfId(rd)
+                            .setVpnState(VpnInstanceOpDataEntry.VpnState.FootprintCleared);
+                    WriteTransaction txn = dataBroker.newWriteOnlyTransaction();
+                    txn.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build());
+                    txn.submit();
                 }
             }
-        }
-    }
-
-    protected void deleteDpn(Collection<VpnToDpnList> vpnToDpnList, String rd, WriteTransaction writeTxn) {
-        for (final VpnToDpnList curDpn : vpnToDpnList) {
-            InstanceIdentifier<VpnToDpnList> vpnToDpnId = VpnUtil.getVpnToDpnListIdentifier(rd, curDpn.getDpnId());
-            writeTxn.delete(LogicalDatastoreType.OPERATIONAL, vpnToDpnId);
         }
     }
 
