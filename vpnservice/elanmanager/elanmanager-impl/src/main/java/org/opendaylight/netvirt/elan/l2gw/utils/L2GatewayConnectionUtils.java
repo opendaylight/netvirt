@@ -356,4 +356,24 @@ public class L2GatewayConnectionUtils {
             return Lists.newArrayList(settableFuture);
         } , 5);
     }
+
+    /**
+     * Gets the associated l2 gw connections.
+     *
+     * @param broker      the broker
+     * @param l2GatewayId the l2 gateway id
+     * @return the associated l2 gw connections
+     */
+    public List<L2gatewayConnection> getL2GwConnectionsByL2GatewayId(DataBroker broker, Uuid l2GatewayId) {
+        List<L2gatewayConnection> l2GwConnections = new ArrayList<>();
+        List<L2gatewayConnection> allL2GwConns = getAllL2gatewayConnections(broker);
+        if (allL2GwConns != null) {
+            for (L2gatewayConnection l2GwConn : allL2GwConns) {
+                if (l2GwConn.getL2gatewayId().equals(l2GatewayId)) {
+                    l2GwConnections.add(l2GwConn);
+                }
+            }
+        }
+        return l2GwConnections;
+    }
 }
