@@ -77,7 +77,7 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
         matches.add(buildLPortTagMatch(lportTag));
         matches.add(new NxMatchCtState(AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK));
 
-        Long elanId = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
+        Long elanId = AclServiceUtils.getElanIdFromAclInterface(portId);
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions;
         PacketHandling packetHandling = ace.getActions() != null ? ace.getActions().getPacketHandling() : null;
@@ -121,7 +121,7 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
             matches.add(new MatchEthernetSource(attachMac));
             matches.addAll(AclServiceUtils.buildIpMatches(attachIp, MatchCriteria.MATCH_SOURCE));
 
-            Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
+            Long elanTag = AclServiceUtils.getElanIdFromAclInterface(portId);
             List<InstructionInfo> instructions = new ArrayList<>();
             List<ActionInfo> actionsInfos = new ArrayList<>();
             actionsInfos.add(new ActionNxConntrack(2, 0, 0, elanTag.intValue(),
