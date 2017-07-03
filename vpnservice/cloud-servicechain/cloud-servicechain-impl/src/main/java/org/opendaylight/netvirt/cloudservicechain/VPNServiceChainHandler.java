@@ -247,7 +247,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
             // the Fib table programmed there
             String intfName = VpnServiceChainUtils.buildVpnPseudoPortIfName(dpnId, scfTag, servChainTag,
                                                                             vpnPseudoLportTag);
-            vpnFootprintService.updateVpnToDpnMapping(BigInteger.valueOf(dpnId), vpnName, intfName,
+            vpnFootprintService.updateVpnToDpnMapping(BigInteger.valueOf(dpnId), vpnName, rd, intfName,
                     null/*ipAddressSourceValuePair*/, (addOrRemove == NwConstants.ADD_FLOW));
         }
         LOG.info("L3VPN: Service Chaining programScfToVpnPipeline [End]");
