@@ -15,7 +15,6 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -53,15 +52,16 @@ public class DhcpHwvtepListener
     @Override
     @PostConstruct
     public void init() {
-        if (config.isControllerDhcpEnabled()) {
+        //This listener is not needed as it is taken care by DhcpLogicalSwitchListener
+        /*if (config.isControllerDhcpEnabled()) {
             registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
-        }
+        }*/
     }
 
     @Override
     @PreDestroy
     public void close() {
-        super.close();
+        //super.close();
         LOG.info("DhcpHwvtepListener Closed");
     }
 
