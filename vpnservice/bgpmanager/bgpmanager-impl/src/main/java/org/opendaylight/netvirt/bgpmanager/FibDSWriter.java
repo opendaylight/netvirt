@@ -181,14 +181,14 @@ public class FibDSWriter {
             Optional<VrfEntry> existingVrfEntry =
                     singleTxDB.syncReadOptional(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
             List<RoutePaths> routePaths =
-                    existingVrfEntry.transform(VrfEntry::getRoutePaths).or(Collections.EMPTY_LIST);
+                    existingVrfEntry.toJavaUtil().map(VrfEntry::getRoutePaths).orElse(Collections.emptyList());
             if (routePaths.size() == 1) {
                 if (routePaths.get(0).getNexthopAddress().equals(nextHop)) {
                     BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
                 }
             } else {
                 routePaths.stream()
-                    .map(routePath -> routePath.getNexthopAddress())
+                    .map(RoutePaths::getNexthopAddress)
                     .filter(nextHopAddress -> nextHopAddress.equals(nextHop))
                     .findFirst()
                     .ifPresent(nh -> {
