@@ -38,6 +38,7 @@ import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionRegLoad;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
@@ -1714,4 +1715,32 @@ public class VpnUtil {
         }
         return false;
     }
+
+    static String getFibFlowRef(BigInteger dpnId, short tableId, String vpnName, int priority) {
+        return VpnConstants.FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId
+                + NwConstants.FLOWID_SEPARATOR + vpnName + NwConstants.FLOWID_SEPARATOR + priority;
+    }
+
+    static void removeExternalTunnelDemuxFlows(String vpnName, DataBroker broker, IMdsalApiManager mdsalManager) {
+        LOG.info("Removing external tunnel flows for vpn {}", vpnName);
+        for (BigInteger dpnId: NWUtil.getOperativeDPNs(broker)) {
+            LOG.debug("Removing external tunnel flows for vpn {} from dpn {}", vpnName, dpnId);
+            String flowRef = getFibFlowRef(dpnId, NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,
+                    vpnName, VpnConstants.DEFAULT_FLOW_PRIORITY);
+            FlowEntity flowEntity = VpnUtil.buildFlowEntity(dpnId,
+                    NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE, flowRef);
+            mdsalManager.removeFlow(flowEntity);
+        }
+    }
+
+    public static boolean isVpnPendingDelete(DataBroker broker, String rd) {
+        VpnInstanceOpDataEntry vpnInstanceOpData = getVpnInstanceOpData(broker, rd);
+        boolean isVpnPendingDelete = false;
+        if (vpnInstanceOpData == null
+                || vpnInstanceOpData.getVpnState() == VpnInstanceOpDataEntry.VpnState.PendingDelete) {
+            isVpnPendingDelete = true;
+        }
+        return isVpnPendingDelete;
+    }
+
 }

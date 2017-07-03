@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.vpnmanager;
 
+import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
@@ -82,41 +83,49 @@ public class TunnelEndPointChangeListener
 
         for (VpnInstance vpnInstance : vpnInstances) {
             final String vpnName = vpnInstance.getVpnInstanceName();
-            final long vpnId = VpnUtil.getVpnId(broker, vpnName);
-            LOG.trace("Handling TEP {} add for VPN instance {}", tep.getInterfaceName(), vpnName);
-            List<VpnInterfaces> vpnInterfaces = VpnUtil.getDpnVpnInterfaces(broker, vpnInstance, dpnId);
-            if (vpnInterfaces != null) {
-                for (VpnInterfaces vpnInterface : vpnInterfaces) {
-                    String vpnInterfaceName = vpnInterface.getInterfaceName();
-                    dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterfaceName,
-                        () -> {
-                            LOG.trace("Handling TEP {} add for VPN instance {} VPN interface {}",
-                                    tep.getInterfaceName(), vpnName, vpnInterfaceName);
-                            WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
-                            WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
-                            WriteTransaction writeInvTxn = broker.newWriteOnlyTransaction();
-                            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            try {
+                final long vpnId = VpnUtil.getVpnId(broker, vpnName);
+                LOG.trace("Handling TEP {} add for VPN instance {}", tep.getInterfaceName(), vpnName);
+                final String primaryRd = VpnUtil.getPrimaryRd(broker, vpnName);
+                Preconditions.checkState(!VpnUtil.isVpnPendingDelete(broker, primaryRd),
+                        "Vpn with RD " + primaryRd + "is pending delete");
+                List<VpnInterfaces> vpnInterfaces = VpnUtil.getDpnVpnInterfaces(broker, vpnInstance, dpnId);
+                if (vpnInterfaces != null) {
+                    for (VpnInterfaces vpnInterface : vpnInterfaces) {
+                        String vpnInterfaceName = vpnInterface.getInterfaceName();
+                        dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterfaceName,
+                            () -> {
+                                LOG.trace("Handling TEP {} add for VPN instance {} VPN interface {}",
+                                        tep.getInterfaceName(), vpnName, vpnInterfaceName);
+                                WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
+                                WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
+                                WriteTransaction writeInvTxn = broker.newWriteOnlyTransaction();
+                                List<ListenableFuture<Void>> futures = new ArrayList<>();
 
-                            final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces
-                                    .rev140508.interfaces.state.Interface
-                                    interfaceState =
-                                    InterfaceUtils.getInterfaceStateFromOperDS(broker, vpnInterfaceName);
-                            if (interfaceState == null) {
-                                LOG.debug("Cannot retrieve interfaceState for vpnInterfaceName {}, "
-                                        + "cannot generate lPortTag and process adjacencies", vpnInterfaceName);
+                                final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces
+                                        .rev140508.interfaces.state.Interface
+                                        interfaceState =
+                                        InterfaceUtils.getInterfaceStateFromOperDS(broker, vpnInterfaceName);
+                                if (interfaceState == null) {
+                                    LOG.debug("Cannot retrieve interfaceState for vpnInterfaceName {}, "
+                                            + "cannot generate lPortTag and process adjacencies", vpnInterfaceName);
+                                    return futures;
+                                }
+                                final int lPortTag = interfaceState.getIfIndex();
+                                vpnInterfaceManager.processVpnInterfaceAdjacencies(dpnId, lPortTag, vpnName, primaryRd,
+                                        vpnInterfaceName, vpnId, writeConfigTxn, writeOperTxn, writeInvTxn,
+                                        interfaceState);
+                                List<CheckedFuture<Void, TransactionCommitFailedException>> checkedFutures =
+                                        Arrays.asList(writeOperTxn.submit(),
+                                                writeConfigTxn.submit(),
+                                                writeInvTxn.submit());
+                                futures.addAll(checkedFutures);
                                 return futures;
-                            }
-                            final int lPortTag = interfaceState.getIfIndex();
-                            vpnInterfaceManager.processVpnInterfaceAdjacencies(dpnId, lPortTag, vpnName,
-                                vpnInterfaceName, vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
-                            List<CheckedFuture<Void, TransactionCommitFailedException>> checkedFutures =
-                                    Arrays.asList(writeOperTxn.submit(),
-                                            writeConfigTxn.submit(),
-                                            writeInvTxn.submit());
-                            futures.addAll(checkedFutures);
-                            return futures;
-                        });
+                            });
+                    }
                 }
+            } catch (IllegalStateException e) {
+                LOG.error("add: Failed to process add for tunnel state on vpn {} due to {}", vpnName, e.getMessage());
             }
         }
     }

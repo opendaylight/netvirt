@@ -97,7 +97,7 @@ public class FibRpcServiceImpl implements FibRpcService {
         makeLocalFibEntry(vpnId, dpnId, ipAddress, instructions);
         IpAddresses.IpAddressSource ipAddressSource = IpAddresses.IpAddressSource
                 .forValue(input.getIpAddressSource().getIntValue());
-        vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, null /* interfaceName*/,
+        vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, vpnRd, null /* interfaceName*/,
                 new ImmutablePair<>(ipAddressSource, ipAddress), true /*add*/);
         LOG.info("ADD: Added Custom Fib Entry rd {} prefix {} label {}", vpnRd, ipAddress, input.getServiceId());
         return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
@@ -120,7 +120,7 @@ public class FibRpcServiceImpl implements FibRpcService {
         removeLocalFibEntry(dpnId, vpnId, ipAddress);
         IpAddresses.IpAddressSource ipAddressSource = IpAddresses.IpAddressSource
                 .forValue(input.getIpAddressSource().getIntValue());
-        vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, null /* interfaceName*/,
+        vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, vpnRd, null /* interfaceName*/,
                 new ImmutablePair<>(ipAddressSource, ipAddress), false /*add*/);
         LOG.info("REMOVE: Removed Custom Fib Entry rd {} prefix {} label {}", vpnRd, ipAddress, input.getServiceId());
         return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
