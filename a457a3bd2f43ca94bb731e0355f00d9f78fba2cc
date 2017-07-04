@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_a57ea2e2",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-07-04T12:11:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_45f9a6c7",
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_45cec684",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6ServiceInterfaceEventListener.java",
         "patchSetId": 1
@@ -83,6 +101,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_456d2632",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6ServiceInterfaceEventListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-07-04T12:11:54Z",
+      "side": 1,
+      "message": "Thanks Sridhar, will do.",
+      "parentUuid": "da2a55be_e5b09af6",
+      "range": {
+        "startLine": 89,
+        "startChar": 38,
+        "endLine": 89,
+        "endChar": 97
+      },
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_45208649",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6ServiceInterfaceEventListener.java",
         "patchSetId": 1
@@ -117,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_c57916fe",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-07-04T12:11:54Z",
+      "side": 1,
+      "message": "Doesn\u0027t it make sense? If ifType missing in add and comes in update it will be taken care of. Today IFM design means it will never happen, but good to have extra check, allowing us more flexibility with IFM design.",
+      "parentUuid": "da2a55be_c5d3d636",
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_e5e25a02",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
         "patchSetId": 1
@@ -128,6 +188,24 @@
       "writtenOn": "2017-07-04T10:47:06Z",
       "side": 1,
       "message": "i don\u0027t think there will be a case where notification comes with interface as null",
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_e5889ae9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-07-04T12:11:54Z",
+      "side": 1,
+      "message": "yeah, notification can never come with null fields, didn\u0027t want to modify existing logic. will wait for inputs from VPN folks.",
+      "parentUuid": "da2a55be_e5e25a02",
       "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
