@@ -16,6 +16,253 @@
       "revId": "c36e1a7726adf7dcfcd68c7202e6529a2abc1ee2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_45c40740",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 40
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-04T10:20:47Z",
+      "side": 1,
+      "message": "nit: existing",
+      "range": {
+        "startLine": 89,
+        "startChar": 24,
+        "endLine": 89,
+        "endChar": 31
+      },
+      "revId": "c36e1a7726adf7dcfcd68c7202e6529a2abc1ee2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_e5f41b89",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 40
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-04T10:20:47Z",
+      "side": 1,
+      "message": "nit: I hope \u0027j\u0027 should be replaced with \u0027i\u0027",
+      "revId": "c36e1a7726adf7dcfcd68c7202e6529a2abc1ee2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_45f2479b",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 40
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-04T10:20:47Z",
+      "side": 1,
+      "message": "nit: you can remove the word \u0027still\u0027",
+      "range": {
+        "startLine": 196,
+        "startChar": 26,
+        "endLine": 196,
+        "endChar": 31
+      },
+      "revId": "c36e1a7726adf7dcfcd68c7202e6529a2abc1ee2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_05268f16",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 40
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-04T10:20:47Z",
+      "side": 1,
+      "message": "In this setup, you are not creating any router. Are these provider networks or tenant networks? If its a tenant network, please note that until you associate the IPv6 subnet to the neutron router, Router Advts will not be triggered for the network.",
+      "range": {
+        "startLine": 251,
+        "startChar": 12,
+        "endLine": 251,
+        "endChar": 26
+      },
+      "revId": "c36e1a7726adf7dcfcd68c7202e6529a2abc1ee2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_257473fc",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 40
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-04T10:20:47Z",
+      "side": 1,
+      "message": "This is not completely true. IPv6 IPAM includes three different modes - i.e., SLAAC, DHCPv6 stateful and stateless.\n\nIn all the three modes, the Router Advt (RA) plays an important role for the VM to know the kind of addressing that has to be used on the network (i.e., an RA is required even in dhcpv6 stateful subnet). Not only this, the RA carries the default route info in all the modes.\n\nPlease rephrase the sentence accordingly.",
+      "range": {
+        "startLine": 260,
+        "startChar": 69,
+        "endLine": 262,
+        "endChar": 8
+      },
+      "revId": "c36e1a7726adf7dcfcd68c7202e6529a2abc1ee2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_c55ab782",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 40
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-04T10:20:47Z",
+      "side": 1,
+      "message": "nit: Please replace \u0027one\u0027 with \u0027single\u0027",
+      "range": {
+        "startLine": 279,
+        "startChar": 36,
+        "endLine": 279,
+        "endChar": 39
+      },
+      "revId": "c36e1a7726adf7dcfcd68c7202e6529a2abc1ee2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_a5a062f5",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 40
+      },
+      "lineNbr": 654,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-04T10:20:47Z",
+      "side": 1,
+      "message": "nit: Please remove the word \u0027still\u0027",
+      "range": {
+        "startLine": 654,
+        "startChar": 59,
+        "endLine": 654,
+        "endChar": 64
+      },
+      "revId": "c36e1a7726adf7dcfcd68c7202e6529a2abc1ee2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_45afe6e3",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 40
+      },
+      "lineNbr": 659,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-04T10:20:47Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 659,
+        "startChar": 51,
+        "endLine": 659,
+        "endChar": 56
+      },
+      "revId": "c36e1a7726adf7dcfcd68c7202e6529a2abc1ee2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_85b9de30",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 40
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-04T10:20:47Z",
+      "side": 1,
+      "message": "nit: different",
+      "range": {
+        "startLine": 661,
+        "startChar": 15,
+        "endLine": 661,
+        "endChar": 21
+      },
+      "revId": "c36e1a7726adf7dcfcd68c7202e6529a2abc1ee2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_e581ba4b",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 40
+      },
+      "lineNbr": 669,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-04T10:20:47Z",
+      "side": 1,
+      "message": "This contradicts \"setup3\" in Line 228. Am I missing something?",
+      "range": {
+        "startLine": 668,
+        "startChar": 8,
+        "endLine": 669,
+        "endChar": 22
+      },
+      "revId": "c36e1a7726adf7dcfcd68c7202e6529a2abc1ee2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_2593d2a4",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 40
+      },
+      "lineNbr": 686,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-04T10:20:47Z",
+      "side": 1,
+      "message": "Any specific reason why you want to consider the \"last\" IPv6 address whereas \"first\" IPv4 address?",
+      "range": {
+        "startLine": 686,
+        "startChar": 23,
+        "endLine": 686,
+        "endChar": 49
+      },
+      "revId": "c36e1a7726adf7dcfcd68c7202e6529a2abc1ee2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
