@@ -16,6 +16,24 @@
       "revId": "79a3fe4b1588d06a3fc52c4d1914c758f9e7e56c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_45b9a72d",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclDataUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-07-04T05:24:41Z",
+      "side": 1,
+      "message": "That was a accidental change. Reverted.",
+      "parentUuid": "da2a55be_2ad8c01c",
+      "revId": "79a3fe4b1588d06a3fc52c4d1914c758f9e7e56c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
