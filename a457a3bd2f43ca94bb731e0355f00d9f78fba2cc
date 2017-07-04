@@ -54,6 +54,75 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_85aa7e17",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-04T13:40:03Z",
+      "side": 1,
+      "message": "Is it always true that apart from migration scenarios, an interface state comes with type()/lowerLayerIf() as null, and a subsequent update adds these entries?",
+      "range": {
+        "startLine": 95,
+        "startChar": 16,
+        "endLine": 95,
+        "endChar": 68
+      },
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_c563d618",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-04T13:40:03Z",
+      "side": 1,
+      "message": "intrf.getType\u003d\u003dnull ||",
+      "range": {
+        "startLine": 87,
+        "startChar": 10,
+        "endLine": 87,
+        "endChar": 18
+      },
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_e5725ae4",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6ServiceInterfaceEventListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-04T13:40:03Z",
+      "side": 1,
+      "message": "Should we have to call add() here when type changes from null to L2Vlan?",
+      "range": {
+        "startLine": 68,
+        "startChar": 24,
+        "endLine": 70,
+        "endChar": 42
+      },
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_45cec684",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6ServiceInterfaceEventListener.java",
         "patchSetId": 1
@@ -142,6 +211,29 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_257472ce",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6ServiceInterfaceEventListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-04T13:40:03Z",
+      "side": 1,
+      "message": "If update is handled, as my previous comment, then the condition here ought to be :\nadd.getType() \u003d\u003d null || Tunnel.class.equals(add.getType())",
+      "range": {
+        "startLine": 90,
+        "startChar": 8,
+        "endLine": 90,
+        "endChar": 97
+      },
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_c5d3d636",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
         "patchSetId": 1
@@ -206,6 +298,162 @@
       "side": 1,
       "message": "yeah, notification can never come with null fields, didn\u0027t want to modify existing logic. will wait for inputs from VPN folks.",
       "parentUuid": "da2a55be_e5e25a02",
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_657e6ab0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-04T13:40:03Z",
+      "side": 1,
+      "message": "Right. Please remove intrf!\u003dnull",
+      "parentUuid": "da2a55be_e5889ae9",
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_c54ab682",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-04T13:40:03Z",
+      "side": 1,
+      "message": "Please remove null check",
+      "range": {
+        "startLine": 147,
+        "startChar": 16,
+        "endLine": 147,
+        "endChar": 29
+      },
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_e549ba8c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-04T13:40:03Z",
+      "side": 1,
+      "message": "Please remove null check",
+      "range": {
+        "startLine": 220,
+        "startChar": 16,
+        "endLine": 220,
+        "endChar": 30
+      },
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_455ec646",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-04T13:40:03Z",
+      "side": 1,
+      "message": "Remove null check",
+      "range": {
+        "startLine": 69,
+        "startChar": 16,
+        "endLine": 69,
+        "endChar": 29
+      },
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_8558be57",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-04T13:40:03Z",
+      "side": 1,
+      "message": "null check not req",
+      "range": {
+        "startLine": 111,
+        "startChar": 16,
+        "endLine": 111,
+        "endChar": 29
+      },
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_c531160d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-04T13:40:03Z",
+      "side": 1,
+      "message": "null check not required",
+      "range": {
+        "startLine": 161,
+        "startChar": 16,
+        "endLine": 161,
+        "endChar": 30
+      },
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_6555ca1c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-04T13:40:03Z",
+      "side": 1,
+      "message": "Please add a log.info here with the interfaceName",
+      "range": {
+        "startLine": 173,
+        "startChar": 34,
+        "endLine": 173,
+        "endChar": 71
+      },
       "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
