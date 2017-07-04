@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -21,7 +21,7 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
@@ -62,10 +62,10 @@ public class InterfaceStateChangeListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
-        LOG.info("VPN Interface add event - intfName {} from InterfaceStateChangeListener",
-                intrf.getName());
         try {
-            if (intrf != null && (intrf.getType() != null) && !intrf.getType().equals(Tunnel.class)) {
+            if (L2vlan.class.equals(intrf.getType())) {
+                LOG.info("VPN Interface add event - intfName {} from InterfaceStateChangeListener",
+                                intrf.getName());
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + intrf.getName(),
                     () -> {
@@ -77,57 +77,42 @@ public class InterfaceStateChangeListener
                         final String interfaceName = intrf.getName();
                         LOG.info("Detected interface add event for interface {}", interfaceName);
 
-                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
-                                .interfaces.Interface configInterface =
-                                InterfaceUtils.getInterface(dataBroker, interfaceName);
-                        if (configInterface != null && (configInterface.getType() != null)
-                                && !configInterface.getType().equals(Tunnel.class)) {
-                            // We service only VM interfaces and Router interfaces here.
-                            // We donot service Tunnel Interfaces here.
-                            // Tunnel events are directly serviced
-                            // by TunnelInterfacesStateListener present as part of VpnInterfaceManager
-                            LOG.debug("Config Interface Name {}", configInterface.getName());
-                            final VpnInterface vpnInterface =
-                                    VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
-                            if (vpnInterface != null) {
-                                LOG.debug("VPN Interface Name {}", vpnInterface);
-                                BigInteger intfDpnId = BigInteger.ZERO;
-                                try {
-                                    intfDpnId = InterfaceUtils.getDpIdFromInterface(intrf);
-                                } catch (Exception e) {
-                                    LOG.error("Unable to retrieve dpnId for interface {}. "
-                                            + "Process vpn interface add failed",intrf.getName(), e);
-                                    return futures;
-                                }
-                                final BigInteger dpnId = intfDpnId;
-                                final int ifIndex = intrf.getIfIndex();
-                                if (!vpnInterfaceManager.isVpnInstanceReady(vpnInterface.getVpnInstanceName())) {
-                                    LOG.info("VPN Interface add event - intfName {} onto vpnName {} "
-                                                    + "running oper-driven, VpnInstance not ready, holding on",
-                                            vpnInterface.getName(), vpnInterface.getVpnInstanceName());
-                                    return futures;
-                                }
-                                LOG.info("VPN Interface add event - intfName {} onto vpnName {} running oper-driven",
-                                        vpnInterface.getName(), vpnInterface.getVpnInstanceName());
-                                vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex, false,
-                                        writeConfigTxn, writeOperTxn, writeInvTxn, intrf);
-                                ListenableFuture<Void> operFuture = writeOperTxn.submit();
-                                try {
-                                    operFuture.get();
-                                } catch (ExecutionException e) {
-                                    LOG.error("InterfaceStateChange - Exception encountered while submitting"
-                                            + " operational future for addVpnInterface {} : {}",
-                                            vpnInterface.getName(), e);
-                                    return null;
-                                }
-                                futures.add(writeConfigTxn.submit());
-                                futures.add(writeInvTxn.submit());
+                        final VpnInterface vpnInterface =
+                                VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
+                        if (vpnInterface != null) {
+                            LOG.debug("VPN Interface Name {}", vpnInterface);
+                            BigInteger intfDpnId = BigInteger.ZERO;
+                            try {
+                                intfDpnId = InterfaceUtils.getDpIdFromInterface(intrf);
+                            } catch (Exception e) {
+                                LOG.error("Unable to retrieve dpnId for interface {}. "
+                                        + "Process vpn interface add failed",intrf.getName(), e);
+                                return futures;
                             }
-                        } else {
-                            LOG.debug("Unable to process add for interface {} ,"
-                                    + "since Interface ConfigDS entry absent for the same", interfaceName);
+                            final BigInteger dpnId = intfDpnId;
+                            final int ifIndex = intrf.getIfIndex();
+                            if (!vpnInterfaceManager.isVpnInstanceReady(vpnInterface.getVpnInstanceName())) {
+                                LOG.info("VPN Interface add event - intfName {} onto vpnName {} "
+                                                + "running oper-driven, VpnInstance not ready, holding on",
+                                        vpnInterface.getName(), vpnInterface.getVpnInstanceName());
+                                return futures;
+                            }
+                            LOG.info("VPN Interface add event - intfName {} onto vpnName {} running oper-driven",
+                                    vpnInterface.getName(), vpnInterface.getVpnInstanceName());
+                            vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex, false,
+                                    writeConfigTxn, writeOperTxn, writeInvTxn, intrf);
+                            ListenableFuture<Void> operFuture = writeOperTxn.submit();
+                            try {
+                                operFuture.get();
+                            } catch (ExecutionException e) {
+                                LOG.error("InterfaceStateChange - Exception encountered while submitting"
+                                        + " operational future for addVpnInterface {} : {}",
+                                        vpnInterface.getName(), e);
+                                return null;
+                            }
+                            futures.add(writeConfigTxn.submit());
+                            futures.add(writeInvTxn.submit());
                         }
-
                         return futures;
                     });
             }
@@ -142,10 +127,10 @@ public class InterfaceStateChangeListener
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
         final String interfaceName = intrf.getName();
         BigInteger dpId = BigInteger.ZERO;
-        LOG.info("VPN Interface remove event - intfName {} from InterfaceStateChangeListener",
-                intrf.getName());
         try {
-            if (intrf != null && (intrf.getType() != null) && !intrf.getType().equals(Tunnel.class)) {
+            if (L2vlan.class.equals(intrf.getType())) {
+                LOG.info("VPN Interface remove event - intfName {} from InterfaceStateChangeListener",
+                                intrf.getName());
                 try {
                     dpId = InterfaceUtils.getDpIdFromInterface(intrf);
                 } catch (Exception e) {
@@ -201,10 +186,8 @@ public class InterfaceStateChangeListener
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     protected void update(InstanceIdentifier<Interface> identifier,
-        Interface original, Interface update) {
+                    Interface original, Interface update) {
         final String interfaceName = update.getName();
-        LOG.info("VPN Interface update event - intfName {} from InterfaceStateChangeListener",
-                update.getName());
         try {
             OperStatus originalOperStatus = original.getOperStatus();
             OperStatus updateOperStatus = update.getOperStatus();
@@ -218,7 +201,9 @@ public class InterfaceStateChangeListener
             if (update.getIfIndex() == null) {
                 return;
             }
-            if (update != null && (update.getType() != null) && !update.getType().equals(Tunnel.class)) {
+            if (L2vlan.class.equals(update.getType())) {
+                LOG.info("VPN Interface update event - intfName {} from InterfaceStateChangeListener",
+                        update.getName());
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
                     () -> {

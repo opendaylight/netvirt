@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -19,7 +19,7 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -66,9 +66,9 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
-        LOG.trace("SubnetRouteInterfaceListener add: Received interface {} up event", intrf);
         try {
-            if (intrf != null && intrf.getType() != null && (!intrf.getType().equals(Tunnel.class))) {
+            if (L2vlan.class.equals(intrf.getType())) {
+                LOG.trace("SubnetRouteInterfaceListener add: Received interface {} up event", intrf);
                 if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
                     PortOpDataEntry portOpEntry = subOpDpnManager.getPortOpDataEntry(intrf.getName());
                     if (portOpEntry == null) {
@@ -112,9 +112,9 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
-        LOG.trace("SubnetRouteInterfaceListener remove: Received interface {} down event", intrf);
         try {
-            if (intrf != null && intrf.getType() != null && (!intrf.getType().equals(Tunnel.class))) {
+            if (L2vlan.class.equals(intrf.getType())) {
+                LOG.trace("SubnetRouteInterfaceListener remove: Received interface {} down event", intrf);
                 PortOpDataEntry portOpEntry = subOpDpnManager.getPortOpDataEntry(intrf.getName());
                 if (portOpEntry == null) {
                     LOG.trace("SubnetRouteInterfaceListener remove: Received Port DOWN event for {}"
@@ -165,11 +165,11 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     @Override
     protected void update(InstanceIdentifier<Interface> identifier,
         Interface original, Interface update) {
-        LOG.trace("SubnetRouteInterfaceListener update: Operation Interface update event - Old: {}, New: {}", original,
-            update);
         try {
             String interfaceName = update.getName();
-            if (update != null && (update.getType() != null) && !update.getType().equals(Tunnel.class)) {
+            if (L2vlan.class.equals(update.getType())) {
+                LOG.trace("SubnetRouteInterfaceListener update: Operation Interface update event - Old: {}, New: {}",
+                    original, update);
                 PortOpDataEntry portOpEntry = subOpDpnManager.getPortOpDataEntry(update.getName());
                 if (portOpEntry == null) {
                     LOG.trace("SubnetRouteInterfaceListener update: Received Port {} event for {}"
