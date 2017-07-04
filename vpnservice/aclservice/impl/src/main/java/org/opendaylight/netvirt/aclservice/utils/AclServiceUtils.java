@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.aclservice.utils;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,10 +20,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
@@ -798,9 +801,7 @@ public final class AclServiceUtils {
      * @param key the key
      * @return the integer
      */
-    public Integer allocateAndSaveFlowPriorityInCache(BigInteger dpId, short tableId, String key,
-                                                      PacketHandling packetHandling) {
-        String poolName = getAclPoolName(dpId, tableId, packetHandling);
+    public Integer allocateAndSaveFlowPriorityInCache(String poolName, String key) {
         Integer flowPriority = AclServiceUtils.allocateId(this.idManager, poolName, key,
                 AclConstants.PROTO_MATCH_PRIORITY);
         this.aclDataUtil.addAclFlowPriority(key, flowPriority);
@@ -833,9 +834,7 @@ public final class AclServiceUtils {
      * @param key the key
      * @return the integer
      */
-    public Integer releaseAndRemoveFlowPriorityFromCache(BigInteger dpId, short tableId, String key,
-                                                         PacketHandling packetHandling) {
-        String poolName = getAclPoolName(dpId, tableId, packetHandling);
+    public Integer releaseAndRemoveFlowPriorityFromCache(String poolName,String key) {
         AclServiceUtils.releaseId(this.idManager, poolName, key);
         Integer flowPriority = this.aclDataUtil.removeAclFlowPriority(key);
         if (flowPriority == null) {
@@ -965,14 +964,39 @@ public final class AclServiceUtils {
      * @param dpId the dp id
      */
     public void createAclIdPools(BigInteger dpId) {
-        createIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
-                AclConstants.PacketHandlingType.PERMIT), AclConstants.PacketHandlingType.PERMIT);
-        createIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
-                AclConstants.PacketHandlingType.DENY), AclConstants.PacketHandlingType.DENY);
-        createIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
-                AclConstants.PacketHandlingType.PERMIT), AclConstants.PacketHandlingType.PERMIT);
-        createIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
-                AclConstants.PacketHandlingType.DENY), AclConstants.PacketHandlingType.DENY);
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        String pool1Name = getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
+            AclConstants.PacketHandlingType.PERMIT);
+        // serializing pool1 creation
+        dataStoreCoordinator.enqueueJob(pool1Name, () -> {
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            createIdPool(pool1Name, AclConstants.PacketHandlingType.PERMIT);
+            return futures;
+        });
+        String pool2Name = getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
+            AclConstants.PacketHandlingType.DENY);
+        // serializing pool2 creation
+        dataStoreCoordinator.enqueueJob(pool2Name, () -> {
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            createIdPool(pool2Name, AclConstants.PacketHandlingType.DENY);
+            return futures;
+        });
+        String pool3Name = getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
+            AclConstants.PacketHandlingType.PERMIT);
+        // serializing pool3 creation
+        dataStoreCoordinator.enqueueJob(pool3Name, () -> {
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            createIdPool(pool3Name, AclConstants.PacketHandlingType.PERMIT);
+            return futures;
+        });
+        String pool4Name = getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
+            AclConstants.PacketHandlingType.DENY);
+        // serializing pool4 creation
+        dataStoreCoordinator.enqueueJob(pool4Name, () -> {
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            createIdPool(pool4Name, AclConstants.PacketHandlingType.DENY);
+            return futures;
+        });
     }
 
     /**
