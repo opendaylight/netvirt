@@ -35,7 +35,7 @@ public final class AclInterface {
     private final Long elanId;
 
     /** VPN Id of the interface. */
-    private final Long vpnId;
+    private final List<Long> vpnId;
 
     /** The security groups. */
     private final List<Uuid> securityGroups;
@@ -112,7 +112,7 @@ public final class AclInterface {
      *
      * @return VPN Id of the interface
      */
-    public Long getVpnId() {
+    public List<Long> getVpnId() {
         return vpnId;
     }
 
@@ -258,7 +258,7 @@ public final class AclInterface {
         private Integer lportTag;
         private BigInteger dpId;
         private Long elanId;
-        private Long vpnId;
+        private List<Long> vpnId;
         private List<Uuid> securityGroups;
         private List<AllowedAddressPairs> allowedAddressPairs;
         private List<IpPrefixOrAddress> subnetIpPrefixes;
@@ -305,7 +305,7 @@ public final class AclInterface {
             return this;
         }
 
-        public Builder vpnId(Long value) {
+        public Builder vpnId(List<Long> value) {
             this.vpnId = value;
             return this;
         }
