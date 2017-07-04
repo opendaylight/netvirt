@@ -37,7 +37,7 @@ public class DhcpInterfaceEventListener
     private final DataBroker dataBroker;
     private final DhcpManager dhcpManager;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
-    private DataStoreJobCoordinator dataStoreJobCoordinator;
+    private final DataStoreJobCoordinator dataStoreJobCoordinator;
     private final IInterfaceManager interfaceManager;
 
     public DhcpInterfaceEventListener(DhcpManager dhcpManager, DataBroker dataBroker,
@@ -103,6 +103,7 @@ public class DhcpInterfaceEventListener
 
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface add) {
+        // TODO: Do we want to filter for IfL2vlan only?
         String interfaceName = add.getName();
         List<String> ofportIds = add.getLowerLayerIf();
         if (ofportIds == null || ofportIds.isEmpty()) {
