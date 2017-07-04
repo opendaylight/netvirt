@@ -74,6 +74,8 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
             if (aclClusterUtil.isEntityOwner()) {
                 LOG.debug("On remove event, notify ACL service manager to remove ACL from interface: {}", aclInterface);
                 aclServiceManger.notify(aclInterface, null, Action.REMOVE);
+                // remove ACL interface from local map (aclDpnAclInterfacesMap)
+                aclDataUtil.deleteDpnInterfaceFromMap(aclInterface.getDpId(), aclInterface);
             }
             List<Uuid> aclList = aclInterface.getSecurityGroups();
             if (aclList != null) {
@@ -103,6 +105,8 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
             if (aclClusterUtil.isEntityOwner()) {
                 LOG.debug("On add event, notify ACL service manager to add ACL for interface: {}", aclInterface);
                 aclServiceManger.notify(aclInterface, null, Action.ADD);
+                // add ACL interface into local map (aclDpnAclInterfacesMap)
+                aclDataUtil.addDpnInterfaceIntoMap(aclInterface.getDpId(), aclInterface);
             }
         }
     }

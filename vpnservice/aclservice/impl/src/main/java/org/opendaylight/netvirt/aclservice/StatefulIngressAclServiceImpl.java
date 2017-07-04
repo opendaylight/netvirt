@@ -7,11 +7,14 @@
  */
 package org.opendaylight.netvirt.aclservice;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
@@ -84,13 +87,13 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
     protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
             Map<String, List<MatchInfoBase>> flowMap, String flowName) {
         List<MatchInfoBase> matches = flowMap.get(flowName);
-        flowName += "Ingress" + lportTag + ace.getKey().getRuleName();
+        String updatedFlowName = flowName + "Ingress" + lportTag + ace.getKey().getRuleName();
         matches.add(buildLPortTagMatch(lportTag));
         matches.add(new NxMatchCtState(AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK));
 
         Long elanTag = AclServiceUtils.getElanIdFromAclInterface(portId);
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        List<InstructionInfo> instructions = null;
+        List<InstructionInfo> instructions;
         PacketHandling packetHandling = ace.getActions() != null ? ace.getActions().getPacketHandling() : null;
         if (packetHandling instanceof Permit) {
             actionsInfos.add(new ActionNxConntrack(2, 1, 0, elanTag.intValue(), (short) 255));
@@ -99,13 +102,20 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
             instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
         }
 
-        // For flows related remote ACL, unique flow priority is used for
-        // each flow to avoid overlapping flows
-        int priority = getIngressSpecificAclFlowPriority(dpId, addOrRemove, flowName, packetHandling);
+        String poolName = AclServiceUtils.getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, packetHandling);
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(poolName, () -> {
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
 
-        syncFlow(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, flowName, priority, "ACL", 0, 0,
+            // For flows related remote ACL, unique flow priority is used for
+            // each flow to avoid overlapping flows
+            int priority = getAclFlowPriority(poolName, updatedFlowName, addOrRemove);
+
+            syncFlow(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, updatedFlowName, priority, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
-        return flowName;
+            return futures;
+        });
+        return updatedFlowName;
     }
 
     /**

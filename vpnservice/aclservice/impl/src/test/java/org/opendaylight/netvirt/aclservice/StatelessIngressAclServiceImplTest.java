@@ -45,6 +45,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchTcpFlags;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpDestinationPort;
 import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.tests.AclServiceModule;
 import org.opendaylight.netvirt.aclservice.tests.AclServiceTestModule;
@@ -108,6 +109,8 @@ public class StatelessIngressAclServiceImplTest {
     AclserviceConfig config;
     @Mock
     IdManagerService idManager;
+    @Mock
+    JobCoordinator jobCoordinator;
 
     @Inject
     AsyncEventsWaiter asyncEventsWaiter;
@@ -120,7 +123,7 @@ public class StatelessIngressAclServiceImplTest {
         AclDataUtil aclDataUtil = new AclDataUtil();
         ListenableFuture<RpcResult<AllocateIdOutput>> idResult = getAclIdResult(ACL_ID);
         doReturn(idResult).when(idManager).allocateId(any(AllocateIdInput.class));
-        AclServiceUtils aclServiceUtils = new AclServiceUtils(aclDataUtil, config, idManager);
+        AclServiceUtils aclServiceUtils = new AclServiceUtils(aclDataUtil, config, idManager, jobCoordinator);
         testedService = new StatelessIngressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();

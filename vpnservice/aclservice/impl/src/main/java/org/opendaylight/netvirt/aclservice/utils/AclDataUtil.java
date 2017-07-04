@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.aclservice.utils;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +28,7 @@ public class AclDataUtil {
     private final Map<Uuid, List<AclInterface>> aclInterfaceMap = new ConcurrentHashMap<>();
     private final Map<Uuid, List<Uuid>> remoteAclIdMap = new ConcurrentHashMap<>();
     private final Map<String, Integer> aclFlowPriorityMap = new ConcurrentHashMap<>();
+    private final Map<BigInteger, List<AclInterface>> aclDpnAclInterfacesMap = new ConcurrentHashMap<>();
 
     public synchronized void addAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
         for (Uuid acl : aclList) {
@@ -176,5 +178,64 @@ public class AclDataUtil {
             priority = AclConstants.PROTO_MATCH_PRIORITY;
         }
         return priority;
+    }
+
+    /**
+     * Adds dpn or acl interface into aclDpnAclInterfacesMap.
+     *
+     * @param dpid the datapath ID of DPN
+     * @param port the acl interface
+     */
+    public synchronized void addDpnInterfaceIntoMap(BigInteger dpid, AclInterface port) {
+        List<AclInterface> interfaceList = null;
+        if (port != null) {
+            interfaceList = aclDpnAclInterfacesMap.get(dpid);
+            if (interfaceList == null) {
+                interfaceList = new ArrayList<>();
+                interfaceList.add(port);
+            } else {
+                interfaceList.add(port);
+            }
+            aclDpnAclInterfacesMap.put(dpid, interfaceList);
+        } else {
+            // case: when map is populated on FlowCapableNode is added in the AclNodeListener
+            interfaceList = new ArrayList<>();
+            aclDpnAclInterfacesMap.put(dpid, interfaceList);
+        }
+    }
+
+    /**
+     * Removes  dpn or acl interface from aclDpnAclInterfacesMap.
+     *
+     * @param dpid the datapath ID of DPN
+     * @param port the acl interface
+     */
+    public synchronized void deleteDpnInterfaceFromMap(BigInteger dpid, AclInterface port) {
+        if (port != null) {
+            List<AclInterface> interfaceList = aclDpnAclInterfacesMap.get(dpid);
+            if (interfaceList != null) {
+                for (Iterator<AclInterface> iterator = interfaceList.iterator(); iterator.hasNext(); ) {
+                    AclInterface aclInterface = iterator.next();
+                    if (aclInterface.getInterfaceId().equals(port.getInterfaceId())) {
+                        iterator.remove();
+                    }
+                }
+            }
+        } else {
+            // case: when map is updated to delete DPN when FlowCapableNode is removed
+            // from the AclNodeListener
+            aclDpnAclInterfacesMap.remove(dpid);
+        }
+    }
+
+    /**
+     * Gets the acl interfaces list for DPN.
+     *
+     * @param dpid the datapath ID of DPN
+     * @return the list of acl interface for specified DPN
+     */
+    public List<AclInterface>  getDpnAclInterfaces(final BigInteger dpid) {
+        List<AclInterface> interfaceList = aclDpnAclInterfacesMap.get(dpid);
+        return interfaceList;
     }
 }

@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
@@ -53,6 +54,7 @@ public class AclEventListenerTest {
     private ArgumentCaptor<String> aclNameSaver;
     private String aclName;
     private IdManagerService idManagerMock;
+    private JobCoordinator jobCoordinatorMock;
 
     @SuppressWarnings("unchecked")
     @Before
@@ -61,7 +63,8 @@ public class AclEventListenerTest {
         aclInterfaceMock = mock(AclInterface.class);
         aclServiceManager = mock(AclServiceManager.class);
         idManagerMock = mock(IdManagerService.class);
-        aclSeviceUtils = new AclServiceUtils(aclDataUtil, mock(AclserviceConfig.class), idManagerMock);
+        aclSeviceUtils = new AclServiceUtils(aclDataUtil, mock(AclserviceConfig.class), idManagerMock,
+            jobCoordinatorMock);
         doReturn(Futures.immediateFuture(null)).when(idManagerMock).releaseId(any(ReleaseIdInput.class));
         AclClusterUtil aclClusterUtil = () -> true;
         aclEventListener = new AclEventListener(aclServiceManager, aclClusterUtil, mock(DataBroker.class), aclDataUtil,
