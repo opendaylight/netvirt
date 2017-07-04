@@ -169,14 +169,12 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + tcpEgressFlowPort2WithRemoteIpSg
         + tcpIngressFlowPort1WithMultipleSG
         + tcpIngressFlowPort1WithMultipleSG
-        + etherIngressFlowsPort1WithRemoteIpSg()
-        + etherIngressFlowsPort1WithRemoteIpSg()
+        + etherIngressFlowsPort1WithRemoteIpSg("10.0.0.1", "ETHERnull_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F3_10.0.0.1/32Ingress98785cc3048-abc3-43cc-89b3-377341426ac7")
+        + etherIngressFlowsPort1WithRemoteIpSg("10.0.0.2", "ETHERnull_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.2/32Ingress98785cc3048-abc3-43cc-89b3-377341426ac7")
         + etherIngressFlowsPort2WithRemoteIpSg()
     }
 
-    protected def etherIngressFlowsPort1WithRemoteIpSg() {
-        val theFlowId ="ETHERnull_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F3_10.0.0.1/32"
-                        +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+    protected def etherIngressFlowsPort1WithRemoteIpSg(String ip, String theFlowId) {
         #[
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -191,7 +189,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(2048L),
-                    new MatchIpv4Source("10.0.0.1", "32"),
+                    new MatchIpv4Source(ip, "32"),
                     new MatchEthernetType(2048L),
                     new MatchEthernetType(2048L),
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
