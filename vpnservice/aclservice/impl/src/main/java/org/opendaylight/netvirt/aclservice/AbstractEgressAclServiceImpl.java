@@ -97,11 +97,15 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
             () -> {
                 int instructionKey = 0;
                 List<Instruction> instructions = new ArrayList<>();
-                Long vpnId = aclInterface.getVpnId();
-                if (vpnId != null) {
-                    instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
-                        MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
-                } else {
+                List<Long> vpnList = aclInterface.getVpnId();
+                for (Long vpnId : vpnList) {
+                    if (vpnId != null) {
+                        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil
+                            .getVpnIdMetadata(vpnId),
+                            MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
+                    }
+                }
+                if (vpnList.isEmpty()) {
                     Long elanTag = aclInterface.getElanId();
                     instructions.add(
                         MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getElanTagMetadata(elanTag),
@@ -239,10 +243,11 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     protected void updateRemoteAclTableForPort(AclInterface port, Uuid acl, int addOrRemove,
             AllowedAddressPairs ip, BigInteger aclId, BigInteger dpId) {
         Long elanTag = port.getElanId();
-        Long vpnId = port.getVpnId();
+        List<Long> vpnList = port.getVpnId();
         List<MatchInfoBase> flowMatches = new ArrayList<>();
-        flowMatches.addAll(AclServiceUtils.buildIpAndDstServiceMatch(elanTag, ip, dataBroker, vpnId));
-
+        for (Long vpnId : vpnList) {
+            flowMatches.addAll(AclServiceUtils.buildIpAndDstServiceMatch(elanTag, ip, dataBroker, vpnId));
+        }
         List<InstructionInfo> instructions = new ArrayList<>();
 
         InstructionWriteMetadata writeMetatdata =
@@ -251,11 +256,18 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
         instructions.add(writeMetatdata);
         instructions.add(new InstructionGotoTable(getEgressAclFilterTable()));
 
-        Long serviceTag = vpnId != null ? vpnId : elanTag;
-        String flowNameAdded = "Acl_Filter_Egress_" + new String(ip.getIpAddress().getValue()) + "_" + serviceTag;
+        for (Long vpnId : vpnList) {
+            String flowNameAdded = "Acl_Filter_Egress_" + new String(ip.getIpAddress().getValue()) + "_" + vpnId;
 
-        syncFlow(dpId, getEgressAclRemoteAclTable(), flowNameAdded, AclConstants.NO_PRIORITY, "ACL", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
+            syncFlow(dpId, getEgressAclRemoteAclTable(), flowNameAdded, AclConstants.NO_PRIORITY, "ACL", 0, 0,
+                    AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
+        }
+        if (vpnList.isEmpty()) {
+            String flowNameAdded = "Acl_Filter_Egress_" + new String(ip.getIpAddress().getValue()) + "_" + elanTag;
+
+            syncFlow(dpId, getEgressAclRemoteAclTable(), flowNameAdded, AclConstants.NO_PRIORITY, "ACL", 0, 0,
+                    AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
+        }
     }
 
     protected short getEgressAclFilterTable() {

@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.aclservice.utils;
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -711,11 +712,14 @@ public final class AclServiceUtils {
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
     }
 
-    public static Long getVpnIdFromInterface(DataBroker broker, String vpnInterfaceName) {
+    public static List<Long> getVpnIdFromInterface(DataBroker broker, String vpnInterfaceName) {
         VpnInterface vpnInterface = VpnHelper.getVpnInterface(broker, vpnInterfaceName);
+        List vpnList = new ArrayList<Long>();
         if (vpnInterface != null) {
-            return VpnHelper.getVpnId(broker,
-                    VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
+            for (String vpnName : vpnInterface.getVpnInstanceName()) {
+                Collections.addAll(vpnList, VpnHelper.getVpnId(broker, vpnName));
+            }
+            return vpnList;
         }
         return null;
     }
