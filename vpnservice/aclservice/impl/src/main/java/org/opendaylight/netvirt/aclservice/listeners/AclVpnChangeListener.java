@@ -8,6 +8,9 @@
 package org.opendaylight.netvirt.aclservice.listeners;
 
 import com.google.common.base.Optional;
+
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -69,8 +72,13 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
 
         AclInterface aclInterface = aclInterfaceCache.updateIfPresent(data.getInterfaceName(),
             (prevAclInterface, builder) -> {
-                if (prevAclInterface.isPortSecurityEnabled() && !vpnId.equals(prevAclInterface.getVpnId())) {
-                    builder.vpnId(vpnId);
+                if (prevAclInterface.isPortSecurityEnabled() && !prevAclInterface.getVpnId().contains(vpnId)) {
+                    List<Long> list = new ArrayList<>();
+                    if (prevAclInterface.getVpnId() != null) {
+                        list.addAll(prevAclInterface.getVpnId());
+                    }
+                    list.add(vpnId);
+                    builder.vpnId(list);
                     return true;
                 }
 
@@ -97,8 +105,18 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
 
         AclInterface aclInterface = aclInterfaceCache.updateIfPresent(data.getInterfaceName(),
             (prevAclInterface, builder) -> {
-                if (prevAclInterface.isPortSecurityEnabled() && vpnId.equals(prevAclInterface.getVpnId())) {
-                    builder.vpnId(null);
+                if (prevAclInterface.isPortSecurityEnabled() && prevAclInterface.getVpnId().contains(vpnId)) {
+
+                    List<Long> list = new ArrayList<>();
+                    if (prevAclInterface.getVpnId() != null) {
+                        list.addAll(prevAclInterface.getVpnId());
+                    }
+                    if (list.contains(vpnId)) {
+                        list.remove(vpnId);
+                        builder.vpnId(list);
+                    }
+                    //prevAclInterface.setVpnId(list);
+
                     return true;
                 }
 
