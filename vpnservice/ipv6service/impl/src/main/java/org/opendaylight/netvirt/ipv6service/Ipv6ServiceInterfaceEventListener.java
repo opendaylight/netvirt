@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat, Inc. and others. All rights reserved.
+ * Copyright (c) 2016, 2017 Red Hat, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -19,7 +19,7 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -65,10 +65,10 @@ public class Ipv6ServiceInterfaceEventListener
     }
 
     @Override
-    protected void update(InstanceIdentifier<Interface> key, Interface dataObjectModificationBefore,
-                          Interface dataObjectModificationAfter) {
-        // TODO Auto-generated method stub
-        LOG.debug("Port updated...");
+    protected void update(InstanceIdentifier<Interface> key, Interface before, Interface after) {
+        if (before.getType() == null && L2vlan.class.equals(after.getType())) {
+            add(key, after);
+        }
     }
 
     private boolean isNeutronPort(String name) {
@@ -85,14 +85,15 @@ public class Ipv6ServiceInterfaceEventListener
     protected void add(InstanceIdentifier<Interface> key, Interface add) {
         LOG.debug("Port added {}, {}", key, add);
         List<String> ofportIds = add.getLowerLayerIf();
-        // When a port is created, we receive multiple notifications.
-        // In ipv6service, we are only interested in the notification for NeutronPort, so we skip other notifications
-        if (ofportIds == null || ofportIds.isEmpty() || !isNeutronPort(add.getName())) {
+
+        if (!L2vlan.class.equals(add.getType())) {
+            LOG.debug("iface {} not vlan type, skipping.", add);
             return;
         }
 
-        if (add.getType() != null && add.getType().equals(Tunnel.class)) {
-            LOG.info("iface {} is a tunnel interface, skipping.", add);
+        // When a port is created, we receive multiple notifications.
+        // In ipv6service, we are only interested in the notification for NeutronPort, so we skip other notifications
+        if (ofportIds == null || ofportIds.isEmpty() || !isNeutronPort(add.getName())) {
             return;
         }
 
