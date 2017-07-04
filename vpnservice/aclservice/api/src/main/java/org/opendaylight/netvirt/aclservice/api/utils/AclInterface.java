@@ -34,7 +34,7 @@ public class AclInterface {
     Long elanId;
 
     /** VPN Id of the interface. */
-    Long vpnId;
+    List<Long> vpnId;
 
     /** The security groups. */
     List<Uuid> securityGroups;
@@ -149,7 +149,7 @@ public class AclInterface {
      *
      * @return VPN Id of the interface
      */
-    public Long getVpnId() {
+    public List<Long> getVpnId() {
         return vpnId;
     }
 
@@ -158,7 +158,7 @@ public class AclInterface {
      *
      * @param vpnId VPN Id of the interface
      */
-    public void setVpnId(Long vpnId) {
+    public void setVpnId(List<Long> vpnId) {
         this.vpnId = vpnId;
     }
 
