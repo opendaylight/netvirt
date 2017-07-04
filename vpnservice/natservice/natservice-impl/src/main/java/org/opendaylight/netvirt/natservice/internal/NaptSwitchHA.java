@@ -200,8 +200,10 @@ public class NaptSwitchHA {
             evpnNaptSwitchHA.evpnRemoveSnatFlowsInOldNaptSwitch(routerName, routerId, vpnName, naptSwitch);
         } else {
             //Remove the Terminating Service table entry which forwards the packet to Outbound NAPT Table
+            long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, elanManager, idManager, routerId,
+                    routerName);
             String tsFlowRef = externalRouterListener.getFlowRefTs(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE,
-                    routerId);
+                    tunnelId);
             FlowEntity tsNatFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE,
                     tsFlowRef);
 
@@ -217,6 +219,24 @@ public class NaptSwitchHA {
         LOG.info("Remove the flow in table {} for the old napt switch with the DPN ID {} and router ID {}",
             NwConstants.OUTBOUND_NAPT_TABLE, naptSwitch, routerId);
         mdsalManager.removeFlow(outboundNatFlowEntity);
+
+        //Remove the NAPT PFIB TABLE (47->21) which forwards the incoming packet to FIB Table matching on the
+        // External Subnet Vpn Id.
+        List<Uuid> externalSubnetIdsForRouter = NatUtil.getExternalSubnetIdsForRouter(dataBroker,
+                routerName);
+        for (Uuid externalSubnetId : externalSubnetIdsForRouter) {
+            long subnetVpnId = NatUtil.getVpnId(dataBroker, externalSubnetId.getValue());
+            if (subnetVpnId != -1) {
+                String natPfibSubnetFlowRef = externalRouterListener.getFlowRefTs(naptSwitch,
+                        NwConstants.NAPT_PFIB_TABLE, subnetVpnId);
+                FlowEntity natPfibFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NwConstants.NAPT_PFIB_TABLE,
+                        natPfibSubnetFlowRef);
+                NatUtil.djcFlow(natPfibFlowEntity, NwConstants.DEL_FLOW, mdsalManager);
+                LOG.debug("removeSnatFlowsInOldNaptSwitch : Removed the flow in table {} with external subnet "
+                                + "Vpn Id {} as metadata on Napt Switch {} and vpnId {}", NwConstants.NAPT_PFIB_TABLE,
+                        subnetVpnId, naptSwitch);
+            }
+        }
 
         // Remove the NAPT_PFIB_TABLE(47) flow entry forwards the packet to Fib Table for inbound traffic
         // matching on the router ID.
