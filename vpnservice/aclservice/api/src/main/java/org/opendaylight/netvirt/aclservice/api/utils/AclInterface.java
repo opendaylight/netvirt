@@ -8,8 +8,15 @@
 package org.opendaylight.netvirt.aclservice.api.utils;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+
 import java.math.BigInteger;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+
+import javax.annotation.Nonnull;
+
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
@@ -35,7 +42,7 @@ public final class AclInterface {
     private final Long elanId;
 
     /** VPN Id of the interface. */
-    private final Long vpnId;
+    private final Collection<Long> vpnIds;
 
     /** The security groups. */
     private final List<Uuid> securityGroups;
@@ -55,7 +62,7 @@ public final class AclInterface {
         this.lportTag = builder.lportTag;
         this.dpId = builder.dpId;
         this.elanId = builder.elanId;
-        this.vpnId = builder.vpnId;
+        this.vpnIds = builder.vpnIds;
         this.securityGroups = builder.securityGroups;
         this.allowedAddressPairs = builder.allowedAddressPairs;
         this.subnetIpPrefixes = builder.subnetIpPrefixes;
@@ -112,8 +119,9 @@ public final class AclInterface {
      *
      * @return VPN Id of the interface
      */
-    public Long getVpnId() {
-        return vpnId;
+    @Nonnull
+    public Collection<Long> getVpnIds() {
+        return vpnIds != null ? vpnIds : Collections.emptyList();
     }
 
     /**
@@ -239,7 +247,7 @@ public final class AclInterface {
     @Override
     public String toString() {
         return "AclInterface [interfaceId=" + interfaceId + ", lportTag=" + lportTag + ", dpId=" + dpId + ", elanId="
-                + elanId + ", vpnId=" + vpnId + ", securityGroups=" + securityGroups + ", allowedAddressPairs="
+                + elanId + ", vpnId=" + vpnIds + ", securityGroups=" + securityGroups + ", allowedAddressPairs="
                 + allowedAddressPairs + ", subnetIpPrefixes=" + subnetIpPrefixes + ", portSecurityEnabled="
                 + portSecurityEnabled + ", isMarkedForDelete=" + isMarkedForDelete + "]";
     }
@@ -258,7 +266,7 @@ public final class AclInterface {
         private Integer lportTag;
         private BigInteger dpId;
         private Long elanId;
-        private Long vpnId;
+        private Collection<Long> vpnIds;
         private List<Uuid> securityGroups;
         private List<AllowedAddressPairs> allowedAddressPairs;
         private List<IpPrefixOrAddress> subnetIpPrefixes;
@@ -273,7 +281,7 @@ public final class AclInterface {
             this.lportTag = from.lportTag;
             this.dpId = from.dpId;
             this.elanId = from.elanId;
-            this.vpnId = from.vpnId;
+            this.vpnIds = from.vpnIds;
             this.securityGroups = from.securityGroups;
             this.allowedAddressPairs = from.allowedAddressPairs;
             this.subnetIpPrefixes = from.subnetIpPrefixes;
@@ -305,8 +313,8 @@ public final class AclInterface {
             return this;
         }
 
-        public Builder vpnId(Long value) {
-            this.vpnId = value;
+        public Builder vpnIds(Collection<Long> value) {
+            this.vpnIds =  value == null ? Collections.emptyList() : ImmutableSet.copyOf(value);
             return this;
         }
 
