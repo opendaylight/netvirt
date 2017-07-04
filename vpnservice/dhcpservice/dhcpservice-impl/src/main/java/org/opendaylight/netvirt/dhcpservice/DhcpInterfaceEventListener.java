@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -20,6 +20,8 @@ import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.dhcpservice.jobs.DhcpInterfaceAddJob;
 import org.opendaylight.netvirt.dhcpservice.jobs.DhcpInterfaceRemoveJob;
 import org.opendaylight.netvirt.dhcpservice.jobs.DhcpInterfaceUpdateJob;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
@@ -37,7 +39,7 @@ public class DhcpInterfaceEventListener
     private final DataBroker dataBroker;
     private final DhcpManager dhcpManager;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
-    private DataStoreJobCoordinator dataStoreJobCoordinator;
+    private final DataStoreJobCoordinator dataStoreJobCoordinator;
     private final IInterfaceManager interfaceManager;
 
     public DhcpInterfaceEventListener(DhcpManager dhcpManager, DataBroker dataBroker,
@@ -60,6 +62,9 @@ public class DhcpInterfaceEventListener
 
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface del) {
+        if (!L2vlan.class.equals(del.getType()) && !Tunnel.class.equals(del.getType())) {
+            return;
+        }
         List<String> ofportIds = del.getLowerLayerIf();
         if (ofportIds == null || ofportIds.isEmpty()) {
             return;
@@ -75,8 +80,8 @@ public class DhcpInterfaceEventListener
     @Override
     protected void update(InstanceIdentifier<Interface> identifier,
             Interface original, Interface update) {
-        if (update.getType() == null) {
-            LOG.trace("Interface type for interface {} is null", update);
+        // We're only interested in Vlan and Tunnel ports
+        if (!L2vlan.class.equals(update.getType()) && !Tunnel.class.equals(update.getType())) {
             return;
         }
         if ((original.getOperStatus().getIntValue() ^ update.getOperStatus().getIntValue()) == 0) {
@@ -103,6 +108,10 @@ public class DhcpInterfaceEventListener
 
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface add) {
+        // We're only interested in Vlan and Tunnel ports
+        if (!L2vlan.class.equals(add.getType()) && !Tunnel.class.equals(add.getType())) {
+            return;
+        }
         String interfaceName = add.getName();
         List<String> ofportIds = add.getLowerLayerIf();
         if (ofportIds == null || ofportIds.isEmpty()) {
