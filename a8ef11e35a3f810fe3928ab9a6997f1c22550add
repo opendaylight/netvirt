@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_0a0cdc41",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclDataUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-07-04T02:31:58Z",
+      "side": 0,
+      "message": "removal of this check would be risky right?\n\nCan we retain this please?",
+      "revId": "a8ef11e35a3f810fe3928ab9a6997f1c22550add",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
