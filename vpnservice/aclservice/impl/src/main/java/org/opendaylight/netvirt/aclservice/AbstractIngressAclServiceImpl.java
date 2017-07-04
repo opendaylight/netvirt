@@ -39,7 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.AceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -383,18 +382,5 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
 
     protected MatchInfoBase buildLPortTagMatch(int lportTag) {
         return AclServiceUtils.buildLPortTagMatch(lportTag, ServiceModeIngress.class);
-    }
-
-    protected int getIngressSpecificAclFlowPriority(BigInteger dpId, int addOrRemove, String flowName,
-                                                  PacketHandling packetHandling) {
-        int priority;
-        if (addOrRemove == NwConstants.DEL_FLOW) {
-            priority = aclServiceUtils.releaseAndRemoveFlowPriorityFromCache(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
-                    flowName, packetHandling);
-        } else {
-            priority = aclServiceUtils.allocateAndSaveFlowPriorityInCache(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
-                    flowName, packetHandling);
-        }
-        return priority;
     }
 }

@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -798,9 +799,7 @@ public final class AclServiceUtils {
      * @param key the key
      * @return the integer
      */
-    public Integer allocateAndSaveFlowPriorityInCache(BigInteger dpId, short tableId, String key,
-                                                      PacketHandling packetHandling) {
-        String poolName = getAclPoolName(dpId, tableId, packetHandling);
+    public Integer allocateAndSaveFlowPriorityInCache(String poolName, String key) {
         Integer flowPriority = AclServiceUtils.allocateId(this.idManager, poolName, key,
                 AclConstants.PROTO_MATCH_PRIORITY);
         this.aclDataUtil.addAclFlowPriority(key, flowPriority);
@@ -833,9 +832,7 @@ public final class AclServiceUtils {
      * @param key the key
      * @return the integer
      */
-    public Integer releaseAndRemoveFlowPriorityFromCache(BigInteger dpId, short tableId, String key,
-                                                         PacketHandling packetHandling) {
-        String poolName = getAclPoolName(dpId, tableId, packetHandling);
+    public Integer releaseAndRemoveFlowPriorityFromCache(String poolName,String key) {
         AclServiceUtils.releaseId(this.idManager, poolName, key);
         Integer flowPriority = this.aclDataUtil.removeAclFlowPriority(key);
         if (flowPriority == null) {
@@ -966,13 +963,13 @@ public final class AclServiceUtils {
      */
     public void createAclIdPools(BigInteger dpId) {
         createIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
-                AclConstants.PacketHandlingType.PERMIT), AclConstants.PacketHandlingType.PERMIT);
+            AclConstants.PacketHandlingType.PERMIT), AclConstants.PacketHandlingType.PERMIT);
         createIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
-                AclConstants.PacketHandlingType.DENY), AclConstants.PacketHandlingType.DENY);
+            AclConstants.PacketHandlingType.DENY), AclConstants.PacketHandlingType.DENY);
         createIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
-                AclConstants.PacketHandlingType.PERMIT), AclConstants.PacketHandlingType.PERMIT);
+            AclConstants.PacketHandlingType.PERMIT), AclConstants.PacketHandlingType.PERMIT);
         createIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
-                AclConstants.PacketHandlingType.DENY), AclConstants.PacketHandlingType.DENY);
+            AclConstants.PacketHandlingType.DENY), AclConstants.PacketHandlingType.DENY);
     }
 
     /**

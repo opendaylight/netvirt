@@ -50,7 +50,8 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
         flowMatches.add(buildLPortTagMatch(lportTag));
         List<ActionInfo> actionsInfos = new ArrayList<>();
         PacketHandling packetHandling = ace.getActions() != null ? ace.getActions().getPacketHandling() : null;
-        int priority = getIngressSpecificAclFlowPriority(dpId, addOrRemove, flowName, packetHandling);
+        String poolName = AclServiceUtils.getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, packetHandling);
+        int priority = getAclFlowPriority(poolName, flowName, addOrRemove);
         if (packetHandling instanceof Permit) {
             addLearnActions(flowMatches, actionsInfos, priority);
             actionsInfos.add(new ActionNxResubmit(NwConstants.EGRESS_LPORT_DISPATCHER_TABLE));

@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.aclservice.utils;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -176,5 +177,28 @@ public class AclDataUtil {
             priority = AclConstants.PROTO_MATCH_PRIORITY;
         }
         return priority;
+    }
+
+    /**
+     * Gets the acl interfaces list for DPN.
+     *
+     * @param dpnId the datapath ID of DPN
+     * @return true if DPN is associated with Acl interface, else false
+     */
+    public boolean doesDpnHaveAclInterface(BigInteger dpnId) {
+        if (aclInterfaceMap == null || aclInterfaceMap.isEmpty()) {
+            return false;
+        }
+        for (Uuid key : aclInterfaceMap.keySet()) {
+            List<AclInterface> interfaceList = aclInterfaceMap.get(key);
+            if (interfaceList != null && !interfaceList.isEmpty()) {
+                for (AclInterface aclItf : interfaceList) {
+                    if (aclItf.getDpId().equals(dpnId)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }
