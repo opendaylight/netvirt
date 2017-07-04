@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_e887cf0d",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 41
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-04T16:48:46Z",
+      "side": 1,
+      "message": "For consistency, please use \"l3vpn-dual-stack-vm\"",
+      "revId": "e4645ea2eaeb92ba6f7008582859ead8055d35b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_2879e72f",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 41
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-04T16:48:46Z",
+      "side": 1,
+      "message": "You may want to discuss with Ashvin regarding this use-case.",
+      "revId": "e4645ea2eaeb92ba6f7008582859ead8055d35b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_487c1b21",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 41
+      },
+      "lineNbr": 684,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-04T16:48:46Z",
+      "side": 1,
+      "message": "Based on our discussion in the IPv6 call, please update this section.",
+      "range": {
+        "startLine": 680,
+        "startChar": 0,
+        "endLine": 684,
+        "endChar": 35
+      },
+      "revId": "e4645ea2eaeb92ba6f7008582859ead8055d35b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
