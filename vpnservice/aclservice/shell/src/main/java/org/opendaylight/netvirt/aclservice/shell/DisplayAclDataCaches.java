@@ -161,7 +161,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                     session.getConsole().println(String.format(ACL_INT_TAB,
                             aclInterface.isPortSecurityEnabled(), aclInterface.getInterfaceId(),
                             aclInterface.getLPortTag(), aclInterface.getDpId(), aclInterface.getElanId(),
-                            aclInterface.getVpnId(), aclInterface.getSecurityGroups(),
+                            aclInterface.getVpnIds(), aclInterface.getSecurityGroups(),
                             aclInterface.getAllowedAddressPairs(), aclInterface.getSubnetIpPrefixes(),
                             aclInterface.isMarkedForDelete()));
                 }
@@ -183,7 +183,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                         session.getConsole().println(String.format(ACL_INT_TAB,
                                 aclInterface.isPortSecurityEnabled(), aclInterface.getInterfaceId(),
                                 aclInterface.getLPortTag(), aclInterface.getDpId(), aclInterface.getElanId(),
-                                aclInterface.getVpnId(), aclInterface.getSecurityGroups(),
+                                aclInterface.getVpnIds(), aclInterface.getSecurityGroups(),
                                 aclInterface.getAllowedAddressPairs(), aclInterface.getSubnetIpPrefixes(),
                                 aclInterface.isMarkedForDelete()));
                     }
@@ -275,7 +275,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
             session.getConsole().println(String.format(ACL_INT_TAB_FOR, key,
                     aclInterface.isPortSecurityEnabled(), aclInterface.getInterfaceId(),
                     aclInterface.getLPortTag(), aclInterface.getDpId(), aclInterface.getElanId(),
-                    aclInterface.getVpnId(), aclInterface.getSecurityGroups(),
+                    aclInterface.getVpnIds(), aclInterface.getSecurityGroups(),
                     aclInterface.getAllowedAddressPairs(), aclInterface.getSubnetIpPrefixes(),
                     aclInterface.isMarkedForDelete()));
 
@@ -294,7 +294,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                     session.getConsole().println(String.format(ACL_INT_TAB_FOR, entry.getKey(),
                             aclInterface.isPortSecurityEnabled(), aclInterface.getInterfaceId(),
                             aclInterface.getLPortTag(), aclInterface.getDpId(), aclInterface.getElanId(),
-                            aclInterface.getVpnId(), aclInterface.getSecurityGroups(),
+                            aclInterface.getVpnIds(), aclInterface.getSecurityGroups(),
                             aclInterface.getAllowedAddressPairs(), aclInterface.getSubnetIpPrefixes(),
                             aclInterface.isMarkedForDelete()));
                 }

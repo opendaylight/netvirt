@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.aclservice;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -221,35 +222,45 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
         String interfaceName = aclInterface.getInterfaceId();
         jobCoordinator.enqueueJob(interfaceName,
             () -> {
-                int instructionKey = 0;
-                List<Instruction> instructions = new ArrayList<>();
-                Long vpnId = aclInterface.getVpnId();
-                if (vpnId != null) {
-                    instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
-                        MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
-                    LOG.debug("Binding ACL service for interface {} with vpnId {}", interfaceName, vpnId);
-                } else {
+
+                List<Instruction> instructionPerVpnId = new ArrayList<>();
+                Collection<Long> vpnIdList = aclInterface.getVpnIds();
+
+                for (Long vpnIdLong : vpnIdList) {
+                    instructionPerVpnId.add(MDSALUtil.buildAndGetWriteMetadaInstruction(
+                            MetaDataUtil.getVpnIdMetadata(vpnIdLong), MetaDataUtil.METADATA_MASK_VRFID, 1));
+                    LOG.debug("Binding ACL service for interface {} with vpnId {}", interfaceName, vpnIdLong);
+                }
+
+                if (instructionPerVpnId.isEmpty()) {
                     Long elanTag = aclInterface.getElanId();
-                    instructions.add(
+                    instructionPerVpnId.add(
                             MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getElanTagMetadata(elanTag),
-                            MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
+                            MetaDataUtil.METADATA_MASK_SERVICE, 1));
                     LOG.debug("Binding ACL service for interface {} with ElanTag {}", interfaceName, elanTag);
                 }
-                instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(AclConstants
-                        .EGRESS_ACL_DUMMY_TABLE, ++instructionKey));
-                int flowPriority = AclConstants.INGRESS_ACL_DEFAULT_FLOW_PRIORITY;
-                short serviceIndex = ServiceIndex.getIndex(NwConstants.EGRESS_ACL_SERVICE_NAME,
-                        NwConstants.EGRESS_ACL_SERVICE_INDEX);
-                BoundServices serviceInfo = AclServiceUtils.getBoundServices(
-                        String.format("%s.%s.%s", "acl", "ingressacl", interfaceName), serviceIndex, flowPriority,
-                        AclConstants.COOKIE_ACL_BASE, instructions);
-                InstanceIdentifier<BoundServices> path = AclServiceUtils.buildServiceId(interfaceName,
-                        ServiceIndex.getIndex(NwConstants.EGRESS_ACL_SERVICE_NAME,
-                        NwConstants.EGRESS_ACL_SERVICE_INDEX), ServiceModeEgress.class);
 
                 WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-                writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, serviceInfo,
-                        WriteTransaction.CREATE_MISSING_PARENTS);
+                for (Instruction instruc : instructionPerVpnId) {
+                    List<Instruction> instructions = new ArrayList<>();
+                    instructions.add(instruc);
+                    int instructionKey = 1; // the first instruction is already added above
+
+                    instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(AclConstants
+                            .EGRESS_ACL_DUMMY_TABLE, ++instructionKey));
+                    int flowPriority = AclConstants.INGRESS_ACL_DEFAULT_FLOW_PRIORITY;
+                    short serviceIndex = ServiceIndex.getIndex(NwConstants.EGRESS_ACL_SERVICE_NAME,
+                            NwConstants.EGRESS_ACL_SERVICE_INDEX);
+                    BoundServices serviceInfo = AclServiceUtils.getBoundServices(
+                            String.format("%s.%s.%s", "acl", "ingressacl", interfaceName), serviceIndex, flowPriority,
+                            AclConstants.COOKIE_ACL_BASE, instructions);
+                    InstanceIdentifier<BoundServices> path = AclServiceUtils.buildServiceId(interfaceName,
+                            ServiceIndex.getIndex(NwConstants.EGRESS_ACL_SERVICE_NAME,
+                            NwConstants.EGRESS_ACL_SERVICE_INDEX), ServiceModeEgress.class);
+
+                    writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, serviceInfo,
+                            WriteTransaction.CREATE_MISSING_PARENTS);
+                }
 
                 return Collections.singletonList(writeTxn.submit());
             });
