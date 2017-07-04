@@ -616,4 +616,25 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
         return null;
     }
+
+    /**
+     * Gets the priority of acl flow which is to be either removed or added.
+     *
+     * @param poolName
+     *            the acl pool name
+     * @param flowName
+     *            the flow name
+     * @param addOrRemove
+     *            add or remove the entries.
+     * @return the acl flow priority
+     */
+    protected int getAclFlowPriority(String poolName, String flowName, int addOrRemove) {
+        int priority;
+        if (addOrRemove == NwConstants.DEL_FLOW) {
+            priority = aclServiceUtils.releaseAndRemoveFlowPriorityFromCache(poolName, flowName);
+        } else {
+            priority = aclServiceUtils.allocateAndSaveFlowPriorityInCache(poolName, flowName);
+        }
+        return priority;
+    }
 }

@@ -87,12 +87,13 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
         } else {
             instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
         }
-
+        String poolName = AclServiceUtils.getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, packetHandling);
         // For flows related remote ACL, unique flow priority is used for
         // each flow to avoid overlapping flows
-        int priority = getEgressSpecificAclFlowPriority(dpId, addOrRemove, flowName, packetHandling);
+        int priority = getAclFlowPriority(poolName, flowName, addOrRemove);
+
         syncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, flowName, priority, "ACL", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+            AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
         return flowName;
     }
 
