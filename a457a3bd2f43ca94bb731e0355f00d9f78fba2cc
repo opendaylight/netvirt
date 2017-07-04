@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_e5b09af6",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6ServiceInterfaceEventListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-04T10:53:51Z",
+      "side": 1,
+      "message": "Oops, I wanted to address to @Vishal. The overall change looks good.",
+      "parentUuid": "da2a55be_45cec684",
+      "range": {
+        "startLine": 89,
+        "startChar": 38,
+        "endLine": 89,
+        "endChar": 97
+      },
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_45208649",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6ServiceInterfaceEventListener.java",
         "patchSetId": 1
