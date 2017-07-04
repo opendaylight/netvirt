@@ -50,6 +50,7 @@ import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNames;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
@@ -797,11 +798,15 @@ public final class AclServiceUtils {
         MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
     }
 
-    public static Long getVpnIdFromInterface(DataBroker broker, String vpnInterfaceName) {
+    public static List<Long> getVpnIdFromInterface(DataBroker broker, String vpnInterfaceName) {
         VpnInterface vpnInterface = VpnHelper.getVpnInterface(broker, vpnInterfaceName);
-        if (vpnInterface != null) {
-            return VpnHelper.getVpnId(broker,
-                    VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
+        List<Long> vpnList = new ArrayList<Long>();
+        if (vpnInterface != null && vpnInterface.getVpnInstanceNames() != null) {
+            for (VpnInstanceNames vpnInterfaceVpnInstance : vpnInterface.getVpnInstanceNames()) {
+                String vpnName  = vpnInterfaceVpnInstance.getVpnName();
+                vpnList.add(VpnHelper.getVpnId(broker, vpnName));
+            }
+            return vpnList;
         }
         return null;
     }

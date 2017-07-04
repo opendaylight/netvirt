@@ -8,6 +8,9 @@
 package org.opendaylight.netvirt.aclservice.listeners;
 
 import com.google.common.base.Optional;
+
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -69,8 +72,10 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
 
         AclInterface aclInterface = aclInterfaceCache.updateIfPresent(data.getInterfaceName(),
             (prevAclInterface, builder) -> {
-                if (prevAclInterface.isPortSecurityEnabled() && !vpnId.equals(prevAclInterface.getVpnId())) {
-                    builder.vpnId(vpnId);
+                if (prevAclInterface.isPortSecurityEnabled() && !prevAclInterface.getVpnIds().contains(vpnId)) {
+                    List<Long> list = new ArrayList<>(prevAclInterface.getVpnIds());
+                    list.add(vpnId);
+                    builder.vpnIds(list);
                     return true;
                 }
 
@@ -97,8 +102,14 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
 
         AclInterface aclInterface = aclInterfaceCache.updateIfPresent(data.getInterfaceName(),
             (prevAclInterface, builder) -> {
-                if (prevAclInterface.isPortSecurityEnabled() && vpnId.equals(prevAclInterface.getVpnId())) {
-                    builder.vpnId(null);
+                if (prevAclInterface.isPortSecurityEnabled() && prevAclInterface.getVpnIds().contains(vpnId)) {
+                    List<Long> list = new ArrayList<>();
+                    prevAclInterface.getVpnIds().forEach(id -> {
+                        if (!vpnId.equals(id)) {
+                            list.add(id);
+                        }
+                    });
+                    builder.vpnIds(list);
                     return true;
                 }
 

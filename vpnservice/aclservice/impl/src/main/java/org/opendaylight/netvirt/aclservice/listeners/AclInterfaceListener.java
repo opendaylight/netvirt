@@ -109,7 +109,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
                     added.set(true);
                     builder.subnetIpPrefixes(AclServiceUtils.getSubnetIpPrefixes(dataBroker, interfaceId))
                         .elanId(AclServiceUtils.getElanIdFromInterface(interfaceId, dataBroker))
-                        .vpnId(AclServiceUtils.getVpnIdFromInterface(dataBroker, interfaceId));
+                        .vpnIds(AclServiceUtils.getVpnIdFromInterface(dataBroker, interfaceId));
                 }
             });
 
@@ -156,7 +156,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
             builder.dpId(cachedAclInterface.getDpId());
             builder.lPortTag(cachedAclInterface.getLPortTag());
             builder.elanId(cachedAclInterface.getElanId());
-            builder.vpnId(cachedAclInterface.getVpnId());
+            builder.vpnIds(cachedAclInterface.getVpnIds());
             builder.portSecurityEnabled(aclInPort.isPortSecurityEnabled());
             builder.allowedAddressPairs(aclInPort.getAllowedAddressPairs());
             builder.securityGroups(aclInPort.getSecurityGroups());
@@ -178,7 +178,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
                     .securityGroups(aclInPort.getSecurityGroups())
                     .allowedAddressPairs(aclInPort.getAllowedAddressPairs())
                     .elanId(AclServiceUtils.getElanIdFromInterface(interfaceId, dataBroker))
-                    .vpnId(AclServiceUtils.getVpnIdFromInterface(dataBroker, interfaceId))
+                    .vpnIds(AclServiceUtils.getVpnIdFromInterface(dataBroker, interfaceId))
                     .subnetIpPrefixes(subnetIpPrefixes);
             });
 
