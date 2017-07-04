@@ -19,6 +19,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier
 import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL
 import org.opendaylight.genius.mdsalutil.MDSALUtil
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan
 
 class StateInterfaceBuilderHelper {
     // TODO make this like IdentifiedInterfaceWithAclBuilder
@@ -32,6 +33,7 @@ class StateInterfaceBuilderHelper {
             lowerLayerIf = #[ "openflow:123:456" ]
             ifIndex = 987
             operStatus = OperStatus.Up
+            type = L2vlan
         ]
         MDSALUtil.syncWrite(dataBroker, OPERATIONAL, id, stateInterface);
     }
