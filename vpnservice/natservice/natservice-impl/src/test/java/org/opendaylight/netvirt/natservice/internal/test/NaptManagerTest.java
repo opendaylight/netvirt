@@ -153,8 +153,8 @@ public class NaptManagerTest {
     public void testRegisterMappingSubnetSubnet() {
         // TODO : This needs to be modified to make it work
         ipmapId = InstanceIdentifier.builder(IntextIpMap.class)
-            .child(IpMapping.class, new IpMappingKey(6L)).child(IpMap.class, new IpMapKey("10.2.0.1/24")).build();
-        ipmap = new IpMapBuilder().setKey(new IpMapKey("10.2.0.1/24")).setInternalIp("10.2.0.1/24")
+            .child(IpMapping.class, new IpMappingKey(6L)).child(IpMap.class, new IpMapKey("10.2.0.2/24")).build();
+        ipmap = new IpMapBuilder().setKey(new IpMapKey("10.2.0.2/24")).setInternalIp("10.2.0.2/24")
             .setExternalIp("192.21.16.1/16").build();
         try {
             PowerMockito.doNothing()
@@ -163,7 +163,7 @@ public class NaptManagerTest {
             // Test failed anyways
             assertEquals("true", "false");
         }
-        IPAddress internal = new IPAddress("10.2.0.1", 24);
+        IPAddress internal = new IPAddress("10.2.0.2", 24);
         IPAddress external = new IPAddress("192.21.16.1", 16);
         naptManager.registerMapping(6, internal, external);
         PowerMockito.verifyStatic();
