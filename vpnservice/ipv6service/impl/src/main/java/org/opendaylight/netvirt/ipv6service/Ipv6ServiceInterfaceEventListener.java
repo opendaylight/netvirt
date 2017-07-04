@@ -85,14 +85,16 @@ public class Ipv6ServiceInterfaceEventListener
     protected void add(InstanceIdentifier<Interface> key, Interface add) {
         LOG.debug("Port added {}, {}", key, add);
         List<String> ofportIds = add.getLowerLayerIf();
-        // When a port is created, we receive multiple notifications.
-        // In ipv6service, we are only interested in the notification for NeutronPort, so we skip other notifications
-        if (ofportIds == null || ofportIds.isEmpty() || !isNeutronPort(add.getName())) {
+
+        // If IPv6 only interested in IfL2Vlan, we should filter for that, instead of tunnel only
+        if (add.getType() == null || add.getType() != null && add.getType().equals(Tunnel.class)) {
+            LOG.debug("iface {} is a tunnel interface or type not known, skipping.", add);
             return;
         }
 
-        if (add.getType() != null && add.getType().equals(Tunnel.class)) {
-            LOG.info("iface {} is a tunnel interface, skipping.", add);
+        // When a port is created, we receive multiple notifications.
+        // In ipv6service, we are only interested in the notification for NeutronPort, so we skip other notifications
+        if (ofportIds == null || ofportIds.isEmpty() || !isNeutronPort(add.getName())) {
             return;
         }
 

@@ -18,6 +18,7 @@ import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
@@ -46,6 +47,9 @@ public class ElanInterfaceStateChangeListener
 
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface delIf) {
+        if(!IfL2vlan.class.equals(delIf.getType())) {
+            return;
+        }
         LOG.trace("Received interface {} Down event", delIf);
         String interfaceName =  delIf.getName();
         ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
@@ -73,11 +77,16 @@ public class ElanInterfaceStateChangeListener
 
     @Override
     protected void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
-        LOG.trace("Operation Interface update event - Old: {}, New: {}", original, update);
+        if(original.getType() == null && IfL2vlan.class.equals(update.getType())) {
+            add(identifier, update);
+        }
     }
 
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
+        if(!IfL2vlan.class.equals(intrf.getType())) {
+            return;
+        }
         LOG.trace("Received interface {} up event", intrf);
         String interfaceName =  intrf.getName();
         ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);

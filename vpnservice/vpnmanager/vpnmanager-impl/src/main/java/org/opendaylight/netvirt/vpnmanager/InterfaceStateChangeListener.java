@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,10 +63,10 @@ public class InterfaceStateChangeListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
-        LOG.info("VPN Interface add event - intfName {} from InterfaceStateChangeListener",
-                intrf.getName());
         try {
-            if (intrf != null && (intrf.getType() != null) && !intrf.getType().equals(Tunnel.class)) {
+            if (intrf != null && IfL2vlan.class.equals(intrf.getType())) {
+                LOG.info("VPN Interface add event - intfName {} from InterfaceStateChangeListener",
+                                intrf.getName());
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + intrf.getName(),
                     () -> {
@@ -80,7 +81,7 @@ public class InterfaceStateChangeListener
                         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
                                 .interfaces.Interface configInterface =
                                 InterfaceUtils.getInterface(dataBroker, interfaceName);
-                        if (configInterface != null && (configInterface.getType() != null)
+                        if (configInterface != null && configInterface.getType() != null
                                 && !configInterface.getType().equals(Tunnel.class)) {
                             // We service only VM interfaces and Router interfaces here.
                             // We donot service Tunnel Interfaces here.
@@ -142,10 +143,10 @@ public class InterfaceStateChangeListener
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
         final String interfaceName = intrf.getName();
         BigInteger dpId = BigInteger.ZERO;
-        LOG.info("VPN Interface remove event - intfName {} from InterfaceStateChangeListener",
-                intrf.getName());
         try {
-            if (intrf != null && (intrf.getType() != null) && !intrf.getType().equals(Tunnel.class)) {
+            if (intrf != null && IfL2vlan.class.equals(intrf.getType())) {
+                LOG.info("VPN Interface remove event - intfName {} from InterfaceStateChangeListener",
+                                intrf.getName());
                 try {
                     dpId = InterfaceUtils.getDpIdFromInterface(intrf);
                 } catch (Exception e) {
@@ -201,10 +202,8 @@ public class InterfaceStateChangeListener
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     protected void update(InstanceIdentifier<Interface> identifier,
-        Interface original, Interface update) {
+                    Interface original, Interface update) {
         final String interfaceName = update.getName();
-        LOG.info("VPN Interface update event - intfName {} from InterfaceStateChangeListener",
-                update.getName());
         try {
             OperStatus originalOperStatus = original.getOperStatus();
             OperStatus updateOperStatus = update.getOperStatus();
@@ -218,7 +217,9 @@ public class InterfaceStateChangeListener
             if (update.getIfIndex() == null) {
                 return;
             }
-            if (update != null && (update.getType() != null) && !update.getType().equals(Tunnel.class)) {
+            if (update != null && IfL2vlan.class.equals(update.getType())) {
+                LOG.info("VPN Interface update event - intfName {} from InterfaceStateChangeListener",
+                        update.getName());
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
                     () -> {

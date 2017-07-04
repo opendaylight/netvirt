@@ -27,6 +27,7 @@ import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,8 +67,11 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Interface> key, Interface dataObjectModification) {
-        String interfaceId = dataObjectModification.getName();
+    protected void remove(InstanceIdentifier<Interface> key, Interface deleted) {
+        if(deleted.getType() == null || !IfL2vlan.class.equals(deleted.getType())) {
+            return;
+        }
+        String interfaceId = deleted.getName();
         AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
         if (AclServiceUtils.isOfInterest(aclInterface)) {
             AclInterfaceCacheUtil.removeAclInterfaceFromCache(interfaceId);
@@ -83,18 +87,26 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     }
 
     @Override
-    protected void update(InstanceIdentifier<Interface> key, Interface dataObjectModificationBefore,
-                          Interface dataObjectModificationAfter) {
+    protected void update(InstanceIdentifier<Interface> key, Interface before, Interface after) {
         /*
          * The update is not of interest as the attributes populated from this listener will not change.
          * The northbound updates are handled in AclInterfaceListener.
+         *
+         * We're only interested in update in cases where IfType got filled after creation.
          */
-        LOG.trace("Update event for AclInterfaceStateListener is not of interest.");
+        if(before.getType() == null && IfL2vlan.class.equals(after.getType())) {
+            add(key, after);
+        } else {
+            LOG.trace("Update event for AclInterfaceStateListener is not of interest.");
+        }
     }
 
     @Override
-    protected void add(InstanceIdentifier<Interface> key, Interface dataObjectModification) {
-        AclInterface aclInterface = updateAclInterfaceCache(dataObjectModification);
+    protected void add(InstanceIdentifier<Interface> key, Interface added) {
+        if(added.getType() == null || !IfL2vlan.class.equals(added.getType())) {
+            return;
+        }
+        AclInterface aclInterface = updateAclInterfaceCache(added);
         if (AclServiceUtils.isOfInterest(aclInterface)) {
             List<Uuid> aclList = aclInterface.getSecurityGroups();
             if (aclList != null) {
