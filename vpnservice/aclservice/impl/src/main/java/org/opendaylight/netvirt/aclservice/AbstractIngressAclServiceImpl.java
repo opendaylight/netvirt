@@ -94,11 +94,12 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
             () -> {
                 int instructionKey = 0;
                 List<Instruction> instructions = new ArrayList<>();
-                Long vpnId = aclInterface.getVpnId();
-                if (vpnId != null) {
+                List<Long> vpnList = aclInterface.getVpnId();
+                for (Long vpnId : vpnList) {
                     instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
                         MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
-                } else {
+                }
+                if (vpnList.isEmpty()) {
                     Long elanTag = aclInterface.getElanId();
                     instructions.add(
                             MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getElanTagMetadata(elanTag),
@@ -241,10 +242,11 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
     protected void updateRemoteAclTableForPort(AclInterface port, Uuid acl, int addOrRemove,
             AllowedAddressPairs ip, BigInteger aclId, BigInteger dpId) {
         Long elanTag = port.getElanId();
-        Long vpnId = port.getVpnId();
+        List<Long> vpnList = port.getVpnId();
         List<MatchInfoBase> flowMatches = new ArrayList<>();
-        flowMatches.addAll(AclServiceUtils.buildIpAndSrcServiceMatch(elanTag, ip, dataBroker, vpnId));
-
+        for (Long vpnId : vpnList) {
+            flowMatches.addAll(AclServiceUtils.buildIpAndSrcServiceMatch(elanTag, ip, dataBroker, vpnId));
+        }
         List<InstructionInfo> instructions = new ArrayList<>();
 
         InstructionWriteMetadata writeMetatdata =
@@ -253,11 +255,18 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
         instructions.add(writeMetatdata);
         instructions.add(new InstructionGotoTable(getIngressAclFilterTable()));
 
-        Long serviceTag = vpnId != null ? vpnId : elanTag;
-        String flowNameAdded = "Acl_Filter_Ingress_" + new String(ip.getIpAddress().getValue()) + "_" + serviceTag;
+        if (vpnList.isEmpty()) {
+            String flowNameAdded = "Acl_Filter_Ingress_" + new String(ip.getIpAddress().getValue()) + "_" + elanTag;
 
-        syncFlow(dpId, getIngressAclRemoteAclTable(), flowNameAdded, AclConstants.NO_PRIORITY, "ACL", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
+            syncFlow(dpId, getIngressAclRemoteAclTable(), flowNameAdded, AclConstants.NO_PRIORITY, "ACL", 0, 0,
+                    AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
+        }
+        for (Long vpnId : vpnList) {
+            String flowNameAdded = "Acl_Filter_Ingress_" + new String(ip.getIpAddress().getValue()) + "_" + vpnId;
+
+            syncFlow(dpId, getIngressAclRemoteAclTable(), flowNameAdded, AclConstants.NO_PRIORITY, "ACL", 0, 0,
+                    AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
+        }
     }
 
     protected short getIngressAclFilterTable() {
