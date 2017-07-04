@@ -16,6 +16,74 @@
       "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_45f9a6c7",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-07-04T10:47:06Z",
+      "side": 1,
+      "message": "remove the first check",
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_45208649",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6ServiceInterfaceEventListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-07-04T10:47:06Z",
+      "side": 1,
+      "message": "same comment as the first one",
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_c5d3d636",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-07-04T10:47:06Z",
+      "side": 1,
+      "message": "do you want to add this as part of this patch?",
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_e5e25a02",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-07-04T10:47:06Z",
+      "side": 1,
+      "message": "i don\u0027t think there will be a case where notification comes with interface as null",
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
