@@ -702,10 +702,14 @@ public final class AclServiceUtils {
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
     }
 
-    public static Long getVpnIdFromInterface(DataBroker broker, String vpnInterfaceName) {
+    public static List<Long> getVpnIdFromInterface(DataBroker broker, String vpnInterfaceName) {
         VpnInterface vpnInterface = VpnHelper.getVpnInterface(broker, vpnInterfaceName);
+        List vpnList = List.emptyList();
         if (vpnInterface != null) {
-            return VpnHelper.getVpnId(broker, vpnInterface.getVpnInstanceName());
+            for (String vpnName: vpnInteface->getVpnInstanceName()) {
+                Collections.addAll (vpnList, VpnHelper.getVpnId(broker, vpnName));
+	    }
+            return vpnList;
         }
         return null;
     }
