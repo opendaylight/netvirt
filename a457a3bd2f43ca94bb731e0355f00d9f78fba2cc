@@ -77,6 +77,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_0821839f",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-07-04T14:35:52Z",
+      "side": 1,
+      "message": "iftype is filled from Config. So if SB event comes before NB, it can com without ifType in add and later in update iftype is filled. Though Faseela tells me current design makes sure that we don\u0027t add in first place, only do so when available. So, this maybe currently not needed, but I feel good to have for completeness. For SB only interfaces like tapxxx, iftype will always be null as they don\u0027t have corresponding interface in config.",
+      "parentUuid": "da2a55be_85aa7e17",
+      "range": {
+        "startLine": 95,
+        "startChar": 16,
+        "endLine": 95,
+        "endChar": 68
+      },
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_c563d618",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
         "patchSetId": 1
@@ -88,6 +112,30 @@
       "writtenOn": "2017-07-04T13:40:03Z",
       "side": 1,
       "message": "intrf.getType\u003d\u003dnull ||",
+      "range": {
+        "startLine": 87,
+        "startChar": 10,
+        "endLine": 87,
+        "endChar": 18
+      },
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_483a5bce",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-07-04T14:35:52Z",
+      "side": 1,
+      "message": "not needed, class.equals returns false if getType is null.",
+      "parentUuid": "da2a55be_c563d618",
       "range": {
         "startLine": 87,
         "startChar": 10,
@@ -222,6 +270,30 @@
       "writtenOn": "2017-07-04T13:40:03Z",
       "side": 1,
       "message": "If update is handled, as my previous comment, then the condition here ought to be :\nadd.getType() \u003d\u003d null || Tunnel.class.equals(add.getType())",
+      "range": {
+        "startLine": 90,
+        "startChar": 8,
+        "endLine": 90,
+        "endChar": 97
+      },
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_883453df",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6ServiceInterfaceEventListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-07-04T14:35:52Z",
+      "side": 1,
+      "message": "Going to change this to check for vlan. Will probably add code to update also, for consistency.",
+      "parentUuid": "da2a55be_257472ce",
       "range": {
         "startLine": 90,
         "startChar": 8,
