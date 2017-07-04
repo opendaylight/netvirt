@@ -38,7 +38,9 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
 import org.opendaylight.genius.mdsalutil.matches.MatchTcpFlags;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
+import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
+import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
@@ -68,18 +70,20 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
     private final AclserviceConfig config;
     private final DataBroker dataBroker;
     private final AclServiceUtils aclServiceUtils;
+    private final AclDataUtil aclDataUtil;
 
     private SecurityGroupMode securityGroupMode = null;
 
     @Inject
     public AclNodeListener(final IMdsalApiManager mdsalManager, DataBroker dataBroker, AclserviceConfig config,
-            AclServiceUtils aclServiceUtils) {
+            AclServiceUtils aclServiceUtils, AclDataUtil aclDataUtil) {
         super(FlowCapableNode.class, AclNodeListener.class);
 
         this.mdsalManager = mdsalManager;
         this.dataBroker = dataBroker;
         this.config = config;
         this.aclServiceUtils = aclServiceUtils;
+        this.aclDataUtil = aclDataUtil;
     }
 
     @Override
@@ -109,7 +113,15 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
     protected void remove(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
         NodeKey nodeKey = key.firstKeyOf(Node.class);
         BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
-        this.aclServiceUtils.deleteAclIdPools(dpnId);
+        List<AclInterface> interfaceList = aclDataUtil.getDpnAclInterfaces(dpnId);
+        if (interfaceList == null || interfaceList.isEmpty()) {
+            aclDataUtil.deleteDpnInterfaceFromMap(dpnId, null);
+            this.aclServiceUtils.deleteAclIdPools(dpnId);
+            LOG.debug("On FlowCapableNode remove event, ACL pools for dpid: {} are deleted.", dpnId);
+        } else {
+            LOG.info("On FlowCapableNode remove event, ACL pools for dpid: {} are not deleted "
+                + "because they have acl port entries.", dpnId);
+        }
     }
 
     @Override
@@ -124,8 +136,12 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         NodeKey nodeKey = key.firstKeyOf(Node.class);
         BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
         createTableDefaultEntries(dpnId);
-
-        this.aclServiceUtils.createAclIdPools(dpnId);
+        List<AclInterface> interfaceList = aclDataUtil.getDpnAclInterfaces(dpnId);
+        if (interfaceList == null || interfaceList.isEmpty()) {
+            aclDataUtil.addDpnInterfaceIntoMap(dpnId, null);
+            this.aclServiceUtils.createAclIdPools(dpnId);
+            LOG.debug("On FlowCapableNode add event, ACL pools for dpid: {} are created.", dpnId);
+        }
     }
 
     /**

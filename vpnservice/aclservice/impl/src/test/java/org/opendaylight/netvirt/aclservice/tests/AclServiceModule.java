@@ -8,6 +8,8 @@
 package org.opendaylight.netvirt.aclservice.tests;
 
 import org.opendaylight.infrautils.inject.guice.testutils.AbstractGuiceJsr250Module;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.jobcoordinator.internal.JobCoordinatorImpl;
 import org.opendaylight.netvirt.aclservice.AclServiceManagerImpl;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.listeners.AclEventListener;
@@ -24,6 +26,7 @@ public class AclServiceModule extends AbstractGuiceJsr250Module {
 
     @Override
     protected void configureBindings() {
+        bind(JobCoordinator.class).to(JobCoordinatorImpl.class);
         bind(AclServiceManager.class).to(AclServiceManagerImpl.class);
         bind(AclInterfaceStateListener.class);
         bind(AclNodeListener.class);

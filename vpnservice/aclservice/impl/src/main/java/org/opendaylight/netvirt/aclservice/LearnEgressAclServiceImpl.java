@@ -63,7 +63,8 @@ public class LearnEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
         List<ActionInfo> actionsInfos = new ArrayList<>();
 
         PacketHandling packetHandling = ace.getActions() != null ? ace.getActions().getPacketHandling() : null;
-        int priority = getEgressSpecificAclFlowPriority(dpId, addOrRemove, flowName, packetHandling);
+        String poolName = AclServiceUtils.getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, packetHandling);
+        int priority = getAclFlowPriority(poolName, flowName, addOrRemove);
         if (packetHandling instanceof Permit) {
             addLearnActions(flowMatches, actionsInfos, priority);
             actionsInfos.add(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
