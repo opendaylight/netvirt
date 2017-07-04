@@ -1736,25 +1736,32 @@ public class NatUtil {
         if (dpnInVpn.isPresent()) {
             LOG.debug("vpn-to-dpn-list is not empty for vpnName {}, dpn id {}, rd {} and floatingIp {}",
                     vpnName, dpnId, rd, externalIp);
-            List<IpAddresses> ipAddressList = dpnInVpn.get().getIpAddresses();
-            if (ipAddressList.size() > 0) {
-                int floatingIpPresentCount = 0;
-                for (IpAddresses ipAddress: ipAddressList) {
-                    if (!ipAddress.getIpAddress().equals(externalIp)
-                            && IpAddresses.IpAddressSource.FloatingIP.equals(ipAddress.getIpAddressSource())) {
-                        floatingIpPresentCount++;
-                        //Add tunnel table check
-                        if (isMoreThanOneFipCheckOnDpn && floatingIpPresentCount > 1) {
-                            return Boolean.TRUE;
-                        }
-                        //Remove tunnel table check
-                        if (!isMoreThanOneFipCheckOnDpn) {
-                            return Boolean.TRUE;
+            try {
+                List<IpAddresses> ipAddressList = dpnInVpn.get().getIpAddresses();
+                if (!ipAddressList.isEmpty() && ipAddressList.size() > 0) {
+                    int floatingIpPresentCount = 0;
+                    for (IpAddresses ipAddress : ipAddressList) {
+                        if (!ipAddress.getIpAddress().equals(externalIp)
+                                && IpAddresses.IpAddressSource.FloatingIP.equals(ipAddress.getIpAddressSource())) {
+                            floatingIpPresentCount++;
+                            //Add tunnel table check
+                            if (isMoreThanOneFipCheckOnDpn && floatingIpPresentCount > 1) {
+                                return Boolean.TRUE;
+                            }
+                            //Remove tunnel table check
+                            if (!isMoreThanOneFipCheckOnDpn) {
+                                return Boolean.TRUE;
+                            }
                         }
                     }
+
+                } else {
+                    LOG.debug("vpn-to-dpn-list does not contain any floating IP for DPN {}", dpnId);
+                    return Boolean.FALSE;
                 }
-            } else {
-                LOG.debug("vpn-to-dpn-list does not contain any floating IP for DPN {}", dpnId);
+            } catch (NullPointerException e) {
+                LOG.error("isFloatingIpPresentForDpn: Exception occurred on getting external IP address from "
+                        + "vpn-to-dpn-list on Dpn {}", dpnId, e);
                 return Boolean.FALSE;
             }
         }
