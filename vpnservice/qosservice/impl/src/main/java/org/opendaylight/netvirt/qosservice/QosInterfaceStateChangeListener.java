@@ -17,7 +17,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -79,7 +79,7 @@ public class QosInterfaceStateChangeListener extends AsyncDataTreeChangeListener
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
         try {
-            if (!Tunnel.class.equals(intrf.getType())) {
+            if (L2vlan.class.equals(intrf.getType())) {
                 final String interfaceName = intrf.getName();
                 getNeutronPort(interfaceName).ifPresent(port -> {
                     Network network = neutronVpnManager.getNeutronNetwork(port.getNetworkId());
@@ -133,7 +133,7 @@ public class QosInterfaceStateChangeListener extends AsyncDataTreeChangeListener
 
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
-        if (!Tunnel.class.equals(intrf.getType())) {
+        if (L2vlan.class.equals(intrf.getType())) {
             final String interfaceName = intrf.getName();
             // Guava Optional asSet().forEach() emulates Java 8 Optional ifPresent()
             getNeutronPortForRemove(intrf).asSet().forEach(port -> {
@@ -163,6 +163,10 @@ public class QosInterfaceStateChangeListener extends AsyncDataTreeChangeListener
 
     @Override
     protected void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
+        if (original.getType() == null && L2vlan.class.equals(update.getType())) {
+            // IfType was missing at creation, add it now
+            add(identifier, update);
+        }
     }
 }
 
