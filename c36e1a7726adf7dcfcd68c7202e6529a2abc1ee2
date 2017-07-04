@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_05ddef70",
+        "filename": "docs/specs/index.rst",
+        "patchSetId": 40
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-04T05:37:08Z",
+      "side": 1,
+      "message": "The name of the spec file is \"l3vpn-dual-stack-vm.rst\", so the additional \u0027s\u0027 needs to be removed (i.e., it should be l3vpn-dual-stack-vm)",
+      "revId": "c36e1a7726adf7dcfcd68c7202e6529a2abc1ee2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
