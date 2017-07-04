@@ -8,6 +8,9 @@
 package org.opendaylight.netvirt.aclservice.listeners;
 
 import com.google.common.base.Optional;
+
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -64,8 +67,14 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
         LOG.trace("Processing vpn interface {} addition", data.getInterfaceName());
         Long vpnId = data.getVpnId();
         AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(data.getInterfaceName());
-        if (null != aclInterface && aclInterface.isPortSecurityEnabled() && !vpnId.equals(aclInterface.getVpnId())) {
-            aclInterface.setVpnId(vpnId);
+        if (null != aclInterface && aclInterface.isPortSecurityEnabled()
+                && (aclInterface.getVpnId() == null || !aclInterface.getVpnId().contains(vpnId))) {
+            List<Long> list = new ArrayList<>();
+            if (aclInterface.getVpnId() != null) {
+                list.addAll(aclInterface.getVpnId());
+            }
+            list.add(vpnId);
+            aclInterface.setVpnId(list);
             aclServiceManager.notify(aclInterface, null, Action.BIND);
         }
     }
@@ -83,8 +92,16 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
         }
         Long vpnId = data.getVpnId();
         AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceName);
-        if (null != aclInterface && aclInterface.isPortSecurityEnabled() && vpnId.equals(aclInterface.getVpnId())) {
-            aclInterface.setVpnId(null);
+        if (null != aclInterface && aclInterface.isPortSecurityEnabled()
+                && (aclInterface.getVpnId() != null && aclInterface.getVpnId().contains(vpnId))) {
+            List<Long> list = new ArrayList<>();
+            if (aclInterface.getVpnId() != null) {
+                list.addAll(aclInterface.getVpnId());
+            }
+            if (list.contains(vpnId)) {
+                list.remove(vpnId);
+            }
+            aclInterface.setVpnId(list);
             aclServiceManager.notify(aclInterface, null, Action.BIND);
         }
     }
