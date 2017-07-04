@@ -803,11 +803,14 @@ public final class AclServiceUtils {
         MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
     }
 
-    public static Long getVpnIdFromInterface(DataBroker broker, String vpnInterfaceName) {
+    public static List<Long> getVpnIdFromInterface(DataBroker broker, String vpnInterfaceName) {
         VpnInterface vpnInterface = VpnHelper.getVpnInterface(broker, vpnInterfaceName);
-        if (vpnInterface != null) {
-            return VpnHelper.getVpnId(broker,
-                    VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
+        List<Long> vpnList = new ArrayList<Long>();
+        if (vpnInterface != null && vpnInterface.getVpnInstanceNames() != null) {
+            for (String vpnName : vpnInterface.getVpnInstanceNames()) {
+                vpnList.add(VpnHelper.getVpnId(broker, vpnName));
+            }
+            return vpnList;
         }
         return null;
     }
