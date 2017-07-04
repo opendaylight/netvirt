@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_25dab278",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-07-04T10:26:33Z",
+      "side": 1,
+      "message": "+1, Looks good for me.",
+      "revId": "a457a3bd2f43ca94bb731e0355f00d9f78fba2cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
