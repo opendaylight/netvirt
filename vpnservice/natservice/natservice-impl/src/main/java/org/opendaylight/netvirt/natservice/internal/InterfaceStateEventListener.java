@@ -29,7 +29,7 @@ import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -99,8 +99,8 @@ public class InterfaceStateEventListener
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void remove(InstanceIdentifier<Interface> identifier, Interface delintrf) {
         LOG.trace("NAT Service : Interface {} removed event received", delintrf);
-        if (Tunnel.class.equals(delintrf.getType())) {
-            LOG.debug("NAT Service : Interface {} is a tunnel Interface.Ignoring", delintrf.getName());
+        if (!L2vlan.class.equals(delintrf.getType())) {
+            LOG.debug("NAT Service : Interface {} is a not type Vlan.Ignoring", delintrf.getName());
             return;
         }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
@@ -114,8 +114,8 @@ public class InterfaceStateEventListener
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
         LOG.trace("NAT Service : Operation Interface update event - Old: {}, New: {}", original, update);
-        if (Tunnel.class.equals(update.getType())) {
-            LOG.debug("NAT Service : Interface {} is a tunnel Interface.Ignoring", update.getName());
+        if (!L2vlan.class.equals(update.getType())) {
+            LOG.debug("NAT Service : Interface {} is not type Vlan.Ignoring", update.getName());
             return;
         }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
@@ -130,8 +130,8 @@ public class InterfaceStateEventListener
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
         LOG.trace("NAT Service : Interface {} up event received", intrf);
-        if (Tunnel.class.equals(intrf.getType())) {
-            LOG.debug("NAT Service : Interface {} is a tunnel Interface.Ignoring", intrf.getName());
+        if (!L2vlan.class.equals(intrf.getType())) {
+            LOG.debug("NAT Service : Interface {} is not type vlan.Ignoring", intrf.getName());
             return;
         }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
