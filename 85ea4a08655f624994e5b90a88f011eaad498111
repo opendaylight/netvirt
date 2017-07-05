@@ -22,6 +22,30 @@
       "revId": "85ea4a08655f624994e5b90a88f011eaad498111",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_0bacdd9f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1740,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-07-05T05:15:14Z",
+      "side": 1,
+      "message": "Hi Vivek,\n\nYou can ignore this comment as of now. Since i haven\u0027t seen any reported exception in CSIT karaf log in stable/carbon.\n We will add this try-catch block in later review.\n\nstable/carbon CSIT log: https://logs.opendaylight.org/releng/jenkins092/netvirt-csit-1node-openstack-newton-nodl-v2-gate-stateful-carbon/966/odl1_karaf.log.gz\n\nThanks,\nKarthikeyan.",
+      "parentUuid": "da2a55be_8bc8cd75",
+      "range": {
+        "startLine": 1740,
+        "startChar": 17,
+        "endLine": 1740,
+        "endChar": 30
+      },
+      "revId": "85ea4a08655f624994e5b90a88f011eaad498111",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
