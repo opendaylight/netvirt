@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_0b27bd65",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpInterfaceEventListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-07-05T04:26:11Z",
+      "side": 1,
+      "message": "It handles dhcp flows for both vlan and (external) tunnel interfaces. So add check to allow both interfaces.",
+      "revId": "a787edcb43c067dcd22c534f5d6341a29a0be0e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_6b1759ee",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-07-05T04:26:11Z",
+      "side": 1,
+      "message": "The same check is done in many classes. so you could have L2vlan.class.equals(delIf.getType()) as Predicate (like below) in a common class (may be IfmConstants.java in interfacemanager-api) and reuse it.\n\nPredicate\u003cInterface\u003e isVlanInterface \u003d iface -\u003e iface !\u003d null \u0026\u0026 iface.getType().equals(L2vlan.class);",
+      "revId": "a787edcb43c067dcd22c534f5d6341a29a0be0e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_4b209549",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-07-05T04:26:11Z",
+      "side": 1,
+      "message": "there is no need to handle update DCNs. remove it.",
+      "revId": "a787edcb43c067dcd22c534f5d6341a29a0be0e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
