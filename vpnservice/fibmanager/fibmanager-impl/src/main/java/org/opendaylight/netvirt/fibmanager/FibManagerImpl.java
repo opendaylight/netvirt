@@ -34,6 +34,7 @@ public class FibManagerImpl implements IFibManager {
     private static final Logger LOG = LoggerFactory.getLogger(FibManagerImpl.class);
     private final NexthopManager nexthopManager;
     private final VrfEntryListener vrfEntryListener;
+    private final TunnelStateVrfEntryHandler tunnelStateVrfEntryHandler;
     private IVpnManager vpnmanager;
     private final DataBroker dataBroker;
 
@@ -41,10 +42,12 @@ public class FibManagerImpl implements IFibManager {
     public FibManagerImpl(final DataBroker dataBroker,
                           final NexthopManager nexthopManager,
                           final VrfEntryListener vrfEntryListener,
+                          final TunnelStateVrfEntryHandler tunnelStateVrfEntryHandler,
                           final BundleContext bundleContext) {
         this.dataBroker = dataBroker;
         this.nexthopManager = nexthopManager;
         this.vrfEntryListener = vrfEntryListener;
+        this.tunnelStateVrfEntryHandler = tunnelStateVrfEntryHandler;
 
         GlobalEventExecutor.INSTANCE.execute(() -> {
             final WaitingServiceTracker<IVpnManager> tracker = WaitingServiceTracker.create(
@@ -69,7 +72,7 @@ public class FibManagerImpl implements IFibManager {
     public void populateExternalRoutesOnDpn(BigInteger localDpnId, long vpnId,
                                             String rd, String localNextHopIp,
                                             String remoteNextHopIp) {
-        vrfEntryListener.populateExternalRoutesOnDpn(localDpnId, vpnId, rd,
+        tunnelStateVrfEntryHandler.populateExternalRoutesOnDpn(localDpnId, vpnId, rd,
             localNextHopIp, remoteNextHopIp);
     }
 
@@ -77,7 +80,7 @@ public class FibManagerImpl implements IFibManager {
     public void cleanUpExternalRoutesOnDpn(BigInteger dpnId, long vpnId,
                                            String rd, String localNextHopIp,
                                            String remoteNextHopIp) {
-        vrfEntryListener.cleanUpExternalRoutesOnDpn(dpnId, vpnId, rd,
+        tunnelStateVrfEntryHandler.cleanUpExternalRoutesOnDpn(dpnId, vpnId, rd,
             localNextHopIp, remoteNextHopIp);
     }
 
@@ -120,7 +123,7 @@ public class FibManagerImpl implements IFibManager {
                                        String destPrefix,
                                        String destTepIp,
                                        long label) {
-        vrfEntryListener.manageRemoteRouteOnDPN(action, dpnId, vpnId, rd, destPrefix, destTepIp, label);
+        tunnelStateVrfEntryHandler.manageRemoteRouteOnDPN(action, dpnId, vpnId, rd, destPrefix, destTepIp, label);
     }
 
     @Override

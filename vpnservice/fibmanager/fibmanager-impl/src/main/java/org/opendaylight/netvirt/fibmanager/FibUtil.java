@@ -210,7 +210,6 @@ public final class FibUtil {
     }
 
     public static long getVpnId(DataBroker broker, String vpnName) {
-
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
         return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
                 VpnInstance::getVpnId).orElse(-1L);
@@ -790,4 +789,12 @@ public final class FibUtil {
         int broadcast = network | ~netmask;
         return InetAddresses.toAddrString(InetAddresses.fromInteger(broadcast));
     }
+
+    static InstanceIdentifier<VrfTables> buildVrfId(String rd) {
+        InstanceIdentifier.InstanceIdentifierBuilder<VrfTables> idBuilder =
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
+        InstanceIdentifier<VrfTables> id = idBuilder.build();
+        return id;
+    }
+
 }
