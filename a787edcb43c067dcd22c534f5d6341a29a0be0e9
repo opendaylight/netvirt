@@ -122,6 +122,24 @@
       "revId": "a787edcb43c067dcd22c534f5d6341a29a0be0e9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_8bad6d8b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-07-05T05:46:16Z",
+      "side": 1,
+      "message": "That is still not handled. ifType will not change for port flap. This is for scenarios where state maybe created without ifType coz data was not present in config yet.",
+      "parentUuid": "da2a55be_cb880525",
+      "revId": "a787edcb43c067dcd22c534f5d6341a29a0be0e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
