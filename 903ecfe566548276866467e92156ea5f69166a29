@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_2ecbaf73",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-05T13:01:55Z",
+      "side": 1,
+      "message": "nitpick... here we use adding/removing, but in the other log added/removed. I think added/removed is better.",
+      "revId": "903ecfe566548276866467e92156ea5f69166a29",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
