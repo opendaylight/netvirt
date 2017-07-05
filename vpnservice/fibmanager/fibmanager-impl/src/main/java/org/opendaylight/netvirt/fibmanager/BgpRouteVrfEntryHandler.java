@@ -31,7 +31,12 @@ import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadInPort;
+import org.opendaylight.genius.mdsalutil.actions.ActionPushMpls;
 import org.opendaylight.genius.mdsalutil.actions.ActionRegLoad;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetDestination;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldMplsLabel;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.utils.batching.ActionableResource;
 import org.opendaylight.genius.utils.batching.ActionableResourceImpl;
@@ -39,10 +44,15 @@ import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.batching.ResourceHandler;
 import org.opendaylight.genius.utils.batching.SubTransaction;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeMplsOverGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.vpnnexthops.VpnNexthop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
@@ -372,5 +382,44 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
                 });
     }
 
+    @Override
+    void addTunnelInterfaceActions(NexthopManager.AdjacencyResult adjacencyResult, long vpnId, VrfEntry vrfEntry,
+                                           List<ActionInfo> actionInfos, String rd) {
+        Class<? extends TunnelTypeBase> tunnelType =
+                VpnExtraRouteHelper.getTunnelType(nextHopManager.getInterfaceManager(),
+                        adjacencyResult.getInterfaceName());
+        if (tunnelType == null) {
+            LOG.debug("Tunnel type not found for vrfEntry {}", vrfEntry);
+            return;
+        }
+        String nextHopIp = adjacencyResult.getNextHopIp();
+        if (tunnelType.equals(TunnelTypeMplsOverGre.class)) {
+            java.util.Optional<Long> optionalLabel = FibUtil.getLabelForNextHop(vrfEntry, nextHopIp);
+            if (!optionalLabel.isPresent()) {
+                LOG.warn("NextHopIp {} not found in vrfEntry {}", nextHopIp, vrfEntry);
+                return;
+            }
+            long label = optionalLabel.get();
+            LOG.debug("addTunnelInterfaceActions: Push label action for prefix {} rd {} l3vni {} nextHop {}",
+                    vrfEntry.getDestPrefix(), rd, vrfEntry.getL3vni(), nextHopIp);
+            actionInfos.add(new ActionPushMpls());
+            actionInfos.add(new ActionSetFieldMplsLabel(label));
+            actionInfos.add(new ActionNxLoadInPort(BigInteger.ZERO));
+        } else if (tunnelType.equals(TunnelTypeVxlan.class)) {
+            actionInfos.add(new ActionSetFieldTunnelId(BigInteger.valueOf(vrfEntry.getL3vni())));
+            LOG.debug("addTunnelInterfaceActions: adding set tunnel id action for prefix {} rd {} l3vni {}"
+                    + " nextHop {} ", vrfEntry.getDestPrefix(), rd, vrfEntry.getL3vni(), nextHopIp);
+            addRewriteDstMacAction(vpnId, vrfEntry, null /*prefixInfo*/, actionInfos);
+        }
+    }
+
+    @Override
+    void addRewriteDstMacAction(long vpnId, VrfEntry vrfEntry, Prefixes prefixInfo,
+                                        List<ActionInfo> actionInfos) {
+        if (vrfEntry.getGatewayMacAddress() != null) {
+            actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(),
+                    new MacAddress(vrfEntry.getGatewayMacAddress())));
+        }
+    }
 
 }
