@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_ebb989ea",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpInterfaceEventListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-07-05T05:01:08Z",
+      "side": 1,
+      "message": "will do",
+      "parentUuid": "da2a55be_0b27bd65",
+      "revId": "a787edcb43c067dcd22c534f5d6341a29a0be0e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_6b1759ee",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_abbf91cf",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-07-05T05:01:08Z",
+      "side": 1,
+      "message": "will do in follow up patch as this requires changes in Genius first.",
+      "parentUuid": "da2a55be_6b1759ee",
+      "revId": "a787edcb43c067dcd22c534f5d6341a29a0be0e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_4b209549",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2017-07-05T04:26:11Z",
       "side": 1,
       "message": "there is no need to handle update DCNs. remove it.",
+      "revId": "a787edcb43c067dcd22c534f5d6341a29a0be0e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_4bced584",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-07-05T05:01:08Z",
+      "side": 1,
+      "message": "will do. do you recommend removing it from other listeners too? this was more of a defensive change to handle an order which at last today can\u0027t happen.",
+      "parentUuid": "da2a55be_4b209549",
       "revId": "a787edcb43c067dcd22c534f5d6341a29a0be0e9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
