@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_8bc8cd75",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1740,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-07-05T05:03:17Z",
+      "side": 1,
+      "message": "Hi Vivek,\n\n  Checking !\u003dnull may not solve NullPointerException. Actual root cause of this problem is occurring on following scenario.\n\nOn Non-NAPT Switch has FIP configured and trying to remove/disassociate last FIP at that time we will not get Floating-IP Address from vpn-to-dpn-list model. Hence it is throwing NullPointerException.\n\n\nTo address this problem properly we need to put try-catch block for capturing NullPointerException. With this try-catch block code changes, i have tested locally and it was working as expected.\n\nThanks,\nKarthikeyan.",
+      "range": {
+        "startLine": 1740,
+        "startChar": 17,
+        "endLine": 1740,
+        "endChar": 30
+      },
+      "revId": "85ea4a08655f624994e5b90a88f011eaad498111",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
