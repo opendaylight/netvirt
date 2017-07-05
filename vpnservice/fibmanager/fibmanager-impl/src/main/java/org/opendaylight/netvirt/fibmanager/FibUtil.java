@@ -207,7 +207,6 @@ public class FibUtil {
     }
 
     public static long getVpnId(DataBroker broker, String vpnName) {
-
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
         return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVpnId).or(-1L);
     }
@@ -775,4 +774,12 @@ public class FibUtil {
 
         return nodeDpn;
     }
+
+    static InstanceIdentifier<VrfTables> buildVrfId(String rd) {
+        InstanceIdentifier.InstanceIdentifierBuilder<VrfTables> idBuilder =
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
+        InstanceIdentifier<VrfTables> id = idBuilder.build();
+        return id;
+    }
+
 }
