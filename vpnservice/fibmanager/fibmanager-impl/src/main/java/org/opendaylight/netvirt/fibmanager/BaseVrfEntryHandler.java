@@ -32,6 +32,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionMoveSourceDestinationEth;
 import org.opendaylight.genius.mdsalutil.actions.ActionMoveSourceDestinationIp;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadInPort;
@@ -71,8 +72,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.vpnnexthops.VpnNexthop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroutes;
@@ -476,6 +480,17 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         return null;
     }
 
+    public VrfEntry getVrfEntry(DataBroker broker, String rd, String ipPrefix) {
+        InstanceIdentifier<VrfEntry> vrfEntryId = InstanceIdentifier.builder(FibEntries.class)
+                .child(VrfTables.class, new VrfTablesKey(rd))
+                .child(VrfEntry.class, new VrfEntryKey(ipPrefix)).build();
+        Optional<VrfEntry> vrfEntry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        if (vrfEntry.isPresent()) {
+            return vrfEntry.get();
+        }
+        return null;
+    }
+
     public FlowEntity buildL3vpnGatewayFlow(BigInteger dpId, String gwMacAddress, long vpnId) {
         List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
@@ -530,6 +545,55 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         } else {
             mdsalManager.removeFlow(flowEntity);
         }
+    }
+
+    public void createRemoteFibEntry(final BigInteger remoteDpnId, final long vpnId, String rd,
+                                      final VrfEntry vrfEntry, WriteTransaction tx) {
+        Boolean wrTxPresent = true;
+        if (tx == null) {
+            wrTxPresent = false;
+            tx = dataBroker.newWriteOnlyTransaction();
+        }
+
+        String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnId);
+        LOG.debug("createremotefibentry: adding route {} for rd {} on remoteDpnId {}",
+                vrfEntry.getDestPrefix(), rd, remoteDpnId);
+
+        List<AdjacencyResult> adjacencyResults = resolveAdjacency(remoteDpnId, vpnId, vrfEntry, rd);
+        if (adjacencyResults == null || adjacencyResults.isEmpty()) {
+            LOG.error("Could not get interface for route-paths: {} in vpn {}", vrfEntry.getRoutePaths(), rd);
+            LOG.warn("Failed to add Route: {} in vpn: {}", vrfEntry.getDestPrefix(), rd);
+            return;
+        }
+
+        List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
+        List<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getAllVpnExtraRoutes(dataBroker,
+                vpnName, usedRds, vrfEntry.getDestPrefix());
+        // create loadbalancing groups for extra routes only when the extra route is present behind
+        // multiple VMs
+        if (!vpnExtraRoutes.isEmpty() && (vpnExtraRoutes.size() > 1
+                || vpnExtraRoutes.get(0).getNexthopIpList().size() > 1)) {
+            List<InstructionInfo> instructions = new ArrayList<>();
+            long groupId = nextHopManager.createNextHopGroups(vpnId, rd, remoteDpnId, vrfEntry,
+                    null, vpnExtraRoutes);
+            if (groupId == FibConstants.INVALID_GROUP_ID) {
+                LOG.error("Unable to create Group for local prefix {} on rd {} on Node {}",
+                        vrfEntry.getDestPrefix(), rd, remoteDpnId.toString());
+                return;
+            }
+            List<ActionInfo> actionInfos =
+                    Collections.singletonList(new ActionGroup(groupId));
+            instructions.add(new InstructionApplyActions(actionInfos));
+            makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, instructions,
+                    NwConstants.ADD_FLOW, tx, null);
+        } else {
+            programRemoteFib(remoteDpnId, vpnId, vrfEntry, tx, rd, adjacencyResults, null);
+        }
+
+        if (!wrTxPresent) {
+            tx.submit();
+        }
+        LOG.debug("Successfully added FIB entry for prefix {} in vpnId {}", vrfEntry.getDestPrefix(), vpnId);
     }
 
 }
