@@ -104,6 +104,24 @@
       "revId": "a787edcb43c067dcd22c534f5d6341a29a0be0e9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_cb880525",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-07-05T05:32:03Z",
+      "side": 1,
+      "message": "Yes, Please retain existing update handling as is.\n\nThe plan was not to handle vhu port flaps and process only add/remove DCNs.",
+      "parentUuid": "da2a55be_4bced584",
+      "revId": "a787edcb43c067dcd22c534f5d6341a29a0be0e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
