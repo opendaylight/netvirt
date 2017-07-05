@@ -36,10 +36,8 @@ import org.opendaylight.genius.mdsalutil.actions.ActionMoveSourceDestinationEth;
 import org.opendaylight.genius.mdsalutil.actions.ActionMoveSourceDestinationIp;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadInPort;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
-import org.opendaylight.genius.mdsalutil.actions.ActionPushMpls;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetDestination;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetSource;
-import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldMplsLabel;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetIcmpType;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetSourceIp;
@@ -67,7 +65,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeMplsOverGre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -96,7 +93,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     private static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
 
     private final DataBroker dataBroker;
-    private final NexthopManager nextHopManager;
+    final NexthopManager nextHopManager;
     private final IMdsalApiManager mdsalManager;
 
     @Inject
@@ -281,7 +278,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         }
     }
 
-    private void addRewriteDstMacAction(long vpnId, VrfEntry vrfEntry, Prefixes prefixInfo,
+    void addRewriteDstMacAction(long vpnId, VrfEntry vrfEntry, Prefixes prefixInfo,
                                         List<ActionInfo> actionInfos) {
         if (vrfEntry.getMac() != null) {
             actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(),
@@ -310,7 +307,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(), new MacAddress(macAddress)));
     }
 
-    private void addTunnelInterfaceActions(AdjacencyResult adjacencyResult, long vpnId, VrfEntry vrfEntry,
+    void addTunnelInterfaceActions(AdjacencyResult adjacencyResult, long vpnId, VrfEntry vrfEntry,
                                            List<ActionInfo> actionInfos, String rd) {
         Class<? extends TunnelTypeBase> tunnelType =
                 VpnExtraRouteHelper.getTunnelType(nextHopManager.getInterfaceManager(),
@@ -329,49 +326,42 @@ public class BaseVrfEntryHandler implements AutoCloseable {
             return;
         }
         long label = optionalLabel.get();
-        if (tunnelType.equals(TunnelTypeMplsOverGre.class)) {
-            LOG.debug("Push label action for prefix {}", vrfEntry.getDestPrefix());
-            actionInfos.add(new ActionPushMpls());
-            actionInfos.add(new ActionSetFieldMplsLabel(label));
-            actionInfos.add(new ActionNxLoadInPort(BigInteger.ZERO));
-        } else {
-            BigInteger tunnelId = null;
-            Prefixes prefixInfo = null;
-            // FIXME vxlan vni bit set is not working properly with OVS.need to
-            // revisit
-            if (tunnelType.equals(TunnelTypeVxlan.class)) {
-                prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
-                //For extra route, the prefixInfo is fetched from the primary adjacency
-                if (prefixInfo == null) {
-                    prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, adjacencyResult.getPrefix());
-                }
-                // Internet VPN VNI will be used as tun_id for NAT use-cases
-                if (prefixInfo.isNatPrefix()) {
-                    if (vrfEntry.getL3vni() != null && vrfEntry.getL3vni() != 0) {
-                        tunnelId = BigInteger.valueOf(vrfEntry.getL3vni());
-                    }
-                } else {
-                    if (FibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(dataBroker, prefixInfo.getSubnetId(),
-                            vpnId, rd)) {
-                        java.util.Optional<Long> optionalVni = FibUtil.getVniForVxlanNetwork(dataBroker,
-                                prefixInfo.getSubnetId());
-                        if (!optionalVni.isPresent()) {
-                            LOG.error("VNI not found for nexthop {} vrfEntry {} with subnetId {}", nextHopIp,
-                                    vrfEntry, prefixInfo.getSubnetId());
-                            return;
-                        }
-                        tunnelId = BigInteger.valueOf(optionalVni.get());
-                    } else {
-                        tunnelId = BigInteger.valueOf(label);
-                    }
+        BigInteger tunnelId = null;
+        Prefixes prefixInfo = null;
+        // FIXME vxlan vni bit set is not working properly with OVS.need to
+        // revisit
+        if (tunnelType.equals(TunnelTypeVxlan.class)) {
+            prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
+            //For extra route, the prefixInfo is fetched from the primary adjacency
+            if (prefixInfo == null) {
+                prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, adjacencyResult.getPrefix());
+            }
+            // Internet VPN VNI will be used as tun_id for NAT use-cases
+            if (prefixInfo.isNatPrefix()) {
+                if (vrfEntry.getL3vni() != null && vrfEntry.getL3vni() != 0) {
+                    tunnelId = BigInteger.valueOf(vrfEntry.getL3vni());
                 }
             } else {
-                tunnelId = BigInteger.valueOf(label);
+                if (FibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(dataBroker, prefixInfo.getSubnetId(),
+                        vpnId, rd)) {
+                    java.util.Optional<Long> optionalVni = FibUtil.getVniForVxlanNetwork(dataBroker,
+                            prefixInfo.getSubnetId());
+                    if (!optionalVni.isPresent()) {
+                        LOG.error("VNI not found for nexthop {} vrfEntry {} with subnetId {}", nextHopIp,
+                                vrfEntry, prefixInfo.getSubnetId());
+                        return;
+                    }
+                    tunnelId = BigInteger.valueOf(optionalVni.get());
+                } else {
+                    tunnelId = BigInteger.valueOf(label);
+                }
             }
-            LOG.debug("adding set tunnel id action for label {}", label);
-            actionInfos.add(new ActionSetFieldTunnelId(tunnelId));
-            addRewriteDstMacAction(vpnId, vrfEntry, prefixInfo, actionInfos);
+        } else {
+            tunnelId = BigInteger.valueOf(label);
         }
+        LOG.debug("adding set tunnel id action for label {}", label);
+        actionInfos.add(new ActionSetFieldTunnelId(tunnelId));
+        addRewriteDstMacAction(vpnId, vrfEntry, prefixInfo, actionInfos);
     }
 
     public void programRemoteFib(final BigInteger remoteDpnId, final long vpnId,

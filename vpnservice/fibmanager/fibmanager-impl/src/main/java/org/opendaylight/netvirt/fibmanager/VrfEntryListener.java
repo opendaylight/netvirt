@@ -175,6 +175,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     //This method is temporary. Eventually Factory design pattern will be used to get
     // right VrfEntryhandle and invoke its methods.
     private void addFibEntries(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
+        if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
+            bgpRouteVrfEntryHandler.createFlows(identifier, vrfEntry, rd);
+            return;
+        }
         if (VrfEntry.EncapType.Vxlan.equals(vrfEntry.getEncapType())) {
             LOG.info("EVPN flows need to be programmed.");
             EvpnVrfEntryHandler evpnVrfEntryHandler =
@@ -190,10 +194,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
         if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
             createFibEntries(identifier, vrfEntry);
-            return;
-        }
-        if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
-            bgpRouteVrfEntryHandler.createFlows(identifier, vrfEntry, rd);
             return;
         }
     }
