@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -265,7 +266,7 @@ public class NaptEventHandler {
                                             }
 
                                             @Override
-                                            public void onFailure(Throwable throwable) {
+                                            public void onFailure(@Nonnull Throwable throwable) {
                                                 LOG.error("handleEvent : Error configuring outbound "
                                                         + "SNAT flows using RPC for SNAT connection from {} to {}",
                                                                   internalAddress, externalAddress);
@@ -274,7 +275,7 @@ public class NaptEventHandler {
                                 }
 
                                 @Override
-                                public void onFailure(Throwable throwable) {
+                                public void onFailure(@Nonnull Throwable throwable) {
                                     LOG.error("handleEvent : Error configuring inbound SNAT flows "
                                             + "using RPC for SNAT connection from {} to {}",
                                             internalAddress, externalAddress);

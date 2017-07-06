@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -159,7 +160,7 @@ public class EvpnDnatFlowProgrammer {
         Futures.addCallback(futureVxlan, new FutureCallback<RpcResult<Void>>() {
 
             @Override
-            public void onFailure(Throwable error) {
+            public void onFailure(@Nonnull Throwable error) {
                 LOG.error("NAT Service : Error {} in custom fib routes install process for Floating "
                         + "IP Prefix {} on DPN {}", error, externalIp, dpnId);
             }
@@ -268,7 +269,7 @@ public class EvpnDnatFlowProgrammer {
         Futures.addCallback(futureVxlan, new FutureCallback<RpcResult<Void>>() {
 
             @Override
-            public void onFailure(Throwable error) {
+            public void onFailure(@Nonnull Throwable error) {
                 LOG.error("NAT Service : Error {} in custom fib routes remove process for Floating "
                         + "IP Prefix {} on DPN {}", error, externalIp, dpnId);
             }
