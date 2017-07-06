@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -224,7 +225,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         Futures.addCallback(future, new FutureCallback<RpcResult<Void>>() {
 
             @Override
-            public void onFailure(Throwable error) {
+            public void onFailure(@Nonnull Throwable error) {
                 LOG.error("Error in generate label or fib install process", error);
             }
 
@@ -334,7 +335,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         Futures.addCallback(labelFuture, new FutureCallback<RpcResult<Void>>() {
 
             @Override
-            public void onFailure(Throwable error) {
+            public void onFailure(@Nonnull Throwable error) {
                 LOG.error("Error in removing the label or custom fib entries", error);
             }
 
