@@ -49,8 +49,10 @@ public class BgpCounters extends TimerTask {
     private String bgpSdncMip = "127.0.0.1";
     public static final String BGP_VPNV6_FILE = "cmd_ip_bgp_vpnv6_all.txt";
     public static final String BGP_VPNV4_FILE = "cmd_ip_bgp_vpnv4_all.txt";
+    public static final String BGP_EVPN_FILE = "cmd_bgp_l2vpn_evpn_all.txt";
     public static final String BGP_VPNV6_SUMMARY_FILE = "cmd_ip_bgp_vpnv6_all_summary.txt";
     public static final String BGP_VPNV4_SUMMARY_FILE = "cmd_ip_bgp_vpnv4_all_summary.txt";
+    public static final String BGP_EVPN_SUMMARY_FILE = "cmd_bgp_evpn_all_summary.txt";
 
     public BgpCounters(String mipAddress) {
         bgpSdncMip = mipAddress;
@@ -65,9 +67,12 @@ public class BgpCounters extends TimerTask {
             fetchCmdOutputs("cmd_bgp_ipv4_unicast_statistics.txt", "show bgp ipv4 unicast statistics");
             fetchCmdOutputs(BGP_VPNV4_FILE, "show ip bgp vpnv4 all");
             fetchCmdOutputs(BGP_VPNV6_FILE, "show ip bgp vpnv6 all");
+            fetchCmdOutputs(BGP_EVPN_FILE, "show bgp l2vpn evpn all");
             parseIpBgpSummary();
             parseIpBgpVpnv4All();
             parseIpBgpVpnv6All();
+            parseIpBgpVpnv6All();
+            parseBgpL2vpnEvpnAll();
             if (LOG.isDebugEnabled()) {
                 dumpCounters();
             }
@@ -366,6 +371,28 @@ public class BgpCounters extends TimerTask {
         }
     }
 
+    private void parseBgpL2vpnEvpnAll() {
+        File file = new File(BGP_EVPN_FILE);
+        List<String> inputStrs = new ArrayList<>();
+
+        try (Scanner scanner = new Scanner(file)) {
+            while (scanner.hasNextLine()) {
+                inputStrs.add(scanner.nextLine());
+            }
+        } catch (IOException e) {
+            LOG.error("Could not process the file {}", file.getAbsolutePath());
+            return;
+        }
+        for (int i = 0; i < inputStrs.size(); i++) {
+            String instr = inputStrs.get(i);
+            if (instr.contains("Route Distinguisher")) {
+                String[] result = instr.split(":");
+                String rd = result[1].trim() + "_" + result[2].trim();
+                i = processRouteCount(rd, i + 1, inputStrs);
+            }
+        }
+    }
+
     private int processRouteCount(String rd, int startIndex, List<String> inputStrs) {
         int num = startIndex;
         int routeCount = 0;
@@ -405,6 +432,7 @@ public class BgpCounters extends TimerTask {
         resetFile("cmd_bgp_ipv4_unicast_statistics.txt");
         resetFile(BGP_VPNV4_FILE);
         resetFile(BGP_VPNV6_FILE);
+        resetFile(BGP_EVPN_FILE);
     }
 
     static void resetFile(String fileName) {
@@ -462,5 +490,11 @@ public class BgpCounters extends TimerTask {
         return BgpCounters.parseIpBgpVpnAllSummary(countMap,
                                                    BGP_VPNV6_SUMMARY_FILE,
                                                    af_afi.AFI_IPV6);
+    }
+
+    static Map<String, String> parseBgpL2vpnEvpnAllSummary(Map<String, String> countMap) {
+        return BgpCounters.parseIpBgpVpnAllSummary(countMap,
+                                                   BGP_EVPN_SUMMARY_FILE,
+                                                   af_afi.AFI_IP);
     }
 }
