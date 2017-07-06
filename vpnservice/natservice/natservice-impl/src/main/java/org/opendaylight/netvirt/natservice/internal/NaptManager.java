@@ -325,11 +325,9 @@ public class NaptManager {
                         String internalIpAddress = sourceAddress.getIpAddress();
                         int ipPort = sourceAddress.getPortNumber();
                         ProtocolTypes protocolType = NatUtil.getProtocolType(protocol);
-                        List<Integer> portList =
-                            NatUtil.getInternalIpPortListInfo(dataBroker, segmentId, internalIpAddress, protocolType);
-                        if (portList == null) {
-                            portList = new ArrayList<>();
-                        }
+                        List<Integer> portList = new ArrayList<>(
+                                NatUtil.getInternalIpPortListInfo(dataBroker, segmentId, internalIpAddress,
+                                        protocolType));
                         portList.add(ipPort);
 
                         IntIpProtoTypeBuilder builder = new IntIpProtoTypeBuilder();
@@ -578,7 +576,7 @@ public class NaptManager {
         ProtocolTypes protocolType = NatUtil.getProtocolType(protocol);
         List<Integer> portList =
             NatUtil.getInternalIpPortListInfo(dataBroker, segmentId, address.getIpAddress(), protocolType);
-        if (portList == null || portList.isEmpty() || !portList.contains(address.getPortNumber())) {
+        if (portList.isEmpty() || !portList.contains(address.getPortNumber())) {
             LOG.debug("Internal IP {} for port {} entry not found in SnatIntIpPort DS",
                 address.getIpAddress(), address.getPortNumber());
             return;
