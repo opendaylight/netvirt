@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -153,7 +154,7 @@ public class ExternalNetworksChangeListener
                 LOG.error("NAT Service : Invalid routerId returned for routerName {}", routerUuid.getValue());
                 return;
             }
-            List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker,routerId);
+            Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker,routerId);
             if (natMode == NatMode.Controller) {
                 externalRouterListener.handleDisableSnatInternetVpn(routerUuid.getValue(), networkUuid, externalIps,
                         false, original.getVpnid().getValue());

@@ -71,7 +71,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
         RpcResultBuilder<GetNatTranslationsOnVpnOutput> rpcResultBuilder = null;
 
         List<Uuid> routerUuidList = NatUtil.getRouterUuIdsForVpn(dataBroker, input.getVpnUuid());
-        if (routerUuidList == null || routerUuidList.isEmpty()) {
+        if (routerUuidList.isEmpty()) {
             String errMsg = String.format("404 Not Found - Invalid external vpn {%s} provided",
                     input.getVpnUuid().getValue());
             rpcResultBuilder = RpcResultBuilder.<GetNatTranslationsOnVpnOutput>failed()
@@ -124,7 +124,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
         GetNatTranslationsForNetworkAndIpaddressOutputBuilder output = null;
 
         List<Uuid> subnetUuidList = NatUtil.getSubnetIdsFromNetworkId(dataBroker, input.getNetworkUuid());
-        if (subnetUuidList == null) {
+        if (subnetUuidList.isEmpty()) {
             String errMsg = String.format("404 Not Found - Invalid Network UUID {%s} provided as no Subnetworks found",
                     input.getNetworkUuid().getValue());
             rpcResultBuilder = RpcResultBuilder.<GetNatTranslationsForNetworkAndIpaddressOutput>failed()
@@ -160,7 +160,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
         long routerId = NatUtil.getVpnId(dataBroker, subnetMap.getRouterId().getValue());
 
         List<Ports> fipPorts = NatUtil.getFloatingIpPortsForRouter(dataBroker, subnetMap.getRouterId());
-        if (fipPorts == null || fipPorts.isEmpty()) {
+        if (fipPorts.isEmpty()) {
             LOG.warn("NAT Service: No DNAT IP Mapping found for IP {}", ipAddress);
         } else {
             for (Ports fipPort : fipPorts) {
@@ -241,7 +241,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
         // Capturing DNAT information
         List<DnatIpMapping> dnatIpMapping = new ArrayList<DnatIpMapping>();
         List<Ports> fipPorts = NatUtil.getFloatingIpPortsForRouter(dataBroker, routerUuid);
-        if (fipPorts == null || fipPorts.isEmpty()) {
+        if (fipPorts.isEmpty()) {
             LOG.warn("NAT Service: No DNAT IP Mapping found for router-uuid {}", routerUuid.getValue());
         } else {
             for (Ports fipPort : fipPorts) {
