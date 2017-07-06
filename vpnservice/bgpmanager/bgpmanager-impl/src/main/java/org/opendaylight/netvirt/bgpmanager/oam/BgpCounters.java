@@ -461,6 +461,6 @@ public class BgpCounters extends TimerTask {
     static Map<String, String> parseIpBgpVpnv6AllSummary(Map<String, String> countMap) {
         return BgpCounters.parseIpBgpVpnAllSummary(countMap,
                                                    BGP_VPNV6_SUMMARY_FILE,
-                                                   af_afi.AFI_IPV6);
+                                                   af_afi.AFI_IP);
     }
 }
