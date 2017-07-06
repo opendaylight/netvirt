@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_dfdd5f16",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-07-06T11:26:52Z",
+      "side": 1,
+      "message": "i like your risk taking abilities :)\n\nBut would advise that we get vpnInstanceOpData inside the DJC rather than using the one from outside and directly updating its status.",
+      "revId": "db83d558cf2bb134f91c44d0e10e42de68f886ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_daff2d00",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-07-06T11:26:52Z",
+      "side": 1,
+      "message": "again you are risk taker..\n\nHow do we know in future when this DJC runs the vpnFootprint is really cleared?",
+      "revId": "db83d558cf2bb134f91c44d0e10e42de68f886ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_5a969d95",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-07-06T11:26:52Z",
+      "side": 1,
+      "message": "i see this to be a risky case.. what if setting the FootprintPresent was parallely happening when you are checking for PendingDelete?",
+      "revId": "db83d558cf2bb134f91c44d0e10e42de68f886ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
