@@ -34,6 +34,7 @@ public class BgpAlarms extends TimerTask {
             LOG.debug("Fetching neighbor status' from BGP");
             BgpCounters.resetFile(BgpCounters.BGP_VPNV4_SUMMARY_FILE);
             BgpCounters.resetFile(BgpCounters.BGP_VPNV6_SUMMARY_FILE);
+            BgpCounters.resetFile(BgpCounters.BGP_EVPN_SUMMARY_FILE);
             neighborStatusMap.clear();
 
             if (bgpMgr != null && bgpMgr.getBgpCounters() != null) {
@@ -48,6 +49,12 @@ public class BgpAlarms extends TimerTask {
                         "show ip bgp vpnv6 all summary");
 
                 BgpCounters.parseIpBgpVpnv6AllSummary(neighborStatusMap);
+
+                bgpMgr.getBgpCounters().fetchCmdOutputs(BgpCounters.BGP_EVPN_SUMMARY_FILE,
+                        "show bgp l2vpn evpn all summary");
+
+                BgpCounters.parseBgpL2vpnEvpnAllSummary(neighborStatusMap);
+
                 processNeighborStatusMap(neighborStatusMap, nbrList, neighborsRaisedAlarmStatusMap);
             }
             LOG.debug("Finished getting the status of BGP neighbors");
