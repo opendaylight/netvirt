@@ -10,9 +10,10 @@ package org.opendaylight.netvirt.natservice.internal;
 import com.google.common.base.Optional;
 
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -345,21 +346,18 @@ public class RouterDpnChangeListener
         //remove miss entry to NAPT switch
         //if naptswitch elect new switch and install Snat flows and remove those flows in oldnaptswitch
 
-        //get ExternalIpIn prior
-        List<String> externalIpCache;
-        //HashMap Label
-        HashMap<String, Long> externalIpLabel;
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if (routerId == NatConstants.INVALID_ID) {
             LOG.error("Invalid routerId returned for routerName {}", routerName);
             return;
         }
-        externalIpCache = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
+        Collection<String> externalIpCache = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
         ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName);
         if (extNwProvType == null) {
             return;
         }
         //Get the external IP labels other than VXLAN provider type. Since label is not applicable for VXLAN
+        Map<String, Long> externalIpLabel;
         if (extNwProvType == ProviderTypes.VXLAN) {
             externalIpLabel = null;
         } else {
@@ -441,7 +439,7 @@ public class RouterDpnChangeListener
         }
     }
 
-    private void installDefaultNatRouteForRouterExternalSubnets(BigInteger dpnId, List<Uuid> externalSubnetIds) {
+    private void installDefaultNatRouteForRouterExternalSubnets(BigInteger dpnId, Collection<Uuid> externalSubnetIds) {
         if (externalSubnetIds == null) {
             LOG.debug("NAT Service : No external subnets for router");
             return;
