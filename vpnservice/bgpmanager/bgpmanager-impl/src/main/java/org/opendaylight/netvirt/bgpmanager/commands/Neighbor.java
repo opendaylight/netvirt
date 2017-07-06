@@ -33,7 +33,7 @@ public class Neighbor extends OsgiCommandSupport {
             .append(" [").append(MP).append(" md5-shared-secret]")
             .append(" [").append(MH).append(" hops]")
             .append(" [").append(US).append(" source]")
-            .append(" [").append(AF).append(" lu]")
+            .append(" [").append(AF).append(" lu/evpn/vpnv6]")
             .append(" <add|del>").toString();
 
     @Argument(index = 0, name = "add|del", description = "The desired operation",
@@ -130,12 +130,26 @@ public class Neighbor extends OsgiCommandSupport {
                     bm.addUpdateSource(nbrIp, srcIp);
                 }
                 if (addrFamily != null) {
-                    if (!addrFamily.equals("lu")) {
-                        session.getConsole().println("error: " + AF + " must be lu");
+                    if (!addrFamily.equals("lu") && !addrFamily.equals("vpnv6")
+                        && !addrFamily.equals("evpn")) {
+                        session.getConsole().println("error: " + AF + " must be lu/evpn/vpnv6 ");
                         return null;
                     }
-                    af_afi afi = af_afi.findByValue(1);
-                    af_safi safi = af_safi.findByValue(4);
+                    af_afi afi;
+                    af_safi safi;
+                    if (addrFamily.equals("vpnv6")) {
+                        afi = af_afi.findByValue(2);
+                        safi = af_safi.findByValue(5);
+                    } else if (addrFamily.equals("evpn")) {
+                        afi = af_afi.findByValue(3);
+                        safi = af_safi.findByValue(6);
+                    } else if (addrFamily.equals("lu")) {
+                        afi = af_afi.findByValue(1);
+                        safi = af_safi.findByValue(4);
+                    } else { // vpnv4
+                        afi = af_afi.findByValue(1);
+                        safi = af_safi.findByValue(5);
+                    }
                     bm.addAddressFamily(nbrIp, afi, safi);
                 }
                 break;
