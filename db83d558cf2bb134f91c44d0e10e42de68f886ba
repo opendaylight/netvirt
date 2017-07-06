@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_9a4935d3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-06T12:57:30Z",
+      "side": 1,
+      "message": "Djc not a good idea here. I will be removing it.",
+      "parentUuid": "da2a55be_dfdd5f16",
+      "revId": "db83d558cf2bb134f91c44d0e10e42de68f886ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_daff2d00",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
         "patchSetId": 7
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_7a4601c1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-06T12:57:30Z",
+      "side": 1,
+      "message": "Djc not a good idea here. I will be removing it.",
+      "parentUuid": "da2a55be_daff2d00",
+      "revId": "db83d558cf2bb134f91c44d0e10e42de68f886ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_5a969d95",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
         "patchSetId": 7
@@ -47,6 +83,24 @@
       "writtenOn": "2017-07-06T11:26:52Z",
       "side": 1,
       "message": "i see this to be a risky case.. what if setting the FootprintPresent was parallely happening when you are checking for PendingDelete?",
+      "revId": "db83d558cf2bb134f91c44d0e10e42de68f886ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_1a5b8588",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-06T12:57:30Z",
+      "side": 1,
+      "message": "I\u0027m afraid the above situation is a hard one to solve:(.\n\nThe thread which sets the state as foot_print created is the thread that is adding the first active interface to the vpn.\n\nLet us think of this situation where the execution of this same thread is delayed. In this case, the thread will be processing the add of the first active interface to the vpn, but would not have updated the dpn-to-vpn-list and the vpn-state to footprint_created.\n\n In that scenario, if a pending_delete is set, then even by reading the vpn instance op data, there is no way of identifying that there is a thread running that will eventually add the interface to vpn-to-dpn list. Thus, this will also in effect lead to deletion of vpn related operational/intermediate data before clearing the footprint.\n\nI would also like to think that for stable/boron and later version, this situation will rarely arise, if it arises at all.\n\nI would like to keep this change as it is, unless you think we HAVE TO fix this :):)",
+      "parentUuid": "da2a55be_5a969d95",
       "revId": "db83d558cf2bb134f91c44d0e10e42de68f886ba",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false

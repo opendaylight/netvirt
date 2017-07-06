@@ -16,6 +16,24 @@
       "revId": "aad562c1b79fc6a9a5a7127d23e8fdfa9bfae686",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_1ab1c5e1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 670,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-06T12:57:30Z",
+      "side": 0,
+      "message": "This has been moved to VpnUtil",
+      "parentUuid": "da2a55be_5a133d5c",
+      "revId": "aad562c1b79fc6a9a5a7127d23e8fdfa9bfae686",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
