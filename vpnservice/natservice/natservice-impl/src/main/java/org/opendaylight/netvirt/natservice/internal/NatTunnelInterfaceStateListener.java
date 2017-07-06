@@ -16,9 +16,10 @@ import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -214,20 +215,17 @@ public class NatTunnelInterfaceStateListener
         //remove miss entry to NAPT switch
         //if naptswitch elect new switch and install Snat flows and remove those flows in oldnaptswitch
 
-        //get ExternalIpIn prior
-        List<String> externalIpCache;
-        //HashMap Label
-        HashMap<String, Long> externalIpLabel;
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if (routerId == NatConstants.INVALID_ID) {
             LOG.error("NAT Service : SNAT -> Invalid routerId returned for routerName {}", routerName);
             return;
         }
-        externalIpCache = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
+        Collection<String> externalIpCache = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
         ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker,routerName);
         if (extNwProvType == null) {
             return;
         }
+        Map<String, Long> externalIpLabel;
         if (extNwProvType == ProviderTypes.VXLAN) {
             externalIpLabel = null;
         } else {
@@ -626,14 +624,12 @@ public class NatTunnelInterfaceStateListener
                 networkId, routerId);
             return false;
         }
-        List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
-        if (externalIps != null) {
-            LOG.debug("NAT Service : Clearing the FIB entries but not the BGP routes");
-            for (String externalIp : externalIps) {
-                String rd = NatUtil.getVpnRd(dataBroker, externalVpnName);
-                LOG.debug("NAT Service : Removing Fib entry rd {} prefix {}", rd, externalIp);
-                fibManager.removeFibEntry(dataBroker, rd, externalIp, null);
-            }
+        Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
+        LOG.debug("NAT Service : Clearing the FIB entries but not the BGP routes");
+        for (String externalIp : externalIps) {
+            String rd = NatUtil.getVpnRd(dataBroker, externalVpnName);
+            LOG.debug("NAT Service : Removing Fib entry rd {} prefix {}", rd, externalIp);
+            fibManager.removeFibEntry(dataBroker, rd, externalIp, null);
         }
 
         /*

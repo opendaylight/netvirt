@@ -166,57 +166,52 @@ public class InterfaceStateEventListener
                 interfaceName, internalIp, routerId);
             for (ProtocolTypes protocol : protocolTypesList) {
                 List<Integer> portList = NatUtil.getInternalIpPortListInfo(dataBroker, routerId, internalIp, protocol);
-                if (portList != null) {
-                    for (Integer portnum : portList) {
-                        //build and remove the flow in outbound table
-                        try {
-                            removeNatFlow(naptSwitch, NwConstants.OUTBOUND_NAPT_TABLE, routerId, internalIp, portnum);
-                        } catch (Exception ex) {
-                            LOG.error("NAT Service : Failed to remove snat flow for internalIP {} with "
-                                    + "Port {} protocol {} for routerId {} in OUTBOUNDTABLE of NaptSwitch {}: {}",
-                                internalIp, portnum, protocol, routerId, naptSwitch, ex);
-                        }
-                        //Get the external IP address and the port from the model
-                        NAPTEntryEvent.Protocol proto = protocol.toString().equals(ProtocolTypes.TCP.toString())
-                            ? NAPTEntryEvent.Protocol.TCP : NAPTEntryEvent.Protocol.UDP;
-                        IpPortExternal ipPortExternal = NatUtil.getExternalIpPortMap(dataBroker, routerId,
-                            internalIp, String.valueOf(portnum), proto);
-                        if (ipPortExternal == null) {
-                            LOG.error("NAT Service : Mapping for internalIp {} with port {} is not found in "
-                                + "router with Id {}", internalIp, portnum, routerId);
-                            return;
-                        }
-                        String externalIpAddress = ipPortExternal.getIpAddress();
-                        Integer portNumber = ipPortExternal.getPortNum();
-
-                        //build and remove the flow in inboundtable
-                        try {
-                            removeNatFlow(naptSwitch, NwConstants.INBOUND_NAPT_TABLE, routerId,
-                                externalIpAddress, portNumber);
-                        } catch (Exception ex) {
-                            LOG.error("NAT Service : Failed to remove snat flow internalIP {} with "
-                                    + "Port {} protocol {} for routerId {} in INBOUNDTABLE of naptSwitch {} : {}",
-                                externalIpAddress, portNumber, protocol, routerId, naptSwitch, ex);
-                        }
-
-                        String internalIpPort = internalIp + ":" + portnum;
-                        // delete the entry from IntExtIpPortMap DS
-                        try {
-                            naptManager.removeFromIpPortMapDS(routerId, internalIpPort, proto);
-                            naptManager.removePortFromPool(internalIpPort, externalIpAddress);
-                        } catch (Exception ex) {
-                            LOG.error("NAPT Service: releaseIpExtPortMapping failed, Removal of "
-                                + "ipportmap {} for router {} failed {}", internalIpPort, routerId, ex);
-                        }
+                for (Integer portnum : portList) {
+                    //build and remove the flow in outbound table
+                    try {
+                        removeNatFlow(naptSwitch, NwConstants.OUTBOUND_NAPT_TABLE, routerId, internalIp, portnum);
+                    } catch (Exception ex) {
+                        LOG.error("NAT Service : Failed to remove snat flow for internalIP {} with "
+                                + "Port {} protocol {} for routerId {} in OUTBOUNDTABLE of NaptSwitch {}: {}",
+                            internalIp, portnum, protocol, routerId, naptSwitch, ex);
                     }
-                    // delete the entry from SnatIntIpPortMap DS
-                    LOG.debug("NAT Service : Removing InternalIp :{} portlist :{} for protocol :{} of router {}",
-                        internalIp, portList, protocol, routerId);
-                    naptManager.removeFromSnatIpPortDS(routerId, internalIp);
-                } else {
-                    LOG.debug("NAT Service : No {} session for interface {} with internalIP {} in router with id {}",
-                        protocol, interfaceName, internalIp, routerId);
+                    //Get the external IP address and the port from the model
+                    NAPTEntryEvent.Protocol proto = protocol.toString().equals(ProtocolTypes.TCP.toString())
+                        ? NAPTEntryEvent.Protocol.TCP : NAPTEntryEvent.Protocol.UDP;
+                    IpPortExternal ipPortExternal = NatUtil.getExternalIpPortMap(dataBroker, routerId,
+                        internalIp, String.valueOf(portnum), proto);
+                    if (ipPortExternal == null) {
+                        LOG.error("NAT Service : Mapping for internalIp {} with port {} is not found in "
+                            + "router with Id {}", internalIp, portnum, routerId);
+                        return;
+                    }
+                    String externalIpAddress = ipPortExternal.getIpAddress();
+                    Integer portNumber = ipPortExternal.getPortNum();
+
+                    //build and remove the flow in inboundtable
+                    try {
+                        removeNatFlow(naptSwitch, NwConstants.INBOUND_NAPT_TABLE, routerId,
+                            externalIpAddress, portNumber);
+                    } catch (Exception ex) {
+                        LOG.error("NAT Service : Failed to remove snat flow internalIP {} with "
+                                + "Port {} protocol {} for routerId {} in INBOUNDTABLE of naptSwitch {} : {}",
+                            externalIpAddress, portNumber, protocol, routerId, naptSwitch, ex);
+                    }
+
+                    String internalIpPort = internalIp + ":" + portnum;
+                    // delete the entry from IntExtIpPortMap DS
+                    try {
+                        naptManager.removeFromIpPortMapDS(routerId, internalIpPort, proto);
+                        naptManager.removePortFromPool(internalIpPort, externalIpAddress);
+                    } catch (Exception ex) {
+                        LOG.error("NAPT Service: releaseIpExtPortMapping failed, Removal of "
+                            + "ipportmap {} for router {} failed {}", internalIpPort, routerId, ex);
+                    }
                 }
+                // delete the entry from SnatIntIpPortMap DS
+                LOG.debug("NAT Service : Removing InternalIp :{} portlist :{} for protocol :{} of router {}",
+                    internalIp, portList, protocol, routerId);
+                naptManager.removeFromSnatIpPortDS(routerId, internalIp);
             }
         }
     }

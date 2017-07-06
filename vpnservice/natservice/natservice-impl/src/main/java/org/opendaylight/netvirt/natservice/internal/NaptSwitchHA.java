@@ -10,10 +10,11 @@ package org.opendaylight.netvirt.natservice.internal;
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -99,8 +100,8 @@ public class NaptSwitchHA {
     private final FibRpcService fibService;
     private final IFibManager fibManager;
     private final IElanService elanManager;
-    private List<String> externalIpsCache;
-    private HashMap<String, Long> externalIpsLabel;
+    private Collection<String> externalIpsCache;
+    private Map<String, Long> externalIpsLabel;
     private final EvpnNaptSwitchHA evpnNaptSwitchHA;
     private SnatServiceManager natServiceManager;
     private NatMode natMode = NatMode.Controller;
@@ -176,7 +177,7 @@ public class NaptSwitchHA {
     }*/
 
     protected void removeSnatFlowsInOldNaptSwitch(String routerName, BigInteger naptSwitch,
-                                                  HashMap<String, Long> externalIpmap) {
+                                                  Map<String, Long> externalIpmap) {
         externalIpsLabel = externalIpmap;
         //remove SNAT flows in old NAPT SWITCH
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
@@ -274,22 +275,18 @@ public class NaptSwitchHA {
             }
         } else {
             List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerName);
-            if (externalIps != null) {
-                Uuid networkId = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
-                if (networkId != null) {
-                    externalRouterListener.clearFibTsAndReverseTraffic(naptSwitch, routerId, networkId,
-                            externalIps, null, gwMacAddress);
-                    LOG.debug("Successfully removed fib entries in old naptswitch {} for "
-                            + "router {} with networkId {} and externalIps {}", naptSwitch, routerId, networkId,
-                            externalIps);
-                } else {
-                    LOG.debug("External network not associated to router {}", routerId);
-                }
-                externalRouterListener.removeNaptFibExternalOutputFlows(routerId, naptSwitch, extNetworkId,
+            Uuid networkId = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
+            if (networkId != null) {
+                externalRouterListener.clearFibTsAndReverseTraffic(naptSwitch, routerId, networkId,
+                        externalIps, null, gwMacAddress);
+                LOG.debug("Successfully removed fib entries in old naptswitch {} for "
+                        + "router {} with networkId {} and externalIps {}", naptSwitch, routerId, networkId,
                         externalIps);
             } else {
-                LOG.debug("ExternalIps not found for router {}", routerName);
+                LOG.debug("External network not associated to router {}", routerId);
             }
+            externalRouterListener.removeNaptFibExternalOutputFlows(routerId, naptSwitch, extNetworkId,
+                    externalIps);
         }
 
         //For the router ID get the internal IP , internal port and the corresponding external IP and external Port.
@@ -373,14 +370,14 @@ public class NaptSwitchHA {
     }
 
     public boolean isNaptSwitchDown(String routerName, BigInteger dpnId, BigInteger naptSwitch,
-                                    Long routerVpnId, List<String> externalIpCache) {
+                                    Long routerVpnId, Collection<String> externalIpCache) {
         return isNaptSwitchDown(routerName, dpnId, naptSwitch, routerVpnId, externalIpCache, true);
     }
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     public boolean isNaptSwitchDown(String routerName, BigInteger dpnId, BigInteger naptSwitch,
-                                    Long routerVpnId, List<String> externalIpCache, boolean isClearBgpRts) {
+                                    Long routerVpnId, Collection<String> externalIpCache, boolean isClearBgpRts) {
         externalIpsCache = externalIpCache;
         if (!naptSwitch.equals(dpnId)) {
             LOG.debug("DpnId {} is not a naptSwitch {} for Router {}", dpnId, naptSwitch, routerName);
@@ -891,8 +888,8 @@ public class NaptSwitchHA {
             //NAPT PFIB point to FIB table for outbound traffic
             long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
             boolean shouldInstallNaptPfibWithExtNetworkVpnId = true;
-            List<Uuid> externalSubnetIds = NatUtil.getExternalSubnetIdsForRouter(dataBroker, routerName);
-            if (externalSubnetIds != null && !externalSubnetIds.isEmpty()) {
+            Collection<Uuid> externalSubnetIds = NatUtil.getExternalSubnetIdsForRouter(dataBroker, routerName);
+            if (!externalSubnetIds.isEmpty()) {
                 //NAPT PFIB point to FIB table for outbound traffic - using external subnetID as vpnID.
                 for (Uuid externalSubnetId : externalSubnetIds) {
                     long externalSubnetVpnId = NatUtil.getExternalSubnetVpnId(dataBroker, externalSubnetId);
@@ -914,32 +911,28 @@ public class NaptSwitchHA {
             }
 
             //Install Fib entries for ExternalIps & program 36 -> 44
-            List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
+            Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
             String rd = NatUtil.getVpnRd(dataBroker, vpnName);
-            if (externalIps != null) {
-                for (String externalIp : externalIps) {
-                    removeFibEntry(rd, externalIp);
-                    LOG.debug("NAT Service : advToBgpAndInstallFibAndTsFlows in naptswitch id {} "
-                        + "with vpnName {} and externalIp {}",
-                        naptSwitch, vpnName, externalIp);
-                    externalRouterListener.advToBgpAndInstallFibAndTsFlows(naptSwitch, NwConstants.INBOUND_NAPT_TABLE,
-                        vpnName, routerId, routerName, externalIp, null /* external-router */, vpnService, fibService,
-                        bgpManager, dataBroker, LOG);
-                    LOG.debug("NAT Service : Successfully added fib entries in naptswitch {} for "
-                        + "router {} with external IP {}", naptSwitch,
-                        routerId, externalIp);
-                }
-            } else {
-                LOG.debug("NAT Service : External Ip not found for routerId {}", routerId);
+            for (String externalIp : externalIps) {
+                removeFibEntry(rd, externalIp);
+                LOG.debug("NAT Service : advToBgpAndInstallFibAndTsFlows in naptswitch id {} "
+                    + "with vpnName {} and externalIp {}",
+                    naptSwitch, vpnName, externalIp);
+                externalRouterListener.advToBgpAndInstallFibAndTsFlows(naptSwitch, NwConstants.INBOUND_NAPT_TABLE,
+                    vpnName, routerId, routerName, externalIp, null /* external-router */, vpnService, fibService,
+                    bgpManager, dataBroker, LOG);
+                LOG.debug("NAT Service : Successfully added fib entries in naptswitch {} for "
+                    + "router {} with external IP {}", naptSwitch,
+                    routerId, externalIp);
             }
         } else {
             LOG.debug("NAT Service : Associated vpnName not found for router {}", routerId);
         }
     }
 
-    protected void bestEffortDeletion(long routerId, String routerName, HashMap<String, Long> externalIpLabel) {
-        List<String> newExternalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
-        if (newExternalIps != null && externalIpsCache != null) {
+    protected void bestEffortDeletion(long routerId, String routerName, Map<String, Long> externalIpLabel) {
+        Collection<String> newExternalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
+        if (externalIpsCache != null) {
             Set<String> removedExternalIps = new HashSet<>(externalIpsCache);
             removedExternalIps.removeAll(newExternalIps);
             if (removedExternalIps.isEmpty()) {
