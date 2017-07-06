@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
+import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -726,7 +727,7 @@ public class NatTunnelInterfaceStateListener
                 Futures.addCallback(listenableFuture, new FutureCallback<RpcResult<Void>>() {
 
                     @Override
-                    public void onFailure(Throwable error) {
+                    public void onFailure(@Nonnull Throwable error) {
                         LOG.error("NAT Service : SNAT -> Error in generate label or fib install process", error);
                     }
 
@@ -865,7 +866,7 @@ public class NatTunnelInterfaceStateListener
                 Futures.addCallback(listenableFuture, new FutureCallback<RpcResult<Void>>() {
 
                     @Override
-                    public void onFailure(Throwable error) {
+                    public void onFailure(@Nonnull Throwable error) {
                         LOG.error("NAT Service : DNAT -> Error in generate label or fib install process", error);
                     }
 
@@ -1080,7 +1081,7 @@ public class NatTunnelInterfaceStateListener
                 Futures.addCallback(listenableFuture, new FutureCallback<RpcResult<Void>>() {
 
                     @Override
-                    public void onFailure(Throwable error) {
+                    public void onFailure(@Nonnull Throwable error) {
                         LOG.error("NAT Service : DNAT -> Error in removing the table 21 entry pushing "
                             + "the MPLS label to the tunnel since label is invalid ", error);
                     }

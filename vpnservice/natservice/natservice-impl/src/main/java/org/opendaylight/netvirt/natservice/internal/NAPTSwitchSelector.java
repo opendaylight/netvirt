@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -195,7 +196,7 @@ public class NAPTSwitchSelector {
         }
 
         @Override
-        public int compareTo(SwitchWeight switchWeight) {
+        public int compareTo(@Nonnull SwitchWeight switchWeight) {
             return switchWeight.getWeight() - weight;
         }
     }
