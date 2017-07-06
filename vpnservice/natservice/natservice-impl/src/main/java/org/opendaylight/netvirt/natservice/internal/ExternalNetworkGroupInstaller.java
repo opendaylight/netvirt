@@ -92,7 +92,7 @@ public class ExternalNetworkGroupInstaller {
         }
 
         List<Uuid> subnetIds = NatUtil.getSubnetIdsFromNetworkId(broker, networkId);
-        if (subnetIds == null || subnetIds.isEmpty()) {
+        if (subnetIds.isEmpty()) {
             LOG.trace("No subnet ids associated network id {}", networkId.getValue());
             return;
         }
@@ -195,7 +195,7 @@ public class ExternalNetworkGroupInstaller {
         List<ActionInfo> egressActionList = NatUtil.getEgressActionsForInterface(interfaceManager, extInterface, null,
                 setFieldEthDestActionPos + 1);
 
-        if (Strings.isNullOrEmpty(macAddress) || egressActionList == null || egressActionList.isEmpty()) {
+        if (Strings.isNullOrEmpty(macAddress) || egressActionList.isEmpty()) {
             if (Strings.isNullOrEmpty(macAddress)) {
                 LOG.trace("Building ext-net group {} entry with drop action since "
                         + "GW mac has not been resolved for subnet {} extInterface {}",
