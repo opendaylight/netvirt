@@ -1062,7 +1062,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         Futures.addCallback(future, new FutureCallback<RpcResult<Void>>() {
 
             @Override
-            public void onFailure(Throwable error) {
+            public void onFailure(@Nonnull Throwable error) {
                 log.error("NAT Service : Error in generate label or fib install process", error);
             }
 
@@ -2118,7 +2118,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         Futures.addCallback(labelFuture, new FutureCallback<RpcResult<Void>>() {
 
             @Override
-            public void onFailure(Throwable error) {
+            public void onFailure(@Nonnull Throwable error) {
                 LOG.error("NAT Service : Error in removing the label or custom fib entries", error);
             }
 
@@ -2211,7 +2211,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         Futures.addCallback(labelFuture, new FutureCallback<RpcResult<Void>>() {
 
             @Override
-            public void onFailure(Throwable error) {
+            public void onFailure(@Nonnull Throwable error) {
                 LOG.error("NAT Service : Error in removing the label or custom fib entries", error);
             }
 
