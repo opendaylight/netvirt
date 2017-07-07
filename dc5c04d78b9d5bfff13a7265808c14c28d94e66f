@@ -16,6 +16,24 @@
       "revId": "dc5c04d78b9d5bfff13a7265808c14c28d94e66f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_2223bb06",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-07-07T14:30:54Z",
+      "side": 1,
+      "message": "Agreed, yes, thanks for making me stick to my own principles ;-).",
+      "parentUuid": "da2a55be_c28f3f22",
+      "revId": "dc5c04d78b9d5bfff13a7265808c14c28d94e66f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
