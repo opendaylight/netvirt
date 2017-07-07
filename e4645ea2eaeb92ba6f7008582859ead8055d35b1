@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_42ceaf84",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 41
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-07-07T14:08:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_e887cf0d",
+      "revId": "e4645ea2eaeb92ba6f7008582859ead8055d35b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_2879e72f",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 41
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_22cbbb73",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 41
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-07-07T14:08:24Z",
+      "side": 1,
+      "message": "yes.\nright now, i mention a restriction regarding setup 3.\nI will ultimately update it to remove that setup.\n\nexpectation \u003d at worst next tuesday",
+      "parentUuid": "da2a55be_2879e72f",
+      "revId": "e4645ea2eaeb92ba6f7008582859ead8055d35b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_487c1b21",
         "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
         "patchSetId": 41
@@ -47,6 +83,30 @@
       "writtenOn": "2017-07-04T16:48:46Z",
       "side": 1,
       "message": "Based on our discussion in the IPv6 call, please update this section.",
+      "range": {
+        "startLine": 680,
+        "startChar": 0,
+        "endLine": 684,
+        "endChar": 35
+      },
+      "revId": "e4645ea2eaeb92ba6f7008582859ead8055d35b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_a28deb33",
+        "filename": "docs/specs/l3vpn-dual-stack-vm.rst",
+        "patchSetId": 41
+      },
+      "lineNbr": 684,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-07-07T14:08:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_487c1b21",
       "range": {
         "startLine": 680,
         "startChar": 0,
