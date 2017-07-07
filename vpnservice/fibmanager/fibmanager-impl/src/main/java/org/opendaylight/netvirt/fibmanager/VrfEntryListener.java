@@ -1222,6 +1222,16 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             LOG.error("VPN Instance for rd {} is not available from VPN Op Instance Datastore", rd);
             return;
         }
+
+        Prefixes prefixInfo =  FibUtil.getPrefixToInterface(dataBroker, vpnInstance.getVpnId(), vrfEntry.getDestPrefix());
+        Optional<VpnInterface> opVpnInterface = FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                FibUtil.getVpnInterfaceIdentifier(prefixInfo.getVpnInterfaceName()));
+        if(opVpnInterface.isPresent() && !opVpnInterface.get().isScheduledForRemove()) {
+            LOG.error("VPN Interface {} with prefix {} for rd {} vpnId {} is not removed by VPN-Engine. Ignoring",
+                    prefixInfo.getVpnInterfaceName(), vrfEntry.getDestPrefix(), rd, vpnInstance.getVpnId());
+            return;
+        }
+        
         final Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
         long elanTag = 0L;
         SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
