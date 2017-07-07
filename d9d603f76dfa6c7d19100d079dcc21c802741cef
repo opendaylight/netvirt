@@ -16,6 +16,24 @@
       "revId": "d9d603f76dfa6c7d19100d079dcc21c802741cef",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_22e45b0c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-07-07T13:54:02Z",
+      "side": 1,
+      "message": "In general, this is just defensive coding — we immediately add to portList (line 331), so I want to be absolutely sure I have a modifiable list to do so. It’s also nice because if the code I’m calling isn’t itself defensive, I avoid modifying its internal structures.\n\nIn *this particular case*, I also know that getInternalIpPortListInfo() is liable to return the result of Collections.emptyList(), which isn’t modifiable (so the add() would fail).\n\nNote that in the grand scheme of things, we should really settle on whether callers need to be defensive, or callees. It’s one of the things I still find lacking in Java collections: you can’t easily indicate whether the collection you’re returning is modifiable or not.",
+      "parentUuid": "da2a55be_821d4769",
+      "revId": "d9d603f76dfa6c7d19100d079dcc21c802741cef",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
