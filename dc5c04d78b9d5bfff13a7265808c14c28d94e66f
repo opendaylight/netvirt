@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_c28f3f22",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-07-07T14:09:21Z",
+      "side": 1,
+      "message": "This particular change technically changes the behaviour, in case of an exception, doesn\u0027t it?  I\u0027m not sure (can\u0027t judge) if it\u0027s the right thing to do..  Safest would be to revert to leave this as-is, and not touch it as part of a \"clean up\", and perhaps have a separate change just about this, for others to review?",
+      "revId": "dc5c04d78b9d5bfff13a7265808c14c28d94e66f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
