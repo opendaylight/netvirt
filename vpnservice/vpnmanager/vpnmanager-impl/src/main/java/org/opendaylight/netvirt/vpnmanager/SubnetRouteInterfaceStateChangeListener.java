@@ -86,16 +86,14 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                 String interfaceName = intrf.getName();
                                 LOG.info("SubnetRouteInterfaceListener add: Received port UP event for interface {} ",
                                         interfaceName);
-                                BigInteger dpnId = BigInteger.ZERO;
                                 try {
-                                    dpnId = InterfaceUtils.getDpIdFromInterface(intrf);
+                                    BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(intrf);
+                                    vpnSubnetRouteHandler.onInterfaceUp(dpnId, intrf.getName(), subnetId);
                                 } catch (Exception e) {
                                     LOG.error("SubnetRouteInterfaceListener add: Unable to obtain dpnId for"
                                             + " interface {} subnetroute inclusion for this interface"
                                             + "failed with exception {}", interfaceName, e);
-                                    return futures;
                                 }
-                                vpnSubnetRouteHandler.onInterfaceUp(dpnId, intrf.getName(), subnetId);
                                 return futures;
                             }
                         });
