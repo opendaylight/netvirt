@@ -321,14 +321,9 @@ public class BgpCounters extends TimerTask {
             if (instr.contains("Route Distinguisher")) {
                 String[] result = instr.split(":");
                 String rd = result[1].trim() + "_" + result[2].trim();
-                i = processRouteCount(rd, i + 1, inputStrs);
+                i = processRouteCount(rd + "_VPNV4", i + 1, inputStrs);
             }
         }
-        /*populate the "BgpTotalPrefixes" counter by combining
-        the prefixes that are calculated per RD basis*/
-        int bgpTotalPfxs = calculateBgpTotalPrefixes();
-        LOG.trace("BGP Total Prefixes:{}",bgpTotalPfxs);
-        countersMap.put(BgpConstants.BGP_COUNTER_TOTAL_PFX,String.valueOf(bgpTotalPfxs));
     }
 
     /*
@@ -366,7 +361,7 @@ public class BgpCounters extends TimerTask {
             if (instr.contains("Route Distinguisher")) {
                 String[] result = instr.split(":");
                 String rd = result[1].trim() + "_" + result[2].trim();
-                i = processRouteCount(rd, i + 1, inputStrs);
+                i = processRouteCount(rd + "_VPNV6", i + 1, inputStrs);
             }
         }
     }
@@ -388,9 +383,14 @@ public class BgpCounters extends TimerTask {
             if (instr.contains("Route Distinguisher")) {
                 String[] result = instr.split(":");
                 String rd = result[1].trim() + "_" + result[2].trim();
-                i = processRouteCount(rd, i + 1, inputStrs);
+                i = processRouteCount(rd + "_EVPN", i + 1, inputStrs);
             }
         }
+        /*populate the "BgpTotalPrefixes" counter by combining
+        the prefixes that are calculated per RD basis*/
+        int bgpTotalPfxs = calculateBgpTotalPrefixes();
+        LOG.trace("BGP Total Prefixes:{}",bgpTotalPfxs);
+        countersMap.put(BgpConstants.BGP_COUNTER_TOTAL_PFX,String.valueOf(bgpTotalPfxs));
     }
 
     private int processRouteCount(String rd, int startIndex, List<String> inputStrs) {
