@@ -943,6 +943,15 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         } else {
             String localNextHopIP = localNextHopInfo.getIpAddress();
+            //For local routes(VM prefixes), isScheduledToRemove flag will be checked to avoid
+            // BGPMgr from deleting it due to looping back of the advertised route.
+            Optional<VpnInterface> opVpnInterface = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                    FibUtil.getVpnInterfaceIdentifier(localNextHopInfo.getVpnInterfaceName()));
+            if (opVpnInterface.isPresent() && !opVpnInterface.get().isScheduledForRemove()) {
+                LOG.error("VPN Interface {} with prefix {} for rd {} vpnId {} is not removed by VPN-Engine. Ignoring",
+                        localNextHopInfo.getVpnInterfaceName(), vrfEntry.getDestPrefix(), rd, vpnId);
+                return returnLocalDpnId;
+            }
             BigInteger dpnId = checkDeleteLocalFibEntry(localNextHopInfo, localNextHopIP,
                 vpnId, rd, vrfEntry, isExtraroute);
             if (!dpnId.equals(BigInteger.ZERO)) {
@@ -1222,6 +1231,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             LOG.error("VPN Instance for rd {} is not available from VPN Op Instance Datastore", rd);
             return;
         }
+
         final Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
         long elanTag = 0L;
         SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
