@@ -52,6 +52,24 @@
       "revId": "d9d603f76dfa6c7d19100d079dcc21c802741cef",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_a2c16be6",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-07-07T14:44:27Z",
+      "side": 1,
+      "message": "Yes, we could explicitly state that any method returning non-modifiable collections must return a Guava immutable collection, and anything else can be assumed to be modifiable (safely, i.e. without affecting the callee). That would also give us Guava’s early null rejection which would allow us to delete a lot of null checks...",
+      "parentUuid": "da2a55be_02acb79f",
+      "revId": "d9d603f76dfa6c7d19100d079dcc21c802741cef",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
