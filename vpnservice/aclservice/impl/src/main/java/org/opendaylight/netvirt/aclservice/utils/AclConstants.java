@@ -35,6 +35,7 @@ public final class AclConstants {
     public static final Integer PROTO_MATCH_SYN_DROP_PRIORITY = 61003;
     public static final Integer PROTO_VM_IP_MAC_MATCH_PRIORITY = 36001;
     public static final Integer CT_STATE_UNTRACKED_PRIORITY = 62030;
+    public static final Integer CT_STATE_DROP_FLOW_PRIORITY = 62021;
     public static final Integer CT_STATE_TRACKED_EXIST_PRIORITY = 62020;
     public static final Integer CT_STATE_TRACKED_INVALID_PRIORITY = 62015;
     public static final Integer CT_STATE_TRACKED_NEW_PRIORITY = 62010;
@@ -58,6 +59,7 @@ public final class AclConstants {
     public static final int TRACKED_REL_CT_STATE_MASK = 0x37;
     public static final int TRACKED_NEW_CT_STATE_MASK = 0x21;
     public static final int TRACKED_INV_CT_STATE_MASK = 0x30;
+    public static final int TRACKED_RPL_CT_STATE_MASK = 0x3F;
 
     public static final String IPV4_ALL_NETWORK = "0.0.0.0/0";
     public static final String IPV6_ALL_NETWORK = "::/0";

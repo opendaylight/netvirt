@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -84,7 +85,6 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
     protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
             Map<String, List<MatchInfoBase>> flowMap, String flowName) {
         List<MatchInfoBase> matches = flowMap.get(flowName);
-        flowName += "Ingress" + lportTag + ace.getKey().getRuleName();
         matches.add(buildLPortTagMatch(lportTag));
         matches.add(new NxMatchCtState(AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK));
 
@@ -99,12 +99,28 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
             instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
         }
 
+        String dropFlowName = flowName + "Ingress" + lportTag;
+        flowName += "Ingress" + lportTag + ace.getKey().getRuleName();
         // For flows related remote ACL, unique flow priority is used for
         // each flow to avoid overlapping flows
         int priority = getIngressSpecificAclFlowPriority(dpId, addOrRemove, flowName, packetHandling);
 
         syncFlow(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, flowName, priority, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+
+        instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+        final List<MatchInfoBase> dropMatches = matches.stream()
+               .filter(obj -> !(obj instanceof NxMatchCtState))
+               .collect(Collectors.toList());
+        dropMatches.add(new NxMatchCtState(AclConstants.TRACKED_EST_CT_STATE, AclConstants.TRACKED_RPL_CT_STATE_MASK));
+        if (addOrRemove == 0) {
+            syncFlow(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, dropFlowName,
+                    AclConstants.CT_STATE_DROP_FLOW_PRIORITY, "ACL", 5, 0,
+                        AclConstants.COOKIE_ACL_BASE, dropMatches, instructions, 1);
+        } else {
+            syncFlow(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, dropFlowName, AclConstants.CT_STATE_DROP_FLOW_PRIORITY,
+                   "ACL", 5, 0, AclConstants.COOKIE_ACL_BASE, dropMatches, instructions, 0);
+        }
         return flowName;
     }
 
