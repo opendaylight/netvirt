@@ -172,6 +172,11 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + etherIngressFlowsPort1WithRemoteIpSg()
         + etherIngressFlowsPort1WithRemoteIpSg()
         + etherIngressFlowsPort2WithRemoteIpSg()
+        + etherIngressFlowsPort2SgDropRule()
+        + etherIngressFlowsPort2SgDropRule()
+        + etherIngressFlowsPort2WithRemoteIpSgDropRule()
+        + etherEgressFlowsPort2SgDropRule()
+        + etherEgressFlowsPort2SgDropRule()
     }
 
     protected def etherIngressFlowsPort1WithRemoteIpSg() {
@@ -228,6 +233,92 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 priority = IdHelper.getId(theFlowId)
                 tableId = 243 as short
+            ]
+        ]
+    }
+
+    protected def etherIngressFlowsPort2WithRemoteIpSgDropRule() {
+        val theFlowId = "ETHERnull_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.2/32Ingress987_DropAfterRuleDeleted"
+
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = theFlowId
+                flowName = "ACL"
+                hardTimeOut = 0
+                idleTimeOut = 5
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Source("10.0.0.2", "32"),
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
+                    new NxMatchCtState(33L, 33L)
+                ]
+                priority = IdHelper.getId(theFlowId)
+                tableId = 243 as short
+            ]
+        ]
+    }
+
+    protected def etherIngressFlowsPort2SgDropRule() {
+        val theFlowId = "ETHERnull_remoteACL_id_85cc3048-abc3-43cc-89b3-377341426ac5Ingress987_DropAfterRuleDeleted"
+
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = theFlowId
+                flowName = "ACL"
+                hardTimeOut = 0
+                idleTimeOut = 5
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(4bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(33L, 33L)
+                ]
+                priority = IdHelper.getId(theFlowId)
+                tableId = 243 as short
+            ]
+        ]
+    }
+
+    protected def etherEgressFlowsPort2SgDropRule() {
+        val theFlowId = "ETHERnullEgress987_DropAfterRuleDeleted"
+
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = theFlowId
+                flowName = "ACL"
+                hardTimeOut = 0
+                idleTimeOut = 5
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchCtState(33L, 33L)
+                ]
+                priority = 62021
+                tableId = 213 as short
             ]
         ]
     }
