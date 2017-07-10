@@ -202,14 +202,15 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             return;
         }
 
-        if (VpnHelper.getFirstVpnNameFromVpnInterface(vmVpnInterface).equals(vpnIdVpnInstanceName)) {
+        if (VpnHelper.doesVpnInterfaceBelongToVpnInstance(vpnIdVpnInstanceName,
+                      vmVpnInterface.getVpnInstanceNames())) {
             LOG.trace("Unknown IP is in internal network");
             handlePacketToInternalNetwork(dstIp, dstIpStr, destinationAddress, elanTag);
         } else {
             LOG.trace("Unknown IP is in external network");
+            String vpnName = VpnHelper.getFirstVpnNameFromVpnInterface(vmVpnInterface);
             handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName),
-                    VpnHelper.getFirstVpnNameFromVpnInterface(vmVpnInterface),
-                    dstIp, elanTag);
+                               vpnName, dstIp, elanTag);
         }
     }
 
@@ -307,6 +308,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         }
 
         transmitArpPacket(dpnId, externalIp.get().getIpAddress(), externalRouter.getExtGwMacAddress(), dstIp, elanTag);
+        return;
     }
 
     private static SubnetOpDataEntry getTargetSubnetForPacketOut(DataBroker broker, long elanTag, int ipAddress) {
