@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -176,8 +177,8 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             List<String> interfaceUuidStrList = geniusProvider.getInterfacesFromNode(nodeId);
             interfaceUuidStrList.forEach(interfaceUuidStr -> {
                 InterfaceKey interfaceKey = new InterfaceKey(interfaceUuidStr);
-                String remoteIp = geniusProvider.getRemoteIpAddress(interfaceUuidStr);
-                entries.add(ClassifierEntry.buildEgressEntry(interfaceKey, remoteIp == null ? nodeIp : remoteIp));
+                Optional<String> remoteIp = geniusProvider.getRemoteIpAddress(interfaceUuidStr);
+                entries.add(ClassifierEntry.buildEgressEntry(interfaceKey, remoteIp.orElse(nodeIp)));
             });
         });
 
