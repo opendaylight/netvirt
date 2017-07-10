@@ -33,6 +33,7 @@ public class ElanConstants {
     public static final BigInteger COOKIE_ELAN_KNOWN_DMAC = new BigInteger("8030000", 16);
     public static final long DEFAULT_MAC_TIME_OUT = 300;
     public static final BigInteger COOKIE_ELAN_FILTER_EQUALS = new BigInteger("8800000", 16);
+    public static final BigInteger COOKIE_L2VNI_DEMUX = new BigInteger("1080000", 16);
     public static final String L2_CONTROL_PACKETS_DMAC = "01:80:C2:00:00:00";
     public static final String L2_CONTROL_PACKETS_DMAC_MASK = "FF:FF:FF:FF:FF:F0";
     public static final int LLDP_ETH_TYPE = 0x88CC;

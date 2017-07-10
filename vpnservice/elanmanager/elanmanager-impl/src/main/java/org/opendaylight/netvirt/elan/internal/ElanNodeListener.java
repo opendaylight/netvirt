@@ -121,6 +121,7 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         setupTableMissDmacFlow(dpnId);
         setupTableMissArpCheckFlow(dpnId);
         setupTableMissApResponderFlow(dpnId);
+        setupExternalL2vniTableMissFlow(dpnId);
     }
 
     private void createMulticastFlows(BigInteger dpId) {
@@ -227,6 +228,19 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
 
         mdsalManager.installFlow(flowEntity);
     }
+
+    private void setupExternalL2vniTableMissFlow(BigInteger dpnId) {
+        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<ActionInfo> actionsInfos = Collections.singletonList(new ActionNxResubmit(NwConstants
+                        .LPORT_DISPATCHER_TABLE));
+        List<InstructionInfo> instructions = Collections.singletonList(new InstructionApplyActions(actionsInfos));
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L2VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,
+                        getTableMissFlowRef(NwConstants.L2VNI_EXTERNAL_TUNNEL_DEMUX_TABLE), 0,
+                        "External L2VNI Table Miss Flow", 0, 0,
+                         ElanConstants.COOKIE_L2VNI_DEMUX, matches, instructions);
+        mdsalManager.installFlow(flowEntity);
+    }
+
 
     private void createL2ControlProtocolDropFlows(BigInteger dpId) {
         List<MatchInfo> mkMatches = new ArrayList<>();
