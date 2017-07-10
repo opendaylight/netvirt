@@ -31,8 +31,8 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
-import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNames;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -53,11 +53,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.DcGate
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.extraroute.rds.DestPrefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PortOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.PortOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.PortOpDataEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -205,6 +206,20 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         handleTunnelEventForDPN(add, UpdateRouteAction.ADVERTISE_ROUTE, TunnelAction.TUNNEL_EP_ADD);
     }
 
+    public enum TunnelEventProcessingMethod {
+        POPULATESUBNETS(0), MANAGEREMOTEROUTES(1);
+
+        private final int method;
+
+        TunnelEventProcessingMethod(int id) {
+            this.method = id;
+        }
+
+        public int getValue() {
+            return method;
+        }
+    }
+
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void handleTunnelEventForDPN(StateTunnelList stateTunnelList, UpdateRouteAction action,
@@ -270,7 +285,6 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                 LOG.error("handleTunnelEventForDPN: Exception {} when querying for GetDpnInterfaceList for srcDpnid {}"
                         + " srcTepIp {} destTepIp {}, trace {}", e, srcDpnId, srcTepIp, destTepIp, e.getStackTrace());
             }
-
             // Get the list of VpnInterfaces from Intf Mgr for a destDPN only for internal tunnel.
             if (tunTypeVal == VpnConstants.ITMTunnelLocType.Internal.getValue()) {
                 remoteDpnId = new BigInteger(stateTunnelList.getDstInfo().getTepDeviceId());
@@ -303,8 +317,92 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
 
             while (interfacelistIter.hasNext()) {
                 intfName = interfacelistIter.next();
-                final VpnInterface vpnInterface = VpnUtil.getVpnInterface(dataBroker, intfName);
+                VpnInterface vpnInterface =
+                     VpnUtil.getConfiguredVpnInterface(dataBroker, intfName);
                 if (vpnInterface != null) {
+                    handleTunnelEventForDPNVpn(stateTunnelList, action, vpnIdRdMap,
+                                         tunnelAction, isTepDeletedOnDpn,
+                                         subnetList, TunnelEventProcessingMethod.POPULATESUBNETS,
+                                         vpnInterface);
+                }
+            }
+            /*
+             * Iterate over the list of VpnInterface for destDPN and get the prefix .
+             * Create remote rule for each of those prefix on srcDPN.
+             */
+            interfacelistIter = destDpninterfacelist.iterator();
+            while (interfacelistIter.hasNext()) {
+                intfName = interfacelistIter.next();
+                VpnInterface vpnInterface =
+                    VpnUtil.getConfiguredVpnInterface(dataBroker, intfName);
+                if (vpnInterface != null) {
+                    handleTunnelEventForDPNVpn(stateTunnelList, action, vpnIdRdMap,
+                                    tunnelAction, isTepDeletedOnDpn,
+                                    subnetList, TunnelEventProcessingMethod.MANAGEREMOTEROUTES,
+                                    vpnInterface);
+                }
+            }
+
+            //Iterate over the VpnId-to-Rd map.
+            for (Map.Entry<Long, String> entry : vpnIdRdMap.entrySet()) {
+                Long vpnId = entry.getKey();
+                rd = entry.getValue();
+                if ((tunnelAction == TunnelAction.TUNNEL_EP_ADD)
+                    && (tunTypeVal == VpnConstants.ITMTunnelLocType.External.getValue())) {
+                    fibManager.populateExternalRoutesOnDpn(srcDpnId, vpnId, rd, srcTepIp, destTepIp);
+                } else if ((tunnelAction == TunnelAction.TUNNEL_EP_DELETE)
+                    && (tunTypeVal == VpnConstants.ITMTunnelLocType.External.getValue())) {
+                    fibManager.cleanUpExternalRoutesOnDpn(srcDpnId, vpnId, rd, srcTepIp, destTepIp);
+                }
+            }
+
+            if (tunnelAction == TunnelAction.TUNNEL_EP_ADD) {
+                for (Uuid subnetId : subnetList) {
+                    // Populate the List of subnets
+                    vpnSubnetRouteHandler.updateSubnetRouteOnTunnelUpEvent(subnetId, srcDpnId);
+                }
+            }
+
+            if ((tunnelAction == TunnelAction.TUNNEL_EP_DELETE) && isTepDeletedOnDpn) {
+                for (Uuid subnetId : subnetList) {
+                    // Populate the List of subnets
+                    vpnSubnetRouteHandler.updateSubnetRouteOnTunnelDownEvent(subnetId, srcDpnId);
+                }
+            }
+        } catch (RuntimeException e) {
+            LOG.error("handleTunnelEventForDpn: Unable to handle the tunnel event for srcDpnId {} srcTepIp {}"
+                     + " remoteDpnId {} destTepIp {}", srcDpnId, srcTepIp, remoteDpnId, destTepIp, e);
+        }
+    }
+
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    private void handleTunnelEventForDPNVpn(StateTunnelList stateTunnelList, UpdateRouteAction action,
+                                            Map<Long, String> vpnIdRdMap, TunnelAction tunnelAction,
+                                            boolean isTepDeletedOnDpn, List<Uuid> subnetList,
+                                            TunnelEventProcessingMethod method,
+                                            VpnInterface cfgVpnInterface) {
+        String rd;
+        String intfName = cfgVpnInterface.getName();
+        final BigInteger srcDpnId = new BigInteger(stateTunnelList.getSrcInfo().getTepDeviceId());
+        String destTepIp = String.valueOf(stateTunnelList.getDstInfo().getTepIp().getValue());
+        String srcTepIp = String.valueOf(stateTunnelList.getSrcInfo().getTepIp().getValue());
+        int tunTypeVal = getTunnelType(stateTunnelList);
+        BigInteger remoteDpnId = null;
+        if (tunTypeVal == VpnConstants.ITMTunnelLocType.Internal.getValue()) {
+            remoteDpnId = new BigInteger(stateTunnelList.getDstInfo().getTepDeviceId());
+        }
+        if (cfgVpnInterface.getVpnInstanceNames() == null) {
+            LOG.warn("handleTunnelEventForDpn: no vpnName found for interface {}", intfName);
+            return;
+        }
+        for (VpnInstanceNames vpnInstance : cfgVpnInterface.getVpnInstanceNames()) {
+            String vpnName = vpnInstance.getVpnName();
+            if (method == TunnelEventProcessingMethod.POPULATESUBNETS) {
+                Optional<VpnInterfaceOpDataEntry> opVpnInterface = VpnUtil
+                           .getVpnInterfaceOpDataEntry(dataBroker, intfName, vpnName);
+                if (opVpnInterface.isPresent()) {
+                    VpnInterfaceOpDataEntry vpnInterface  = opVpnInterface.get();
                     jobCoordinator.enqueueJob("VPNINTERFACE-" + intfName,
                             new UpdateVpnInterfaceOnTunnelEvent(tunnelAction,
                                     vpnInterface,
@@ -328,30 +426,24 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                         }
                     }
                     //Populate the map for VpnId-to-Rd
-                    long vpnId = VpnUtil.getVpnId(dataBroker, VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
-                    rd = VpnUtil.getVpnRd(dataBroker, VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
+                    long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+                    rd = VpnUtil.getVpnRd(dataBroker, vpnName);
                     vpnIdRdMap.put(vpnId, rd);
                 }
-            }
-
-            /*
-             * Iterate over the list of VpnInterface for destDPN and get the prefix .
-             * Create remote rule for each of those prefix on srcDPN.
-             */
-            interfacelistIter = destDpninterfacelist.iterator();
-            while (interfacelistIter.hasNext()) {
-                intfName = interfacelistIter.next();
-                final VpnInterface vpnInterface = VpnUtil.getVpnInterface(dataBroker, intfName);
-                if (vpnInterface != null) {
-                    Adjacencies adjacencies = vpnInterface.getAugmentation(Adjacencies.class);
+            } else if (method == TunnelEventProcessingMethod.MANAGEREMOTEROUTES) {
+                Optional<VpnInterfaceOpDataEntry> opVpnInterface = VpnUtil.getVpnInterfaceOpDataEntry(dataBroker,
+                                                                                intfName, vpnName);
+                if (opVpnInterface.isPresent()) {
+                    VpnInterfaceOpDataEntry vpnInterface  = opVpnInterface.get();
+                    AdjacenciesOp adjacencies = vpnInterface.getAugmentation(AdjacenciesOp.class);
                     List<Adjacency> adjList = adjacencies != null ? adjacencies.getAdjacency()
                             : Collections.emptyList();
                     String prefix = null;
-                    long vpnId = VpnUtil.getVpnId(dataBroker, VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
+                    long vpnId = VpnUtil.getVpnId(dataBroker, vpnInterface.getVpnInstanceName());
                     if (vpnIdRdMap.containsKey(vpnId)) {
                         rd = vpnIdRdMap.get(vpnId);
-                        LOG.info("handleTunnelEventForDPN: Remote DpnId {} VpnId {} rd {} VpnInterface {} srcTepIp {}"
-                                + " destTepIp {}", remoteDpnId, vpnId, rd , vpnInterface, srcTepIp, destTepIp);
+                        LOG.info("handleTunnelEventForDPN: Remote DpnId {} VpnId {} rd {} VpnInterface {} srcTepIp "
+                                + "{} destTepIp {}", remoteDpnId, vpnId, rd , vpnInterface, srcTepIp, destTepIp);
                         for (Adjacency adj : adjList) {
                             prefix = adj.getIpAddress();
                             long label = adj.getLabel();
@@ -368,48 +460,42 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                     }
                 }
             }
-
-            //Iterate over the VpnId-to-Rd map.
-            for (Map.Entry<Long, String> entry : vpnIdRdMap.entrySet()) {
-                Long vpnId = entry.getKey();
-                rd = entry.getValue();
-                if (tunnelAction == TunnelAction.TUNNEL_EP_ADD
-                    && tunTypeVal == VpnConstants.ITMTunnelLocType.External.getValue()) {
-                    fibManager.populateExternalRoutesOnDpn(srcDpnId, vpnId, rd, srcTepIp, destTepIp);
-                } else if (tunnelAction == TunnelAction.TUNNEL_EP_DELETE
-                    && tunTypeVal == VpnConstants.ITMTunnelLocType.External.getValue()) {
-                    fibManager.cleanUpExternalRoutesOnDpn(srcDpnId, vpnId, rd, srcTepIp, destTepIp);
-                }
+        }
+        //Iterate over the VpnId-to-Rd map.
+        for (Map.Entry<Long, String> entry : vpnIdRdMap.entrySet()) {
+            Long vpnId = entry.getKey();
+            rd = entry.getValue();
+            if (tunnelAction == TunnelAction.TUNNEL_EP_ADD
+                && tunTypeVal == VpnConstants.ITMTunnelLocType.External.getValue()) {
+                fibManager.populateExternalRoutesOnDpn(srcDpnId, vpnId, rd, srcTepIp, destTepIp);
+            } else if (tunnelAction == TunnelAction.TUNNEL_EP_DELETE
+                && tunTypeVal == VpnConstants.ITMTunnelLocType.External.getValue()) {
+                fibManager.cleanUpExternalRoutesOnDpn(srcDpnId, vpnId, rd, srcTepIp, destTepIp);
             }
+        }
 
-            if (tunnelAction == TunnelAction.TUNNEL_EP_ADD) {
-                for (Uuid subnetId : subnetList) {
-                    // Populate the List of subnets
-                    vpnSubnetRouteHandler.updateSubnetRouteOnTunnelUpEvent(subnetId, srcDpnId);
-                }
+        if (tunnelAction == TunnelAction.TUNNEL_EP_ADD) {
+            for (Uuid subnetId : subnetList) {
+                // Populate the List of subnets
+                vpnSubnetRouteHandler.updateSubnetRouteOnTunnelUpEvent(subnetId, srcDpnId);
             }
-
-            if (tunnelAction == TunnelAction.TUNNEL_EP_DELETE && isTepDeletedOnDpn) {
-                for (Uuid subnetId : subnetList) {
-                    // Populate the List of subnets
-                    vpnSubnetRouteHandler.updateSubnetRouteOnTunnelDownEvent(subnetId, srcDpnId);
-                }
+        }
+        if (tunnelAction == TunnelAction.TUNNEL_EP_DELETE && isTepDeletedOnDpn) {
+            for (Uuid subnetId : subnetList) {
+                // Populate the List of subnets
+                vpnSubnetRouteHandler.updateSubnetRouteOnTunnelDownEvent(subnetId, srcDpnId);
             }
-        } catch (RuntimeException e) {
-            LOG.error("handleTunnelEventForDPN: Unable to handle the tunnel event for srcDpnId {} srcTepIp {}"
-                    + " remoteDpnid {} destTepIp {}", srcDpnId, srcTepIp, remoteDpnId, destTepIp, e);
         }
     }
 
-
     private class UpdateVpnInterfaceOnTunnelEvent implements Callable {
-        private final VpnInterface vpnInterface;
+        private final VpnInterfaceOpDataEntry vpnInterface;
         private final StateTunnelList stateTunnelList;
         private final TunnelAction tunnelAction;
         private final boolean isTepDeletedOnDpn;
 
         UpdateVpnInterfaceOnTunnelEvent(TunnelAction tunnelAction,
-            VpnInterface vpnInterface,
+            VpnInterfaceOpDataEntry vpnInterface,
             StateTunnelList stateTunnelList,
             boolean isTepDeletedOnDpn) {
             this.stateTunnelList = stateTunnelList;
