@@ -19,12 +19,13 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInterfaceOpData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -48,7 +49,7 @@ public class ShowVpn extends OsgiCommandSupport {
     private List<org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance>
             vpnInstanceList = new ArrayList<>();
     private List<VpnInterface> vpnInterfaceConfigList = new ArrayList<>();
-    private List<VpnInterface> vpnInterfaceOperList = new ArrayList<>();
+    private List<VpnInterfaceOpDataEntry> vpnInterfaceOperListOpDataEntries = new ArrayList<>();
 
     public void setDataBroker(DataBroker broker) {
         this.dataBroker = broker;
@@ -60,25 +61,30 @@ public class ShowVpn extends OsgiCommandSupport {
         Map<String, Integer> instanceNameToOperInterfaceMap = new HashMap<>();
         if (detail == null) {
             showVpn();
+            List<String> routerIds = new ArrayList();
             for (VpnInterface vpnInterface : vpnInterfaceConfigList) {
-                ifPresent = instanceNameToConfigInterfaceMap.get(
-                         VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
-                if (ifPresent == null) {
-                    instanceNameToConfigInterfaceMap.put(VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface), 1);
-                } else {
-                    instanceNameToConfigInterfaceMap.put(VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface),
-                                      instanceNameToConfigInterfaceMap
-                                      .get(VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface)) + 1);
+                for (String s : vpnInterface.getVpnInstanceNames()) {
+                    if (s != null) {
+                        routerIds.add(s);
+                    }
                 }
             }
-            for (VpnInterface vpnInterface : vpnInterfaceOperList) {
-                ifPresent = instanceNameToOperInterfaceMap.get(VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
+            for (String routerId : routerIds) {
+                ifPresent = instanceNameToConfigInterfaceMap.get(routerId);
                 if (ifPresent == null) {
-                    instanceNameToOperInterfaceMap.put(VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface), 1);
+                    instanceNameToConfigInterfaceMap.put(routerId, 1);
                 } else {
-                    instanceNameToOperInterfaceMap.put(VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface),
-                        instanceNameToOperInterfaceMap.get(VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface))
-                        + 1);
+                    instanceNameToConfigInterfaceMap.put(routerId,
+                                      instanceNameToConfigInterfaceMap.get(routerId) + 1);
+                }
+            }
+            for (VpnInterfaceOpDataEntry vpnInterfaceOp : vpnInterfaceOperListOpDataEntries) {
+                ifPresent = instanceNameToOperInterfaceMap.get(vpnInterfaceOp.getVpnInstanceName());
+                if (ifPresent == null) {
+                    instanceNameToOperInterfaceMap.put(vpnInterfaceOp.getVpnInstanceName(), 1);
+                } else {
+                    instanceNameToOperInterfaceMap.put(vpnInterfaceOp.getVpnInstanceName(),
+                        instanceNameToOperInterfaceMap.get(vpnInterfaceOp.getVpnInstanceName()) + 1);
                 }
             }
             session.getConsole().println("-----------------------------------------------------------------------");
@@ -115,18 +121,27 @@ public class ShowVpn extends OsgiCommandSupport {
             showVpn();
             session.getConsole().println("Present Config VpnInterfaces are:");
             for (VpnInterface vpnInterface : vpnInterfaceConfigList) {
-                if (VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface).equals(detail)) {
+                if (vpnInterface.getVpnInstanceNames().contains(detail)) {
                     session.getConsole().println(vpnInterface.getName());
                 }
             }
             session.getConsole().println("Present Oper VpnInterfaces are:");
-            for (VpnInterface vpnInterface : vpnInterfaceOperList) {
-                if (VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface).equals(detail)) {
-                    session.getConsole().println(vpnInterface.getName());
+            for (VpnInterfaceOpDataEntry vpnInterfaceOp : vpnInterfaceOperListOpDataEntries) {
+                if (vpnInterfaceOp.getVpnInstanceName().equals(detail)) {
+                    session.getConsole().println(vpnInterfaceOp.getName());
                 }
             }
         }
+        resetList();
         return null;
+    }
+
+    /** This method clear the lists to free memory.
+     */
+    private void resetList() {
+        vpnInstanceList.clear();
+        vpnInterfaceConfigList.clear();
+        vpnInterfaceOperListOpDataEntries.clear();
     }
 
     private <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
@@ -161,14 +176,15 @@ public class ShowVpn extends OsgiCommandSupport {
             vpnInterfaceConfigList = optionalVpnInterfacesConfig.get().getVpnInterface();
         }
 
-        Optional<VpnInterfaces> optionalVpnInterfacesOper =
-                read(LogicalDatastoreType.OPERATIONAL, vpnInterfacesIdentifier);
+
+        InstanceIdentifier<VpnInterfaceOpData> id = InstanceIdentifier.create(VpnInterfaceOpData.class);
+        Optional<VpnInterfaceOpData> optionalVpnInterfacesOper = read(LogicalDatastoreType.OPERATIONAL, id);
 
         if (!optionalVpnInterfacesOper.isPresent()) {
             LOG.trace("No Oper VpnInterface is present");
             session.getConsole().println("No Oper VpnInterface is present");
         } else {
-            vpnInterfaceOperList = optionalVpnInterfacesOper.get().getVpnInterface();
+            vpnInterfaceOperListOpDataEntries = optionalVpnInterfacesOper.get().getVpnInterfaceOpDataEntry();
         }
     }
 
