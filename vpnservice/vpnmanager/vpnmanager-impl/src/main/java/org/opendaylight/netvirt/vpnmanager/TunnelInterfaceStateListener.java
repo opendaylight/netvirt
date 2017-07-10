@@ -259,7 +259,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
 
             while (interfacelistIter.hasNext()) {
                 intfName = interfacelistIter.next();
-                final VpnInterface vpnInterface = VpnUtil.getOperationalVpnInterface(dataBroker, intfName);
+                final VpnInterface vpnInterface = VpnUtil.getVpnInterface(dataBroker, intfName);
                 if (vpnInterface != null) {
 
                     DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
@@ -297,7 +297,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             interfacelistIter = destDpninterfacelist.iterator();
             while (interfacelistIter.hasNext()) {
                 intfName = interfacelistIter.next();
-                final VpnInterface vpnInterface = VpnUtil.getOperationalVpnInterface(dataBroker, intfName);
+                final VpnInterface vpnInterface = VpnUtil.getVpnInterface(dataBroker, intfName);
                 if (vpnInterface != null) {
                     Adjacencies adjacencies = vpnInterface.getAugmentation(Adjacencies.class);
                     List<Adjacency> adjList = adjacencies != null ? adjacencies.getAdjacency()
