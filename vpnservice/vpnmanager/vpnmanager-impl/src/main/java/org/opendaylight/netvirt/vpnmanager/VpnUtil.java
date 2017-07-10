@@ -228,7 +228,7 @@ public class VpnUtil {
                                         AdjacenciesOp aug, BigInteger dpnId,
                                         Boolean isSheduledForRemove) {
         return new VpnInterfaceOpDataEntryBuilder().setKey(new VpnInterfaceOpDataEntryKey(intfName, vpnName))
-            .setVpnName(vpnName).setDpnId(
+            .setVpnInstanceName(vpnName).setDpnId(
             dpnId)
             .setScheduledForRemove(isSheduledForRemove).addAugmentation(AdjacenciesOp.class, aug)
             .build();
@@ -740,10 +740,11 @@ public class VpnUtil {
         return null;
     }
 
-    static VpnInterface getOperationalVpnInterface(DataBroker broker, String interfaceName) {
-        InstanceIdentifier<VpnInterface> interfaceId = getVpnInterfaceIdentifier(interfaceName);
-        Optional<VpnInterface> operationalVpnInterface = read(broker, LogicalDatastoreType.OPERATIONAL, interfaceId);
-
+    static VpnInterfaceOpDataEntry getOperationalVpnInterface(DataBroker broker, String interfaceName, String vpnName) {
+        InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId =
+            getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
+        Optional<VpnInterfaceOpDataEntry> operationalVpnInterface = read(broker,
+            LogicalDatastoreType.OPERATIONAL, interfaceId);
         if (operationalVpnInterface.isPresent()) {
             return operationalVpnInterface.get();
         }
@@ -1069,8 +1070,8 @@ public class VpnUtil {
               VpnUtil.getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnInstanceName);
         VpnInterfaceOpDataEntry interfaceToUpdate =
             new VpnInterfaceOpDataEntryBuilder().setKey(new VpnInterfaceOpDataEntryKey(interfaceName,
-                vpnInstanceName)).setName(interfaceName).setDpnId(dpnId).setVpnInstanceName(vpnInstanceName)
-                .setScheduledForRemove(isScheduledToRemove).build();
+                vpnInstanceName)).setName(interfaceName).setDpnId(dpnId)
+                .setVpnInstanceName(vpnInstanceName).setScheduledForRemove(isScheduledToRemove).build();
         if (writeOperTxn != null) {
             writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, interfaceId, interfaceToUpdate, true);
         } else {
@@ -1395,11 +1396,12 @@ public class VpnUtil {
         });
     }
 
-    public static boolean isVpnIntfPresentInVpnToDpnList(DataBroker broker, VpnInterface vpnInterface) {
+    public static boolean isVpnIntfPresentInVpnToDpnList(DataBroker broker,
+                                                      VpnInterface vpnInterface, String vpnName) {
         BigInteger dpnId = vpnInterface.getDpnId();
-        String rd = VpnUtil.getVpnRd(broker, VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
+        String rd = VpnUtil.getVpnRd(broker, vpnName);
         LOG.trace("GOT rd {} for VpnInterface {}  VpnInstance {} ", rd ,
-                 vpnInterface.getName(), VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
+                   vpnInterface.getName(), vpnName);
         VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpDataFromCache(broker, rd);
         if (vpnInstanceOpData != null) {
             LOG.trace("GOT VpnInstanceOp {} for rd {} ", vpnInstanceOpData, rd);
