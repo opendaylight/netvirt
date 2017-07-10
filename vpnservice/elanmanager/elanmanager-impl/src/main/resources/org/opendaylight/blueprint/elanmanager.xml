@@ -363,6 +363,7 @@
     <argument ref="dataBroker" />
     <argument ref="evpnUtils" />
     <argument ref="evpnMacVrfUtils" />
+    <argument ref="mdsalUtils" />
   </bean>
 
 
