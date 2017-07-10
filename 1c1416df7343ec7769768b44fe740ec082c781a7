@@ -22,6 +22,30 @@
       "revId": "1c1416df7343ec7769768b44fe740ec082c781a7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_16d19857",
+        "filename": "vpnservice/sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/providers/GeniusProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-07-10T14:21:26Z",
+      "side": 1,
+      "message": "This is actually OK. The whole Optional transform here is good as far as I’m concerned.",
+      "parentUuid": "da2a55be_b61a4c6c",
+      "range": {
+        "startLine": 377,
+        "startChar": 33,
+        "endLine": 377,
+        "endChar": 35
+      },
+      "revId": "1c1416df7343ec7769768b44fe740ec082c781a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
