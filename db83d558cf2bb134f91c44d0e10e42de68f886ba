@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_5345e26e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-10T13:54:13Z",
+      "side": 1,
+      "message": "Why isn\u0027t the DJC good here?\n\nIf DJC is removed, what happens with Vivek\u0027s comment?",
+      "parentUuid": "da2a55be_9a4935d3",
+      "revId": "db83d558cf2bb134f91c44d0e10e42de68f886ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_daff2d00",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
         "patchSetId": 7
