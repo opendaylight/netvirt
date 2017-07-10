@@ -59,11 +59,6 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
         this.nexthopManager = nexthopManager;
     }
 
-//    @PostConstruct
-//    public void init() {
-//        LOG.info("{} start", getClass().getSimpleName());
-//    }
-
     public void createFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
         LOG.info("Initiating creation of Evpn Flows");
         final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class);
