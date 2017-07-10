@@ -332,7 +332,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
         VpnNexthop localNextHopInfo = nexthopManager.getVpnNexthop(vpnId, vrfEntry.getDestPrefix());
         if (extraRouteOptional.isPresent()) {
             nexthopManager.setupLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix(),
-                    Collections.emptyList() /*listBucketInfo*/ , false);
+                    Collections.emptyList()  /*listBucketInfo*/ , false);
         } else {
             checkDpnDeleteFibEntry(localNextHopInfo, remoteDpnId, vpnId, vrfEntry, rd, tx, subTxns);
         }
