@@ -11,12 +11,15 @@ package org.opendaylight.netvirt.fibmanager.api;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
+import java.math.BigInteger;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -141,5 +144,164 @@ public class FibHelper {
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /** get true if this prefix is an IPv4 version, false otherwise.
+     * @param prefix the prefix as (x.x.x.x/nn) to find if it is in IP version 4
+     * @return true if it is an IPv4 or false if it is not.
+     */
+    public static boolean isIpv4Prefix(String prefix) {
+        boolean rep = false;
+        if (prefix == null || prefix.length() < 7) {
+            return rep;
+        }
+        String ip = getIpFromPrefix(prefix);
+        return org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address(ip);
+    }
+
+    /** get true if this prefix is an IPv6 version, false otherwise.
+     * @param prefix the prefix as ( x:x:x::/nn) to find if it is in IP version 6
+     * @return true if it is an IPv4 or false if it is not.
+     */
+    public static boolean isIpv6Prefix(String prefix) {
+        boolean rep = false;
+        if (prefix == null || prefix.length() < 2) {
+            return rep;
+        }
+        try {
+            String ip = getIpFromPrefix(prefix);
+            java.net.Inet6Address ipVersOk = (Inet6Address) java.net.Inet6Address.getByName(ip);
+            rep = true;
+        } catch (SecurityException | UnknownHostException | ClassCastException e) {
+            rep = false;
+            return rep;
+        }
+        return rep;
+    }
+
+    /**get String format IP from prefix as x.x.....x/nn.
+     * @param prefix the prefix as IPv4 or IPv6 as x.....x/nn
+     * @return null if "/" is unfindable or the IP only as x.x...x from x.x......x/nn
+     */
+    public static String getIpFromPrefix(String prefix) {
+        if (prefix == null || prefix.length() < 2) {
+            return null;
+        }
+        String rep = null;
+        String[] prefixValues = prefix.split("/");
+        if (prefixValues != null && prefixValues.length > 0) {
+            rep = prefixValues[0];
+        }
+        return rep;
+    }
+
+    /**Return true if this prefix or subnet is belonging the specified subnetwork.
+     * @param prefixToTest the prefix which could be in the subnet
+     * @param subnet the subnet that have to contain the prefixToTest to return true
+     * @return true if the param subnet contained the prefixToTest false otherwise
+     */
+    public static boolean isBelongingPrefix(String prefixToTest, String subnet) {
+        boolean rep = false;
+        if (prefixToTest == null || prefixToTest.length() < 7 || subnet == null || subnet.length() < 7) {
+            return rep;
+        }
+        if ((isIpv4Prefix(prefixToTest) && isIpv4Prefix(subnet))
+                || isIpv6Prefix(prefixToTest) && isIpv6Prefix(subnet)) {
+
+            int ipVersion = 4;
+            if (isIpv6Prefix(prefixToTest)) {
+                ipVersion = 6;
+            }
+
+            String ipPref = getIpFromPrefix(prefixToTest);
+            String ipSub = getIpFromPrefix(subnet);
+            String maskSubString = subnet.substring(subnet.indexOf("/") + 1);
+            String maskPrefString = null;
+            if (prefixToTest.indexOf("/") > -1) {
+                maskPrefString = prefixToTest.substring(prefixToTest.indexOf("/") + 1);
+            } else if (ipVersion == 4) {
+                maskPrefString = "32";
+            } else {
+                maskPrefString = "128";
+            }
+
+            int maskPref = -1;
+            int maskSub = -1;
+            try {
+                maskPref = Integer.valueOf(maskPrefString);
+                maskSub = Integer.valueOf(maskSubString);
+                if (maskPref != maskSub) {
+                 /*because the mask must be exactly the same between them, the return type is false. This behavior could
+                  * be changed to ignored it in including a boolean options to force or not the same mask control*/
+                    rep = false;
+                    return rep;
+                }
+                BigInteger maskSubBig = getMaskNetwork(ipVersion, maskSub);
+                byte[] byteIpSub = InetAddress.getByName(ipSub).getAddress();
+                byte[] byteIpPref = InetAddress.getByName(ipPref).getAddress();
+                BigInteger netFromIpSub = packBigInteger(byteIpSub).and(maskSubBig);
+                BigInteger netFromIpPref = packBigInteger(byteIpPref).and(maskSubBig);
+                if (netFromIpSub.compareTo(netFromIpPref) == 0) {
+                    rep = true;
+                }
+            } catch (NumberFormatException | UnknownHostException e) {
+                return rep;
+            }
+            return rep;
+        }
+        return rep;
+    }
+
+    /**This method converts a byte[] to a BigInteger value.
+     * @param bytes the byte[] of IP
+     * @return (big) integer value of IP_bytes
+     */
+    public static BigInteger packBigInteger(byte[] bytes) {
+        BigInteger val = BigInteger.valueOf(0);
+        for (int i = 0; i < bytes.length; i++) {
+            val = val.shiftLeft(8);
+            val = val.add(BigInteger.valueOf(bytes[i] & 0xff));
+        }
+        return val;
+    }
+
+    /**This methode return the bytes representation from an IP.
+     * @param ipBigInteger value integer of IP to convert
+     * @param isIpv4 if is ipv4 setup to true if ipv6 setup to false
+     * @return byte[] which contained the representation of bytes from th ip value
+     */
+    public static byte[] unpackBigInteger(BigInteger ipBigInteger, boolean isIpv4) {
+        int sizeBloc = 4;
+        if (!isIpv4) {
+            sizeBloc = 128 / 8;// if ipv6 size of dataIP is 128 bits
+        }
+        byte[] res = new byte[sizeBloc];
+        for (int i = 0 ; i < sizeBloc ; i++) {
+            BigInteger bigInt = ipBigInteger.shiftRight(i * 8);
+            bigInt = bigInt.and(BigInteger.valueOf(0xFF));
+            res[sizeBloc - 1 - i] = bigInt.byteValue();
+        }
+        return res;
+    }
+
+    /**get the bits cache mask of net for a ip version type.
+     * @param ipVersion version of ip must be 4 or 6
+     * @param mask the lengh of the mask of net as 24 from this representation 10.1.1.0/24 or 64 for 2001::1/64
+     * @return the bit mask of net ex: x.x.x.x/24 return a BigInteger == 0xFFFFFFotherwise null if any error
+     */
+    public static BigInteger getMaskNetwork(int ipVersion, int mask) {
+        int lenghBitsIp = 0;
+        if (ipVersion == 6) {
+            lenghBitsIp = 128 - 1;
+        } else if (ipVersion == 4) {
+            lenghBitsIp = 32 - 1;
+        } else {
+            return null;//ip version is unknown
+        }
+        BigInteger bb = BigInteger.ZERO;
+        for (int i = 0 ; i < mask; i++) {
+            bb = bb.setBit(lenghBitsIp - i);
+        }
+        return bb;
     }
 }
