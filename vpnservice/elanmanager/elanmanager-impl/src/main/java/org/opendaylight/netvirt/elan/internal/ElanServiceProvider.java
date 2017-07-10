@@ -814,5 +814,4 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             isL2BeforeL3 = false;
         }
     }
-
 }
