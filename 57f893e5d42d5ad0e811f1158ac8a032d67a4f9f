@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_b6008cab",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-10T14:58:40Z",
+      "side": 1,
+      "message": "Would the code pattern from patch [1] make sense here? in that patch genius wrappers are used to allocate and submit the transaction. It does a synchronous write though as it used submit().checkedGet() in the end rather than just submit().\n\n[1] https://git.opendaylight.org/gerrit/#/c/59469/3/vpnservice/sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/SfcMdsalHelper.java",
+      "range": {
+        "startLine": 83,
+        "startChar": 20,
+        "endLine": 85,
+        "endChar": 33
+      },
+      "revId": "57f893e5d42d5ad0e811f1158ac8a032d67a4f9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
