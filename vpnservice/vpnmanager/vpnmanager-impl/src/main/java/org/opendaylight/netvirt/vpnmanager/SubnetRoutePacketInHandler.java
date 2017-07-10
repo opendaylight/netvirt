@@ -32,6 +32,7 @@ import org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.netvirt.vpnmanager.utilities.VpnManagerCounters;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNames;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -201,14 +202,20 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             return;
         }
 
-        if (VpnHelper.getFirstVpnNameFromVpnInterface(vmVpnInterface).equals(vpnIdVpnInstanceName)) {
+        if (VpnHelper.vpnInterfaceVpnInstanceNamesContainsVpnName(vpnIdVpnInstanceName,
+                      vmVpnInterface.getVpnInstanceNames())) {
             LOG.trace("Unknown IP is in internal network");
             handlePacketToInternalNetwork(dstIp, dstIpStr, destinationAddress, elanTag);
         } else {
             LOG.trace("Unknown IP is in external network");
-            handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName),
-                    VpnHelper.getFirstVpnNameFromVpnInterface(vmVpnInterface),
-                    dstIp, elanTag);
+            for (VpnInstanceNames vpnInterfaceVpnInstance : vmVpnInterface.getVpnInstanceNames()) {
+                String vpnName = vpnInterfaceVpnInstance.getVpnName();
+                boolean ret = handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName),
+                                   vpnName, dstIp, elanTag);
+                if (ret == true) {
+                    return;
+                }
+            }
         }
     }
 
@@ -269,14 +276,14 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName), routerId, dstIp, elanTag);
     }
 
-    private void handlePacketToExternalNetwork(Uuid vpnInstanceNameUuid, String routerId, byte[] dstIp,
+    private boolean handlePacketToExternalNetwork(Uuid vpnInstanceNameUuid, String routerId, byte[] dstIp,
             long elanTag) throws UnknownHostException {
         Routers externalRouter = VpnUtil.getExternalRouter(dataBroker, routerId);
         if (externalRouter == null) {
             VpnManagerCounters.subnet_route_packet_failed.inc();
             LOG.debug("{} handlePacketToExternalNetwork: Can't find external router with id {}", LOGGING_PREFIX,
                     routerId);
-            return;
+            return false;
         }
 
         List<ExternalIps> externalIps = externalRouter.getExternalIps();
@@ -284,7 +291,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             VpnManagerCounters.subnet_route_packet_failed.inc();
             LOG.debug("{} handlePacketToExternalNetwork: Router {} doesn't have any external ips.",
                     LOGGING_PREFIX, externalRouter.getRouterName());
-            return;
+            return false;
         }
 
         java.util.Optional<ExternalIps> externalIp = externalRouter.getExternalIps().stream()
@@ -293,7 +300,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             VpnManagerCounters.subnet_route_packet_failed.inc();
             LOG.debug("{} handlePacketToExternalNetwork: Router {} doesn't have an external ip for subnet id {}.",
                     LOGGING_PREFIX, externalRouter.getRouterName(), vpnInstanceNameUuid);
-            return;
+            return false;
         }
 
         BigInteger dpnId = centralizedSwitchProvider.getPrimarySwitchForRouter(externalRouter.getRouterName());
@@ -301,10 +308,11 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             VpnManagerCounters.subnet_route_packet_failed.inc();
             LOG.debug("{} handlePacketToExternalNetwork: Could not find primary switch for router {}.",
                     LOGGING_PREFIX, externalRouter.getRouterName());
-            return;
+            return false;
         }
 
         transmitArpPacket(dpnId, externalIp.get().getIpAddress(), externalRouter.getExtGwMacAddress(), dstIp, elanTag);
+        return true;
     }
 
     private static SubnetOpDataEntry getTargetSubnetForPacketOut(DataBroker broker, long elanTag, int ipAddress) {
