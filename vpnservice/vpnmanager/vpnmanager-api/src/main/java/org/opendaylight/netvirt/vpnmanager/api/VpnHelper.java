@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.vpnmanager.api;
 
 import com.google.common.base.Optional;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -111,7 +112,26 @@ public class VpnHelper {
         }
     }
 
+    public static List<String> getVpnInterfaceVpnInstanceNamesString(List<VpnInstanceNames> vpnInstanceList) {
+        List listVpn = new ArrayList<String>();
+        for (VpnInstanceNames vpnInterfaceVpnInstance : vpnInstanceList) {
+            listVpn.add(vpnInterfaceVpnInstance.getVpnName());
+        }
+        return listVpn;
+    }
+
     public static VpnInstanceNames getVpnInterfaceVpnInstanceNames(String vpnName, AssociatedSubnetType subnetType) {
         return new VpnInstanceNamesBuilder().setVpnName(vpnName).setAssociatedSubnetType(subnetType).build();
     }
+
+    public static boolean doesVpnInterfaceBelongToVpnInstance(String vpnName,
+                                                          List<VpnInstanceNames> vpnInstanceList) {
+        for (VpnInstanceNames vpnInstance : vpnInstanceList) {
+            if (vpnInstance.getVpnName().equals(vpnName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
