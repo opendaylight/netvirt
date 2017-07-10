@@ -22,7 +22,7 @@ public class UpdateData {
         this.update = update;
     }
 
-    protected InstanceIdentifier getIdentifier() {
+    protected InstanceIdentifier<VpnInterface> getIdentifier() {
         return identifier;
     }
 
