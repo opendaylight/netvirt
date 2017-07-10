@@ -51,7 +51,6 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
-import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -748,30 +747,30 @@ public final class VpnUtil {
         return null;
     }
 
-    static VpnInterfaceOpDataEntry getOperationalVpnInterface(DataBroker broker, String interfaceName, String vpnName) {
-        InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId =
-            getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
-        Optional<VpnInterfaceOpDataEntry> operationalVpnInterface = read(broker,
-            LogicalDatastoreType.OPERATIONAL, interfaceId);
-        if (operationalVpnInterface.isPresent()) {
-            return operationalVpnInterface.get();
-        }
-        return null;
-    }
-
     static boolean isVpnInterfaceConfigured(DataBroker broker, String interfaceName) {
         InstanceIdentifier<VpnInterface> interfaceId = getVpnInterfaceIdentifier(interfaceName);
         return read(broker, LogicalDatastoreType.CONFIGURATION, interfaceId).isPresent();
     }
 
-    static Optional<String> getVpnAssociatedWithInterface(DataBroker broker, String interfaceName) {
+    static Optional<List<String>> getVpnHandlingIpv4AssociatedWithInterface(DataBroker broker, String interfaceName) {
         InstanceIdentifier<VpnInterface> interfaceId = getVpnInterfaceIdentifier(interfaceName);
-        Optional<String> vpnOptional = Optional.absent();
+        Optional<List<String>> vpnOptional = Optional.absent();
         Optional<VpnInterface> optConfiguredVpnInterface = read(broker, LogicalDatastoreType.CONFIGURATION,
                 interfaceId);
         if (optConfiguredVpnInterface.isPresent()) {
-            vpnOptional = Optional.of(VpnHelper.getFirstVpnNameFromVpnInterface(
-                          optConfiguredVpnInterface.get()));
+            VpnInterface cfgVpnInterface = optConfiguredVpnInterface.get();
+            java.util.Optional<List<VpnInstanceNames>> optVpnInstanceList =
+                 java.util.Optional.ofNullable(cfgVpnInterface.getVpnInstanceNames());
+            if (optVpnInstanceList.isPresent()) {
+                List<String> vpnList = new ArrayList<>();
+                for (VpnInstanceNames vpnInstance : optVpnInstanceList.get()) {
+                    if (vpnInstance.getAssociatedSubnetType().equals(AssociatedSubnetType.V6Subnet)) {
+                        continue;
+                    }
+                    vpnList.add(vpnInstance.getVpnName());
+                }
+                vpnOptional = Optional.of(vpnList);
+            }
         }
         return vpnOptional;
     }
