@@ -87,13 +87,13 @@ public class ArpNotificationHandler implements OdlArputilListener {
         BigInteger metadata = notification.getMetadata();
         boolean isGarp = srcIP.equals(targetIP);
         if (!isGarp) {
-            LOG.trace("ArpNotification Non-Gratuitous Request Received from "
+            LOG.info("ArpNotification Non-Gratuitous Request Received from "
                       + "interface {} and IP {} having MAC {} target destination {}, ignoring..",
                     srcInterface, srcIP.getIpv4Address().getValue(),srcMac.getValue(),
                     targetIP.getIpv4Address().getValue());
             return;
         }
-        LOG.trace("ArpNotification Gratuitous Request Received from "
+        LOG.info("ArpNotification Gratuitous Request Received from "
                   + "interface {} and IP {} having MAC {} target destination {}, learning MAC",
                   srcInterface, srcIP.getIpv4Address().getValue(),srcMac.getValue(),
                   targetIP.getIpv4Address().getValue());
@@ -107,7 +107,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
         PhysAddress srcMac = notification.getSrcMac();
         BigInteger metadata = notification.getMetadata();
         IpAddress targetIP = notification.getDstIpaddress();
-        LOG.trace("ArpNotification Response Received from interface {} and IP {} having MAC {}, learning MAC",
+        LOG.info("ArpNotification Response Received from interface {} and IP {} having MAC {}, learning MAC",
                 srcInterface, srcIP.getIpv4Address().getValue(), srcMac.getValue());
         processArpLearning(srcInterface, srcIP, srcMac, metadata, targetIP);
     }
@@ -131,7 +131,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 LOG.debug("Received ARP for sender MAC {} and sender IP {} via interface {}",
                           srcMac.getValue(), srcIP.getIpv4Address().getValue(), srcInterface);
                 String ipToQuery = srcIP.getIpv4Address().getValue();
-                LOG.trace("ARP being processed for Source IP {}", ipToQuery);
+                LOG.info("ARP being processed for Source IP {}", ipToQuery);
                 VpnPortipToPort vpnPortipToPort =
                         VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnName, ipToQuery);
                 if (vpnPortipToPort != null) {
@@ -146,7 +146,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                     String oldMac = learntVpnVipToPort.getMacAddress();
                     if (!oldMac.equalsIgnoreCase(srcMac.getValue())) {
                         //MAC has changed for requested IP
-                        LOG.trace("ARP Source IP/MAC data modified for IP {} with MAC {} and Port {}",
+                        LOG.info("ARP Source IP/MAC data modified for IP {} with MAC {} and Port {}",
                                 ipToQuery, srcMac, srcInterface);
                         synchronized ((vpnName + ipToQuery).intern()) {
                             removeMipAdjacency(vpnName, oldPortName, srcIP);
