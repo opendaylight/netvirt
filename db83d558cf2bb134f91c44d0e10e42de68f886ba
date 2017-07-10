@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_f60a04d1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-10T15:02:02Z",
+      "side": 1,
+      "message": "I think Vivek\u0027s comments were directed towards writing vpn-op data immediately after reading it. DJC does not guarantee that, so the (read + write) together has to be executed either within the DJC or outside it.\nSince this entire patch aims to handle vpn delete life-cycle through notification and events, it would be ideal to change the state of a vpn-op object as soon as possible.\nWith DJC, it\u0027s difficult to determine when exactly the job will be executed. It might happen that the job might be scheduled for a later time, and some other task reading the vpn-op state might get executed earlier, but based on the outdated vpn state. Hence the datastore write is submitted as soon as possible here.",
+      "parentUuid": "da2a55be_5345e26e",
+      "revId": "db83d558cf2bb134f91c44d0e10e42de68f886ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_daff2d00",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
         "patchSetId": 7
