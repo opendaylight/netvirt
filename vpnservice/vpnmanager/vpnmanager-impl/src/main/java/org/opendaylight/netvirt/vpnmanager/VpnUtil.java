@@ -764,10 +764,11 @@ public final class VpnUtil {
         return null;
     }
 
-    static VpnInterface getOperationalVpnInterface(DataBroker broker, String interfaceName) {
-        InstanceIdentifier<VpnInterface> interfaceId = getVpnInterfaceIdentifier(interfaceName);
-        Optional<VpnInterface> operationalVpnInterface = read(broker, LogicalDatastoreType.OPERATIONAL, interfaceId);
-
+    static VpnInterfaceOpDataEntry getOperationalVpnInterface(DataBroker broker, String interfaceName, String vpnName) {
+        InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId =
+            getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
+        Optional<VpnInterfaceOpDataEntry> operationalVpnInterface = read(broker,
+            LogicalDatastoreType.OPERATIONAL, interfaceId);
         if (operationalVpnInterface.isPresent()) {
             return operationalVpnInterface.get();
         }
@@ -1439,11 +1440,12 @@ public final class VpnUtil {
         });
     }
 
-    public static boolean isVpnIntfPresentInVpnToDpnList(DataBroker broker, VpnInterface vpnInterface) {
+    public static boolean isVpnIntfPresentInVpnToDpnList(DataBroker broker,
+                                                      VpnInterface vpnInterface, String vpnName) {
         BigInteger dpnId = vpnInterface.getDpnId();
-        String rd = VpnUtil.getVpnRd(broker, VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
+        String rd = VpnUtil.getVpnRd(broker, vpnName);
         LOG.trace("isVpnIntfPresentInVpnToDpnList: GOT rd {} for VpnInterface {}  VpnInstance {} ", rd ,
-                 vpnInterface.getName(), VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
+                 vpnInterface.getName(), vpnName);
         VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpDataFromCache(broker, rd);
         if (vpnInstanceOpData != null) {
             LOG.trace("isVpnIntfPresentInVpnToDpnList: GOT VpnInstanceOp {} for rd {} ", vpnInstanceOpData, rd);
@@ -1454,8 +1456,8 @@ public final class VpnUtil {
                         return dpn.getVpnInterfaces().contains(vpnInterface.getName());
                     }
                     LOG.info("isVpnIntfPresentInVpnToDpnList: VpnInterface {} not present in DpnId {} vpn {}",
-                            vpnInterface.getName(), dpn.getDpnId(),
-                            VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
+                               vpnInterface.getName(), dpn.getDpnId(), vpnName);
+
                 }
             }
         }
