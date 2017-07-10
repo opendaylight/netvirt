@@ -118,7 +118,10 @@ public class VpnSubnetRouteHandler {
         }
         LOG.info("{} onSubnetAddedToVpn: Subnet {} with IP {} being added to vpn {}", LOGGING_PREFIX,
                 subnetId.getValue(), subnetIp, vpnName);
-
+        if (subnetId == null) {
+            LOG.error("onSubnetAddedToVpn: no subnet found, bailing out");
+            return;
+        }
         //TODO(vivek): Change this to use more granularized lock at subnetId level
         try {
             VpnUtil.lockSubnet(lockManager, subnetId.getValue());
