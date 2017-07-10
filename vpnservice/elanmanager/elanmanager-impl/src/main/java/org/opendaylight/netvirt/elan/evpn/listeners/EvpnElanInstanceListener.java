@@ -15,6 +15,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnMacVrfUtils;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -26,20 +27,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+
 @Singleton
 public class EvpnElanInstanceListener extends AsyncDataTreeChangeListenerBase<ElanInstance, EvpnElanInstanceListener> {
     private static final Logger LOG = LoggerFactory.getLogger(EvpnElanInstanceListener.class);
     private final DataBroker broker;
     private final EvpnUtils evpnUtils;
     private final EvpnMacVrfUtils evpnMacVrfUtils;
+    private final IMdsalApiManager mdsalManager;
+
 
     @Inject
     public EvpnElanInstanceListener(final DataBroker dataBroker, final EvpnUtils evpnUtils,
-                                    EvpnMacVrfUtils evpnMacVrfUtils) {
+                                    EvpnMacVrfUtils evpnMacVrfUtils, IMdsalApiManager mdsalApiManager) {
         super(ElanInstance.class, EvpnElanInstanceListener.class);
         this.broker = dataBroker;
         this.evpnUtils = evpnUtils;
         this.evpnMacVrfUtils = evpnMacVrfUtils;
+        this.mdsalManager = mdsalApiManager;
     }
 
     @Override
@@ -69,9 +74,15 @@ public class EvpnElanInstanceListener extends AsyncDataTreeChangeListenerBase<El
         if (evpnUtils.isWithdrawEvpnRT2Routes(original, update)) {
             evpnUtils.withdrawEvpnRT2Routes(original.getAugmentation(EvpnAugmentation.class), elanName);
             evpnMacVrfUtils.updateEvpnDmacFlows(original, false);
+            evpnUtils.programEvpnL2vniDemuxTable(elanName,
+                (elan, interfaceName) -> evpnUtils.bindElanServiceToExternalTunnel(elanName, interfaceName),
+                (dpnId, flowEntity) -> mdsalManager.installFlow(dpnId, flowEntity));
         } else if (evpnUtils.isAdvertiseEvpnRT2Routes(original, update)) {
             evpnUtils.advertiseEvpnRT2Routes(update.getAugmentation(EvpnAugmentation.class), elanName);
             evpnMacVrfUtils.updateEvpnDmacFlows(update, true);
+            evpnUtils.programEvpnL2vniDemuxTable(elanName,
+                (elan, interfaceName) -> evpnUtils.unbindElanServiceFromExternalTunnel(elanName, interfaceName),
+                (dpnId, flowEntity) -> mdsalManager.removeFlow(dpnId, flowEntity));
         }
     }
 
