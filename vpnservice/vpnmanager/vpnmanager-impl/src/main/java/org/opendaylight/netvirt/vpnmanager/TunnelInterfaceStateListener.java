@@ -315,7 +315,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
 
             while (interfacelistIter.hasNext()) {
                 intfName = interfacelistIter.next();
-                final VpnInterface vpnInterface = VpnUtil.getOperationalVpnInterface(dataBroker, intfName);
+                final VpnInterface vpnInterface = VpnUtil.getVpnInterface(dataBroker, intfName);
                 if (vpnInterface != null) {
 
                     DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
@@ -353,7 +353,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             interfacelistIter = destDpninterfacelist.iterator();
             while (interfacelistIter.hasNext()) {
                 intfName = interfacelistIter.next();
-                final VpnInterface vpnInterface = VpnUtil.getOperationalVpnInterface(dataBroker, intfName);
+                final VpnInterface vpnInterface = VpnUtil.getVpnInterface(dataBroker, intfName);
                 if (vpnInterface != null) {
                     Adjacencies adjacencies = vpnInterface.getAugmentation(Adjacencies.class);
                     List<Adjacency> adjList = adjacencies != null ? adjacencies.getAdjacency()
@@ -392,23 +392,19 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                     && (tunTypeVal == VpnConstants.ITMTunnelLocType.External.getValue())) {
                     fibManager.cleanUpExternalRoutesOnDpn(srcDpnId, vpnId, rd, srcTepIp, destTepIp);
                 }
-            }
-
-            VpnInterface vpnInterface = VpnUtil.getOperationalVpnInterface(dataBroker, intfName);
-            rd = VpnUtil.getVpnRd(dataBroker, VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
-            String vpnName = VpnUtil.getVpnNameFromRd(dataBroker, rd);
-
-            if (tunnelAction == TunnelAction.TUNNEL_EP_ADD) {
-                for (Uuid subnetId : subnetList) {
-                    // Populate the List of subnets
-                    vpnSubnetRouteHandler.updateSubnetRouteOnTunnelUpEvent(subnetId, srcDpnId);
+                String vpnName = VpnUtil.getVpnNameFromRd(dataBroker, rd);
+                if (tunnelAction == TunnelAction.TUNNEL_EP_ADD) {
+                    for (Uuid subnetId : subnetList) {
+                        // Populate the List of subnets
+                        vpnSubnetRouteHandler.updateSubnetRouteOnTunnelUpEvent(subnetId, srcDpnId, vpnName);
+                    }
                 }
-            }
 
-            if ((tunnelAction == TunnelAction.TUNNEL_EP_DELETE) && isTepDeletedOnDpn) {
-                for (Uuid subnetId : subnetList) {
-                    // Populate the List of subnets
-                    vpnSubnetRouteHandler.updateSubnetRouteOnTunnelDownEvent(subnetId, srcDpnId);
+                if ((tunnelAction == TunnelAction.TUNNEL_EP_DELETE) && isTepDeletedOnDpn) {
+                    for (Uuid subnetId : subnetList) {
+                        // Populate the List of subnets
+                        vpnSubnetRouteHandler.updateSubnetRouteOnTunnelDownEvent(subnetId, srcDpnId, vpnName);
+                    }
                 }
             }
         } catch (Exception e) {
