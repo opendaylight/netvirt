@@ -217,7 +217,7 @@ public class EvpnUtils {
         }
 
         if (!isIpv4PrefixAvailable.test(macEntry)) {
-            LOG.error("advertisePrefix macEntry does not have IPv4 prefix {}", macEntry);
+            LOG.debug("advertisePrefix macEntry does not have IPv4 prefix {}", macEntry);
             return;
         }
         advertisePrefix(elanInfo, macEntry.getMacAddress().getValue(),
@@ -244,7 +244,7 @@ public class EvpnUtils {
         }
         for (MacEntry macEntry : macEntries) {
             if (!isIpv4PrefixAvailable.test(macEntry)) {
-                LOG.error("withdrawEvpnRT2Routes macEntry does not have IPv4 prefix {}", macEntry);
+                LOG.debug("withdrawEvpnRT2Routes macEntry does not have IPv4 prefix {}", macEntry);
                 continue;
             }
             String prefix = macEntry.getIpPrefix().getIpv4Address().getValue();
@@ -263,7 +263,7 @@ public class EvpnUtils {
 
     public void withdrawPrefix(ElanInstance elanInfo, MacEntry macEntry) {
         if (!isIpv4PrefixAvailable.test(macEntry)) {
-            LOG.error("withdrawPrefix macEntry does not have IPv4 prefix {}", macEntry);
+            LOG.debug("withdrawPrefix macEntry does not have IPv4 prefix {}", macEntry);
             return;
         }
         withdrawPrefix(elanInfo, macEntry.getIpPrefix().getIpv4Address().getValue());
