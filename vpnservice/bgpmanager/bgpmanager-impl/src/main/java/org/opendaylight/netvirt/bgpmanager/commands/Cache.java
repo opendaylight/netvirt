@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.bgpmanager.commands;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.List;
+import org.apache.felix.service.command.CommandSession;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
@@ -73,6 +74,11 @@ public class Cache extends OsgiCommandSupport {
     }
 
     public Cache() {
+    }
+
+    public Object show(CommandSession session) throws Exception {
+        this.session = session;
+        return doExecute();
     }
 
     public Object show() throws Exception {
