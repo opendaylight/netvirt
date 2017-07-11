@@ -60,6 +60,6 @@ public class DisplayBgpConfigCli extends OsgiCommandSupport {
             }
         }
         Cache cache = new Cache();
-        return cache.show();
+        return cache.show(session);
     }
 }
