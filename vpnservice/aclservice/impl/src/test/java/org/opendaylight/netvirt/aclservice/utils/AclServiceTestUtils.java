@@ -200,8 +200,12 @@ public class AclServiceTestUtils {
                 .thenReturn(Futures.immediateCheckedFuture(Optional.of(elanInstanceBuilder.build())));
     }
 
+    /**
+     * Deprecated await.
+     * @deprecated just use asyncEventsWaiter.awaitEventsConsumption() directly
+     */
+    @Deprecated
     public static void waitABit(AsyncEventsWaiter asyncEventsWaiter) throws InterruptedException {
-        Thread.sleep(200);
         asyncEventsWaiter.awaitEventsConsumption();
     }
 
