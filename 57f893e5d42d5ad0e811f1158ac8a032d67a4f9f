@@ -46,6 +46,30 @@
       "revId": "57f893e5d42d5ad0e811f1158ac8a032d67a4f9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_875ef043",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-07-11T16:03:08Z",
+      "side": 1,
+      "message": "If you can wait a day or so, perhaps you\u0027d like to be the very first user of https://git.opendaylight.org/gerrit/#/c/60207/ here? ;-)  It introduces a convenient small generic helper for doing this (correctly) in infrautils ..",
+      "parentUuid": "da2a55be_5c27af64",
+      "range": {
+        "startLine": 83,
+        "startChar": 20,
+        "endLine": 85,
+        "endChar": 33
+      },
+      "revId": "57f893e5d42d5ad0e811f1158ac8a032d67a4f9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
