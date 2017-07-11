@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_6792dc58",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1232,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-07-11T09:50:36Z",
+      "side": 1,
+      "message": "please put this check within deleteLocalFibEntry()",
+      "revId": "257969952df7af2273d8dca66ed5263c8c5d8359",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_47acf8a0",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1238,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-07-11T09:50:36Z",
+      "side": 1,
+      "message": "Let us not have this info printed here.",
+      "revId": "257969952df7af2273d8dca66ed5263c8c5d8359",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
