@@ -105,10 +105,20 @@ public class ArpNotificationHandler implements OdlArputilListener {
         String srcInterface = notification.getInterface();
         IpAddress srcIP = notification.getSrcIpaddress();
         PhysAddress srcMac = notification.getSrcMac();
-        BigInteger metadata = notification.getMetadata();
-        IpAddress targetIP = notification.getDstIpaddress();
         LOG.info("ArpNotification Response Received from interface {} and IP {} having MAC {}, learning MAC",
                 srcInterface, srcIP.getIpv4Address().getValue(), srcMac.getValue());
+        List<Adjacency> adjacencies = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker, srcInterface);
+        if (adjacencies == null) {
+            return;
+        }
+        for (Adjacency adj : adjacencies) {
+            String ipAddress = adj.getIpAddress();
+            if (VpnUtil.isIpInSubnet(srcIP.getIpv4Address().toString(), ipAddress)) {
+                return;
+            }
+        }
+        BigInteger metadata = notification.getMetadata();
+        IpAddress targetIP = notification.getDstIpaddress();
         processArpLearning(srcInterface, srcIP, srcMac, metadata, targetIP);
     }
 
