@@ -9,12 +9,15 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
+import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -1713,5 +1716,30 @@ public class VpnUtil {
             return true;
         }
         return false;
+    }
+
+    public static int ipAddressToInt(String ipAddr) throws UnknownHostException {
+        InetAddress subnetAddress = InetAddress.getByName(ipAddr);
+        return Ints.fromByteArray(subnetAddress.getAddress());
+    }
+
+    public static boolean isIpInSubnet(String ipAddress, String subnetCidr) {
+        String[] subSplit = subnetCidr.split("/");
+        if (subSplit.length < 2) {
+            return false;
+        }
+
+        String subnetStr = subSplit[0];
+        int prefixLength = Integer.parseInt(subSplit[1]);
+        try {
+            int subnet = ipAddressToInt(subnetStr);
+            int mask = -1 << 32 - prefixLength;
+
+            return (subnet & mask) == (Integer.parseInt(ipAddress) & mask);
+
+        } catch (UnknownHostException ex) {
+            LOG.error("Subnet string {} not convertible to InetAdddress ", subnetStr, ex);
+            return false;
+        }
     }
 }
