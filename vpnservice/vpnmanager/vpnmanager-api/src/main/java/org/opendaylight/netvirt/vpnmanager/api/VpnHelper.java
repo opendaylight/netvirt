@@ -94,7 +94,7 @@ public class VpnHelper {
         return vpnInterface.isPresent() ? vpnInterface.get() : null;
     }
 
-    static InstanceIdentifier<VpnInterface> getVpnInterfaceIdentifier(String vpnInterfaceName) {
+    public static InstanceIdentifier<VpnInterface> getVpnInterfaceIdentifier(String vpnInterfaceName) {
         return InstanceIdentifier.builder(VpnInterfaces.class)
                 .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName)).build();
     }

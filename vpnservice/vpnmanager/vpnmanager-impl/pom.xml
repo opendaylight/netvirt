@@ -81,6 +81,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>neutronvpn-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.opendaylight.genius</groupId>
             <artifactId>lockmanager-api</artifactId>
             <version>${genius.version}</version>
