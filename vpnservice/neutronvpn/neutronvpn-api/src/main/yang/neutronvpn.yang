@@ -173,7 +173,7 @@ module neutronvpn {
                 description "The UUID of the tenant that will own the subnet.";
             }
 
-            leaf router-id {
+            leaf router_id {
               type    yang:uuid;
               description "UUID of router ";
             }

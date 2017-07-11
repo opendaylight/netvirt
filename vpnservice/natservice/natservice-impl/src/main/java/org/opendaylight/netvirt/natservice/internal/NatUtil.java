@@ -555,15 +555,22 @@ public class NatUtil {
     }
 
     public static String getRouterIdfromVpnInstance(DataBroker broker, String vpnName) {
+        // returns only router, attached to IPv4 networks
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class)
             .child(VpnMap.class, new VpnMapKey(new Uuid(vpnName))).build();
         Optional<VpnMap> optionalVpnMap =
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                         LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
         if (optionalVpnMap.isPresent()) {
-            Uuid routerId = optionalVpnMap.get().getRouterId();
-            if (routerId != null) {
-                return routerId.getValue();
+            List<Uuid> networkIdsList = optionalVpnMap.get().getNetworkIds();
+            for (Uuid netId: networkIdsList) {
+                for (Uuid snId: getSubnetIdsFromNetworkId(broker, netId)) {
+                    if (isIPv6Subnet(getSubnetIpAndPrefix(broker, snId)[0]) == true) {
+                        continue;
+                    }
+                    Subnetmap snMap = getSubnetMap(broker, snId);
+                    return snMap.getRouterId().getValue();
+                }
             }
         }
         return null;
@@ -577,10 +584,9 @@ public class NatUtil {
         if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
             List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
             if (routerId != null) {
-                for (VpnMap vpnMap : allMaps) {
-                    if (vpnMap.getRouterId() != null
-                        && routerId.equals(vpnMap.getRouterId().getValue())
-                        && !routerId.equals(vpnMap.getVpnId().getValue())) {
+                for (VpnMap vpnMap: allMaps) {
+                    if (routerId.equals(vpnMap.getRouterId().getValue())
+                       && !routerId.equals(vpnMap.getVpnId().getValue())) {
                         return vpnMap.getVpnId();
                     }
                 }
