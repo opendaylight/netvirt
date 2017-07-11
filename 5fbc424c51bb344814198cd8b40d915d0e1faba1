@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_c2e7363f",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpHwvtepListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2017-07-11T12:18:05Z",
+      "side": 1,
+      "message": "I took a look, and see that the DhcpLogicalSwitchListener is doing the same work as this class, as you say here.\n\nI think it would be a little cleaner to just go ahead and remove this class, as it is not used anymore, right?",
+      "revId": "5fbc424c51bb344814198cd8b40d915d0e1faba1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_e2635aaf",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayMulticastUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2017-07-11T12:18:05Z",
+      "side": 1,
+      "message": "The old code was adding dhcp designated switch tep ip as a physical locator, but I don\u0027t see that in your patch. How is that handled with the new code? I\u0027m not super familiar with that part of the code, maybe it is handled in some other logic?",
+      "revId": "5fbc424c51bb344814198cd8b40d915d0e1faba1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
