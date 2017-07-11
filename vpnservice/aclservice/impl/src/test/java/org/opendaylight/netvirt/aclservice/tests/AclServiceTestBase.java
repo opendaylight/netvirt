@@ -214,8 +214,6 @@ public abstract class AclServiceTestBase {
 
         AclServiceTestUtils.waitABit(asyncEventsWaiter);
         newInterfaceWithMultipleAclCheck();
-        Thread.sleep(10000);
-
     }
 
     abstract void newInterfaceWithMultipleAclCheck();
