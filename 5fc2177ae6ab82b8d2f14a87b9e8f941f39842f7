@@ -16,6 +16,24 @@
       "revId": "5fc2177ae6ab82b8d2f14a87b9e8f941f39842f7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_cd6c879f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-07-11T16:22:02Z",
+      "side": 1,
+      "message": "They actually have type set to NULL. Type is pulled from interface config, so if it is missing, will be set to null. In fact that is why you never saw this issue in VPNManager coz it had explicitly check for type \u003d\u003d null.",
+      "parentUuid": "da2a55be_0dd17f57",
+      "revId": "5fc2177ae6ab82b8d2f14a87b9e8f941f39842f7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
