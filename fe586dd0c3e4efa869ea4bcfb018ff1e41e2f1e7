@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_02d4ae1e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 952,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-07-11T12:26:35Z",
+      "side": 1,
+      "message": "a space is required after \" here to have space between \" is not \"",
+      "revId": "fe586dd0c3e4efa869ea4bcfb018ff1e41e2f1e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_e2d87a55",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1235,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-07-11T12:26:35Z",
+      "side": 1,
+      "message": "please remove this newline.",
+      "revId": "fe586dd0c3e4efa869ea4bcfb018ff1e41e2f1e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
