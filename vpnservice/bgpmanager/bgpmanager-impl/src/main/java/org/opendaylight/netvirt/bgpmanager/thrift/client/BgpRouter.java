@@ -104,6 +104,7 @@ public class BgpRouter {
         public String routermac;
         public af_afi afi;
         public int delayEOR;
+        public af_safi safi;
 
         BgpOp() {
             strs = new String[3];
@@ -268,8 +269,8 @@ public class BgpRouter {
                 break;
             case VRF:
                 result = bop.add
-                        ? bgpClient.addVrf(op.thriftLayerType, op.strs[0], op.irts, op.erts)
-                        : bgpClient.delVrf(op.strs[0]);
+                           ? bgpClient.addVrf(op.thriftLayerType, op.strs[0], op.irts, op.erts, op.afi, op.safi)
+                           : bgpClient.delVrf(op.strs[0], op.afi, op.safi);
                 break;
             case PFX:
                 // order of args is different in addPrefix(), hence the
@@ -387,22 +388,26 @@ public class BgpRouter {
         dispatch(bop);
     }
 
-    public synchronized void addVrf(LayerType layerType, String rd, List<String> irts, List<String> erts)
-            throws TException, BgpRouterException {
+    public synchronized void addVrf(LayerType layerType, String rd, List<String> irts, List<String> erts,
+            long afi, long safi) throws TException, BgpRouterException {
         bop.thriftLayerType = layerType == LayerType.LAYER2 ? layer_type.LAYER_2 : layer_type.LAYER_3;
         bop.type = Optype.VRF;
         bop.add = true;
         bop.strs[0] = rd;
         bop.irts = irts;
         bop.erts = erts;
+        bop.afi = af_afi.findByValue((int)afi);
+        bop.safi = af_safi.findByValue((int)safi);
         LOG.debug("Adding BGP VRF rd: {} ", rd);
         dispatch(bop);
     }
 
-    public synchronized void delVrf(String rd) throws TException, BgpRouterException {
+    public synchronized void delVrf(String rd, long afi, long safi) throws TException, BgpRouterException {
         bop.type = Optype.VRF;
         bop.add = false;
         bop.strs[0] = rd;
+        bop.afi = af_afi.findByValue((int)afi);
+        bop.safi = af_safi.findByValue((int)safi);
         LOG.debug("Deleting BGP VRF rd: {} " + rd);
         dispatch(bop);
     }
