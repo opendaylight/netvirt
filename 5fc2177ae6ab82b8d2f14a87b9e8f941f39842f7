@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "da2a55be_28f9d1e9",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpInterfaceEventListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-11T21:42:28Z",
+      "side": 1,
+      "message": "probably don\u0027t need these comments since the code is well written",
+      "revId": "5fc2177ae6ab82b8d2f14a87b9e8f941f39842f7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_68daa979",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6ServiceInterfaceEventListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-11T21:42:28Z",
+      "side": 1,
+      "message": "why log this one and not the others?",
+      "revId": "5fc2177ae6ab82b8d2f14a87b9e8f941f39842f7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_88c43d93",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-11T21:42:28Z",
+      "side": 1,
+      "message": "nitpick, most of the other checks use the form Tunnle.class.equals()",
+      "revId": "5fc2177ae6ab82b8d2f14a87b9e8f941f39842f7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_0dd17f57",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
         "patchSetId": 6
