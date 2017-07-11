@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import java.math.BigInteger;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +25,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
@@ -105,10 +107,23 @@ public class ArpNotificationHandler implements OdlArputilListener {
         String srcInterface = notification.getInterface();
         IpAddress srcIP = notification.getSrcIpaddress();
         PhysAddress srcMac = notification.getSrcMac();
-        BigInteger metadata = notification.getMetadata();
-        IpAddress targetIP = notification.getDstIpaddress();
         LOG.info("ArpNotification Response Received from interface {} and IP {} having MAC {}, learning MAC",
                 srcInterface, srcIP.getIpv4Address().getValue(), srcMac.getValue());
+        List<Adjacency> adjacencies = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker, srcInterface);
+        if (adjacencies != null) {
+            for (Adjacency adj : adjacencies) {
+                String ipAddress = adj.getIpAddress();
+                try {
+                    if (NWUtil.isIpInSubnet(NWUtil.ipAddressToInt(srcIP.getIpv4Address().getValue()), ipAddress)) {
+                        return;
+                    }
+                } catch (UnknownHostException e) {
+                    LOG.error("Subnet string {} not convertible to InetAdddress", srcIP, e);
+                }
+            }
+        }
+        BigInteger metadata = notification.getMetadata();
+        IpAddress targetIP = notification.getDstIpaddress();
         processArpLearning(srcInterface, srcIP, srcMac, metadata, targetIP);
     }
 
