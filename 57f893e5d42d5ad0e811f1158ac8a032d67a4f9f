@@ -22,6 +22,30 @@
       "revId": "57f893e5d42d5ad0e811f1158ac8a032d67a4f9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_5c27af64",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-11T06:07:21Z",
+      "side": 1,
+      "message": "An asynchronous write is sufficient here. However, as Peri suggested, I will add a callback to report failure.",
+      "parentUuid": "da2a55be_b6008cab",
+      "range": {
+        "startLine": 83,
+        "startChar": 20,
+        "endLine": 85,
+        "endChar": 33
+      },
+      "revId": "57f893e5d42d5ad0e811f1158ac8a032d67a4f9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
