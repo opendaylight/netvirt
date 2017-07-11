@@ -785,9 +785,6 @@ public class VpnSubnetRouteHandler {
         long label = 0;
         if (VpnUtil.isL3VpnOverVxLan(subOpBuilder.getL3vni())) {
             l3vni = subOpBuilder.getL3vni();
-        } else {
-            label = getLabel(rd, subnetIp);
-            subOpBuilder.setLabel(label);
         }
         if (!isBgpVpn) {
             // Non-BGPVPN as it stands here represents use-case of External Subnets of VLAN-Provider-Network
@@ -846,6 +843,8 @@ public class VpnSubnetRouteHandler {
         } else {
             //If alternate Dpn is selected as nextHopDpn, use that for subnetroute.
             subOpBuilder.setNhDpnId(nhDpnId);
+            label = getLabel(rd, subnetIp);
+            subOpBuilder.setLabel(label);
             //update the VRF entry for the subnetroute.
             isRouteAdvertised = addSubnetRouteToFib(rd, subnetIp, nhDpnId, nhTepIp,
                     vpnName, elanTag, label, l3vni, subnetId, isBgpVpn, networkId.getValue());
