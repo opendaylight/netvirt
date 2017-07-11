@@ -1104,7 +1104,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
-                        new ActionNxResubmit
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
