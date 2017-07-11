@@ -265,8 +265,8 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                     VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, vpnId);
                     if (vpnMap.getRouterId() != null) {
                         LOG.warn("Only Single Router association to a given bgpvpn is allowed. Kindly de-associate"
-                            + " router " + vpnMap.getRouterId().getValue()
-                            + " from vpn " + vpnId + " before proceeding with associate");
+                                 + " router " + vpnMap.getRouterId().getValue()
+                                 + " from vpn " + vpnId + " before proceeding with associate");
                     }
                 }
             } else if (validateRouteInfo(newRouters.get(0))) {
