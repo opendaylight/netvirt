@@ -291,6 +291,17 @@ public class NeutronvpnUtils {
         return subnets;
     }
 
+    protected static List<Subnetmap> getSubnetMapListForPort(final Port port, final Uuid portNetId) {
+        List<Subnetmap> subnetMapList = new ArrayList<>();
+        for (Uuid subnetId: NeutronvpnUtils.getSubnetIdsFromNetworkId(dataBroker, portNetId)) {
+            Subnetmap sn = NeutronvpnUtils.getSubnetmap(dataBroker, subnetId);
+            if (sn != null){
+                subnetMapList.add(sn);
+            }
+        }
+        return subnetMapList;
+    }
+
     protected static String getNeutronPortNameFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp) {
         InstanceIdentifier id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         Optional<VpnPortipToPort> vpnPortipToPortData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
