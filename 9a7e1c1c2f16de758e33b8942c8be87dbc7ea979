@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_220f3232",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 951,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-07-11T11:27:27Z",
+      "side": 1,
+      "message": "Deletion of prefix detected for rd {} prefix {} vpnId {} vpnInterface {} , while the vpnInterface is not scheduled for removal.",
+      "revId": "9a7e1c1c2f16de758e33b8942c8be87dbc7ea979",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
