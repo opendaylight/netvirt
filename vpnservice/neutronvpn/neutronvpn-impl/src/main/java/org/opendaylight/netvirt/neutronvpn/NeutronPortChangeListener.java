@@ -113,6 +113,11 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
     @Override
     protected void add(InstanceIdentifier<Port> identifier, Port input) {
+        // Switchdev ports need to be bounded to a host before creation
+        // in order to validate the supported vnic types from the hostconfig
+        if (NeutronUtils.isPortTypeSwitchdev(input)) {
+            return;
+        }
         String portName = input.getUuid().getValue();
         LOG.trace("Adding Port : key: {}, value={}", identifier, input);
         Network network = neutronvpnUtils.getNeutronNetwork(input.getNetworkId());
@@ -175,6 +180,19 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
     @Override
     protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
+        // Switchdev ports need to be bounded to a host before creation
+        // in order to validate the supported vnic types from the hostconfig
+        if (NeutronUtils.isPortTypeSwitchdev(update)) {
+            // check if a port is newly bound to a host
+            if (!NeutronUtils.isPortBound(original) && NeutronUtils.isPortBound(update)) {
+                handleNeutronPortCreated(update);
+                return;
+            //check if a port is unbount from a host
+            } else if (NeutronUtils.isPortBound(original) && !NeutronUtils.isPortBound(update)) {
+                handleNeutronPortDeleted(update);
+                return;
+            }
+        }
         final String portName = update.getUuid().getValue();
         LOG.info("Update port {} from network {}", portName, update.getNetworkId().toString());
         Network network = neutronvpnUtils.getNeutronNetwork(update.getNetworkId());
@@ -376,11 +394,18 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         }
         jobCoordinator.enqueueJob("PORT- " + portName, () -> {
             // add direct port to subnetMaps config DS
-            if (!NeutronUtils.isPortVnicTypeNormal(port)) {
+            if (!NeutronUtils.isPortVnicTypeNormal(port) && !NeutronUtils.isPortTypeSwitchdev(port)) {
                 for (FixedIps ip: portIpAddrsList) {
                     nvpnManager.updateSubnetmapNodeWithPorts(ip.getSubnetId(), null, portId);
                 }
                 LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created", portName);
+                return Collections.emptyList();
+            } else if (NeutronUtils.isPortTypeSwitchdev(port)
+                       && !NeutronUtils.isSupportedVnicTypeByHost(port, NeutronUtils.VNIC_TYPE_DIRECT, dataBroker)) {
+                String hostId = NeutronUtils.getPortHostId(port);
+                LOG.error("Host {} does not support binding {} vnic type. "
+                          + "Port {} cannot be created",
+                          hostId, NeutronUtils.VNIC_TYPE_DIRECT, portName);
                 return Collections.emptyList();
             }
             return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
