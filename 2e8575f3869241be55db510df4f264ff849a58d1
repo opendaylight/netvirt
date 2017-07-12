@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_3c58f631",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-07-12T06:22:22Z",
+      "side": 1,
+      "message": "shouldn\u0027t we continure to process the arp response if there is no adjacencies for the ingress interface ?",
+      "revId": "2e8575f3869241be55db510df4f264ff849a58d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_7c41ce38",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-07-12T06:22:22Z",
+      "side": 1,
+      "message": "add comment why this check is needed.",
+      "revId": "2e8575f3869241be55db510df4f264ff849a58d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_dc79da94",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1726,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-07-12T06:22:22Z",
+      "side": 1,
+      "message": "wasn\u0027t this method already available in some class ? can\u0027t we reuse it ?",
+      "revId": "2e8575f3869241be55db510df4f264ff849a58d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
