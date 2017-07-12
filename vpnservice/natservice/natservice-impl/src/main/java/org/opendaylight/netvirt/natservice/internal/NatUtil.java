@@ -333,6 +333,10 @@ public class NatUtil {
 
     static Uuid getNetworkIdFromRouterId(DataBroker broker, long routerId) {
         String routerName = getRouterName(broker, routerId);
+        if (routerName == null) {
+            LOG.error("getNetworkIdFromRouterId - empty routerName received");
+            return null;
+        }
         return getNetworkIdFromRouterName(broker, routerName);
     }
 
@@ -411,6 +415,10 @@ public class NatUtil {
     public static BigInteger getPrimaryNaptfromRouterId(DataBroker broker, Long routerId) {
         // convert routerId to Name
         String routerName = getRouterName(broker, routerId);
+        if (routerName == null) {
+            LOG.error("getPrimaryNaptfromRouterId - empty routerName received");
+            return null;
+        }
         return getPrimaryNaptfromRouterName(broker, routerName);
     }
 
@@ -1520,6 +1528,10 @@ public class NatUtil {
 
     static String getExtGwMacAddFromRouterId(DataBroker broker, long routerId) {
         String routerName = getRouterName(broker, routerId);
+        if (routerName == null) {
+            LOG.error("getExtGwMacAddFromRouterId - empty routerName received");
+            return null;
+        }
         InstanceIdentifier<Routers> id = buildRouterIdentifier(routerName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                 LogicalDatastoreType.CONFIGURATION, id).transform(Routers::getExtGwMacAddress).orNull();
