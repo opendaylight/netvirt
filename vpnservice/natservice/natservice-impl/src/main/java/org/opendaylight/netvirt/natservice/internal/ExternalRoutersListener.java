@@ -1558,6 +1558,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     LOG.debug("Best effort for getting primary napt switch when router i/f are"
                         + "added after gateway-set");
                     dpnId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
+                    if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
+                        LOG.error("allocateExternalIp : dpnId is null or Zero for the router {}", routerName);
+                        return;
+                    }
                 }
                 advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnName, routerId, routerName,
                     leastLoadedExtIp + "/" + leastLoadedExtIpPrefix, router,
@@ -1706,8 +1710,15 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
             removeNaptFlowsFromActiveSwitchInternetVpn(routerId, routerName, naptSwitchDpnId, networkUuid, vpnId);
             try {
-                clrRtsFromBgpAndDelFibTs(naptSwitchDpnId, routerId, networkUuid, externalIps, vpnId,
-                        NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId));
+                String extGwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
+                if (extGwMacAddress != null) {
+                    LOG.debug("External Gateway MAC address {} found for External Router ID {}", extGwMacAddress,
+                            routerId);
+                } else {
+                    LOG.error("No External Gateway MAC address found for External Router ID {}", routerId);
+                    return;
+                }
+                clrRtsFromBgpAndDelFibTs(naptSwitchDpnId, routerId, networkUuid, externalIps, vpnId, extGwMacAddress);
             } catch (Exception ex) {
                 LOG.debug("Failed to remove fib entries for routerId {} in naptSwitchDpnId {} : {}",
                     routerId, naptSwitchDpnId, ex);

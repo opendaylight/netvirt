@@ -653,6 +653,13 @@ public class NatTunnelInterfaceStateListener
         if (extNwProvType == ProviderTypes.VXLAN) {
             // Get the External Gateway MAC Address which is Router gateway MAC address for SNAT
             gwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
+            if (gwMacAddress != null) {
+                LOG.debug("External Gateway MAC address {} found for External Router ID {}", gwMacAddress,
+                        routerId);
+            } else {
+                LOG.error("No External Gateway MAC address found for External Router ID {}", routerId);
+                return false;
+            }
             //get l3Vni value for external VPN
             l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
             if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
@@ -780,6 +787,13 @@ public class NatTunnelInterfaceStateListener
         if (extNwProvType == ProviderTypes.VXLAN) {
             // Get the External Gateway MAC Address which is Router gateway MAC address for SNAT
             gwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
+            if (gwMacAddress != null) {
+                LOG.debug("External Gateway MAC address {} found for External Router ID {}", gwMacAddress,
+                        routerId);
+            } else {
+                LOG.error("No External Gateway MAC address found for External Router ID {}", routerId);
+                return;
+            }
             //get l3Vni value for external VPN
             l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
             if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
