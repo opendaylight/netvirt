@@ -12,14 +12,20 @@ import static org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils.buildfloatingI
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -54,6 +60,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMappingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMappingKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.hostconfigs.Hostconfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
@@ -75,15 +83,16 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     private final IElanService elanService;
     private final JobCoordinator jobCoordinator;
     private final NeutronvpnUtils neutronvpnUtils;
+    private final HostConfigCache hostConfigCache;
 
-    @Inject
     public NeutronPortChangeListener(final DataBroker dataBroker,
                                      final NeutronvpnManager neutronvpnManager,
                                      final NeutronvpnNatManager neutronvpnNatManager,
                                      final NeutronSubnetGwMacResolver gwMacResolver,
                                      final IElanService elanService,
                                      final JobCoordinator jobCoordinator,
-                                     final NeutronvpnUtils neutronvpnUtils) {
+                                     final NeutronvpnUtils neutronvpnUtils,
+                                     final HostConfigCache hostConfigCache) {
         super(Port.class, NeutronPortChangeListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -93,6 +102,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         this.elanService = elanService;
         this.jobCoordinator = jobCoordinator;
         this.neutronvpnUtils = neutronvpnUtils;
+        this.hostConfigCache = hostConfigCache;
     }
 
     @Override
@@ -140,7 +150,11 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 portStatus = NeutronUtils.PORT_STATUS_ACTIVE;
             }
         }
-        if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
+        // Switchdev ports need to be bounded to a host before creation
+        // in order to validate the supported vnic types from the hostconfig
+        if (input.getFixedIps() != null
+            && !input.getFixedIps().isEmpty()
+            && !(isPortTypeSwitchdev(input) && !isPortBound(input))) {
             handleNeutronPortCreated(input);
         }
         NeutronUtils.createPortStatus(input.getUuid().getValue(), portStatus, dataBroker);
@@ -177,8 +191,14 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
     @Override
     protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
+        // Switchdev ports need to be bounded to a host before creation
+        // in order to validate the supported vnic types from the hostconfig
+        if (isPortTypeSwitchdev(original)
+            && !isPortBound(original)
+            && isPortBound(update)) {
+            handleNeutronPortCreated(update);
+        }
         final String portName = update.getUuid().getValue();
-        LOG.info("Update port {} from network {}", portName, update.getNetworkId().toString());
         Network network = neutronvpnUtils.getNeutronNetwork(update.getNetworkId());
         LOG.info("Update port {} from network {}", portName, update.getNetworkId().toString());
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
@@ -391,6 +411,95 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routersId, builder.build());
     }
 
+    private String getPortHostId(final Port port) {
+        if (port != null) {
+            PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
+            if (portBinding != null) {
+                return portBinding.getHostId();
+            }
+        }
+        return null;
+    }
+
+    private Hostconfig getHostConfig(final Port port) {
+        String hostId = getPortHostId(port);
+        if (hostId == null) {
+            return null;
+        }
+        Optional<Hostconfig> hostConfig;
+        try {
+            hostConfig = this.hostConfigCache.get(hostId);
+        } catch (ReadFailedException e) {
+            LOG.error("failed to read host config from host {}", hostId, e);
+            return null;
+        }
+        return hostConfig.isPresent() ? hostConfig.get() : null;
+    }
+
+    private boolean isPortBound(final Port port) {
+        String hostId = getPortHostId(port);
+        return hostId != null && !hostId.isEmpty();
+    }
+
+    private boolean isPortVnicTypeDirect(Port port) {
+        PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
+        if (portBinding == null || portBinding.getVnicType() == null) {
+            // By default, VNIC_TYPE is NORMAL
+            return false;
+        }
+        String vnicType = portBinding.getVnicType().trim().toLowerCase(Locale.getDefault());
+        return vnicType.equals(NeutronConstants.VNIC_TYPE_DIRECT);
+    }
+
+    private boolean isSupportedVnicTypeByHost(final Port port, final String vnicType) {
+        Hostconfig hostConfig = getHostConfig(port);
+        String supportStr = String.format("\"vnic_type\": \"%s\"", vnicType);
+        if (hostConfig != null && hostConfig.getConfig().contains(supportStr)) {
+            return true;
+        }
+        return false;
+    }
+
+    private Map<String, JsonElement> unmarshal(final String profile) {
+        if (null == profile) {
+            return null;
+        }
+        Gson gson = new Gson();
+        JsonObject jsonObject = gson.fromJson(profile, JsonObject.class);
+        Map<String, JsonElement> map = new HashMap();
+        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+            map.put(entry.getKey(), entry.getValue());
+        }
+        return map;
+    }
+
+    private boolean isPortTypeSwitchdev(final Port port) {
+        if (!isPortVnicTypeDirect(port)) {
+            return false;
+        }
+
+        PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
+        String profile = portBinding.getProfile();
+        if (profile == null || profile.isEmpty()) {
+            LOG.debug("Port {} has no binding:profile values", port.getUuid());
+            return false;
+        }
+
+        Map<String, JsonElement> mapProfile = unmarshal(profile);
+        JsonElement capabilities = mapProfile.get(NeutronConstants.BINDING_PROFILE_CAPABILITIES);
+        LOG.debug("Port {} capabilities: {}", port.getUuid(), capabilities);
+        if (capabilities == null || !capabilities.isJsonArray()) {
+            LOG.debug("binding profile capabilities not in array format: {}", capabilities);
+            return false;
+        }
+
+        JsonArray capabilitiesArray = capabilities.getAsJsonArray();
+        Gson gson = new Gson();
+        JsonElement switchdevElement = gson.fromJson(NeutronConstants.SWITCHDEV, JsonElement.class);
+        return capabilitiesArray.contains(switchdevElement);
+    }
+
+
     private void handleNeutronPortCreated(final Port port) {
         final String portName = port.getUuid().getValue();
         final Uuid portId = port.getUuid();
@@ -400,7 +509,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         }
         jobCoordinator.enqueueJob("PORT- " + portName, () -> {
             // add direct port to subnetMaps config DS
-            if (!NeutronUtils.isPortVnicTypeNormal(port)) {
+            if (!(NeutronUtils.isPortVnicTypeNormal(port)
+                || (isPortTypeSwitchdev(port)
+                && isSupportedVnicTypeByHost(port, NeutronConstants.VNIC_TYPE_DIRECT)))) {
                 for (FixedIps ip: portIpAddrsList) {
                     nvpnManager.updateSubnetmapNodeWithPorts(ip.getSubnetId(), null, portId);
                 }
