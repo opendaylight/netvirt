@@ -379,15 +379,14 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         }
         jobCoordinator.enqueueJob("PORT- " + portName, () -> {
             WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
             // add direct port to subnetMaps config DS
-            if (!NeutronUtils.isPortVnicTypeNormal(port)) {
-                for (FixedIps ip: portIpAddrsList) {
-                    nvpnManager.updateSubnetmapNodeWithPorts(ip.getSubnetId(), null, portId);
-                }
-                LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created", portName);
-                return futures;
-            }
+            // if (!NeutronUtils.isPortVnicTypeNormal(port)) {
+            //     for (FixedIps ip: portIpAddrsList) {
+            //         nvpnManager.updateSubnetmapNodeWithPorts(ip.getSubnetId(), null, portId);
+            //     }
+            //     LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created", portName);
+            //     return futures;
+            // }
             LOG.info("Of-port-interface creation for port {}", portName);
             // Create of-port interface for this neutron port
             String portInterfaceName = createOfPortInterface(port, wrtConfigTxn);
@@ -417,6 +416,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     }
                 }
             }
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(wrtConfigTxn.submit());
             return futures;
         });
@@ -427,16 +427,14 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         final Uuid portId = port.getUuid();
         final List<FixedIps> portIpsList = port.getFixedIps();
         jobCoordinator.enqueueJob("PORT- " + portName, () -> {
-            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            if (!NeutronUtils.isPortVnicTypeNormal(port)) {
-                for (FixedIps ip: portIpsList) {
-                    // remove direct port from subnetMaps config DS
-                    nvpnManager.removePortsFromSubnetmapNode(ip.getSubnetId(), null, portId);
-                }
-                LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created", portName);
-                return futures;
-            }
+            // if (!NeutronUtils.isPortVnicTypeNormal(port)) {
+            //     for (FixedIps ip: portIpsList) {
+            //         // remove direct port from subnetMaps config DS
+            //         nvpnManager.removePortsFromSubnetmapNode(ip.getSubnetId(), null, portId);
+            //     }
+            //     LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created", portName);
+            //     return futures;
+            // }
             Uuid vpnId = null;
             Set<Uuid> routerIds = new HashSet<Uuid>();
             for (FixedIps ip: portIpsList) {
@@ -450,6 +448,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     }
                 }
             }
+            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
             if (vpnId != null) {
                 // remove vpn-interface for this neutron port
                 LOG.debug("removing VPN Interface for port {}", portName);
@@ -466,6 +465,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             deleteOfPortInterface(port, wrtConfigTxn);
             //dissociate fixedIP from floatingIP if associated
             nvpnManager.dissociatefixedIPFromFloatingIP(port.getUuid().getValue());
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(wrtConfigTxn.submit());
             return futures;
         });
