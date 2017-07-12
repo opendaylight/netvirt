@@ -12,10 +12,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.datastoreutils.AbstractDataStoreJob;
-import org.opendaylight.genius.datastoreutils.InvalidJobException;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkUtil;
@@ -30,55 +29,32 @@ import org.slf4j.LoggerFactory;
  * InterVpnLink has been removed, like the stateful information, leaked
  * vrfEntries, etc.
  */
-public class InterVpnLinkCleanedCheckerTask extends AbstractDataStoreJob {
+public class InterVpnLinkCleanedCheckerTask implements Callable<List<ListenableFuture<Void>>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkCleanedCheckerTask.class);
-    protected static final long MAX_WAIT_FOR_REMOVAL = 10000; // 10 seconds
+    private static final long MAX_WAIT_FOR_REMOVAL = 10000; // 10 seconds
 
     private final DataBroker dataBroker;
     private final InterVpnLink interVpnLinkToCheck;
-    private final String jobKey;
-    private final long maxWaitInMillis;
-
-    public InterVpnLinkCleanedCheckerTask(DataBroker dataBroker, InterVpnLink interVpnLink, String specificJobKey,
-        long maxWaitMs) {
-        this.dataBroker = dataBroker;
-        this.interVpnLinkToCheck = interVpnLink;
-        this.jobKey = specificJobKey;
-        this.maxWaitInMillis = maxWaitMs;
-    }
-
-    public InterVpnLinkCleanedCheckerTask(DataBroker dataBroker, InterVpnLink interVpnLink, String specificJobKey) {
-        this(dataBroker, interVpnLink, specificJobKey, MAX_WAIT_FOR_REMOVAL);
-    }
 
     public InterVpnLinkCleanedCheckerTask(DataBroker dataBroker, InterVpnLink interVpnLink) {
-        this(dataBroker, interVpnLink, "IVPNLINK.CLEANED.CHECKER" + interVpnLink.getName(), MAX_WAIT_FOR_REMOVAL);
-    }
-
-    @Override
-    public String getJobQueueKey() {
-        return this.jobKey;
-    }
-
-    @Override
-    public void validate() throws InvalidJobException {
+        this.dataBroker = dataBroker;
+        this.interVpnLinkToCheck = interVpnLink;
     }
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
-
-        LOG.debug("Checking if InterVpnLink {} is fully cleaned. MaxWaitInMillis={}",
-            interVpnLinkToCheck.getName(), maxWaitInMillis);
+        LOG.debug("Checking if InterVpnLink {} is fully cleaned. MAX_WAIT_FOR_REMOVAL={}",
+            interVpnLinkToCheck.getName(), MAX_WAIT_FOR_REMOVAL);
 
         // Check that the State has also been deleted
         Optional<InterVpnLinkState> optIVpnLinkState =
             InterVpnLinkUtil.getInterVpnLinkState(dataBroker, interVpnLinkToCheck.getName());
         long t0 = System.currentTimeMillis();
         long elapsedTime = t0;
-        while (optIVpnLinkState.isPresent() && (elapsedTime - t0) < maxWaitInMillis) {
+        while (optIVpnLinkState.isPresent() && elapsedTime - t0 < MAX_WAIT_FOR_REMOVAL) {
             LOG.debug("InterVpnLink {} State has not yet been removed after {}ms.",
-                interVpnLinkToCheck.getName(), (elapsedTime - t0));
+                interVpnLinkToCheck.getName(), elapsedTime - t0);
             Thread.sleep(50);
             optIVpnLinkState = InterVpnLinkUtil.getInterVpnLinkState(dataBroker, interVpnLinkToCheck.getName());
             elapsedTime = System.currentTimeMillis();
@@ -86,7 +62,7 @@ public class InterVpnLinkCleanedCheckerTask extends AbstractDataStoreJob {
 
         if (optIVpnLinkState.isPresent()) {
             throw new TimeoutException("InterVpnLink " + interVpnLinkToCheck.getName()
-                + " has not been completely removed after " + maxWaitInMillis + " ms");
+                + " has not been completely removed after " + MAX_WAIT_FOR_REMOVAL + " ms");
         }
 
         LOG.debug("InterVpnLink {} State has been removed. Now checking leaked routes", interVpnLinkToCheck.getName());
@@ -94,16 +70,16 @@ public class InterVpnLinkCleanedCheckerTask extends AbstractDataStoreJob {
         List<VrfEntry> leakedVrfEntries =
             VpnUtil.getVrfEntriesByOrigin(dataBroker, vpn1Rd, Collections.singletonList(RouteOrigin.INTERVPN));
 
-        while (!leakedVrfEntries.isEmpty() && (t0 - elapsedTime) < maxWaitInMillis) {
+        while (!leakedVrfEntries.isEmpty() && t0 - elapsedTime < MAX_WAIT_FOR_REMOVAL) {
             leakedVrfEntries = VpnUtil.getVrfEntriesByOrigin(dataBroker, vpn1Rd,
                 Collections.singletonList(RouteOrigin.INTERVPN));
             elapsedTime = System.currentTimeMillis();
         }
         if (!leakedVrfEntries.isEmpty()) {
             LOG.info("InterVpnLink {} leaked routes have not been removed after {} ms",
-                interVpnLinkToCheck.getName(), maxWaitInMillis);
+                interVpnLinkToCheck.getName(), MAX_WAIT_FOR_REMOVAL);
             throw new TimeoutException("InterVpnLink " + interVpnLinkToCheck.getName()
-                + " has not been completely removed after " + maxWaitInMillis + " ms");
+                + " has not been completely removed after " + MAX_WAIT_FOR_REMOVAL + " ms");
         }
 
         LOG.debug("InterVpnLink {} State and leaked routes are now fully removed", interVpnLinkToCheck.getName());
