@@ -23,7 +23,6 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
-import org.opendaylight.genius.datastoreutils.InvalidJobException;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -409,13 +408,9 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
 
         String specificJobKey = "InterVpnLink.update." + original.getName();
         DataStoreJobCoordinator dsJobCoordinator = DataStoreJobCoordinator.getInstance();
-        try {
-            dsJobCoordinator.enqueueJob(new InterVpnLinkRemoverTask(dataBroker, identifier, specificJobKey));
-            dsJobCoordinator.enqueueJob(new InterVpnLinkCleanedCheckerTask(dataBroker, original, specificJobKey));
-            dsJobCoordinator.enqueueJob(new InterVpnLinkCreatorTask(dataBroker, update, specificJobKey));
-        } catch (InvalidJobException e) {
-            LOG.debug("Could not complete InterVpnLink {} update process", original.getName(), e);
-        }
+        dsJobCoordinator.enqueueJob(specificJobKey, new InterVpnLinkRemoverTask(dataBroker, identifier));
+        dsJobCoordinator.enqueueJob(specificJobKey, new InterVpnLinkCleanedCheckerTask(dataBroker, original));
+        dsJobCoordinator.enqueueJob(specificJobKey, new InterVpnLinkCreatorTask(dataBroker, update));
     }
 
     private Long allocateVpnLinkLportTag(String idKey) {

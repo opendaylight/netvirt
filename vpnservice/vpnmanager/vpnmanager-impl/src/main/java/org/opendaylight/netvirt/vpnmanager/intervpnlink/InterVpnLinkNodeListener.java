@@ -13,7 +13,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
-import org.opendaylight.genius.datastoreutils.InvalidJobException;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.vpnmanager.VpnFootprintService;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
@@ -110,15 +109,10 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
         InstanceIdentifier<InterVpnLink> interVpnLinkIid = InterVpnLinkUtil.getInterVpnLinkPath(ivlName);
         String specificJobKey = "InterVpnLink.update." + ivlName;
         DataStoreJobCoordinator dsJobCoordinator = DataStoreJobCoordinator.getInstance();
-        try {
-            dsJobCoordinator.enqueueJob(new InterVpnLinkRemoverTask(dataBroker, interVpnLinkIid, specificJobKey));
-            dsJobCoordinator.enqueueJob(new InterVpnLinkCleanedCheckerTask(dataBroker, ivl.getInterVpnLinkConfig(),
-                                                                           specificJobKey));
-            dsJobCoordinator.enqueueJob(new InterVpnLinkCreatorTask(dataBroker, ivl.getInterVpnLinkConfig(),
-                                                                    specificJobKey));
-        } catch (InvalidJobException e) {
-            LOG.error("Could not complete InterVpnLink {} update process", ivlName, e);
-        }
+        InterVpnLink interVpnLink = ivl.getInterVpnLinkConfig();
+        dsJobCoordinator.enqueueJob(specificJobKey, new InterVpnLinkRemoverTask(dataBroker, interVpnLinkIid));
+        dsJobCoordinator.enqueueJob(specificJobKey, new InterVpnLinkCleanedCheckerTask(dataBroker, interVpnLink));
+        dsJobCoordinator.enqueueJob(specificJobKey, new InterVpnLinkCreatorTask(dataBroker, interVpnLink));
     }
 
     @Override
