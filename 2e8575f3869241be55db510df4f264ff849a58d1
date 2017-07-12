@@ -36,6 +36,29 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_fcd01e55",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-07-12T06:53:54Z",
+      "side": 1,
+      "message": "Just check if this should be toString() or getValue().\nI think getValue() returns the ipAddress in string format and toString() dumps the Ipv4Address object.",
+      "range": {
+        "startLine": 116,
+        "startChar": 60,
+        "endLine": 116,
+        "endChar": 68
+      },
+      "revId": "2e8575f3869241be55db510df4f264ff849a58d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_dc79da94",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 2
