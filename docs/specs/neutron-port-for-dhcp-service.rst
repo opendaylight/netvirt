@@ -189,16 +189,16 @@ floating IPs and DHCP port.
    void removeArpResponderEntry(BigIneger dpId, String ingressInterfaceName,
        String ipAddress, String macAddress, Optional<Integer> lportTag);
 
-A new container is introduced to hold the network DHCP port information.
+A new container is introduced to hold the subnet DHCP port information.
 
 .. code-block:: none
    :caption: dhcpservice-api.yang
 
-        container network-dhcpport-data {
+        container subnet-dhcp-port-data {
             config true;
-            list network-to-dhcpport {
-                key "networkid";
-                leaf networkid {
+            list subnet-to-dhcp-port {
+                key "subnet-id";
+                leaf subnet-id {
                     type string;
                 }
                 leaf port-name {
@@ -213,44 +213,10 @@ A new container is introduced to hold the network DHCP port information.
             }
         }
 
-Add a new leaf node controller-dhcp-mode to dhcpservice-config.yang
 
-.. code-block:: none
-   :caption: dhcpservice-config.yang
-
-        container dhcpservice-config {
-            leaf controller-dhcp-enabled {
-                description "Enable the dhcpservice on the controller";
-                type boolean;
-                default false;
-            }
-            leaf dhcp-dynamic-allocation-pool-enabled {
-                description "Enable dynamic allocation pool on controller dhcpservice";
-                type boolean;
-                default false;
-            }
-            leaf controller-dhcp-mode {
-                description "Specify the controller DHCP mode to use Neutron port or Subnet gateway as DHCP server IP";
-                type enumeration {
-                    enum "use-odl-dhcp-neutron-port";
-                    enum "use-subnet-gateway-ip";
-                }
-                default "use-odl-neutron-dhcp-port";
-            }
-        }
-
-Introduce a new parameter in dhcpservice-config.xml to identify if DHCP Neutron port or
-Subnet gateway will act as DHCP server IP for responding to discover/renew requests. The
-default value for this parameter will be use-odl-neutron-dhcp-port.
-
-* controller-dhcp-mode
-
-When the above parameter is set to use-neutron-odl-dhcp-port and the ODL dhcp port is
-available its fixed IP will be used as the server IP to serve DHCP offer/renew requests
-for the virtual endpoints. If no DHCP port is available to controller we will flag an error
-to indicate DHCP service failure for the virtual endpoints on such subnets which are
-dhcp-enabled in openstack neutron. The subnet gateway IP address will continue to be used as
-the server IP when this parameter is set to use-subnet-gateway-ip.
+When no DHCP port is available for the subnet we will flag an error to indicate
+DHCP service failure  for virtual endpoints on such subnets which are dhcp-enabled
+in Openstack neutron.
 
 Assignee(s)
 -----------
