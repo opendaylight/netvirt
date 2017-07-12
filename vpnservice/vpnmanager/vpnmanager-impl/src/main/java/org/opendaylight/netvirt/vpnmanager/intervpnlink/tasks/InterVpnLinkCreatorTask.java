@@ -10,32 +10,25 @@ package org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AbstractDataStoreJob;
-import org.opendaylight.genius.datastoreutils.InvalidJobException;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InterVpnLinkCreatorTask extends AbstractDataStoreJob {
+public class InterVpnLinkCreatorTask implements Callable<List<ListenableFuture<Void>>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkCreatorTask.class);
 
     private final DataBroker dataBroker;
     private final InterVpnLink interVpnLinkToPersist;
-    private final String jobKey;
-
-    public InterVpnLinkCreatorTask(DataBroker dataBroker, InterVpnLink interVpnLink, String specificJobKey) {
-        this.dataBroker = dataBroker;
-        this.interVpnLinkToPersist = interVpnLink;
-        this.jobKey = specificJobKey;
-    }
 
     public InterVpnLinkCreatorTask(DataBroker dataBroker, InterVpnLink interVpnLink) {
-        this(dataBroker, interVpnLink, "IVpnLink.creation." + interVpnLink.getName());
+        this.dataBroker = dataBroker;
+        this.interVpnLinkToPersist = interVpnLink;
     }
 
     @Override
@@ -56,16 +49,6 @@ public class InterVpnLinkCreatorTask extends AbstractDataStoreJob {
             true /* create missing parents */);
         result.add(writeTx.submit());
         return result;
-    }
-
-    @Override
-    public String getJobQueueKey() {
-        return this.jobKey;
-    }
-
-    @Override
-    public void validate() throws InvalidJobException {
-
     }
 
 }
