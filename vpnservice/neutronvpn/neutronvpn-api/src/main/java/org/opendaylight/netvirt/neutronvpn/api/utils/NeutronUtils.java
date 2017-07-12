@@ -12,13 +12,20 @@ import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.binding.attributes.Profile;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.Hostconfigs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.hostconfigs.Hostconfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.hostconfigs.HostconfigKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
@@ -36,12 +43,14 @@ public final class NeutronUtils {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronUtils.class);
 
     public static final String VNIC_TYPE_NORMAL = "normal";
+    public static final String VNIC_TYPE_DIRECT = "direct";
     public static final String PORT_STATUS_ACTIVE = "ACTIVE";
     public static final String PORT_STATUS_BUILD = "BUILD";
     public static final String PORT_STATUS_DOWN = "DOWN";
     public static final String PORT_STATUS_ERROR = "ERROR";
     public static final String PORT_STATUS_NOTAPPLICABLE = "N/A";
     private static volatile Pattern uuidPattern;
+    private static ConcurrentMap<String, Hostconfig> hostConfigMap = new ConcurrentHashMap<>();
 
     private NeutronUtils() { }
 
@@ -110,6 +119,93 @@ public final class NeutronUtils {
         }
 
         return true;
+    }
+
+    public static String getPortHostId(final Port port) {
+        if (port != null) {
+            PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
+            if (portBinding != null) {
+                return portBinding.getHostId();
+            }
+        }
+        return null;
+    }
+
+    private static Hostconfig getHostConfig(final Port port, final DataBroker dataBroker) {
+        String hostId = getPortHostId(port);
+        if (hostId == null) {
+            return null;
+        }
+        Hostconfig hostConfig = hostConfigMap.get(hostId);
+        if (hostConfig != null) {
+            return hostConfig;
+        }
+        // validate that the host supports direct port binding
+        MdsalUtils mdsalUtils = new MdsalUtils(dataBroker);
+        InstanceIdentifier<Hostconfig> hostConfigKey = hostConfigIid(hostId);
+        hostConfig = mdsalUtils.read(LogicalDatastoreType.OPERATIONAL, hostConfigKey);
+        if (hostConfig != null) {
+            addToHotsConfigCache(hostId, hostConfig);
+        }
+        return hostConfig;
+    }
+
+    private static void addToHotsConfigCache(String hostId, Hostconfig hostConfig) {
+        LOG.debug("Adding hostconfig for host {} to cache: {}",
+                  hostId, hostConfig == null ? "null" : hostConfig.getConfig());
+        hostConfigMap.put(hostId, hostConfig);
+    }
+
+    private static InstanceIdentifier<Hostconfig> hostConfigIid(String hostId) {
+        // TODO: use hostconfig util host type constant
+        return InstanceIdentifier.builder(Neutron.class)
+                .child(Hostconfigs.class)
+                .child(Hostconfig.class, new HostconfigKey(hostId, "ODL L2"))
+                .build();
+    }
+
+    public static boolean isPortBound(final Port port) {
+        String hostId = getPortHostId(port);
+        return hostId != null && !hostId.isEmpty();
+    }
+
+    private static boolean isPortVnicTypeDirect(Port port) {
+        PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
+        if (portBinding == null || portBinding.getVnicType() == null) {
+            // By default, VNIC_TYPE is NORMAL
+            return false;
+        }
+        String vnicType = portBinding.getVnicType().trim().toLowerCase(Locale.getDefault());
+        return vnicType.equals(VNIC_TYPE_DIRECT);
+    }
+
+    public static boolean isSupportedVnicTypeByHost(final Port port,
+                                                    final String vnicType,
+                                                    final DataBroker dataBroker) {
+        Hostconfig hostConfig = getHostConfig(port, dataBroker);
+        String supportStr = String.format("\"vnic_type\": \"%s\"", vnicType);
+        if (hostConfig != null && hostConfig.getConfig().contains(supportStr)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean isPortTypeSwitchdev(final Port port) {
+        if (!isPortVnicTypeDirect(port)) {
+            return false;
+        }
+
+        PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
+        Profile profile = portBinding.getProfile();
+        if (profile == null) {
+            LOG.debug("Port {} hase no binding:profile values", port.getUuid());
+            return false;
+        }
+
+        List<String> capabilities = profile.getCapabilities();
+        LOG.debug("Port {} capabilities: {}", port.getUuid(), capabilities);
+
+        return capabilities != null && capabilities.contains("switchdev");
     }
 
     public static boolean isPortVnicTypeNormal(Port port) {
