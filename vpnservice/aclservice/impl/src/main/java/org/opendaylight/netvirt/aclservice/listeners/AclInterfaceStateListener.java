@@ -70,7 +70,6 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
         String interfaceId = dataObjectModification.getName();
         AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
         if (AclServiceUtils.isOfInterest(aclInterface)) {
-            AclInterfaceCacheUtil.removeAclInterfaceFromCache(interfaceId);
             if (aclClusterUtil.isEntityOwner()) {
                 LOG.debug("On remove event, notify ACL service manager to remove ACL from interface: {}", aclInterface);
                 aclServiceManger.notify(aclInterface, null, Action.REMOVE);
@@ -80,6 +79,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
                 aclDataUtil.removeAclInterfaceMap(aclList, aclInterface);
             }
         }
+        AclInterfaceCacheUtil.removeAclInterfaceFromCache(interfaceId);
     }
 
     @Override
