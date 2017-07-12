@@ -961,6 +961,13 @@ public class NaptSwitchHA {
                 return;
             }
             String gwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
+            if (gwMacAddress != null) {
+                LOG.debug("External Gateway MAC address {} found for External Router ID {}", gwMacAddress,
+                        routerId);
+            } else {
+                LOG.error("No External Gateway MAC address found for External Router ID {}", routerId);
+                return;
+            }
             if (extNwProvType == ProviderTypes.VXLAN) {
                 for (String externalIp : removedExternalIps) {
                     externalRouterListener.clearBgpRoutes(externalIp, vpnName);
