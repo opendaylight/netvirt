@@ -347,16 +347,15 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         final Uuid subnetId = port.getFixedIps().get(0).getSubnetId();
         final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         portDataStoreCoordinator.enqueueJob("PORT- " + portName, () -> {
-            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
 
             // add direct port to subnetMaps config DS
-            if (!NeutronUtils.isPortVnicTypeNormal(port)) {
-                nvpnManager.updateSubnetmapNodeWithPorts(subnetId, null, portId);
-                LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created", portName);
-                futures.add(wrtConfigTxn.submit());
-                return futures;
-            }
+            // if (!NeutronUtils.isPortVnicTypeNormal(port)) {
+            //    nvpnManager.updateSubnetmapNodeWithPorts(subnetId, null, portId);
+            //    LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created", portName);
+            //    futures.add(wrtConfigTxn.submit());
+            //    return futures;
+            // }
+            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
             LOG.info("Of-port-interface creation for port {}", portName);
             // Create of-port interface for this neutron port
             String portInterfaceName = createOfPortInterface(port, wrtConfigTxn);
@@ -371,6 +370,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 LOG.debug("Adding VPN Interface for port {}", portName);
                 nvpnManager.createVpnInterface(vpnId, routerId, port, wrtConfigTxn);
             }
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(wrtConfigTxn.submit());
             return futures;
         });
@@ -382,16 +382,14 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         final Uuid subnetId = port.getFixedIps().get(0).getSubnetId();
         final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         portDataStoreCoordinator.enqueueJob("PORT- " + portName, () -> {
-            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-
             // remove direct port from subnetMaps config DS
-            if (!NeutronUtils.isPortVnicTypeNormal(port)) {
-                nvpnManager.removePortsFromSubnetmapNode(subnetId, null, portId);
-                LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created", portName);
-                futures.add(wrtConfigTxn.submit());
-                return futures;
-            }
+            // if (!NeutronUtils.isPortVnicTypeNormal(port)) {
+            //    nvpnManager.removePortsFromSubnetmapNode(subnetId, null, portId);
+            //    LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created", portName);
+            //    futures.add(wrtConfigTxn.submit());
+            //    return futures;
+            // }
+            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
             Subnetmap subnetMap = nvpnManager.removePortsFromSubnetmapNode(subnetId, portId, null);
             Uuid vpnId = (subnetMap != null) ? subnetMap.getVpnId() : null;
             Uuid routerId = (subnetMap != null) ? subnetMap.getRouterId() : null;
@@ -406,6 +404,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             deleteOfPortInterface(port, wrtConfigTxn);
             //dissociate fixedIP from floatingIP if associated
             nvpnManager.dissociatefixedIPFromFloatingIP(port.getUuid().getValue());
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(wrtConfigTxn.submit());
             return futures;
         });
