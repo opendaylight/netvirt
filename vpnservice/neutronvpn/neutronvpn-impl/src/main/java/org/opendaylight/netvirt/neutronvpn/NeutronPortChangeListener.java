@@ -108,6 +108,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
     @Override
     protected void add(InstanceIdentifier<Port> identifier, Port input) {
+        if (NeutronUtils.isPortTypeSwitchdev(input) && !NeutronUtils.isPortBound(input)) {
+            return;
+        }
         String portName = input.getUuid().getValue();
         LOG.trace("Adding Port : key: {}, value={}", identifier, input);
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, input.getNetworkId());
@@ -170,6 +173,15 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
     @Override
     protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
+        if (NeutronUtils.isPortTypeSwitchdev(update)) {
+            if (!NeutronUtils.isPortBound(original) && NeutronUtils.isPortBound(update)) {
+                handleNeutronPortCreated(update);
+                return;
+            } else if (NeutronUtils.isPortBound(original) && !NeutronUtils.isPortBound(update)) {
+                handleNeutronPortDeleted(update);
+                return;
+            }
+        }
         final String portName = update.getUuid().getValue();
         LOG.info("Update port {} from network {}", portName, update.getNetworkId().toString());
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, update.getNetworkId());
@@ -375,11 +387,17 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             // add direct port to subnetMaps config DS
-            if (!NeutronUtils.isPortVnicTypeNormal(port)) {
+            if (!NeutronUtils.isPortVnicTypeNormal(port) && !NeutronUtils.isPortTypeSwitchdev(port)) {
                 for (FixedIps ip: portIpAddrsList) {
                     nvpnManager.updateSubnetmapNodeWithPorts(ip.getSubnetId(), null, portId);
                 }
                 LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created", portName);
+                return futures;
+            } else if (NeutronUtils.isPortTypeSwitchdev(port)
+                       && !NeutronUtils.isSupportedVnicTypeByHost(port, "direct", dataBroker)) {
+                String hostId = NeutronUtils.getPortHostId(port);
+                LOG.error("Host {} does not support direct vnic type. "
+                          + "Port {} cannot be created", hostId, portName);
                 return futures;
             }
             LOG.info("Of-port-interface creation for port {}", portName);
