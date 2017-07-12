@@ -32,6 +32,9 @@ public interface NeutronConstants {
     String VIF_TYPE_OTHER = "other";
     String VIF_TYPE_MACVTAP = "macvtap";
     String VNIC_TYPE_NORMAL = "normal";
+    String VNIC_TYPE_DIRECT = "direct";
+    String BINDING_PROFILE_CAPABILITIES = "capabilities";
+    String SWITCHDEV = "switchdev";
 
     Predicate<Port> IS_DHCP_PORT = port -> port != null
             && DEVICE_OWNER_DHCP.equals(port.getDeviceOwner());
