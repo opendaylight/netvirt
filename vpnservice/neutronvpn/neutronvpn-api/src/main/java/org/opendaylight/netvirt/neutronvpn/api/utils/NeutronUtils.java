@@ -22,8 +22,12 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.Hostconfigs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.hostconfigs.Hostconfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.hostconfigs.HostconfigKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
@@ -41,6 +45,7 @@ public class NeutronUtils {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronUtils.class);
 
     public static final String VNIC_TYPE_NORMAL = "normal";
+    public static final String VNIC_TYPE_DIRECT = "direct";
     public static final String PORT_STATUS_ACTIVE = "ACTIVE";
     public static final String PORT_STATUS_BUILD = "BUILD";
     public static final String PORT_STATUS_DOWN = "DOWN";
@@ -113,6 +118,67 @@ public class NeutronUtils {
         }
 
         return true;
+    }
+
+    public static String getPortHostId(final Port port) {
+        PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
+        if (portBinding == null) {
+            return null;
+        }
+        return portBinding.getHostId();
+    }
+
+    private static InstanceIdentifier<Hostconfig> hostConfigIid(String hostId) {
+        // TODO: use hostconfig util host type constant
+        return InstanceIdentifier.builder(Neutron.class)
+                .child(Hostconfigs.class)
+                .child(Hostconfig.class, new HostconfigKey(hostId, "ODL L2"))
+                .build();
+    }
+
+    public static boolean isPortBound(final Port port) {
+        String hostId = getPortHostId(port);
+        return hostId != null && !hostId.isEmpty();
+    }
+
+    public static boolean isPortVnicTypeDirect(Port port) {
+        PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
+        if (portBinding == null || portBinding.getVnicType() == null) {
+            // By default, VNIC_TYPE is NORMAL
+            return false;
+        }
+        String vnicType = portBinding.getVnicType().trim().toLowerCase();
+        return vnicType.equals(VNIC_TYPE_DIRECT);
+    }
+
+    public static boolean isPortTypeSwitchdev(final Port port, final DataBroker dataBroker) {
+        String hostId = getPortHostId(port);
+
+        // validate that the host supports direct port binding
+        MdsalUtils mdsalUtils = new MdsalUtils(dataBroker);
+        InstanceIdentifier<Hostconfig> hostConfigKey = hostConfigIid(hostId);
+        Hostconfig hostConfig = mdsalUtils.read(LogicalDatastoreType.OPERATIONAL, hostConfigKey);
+        if (hostConfig != null
+            && !hostConfig.getConfig().contains("\"vnic_type\": \"direct\"")) {
+            LOG.warn("Host {} does not support vnic type direct", hostId);
+            return false;
+        }
+
+        // PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
+        // String bindingProfile = portBinding.getProfile();
+        // if (bindingProfile == null || bindingProfile.isEmpty()) {
+        //     LOG.warn("Port binding profile is not set");
+        //     return false;
+        // }
+
+        // bindingProfile = bindingProfile.trim().toLowerCase();
+        // LOG.warn(">>> port binding: {}", bindingProfile);
+        // if (!bindingProfile.equals("switchdev") || !NeutronUtils.isPortVnicTypeDirect(port)) {
+        //     // return false;
+        // }
+
+        return NeutronUtils.isPortVnicTypeDirect(port);
+        // return true;
     }
 
     public static boolean isPortVnicTypeNormal(Port port) {

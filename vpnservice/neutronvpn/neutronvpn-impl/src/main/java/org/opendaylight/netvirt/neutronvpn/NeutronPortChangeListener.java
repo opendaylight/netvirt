@@ -108,6 +108,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
     @Override
     protected void add(InstanceIdentifier<Port> identifier, Port input) {
+        if (NeutronUtils.isPortVnicTypeDirect(input) && !NeutronUtils.isPortBound(input)) {
+            return;
+        }
         String portName = input.getUuid().getValue();
         LOG.trace("Adding Port : key: {}, value={}", identifier, input);
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, input.getNetworkId());
@@ -170,6 +173,15 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
     @Override
     protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
+        if (NeutronUtils.isPortVnicTypeDirect(update)) {
+            if (!NeutronUtils.isPortBound(original) && NeutronUtils.isPortBound(update)) {
+                handleNeutronPortCreated(update);
+                return;
+            } else if (NeutronUtils.isPortBound(original) && !NeutronUtils.isPortBound(update)) {
+                handleNeutronPortDeleted(update);
+                return;
+            }
+        }
         final String portName = update.getUuid().getValue();
         LOG.info("Update port {} from network {}", portName, update.getNetworkId().toString());
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, update.getNetworkId());
@@ -375,7 +387,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             // add direct port to subnetMaps config DS
-            if (!NeutronUtils.isPortVnicTypeNormal(port)) {
+            if (!NeutronUtils.isPortVnicTypeNormal(port) && !NeutronUtils.isPortTypeSwitchdev(port, dataBroker)) {
                 for (FixedIps ip: portIpAddrsList) {
                     nvpnManager.updateSubnetmapNodeWithPorts(ip.getSubnetId(), null, portId);
                 }
