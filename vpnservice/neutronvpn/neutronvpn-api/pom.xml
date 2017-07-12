@@ -22,6 +22,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
     <dependencies>
         <dependency>
+          <groupId>com.google.code.gson</groupId>
+          <artifactId>gson</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>yang-binding</artifactId>
         </dependency>
@@ -32,6 +36,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <dependency>
             <groupId>org.opendaylight.neutron</groupId>
             <artifactId>model</artifactId>
+            <version>${neutron.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.neutron</groupId>
+            <artifactId>neutron-spi</artifactId>
             <version>${neutron.version}</version>
         </dependency>
         <dependency>

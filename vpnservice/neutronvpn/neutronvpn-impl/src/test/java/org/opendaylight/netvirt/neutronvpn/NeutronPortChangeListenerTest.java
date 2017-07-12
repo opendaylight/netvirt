@@ -92,7 +92,8 @@ public class NeutronPortChangeListenerTest {
         when(mockReadTx.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
             .thenReturn(Futures.immediateCheckedFuture(Optional.of(mockNetwork)));
         neutronPortChangeListener = new NeutronPortChangeListener(dataBroker, neutronvpnManager, neutronvpnNatManager,
-                gwMacResolver, elanService, jobCoordinator, new NeutronvpnUtils(dataBroker, idManager, jobCoordinator));
+                gwMacResolver, elanService, jobCoordinator, new NeutronvpnUtils(dataBroker, idManager, jobCoordinator),
+                new HostConfigCache());
         InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class,
                         new ElanInstanceKey(new Uuid("12345678-1234-1234-1234-123456789012").getValue())).build();
