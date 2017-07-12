@@ -69,11 +69,11 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         String interfaceId = port.getName();
         AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
         if (AclServiceUtils.isOfInterest(aclInterface)) {
-            AclInterfaceCacheUtil.removeAclInterfaceFromCache(interfaceId);
             if (aclClusterUtil.isEntityOwner()) {
                 LOG.debug("On remove event, notify ACL service manager to unbind ACL from interface: {}", port);
                 aclServiceManager.notify(aclInterface, null, Action.UNBIND);
             }
+            AclInterfaceCacheUtil.removeAclInterfaceFromCache(interfaceId);
         }
     }
 
