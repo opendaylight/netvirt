@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_4b74face",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BaseVrfEntryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-07-13T10:02:03Z",
+      "side": 1,
+      "message": "this guy can return null",
+      "revId": "3f2ffcf6c3636d432ce664fb8e82a737db5d515e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_eb4a0e82",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BaseVrfEntryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-07-13T10:02:03Z",
+      "side": 1,
+      "message": "nit: should be camel case. Also, why is this line here and not closer to the beginning of the function?",
+      "revId": "3f2ffcf6c3636d432ce664fb8e82a737db5d515e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_8ba7124f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/TunnelStateVrfEntryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-07-13T10:02:03Z",
+      "side": 1,
+      "message": "This method is unnecessary since it is implemented in the base class. All functions in java are virtual (not like C++) so the implementation in the base class will print the exact same thing as this one.",
+      "revId": "3f2ffcf6c3636d432ce664fb8e82a737db5d515e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_66af75e4",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/TunnelStateVrfEntryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-07-13T10:02:03Z",
+      "side": 1,
+      "message": "The only functional difference between this function and the following function is that in one of them getConsumerForCreatingRemoteFib is called and in the other getConsumerForDeletingRemoteFib is called. I find it somewhat ironic that two functions that leverage SO many functional concepts differ on just this one little thing. Couldn\u0027t this be made into a single function and the consumer passed in as a parameter?",
+      "revId": "3f2ffcf6c3636d432ce664fb8e82a737db5d515e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
