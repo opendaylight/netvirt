@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_61dd9f70",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-07-13T10:38:47Z",
+      "side": 1,
+      "message": "Just for my own understanding, just a question, is the reason this is now in a loop because the port could be connected to v4 and v6 subnets?",
+      "revId": "ebceaae8cc204fc3a694f1560be50ba24b42dec7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_c13c4b96",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-07-13T10:38:47Z",
+      "side": 1,
+      "message": "I don\u0027t see anything in here about a ping responder...more importantly, I think the rest of this comment relates to the line you moved to after the loop. Without even addressing the contents of this comment it should probably be move to closer  to that line, no? Did I understand this correctly?",
+      "revId": "ebceaae8cc204fc3a694f1560be50ba24b42dec7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_a162f7d5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 696,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-07-13T10:38:47Z",
+      "side": 1,
+      "message": "I assume the CI caught this but sn is not defined in this function.",
+      "revId": "ebceaae8cc204fc3a694f1560be50ba24b42dec7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
