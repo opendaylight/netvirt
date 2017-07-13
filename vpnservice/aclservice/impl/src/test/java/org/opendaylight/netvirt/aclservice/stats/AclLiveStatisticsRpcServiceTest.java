@@ -31,6 +31,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.testutils.AsyncEventsWaiter;
+import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorTestModule;
 import org.opendaylight.genius.datastoreutils.testutils.TestableDataTreeChangeListenerModule;
 import org.opendaylight.genius.testutils.TestInterfaceManager;
 import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
@@ -64,7 +65,8 @@ public class AclLiveStatisticsRpcServiceTest {
     private static final Logger LOG = LoggerFactory.getLogger(AclLiveStatisticsRpcServiceTest.class);
 
     public @Rule MethodRule guice = new GuiceRule(new AclServiceModule(),
-            new AclServiceTestModule(SecurityGroupMode.Stateful), new TestableDataTreeChangeListenerModule());
+            new AclServiceTestModule(SecurityGroupMode.Stateful), new TestableDataTreeChangeListenerModule(),
+            new JobCoordinatorTestModule());
 
     @Inject
     AclserviceConfig config;
