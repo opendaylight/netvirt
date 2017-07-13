@@ -41,6 +41,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <type>xml</type>
       <scope>runtime</scope>
     </dependency>
+
+    <!-- External application -->
+    <dependency>
+      <groupId>org.opendaylight.aaa</groupId>
+      <artifactId>aaa-cli-jar</artifactId>
+      <version>0.6.0-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -52,6 +59,29 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
         <configuration>
           <skip>false</skip>
         </configuration>
+      </plugin>
+      <!-- Ship the AAA CLI password-setting tool as an unversioned JAR -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-aaa-cli-jar</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/assembly/bin</outputDirectory>
+              <includeArtifactIds>aaa-cli-jar</includeArtifactIds>
+              <overWriteReleases>true</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
+              <overWriteIfNewer>true</overWriteIfNewer>
+              <excludeTransitive>true</excludeTransitive>
+              <stripVersion>true</stripVersion>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
