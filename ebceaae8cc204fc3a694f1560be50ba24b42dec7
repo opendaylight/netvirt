@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_41e4db0c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-07-13T11:50:10Z",
+      "side": 1,
+      "message": "Hi Joshua,\n\nyes.\nyou have 2 subnets from the same network attached to a router.\nand you have a VM that will acquire both IPs",
+      "parentUuid": "da2a55be_61dd9f70",
+      "revId": "ebceaae8cc204fc3a694f1560be50ba24b42dec7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_c13c4b96",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_a1f157cf",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-07-13T11:50:10Z",
+      "side": 1,
+      "message": "good catch.\nyes, I will move the comment closer to deleteVpnInterface",
+      "parentUuid": "da2a55be_c13c4b96",
+      "revId": "ebceaae8cc204fc3a694f1560be50ba24b42dec7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_a162f7d5",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2017-07-13T10:38:47Z",
       "side": 1,
       "message": "I assume the CI caught this but sn is not defined in this function.",
+      "revId": "ebceaae8cc204fc3a694f1560be50ba24b42dec7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_e1ba2fe0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 696,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-07-13T11:50:10Z",
+      "side": 1,
+      "message": "good match too.\nthere was a fault when backporting the fix.",
+      "parentUuid": "da2a55be_a162f7d5",
       "revId": "ebceaae8cc204fc3a694f1560be50ba24b42dec7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
