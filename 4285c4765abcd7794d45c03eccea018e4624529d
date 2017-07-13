@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_d4e24a00",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-07-13T19:21:06Z",
+      "side": 1,
+      "message": "can you please let us know why this bunch is moved up first?",
+      "revId": "4285c4765abcd7794d45c03eccea018e4624529d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
