@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.aclservice.tests;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.rules.MethodRule;
+import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorTestModule;
 import org.opendaylight.genius.datastoreutils.testutils.TestableDataTreeChangeListenerModule;
 import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
@@ -19,7 +20,8 @@ public class AclServiceStatefulIPv6Test extends AclServiceTestBaseIPv6 {
 
     public @Rule MethodRule guice = new GuiceRule(new AclServiceModule(),
             new AclServiceTestModule(SecurityGroupMode.Stateful),
-            new TestableDataTreeChangeListenerModule());
+            new TestableDataTreeChangeListenerModule(),
+            new JobCoordinatorTestModule());
 
     private final FlowEntryObjectsStatefulIPv6 ipv6statefulentries = new FlowEntryObjectsStatefulIPv6();
 
