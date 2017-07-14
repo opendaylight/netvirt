@@ -63,20 +63,26 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
 
     @Override
     public void renderPath(NodeId nodeId, Long nsp, String firstHopIp) {
-        Long port = geniusProvider.getEgressVxlanPortForNode(OpenFlow13Provider.getDpnIdFromNodeId(nodeId))
-                .orElse(null);
 
-        if (port == null) {
-            LOG.error("OpenflowRenderer: cant get egressPort for nodeId [{}]", nodeId.getValue());
-            return;
+        List<Flow> flows = new ArrayList<>();
+        if (firstHopIp != null) {
+            Long port = geniusProvider.getEgressVxlanPortForNode(OpenFlow13Provider.getDpnIdFromNodeId(nodeId))
+                    .orElse(null);
+            if (port == null) {
+                LOG.error("OpenflowRenderer: cant get egressPort for nodeId [{}]", nodeId.getValue());
+                return;
+            }
+            Flow flow;
+            flow = openFlow13Provider.createEgressClassifierTransportEgressRemoteFlow(nodeId, nsp, port, firstHopIp);
+            flows.add(flow);
+        } else {
+            Flow flow;
+            flow = openFlow13Provider.createEgressClassifierTransportEgressLocalFlow(nodeId, nsp);
+            flows.add(flow);
         }
-
-        Flow flow = firstHopIp == null
-                ? openFlow13Provider.createEgressClassifierTransportEgressLocalFlow(nodeId, nsp)
-                : openFlow13Provider.createEgressClassifierTransportEgressRemoteFlow(nodeId, nsp, port, firstHopIp);
-
+        flows.add(openFlow13Provider.createIngressClassifierFilterChainEgressFlow(nodeId, nsp));
         WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
-        this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx);
+        flows.forEach(flow -> this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx));
         tx.submit();
     }
 
@@ -121,20 +127,25 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
 
     @Override
     public void suppressPath(NodeId nodeId, Long nsp, String firstHopIp) {
-        Long port = geniusProvider.getEgressVxlanPortForNode(OpenFlow13Provider.getDpnIdFromNodeId(nodeId))
-                .orElse(null);
-
-        if (port == null) {
-            LOG.error("OpenflowRenderer: cant get egressPort for nodeId [{}]", nodeId.getValue());
-            return;
+        List<Flow> flows = new ArrayList<>();
+        if (firstHopIp != null) {
+            Long port = geniusProvider.getEgressVxlanPortForNode(OpenFlow13Provider.getDpnIdFromNodeId(nodeId))
+                    .orElse(null);
+            if (port == null) {
+                LOG.error("OpenflowRenderer: cant get egressPort for nodeId [{}]", nodeId.getValue());
+                return;
+            }
+            Flow flow;
+            flow = openFlow13Provider.createEgressClassifierTransportEgressRemoteFlow(nodeId, nsp, port, firstHopIp);
+            flows.add(flow);
+        } else {
+            Flow flow;
+            flow = openFlow13Provider.createEgressClassifierTransportEgressLocalFlow(nodeId, nsp);
+            flows.add(flow);
         }
-
-        Flow flow = firstHopIp == null
-                ? openFlow13Provider.createEgressClassifierTransportEgressLocalFlow(nodeId, nsp)
-                : openFlow13Provider.createEgressClassifierTransportEgressRemoteFlow(nodeId, nsp, port, firstHopIp);
-
+        flows.add(openFlow13Provider.createIngressClassifierFilterChainEgressFlow(nodeId, nsp));
         WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
-        this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx);
+        flows.forEach(flow -> this.openFlow13Provider.appendFlowForDelete(nodeId, flow, tx));
         tx.submit();
     }
 
