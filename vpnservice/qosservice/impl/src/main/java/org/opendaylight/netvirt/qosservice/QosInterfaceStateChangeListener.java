@@ -113,7 +113,8 @@ public class QosInterfaceStateChangeListener extends AsyncDataTreeChangeListener
 
     private java.util.Optional<Port> getNeutronPort(String portName) {
         return uuidUtil.newUuidIfValidPattern(portName)
-                .toJavaUtil()
+                // .toJavaUtil()
+                .transform(java.util.Optional::of).or(java.util.Optional.empty())
                 .map(uuid -> neutronVpnManager.getNeutronPort(uuid));
     }
 
