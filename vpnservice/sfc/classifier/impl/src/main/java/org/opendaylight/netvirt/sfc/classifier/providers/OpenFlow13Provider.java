@@ -42,6 +42,7 @@ public class OpenFlow13Provider {
     public static final BigInteger EGRESS_CLASSIFIER_TPORTEGRESS_COOKIE = new BigInteger("F005BA1100000005", 16);
 
     // Priorities for each flow
+    public static final int INGRESS_CLASSIFIER_FILTER_CHAIN_EGRESS_PRIORITY = 520;
     public static final int INGRESS_CLASSIFIER_FILTER_NSH_PRIORITY = 510;
     public static final int INGRESS_CLASSIFIER_FILTER_NONSH_PRIORITY = 500;
     public static final int INGRESS_CLASSIFIER_ACL_PRIORITY = 500;
@@ -54,6 +55,8 @@ public class OpenFlow13Provider {
     public static final int EGRESS_CLASSIFIER_EGRESS_REMOTE_PRIORITY = 250;
 
     // Flow names for each table
+    public static final String INGRESS_CLASSIFIER_FILTER_NSH_CHAIN_EGRESS_FLOW_NAME =
+            "nvsfc_ingr_class_filter_chain_egress";
     public static final String INGRESS_CLASSIFIER_FILTER_VXGPENSH_FLOW_NAME = "nvsfc_ingr_class_filter_vxgpe";
     public static final String INGRESS_CLASSIFIER_FILTER_ETHNSH_FLOW_NAME = "nvsfc_ingr_class_filter_eth";
     public static final String INGRESS_CLASSIFIER_FILTER_NONSH_FLOW_NAME = "nvsfc_ingr_class_filter_nonsh";
@@ -143,6 +146,31 @@ public class OpenFlow13Provider {
         return OpenFlow13Utils.createFlowBuilder(NwConstants.INGRESS_SFC_CLASSIFIER_FILTER_TABLE,
             INGRESS_CLASSIFIER_FILTER_NSH_PRIORITY, INGRESS_CLASSIFIER_FILTER_COOKIE,
             INGRESS_CLASSIFIER_FILTER_ETHNSH_FLOW_NAME, flowIdStr, match, isb).build();
+    }
+
+    /*
+     * Classifier chain termination flow:
+     *     Handle packets at the end of the chain
+     *     Match C1 on local IP, NSP and ending NSI, restore metadata and
+     *     resubmit to egress dispatcher
+     */
+    public Flow createIngressClassifierFilterChainEgressFlow(NodeId nodeId, long nsp) {
+
+        MatchBuilder match = new MatchBuilder();
+        OpenFlow13Utils.addMatchNsp(match, nsp);
+
+        List<Action> actionList = new ArrayList<>();
+        actionList.add(OpenFlow13Utils.createActionNxMoveNsc4ToReg6Register(actionList.size()));
+        actionList.add(OpenFlow13Utils.createActionNxPopNsh(actionList.size()));
+        actionList.add(OpenFlow13Utils.createActionResubmitTable(NwConstants.EGRESS_LPORT_DISPATCHER_TABLE,
+                actionList.size()));
+
+        InstructionsBuilder isb = OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(actionList);
+        String flowIdStr = INGRESS_CLASSIFIER_FILTER_NSH_CHAIN_EGRESS_FLOW_NAME + nodeId.getValue() + "_" + nsp;
+
+        return OpenFlow13Utils.createFlowBuilder(NwConstants.INGRESS_SFC_CLASSIFIER_FILTER_TABLE,
+                INGRESS_CLASSIFIER_FILTER_CHAIN_EGRESS_PRIORITY, INGRESS_CLASSIFIER_FILTER_COOKIE,
+                INGRESS_CLASSIFIER_FILTER_NSH_CHAIN_EGRESS_FLOW_NAME, flowIdStr, match, isb).build();
     }
 
     /*
@@ -281,6 +309,7 @@ public class OpenFlow13Provider {
         List<Action> actionList = new ArrayList<>();
         actionList.add(OpenFlow13Utils.createActionNxMoveReg0ToNsc1Register(actionList.size()));
         actionList.add(OpenFlow13Utils.createActionNxMoveTunIdToNsc2Register(actionList.size()));
+        actionList.add(OpenFlow13Utils.createActionNxMoveReg6ToNsc4Register(actionList.size()));
         actionList.add(OpenFlow13Utils.createActionNxLoadTunId(SFC_TUNNEL_ID, actionList.size()));
 
         InstructionsBuilder isb = OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(actionList);
