@@ -35,8 +35,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.NetvirtsfcAclActions;
@@ -53,6 +51,7 @@ public class ConfigurationClassifierImpl implements ClassifierState {
     private final GeniusProvider geniusProvider;
     private final NetvirtProvider netvirtProvider;
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationClassifierImpl.class);
+    private static final String LOCAL_HOST_IP = "127.0.0.1";
 
     public ConfigurationClassifierImpl(GeniusProvider geniusProvider,
                                        NetvirtProvider netvirtProvider,
@@ -115,14 +114,15 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             return Collections.emptySet();
         }
 
-        String firstHopIp = sfcProvider.getFirstHopSfInterfaceFromRsp(rsp)
-                .flatMap(geniusProvider::getIpFromInterfaceName)
+        DpnIdType firstHopDpn = sfcProvider.getFirstHopSfInterfaceFromRsp(rsp)
+                .flatMap(geniusProvider::getDpnIdFromInterfaceName)
                 .orElse(null);
 
-        if (firstHopIp == null) {
-            LOG.trace("Could not acquire a valid first RSP hop destination ip");
+        if (firstHopDpn == null) {
+            LOG.error("RSP has no valid first hop DPN");
             return Collections.emptySet();
         }
+
 
         Map<NodeId, List<InterfaceKey>> nodeToInterfaces = new HashMap<>();
         NeutronNetwork neutronNetwork = matches.getAugmentation(NeutronNetwork.class);
@@ -136,19 +136,15 @@ public class ConfigurationClassifierImpl implements ClassifierState {
 
         LOG.trace("Got classifier nodes and interfaces: {}", nodeToInterfaces);
 
+        String firstHopIp = geniusProvider.getIpFromDpnId(firstHopDpn).orElse(null);
         Set<ClassifierRenderableEntry> entries = new HashSet<>();
         nodeToInterfaces.forEach((nodeId, ifaces) -> {
             // Get node info
-            DpnIdType dpnIdType = new DpnIdType(OpenFlow13Provider.getDpnIdFromNodeId(nodeId));
-            List<String> nodeIps = geniusProvider.getIpFromDpnId(dpnIdType).stream()
-                    .map(IpAddress::getIpv4Address)
-                    .filter(Objects::nonNull)
-                    .map(Ipv4Address::getValue)
-                    .collect(Collectors.toList());
-            String nodeIp = nodeIps.isEmpty() ? null : nodeIps.get(0);
+            DpnIdType nodeDpn = new DpnIdType(OpenFlow13Provider.getDpnIdFromNodeId(nodeId));
+            String nodeIp = geniusProvider.getIpFromDpnId(nodeDpn).orElse(LOCAL_HOST_IP);
 
-            if (nodeIp == null) {
-                LOG.trace("Could not get IP address for node {}, skipping", nodeId.getValue());
+            if (firstHopIp == null && !nodeDpn.equals(firstHopDpn)) {
+                LOG.warn("Classifier on node {} has no IP to reach first hop on node {}", nodeDpn, firstHopDpn);
                 return;
             }
 
@@ -157,7 +153,7 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             entries.add(ClassifierEntry.buildPathEntry(
                     nodeId,
                     nsp,
-                    nodeIps.contains(firstHopIp) ? null : firstHopIp));
+                    nodeDpn.equals(firstHopDpn) ? null : firstHopIp));
 
             // Add entries based on ingress interface
             ifaces.forEach(interfaceKey -> {

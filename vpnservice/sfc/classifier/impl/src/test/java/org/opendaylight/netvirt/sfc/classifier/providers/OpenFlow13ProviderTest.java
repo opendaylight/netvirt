@@ -32,7 +32,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.ApplyActionsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.GoToTableCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg0;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.general.rev140714.GeneralAugMatchNodesNodeTableFlow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.general.rev140714.general.extension.grouping.Extension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.general.rev140714.general.extension.list.grouping.ExtensionList;
@@ -40,17 +42,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.ni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxNshNpCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxNshc1Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxNshc2Case;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxNshc4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxNsiCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxNspCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxRegCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxTunIdCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxTunIpv4DstCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nodes.node.table.flow.instructions.instruction.instruction.apply.actions._case.apply.actions.action.action.NxActionPopNshNodesNodeTableFlowApplyActionsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nodes.node.table.flow.instructions.instruction.instruction.apply.actions._case.apply.actions.action.action.NxActionPushNshNodesNodeTableFlowApplyActionsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nodes.node.table.flow.instructions.instruction.instruction.apply.actions._case.apply.actions.action.action.NxActionRegLoadNodesNodeTableFlowApplyActionsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nodes.node.table.flow.instructions.instruction.instruction.apply.actions._case.apply.actions.action.action.NxActionRegMoveNodesNodeTableFlowApplyActionsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nodes.node.table.flow.instructions.instruction.instruction.write.actions._case.write.actions.action.action.NxActionResubmitNodesNodeTableFlowWriteActionsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.src.choice.grouping.src.choice.SrcNxNshc1Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.src.choice.grouping.src.choice.SrcNxNshc2Case;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.src.choice.grouping.src.choice.SrcNxNshc4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.src.choice.grouping.src.choice.SrcNxRegCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.src.choice.grouping.src.choice.SrcNxTunIdCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.NxAugMatchNodesNodeTableFlow;
@@ -108,6 +113,27 @@ public class OpenFlow13ProviderTest {
         assertEquals(1, flow.getInstructions().getInstruction().size());
         checkActionResubmit(flow.getInstructions().getInstruction().get(0).getInstruction(),
                 NwConstants.LPORT_DISPATCHER_TABLE);
+    }
+
+    @Test
+    public void createIngressClassifierFilterChainEgressFlow() {
+        Flow flow = openflowProvider.createIngressClassifierFilterChainEgressFlow(nodeId, NSP);
+
+        assertEquals(flow.getTableId().shortValue(), NwConstants.INGRESS_SFC_CLASSIFIER_FILTER_TABLE);
+        assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_CHAIN_EGRESS_PRIORITY);
+        assertEquals(flow.getId().getValue(),
+                OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_NSH_CHAIN_EGRESS_FLOW_NAME
+                        + nodeId.getValue() + "_" + NSP);
+        assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_COOKIE);
+
+        checkMatchNsp(flow.getMatch(), NSP);
+        assertEquals(1, flow.getInstructions().getInstruction().size());
+        Instruction curInstruction = flow.getInstructions().getInstruction().get(0).getInstruction();
+        List<Action> actionList = checkApplyActionSize(curInstruction, 3);
+        checkActionMoveNsc4(actionList.get(0), true);
+        checkActionMoveTunReg(actionList.get(0), NxmNxReg6.class, false);
+        checkActionPopNsh(actionList.get(1));
+        checkActionResubmit(curInstruction, NwConstants.EGRESS_LPORT_DISPATCHER_TABLE);
     }
 
     @Test
@@ -231,13 +257,15 @@ public class OpenFlow13ProviderTest {
 
         assertEquals(2, flow.getInstructions().getInstruction().size());
         Instruction curInstruction = flow.getInstructions().getInstruction().get(0).getInstruction();
-        List<Action> actionList = checkApplyActionSize(curInstruction, 3);
+        List<Action> actionList = checkApplyActionSize(curInstruction, 4);
 
-        checkActionMoveTunReg0(actionList.get(0), true);
+        checkActionMoveTunReg(actionList.get(0), NxmNxReg0.class, true);
         checkActionMoveNsc1(actionList.get(0), false);
         checkActionMoveTunId(actionList.get(1), true);
         checkActionMoveNsc2(actionList.get(1), false);
-        checkActionLoadTunId(actionList.get(2), OpenFlow13Provider.SFC_TUNNEL_ID);
+        checkActionMoveTunReg(actionList.get(2), NxmNxReg6.class, true);
+        checkActionMoveNsc4(actionList.get(2), false);
+        checkActionLoadTunId(actionList.get(3), OpenFlow13Provider.SFC_TUNNEL_ID);
 
         curInstruction = flow.getInstructions().getInstruction().get(1).getInstruction();
         checkActionGotoTable(curInstruction, NwConstants.EGRESS_SFC_CLASSIFIER_EGRESS_TABLE);
@@ -457,6 +485,12 @@ public class OpenFlow13ProviderTest {
         assertNotNull(pushNshCase.getNxPushNsh());
     }
 
+    private void checkActionPopNsh(Action action) {
+        NxActionPopNshNodesNodeTableFlowApplyActionsCase popNshCase =
+                (NxActionPopNshNodesNodeTableFlowApplyActionsCase) action.getAction();
+        assertNotNull(popNshCase.getNxPopNsh());
+    }
+
     private void checkActionLoadTunIpv4(Action action, String ip) {
         long ipl = InetAddresses.coerceToInteger(InetAddresses.forString(ip)) & 0xffffffffL;
         NxActionRegLoadNodesNodeTableFlowApplyActionsCase regLoad =
@@ -547,6 +581,18 @@ public class OpenFlow13ProviderTest {
         }
     }
 
+    private void checkActionMoveNsc4(Action action, boolean checkSrc) {
+        NxActionRegMoveNodesNodeTableFlowApplyActionsCase regMove =
+                (NxActionRegMoveNodesNodeTableFlowApplyActionsCase) action.getAction();
+        if (checkSrc) {
+            SrcNxNshc4Case src = (SrcNxNshc4Case) regMove.getNxRegMove().getSrc().getSrcChoice();
+            assertTrue(src.isNxNshc4Dst());
+        } else {
+            DstNxNshc4Case dst = (DstNxNshc4Case) regMove.getNxRegMove().getDst().getDstChoice();
+            assertTrue(dst.isNxNshc4Dst());
+        }
+    }
+
     private void checkActionMoveTunId(Action action, boolean checkSrc) {
         NxActionRegMoveNodesNodeTableFlowApplyActionsCase regMove =
                 (NxActionRegMoveNodesNodeTableFlowApplyActionsCase) action.getAction();
@@ -559,15 +605,16 @@ public class OpenFlow13ProviderTest {
         }
     }
 
-    private void checkActionMoveTunReg0(Action action, boolean checkSrc) {
+    private void checkActionMoveTunReg(Action action, Class<? extends NxmNxReg> reg, boolean checkSrc) {
         NxActionRegMoveNodesNodeTableFlowApplyActionsCase regMove =
                 (NxActionRegMoveNodesNodeTableFlowApplyActionsCase) action.getAction();
         if (checkSrc) {
             SrcNxRegCase src = (SrcNxRegCase) regMove.getNxRegMove().getSrc().getSrcChoice();
-            assertTrue(src.getNxReg() == NxmNxReg0.class);
+            assertTrue(src.getNxReg() == reg);
         } else {
             DstNxRegCase dst = (DstNxRegCase) regMove.getNxRegMove().getDst().getDstChoice();
-            assertTrue(dst.getNxReg() == NxmNxReg0.class);
+            assertTrue(dst.getNxReg() == reg);
         }
     }
+
 }
