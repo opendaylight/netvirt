@@ -106,20 +106,20 @@ public class GeniusProviderTest extends ConstantSchemaAbstractDataBrokerTest {
     }
 
     @Test
-    public void getIpFromInterfaceName() {
+    public void getIpFromDpnId() {
         // Test that it correctly handles the case when the ifName doesnt exist
-        Optional<String> ipStr = this.geniusProvider.getIpFromInterfaceName(
-                GeniusProviderTestParams.INTERFACE_NAME_NO_EXIST);
+        Optional<String> ipStr = this.geniusProvider.getIpFromDpnId(
+                new DpnIdType(GeniusProviderTestParams.DPN_ID_NO_EXIST));
         assertFalse(ipStr.isPresent());
 
         // Test that it correctly handles RPC errors
-        ipStr = this.geniusProvider.getIpFromInterfaceName(
-                GeniusProviderTestParams.INTERFACE_NAME_INVALID);
+        ipStr = this.geniusProvider.getIpFromDpnId(
+                new DpnIdType(GeniusProviderTestParams.DPN_ID_INVALID));
         assertFalse(ipStr.isPresent());
 
         // Test that it correctly returns the ipStr when everything is correct
-        ipStr = this.geniusProvider.getIpFromInterfaceName(
-                GeniusProviderTestParams.INTERFACE_NAME);
+        ipStr = this.geniusProvider.getIpFromDpnId(
+                new DpnIdType(GeniusProviderTestParams.DPN_ID));
         assertTrue(ipStr.isPresent());
         assertEquals(ipStr.get(), GeniusProviderTestParams.IPV4_ADDRESS_STR);
     }

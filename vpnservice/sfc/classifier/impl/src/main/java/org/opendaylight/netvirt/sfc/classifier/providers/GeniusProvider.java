@@ -148,33 +148,16 @@ public class GeniusProvider {
         return Optional.of(new NodeId("openflow:" + dpnId.getValue()));
     }
 
-    public Optional<String> getIpFromInterfaceName(String interfaceName) {
-        Optional<DpnIdType> dpnId = getDpnIdFromInterfaceName(interfaceName);
-        if (!dpnId.isPresent()) {
-            LOG.warn("getIpFromInterfaceName empty dpnId for interfaceName [{}]", interfaceName);
-            return Optional.empty();
-        }
-
-        List<IpAddress> ipList = getIpFromDpnId(dpnId.get());
-        if (ipList.isEmpty()) {
-            LOG.warn("getIpFromInterfaceName empty ipList for interfaceName [{}]", interfaceName);
-            return Optional.empty();
-        }
-
-        // TODO need to figure out why it returns a list, using first entry for now
-        return Optional.ofNullable(ipList.get(0).getIpv4Address().getValue());
-    }
-
     // TODO Should better use the Genius InterfaceManager to avoid duplicate code
     //      https://bugs.opendaylight.org/show_bug.cgi?id=8127
-    public List<IpAddress> getIpFromDpnId(DpnIdType dpnid) {
+    public Optional<String> getIpFromDpnId(DpnIdType dpnid) {
         GetEndpointIpForDpnInputBuilder builder = new GetEndpointIpForDpnInputBuilder();
         builder.setDpid(dpnid.getValue());
         GetEndpointIpForDpnInput input = builder.build();
 
         if (interfaceManagerRpcService == null) {
             LOG.error("getIpFromDpnId({}) failed (service couldn't be retrieved)", input);
-            return Collections.emptyList();
+            return Optional.empty();
         }
 
         try {
@@ -182,18 +165,22 @@ public class GeniusProvider {
             RpcResult<GetEndpointIpForDpnOutput> output = interfaceManagerRpcService.getEndpointIpForDpn(input).get();
             if (!output.isSuccessful()) {
                 LOG.error("getIpFromDpnId({}) failed: {}", input, output);
-                return Collections.emptyList();
+                return Optional.empty();
             }
-            List<IpAddress> localIps = output.getResult().getLocalIps();
             LOG.debug("getDpnIdFromInterfaceName({}) succeeded: {}", input, output);
-            if (localIps != null) {
-                return localIps;
-            }
+            List<IpAddress> localIps = output.getResult().getLocalIps();
+
+            // TODO need to figure out why it returns a list, using first entry for now
+            return Optional.ofNullable(localIps)
+                    .filter(ipAddresses -> !ipAddresses.isEmpty())
+                    .map(ipAddresses -> ipAddresses.get(0))
+                    .map(IpAddress::getIpv4Address)
+                    .map(Ipv4Address::getValue);
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("getDpnIdFromInterfaceName failed to retrieve target interface name: ", e);
         }
 
-        return Collections.emptyList();
+        return Optional.empty();
     }
 
     public Optional<DpnIdType> getDpnIdFromInterfaceName(String interfaceName) {
