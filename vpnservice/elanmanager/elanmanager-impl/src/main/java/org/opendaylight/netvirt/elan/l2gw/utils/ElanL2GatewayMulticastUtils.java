@@ -319,7 +319,10 @@ public class ElanL2GatewayMulticastUtils {
     private static List<IpAddress> getAllTepIpsOfL2GwDevices(ConcurrentMap<String, L2GatewayDevice> devices) {
         List<IpAddress> tepIps = new ArrayList<>();
         for (L2GatewayDevice otherDevice : devices.values()) {
-            tepIps.add(otherDevice.getTunnelIp());
+            // There is no need to add the same tep ip to the list.
+            if (!tepIps.contains(otherDevice.getTunnelIp())) {
+                tepIps.add(otherDevice.getTunnelIp());
+            }
         }
         return tepIps;
     }
