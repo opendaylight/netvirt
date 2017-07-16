@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
+ * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -56,6 +56,10 @@ public final class AclLiveStatisticsHelper {
 
     /** The Constant COOKIE_ACL_DROP_FLOW_MASK. */
     protected static final BigInteger COOKIE_ACL_DROP_FLOW_MASK = new BigInteger("FFFFFFF", 16);
+
+    private AclLiveStatisticsHelper() {
+        throw new IllegalStateException("Utility class");
+    }
 
     /**
      * Gets the acl port stats.
@@ -152,7 +156,6 @@ public final class AclLiveStatisticsHelper {
      * @param direction the direction
      * @param aclStatsBuilder the acl stats builder
      * @param flowStatsOutput the flow stats output
-     * @return the acl drop stats
      */
     private static void getAclDropStats(Direction direction, AclPortStatsBuilder aclStatsBuilder,
             GetFlowStatisticsOutput flowStatsOutput) {
