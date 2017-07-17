@@ -127,6 +127,13 @@
     <argument ref="elanInterfaceManager" />
   </bean>
 
+  <bean id="elanInterfaceConfigListener"
+    class="org.opendaylight.netvirt.elan.internal.ElanInterfaceConfigListener"
+    init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="elanInterfaceManager" />
+  </bean>
+
   <bean id="elanTunnelInterfaceStateListener"
     class="org.opendaylight.netvirt.elan.internal.ElanTunnelInterfaceStateListener"
     init-method="init" destroy-method="close">

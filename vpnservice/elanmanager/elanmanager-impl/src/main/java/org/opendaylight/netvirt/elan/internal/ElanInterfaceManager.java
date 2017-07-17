@@ -264,7 +264,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         InterfaceRemoveWorkerOnElanInterface removeInterfaceWorker = new InterfaceRemoveWorkerOnElanInterface(
                 interfaceName, elanInfo, interfaceInfo, isInterfaceStateRemoved, this, isLastElanInterface);
-        coordinator.enqueueJob(interfaceName, removeInterfaceWorker, ElanConstants.JOB_MAX_RETRIES);
+        coordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(interfaceName), removeInterfaceWorker,
+                ElanConstants.JOB_MAX_RETRIES);
     }
 
     private void removeEtreeUnknownDmacFlow(BigInteger dpId, ElanInstance elanInfo,
@@ -696,9 +697,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }
 
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
-        InterfaceAddWorkerOnElanInterface addWorker = new InterfaceAddWorkerOnElanInterface(interfaceName,
+        String jobKey = ElanUtils.getElanInterfaceJobKey(interfaceName);
+        InterfaceAddWorkerOnElanInterface addWorker = new InterfaceAddWorkerOnElanInterface(jobKey,
                 elanInterface, interfaceInfo, elanInstance, isFirstInterfaceInDpn, this);
-        coordinator.enqueueJob(interfaceName, addWorker, ElanConstants.JOB_MAX_RETRIES);
+        coordinator.enqueueJob(jobKey, addWorker, ElanConstants.JOB_MAX_RETRIES);
     }
 
     void setupEntriesForElanInterface(List<ListenableFuture<Void>> futures, ElanInstance elanInstance,
@@ -1678,7 +1680,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     Set<String> interfaceLists = new HashSet<>();
                     interfaceLists.addAll(finalDstDpnIf.getInterfaces());
                     for (String ifName : interfaceLists) {
-                        dataStoreCoordinator.enqueueJob(ifName, () -> {
+                        dataStoreCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(ifName), () -> {
                             LOG.info("Processing tunnel up event for elan {} and interface {}", elanName, ifName);
                             InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(ifName);
                             List<ListenableFuture<Void>> elanInterfacefutures = new ArrayList<>();
