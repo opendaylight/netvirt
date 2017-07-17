@@ -30,7 +30,7 @@
         <module>odl-netvirt-federation</module>
         -->
         <module>odl-netvirt-ui</module>
-        <!--<module>odl-netvirt-sfc</module>-->
+        <module>odl-netvirt-sfc</module>
     </modules>
 
     <!-- Maven Site Configuration The following configuration is necessary
