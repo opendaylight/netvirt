@@ -23,6 +23,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.netvirt.natservice.api.CentralizedSwitchScheduler;
 import org.opendaylight.netvirt.natservice.internal.NatUtil;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
@@ -42,13 +43,15 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     private final NatDataUtil natDataUtil;
     final OdlInterfaceRpcService interfaceManager;
     private final int initialSwitchWeight = 0;
+    private final IVpnFootprintService vpnFootprintService;
 
     @Inject
     public WeightedCentralizedSwitchScheduler(DataBroker dataBroker, OdlInterfaceRpcService interfaceManager,
-            NatDataUtil natDataUtil) {
+            NatDataUtil natDataUtil, IVpnFootprintService vpnFootprintService) {
         this.dataBroker = dataBroker;
         this.interfaceManager = interfaceManager;
         this.natDataUtil = natDataUtil;
+        this.vpnFootprintService = vpnFootprintService;
     }
 
     @Override
@@ -67,16 +70,15 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                         SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
                                 dataBroker, LogicalDatastoreType.CONFIGURATION, getSubnetMapIdentifier(subnetUuid));
                 if (subnetMapEntry.isPresent()) {
+
                     Uuid routerPortUuid = subnetMapEntry.get().getRouterInterfacePortId();
-                    NatUtil.createOrUpdateVpnToDpnList(dataBroker, vpnId, nextSwitchId, routerPortUuid.getValue(),
-                            vpnName, writeOperTxn);
+                    vpnFootprintService.updateVpnToDpnMapping(nextSwitchId, vpnName,
+                            routerPortUuid.getValue(), null, true);
                     NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerName, routerPortUuid.getValue(),
                             nextSwitchId, writeOperTxn);
                     NatUtil.addToDpnRoutersMap(dataBroker, routerName, routerPortUuid.getValue(),
                             nextSwitchId, writeOperTxn);
                 }
-
-
             }
             writeOperTxn.submit();
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
@@ -104,8 +106,8 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                                 dataBroker, LogicalDatastoreType.CONFIGURATION, getSubnetMapIdentifier(subnetUuid));
                 if (subnetMapEntry.isPresent()) {
                     Uuid routerPortUuid = subnetMapEntry.get().getRouterInterfacePortId();
-                    NatUtil.removeOrUpdateVpnToDpnList(dataBroker, vpnId, primarySwitchId, routerPortUuid.getValue(),
-                            vpnName, writeOperTxn);
+                    vpnFootprintService.updateVpnToDpnMapping(primarySwitchId, vpnName,
+                            routerPortUuid.getValue(), null, false);
                     NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerName, primarySwitchId, writeOperTxn);
                     NatUtil.removeFromDpnRoutersMap(dataBroker, routerName, routerName, interfaceManager,
                             writeOperTxn);
