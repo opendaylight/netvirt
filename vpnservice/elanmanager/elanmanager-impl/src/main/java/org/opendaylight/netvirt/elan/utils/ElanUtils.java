@@ -2326,4 +2326,9 @@ public class ElanUtils {
                         nodeDpn.getKey()).augmentation(FlowCapableNode.class)
                 .child(Table.class, new TableKey(flow.getTableId())).child(Flow.class, flowKey).build();
     }
+
+    public String getElanInterfaceJobKey(String interfaceName) {
+        String jobKey = "elaninterface-" + interfaceName;
+        return jobKey.intern();
+    }
 }

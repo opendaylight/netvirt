@@ -53,6 +53,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
     private final IdManagerService idManager;
     private final IInterfaceManager interfaceManager;
     private final ElanInterfaceManager elanInterfaceManager;
+    private volatile ElanUtils elanUtils;
 
     @Inject
     public ElanInstanceManager(final DataBroker dataBroker, final IdManagerService managerService,
@@ -69,6 +70,10 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
     @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+    }
+
+    public void setElanUtils(ElanUtils elanUtils) {
+        this.elanUtils = elanUtils;
     }
 
     @Override
@@ -107,7 +112,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
         }
         DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
         ElanUtils.removeAndGetElanInterfaces(elanName).forEach(elanInterfaceName -> {
-            dataStoreJobCoordinator.enqueueJob(elanInterfaceName, () -> {
+            dataStoreJobCoordinator.enqueueJob(elanUtils.getElanInterfaceJobKey(elanInterfaceName), () -> {
                 WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
                 LOG.info("Deleting the elanInterface present under ConfigDS:{}", elanInterfaceName);
                 ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,

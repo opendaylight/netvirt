@@ -107,6 +107,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         this.broker = dataBroker;
         this.elanStatusMonitor = elanStatusMonitor;
         this.elanUtils = elanUtils;
+        elanInstanceManager.setElanUtils(elanUtils);
         elanInterfaceManager.setElanUtils(elanUtils);
         try {
             EntityOwnerUtils.registerEntityCandidateForOwnerShip(entityOwnershipService,
