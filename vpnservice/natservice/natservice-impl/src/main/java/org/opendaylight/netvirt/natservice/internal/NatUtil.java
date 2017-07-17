@@ -124,11 +124,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalIpsCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
@@ -1793,109 +1790,6 @@ public class NatUtil {
         return InstanceIdentifier.builder(VpnInstanceOpData.class)
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd))
                 .child(VpnToDpnList.class, new VpnToDpnListKey(dpnId)).build();
-    }
-
-    public static void createOrUpdateVpnToDpnList(DataBroker dataBroker, long vpnId, BigInteger dpnId, String intfName,
-            String vpnName, WriteTransaction writeTxn) {
-        String primaryRd = getPrimaryRd(dataBroker, vpnName);
-        Boolean newDpnOnVpn = Boolean.FALSE;
-
-        synchronized (vpnName.intern()) {
-            InstanceIdentifier<VpnToDpnList> id = getVpnToDpnListIdentifier(primaryRd, dpnId);
-            Optional<VpnToDpnList> dpnInVpn =
-                    SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                            LogicalDatastoreType.OPERATIONAL, id);
-            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance
-                .op.data.entry.vpn.to.dpn.list.VpnInterfaces vpnInterface = new VpnInterfacesBuilder()
-                .setInterfaceName(intfName).build();
-
-            if (dpnInVpn.isPresent()) {
-                VpnToDpnList vpnToDpnList = dpnInVpn.get();
-                List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn
-                    .instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces> vpnInterfaces = vpnToDpnList
-                    .getVpnInterfaces();
-                if (vpnInterfaces == null) {
-                    vpnInterfaces = new ArrayList<>();
-                }
-                vpnInterfaces.add(vpnInterface);
-                VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder(vpnToDpnList);
-                vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setVpnInterfaces(vpnInterfaces);
-
-                writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, vpnToDpnListBuilder.build(),
-                        WriteTransaction.CREATE_MISSING_PARENTS);
-                /* If earlier state was inactive, it is considered new DPN coming back to the
-                 * same VPN
-                 */
-                if (vpnToDpnList.getDpnState() == VpnToDpnList.DpnState.Inactive) {
-                    newDpnOnVpn = Boolean.TRUE;
-                }
-            } else {
-                List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn
-                    .instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces>
-                    vpnInterfaces = new ArrayList<>();
-                vpnInterfaces.add(vpnInterface);
-                VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder().setDpnId(dpnId);
-                vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setVpnInterfaces(vpnInterfaces);
-
-                writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, vpnToDpnListBuilder.build(),
-                        WriteTransaction.CREATE_MISSING_PARENTS);
-                newDpnOnVpn = Boolean.TRUE;
-            }
-        }
-    }
-
-    public static void removeOrUpdateVpnToDpnList(DataBroker dataBroker, long vpnId, BigInteger dpnId, String intfName,
-            String vpnName, WriteTransaction writeTxn) {
-        Boolean lastDpnOnVpn = Boolean.FALSE;
-        String rd = getVpnRd(dataBroker, vpnName);
-        synchronized (vpnName.intern()) {
-            InstanceIdentifier<VpnToDpnList> id = getVpnToDpnListIdentifier(rd, dpnId);
-            VpnToDpnList dpnInVpn =
-                    SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                            LogicalDatastoreType.OPERATIONAL, id).orNull();
-            if (dpnInVpn == null) {
-                LOG.error("removeOrUpdateVpnToDpnList: Could not find DpnToVpn map for VPN=[name={} rd={} id={}]"
-                    + " and dpnId={}", vpnName, rd, id, dpnId);
-                return;
-            }
-            List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn
-                .instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces> vpnInterfaces = dpnInVpn.getVpnInterfaces();
-            if (vpnInterfaces == null) {
-                LOG.error("Could not find vpnInterfaces for DpnInVpn map for VPN=[name={} rd={} id={}] and dpnId={}",
-                         vpnName, rd, id, dpnId);
-                return;
-            }
-
-            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn
-                .instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces currVpnInterface = new VpnInterfacesBuilder()
-                .setInterfaceName(intfName).build();
-            if (vpnInterfaces.remove(currVpnInterface)) {
-                if (vpnInterfaces.isEmpty()) {
-                    List<IpAddresses> ipAddresses = dpnInVpn.getIpAddresses();
-                    VpnToDpnListBuilder dpnInVpnBuilder = new VpnToDpnListBuilder(dpnInVpn).setVpnInterfaces(null);
-                    if (ipAddresses == null || ipAddresses.isEmpty()) {
-                        dpnInVpnBuilder.setDpnState(VpnToDpnList.DpnState.Inactive);
-                        lastDpnOnVpn = Boolean.TRUE;
-                    } else {
-                        LOG.warn("vpn interfaces are empty but ip addresses are present for the vpn {} in dpn {}",
-                                 vpnName, dpnId);
-                    }
-                    writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, dpnInVpnBuilder.build(),
-                            WriteTransaction.CREATE_MISSING_PARENTS);
-
-                } else {
-                    writeTxn.delete(LogicalDatastoreType.OPERATIONAL, id.child(org.opendaylight.yang.gen.v1.urn
-                            .opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry
-                            .vpn.to.dpn.list.VpnInterfaces.class, new VpnInterfacesKey(intfName)));
-                }
-            }
-        } // Ends synchronized block
-
-       /* if (lastDpnOnVpn) {
-            LOG.debug("Sending cleanup event for dpn {} in VPN {}", dpnId, vpnName);
-            fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd, new DpnEnterExitVpnWorker(dpnId, vpnName, rd,
-                false  exited ));
-        }*/
     }
 
     public static String getPrimaryRd(DataBroker dataBroker, String vpnName) {
