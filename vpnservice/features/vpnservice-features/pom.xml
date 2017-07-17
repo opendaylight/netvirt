@@ -61,13 +61,13 @@
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
-        <!--<dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-netvirt-sfc</artifactId>
             <version>${project.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
-        </dependency>-->
+        </dependency>
     </dependencies>
     
 </project>
