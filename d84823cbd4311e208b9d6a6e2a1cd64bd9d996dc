@@ -16,6 +16,24 @@
       "revId": "d84823cbd4311e208b9d6a6e2a1cd64bd9d996dc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_934bbf86",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-07-17T09:37:56Z",
+      "side": 1,
+      "message": "Hello Sam\n\nThks for your remark.\n\nIndeed there is a function in BGPManager (getAFItranslatedfromPrefix) that is not doing exactly the same thing.\nThe API differs, it impacts the way it is used.\nThis BGPManager function currently expects a host only and returns the kind of prefix, while the FIB manager expects a prefix, and returns a boolean.\n\nAlso, This function uses thrift values, which is an external dependency from BGPManager only.\nSo moving this function to FIBManager would introduce an external dependency in fibmanager, which is not recommended, I guess.\nI think this work is not possible right now, without rework, and I would consider this rework as a low priority issue.\n\nBecause of that, I think it is better to keep the code as it is for fibmanager\nplease write me back if that not right for you or check a code-review +1\nThanks",
+      "parentUuid": "da2a55be_1ab1a48f",
+      "revId": "d84823cbd4311e208b9d6a6e2a1cd64bd9d996dc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
