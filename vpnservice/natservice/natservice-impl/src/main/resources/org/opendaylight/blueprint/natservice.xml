@@ -21,6 +21,10 @@
              interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" />
   <reference id="iVpnManager"
              interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
+  <reference id="iVpnFootprintService"
+             interface="org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService"
+             availability="optional"/>
+
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
