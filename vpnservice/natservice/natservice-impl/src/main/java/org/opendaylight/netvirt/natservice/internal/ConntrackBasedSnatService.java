@@ -22,6 +22,7 @@ import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack.NxCtAction;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadInPort;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetSource;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldMeta;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -31,6 +32,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
@@ -72,8 +74,9 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
         installSnatMissEntryForPrimrySwch(dpnId, routerId, elanId, addOrRemove);
         installTerminatingServiceTblEntry(dpnId, routerId, elanId, addOrRemove);
         List<ExternalIps> externalIps = routers.getExternalIps();
-        createOutboundTblTrackEntry(dpnId, routerId, externalIps, addOrRemove);
-        createOutboundTblEntry(dpnId, routerId, externalIps, elanId, addOrRemove);
+        String extGwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
+        createOutboundTblTrackEntry(dpnId, routerId, externalIps, extGwMacAddress, addOrRemove);
+        createOutboundTblEntry(dpnId, routerId, externalIps, elanId, extGwMacAddress, addOrRemove);
         installNaptPfibFlow(routers, dpnId, externalIps, routerName, addOrRemove);
 
         //Install Inbound NAT entries
@@ -138,7 +141,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
     }
 
     protected void createOutboundTblTrackEntry(BigInteger dpnId, Long routerId,
-            List<ExternalIps> externalIps, int addOrRemove) {
+            List<ExternalIps> externalIps, String extGwMacAddress, int addOrRemove) {
         LOG.info("ConntrackBasedSnatService : createOutboundTblTrackEntry for switch {}, routerId {}",
                 dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
@@ -163,6 +166,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
             ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil
                     .getVpnIdMetadata(extSubnetId));
             listActionInfo.add(actionSetFieldMeta);
+            listActionInfo.add(new ActionSetFieldEthernetSource(new MacAddress(extGwMacAddress)));
         }
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
         listActionInfo.add(new ActionNxResubmit(NwConstants.NAPT_PFIB_TABLE));
@@ -176,7 +180,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
     }
 
     protected void createOutboundTblEntry(BigInteger dpnId, long routerId, List<ExternalIps> externalIps,
-            int elanId, int addOrRemove) {
+            int elanId, String extGwMacAddress,  int addOrRemove) {
         LOG.info("ConntrackBasedSnatService : createOutboundTblEntry dpId {} and routerId {}",
                 dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
@@ -201,6 +205,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
             ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil
                     .getVpnIdMetadata(extSubnetId));
             actionsInfos.add(actionSetFieldMeta);
+            actionsInfos.add(new ActionSetFieldEthernetSource(new MacAddress(extGwMacAddress)));
         }
         List<NxCtAction> ctActionsListCommit = new ArrayList<>();
         int rangePresent = NxActionNatRangePresent.NXNATRANGEIPV4MIN.getIntValue();
