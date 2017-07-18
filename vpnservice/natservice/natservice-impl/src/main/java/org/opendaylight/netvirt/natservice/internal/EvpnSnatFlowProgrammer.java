@@ -8,12 +8,19 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.JdkFutureAdapters;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -28,6 +35,12 @@ import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +51,7 @@ public class EvpnSnatFlowProgrammer {
     private final IMdsalApiManager mdsalManager;
     private final IBgpManager bgpManager;
     private final IFibManager fibManager;
+    private final FibRpcService fibService;
     private final IdManagerService idManager;
     private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
 
@@ -45,11 +59,13 @@ public class EvpnSnatFlowProgrammer {
     public EvpnSnatFlowProgrammer(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                            final IBgpManager bgpManager,
                            final IFibManager fibManager,
+                           final FibRpcService fibService,
                            final IdManagerService idManager) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.bgpManager = bgpManager;
         this.fibManager = fibManager;
+        this.fibService = fibService;
         this.idManager = idManager;
     }
 
@@ -63,54 +79,94 @@ public class EvpnSnatFlowProgrammer {
       *     different Hypervisor}
       *
       * 2) Install the flow L3_GW_MAC_TABLE (table=19)-> INBOUND_NAPT_TABLE (table=44)
-      *    (FIP VM on DPN1 is responding back to external fixed IP on DPN1 itself){DNAT to SNAT traffic on
-      *     Same Hypervisor}
+      *    (FIP VM on DPN1 is responding back to external fixed IP on beyond DC-GW VM){DNAT to SNAT Inter DC traffic}
       *
       * 3) Install the flow PDNAT_TABLE (table=25)-> INBOUND_NAPT_TABLE (table=44)
       *    (If there is no FIP Match on table 25 (PDNAT_TABLE) then default flow to INBOUND_NAPT_TABLE (table=44))
       *
+      * 4) Install the flow L3_FIB_TABLE (table=21)-> INBOUND_NAPT_TABLE (table=44)
+      *    (FIP VM on DPN1 is responding back to external fixed Ip on DPN1 itself. ie. same Hypervisor)
+      *    {DNAT to SNAT Intra DC traffic}
       */
-        LOG.info("NAT Service : Handling SNAT Reverse Traffic for External Network {} ", externalIp);
+        LOG.info("evpnAdvToBgpAndInstallFibAndTsFlows : Handling SNAT Reverse Traffic for External Fixed IP {} for "
+                + "RouterId {}", externalIp, routerId);
         // Get the External Gateway MAC Address which is Router gateway MAC address for SNAT
         String gwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
         if (gwMacAddress == null) {
-            LOG.error("NAT Service : Unable to Retrieve External Gateway MAC address from Router ID {}", routerId);
+            LOG.error("evpnAdvToBgpAndInstallFibAndTsFlows : Unable to Retrieve External Gateway MAC address "
+                    + "from Router ID {}", routerId);
             return;
         }
         //get l3Vni value for external VPN
         long l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
         if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
-            LOG.debug("NAT Service : L3VNI value is not configured in Internet VPN {} and RD {} "
-                    + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with installing "
+            LOG.debug("evpnAdvToBgpAndInstallFibAndTsFlows : L3VNI value is not configured in Internet VPN {} and "
+                    + "RD {} Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with installing "
                     + "SNAT flows for External Fixed IP {}", vpnName, rd, externalIp);
             l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
         }
-        /* As of now neither SNAT nor DNAT will use macaddress while advertising to FIB and BGP instead
+
+        long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
+        if (vpnId == NatConstants.INVALID_ID) {
+            LOG.error("evpnAdvToBgpAndInstallFibAndTsFlows : Invalid Vpn Id is found for Vpn Name {}",
+                    vpnName);
+            return;
+        }
+        /* As of now neither SNAT nor DNAT will use mac-address while advertising to FIB and BGP instead
          * use only gwMacAddress. Hence default value of macAddress is null
          */
         //Inform to BGP
         NatEvpnUtil.addRoutesForVxLanProvType(dataBroker, bgpManager, fibManager, vpnName, rd, externalIp,
                 nextHopIp, l3Vni, null /*InterfaceName*/, gwMacAddress, writeTx, RouteOrigin.STATIC, dpnId);
 
+        //Install custom FIB routes - FIB table.
         List<Instruction> customInstructions = new ArrayList<>();
         customInstructions.add(new InstructionGotoTable(tableId).buildInstruction(0));
-        /* Install the flow INTERNAL_TUNNEL_TABLE (table=36)-> INBOUND_NAPT_TABLE (table=44)
-         * (SNAT to DNAT reverse Traffic: If traffic is Initiated from NAPT to FIP VM on different Hypervisor)
-         */
-        makeTunnelTableEntry(dpnId, l3Vni, customInstructions, tableId);
-        /* Install the flow L3_GW_MAC_TABLE (table=19)-> INBOUND_NAPT_TABLE (table=44)
-         * (SNAT reverse traffic: If the traffic is Initiated from DC-GW to VM (SNAT Reverse traffic))
-         */
-        long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
-        if (vpnId == NatConstants.INVALID_ID) {
-            LOG.warn("NAT Service : Invalid Vpn Id is found for Vpn Name {}", vpnName);
-        }
-        NatEvpnUtil.makeL3GwMacTableEntry(dpnId, vpnId, gwMacAddress, customInstructions, mdsalManager);
+        final String externalFixedIp = NatUtil.validateAndAddNetworkMask(externalIp);
 
-        /* Install the flow PDNAT_TABLE (table=25)-> INBOUND_NAPT_TABLE (table=44)
-         * If there is no FIP Match on table 25 (PDNAT_TABLE)
-         */
-        NatUtil.makePreDnatToSnatTableEntry(mdsalManager, dpnId, tableId);
+        CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
+                .setSourceDpid(dpnId).setIpAddress(externalFixedIp)
+                .setServiceId(l3Vni).setIpAddressSource(CreateFibEntryInput.IpAddressSource.ExternalFixedIP)
+                .setInstruction(customInstructions).build();
+        LOG.debug("evpnAdvToBgpAndInstallFibAndTsFlows : Installing custom FIB table {} --> table {} flow on "
+                + "NAPT Switch {} with l3Vni {}, ExternalFixedIp {}, ExternalVpnName {} for RouterId {}",
+                NwConstants.L3_FIB_TABLE, tableId, dpnId, l3Vni, externalIp, vpnName, routerId);
+
+        Future<RpcResult<Void>> future1 = fibService.createFibEntry(input);
+        ListenableFuture<RpcResult<Void>> futureVxlan = JdkFutureAdapters.listenInPoolThread(future1);
+
+        final long finalL3Vni = l3Vni;
+        Futures.addCallback(futureVxlan, new FutureCallback<RpcResult<Void>>() {
+            @Override
+            public void onFailure(@Nonnull Throwable error) {
+                LOG.error("evpnAdvToBgpAndInstallFibAndTsFlows : Error in custom fib routes install process for "
+                        + "External Fixed IP {} on DPN {} with l3Vni {}, ExternalVpnName {} for RouterId {}",
+                        externalIp, dpnId, finalL3Vni, vpnName, routerId, error);
+            }
+
+            @Override
+            public void onSuccess(RpcResult<Void> result) {
+                if (result.isSuccessful()) {
+                    LOG.info("evpnAdvToBgpAndInstallFibAndTsFlows : Successfully installed custom FIB routes for "
+                            + "External Fixed IP {} on DPN {} with l3Vni {}, ExternalVpnName {} for RouterId {}",
+                            externalIp, dpnId, finalL3Vni, vpnName, routerId);
+
+                 /* Install the flow INTERNAL_TUNNEL_TABLE (table=36)-> INBOUND_NAPT_TABLE (table=44)
+                  * (SNAT to DNAT reverse Traffic: If traffic is Initiated from NAPT to FIP VM on different Hypervisor)
+                  */
+                    makeTunnelTableEntry(dpnId, finalL3Vni, customInstructions, tableId);
+                 /* Install the flow L3_GW_MAC_TABLE (table=19)-> INBOUND_NAPT_TABLE (table=44)
+                  * (SNAT reverse traffic: If the traffic is Initiated from DC-GW to VM (SNAT Reverse traffic))
+                  */
+                    NatEvpnUtil.makeL3GwMacTableEntry(dpnId, vpnId, gwMacAddress, customInstructions, mdsalManager);
+
+                 /* Install the flow PDNAT_TABLE (table=25)-> INBOUND_NAPT_TABLE (table=44)
+                  * If there is no FIP Match on table 25 (PDNAT_TABLE)
+                  */
+                    NatUtil.makePreDnatToSnatTableEntry(mdsalManager, dpnId, tableId);
+                }
+            }
+        });
     }
 
     public void evpnDelFibTsAndReverseTraffic(final BigInteger dpnId, final long routerId, final String externalIp,
@@ -127,34 +183,68 @@ public class EvpnSnatFlowProgrammer {
       * 3) Remove the flow PDNAT_TABLE (table=25)-> INBOUND_NAPT_TABLE (table=44)
       *    (If there is no FIP Match on table 25 (PDNAT_TABLE) then default flow to INBOUND_NAPT_TABLE (table=44))
       *
+      * 4) Remove the flow L3_FIB_TABLE (table=21)-> INBOUND_NAPT_TABLE (table=44)
+      *    (FIP VM on DPN1 is responding back to external fixed Ip on DPN1 itself. ie. same Hypervisor)
+      *    {DNAT to SNAT Intra DC traffic}
       */
         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
         if (rd == null) {
-            LOG.error("NAT Service : Could not retrieve RD value from VPN Name {}  ", vpnName);
+            LOG.error("evpnDelFibTsAndReverseTraffic : Could not retrieve RD value from VPN Name {}", vpnName);
             return;
         }
         long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
         if (vpnId == NatConstants.INVALID_ID) {
-            LOG.error("NAT Service : Invalid Vpn Id is found for Vpn Name {}", vpnName);
+            LOG.error("evpnDelFibTsAndReverseTraffic : Invalid Vpn Id is found for Vpn Name {}", vpnName);
+            return;
+        }
+        if (extGwMacAddress == null) {
+            LOG.error("evpnDelFibTsAndReverseTraffic : Unable to Get External Gateway MAC address for "
+                    + "External Router ID {} ", routerId);
             return;
         }
         long l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
         if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
-            LOG.debug("NAT Service : L3VNI value is not configured in Internet VPN {} and RD {} "
+            LOG.debug("evpnDelFibTsAndReverseTraffic : L3VNI value is not configured in Internet VPN {} and RD {} "
                     + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with installing "
                     + "SNAT flows for External Fixed IP {}", vpnName, rd, externalIp);
             l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
         }
-        //remove INTERNAL_TUNNEL_TABLE (table=36)-> INBOUND_NAPT_TABLE (table=44) flow
-        removeTunnelTableEntry(dpnId, l3Vni);
-        //remove L3_GW_MAC_TABLE (table=19)-> INBOUND_NAPT_TABLE (table=44) flow
-        NatUtil.removePreDnatToSnatTableEntry(mdsalManager, dpnId);
-        //remove PDNAT_TABLE (table=25)-> INBOUND_NAPT_TABLE (table=44) flow
-        if (extGwMacAddress == null) {
-            LOG.error("NAT Service : Unable to Get External Gateway MAC address for External Router ID {} ", routerId);
-            return;
-        }
-        NatEvpnUtil.removeL3GwMacTableEntry(dpnId, vpnId, extGwMacAddress, mdsalManager);
+
+        final String externalFixedIp = NatUtil.validateAndAddNetworkMask(externalIp);
+        RemoveFibEntryInput input = new RemoveFibEntryInputBuilder()
+                .setVpnName(vpnName).setSourceDpid(dpnId).setIpAddress(externalFixedIp)
+                .setIpAddressSource(RemoveFibEntryInput.IpAddressSource.ExternalFixedIP).setServiceId(l3Vni).build();
+        LOG.debug("evpnDelFibTsAndReverseTraffic : Removing custom FIB table {} --> table {} flow on "
+                        + "NAPT Switch {} with l3Vni {}, ExternalFixedIp {}, ExternalVpnName {} for RouterId {}",
+                NwConstants.L3_FIB_TABLE, NwConstants.INBOUND_NAPT_TABLE, dpnId, l3Vni, externalIp, vpnName, routerId);
+
+        Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
+        ListenableFuture<RpcResult<Void>> futureVxlan = JdkFutureAdapters.listenInPoolThread(future);
+        final long finalL3Vni = l3Vni;
+        Futures.addCallback(futureVxlan, new FutureCallback<RpcResult<Void>>() {
+            @Override
+            public void onFailure(@Nonnull Throwable error) {
+                LOG.error("evpnDelFibTsAndReverseTraffic : Error in custom fib routes remove process for "
+                        + "External Fixed IP {} on DPN {} with l3Vni {}, ExternalVpnName {} for RouterId {}",
+                        externalIp, dpnId, finalL3Vni, vpnName, routerId, error);
+            }
+
+            @Override
+            public void onSuccess(RpcResult<Void> result) {
+                if (result.isSuccessful()) {
+                    LOG.info("evpnDelFibTsAndReverseTraffic : Successfully removed custom FIB routes for "
+                            + "External Fixed IP {} on DPN {} with l3Vni {}, ExternalVpnName {} for "
+                            + "RouterId {}", externalIp, dpnId, finalL3Vni, vpnName, routerId);
+
+                    //remove INTERNAL_TUNNEL_TABLE (table=36)-> INBOUND_NAPT_TABLE (table=44) flow
+                    removeTunnelTableEntry(dpnId, finalL3Vni);
+                    //remove L3_GW_MAC_TABLE (table=19)-> INBOUND_NAPT_TABLE (table=44) flow
+                    NatUtil.removePreDnatToSnatTableEntry(mdsalManager, dpnId);
+                    //remove PDNAT_TABLE (table=25)-> INBOUND_NAPT_TABLE (table=44) flow
+                    NatEvpnUtil.removeL3GwMacTableEntry(dpnId, vpnId, extGwMacAddress, mdsalManager);
+                }
+            }
+        });
     }
 
     public void makeTunnelTableEntry(BigInteger dpnId, long l3Vni, List<Instruction> customInstructions,
