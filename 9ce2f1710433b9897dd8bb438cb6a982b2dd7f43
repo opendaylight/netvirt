@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_2203960e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-07-18T12:32:28Z",
+      "side": 1,
+      "message": "Aargh, we’re trying to get rid of these, not add more :-(.",
+      "revId": "9ce2f1710433b9897dd8bb438cb6a982b2dd7f43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_bf0cc143",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2330,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-07-18T12:32:28Z",
+      "side": 1,
+      "message": "Make this static, that way you won’t need to pass instances of elanUtils around just for this method.",
+      "revId": "9ce2f1710433b9897dd8bb438cb6a982b2dd7f43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_9f073d1d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2332,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-07-18T12:32:28Z",
+      "side": 1,
+      "message": "Why? You might find https://shipilev.net/jvm-anatomy-park/10-string-intern/ interesting.",
+      "revId": "9ce2f1710433b9897dd8bb438cb6a982b2dd7f43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
