@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_6eff3568",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-19T14:11:21Z",
+      "side": 1,
+      "message": "related to Sridhar\u0027s comment - is it OK that we get a NULL and if so should this not be an error? When I see error I think this is bad, which means we shouldn\u0027t be getting NULL so we need to find the root cause.",
+      "revId": "44fcc416872b82297037d71057b5d44e0b72ac5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
