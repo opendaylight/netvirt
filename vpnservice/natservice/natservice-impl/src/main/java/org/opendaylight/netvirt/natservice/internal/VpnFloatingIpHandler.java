@@ -132,18 +132,33 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         Uuid floatingIpId = mapping.getExternalId();
         Uuid subnetId = NatUtil.getFloatingIpPortSubnetIdFromFloatingIpId(dataBroker, floatingIpId);
         String floatingIpPortMacAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
+        if (floatingIpPortMacAddress == null) {
+            LOG.error("onAddFloatingIp: Unable to retrieve floatingIp port MAC address from floatingIpId {} for "
+                    + "router {} to handle floatingIp {}", floatingIpId, routerId, externalIp);
+            return;
+        }
         Optional<Subnets> externalSubnet = NatUtil.getOptionalExternalSubnets(dataBroker, subnetId);
         final String vpnName = externalSubnet.isPresent() ? subnetId.getValue() :
             NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
         final String subnetVpnName = externalSubnet.isPresent() ? subnetId.getValue() : null;
         if (vpnName == null) {
-            LOG.error("onAddFloatingIp : No VPN associated with ext nw {} to handle add floating ip configuration {} "
-                    + "in router {}", networkId, externalIp, routerId);
+            LOG.error("onAddFloatingIp: No VPN is associated with ext nw {} to handle add floating ip {} configuration "
+                    + "for router {}", networkId, externalIp, routerId);
             return;
         }
         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
+        if (rd == null) {
+            LOG.error("onAddFloatingIp: Unable to retrieve external (internet) VPN RD from external VPN {} for "
+                    + "router {} to handle floatingIp {}", vpnName, routerId, externalIp);
+            return;
+        }
         String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
-        LOG.debug("onAddFloatingIp : Nexthop ip for prefix {} is {}", externalIp, nextHopIp);
+        if (nextHopIp == null) {
+            LOG.error("onAddFloatingIp: Unable to retrieve nextHopIp for DPN {} to handle floatingIp {}",
+                    dpnId, externalIp);
+            return;
+        }
+        LOG.debug("onAddFloatingIp: Nexthop ip for prefix {} is {}", externalIp, nextHopIp);
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
         ProviderTypes provType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerId);
         if (provType == null) {
@@ -258,14 +273,19 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         final String vpnName = externalSubnet.isPresent() ? subnetId.getValue() :
             NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
         if (vpnName == null) {
-            LOG.warn("onRemoveFloatingIp : No VPN associated with ext nw {} to handle remove floating ip "
-                    + "configuration {} in router {}", networkId, externalIp, routerId);
+            LOG.error("onRemoveFloatingIp: No VPN associated with ext nw {} to remove floating ip {} configuration "
+                    + "for router {}", networkId, externalIp, routerId);
             return;
         }
 
         //Remove floating mac from mymac table
-        LOG.debug("onRemoveFloatingIp : Removing FloatingIp {}", externalIp);
+        LOG.debug("onRemoveFloatingIp: Removing FloatingIp {}", externalIp);
         String floatingIpPortMacAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
+        if (floatingIpPortMacAddress == null) {
+            LOG.error("onRemoveFloatingIp: Unable to retrieve floatingIp port MAC address from floatingIpId {} for "
+                    + "router {} to remove floatingIp {}", floatingIpId, routerId, externalIp);
+            return;
+        }
         if (floatingIpPortMacAddress != null) {
             WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
             String networkVpnName =  NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
