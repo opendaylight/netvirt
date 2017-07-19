@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+Copyright (c) 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
 
 This program and the accompanying materials are made available under the
 terms of the Eclipse Public License v1.0 which accompanies this distribution,
 and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <parent>
     <groupId>org.opendaylight.mdsal</groupId>
     <artifactId>binding-parent</artifactId>
     <version>0.11.0-SNAPSHOT</version>
-    <relativePath/>
+    <relativePath />
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -33,6 +33,38 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </properties>
 
   <build>
+    <pluginManagement>
+      <plugins>
+      <!-- Third-party plugins, grouped by groupId, alpha-sorted by artifactId -->
+        <plugin>
+          <!-- Support Blueprint XML construction using annotations -->
+          <groupId>org.apache.aries.blueprint</groupId>
+          <artifactId>blueprint-maven-plugin</artifactId>
+          <version>1.4.0</version>
+          <configuration>
+            <scanPaths>
+              <scanPath>org.opendaylight.netvirt</scanPath>
+            </scanPaths>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <!-- See https://issues.apache.org/jira/browse/ARIES-1596 -->
+              <!-- This shouldn't be necessary with plugin version 1.5.0 -->
+              <groupId>org.apache.xbean</groupId>
+              <artifactId>xbean-finder-shaded</artifactId>
+              <version>4.5</version>
+            </dependency>
+          </dependencies>
+          <executions>
+            <execution>
+              <goals>
+                <goal>blueprint-generate</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
