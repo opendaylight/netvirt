@@ -16,6 +16,24 @@
       "revId": "838b92025f1a1e2b8630cb766a2427d586802073",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_68ebadb0",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ConntrackBasedSnatService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-07-19T08:21:11Z",
+      "side": 1,
+      "message": "This will be called only when we set a router as gateway and at the time when we clear it . So I think it is not that frequent.",
+      "parentUuid": "da2a55be_086dd198",
+      "revId": "838b92025f1a1e2b8630cb766a2427d586802073",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
