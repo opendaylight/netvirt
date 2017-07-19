@@ -34,6 +34,24 @@
       "revId": "d84823cbd4311e208b9d6a6e2a1cd64bd9d996dc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_b9f979ca",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-07-19T16:06:56Z",
+      "side": 1,
+      "message": "Hello Sam\n\ndo you tell us about using org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix ?\n\nThks",
+      "parentUuid": "da2a55be_934bbf86",
+      "revId": "d84823cbd4311e208b9d6a6e2a1cd64bd9d996dc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
