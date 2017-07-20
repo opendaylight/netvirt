@@ -52,6 +52,52 @@
       "revId": "d84823cbd4311e208b9d6a6e2a1cd64bd9d996dc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_a8cbe0a3",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-20T08:12:31Z",
+      "side": 1,
+      "message": "For IPv6Addresses, please use convention like x:x:x::/nn instead of x.x....../nn",
+      "range": {
+        "startLine": 171,
+        "startChar": 36,
+        "endLine": 171,
+        "endChar": 52
+      },
+      "revId": "d84823cbd4311e208b9d6a6e2a1cd64bd9d996dc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_e8c4b893",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-20T08:12:31Z",
+      "side": 1,
+      "message": "Can you explain what is your idea behind this check (i.e., \u003c4). For IPv4, I see that you are checking for \u003c 7.",
+      "range": {
+        "startLine": 176,
+        "startChar": 30,
+        "endLine": 176,
+        "endChar": 49
+      },
+      "revId": "d84823cbd4311e208b9d6a6e2a1cd64bd9d996dc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
