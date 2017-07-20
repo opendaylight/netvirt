@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_5e965ef1",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-20T16:50:21Z",
+      "side": 1,
+      "message": "does this need to be fully qualified?",
+      "revId": "f0a4b31d39a66f2cd36bee6958e82be6002d048a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
