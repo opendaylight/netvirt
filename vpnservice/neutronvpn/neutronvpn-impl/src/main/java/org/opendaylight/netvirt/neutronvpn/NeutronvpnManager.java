@@ -1073,27 +1073,28 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 Uuid vpnId = new Uuid(vpnInstance.getVpnInstanceName());
                 // create VpnMaps id
                 L3vpnInstancesBuilder l3vpn = new L3vpnInstancesBuilder();
-
                 List<String> rd = vpnInstance.getIpv4Family().getRouteDistinguisher();
-                List<VpnTarget> vpnTargetList = vpnInstance.getIpv4Family().getVpnTargets().getVpnTarget();
-
                 List<String> ertList = new ArrayList<>();
                 List<String> irtList = new ArrayList<>();
 
-                for (VpnTarget vpnTarget : vpnTargetList) {
-                    if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ExportExtcommunity) {
-                        ertList.add(vpnTarget.getVrfRTValue());
-                    }
-                    if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ImportExtcommunity) {
-                        irtList.add(vpnTarget.getVrfRTValue());
-                    }
-                    if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.Both) {
-                        ertList.add(vpnTarget.getVrfRTValue());
-                        irtList.add(vpnTarget.getVrfRTValue());
+                if (vpnInstance.getIpv4Family().getVpnTargets() != null) {
+                    List<VpnTarget> vpnTargetList = vpnInstance.getIpv4Family().getVpnTargets().getVpnTarget();
+                    for (VpnTarget vpnTarget : vpnTargetList) {
+                        if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ExportExtcommunity) {
+                            ertList.add(vpnTarget.getVrfRTValue());
+                        }
+                        if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ImportExtcommunity) {
+                            irtList.add(vpnTarget.getVrfRTValue());
+                        }
+                        if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.Both) {
+                            ertList.add(vpnTarget.getVrfRTValue());
+                            irtList.add(vpnTarget.getVrfRTValue());
+                        }
                     }
                 }
 
                 l3vpn.setId(vpnId).setRouteDistinguisher(rd).setImportRT(irtList).setExportRT(ertList);
+
                 if (vpnInstance.getL3vni() != null) {
                     l3vpn.setL3vni(vpnInstance.getL3vni());
                 }
